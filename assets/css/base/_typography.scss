@@ -1,0 +1,7 @@
+/**
+ * Basic typography for the global stylesheet for copy text. This is where you define h1-h6, p, etc
+ */
+body {
+  color: $text-color;
+  font: normal 125% / 1.4 $text-font-stack;
+}
