@@ -1,0 +1,8 @@
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{{ form_start(form, {'attr': {class: 'js-music-import-form', novalidate: 'novalidate'}}) }}
+{{ form_row(form.musicImport) }}
+<small class="form-text text-muted">Go ahead and upload a CSV file containing your artists and songs!</small>
+<br>
+{{ form_rest(form) }}
+{{ form_end(form) }}

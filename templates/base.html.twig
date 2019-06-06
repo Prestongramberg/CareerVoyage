@@ -15,14 +15,19 @@
 <body>
 
 
-hello world
+<div id="app"></div>
 
 {% block javascripts %}
 
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
     {{ encore_entry_script_tags('app') }}
 
-    {#<script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
-    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+   {# <script src="{{ asset('bundles/fosjsrouting') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>#}
+
+    {#
     <script src="{{ asset('build/runtime.js') }}"></script>
     <script src="{{ asset('build/layout.js') }}"></script>#}
 

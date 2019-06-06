@@ -56,6 +56,9 @@ Encore
     // enables Sass/SCSS support
     .enableSassLoader()
 
+    // enable post CSS loader
+    .enablePostCssLoader()
+
     .copyFiles({
         from: './assets/images',
         to: 'images/[path][name].[hash:8].[ext]'
@@ -69,7 +72,7 @@ Encore
     //.enableIntegrityHashes()
 
     // uncomment if you're having problems with a jQuery plugin
-    //.autoProvidejQuery()
+    .autoProvidejQuery()
 
     // uncomment if you use API Platform Admin (composer req api-admin)
     //.enableReactPreset()
