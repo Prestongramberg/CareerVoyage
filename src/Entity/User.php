@@ -18,10 +18,7 @@ use Rollerworks\Component\PasswordStrength\Validator\Constraints\PasswordRequire
  */
 class User implements UserInterface
 {
-
     /**
-     * @Groups({"USERS_FOR_DATATABLE"})
-     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -29,11 +26,16 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @Groups({"USERS_FOR_DATATABLE"})
      * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $email;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="string", length=180, unique=true)
+     */
+    private $username;
 
     /**
      * @PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
@@ -51,7 +53,6 @@ class User implements UserInterface
     private $passwordRepeat;
 
     /**
-     * @Groups({"USERS_FOR_DATATABLE"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -59,7 +60,6 @@ class User implements UserInterface
     private $firstName;
 
     /**
-     * @Groups({"USERS_FOR_DATATABLE"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -95,13 +95,22 @@ class User implements UserInterface
     }
 
     /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
+     * @return mixed
      */
-    public function getUsername(): string
+    public function getUsername()
     {
-        return (string) $this->email;
+        return $this->username;
+    }
+
+    /**
+     * @param mixed $username
+     * @return User
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+
+        return $this;
     }
 
     /**

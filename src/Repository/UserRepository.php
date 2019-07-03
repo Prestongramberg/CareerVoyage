@@ -63,6 +63,15 @@ class UserRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function loadUserByUsername($usernameOrEmail)
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.username = :query OR u.email = :query')
+            ->setParameter('query', $usernameOrEmail)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @param $token
      * @return User|null
