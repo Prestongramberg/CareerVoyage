@@ -185,9 +185,9 @@ apache:
         - rewrite
     vhosts:
         vhost1:
-            servername: bingo.test
+            servername: pintex.test
             serveraliases:
-                - www.bingo.test
+                - www.pintex.test
             docroot: /var/www/public
             port: '80'
             setenvif:
@@ -340,15 +340,15 @@ mysql:
     install: '1'
     settings:
         version: '5.7'
-        root_password: bingo
+        root_password: pintex
         override_options: {  }
     users:
         user1:
-            name: bingo
-            password: bingo
+            name: pintex
+            password: pintex
     databases:
         database1:
-            name: bingo
+            name: pintex
             collate: utf8_general_ci
             sql: ''
     grants:

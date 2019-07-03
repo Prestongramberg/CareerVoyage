@@ -27,3 +27,4 @@ yarn-error.log
 
 .vagrant
 .idea
+.DS_Store
