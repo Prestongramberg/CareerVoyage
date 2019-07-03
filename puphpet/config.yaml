@@ -21,9 +21,9 @@ vagrantfile:
                 machines:
                     machine1:
                         id: bingo
-                        hostname: bingo.puphpet
+                        hostname: pintex.puphpet
                         network:
-                            private_network: 192.168.56.104
+                            private_network: 192.168.56.109
                             forwarded_port:
                                 port1:
                                     host: '8659'
