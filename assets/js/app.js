@@ -23,6 +23,6 @@ window.globalEventDispatcher = new EventDispatcher();
 /*import RepLogApp from './Components/RepLogApp';*/
 
 $(document).ready(function() {
-    new BingoApp($('#app'), window.globalEventDispatcher);
+    /*new BingoApp($('#app'), window.globalEventDispatcher);*/
 });
 

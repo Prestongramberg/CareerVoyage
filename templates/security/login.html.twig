@@ -13,6 +13,7 @@
     <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Email" required autofocus>
     <label for="inputPassword" class="sr-only">Password</label>
     <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+    <input type="hidden" name="formType" value="loginForm">
 
     <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}"
@@ -33,4 +34,21 @@
         Sign in
     </button>
 </form>
+
+
+
+
+    <h1>Register</h1>
+
+    {{ form_start(registrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(registrationForm.firstName) }}
+    {{ form_row(registrationForm.lastName) }}
+    {{ form_row(registrationForm.email) }}
+    {{ form_row(registrationForm.username) }}
+    {{ form_row(registrationForm.password.first) }}
+    {{ form_row(registrationForm.password.second) }}
+    <input type="hidden" name="formType" value="registrationForm">
+    <button class="btn">Register</button>
+    {{ form_end(registrationForm) }}
+
 {% endblock %}

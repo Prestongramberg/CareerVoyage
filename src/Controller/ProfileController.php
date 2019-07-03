@@ -10,8 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class ProfileController
  * @package App\Controller
- *
- * @Route("/api")
  */
 class ProfileController extends AbstractController
 {
