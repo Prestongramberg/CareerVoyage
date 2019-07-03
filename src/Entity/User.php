@@ -10,7 +10,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Rollerworks\Component\PasswordStrength\Validator\Constraints\PasswordRequirements;
+use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksPassword;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -38,7 +39,7 @@ class User implements UserInterface
     private $username;
 
     /**
-     * @PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
+     * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
      * @Assert\NotBlank(message="Don't forget a password for your user!", groups={"CREATE"})
      *
      * @var string The hashed password

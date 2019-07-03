@@ -4,11 +4,15 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ForgotPasswordType;
+use App\Form\ResetPasswordType;
+use App\Mailer\ResetPasswordMailer;
 use App\Model\ForgotPassword;
+use App\Model\ResetPassword;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,19 +41,27 @@ class SecurityController extends AbstractController
     private $passwordEncoder;
 
     /**
+     * @var ResetPasswordMailer
+     */
+    private $resetPasswordMailer;
+
+    /**
      * SecurityController constructor.
      * @param EntityManagerInterface $entityManager
      * @param UserRepository $userRepository
      * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param ResetPasswordMailer $resetPasswordMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
-        UserPasswordEncoderInterface $passwordEncoder
+        UserPasswordEncoderInterface $passwordEncoder,
+        ResetPasswordMailer $resetPasswordMailer
     ) {
         $this->entityManager = $entityManager;
         $this->userRepository = $userRepository;
         $this->passwordEncoder = $passwordEncoder;
+        $this->resetPasswordMailer = $resetPasswordMailer;
     }
 
     /**
@@ -105,12 +117,126 @@ class SecurityController extends AbstractController
                 $this->entityManager->flush();
 
                 $this->resetPasswordMailer->send($user);
+
+                return $this->render('security/password-reset-code-sent.html.twig', [
+                    'user' => $user
+                ]);
             }
         }
 
         return $this->render('security/forgot_password.html.twig', [
             'form' => $form->createView()
         ]);
+    }
 
+    /**
+     * @Route("/password-created", name="password_created", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return Response
+     * @throws \Exception
+     */
+    public function passwordCreatedAction(Request $request): Response
+    {
+        return $this->render('security/password-created.html.twig');
+    }
+
+    /**
+     * @Route("/reset-password/{token}", name="reset_password", requirements={"token" = "^[a-f0-9]{64}$"})
+     *
+     * @param Request $request
+     * @param string $token
+     * @return Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function resetPasswordAction(Request $request, $token)
+    {
+
+        $user = $this->userRepository->getByPasswordResetToken($token);
+
+        if(!$user) {
+            return $this->render('security/reset-password-error.html.twig');
+        }
+
+        $resetPassword = new ResetPassword();
+
+        $form = $this->createForm(ResetPasswordType::class, $resetPassword, [
+            'action' => $this->generateUrl('reset_password', ['token' => $token]),
+            'method' => 'POST'
+        ]);
+
+        $form->handleRequest($request);
+
+
+        if ($form->isSubmitted()) {
+
+            if (!$form->isValid()) {
+
+                return $this->render('security/reset_password_form.html.twig', [
+                    'form' => $form->createView()
+                ]);
+
+            } else {
+
+                /** @var ResetPassword $resetPassword */
+                $resetPassword = $form->getData();
+
+                $user->setPassword($this->passwordEncoder->encodePassword(
+                    $user,
+                    $resetPassword->getPassword()
+                ));
+
+                $user->clearPasswordResetToken();
+
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+
+                return $this->redirectToRoute('password_created');
+            }
+        }
+
+        return $this->render('security/reset_password_form.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @param RedirectResponse $redirectResponse
+     * @return RedirectResponse|Response
+     */
+    protected function generatePasswordActionResponse(Request $request, User $user, RedirectResponse $redirectResponse)
+    {
+        $form = $this->createForm('app_set_password');
+
+        $form->handleRequest($request);
+
+        if ($request->isMethod(Request::METHOD_POST) && $form->isValid()) {
+            /** @var ChangePassword $changePassword */
+            $changePassword = $form->getData();
+
+            $encodedPassword = $this->passwordEncoder->encodePassword($user, $changePassword->getPassword());
+            $user->setPassword($encodedPassword)
+                ->clearPasswordResetToken()
+                ->setIsPasswordSetUp(true);
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush($user);
+
+            return $redirectResponse;
+        }
+
+        $returnUrl = $request->headers->get('referer');
+
+        if (!empty($returnUrl)) {
+            $session = $this->get('session');
+            $session->set('return_destination', $returnUrl);
+        }
+
+        return $this->render('security/set-password.html.twig', array(
+            'method' => 'post',
+            'form'   => $form->createView(),
+            'user'   => $user,
+        ));
     }
 }
