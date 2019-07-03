@@ -353,7 +353,7 @@ mysql:
             sql: ''
     grants:
         grant1:
-            user: bingo
+            user: pintex
             table: '*.*'
             privileges:
                 - ALL
