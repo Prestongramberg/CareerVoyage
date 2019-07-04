@@ -1,3 +1,15 @@
-/**
- * Basic typography for the global stylesheet for copy text. This is where you define h1-h6, p, etc
- */
+/* =Typographical mixins and styling
+-------------------------------------------------------------- */
+
+@function calculateRem($sizeInPx) {
+  $remSize: $sizeInPx / 16;
+  @return #{$remSize}rem;
+}
+
+@mixin fontSize($sizeInPx) {
+  font-size: $sizeInPx + px; //Fallback in px
+  font-size: calculateRem($sizeInPx);
+}
+
+/* =Typography
+-------------------------------------------------------------- */

@@ -1,0 +1,85 @@
+/* =Mixins
+-------------------------------------------------------------- */
+
+/*
+ * Hide visually and from screen readers
+ */
+@mixin hidden {
+	display: none !important;
+}
+
+/*
+ * Hide only visually, but have it available for screen readers:
+ * http://snook.ca/archives/html_and_css/hiding-content-for-accessibility
+ */
+@mixin visuallyhidden {
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	white-space: nowrap;
+
+	&.focusable:active,
+	&.focusable:focus {
+		clip: auto;
+		height: auto;
+		margin: 0;
+		overflow: visible;
+		position: static;
+		width: auto;
+	}
+}
+/*
+ * Alias for visuallyhidden
+ */
+@mixin screen-reader-text(){
+	@include visuallyhidden();
+}
+
+/*
+ * Hide visually and from screen readers, but maintain layout
+ */
+@mixin invisible {
+	visibility: hidden;
+}
+
+/*
+ * Breakpoints mixin. Makes media queries easier.
+ * Choose a point from the defined variable $breakpoints in _variables.scss or set your own.
+ */
+@mixin bp( $point, $type: min, $media: screen ){
+
+	// Look in the keys first
+	@if map-has-key( $breakpoints, $point ){
+		@if $type == max {
+			@media only #{$media} and ( max-width: #{inspect( map-get( $breakpoints, $point ) )} ){ @content; }
+		} @else if $type == min {
+			@media only #{$media} and ( min-width: #{inspect( map-get( $breakpoints, $point ) )} ){ @content; }
+		}
+	}
+		// Fallback to a 'manual' breakpoint.
+		// Check to make sure that it is a number and has a unit (px, em).
+	@else if type-of( $point ) == number and not unitless( $point ) {
+		@if $type == max {
+			@media only #{$media} and ( max-width: #{$point} ){ @content; }
+		} @else if $type == min {
+			@media only #{$media} and ( min-width: #{$point} ){ @content; }
+		}
+	}
+		// The point wasn't in the $breakpoints variable and isn't a valid unit.
+	@else {
+		@error "`#{$point}` is not a valid breakpoint.";
+	}
+
+}
+
+@mixin transition($transition...) {
+	-moz-transition:    $transition;
+	-o-transition:      $transition;
+	-webkit-transition: $transition;
+	transition:         $transition;
+}
