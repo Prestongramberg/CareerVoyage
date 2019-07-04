@@ -1,5 +1,8 @@
-// -----------------------------------------------------------------------------
-// This file contains all @font-face declarations, if any.
-// -----------------------------------------------------------------------------
-
-// fonts is just for importing fonts
+/* =Fonts
+*
+* Example:
+*
+* @include font-face("source-sans-pro", "../fonts/source-sans-pro/source-sans-pro-regular", $file-formats: eot woff2 woff ttf);
+* @include font-face("source-sans-pro", "../fonts/source-sans-pro/source-sans-pro-bold", bold, $file-formats: eot woff2 woff);
+* @include font-face("source-sans-pro", "../fonts/source-sans-pro/source-sans-pro-italic", normal, italic, $file-formats: eot woff2 woff);
+-------------------------------------------------------------- */
