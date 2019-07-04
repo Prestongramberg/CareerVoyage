@@ -21,7 +21,7 @@ use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksP
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser"})
  */
 abstract class User implements UserInterface
 {

@@ -37,8 +37,6 @@
 </form>
 
 
-
-
     <h1>Professional Register</h1>
 
     {{ form_start(professionalRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
@@ -53,7 +51,7 @@
     {{ form_end(professionalRegistrationForm) }}
 
 
-   {# <h1>Educator Register</h1>
+    <h1>Educator Register</h1>
 
     {{ form_start(educatorRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
     {{ form_row(educatorRegistrationForm.firstName) }}
@@ -77,6 +75,6 @@
     {{ form_row(studentRegistrationForm.password.second) }}
     <input type="hidden" name="formType" value="studentRegistrationForm">
     <button class="btn">Register</button>
-    {{ form_end(studentRegistrationForm) }}#}
+    {{ form_end(studentRegistrationForm) }}
 
 {% endblock %}

@@ -39,6 +39,24 @@ class WelcomeController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
+        // START PROFESSIONAL REGISTRATION FORM
+        $professionalUser = new ProfessionalUser();
+        $professionalRegistrationForm = $this->createForm(ProfessionalRegistrationFormType::class, $professionalUser, [
+            'action' => $this->generateUrl('welcome'),
+            'method' => 'POST',
+        ]);
+
+        // START EDUCATOR REGISTRATION FORM
+        $educatorRegistrationForm = $this->createForm(EducatorRegistrationFormType::class, $professionalUser, [
+            'action' => $this->generateUrl('welcome'),
+            'method' => 'POST',
+        ]);
+
+        $studentRegistrationForm = $this->createForm(StudentRegistrationFormType::class, $professionalUser, [
+            'action' => $this->generateUrl('welcome'),
+            'method' => 'POST',
+        ]);
+
 
         // HANDLE FORM SUBMISSIONS
         $formType = null;
@@ -46,28 +64,24 @@ class WelcomeController extends AbstractController
 
             switch ($request->request->get('formType')) {
                 case 'educatorRegistrationForm':
-                    $formType = EducatorRegistrationFormType::class;
+                    $form = $educatorRegistrationForm;
                     break;
                 case 'professionalRegistrationForm':
-                    $user = new ProfessionalUser();
-                    $formType = ProfessionalRegistrationFormType::class;
+                    $form = $professionalRegistrationForm;
                     break;
                 case 'studentRegistrationForm':
-                    $formType = StudentRegistrationFormType::class;
+                    $form = $studentRegistrationForm;
                     break;
                 default:
                     throw new \Exception("Form type not found");
                     break;
             }
 
-            $form = $this->createForm($formType, $user, [
-                'action' => $this->generateUrl('welcome'),
-                'method' => 'POST',
-            ]);
-
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
+
+                $user = $form->getData();
 
                 switch ($request->request->get('formType')) {
                     case 'educatorRegistrationForm':
@@ -104,29 +118,11 @@ class WelcomeController extends AbstractController
             }
         }
 
-        // START PROFESSIONAL REGISTRATION FORM
-        $professionalUser = new ProfessionalUser();
-        $professionalRegistrationForm = $this->createForm(ProfessionalRegistrationFormType::class, $professionalUser, [
-            'action' => $this->generateUrl('welcome'),
-            'method' => 'POST',
-        ]);
-
-        // START EDUCATOR REGISTRATION FORM
-      /*  $educatorRegistrationForm = $this->createForm(EducatorRegistrationFormType::class, $professionalUser, [
-            'action' => $this->generateUrl('welcome'),
-            'method' => 'POST',
-        ]);
-
-        $studentRegistrationForm = $this->createForm(StudentRegistrationFormType::class, $professionalUser, [
-            'action' => $this->generateUrl('welcome'),
-            'method' => 'POST',
-        ]);*/
-
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername, 'error' => $error,
             'professionalRegistrationForm' => $professionalRegistrationForm->createView(),
-            /*'educatorRegistrationForm' => $educatorRegistrationForm->createView(),
-            'studentRegistrationForm' => $studentRegistrationForm->createView(),*/
+            'educatorRegistrationForm' => $educatorRegistrationForm->createView(),
+            'studentRegistrationForm' => $studentRegistrationForm->createView(),
         ]);
     }
 }

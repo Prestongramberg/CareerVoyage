@@ -3,5 +3,5 @@
 {% block title %}Profile{% endblock %}
 
 {% block body %}
-    <a href="{{ path('profile_edit') }}">Edit Profile</a>
+    <a href="{{ path('profile_edit', {'id': user.id}) }}">Edit Profile</a>
 {% endblock %}

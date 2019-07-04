@@ -18,7 +18,9 @@ class ProfessionalEditProfileFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('firstName', TextType::class)
+            ->add('firstName', TextType::class, [
+                'block_prefix' => 'wrapped_text',
+            ])
             ->add('lastName', TextType::class)
             ->add('email')
             ->add('username')

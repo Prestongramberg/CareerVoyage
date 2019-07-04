@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\ProfessionalUser;
+use App\Entity\User;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,13 +40,15 @@ class ProfileController extends AbstractController
     }
 
     /**
-     * @Route("/profile", name="profile_index", methods={"GET"})
+     * @Route("/profile/{id}/view", name="profile_index", methods={"GET"})
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction(Request $request) {
+    public function indexAction(Request $request, User $user) {
 
-        return $this->render('profile/index.html.twig', []);
+        return $this->render('profile/index.html.twig', [
+            'user' => $user
+        ]);
     }
 
     /**
@@ -71,7 +74,8 @@ class ProfileController extends AbstractController
         }
 
         return $this->render('profile/edit.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'user' => $professionalUser
         ]);
     }
 

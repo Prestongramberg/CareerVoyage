@@ -1,8 +1,10 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
+{% form_theme form _self %}
+
 {% block title %}Edit Profile{% endblock %}
 
-{% block _professional_edit_profile_form_photo %}
+{% block _professional_edit_profile_form_photo_widget %}
 
     hello world
 
@@ -37,6 +39,7 @@
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
     {{ form_row(form.firstName) }}
     {{ form_row(form.lastName) }}
+    {{ form_widget(form.photo) }}
     {{ form_row(form.email) }}
     {{ form_row(form.username) }}
     {{ form_row(form.password.first) }}
