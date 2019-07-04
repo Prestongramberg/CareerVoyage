@@ -1,0 +1,10 @@
+{{ form_start(educatorRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(educatorRegistrationForm.firstName) }}
+    {{ form_row(educatorRegistrationForm.lastName) }}
+    {{ form_row(educatorRegistrationForm.email) }}
+    {{ form_row(educatorRegistrationForm.username) }}
+    {{ form_row(educatorRegistrationForm.password.first) }}
+    {{ form_row(educatorRegistrationForm.password.second) }}
+    <input type="hidden" name="formType" value="educatorRegistrationForm">
+    <button class="btn">Register</button>
+{{ form_end(educatorRegistrationForm) }}
