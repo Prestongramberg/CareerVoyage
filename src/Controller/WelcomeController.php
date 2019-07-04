@@ -62,7 +62,8 @@ class WelcomeController extends AbstractController
         $formType = null;
         if($request->getMethod() === 'POST') {
 
-            switch ($request->request->get('formType')) {
+            $formType = $request->request->get('formType');
+            switch ($formType) {
                 case 'educatorRegistrationForm':
                     $form = $educatorRegistrationForm;
                     break;
@@ -83,7 +84,7 @@ class WelcomeController extends AbstractController
 
                 $user = $form->getData();
 
-                switch ($request->request->get('formType')) {
+                switch ($formType) {
                     case 'educatorRegistrationForm':
                         $user->setupAsEducator();
                         break;
@@ -118,11 +119,12 @@ class WelcomeController extends AbstractController
             }
         }
 
-        return $this->render('security/login.html.twig', [
+        return $this->render('welcome/index.html.twig', [
             'last_username' => $lastUsername, 'error' => $error,
             'professionalRegistrationForm' => $professionalRegistrationForm->createView(),
             'educatorRegistrationForm' => $educatorRegistrationForm->createView(),
             'studentRegistrationForm' => $studentRegistrationForm->createView(),
+            'formType' => $formType
         ]);
     }
 }
