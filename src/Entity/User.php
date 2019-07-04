@@ -16,8 +16,8 @@ use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksP
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
- * @UniqueEntity(fields={"username"}, message="There is already an account with this username")
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT"})
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
@@ -43,6 +43,11 @@ abstract class User implements UserInterface
     protected $id;
 
     /**
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true,
+     *     groups={"CREATE", "EDIT"}
+     * )
      * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
