@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190703045702 extends AbstractMigration
+final class Version20190703211947 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,8 +22,7 @@ final class Version20190703045702 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE user ADD username VARCHAR(180) NOT NULL');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649F85E0677 ON user (username)');
+        $this->addSql('ALTER TABLE professional_user ADD brief_bio LONGTEXT DEFAULT NULL, ADD phone VARCHAR(255) DEFAULT NULL, ADD linkedin_profile VARCHAR(255) DEFAULT NULL, ADD roles_willing_to_fulfill LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:array)\'');
     }
 
     public function down(Schema $schema) : void
@@ -31,7 +30,6 @@ final class Version20190703045702 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DROP INDEX UNIQ_8D93D649F85E0677 ON user');
-        $this->addSql('ALTER TABLE user DROP username');
+        $this->addSql('ALTER TABLE professional_user DROP brief_bio, DROP phone, DROP linkedin_profile, DROP roles_willing_to_fulfill');
     }
 }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+</head>
+<body>
+
+<nav>
+    <h1>Main Navigation</h1>
+    <a href="{{ path('profile_index') }}">Profile</a>
+    <a href="{{ path('app_logout') }}">Logout</a>
+</nav>
+<hr>
+
+
+{% block body %}{% endblock %}
+
+{% block javascripts %}
+
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
+    {{ encore_entry_script_tags('app') }}
+
+   {# <script src="{{ asset('bundles/fosjsrouting') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>#}
+
+    {#
+    <script src="{{ asset('build/runtime.js') }}"></script>
+    <script src="{{ asset('build/layout.js') }}"></script>#}
+
+{% endblock %}
+</body>
+</html>

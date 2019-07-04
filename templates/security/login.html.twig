@@ -2,6 +2,7 @@
 
 {% block title %}Log in!{% endblock %}
 
+
 {% block body %}
 <form method="post">
     {% if error %}
@@ -38,17 +39,44 @@
 
 
 
-    <h1>Register</h1>
+    <h1>Professional Register</h1>
 
-    {{ form_start(registrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
-    {{ form_row(registrationForm.firstName) }}
-    {{ form_row(registrationForm.lastName) }}
-    {{ form_row(registrationForm.email) }}
-    {{ form_row(registrationForm.username) }}
-    {{ form_row(registrationForm.password.first) }}
-    {{ form_row(registrationForm.password.second) }}
-    <input type="hidden" name="formType" value="registrationForm">
+    {{ form_start(professionalRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(professionalRegistrationForm.firstName) }}
+    {{ form_row(professionalRegistrationForm.lastName) }}
+    {{ form_row(professionalRegistrationForm.email) }}
+    {{ form_row(professionalRegistrationForm.username) }}
+    {{ form_row(professionalRegistrationForm.password.first) }}
+    {{ form_row(professionalRegistrationForm.password.second) }}
+    <input type="hidden" name="formType" value="professionalRegistrationForm">
     <button class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+    {{ form_end(professionalRegistrationForm) }}
+
+
+   {# <h1>Educator Register</h1>
+
+    {{ form_start(educatorRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(educatorRegistrationForm.firstName) }}
+    {{ form_row(educatorRegistrationForm.lastName) }}
+    {{ form_row(educatorRegistrationForm.email) }}
+    {{ form_row(educatorRegistrationForm.username) }}
+    {{ form_row(educatorRegistrationForm.password.first) }}
+    {{ form_row(educatorRegistrationForm.password.second) }}
+    <input type="hidden" name="formType" value="educatorRegistrationForm">
+    <button class="btn">Register</button>
+    {{ form_end(educatorRegistrationForm) }}
+
+    <h1>Student Register</h1>
+
+    {{ form_start(studentRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(studentRegistrationForm.firstName) }}
+    {{ form_row(studentRegistrationForm.lastName) }}
+    {{ form_row(studentRegistrationForm.email) }}
+    {{ form_row(studentRegistrationForm.username) }}
+    {{ form_row(studentRegistrationForm.password.first) }}
+    {{ form_row(studentRegistrationForm.password.second) }}
+    <input type="hidden" name="formType" value="studentRegistrationForm">
+    <button class="btn">Register</button>
+    {{ form_end(studentRegistrationForm) }}#}
 
 {% endblock %}
