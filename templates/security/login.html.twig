@@ -3,6 +3,7 @@
 {% block title %}Pintex Solutions - Welcome{% endblock %}
 {% block bodyClass %}page-login{% endblock %}
 
+
 {% block body %}
     <div class="uk-flex uk-flex-center uk-height-viewport">
         <div class="uk-container login-box">
@@ -53,31 +54,31 @@
                             <div>
                                 <p>Pintex empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
 
-                                {{ form_start(registrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+                                {{ form_start(professionalRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
                                     <fieldset class="uk-fieldset">
                                         <div class="uk-margin">
-                                            {{ form_label(registrationForm.firstName, 'First Name*') }}
-                                            {{ form_widget(registrationForm.firstName, {'attr': {'class': 'uk-input'}}) }}
+                                            {{ form_label(professionalRegistrationForm.firstName, 'First Name*') }}
+                                            {{ form_widget(professionalRegistrationForm.firstName, {'attr': {'class': 'uk-input'}}) }}
                                         </div>
                                         <div class="uk-margin">
-                                            {{ form_label(registrationForm.lastName, 'Last Name*') }}
-                                            {{ form_widget(registrationForm.lastName, {'attr': {'class': 'uk-input'}}) }}
+                                            {{ form_label(professionalRegistrationForm.lastName, 'Last Name*') }}
+                                            {{ form_widget(professionalRegistrationForm.lastName, {'attr': {'class': 'uk-input'}}) }}
                                         </div>
                                         <div class="uk-margin">
-                                            {{ form_label(registrationForm.username, 'Username*') }}
-                                            {{ form_widget(registrationForm.username, {'attr': {'class': 'uk-input'}}) }}
+                                            {{ form_label(professionalRegistrationForm.username, 'Username*') }}
+                                            {{ form_widget(professionalRegistrationForm.username, {'attr': {'class': 'uk-input'}}) }}
                                         </div>
                                         <div class="uk-margin">
-                                            {{ form_label(registrationForm.email, 'Email*') }}
-                                            {{ form_widget(registrationForm.email, {'attr': {'class': 'uk-input'}}) }}
+                                            {{ form_label(professionalRegistrationForm.email, 'Email*') }}
+                                            {{ form_widget(professionalRegistrationForm.email, {'attr': {'class': 'uk-input'}}) }}
                                         </div>
                                         <div class="uk-margin">
-                                            {{ form_label(registrationForm.password.first, 'Password*') }}
-                                            {{ form_widget(registrationForm.password.first, {'attr': {'class': 'uk-input'}}) }}
+                                            {{ form_label(professionalRegistrationForm.password.first, 'Password*') }}
+                                            {{ form_widget(professionalRegistrationForm.password.first, {'attr': {'class': 'uk-input'}}) }}
                                         </div>
                                         <div class="uk-margin">
-                                            {{ form_label(registrationForm.password.second, 'Confirm Password*') }}
-                                            {{ form_widget(registrationForm.password.second, {'attr': {'class': 'uk-input'}}) }}
+                                            {{ form_label(professionalRegistrationForm.password.second, 'Confirm Password*') }}
+                                            {{ form_widget(professionalRegistrationForm.password.second, {'attr': {'class': 'uk-input'}}) }}
                                         </div>
                                         <div class="uk-margin">
                                             <label><input class="uk-checkbox" type="checkbox"> I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
@@ -87,15 +88,37 @@
                                         </div>
                                     </fieldset>
                                     <input type="hidden" name="formType" value="registrationForm">
-                                {{ form_end(registrationForm) }}
+                                {{ form_end(professionalRegistrationForm) }}
                             </div>
                             <div>
                                 <p>Pintex makes it easy for educators to find community resources such as guest instructors, site visits hosts, mentors, advisors and project providers.</p>
                                 <div class="uk-placeholder uk-text-center">This feature will be delivered August 9, 2019.</div>
+                                {# <h1>Educator Register</h1>
+                                    {{ form_start(educatorRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+                                    {{ form_row(educatorRegistrationForm.firstName) }}
+                                    {{ form_row(educatorRegistrationForm.lastName) }}
+                                    {{ form_row(educatorRegistrationForm.email) }}
+                                    {{ form_row(educatorRegistrationForm.username) }}
+                                    {{ form_row(educatorRegistrationForm.password.first) }}
+                                    {{ form_row(educatorRegistrationForm.password.second) }}
+                                    <input type="hidden" name="formType" value="educatorRegistrationForm">
+                                    <button class="btn">Register</button>
+                                {{ form_end(educatorRegistrationForm) }} #}
                             </div>
                             <div>
                                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad adipisci asperiores assumenda commodi deserunt dolor in maxime nemo perferendis praesentium, quam quia quisquam recusandae reprehenderit sint suscipit voluptate! Iste, nostrum?</p>
                                 <div class="uk-placeholder uk-text-center">This feature will be delivered August 23, 2019.</div>
+                                {# <h1>Student Register</h1>
+                                   {{ form_start(studentRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+                                   {{ form_row(studentRegistrationForm.firstName) }}
+                                   {{ form_row(studentRegistrationForm.lastName) }}
+                                   {{ form_row(studentRegistrationForm.email) }}
+                                   {{ form_row(studentRegistrationForm.username) }}
+                                   {{ form_row(studentRegistrationForm.password.first) }}
+                                   {{ form_row(studentRegistrationForm.password.second) }}
+                                   <input type="hidden" name="formType" value="studentRegistrationForm">
+                                   <button class="btn">Register</button>
+                                {{ form_end(studentRegistrationForm) }} #}
                             </div>
                         </div>
                     </div>

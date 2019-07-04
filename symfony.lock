@@ -1,4 +1,10 @@
 {
+    "aws/aws-sdk-php": {
+        "version": "3.104.1"
+    },
+    "behat/transliterator": {
+        "version": "v1.2.0"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -111,11 +117,26 @@
             "config/routes/fos_js_routing.yaml"
         ]
     },
+    "gedmo/doctrine-extensions": {
+        "version": "v2.4.37"
+    },
+    "guzzlehttp/guzzle": {
+        "version": "6.3.3"
+    },
+    "guzzlehttp/promises": {
+        "version": "v1.3.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "1.6.1"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
     "monolog/monolog": {
         "version": "1.24.0"
+    },
+    "mtdowling/jmespath.php": {
+        "version": "2.4.0"
     },
     "nikic/php-parser": {
         "version": "v4.2.2"
@@ -138,11 +159,17 @@
     "psr/container": {
         "version": "1.0.0"
     },
+    "psr/http-message": {
+        "version": "1.0.1"
+    },
     "psr/link": {
         "version": "1.0.0"
     },
     "psr/log": {
         "version": "1.1.0"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
     },
     "rollerworks/password-strength-bundle": {
         "version": "v2.1.0"
@@ -160,6 +187,21 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
+        ]
+    },
+    "sociallydev/spaces-api": {
+        "version": "dev-master"
+    },
+    "stof/doctrine-extensions-bundle": {
+        "version": "1.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.2",
+            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
+        },
+        "files": [
+            "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
     "swiftmailer/swiftmailer": {

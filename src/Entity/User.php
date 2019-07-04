@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,27 +17,42 @@ use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksP
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username")
+ *
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser"})
  */
-class User implements UserInterface
+abstract class User implements UserInterface
 {
+
+    use TimestampableEntity;
+
+    const ROLE_USER = 'ROLE_USER';
+    const ROLE_PROFESSIONAL_USER = 'ROLE_PROFESSIONAL_USER';
+    const ROLE_EDUCATOR_USER = 'ROLE_EDUCATOR_USER ';
+    const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
+
+    /*protected $discr = 'user';*/
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $email;
+    protected $email;
 
     /**
      * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $username;
+    protected $username;
 
     /**
      * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
@@ -45,37 +61,42 @@ class User implements UserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
-    private $password;
-
-    /**
-     * @Assert\NotBlank(message="Don't forget the password repeat field!", groups={"CREATE"})
-     * @var string password repeat
-     */
-    private $passwordRepeat;
+    protected $password;
 
     /**
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
      */
-    private $firstName;
+    protected $firstName;
 
     /**
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
      */
-    private $lastName;
+    protected $lastName;
 
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
      */
-    private $passwordResetToken;
+    protected $passwordResetToken;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $passwordResetTokenTimestamp;
+    protected $passwordResetTokenTimestamp;
+
+    /**
+     * Roles
+     *
+     * All Users have the ROLE_USER role.
+     *
+     * @var array
+     *
+     * @ORM\Column(name="roles", type="json_array", nullable=false)
+     */
+    protected $roles = [];
 
 
     public function getId(): ?int
@@ -170,21 +191,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPasswordRepeat(): ?string
-    {
-        return $this->passwordRepeat;
-    }
-
-    /**
-     * @param string $passwordRepeat
-     */
-    public function setPasswordRepeat(?string $passwordRepeat): void
-    {
-        $this->passwordRepeat = $passwordRepeat;
-    }
 
     public function getPasswordResetToken(): ?string
     {
@@ -259,10 +265,85 @@ class User implements UserInterface
      * and populated in any number of different ways when the user object
      * is created.
      *
-     * @return (Role|string)[] The user roles
+     * @return array (Role|string)[] The user roles
      */
     public function getRoles()
     {
         return array('ROLE_USER');
+    }
+
+    /**
+     * @param array $roles
+     *
+     * @return $this
+     */
+    public function setRoles($roles)
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProfessional()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_PROFESSIONAL_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEducator()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_EDUCATOR_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStudent()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_STUDENT_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function setupAsProfessional() {
+
+        if (!in_array(self::ROLE_PROFESSIONAL_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_PROFESSIONAL_USER;
+        }
+    }
+
+    public function setupAsEducator() {
+
+        if (!in_array(self::ROLE_EDUCATOR_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_EDUCATOR_USER;
+        }
+    }
+
+    public function setupAsStudent() {
+
+        if (!in_array(self::ROLE_STUDENT_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_STUDENT_USER;
+        }
     }
 }

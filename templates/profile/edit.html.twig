@@ -1,0 +1,47 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block _professional_edit_profile_form_photo %}
+
+    hello world
+
+    {#  {% if form.vars.name == 'image' %}
+          {% set image = form.vars.data %}
+          <div class="row">
+          <div class="col-lg-2">
+              <div class="form-group">
+                  <label class="control-label">Existing Image</label>
+                  <div>
+                      {% if image and image.id %}
+                          <img style="width: 100%; max-width: 100px; height: auto;" src="{{ (image.container ~ "/" ~ image.path) | imagine_filter('my_thumb') }}" class="js-existing-image"/>
+                      {% else %}
+                          <img style="width: 100%; max-width: 100px; height: auto;" src="" class="js-existing-image"/>
+                      {% endif %}
+                  </div>
+              </div>
+          </div>
+          <div class="col-lg-10">
+              {{ form_row(form.file) }}
+              {{ form_row(form.cropPoints) }}
+          </div>
+      {% endif %}
+      </div>#}
+{% endblock %}
+
+{% block body %}
+
+
+    <h1>Edit Profile</h1>
+
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(form.firstName) }}
+    {{ form_row(form.lastName) }}
+    {{ form_row(form.email) }}
+    {{ form_row(form.username) }}
+    {{ form_row(form.password.first) }}
+    {{ form_row(form.password.second) }}
+    <button class="btn">Update</button>
+    {{ form_end(form) }}
+
+{% endblock %}
