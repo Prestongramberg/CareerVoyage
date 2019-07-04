@@ -1,0 +1,50 @@
+{{ form_start(professionalRegistrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+
+    {% if form_errors(professionalRegistrationForm) %}
+        <div class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div>{{ form_errors(form) }}</div>
+        </div>
+    {% endif %}
+
+    <fieldset class="uk-fieldset">
+        <div class="uk-margin">
+            {{ form_label(professionalRegistrationForm.firstName, 'First Name*') }}
+            {{ form_widget(professionalRegistrationForm.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.firstName) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.firstName) }}
+        </div>
+        <div class="uk-margin">
+            {{ form_label(professionalRegistrationForm.lastName, 'Last Name*') }}
+            {{ form_widget(professionalRegistrationForm.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.lastName) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.lastName) }}
+        </div>
+        <div class="uk-margin">
+            {{ form_label(professionalRegistrationForm.username, 'Username*') }}
+            {{ form_widget(professionalRegistrationForm.username, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.username) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.username) }}
+        </div>
+        <div class="uk-margin">
+            {{ form_label(professionalRegistrationForm.email, 'Email*') }}
+            {{ form_widget(professionalRegistrationForm.email, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.email) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.email) }}
+        </div>
+        <div class="uk-margin">
+            {{ form_label(professionalRegistrationForm.password.first, 'Password*') }}
+            {{ form_widget(professionalRegistrationForm.password.first, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.password.first) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.password.first) }}
+        </div>
+        <div class="uk-margin">
+            {{ form_label(professionalRegistrationForm.password.second, 'Confirm Password*') }}
+            {{ form_widget(professionalRegistrationForm.password.second, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.password.second) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.password.second) }}
+        </div>
+        <div class="uk-margin">
+            <label><input class="uk-checkbox" type="checkbox"> I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
+        </div>
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-width-1-1">Register Account</button>
+        </div>
+    </fieldset>
+    <input type="hidden" name="formType" value="professionalRegistrationForm">
+
+{{ form_end(professionalRegistrationForm) }}
