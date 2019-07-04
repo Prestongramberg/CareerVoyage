@@ -1,54 +1,106 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Pintex Solutions - Welcome{% endblock %}
+{% block bodyClass %}page-login{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <div class="uk-flex uk-flex-center uk-height-viewport">
+        <div class="uk-container login-box">
+            <div class="uk-card uk-card-default uk-card-body">
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail" class="sr-only">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Email" required autofocus>
-    <label for="inputPassword" class="sr-only">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-    <input type="hidden" name="formType" value="loginForm">
+                <h1 class="uk-card-title">Pintex Solutions<sup>(BETA)</sup></h1>
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
+                <ul class="uk-child-width-expand" data-uk-tab="{connect: '#tab-login'}" uk-switcher>
+                    <li class="uk-active"><a href="#login">Login</a></li>
+                    <li><a href="#register">Register</a></li>
+                </ul>
 
-    {#
-        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-        See https://symfony.com/doc/current/security/remember_me.html
+                <div class="uk-switcher" id="tab-login">
+                    <div class="login-box__login">
+                        <form method="post">
+                            {% if error %}
+                                <div class="uk-alert-danger" uk-alert>
+                                    <a class="uk-alert-close" uk-close></a>
+                                    <p>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+                                </div>
+                            {% endif %}
+                            <fieldset class="uk-fieldset">
+                                <div class="uk-margin">
+                                    <input class="uk-input" type="email" value="{{ last_username }}" name="email" id="inputEmail" placeholder="Email" required autofocus>
+                                </div>
+                                <div class="uk-margin">
+                                    <input class="uk-input" type="password" name="password" id="inputPassword" placeholder="Password" required>
+                                </div>
+                                <div class="uk-margin">
+                                    <button class="uk-button uk-button-primary uk-width-1-1">Submit</button>
+                                </div>
+                            </fieldset>
 
-        <div class="checkbox mb-3">
-            <label>
-                <input type="checkbox" name="_remember_me"> Remember me
-            </label>
+                            <input type="hidden" name="formType" value="loginForm">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        </form>
+
+                        <p>Dont have an Account yet? <a href="#register">Register</a></p>
+                    </div>
+                    <div class="login-box__register">
+                        <ul class="uk-flex uk-flex-around" data-uk-tab="{connect: '#tab-register-options'}" uk-switcher>
+                            <li class="uk-active"><a href="#register-professional"><i class="fas fa-briefcase"></i>Professional</a></li>
+                            <li><a href="#register-educator"><i class="fas fa-graduation-cap"></i>Educator</a></li>
+                            <li><a href="#register-student"><i class="fas fa-book-reader"></i>Student</a></li>
+                        </ul>
+
+                        <div class="uk-switcher login-box__register-tab-contents" id="tab-register-options">
+                            <div>
+                                <p>Pintex empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
+
+                                {{ form_start(registrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
+                                    <fieldset class="uk-fieldset">
+                                        <div class="uk-margin">
+                                            {{ form_label(registrationForm.firstName, 'First Name*') }}
+                                            {{ form_widget(registrationForm.firstName, {'attr': {'class': 'uk-input'}}) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(registrationForm.lastName, 'Last Name*') }}
+                                            {{ form_widget(registrationForm.lastName, {'attr': {'class': 'uk-input'}}) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(registrationForm.username, 'Username*') }}
+                                            {{ form_widget(registrationForm.username, {'attr': {'class': 'uk-input'}}) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(registrationForm.email, 'Email*') }}
+                                            {{ form_widget(registrationForm.email, {'attr': {'class': 'uk-input'}}) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(registrationForm.password.first, 'Password*') }}
+                                            {{ form_widget(registrationForm.password.first, {'attr': {'class': 'uk-input'}}) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(registrationForm.password.second, 'Confirm Password*') }}
+                                            {{ form_widget(registrationForm.password.second, {'attr': {'class': 'uk-input'}}) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            <label><input class="uk-checkbox" type="checkbox"> I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
+                                        </div>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-primary uk-width-1-1">Register Account</button>
+                                        </div>
+                                    </fieldset>
+                                    <input type="hidden" name="formType" value="registrationForm">
+                                {{ form_end(registrationForm) }}
+                            </div>
+                            <div>
+                                <p>Pintex makes it easy for educators to find community resources such as guest instructors, site visits hosts, mentors, advisors and project providers.</p>
+                                <div class="uk-placeholder uk-text-center">This feature will be delivered August 9, 2019.</div>
+                            </div>
+                            <div>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad adipisci asperiores assumenda commodi deserunt dolor in maxime nemo perferendis praesentium, quam quia quisquam recusandae reprehenderit sint suscipit voluptate! Iste, nostrum?</p>
+                                <div class="uk-placeholder uk-text-center">This feature will be delivered August 23, 2019.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    #}
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
-
-
-
-
-    <h1>Register</h1>
-
-    {{ form_start(registrationForm, {attr: {'novalidate' : 'novalidate'}}) }}
-    {{ form_row(registrationForm.firstName) }}
-    {{ form_row(registrationForm.lastName) }}
-    {{ form_row(registrationForm.email) }}
-    {{ form_row(registrationForm.username) }}
-    {{ form_row(registrationForm.password.first) }}
-    {{ form_row(registrationForm.password.second) }}
-    <input type="hidden" name="formType" value="registrationForm">
-    <button class="btn">Register</button>
-    {{ form_end(registrationForm) }}
-
+    </div>
 {% endblock %}

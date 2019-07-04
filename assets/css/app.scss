@@ -1,3 +1,7 @@
-/*@import '~bootstrap';*/
-@import '~font-awesome';
-@import './main';
+// @import "reset/index";
+@import "vendor/index";
+@import "util/index";
+@import "base/index";
+@import "components/index";
+@import "layouts/index";
+@import "pages/index";

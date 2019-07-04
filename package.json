@@ -1,5 +1,7 @@
 {
-    "devDependencies": {
+    "commands": {
+        "dev": "./node_modules/.bin/encore dev"
+    },"devDependencies": {
         "@symfony/webpack-encore": "^0.27.0",
         "autoprefixer": "^9.6.0",
         "bootstrap": "^4.3.1",
