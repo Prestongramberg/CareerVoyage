@@ -4,13 +4,11 @@
 
 {% block title %}Edit Profile{% endblock %}
 
-{% block _professional_edit_profile_form_photo_widget %}
+{% block _professional_edit_profile_form_photo_row %}
 
-    hello world
-
-    {#  {% if form.vars.name == 'image' %}
-          {% set image = form.vars.data %}
-          <div class="row">
+      {% if form.vars.name == 'photo' %}
+          {#{% set photo = form.vars.data %}#}
+        {#  <div class="row">
           <div class="col-lg-2">
               <div class="form-group">
                   <label class="control-label">Existing Image</label>
@@ -22,13 +20,14 @@
                       {% endif %}
                   </div>
               </div>
-          </div>
-          <div class="col-lg-10">
-              {{ form_row(form.file) }}
-              {{ form_row(form.cropPoints) }}
-          </div>
+          </div>#}
+
+         {# {% if photo.path is defined %}
+              <img style="width: 100%; max-width: 100px; height: auto;" src="{{ photo.path }}" />
+          {% endif %}#}
+
+              {{ form_widget(form) }}
       {% endif %}
-      </div>#}
 {% endblock %}
 
 {% block body %}
@@ -37,13 +36,15 @@
     <h1>Edit Profile</h1>
 
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
     {{ form_row(form.firstName) }}
     {{ form_row(form.lastName) }}
-    {{ form_widget(form.photo) }}
+    {{ form_row(form.photo) }}
     {{ form_row(form.email) }}
     {{ form_row(form.username) }}
-    {{ form_row(form.password.first) }}
-    {{ form_row(form.password.second) }}
+
+    {{ form_row(form.password) }}
+    {{ form_row(form.passwordRepeat) }}
     <button class="btn">Update</button>
     {{ form_end(form) }}
 

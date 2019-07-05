@@ -12,12 +12,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksPassword;
+use App\Validator\Constraints as CustomAssert;
 
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
  * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT"})
+ * @CustomAssert\PasswordsMustMatch(groups={"EDIT"})
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
@@ -67,6 +69,11 @@ abstract class User implements UserInterface
      * @ORM\Column(type="string")
      */
     protected $password;
+
+    /**
+     * @var string password repeat
+     */
+    protected $passwordRepeat;
 
     /**
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
@@ -350,5 +357,21 @@ abstract class User implements UserInterface
         if (!in_array(self::ROLE_STUDENT_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STUDENT_USER;
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPasswordRepeat()
+    {
+        return $this->passwordRepeat;
+    }
+
+    /**
+     * @param string $passwordRepeat
+     */
+    public function setPasswordRepeat($passwordRepeat)
+    {
+        $this->passwordRepeat = $passwordRepeat;
     }
 }

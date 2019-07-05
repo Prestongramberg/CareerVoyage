@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Class ProfileController
@@ -29,15 +30,26 @@ class ProfileController extends AbstractController
     private $fileUploader;
 
     /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $passwordEncoder;
+
+    /**
      * ProfileController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
+     * @param UserPasswordEncoderInterface $passwordEncoder
      */
-    public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        FileUploader $fileUploader,
+        UserPasswordEncoderInterface $passwordEncoder
+    ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
+        $this->passwordEncoder = $passwordEncoder;
     }
+
 
     /**
      * @Route("/profile/{id}/view", name="profile_index", methods={"GET"})
@@ -63,12 +75,33 @@ class ProfileController extends AbstractController
             'method' => 'POST',
         ]);
 
+        $originalPassword = $professionalUser->getPassword();
+
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
             /** @var ProfessionalUser $professionalUser */
             $professionalUser = $form->getData();
-            $professionalUser->getPhoto()->preUpload();
+
+            // if there is no password just set the password back to the original
+            if(!$professionalUser->getPassword()) {
+                $professionalUser->setPassword($originalPassword);
+            } else {
+                $encodedPassword = $this->passwordEncoder->encodePassword($professionalUser, $professionalUser->getPassword());
+                $professionalUser->setPassword($encodedPassword);
+            }
+
+           /* $uploadFile = $form->get('photo')->getData();
+
+            if($uploadFile) {
+                // process the file
+            }*/
+
+            // Only upload the file if there was an actual file attached
+            /*if($professionalUser->getPhoto()) {
+                $professionalUser->getPhoto()->preUpload();
+            }*/
+
             $this->entityManager->persist($professionalUser);
             $this->entityManager->flush();
         }

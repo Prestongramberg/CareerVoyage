@@ -6,10 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * @ORM\EntityListeners({"App\EntityListener\FileListener"})
- * @ORM\Entity(repositoryClass="App\Repository\FileRepository")
+ * @ORM\EntityListeners({"App\EntityListener\ImageListener"})
+ * @ORM\Entity(repositoryClass="App\Repository\ImageRepository")
  */
-class File
+class Image
 {
     /**
      * @ORM\Id()

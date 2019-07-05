@@ -2,15 +2,14 @@
 
 namespace App\EntityListener;
 
-
-use App\Entity\File;
+use App\Entity\Image;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class FileListener
+class ImageListener
 {
 
     /**
@@ -37,11 +36,18 @@ class FileListener
     /**
      * Make sure the file has a name before persisting
      *
-     * @param File $file
+     * @param Image $image
      * @param LifecycleEventArgs $args
      */
-    public function prePersist(File $file, LifecycleEventArgs $args)
+    public function prePersist(Image $image, LifecycleEventArgs $args)
     {
+
+        $image->preUpload();
+
+        if($fileInfo = $this->fileUploader->upload($image)) {
+            $image->setPath($fileInfo['@metadata']['effectiveUri']);
+        }
+
 
         $name = "Josh";
         // if the image is a copy then retrieve the original image before you modify the container and image path name
@@ -63,10 +69,10 @@ class FileListener
     /**
      * Make sure the file has a name before updating
      *
-     * @param File $file
+     * @param Image $image
      * @param PreUpdateEventArgs $args
      */
-    public function preUpdate(File $file, PreUpdateEventArgs $args)
+    public function preUpdate(Image $image, PreUpdateEventArgs $args)
     {
 
         if($fileInfo = $this->fileUploader->upload($file)) {
@@ -82,10 +88,10 @@ class FileListener
     /**
      * Upload the file after persisting the entity
      *
-     * @param File $file
+     * @param Image $image
      * @param LifecycleEventArgs $args
      */
-    public function postPersist(File $file, LifecycleEventArgs $args)
+    public function postPersist(Image $image, LifecycleEventArgs $args)
     {
 
         $name = "JOsh";
@@ -106,10 +112,10 @@ class FileListener
     /**
      * Upload the file after updating the entity
      *
-     * @param File $file
+     * @param Image $image
      * @param LifecycleEventArgs $args
      */
-    public function postUpdate(File $file, LifecycleEventArgs $args)
+    public function postUpdate(Image $image, LifecycleEventArgs $args)
     {
         $name = "Josh";
     }

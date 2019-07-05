@@ -40,7 +40,7 @@ class ProfessionalUser extends User
     private $company;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\File", inversedBy="professionalUser", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", inversedBy="professionalUser", cascade={"persist","remove"})
      */
     private $photo;
 
@@ -116,12 +116,12 @@ class ProfessionalUser extends User
         return $this;
     }
 
-    public function getPhoto(): ?File
+    public function getPhoto(): ?Image
     {
         return $this->photo;
     }
 
-    public function setPhoto(?File $photo): self
+    public function setPhoto(?Image $photo): self
     {
         $this->photo = $photo;
 

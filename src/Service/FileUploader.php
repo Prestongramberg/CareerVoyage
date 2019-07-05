@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\File;
+use App\Entity\Image;
 use SpacesConnect;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -29,12 +30,12 @@ class FileUploader
         $this->region = $this->params->get('space_region');
     }
 
-    public function upload(File $file)
+    public function upload(Image $image)
     {
         try {
             $space = new SpacesConnect($this->accessKey, $this->secretKey, $this->name, $this->region);
-            $space->UploadFile($file->getFile()->getRealPath(), "public", $file->getNewName(), $file->getFile()->getMimeType());
-            return $space->GetObject($file->getNewName());
+            $space->UploadFile($image->getFile()->getRealPath(), "public", $image->getNewName(), $image->getFile()->getMimeType());
+            return $space->GetObject($image->getNewName());
         } catch (\SpacesAPIException $e) {
             return false;
         }
