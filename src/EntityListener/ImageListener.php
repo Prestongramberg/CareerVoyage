@@ -48,8 +48,6 @@ class ImageListener
             $image->setPath($fileInfo['@metadata']['effectiveUri']);
         }
 
-
-        $name = "Josh";
         // if the image is a copy then retrieve the original image before you modify the container and image path name
      /*   if($image->isCopy()) {
             $dataObject = $this->cdnAdapter->getFile($image->getPreCachedCDNPath(), $image->getContainer());
@@ -75,12 +73,10 @@ class ImageListener
     public function preUpdate(Image $image, PreUpdateEventArgs $args)
     {
 
-        if($fileInfo = $this->fileUploader->upload($file)) {
-            $name = "Josh";
-            $file->setPath($fileInfo['@metadata']['effectiveUri']);
+        if($fileInfo = $this->fileUploader->upload($image)) {
+            $image->setPath($fileInfo['@metadata']['effectiveUri']);
         }
 
-        $name = "Josh";
         /*$image->setContainer($this->rackSpaceFilesContainer);
         $image->preUpload();*/
     }

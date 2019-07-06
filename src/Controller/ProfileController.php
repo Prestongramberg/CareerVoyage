@@ -2,10 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Form\ProfessionalDeactivateProfileFormType;
+use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
+use App\Form\ProfessionalReactivateProfileFormType;
 use App\Service\FileUploader;
+use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +24,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  */
 class ProfileController extends AbstractController
 {
+    use FileHelper;
+
     /**
      * @var EntityManagerInterface
      */
@@ -91,25 +98,121 @@ class ProfileController extends AbstractController
                 $professionalUser->setPassword($encodedPassword);
             }
 
-           /* $uploadFile = $form->get('photo')->getData();
+            $uploadFile = $form->get('file')->getData();
 
             if($uploadFile) {
-                // process the file
-            }*/
 
-            // Only upload the file if there was an actual file attached
-            /*if($professionalUser->getPhoto()) {
-                $professionalUser->getPhoto()->preUpload();
-            }*/
+                $newFileName = $this->newFileName($uploadFile);
+                $path = $this->fileUploader->uploadPhoto($uploadFile, $newFileName);
+
+                $image = new Image();
+                $image->setOriginalName($this->getOriginalName($uploadFile));
+                $image->setMimeType($uploadFile->getMimeType());
+                $image->setNewName($newFileName);
+                $image->setPath($path);
+
+                $professionalUser->setPhoto($image);
+            }
 
             $this->entityManager->persist($professionalUser);
             $this->entityManager->flush();
         }
 
+        $deleteForm = $this->createForm(ProfessionalDeleteProfileFormType::class, null, [
+            'method' => 'POST',
+            'action' => $this->generateUrl('profile_delete', ['id' => $professionalUser->getId()])
+        ]);
+
+        $deactivateForm = $this->createForm(ProfessionalDeactivateProfileFormType::class, null, [
+            'method' => 'POST',
+            'action' => $this->generateUrl('profile_deactivate', ['id' => $professionalUser->getId()])
+        ]);
+
+        $reactivateForm = $this->createForm(ProfessionalReactivateProfileFormType::class, null, [
+            'method' => 'POST',
+            'action' => $this->generateUrl('profile_reactivate', ['id' => $professionalUser->getId()])
+        ]);
+
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
-            'user' => $professionalUser
+            'user' => $professionalUser,
+            'deleteForm' => $deleteForm->createView(),
+            'deactivateForm' => $deactivateForm->createView(),
+            'reactivateForm' => $reactivateForm->createView(),
+
         ]);
+    }
+
+    /**
+     * @Route("/profile/{id}/delete", name="profile_delete")
+     * @param Request $request
+     * @param ProfessionalUser $professionalUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteAction(Request $request, ProfessionalUser $professionalUser) {
+
+        $form = $this->createForm(ProfessionalDeleteProfileFormType::class, $professionalUser, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+
+            $professionalUser->setDeleted(true);
+            $this->entityManager->persist($professionalUser);
+            $this->entityManager->flush();
+        }
+
+        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+    }
+
+    /**
+     * @Route("/profile/{id}/deactivate", name="profile_deactivate")
+     * @param Request $request
+     * @param ProfessionalUser $professionalUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deactivateAction(Request $request, ProfessionalUser $professionalUser) {
+
+        $form = $this->createForm(ProfessionalDeactivateProfileFormType::class, $professionalUser, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+
+            $professionalUser->setDeactivated(true);
+            $this->entityManager->persist($professionalUser);
+            $this->entityManager->flush();
+        }
+
+        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+    }
+
+    /**
+     * @Route("/profile/{id}/reactivate", name="profile_reactivate")
+     * @param Request $request
+     * @param ProfessionalUser $professionalUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function reactivateAction(Request $request, ProfessionalUser $professionalUser) {
+
+        $form = $this->createForm(ProfessionalReactivateProfileFormType::class, $professionalUser, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+
+            $professionalUser->setDeactivated(false);
+            $this->entityManager->persist($professionalUser);
+            $this->entityManager->flush();
+        }
+
+        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
     }
 
 }

@@ -3,12 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProfessionalUserRepository")
  */
 class ProfessionalUser extends User
 {
+
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -43,6 +46,35 @@ class ProfessionalUser extends User
      * @ORM\OneToOne(targetEntity="App\Entity\Image", inversedBy="professionalUser", cascade={"persist","remove"})
      */
     private $photo;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $interests;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deleted;
+
+    /**
+     * @Assert\Callback(groups={"EDIT"})
+     * @param ExecutionContextInterface $context
+     * @param $payload
+     */
+    public function validate(ExecutionContextInterface $context, $payload)
+    {
+        if($this->phone && !preg_match("/^[0-9]{3}-[0-9]{4}-[0-9]{4}$/", $this->phone)) {
+            $context->buildViolation('The phone number needs to be in this format: xxx-xxx-xxx')
+                ->atPath('phone')
+                ->addViolation();
+        }
+    }
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deactivated;
 
     public function getName(): ?string
     {
@@ -124,6 +156,42 @@ class ProfessionalUser extends User
     public function setPhoto(?Image $photo): self
     {
         $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getInterests(): ?string
+    {
+        return $this->interests;
+    }
+
+    public function setInterests(?string $interests): self
+    {
+        $this->interests = $interests;
+
+        return $this;
+    }
+
+    public function getDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    public function getDeactivated(): ?bool
+    {
+        return $this->deactivated;
+    }
+
+    public function setDeactivated(bool $deactivated): self
+    {
+        $this->deactivated = $deactivated;
 
         return $this;
     }

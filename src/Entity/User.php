@@ -13,13 +13,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksPassword;
 use App\Validator\Constraints as CustomAssert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
  * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT"})
- * @CustomAssert\PasswordsMustMatch(groups={"EDIT"})
+ * @Assert\Callback({"User\Validator", "validate"})
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
@@ -34,8 +35,6 @@ abstract class User implements UserInterface
     const ROLE_PROFESSIONAL_USER = 'ROLE_PROFESSIONAL_USER';
     const ROLE_EDUCATOR_USER = 'ROLE_EDUCATOR_USER ';
     const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
-
-    /*protected $discr = 'user';*/
 
     /**
      * @ORM\Id()
@@ -71,11 +70,6 @@ abstract class User implements UserInterface
     protected $password;
 
     /**
-     * @var string password repeat
-     */
-    protected $passwordRepeat;
-
-    /**
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -109,7 +103,6 @@ abstract class User implements UserInterface
      * @ORM\Column(name="roles", type="json_array", nullable=false)
      */
     protected $roles = [];
-
 
     public function getId(): ?int
     {
@@ -357,21 +350,5 @@ abstract class User implements UserInterface
         if (!in_array(self::ROLE_STUDENT_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STUDENT_USER;
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getPasswordRepeat()
-    {
-        return $this->passwordRepeat;
-    }
-
-    /**
-     * @param string $passwordRepeat
-     */
-    public function setPasswordRepeat($passwordRepeat)
-    {
-        $this->passwordRepeat = $passwordRepeat;
     }
 }

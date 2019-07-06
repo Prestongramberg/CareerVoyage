@@ -4,34 +4,7 @@
 
 {% block title %}Edit Profile{% endblock %}
 
-{% block _professional_edit_profile_form_photo_row %}
-
-      {% if form.vars.name == 'photo' %}
-          {#{% set photo = form.vars.data %}#}
-        {#  <div class="row">
-          <div class="col-lg-2">
-              <div class="form-group">
-                  <label class="control-label">Existing Image</label>
-                  <div>
-                      {% if image and image.id %}
-                          <img style="width: 100%; max-width: 100px; height: auto;" src="{{ (image.container ~ "/" ~ image.path) | imagine_filter('my_thumb') }}" class="js-existing-image"/>
-                      {% else %}
-                          <img style="width: 100%; max-width: 100px; height: auto;" src="" class="js-existing-image"/>
-                      {% endif %}
-                  </div>
-              </div>
-          </div>#}
-
-         {# {% if photo.path is defined %}
-              <img style="width: 100%; max-width: 100px; height: auto;" src="{{ photo.path }}" />
-          {% endif %}#}
-
-              {{ form_widget(form) }}
-      {% endif %}
-{% endblock %}
-
 {% block body %}
-
 
     <h1>Edit Profile</h1>
 
@@ -39,13 +12,35 @@
 
     {{ form_row(form.firstName) }}
     {{ form_row(form.lastName) }}
-    {{ form_row(form.photo) }}
+    <img style="width: 100%; max-width: 100px; height: auto;" src="{{ user.photo.path }}" />
+    {{ form_row(form.file) }}
     {{ form_row(form.email) }}
     {{ form_row(form.username) }}
 
     {{ form_row(form.password) }}
-    {{ form_row(form.passwordRepeat) }}
+    {{ form_row(form.rolesWillingToFulfill) }}
+    {{ form_row(form.interests) }}
+    {{ form_row(form.briefBio) }}
+    {{ form_row(form.linkedinProfile) }}
+    {{ form_row(form.phone) }}
     <button class="btn">Update</button>
     {{ form_end(form) }}
+
+    <h2>Delete Profile</h2>
+    {{ form_start(deleteForm, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(deleteForm.delete) }}
+    {{ form_end(deleteForm) }}
+
+    {% if user.deactivated %}
+        <h2>Reactivate Profile</h2>
+        {{ form_start(reactivateForm, {attr: {'novalidate' : 'novalidate'}}) }}
+        {{ form_row(reactivateForm.reactivate) }}
+        {{ form_end(reactivateForm) }}
+    {% else %}
+        <h2>Deactivate Profile</h2>
+        {{ form_start(deactivateForm, {attr: {'novalidate' : 'novalidate'}}) }}
+        {{ form_row(deactivateForm.deactivate) }}
+        {{ form_end(deactivateForm) }}
+    {% endif %}
 
 {% endblock %}
