@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -23,6 +24,12 @@ class ProfessionalUser extends User
     private $briefBio;
 
     /**
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
+     *     match=true,
+     *     message="The phone number needs to be in this format: xxx-xxx-xxx",
+     *     groups={"CREATE", "EDIT"}
+     * )
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
@@ -43,7 +50,7 @@ class ProfessionalUser extends User
     private $company;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", inversedBy="professionalUser", cascade={"persist","remove"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $photo;
 
@@ -55,26 +62,7 @@ class ProfessionalUser extends User
     /**
      * @ORM\Column(type="boolean")
      */
-    private $deleted;
-
-    /**
-     * @Assert\Callback(groups={"EDIT"})
-     * @param ExecutionContextInterface $context
-     * @param $payload
-     */
-    public function validate(ExecutionContextInterface $context, $payload)
-    {
-        if($this->phone && !preg_match("/^[0-9]{3}-[0-9]{4}-[0-9]{4}$/", $this->phone)) {
-            $context->buildViolation('The phone number needs to be in this format: xxx-xxx-xxx')
-                ->atPath('phone')
-                ->addViolation();
-        }
-    }
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $deactivated;
+    private $deactivated = 0;
 
     public function getName(): ?string
     {
@@ -148,18 +136,6 @@ class ProfessionalUser extends User
         return $this;
     }
 
-    public function getPhoto(): ?Image
-    {
-        return $this->photo;
-    }
-
-    public function setPhoto(?Image $photo): self
-    {
-        $this->photo = $photo;
-
-        return $this;
-    }
-
     public function getInterests(): ?string
     {
         return $this->interests;
@@ -168,18 +144,6 @@ class ProfessionalUser extends User
     public function setInterests(?string $interests): self
     {
         $this->interests = $interests;
-
-        return $this;
-    }
-
-    public function getDeleted(): ?bool
-    {
-        return $this->deleted;
-    }
-
-    public function setDeleted(bool $deleted): self
-    {
-        $this->deleted = $deleted;
 
         return $this;
     }
@@ -194,5 +158,26 @@ class ProfessionalUser extends User
         $this->deactivated = $deactivated;
 
         return $this;
+    }
+
+    public function getPhotoPath()
+    {
+        return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhoto()
+    {
+        return $this->photo;
+    }
+
+    /**
+     * @param mixed $photo
+     */
+    public function setPhoto($photo): void
+    {
+        $this->photo = $photo;
     }
 }

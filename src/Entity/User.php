@@ -20,7 +20,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
  * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT"})
- * @Assert\Callback({"User\Validator", "validate"})
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
@@ -42,7 +41,7 @@ abstract class User implements UserInterface
      * @ORM\Column(type="integer")
      */
     protected $id;
-
+    
     /**
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
@@ -94,15 +93,19 @@ abstract class User implements UserInterface
     protected $passwordResetTokenTimestamp;
 
     /**
-     * Roles
-     *
-     * All Users have the ROLE_USER role.
-     *
-     * @var array
-     *
-     * @ORM\Column(name="roles", type="json_array", nullable=false)
+     * @ORM\Column(type="json")
      */
     protected $roles = [];
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $deleted = 0;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $agreedToTermsAt;
 
     public function getId(): ?int
     {
@@ -259,22 +262,15 @@ abstract class User implements UserInterface
     }
 
     /**
-     * Returns the roles granted to the user.
-     *
-     *     public function getRoles()
-     *     {
-     *         return ['ROLE_USER'];
-     *     }
-     *
-     * Alternatively, the roles might be stored on a ``roles`` property,
-     * and populated in any number of different ways when the user object
-     * is created.
-     *
-     * @return array (Role|string)[] The user roles
+     * @return array
      */
     public function getRoles()
     {
-        return array('ROLE_USER');
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
     /**
@@ -351,4 +347,27 @@ abstract class User implements UserInterface
             $this->roles[] = self::ROLE_STUDENT_USER;
         }
     }
+
+    public function getDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    public function getAgreedToTermsAt()
+    {
+        return $this->agreedToTermsAt;
+    }
+
+    public function agreeToTerms()
+    {
+        $this->agreedToTermsAt = new \DateTime();
+    }
+
 }

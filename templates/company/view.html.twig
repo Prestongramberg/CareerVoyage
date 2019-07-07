@@ -1,0 +1,10 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}My Company{% endblock %}
+
+{% block body %}
+
+    <h1>My Company</h1>
+    <a href="{{ path('company_edit', {id: user.company.id}) }}">Edit Company</a>
+
+{% endblock %}

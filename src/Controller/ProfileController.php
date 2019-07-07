@@ -10,8 +10,11 @@ use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Service\FileUploader;
+use App\Service\ImageCacheGenerator;
+use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +24,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 /**
  * Class ProfileController
  * @package App\Controller
+ * @Route("/admin")
  */
 class ProfileController extends AbstractController
 {
@@ -42,25 +46,42 @@ class ProfileController extends AbstractController
     private $passwordEncoder;
 
     /**
+     * @var ImageCacheGenerator
+     */
+    private $imageCacheGenerator;
+
+    /**
+     * @var UploaderHelper
+     */
+    private $uploaderHelper;
+
+    /**
      * ProfileController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param ImageCacheGenerator $imageCacheGenerator
+     * @param UploaderHelper $uploaderHelper
      */
     public function __construct(
         EntityManagerInterface $entityManager,
         FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder
+        UserPasswordEncoderInterface $passwordEncoder,
+        ImageCacheGenerator $imageCacheGenerator,
+        UploaderHelper $uploaderHelper
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
         $this->passwordEncoder = $passwordEncoder;
+        $this->imageCacheGenerator = $imageCacheGenerator;
+        $this->uploaderHelper = $uploaderHelper;
     }
 
 
     /**
-     * @Route("/profile/{id}/view", name="profile_index", methods={"GET"})
+     * @Route("/profiles/{id}/view", name="profile_index", methods={"GET"})
      * @param Request $request
+     * @param User $user
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request, User $user) {
@@ -71,15 +92,18 @@ class ProfileController extends AbstractController
     }
 
     /**
-     * @Route("/profile/{id}/edit", name="profile_edit")
+     * @Route("/profiles/{id}/edit", name="profile_edit")
      * @param Request $request
      * @param ProfessionalUser $professionalUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function editAction(Request $request, ProfessionalUser $professionalUser) {
 
+        $this->denyAccessUnlessGranted('edit', $professionalUser);
+
         $form = $this->createForm(ProfessionalEditProfileFormType::class, $professionalUser, [
             'method' => 'POST',
+            'professionalUser' => $professionalUser
         ]);
 
         $originalPassword = $professionalUser->getPassword();
@@ -98,24 +122,16 @@ class ProfileController extends AbstractController
                 $professionalUser->setPassword($encodedPassword);
             }
 
-            $uploadFile = $form->get('file')->getData();
+            $uploadedFile = $form->get('file')->getData();
 
-            if($uploadFile) {
-
-                $newFileName = $this->newFileName($uploadFile);
-                $path = $this->fileUploader->uploadPhoto($uploadFile, $newFileName);
-
-                $image = new Image();
-                $image->setOriginalName($this->getOriginalName($uploadFile));
-                $image->setMimeType($uploadFile->getMimeType());
-                $image->setNewName($newFileName);
-                $image->setPath($path);
-
-                $professionalUser->setPhoto($image);
+            if($uploadedFile) {
+                $newFilename = $this->uploaderHelper->uploadArticleImage($uploadedFile);
+                $professionalUser->setPhoto($newFilename);
             }
 
             $this->entityManager->persist($professionalUser);
             $this->entityManager->flush();
+
         }
 
         $deleteForm = $this->createForm(ProfessionalDeleteProfileFormType::class, null, [

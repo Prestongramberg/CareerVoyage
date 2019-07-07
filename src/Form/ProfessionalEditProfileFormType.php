@@ -13,13 +13,32 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 class ProfessionalEditProfileFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
+        $imageConstraints = [
+            new Image([
+                'maxSize' => '5M'
+            ])
+        ];
+
+        /** @var ProfessionalUser $professionalUser */
+        $professionalUser = $options['professionalUser'];
+
+        /*if (!$professionalUser->getPhoto()) {
+            $imageConstraints[] = new NotNull([
+                'message' => 'Please upload an image',
+                'groups'  => ['EDIT']
+            ]);
+        }*/
+
         $builder
             ->add('firstName', TextType::class, [
                 'block_prefix' => 'wrapped_text',
@@ -29,6 +48,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('username')
             ->add('file', FileType::class, [
                 'label' => 'Photo upload',
+                'constraints' => $imageConstraints,
 
                 // unmapped means that this field is not associated to any entity property
                 'mapped' => false,
@@ -60,6 +80,10 @@ class ProfessionalEditProfileFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => ProfessionalUser::class,
             'validation_groups' => ['EDIT'],
+        ]);
+
+        $resolver->setRequired([
+           'professionalUser'
         ]);
     }
 }

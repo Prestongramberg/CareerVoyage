@@ -13,6 +13,7 @@
         "ext-iconv": "*",
         "ext-intl": "*",
         "friendsofsymfony/jsrouting-bundle": "^2.3",
+        "liip/imagine-bundle": "^2.1",
         "rollerworks/password-strength-bundle": "^2.1",
         "sensio/framework-extra-bundle": "^5.1",
         "sociallydev/spaces-api": "dev-master",

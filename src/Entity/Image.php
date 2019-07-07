@@ -7,6 +7,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ImageRepository")
+ *
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"image" = "Image", "companyImage" = "CompanyImage"})
  */
 class Image
 {
@@ -20,100 +24,79 @@ class Image
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $path;
+    protected $fileName;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $originalName;
+    protected $originalName;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $newName;
+    protected $mimeType;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @return mixed
      */
-    private $mimeType;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", mappedBy="photo", cascade={"persist", "remove"})
-     */
-    private $professionalUser;
-
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
-    public function getPath(): ?string
+    /**
+     * @param mixed $id
+     */
+    public function setId($id): void
     {
-        return $this->path;
-    }
-
-    public function setPath(string $path): self
-    {
-        $this->path = $path;
-
-        return $this;
-    }
-
-    public function getOriginalName(): ?string
-    {
-        return $this->originalName;
-    }
-
-    public function setOriginalName(string $originalName): self
-    {
-        $this->originalName = $originalName;
-
-        return $this;
-    }
-
-    public function getMimeType(): ?string
-    {
-        return $this->mimeType;
-    }
-
-    public function setMimeType(string $mimeType): self
-    {
-        $this->mimeType = $mimeType;
-
-        return $this;
-    }
-
-    public function getProfessionalUser(): ?ProfessionalUser
-    {
-        return $this->professionalUser;
-    }
-
-    public function setProfessionalUser(?ProfessionalUser $professionalUser): self
-    {
-        $this->professionalUser = $professionalUser;
-
-        // set (or unset) the owning side of the relation if necessary
-        $newPhoto = $professionalUser === null ? null : $this;
-        if ($newPhoto !== $professionalUser->getPhoto()) {
-            $professionalUser->setPhoto($newPhoto);
-        }
-
-        return $this;
+        $this->id = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getNewName()
+    public function getFileName()
     {
-        return $this->newName;
+        return $this->fileName;
     }
 
     /**
-     * @param mixed $newName
+     * @param mixed $fileName
      */
-    public function setNewName($newName): void
+    public function setFileName($fileName): void
     {
-        $this->newName = $newName;
+        $this->fileName = $fileName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalName()
+    {
+        return $this->originalName;
+    }
+
+    /**
+     * @param mixed $originalName
+     */
+    public function setOriginalName($originalName): void
+    {
+        $this->originalName = $originalName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * @param mixed $mimeType
+     */
+    public function setMimeType($mimeType): void
+    {
+        $this->mimeType = $mimeType;
     }
 }

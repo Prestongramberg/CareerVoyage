@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CompanyRepository")
@@ -19,16 +21,26 @@ class Company
     private $id;
 
     /**
+     * @Assert\NotBlank(message="Don't forget an address!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $address;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a phone number!", groups={"CREATE", "EDIT"})
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
+     *     match=true,
+     *     message="The phone number needs to be in this format: xxx-xxx-xxx",
+     *     groups={"CREATE", "EDIT"}
+     * )
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a brief company description!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $briefCompanyDescription;
@@ -39,6 +51,7 @@ class Company
     private $companyLinkedinPage;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a primary contact!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $primaryContact;
@@ -48,9 +61,25 @@ class Company
      */
     private $professionalUsers;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $logo;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $heroImage;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyImage", mappedBy="company", orphanRemoval=true)
+     */
+    private $companyImages;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
+        $this->companyImages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,6 +172,66 @@ class Company
             // set the owning side to null (unless already changed)
             if ($professionalUser->getCompany() === $this) {
                 $professionalUser->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?string $logo): self
+    {
+        $this->logo = $logo;
+
+        return $this;
+    }
+
+    public function getLogoPath()
+    {
+        return UploaderHelper::COMPANY_LOGO.'/'.$this->getLogo();
+    }
+
+    public function getHeroImage(): ?string
+    {
+        return $this->heroImage;
+    }
+
+    public function setHeroImage(?string $heroImage): self
+    {
+        $this->heroImage = $heroImage;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyImage[]
+     */
+    public function getCompanyImages(): Collection
+    {
+        return $this->companyImages;
+    }
+
+    public function addCompanyImage(CompanyImage $companyImage): self
+    {
+        if (!$this->companyImages->contains($companyImage)) {
+            $this->companyImages[] = $companyImage;
+            $companyImage->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyImage(CompanyImage $companyImage): self
+    {
+        if ($this->companyImages->contains($companyImage)) {
+            $this->companyImages->removeElement($companyImage);
+            // set the owning side to null (unless already changed)
+            if ($companyImage->getCompany() === $this) {
+                $companyImage->setCompany(null);
             }
         }
 

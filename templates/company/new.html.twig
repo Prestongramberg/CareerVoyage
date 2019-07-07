@@ -1,0 +1,26 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Add Company{% endblock %}
+
+{% block body %}
+
+    <h1>Add Company</h1>
+
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(form.address) }}
+    {{ form_row(form.briefCompanyDescription) }}
+   {# {% if user.photo %}
+        <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
+    {% endif %}
+    #}
+
+    {{ form_row(form.logo) }}
+    {{ form_row(form.primaryContact) }}
+    {{ form_row(form.companyLinkedinPage) }}
+
+    {{ form_row(form.phone) }}
+    <button class="btn">Create</button>
+    {{ form_end(form) }}
+
+
+{% endblock %}

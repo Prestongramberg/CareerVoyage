@@ -29,17 +29,13 @@
             {{ form_errors(professionalRegistrationForm.email) }}
         </div>
         <div class="uk-margin">
-            {{ form_label(professionalRegistrationForm.password.first, 'Password*') }}
-            {{ form_widget(professionalRegistrationForm.password.first, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.password.first) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(professionalRegistrationForm.password.first) }}
+            {{ form_label(professionalRegistrationForm.password, 'Password*') }}
+            {{ form_widget(professionalRegistrationForm.password, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.password) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.password) }}
         </div>
         <div class="uk-margin">
-            {{ form_label(professionalRegistrationForm.password.second, 'Confirm Password*') }}
-            {{ form_widget(professionalRegistrationForm.password.second, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.password.second) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(professionalRegistrationForm.password.second) }}
-        </div>
-        <div class="uk-margin">
-            <label><input class="uk-checkbox" type="checkbox"> I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
+            <label>{{ form_widget(professionalRegistrationForm.agreeTerms, {'attr': {'class': 'uk-checkbox' ~ ( form_errors(professionalRegistrationForm.agreeTerms) ? ' uk-form-danger' : '' ) }}) }} I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
+            {{ form_errors(professionalRegistrationForm.agreeTerms) }}
         </div>
         <div class="uk-margin">
             <button class="uk-button uk-button-primary uk-width-1-1">Register Account</button>
