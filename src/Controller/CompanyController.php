@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
+use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
@@ -285,6 +286,19 @@ class CompanyController extends AbstractController
                 $image->setFileName($newFilename);
                 $company->addCompanyPhoto($image);
                 $this->entityManager->persist($image);
+            }
+
+            /** @var UploadedFile[] $photos */
+            $resources = $form->get('resources')->getData();
+            foreach($resources as $resource) {
+                $mimeType = $resource->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::COMPANY_RESOURCE);
+                $companyResource = new CompanyResource();
+                $companyResource->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+                $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
+                $companyResource->setFileName($newFilename);
+                $company->addCompanyResource($companyResource);
+                $this->entityManager->persist($companyResource);
             }
 
             $this->entityManager->persist($company);

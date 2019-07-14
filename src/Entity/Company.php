@@ -67,16 +67,6 @@ class Company
     private $companyPhotos;
 
     /**
-     * @ORM\OneToMany(targetEntity="CompanyVideo", mappedBy="company", orphanRemoval=true)
-     */
-    private $companyVideos;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyDocument", mappedBy="company", orphanRemoval=true)
-     */
-    private $companyDocuments;
-
-    /**
      * @Groups({"RESULTS_PAGE"})
      * @ORM\Column(type="boolean")
      */
@@ -134,12 +124,22 @@ class Company
      */
     private $featuredImage;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Video", mappedBy="company", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $videos;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", orphanRemoval=true, cascade={"persist"})
+     */
+    private $companyResources;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
         $this->companyPhotos = new ArrayCollection();
-        $this->companyVideos = new ArrayCollection();
-        $this->companyDocuments = new ArrayCollection();
+        $this->videos = new ArrayCollection();
+        $this->companyResources = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -267,68 +267,6 @@ class Company
         return $this;
     }
 
-    /**
-     * @return Collection|CompanyVideo[]
-     */
-    public function getCompanyVideos(): Collection
-    {
-        return $this->companyVideos;
-    }
-
-    public function addCompanyVideo(CompanyVideo $companyVideo): self
-    {
-        if (!$this->companyVideos->contains($companyVideo)) {
-            $this->companyVideos[] = $companyVideo;
-            $companyVideo->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompanyVideo(CompanyVideo $companyVideo): self
-    {
-        if ($this->companyVideos->contains($companyVideo)) {
-            $this->companyVideos->removeElement($companyVideo);
-            // set the owning side to null (unless already changed)
-            if ($companyVideo->getCompany() === $this) {
-                $companyVideo->setCompany(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|CompanyDocument[]
-     */
-    public function getCompanyDocuments(): Collection
-    {
-        return $this->companyDocuments;
-    }
-
-    public function addCompanyDocument(CompanyDocument $companyDocument): self
-    {
-        if (!$this->companyDocuments->contains($companyDocument)) {
-            $this->companyDocuments[] = $companyDocument;
-            $companyDocument->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompanyDocument(CompanyDocument $companyDocument): self
-    {
-        if ($this->companyDocuments->contains($companyDocument)) {
-            $this->companyDocuments->removeElement($companyDocument);
-            // set the owning side to null (unless already changed)
-            if ($companyDocument->getCompany() === $this) {
-                $companyDocument->setCompany(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getApproved(): ?bool
     {
         return $this->approved;
@@ -433,6 +371,68 @@ class Company
     public function setFeaturedImage(?Image $featuredImage): self
     {
         $this->featuredImage = $featuredImage;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Video[]
+     */
+    public function getVideos(): Collection
+    {
+        return $this->videos;
+    }
+
+    public function addVideo(Video $video): self
+    {
+        if (!$this->videos->contains($video)) {
+            $this->videos[] = $video;
+            $video->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideo(Video $video): self
+    {
+        if ($this->videos->contains($video)) {
+            $this->videos->removeElement($video);
+            // set the owning side to null (unless already changed)
+            if ($video->getCompany() === $this) {
+                $video->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyResource[]
+     */
+    public function getCompanyResources(): Collection
+    {
+        return $this->companyResources;
+    }
+
+    public function addCompanyResource(CompanyResource $companyResource): self
+    {
+        if (!$this->companyResources->contains($companyResource)) {
+            $this->companyResources[] = $companyResource;
+            $companyResource->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyResource(CompanyResource $companyResource): self
+    {
+        if ($this->companyResources->contains($companyResource)) {
+            $this->companyResources->removeElement($companyResource);
+            // set the owning side to null (unless already changed)
+            if ($companyResource->getCompany() === $this) {
+                $companyResource->setCompany(null);
+            }
+        }
 
         return $this;
     }

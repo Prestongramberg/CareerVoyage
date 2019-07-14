@@ -26,7 +26,7 @@ class CompanyEditPage {
 
     unbindEvents() {
 
-        this.$wrapper.off('click', CompanyEditPage._selectors.addPhoto);
+        this.$wrapper.off('click', CompanyEditPage._selectors.addVideo);
     }
 
     /**
@@ -34,7 +34,7 @@ class CompanyEditPage {
      */
     static get _selectors() {
         return {
-            addPhoto: '.js-addPhoto'
+            addVideo: '.js-addVideo'
         }
     }
 
@@ -42,7 +42,7 @@ class CompanyEditPage {
 
         this.$wrapper.on(
             'click',
-            CompanyEditPage._selectors.addPhoto,
+            CompanyEditPage._selectors.addVideo,
             this.handleAddItemButtonClick.bind(this)
         );
 
@@ -65,23 +65,6 @@ class CompanyEditPage {
     }
 
     render() {}
-
-    static markup() {
-        return `
-            <div class="js-filters">
-                <select class="js-primary-industry-filter"></select>
-            </div>
-            
-            <div id="hacker-list">
-                <ul class="paginationTop"></ul>
-                <input class="search" />
-                <span class="sort" data-sort="name">Sort by name</span>
-                <span class="sort" data-sort="address">Sort by address</span>
-                <ul class="list"></ul>
-                <ul class="paginationBottom"></ul>
-            </div>
-    `;
-    }
 }
 
 export default CompanyEditPage;

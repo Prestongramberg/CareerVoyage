@@ -38,10 +38,9 @@ class EditCompanyFormType extends AbstractType
                 'class' => Industry::class,
                 'choice_label' => 'name',
             ])
+            ->add('companyLinkedinPage', TextType::class, [])
 
-
-
-            ->add('shortDescription', TextType::class, [])
+            ->add('shortDescription', TextareaType::class, [])
             ->add('description', TextareaType::class)
             ->add('thumbnailImage', FileType::class, [
                 'label' => 'Thumbnail image',
@@ -69,47 +68,20 @@ class EditCompanyFormType extends AbstractType
                         'multiple' => true,
                         'label' => false,
                         'mapped' => false
-            ));
-
-
-
-            /*->add('photos', CollectionType::class, array(
-                'entry_type' => ImageType::class,
+            ))
+            ->add('videos', CollectionType::class, array(
+                'entry_type' => VideoType::class,
                 'allow_add' => true,
                 'error_bubbling' => false,
                 'prototype' => true,
                 'prototype_name' => '__prototype_one__',
                 'label' => false,
+                'by_reference' => false,
+            ))->add('resources', FileType::class, array(
+                'multiple' => true,
+                'label' => false,
                 'mapped' => false
-            ));*/
-
-
-        /*
-            ->add('primaryContact', TextType::class)
-            ->add('companyLinkedinPage', TextType::class)
-            ->add('phone', TextType::class)
-            ->add('logo', FileType::class, [
-                'label' => 'Company logo',
-                'constraints' => $this->logoImageConstraints($company),
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false
-            ])
-            ->add('heroImage', FileType::class, [
-                'label' => 'Company hero image',
-                'constraints' => $this->heroImageConstraints($company),
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false
-            ]);*/
+            ));
     }
 
     public function configureOptions(OptionsResolver $resolver)

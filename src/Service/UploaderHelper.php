@@ -17,6 +17,7 @@ class UploaderHelper
     const THUMBNAIL_IMAGE = 'thumbnail_image';
     const FEATURE_IMAGE = 'feature_image';
     const COMPANY_PHOTO = 'company_photo';
+    const COMPANY_RESOURCE = 'company_resource';
 
     private $uploadsPath;
     public function __construct(string $uploadsPath)

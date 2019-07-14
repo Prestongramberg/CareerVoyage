@@ -27,6 +27,7 @@
         {{ form_row(form.primaryIndustry) }}
         {{ form_row(form.shortDescription) }}
         {{ form_row(form.description) }}
+        {{ form_row(form.companyLinkedinPage) }}
 
         <hr>
         {{ form_row(form.thumbnailImage) }}
@@ -50,22 +51,32 @@
             <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
         {% endfor %}
 
-       {# {% set sharedButtonMarkup %}
-            <a href="#" class="js-addPhoto"><i class="fa fa-plus" aria-hidden="true"></i> Add a photo</a>
-        {% endset %}#}
 
-        {#{% if form.photos is defined %}#}
-          {#  <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.companyImages.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
-                {% for photo in form.companyImages %}
+        {% set sharedButtonMarkup %}
+            <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a video</a>
+        {% endset %}
+
+        {# TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it
+        so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
+        {% if form.videos is defined %}
+            <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.videos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                {% for video in form.videos %}
                     <li class="list-group-item js-child-item">
-                        {{ form_errors(photo.file) }}
-                        {{ form_widget(photo.file) }}
+                        {{ form_row(video.name) }}
+                        {{ form_row(video.videoId) }}
                     </li>
                 {% endfor %}
-            </ul>#}
-            {#{{ sharedButtonMarkup }}#}
-        {#{% endif %}#}
+            </ul>
+            {{ sharedButtonMarkup }}
+        {% endif %}
 
+        <br>
+        <br>
+        Company Resources
+        {{ form_row(form.resources) }}
+        {% for resource in company.companyResources %}
+            <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>
+        {% endfor %}
 
 
         {#
