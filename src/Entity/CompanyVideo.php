@@ -22,7 +22,7 @@ class CompanyVideo
     private $url;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyVideoUrls")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyVideos")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;

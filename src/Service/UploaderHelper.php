@@ -13,11 +13,27 @@ class UploaderHelper
     const COMPANY_IMAGE = 'company_image';
     const COMPANY_DOCUMENT = 'company_document';
     const HERO_IMAGE = 'hero_image';
+    const THUMBNAIL_IMAGE = 'thumbnail_image';
+    const FEATURE_IMAGE = 'feature_image';
+    const COMPANY_PHOTO = 'company_photo';
 
     private $uploadsPath;
     public function __construct(string $uploadsPath)
     {
         $this->uploadsPath = $uploadsPath;
+    }
+
+    public function upload(UploadedFile $uploadedFile, $folder = self::PROFILE_PHOTO) {
+
+        $destination = $this->uploadsPath.'/' . $folder;
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+        $uploadedFile->move(
+            $destination,
+            $newFilename
+        );
+
+        return $newFilename;
     }
 
     public function uploadArticleImage(UploadedFile $uploadedFile): string

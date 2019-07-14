@@ -156,7 +156,7 @@ class CompanyController extends AbstractController
 
             $user->setCompany($company);
 
-            $logo = $form->get('logo')->getData();
+          /*  $logo = $form->get('logo')->getData();
 
             if($logo) {
                 $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
@@ -173,7 +173,7 @@ class CompanyController extends AbstractController
                 $company->setHeroImage($newFilename);
                 $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
                 $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
+            }*/
 
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
@@ -231,27 +231,51 @@ class CompanyController extends AbstractController
 
             $user->setCompany($company);
 
-            $logo = $form->get('logo')->getData();
+            /** @var UploadedFile $thumbnailImage */
+            $thumbnailImage = $form->get('thumbnailImage')->getData();
 
-            if($logo) {
-                $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
-                $company->setLogo($newFilename);
+            if($thumbnailImage) {
+                $mimeType = $thumbnailImage->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setThumbnailImage($image);
+                $this->entityManager->persist($image);
 
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_LOGO) .'/'. $newFilename;
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
                 $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
-            $heroImage = $form->get('heroImage')->getData();
+            /** @var UploadedFile $featuredImage */
+            $featuredImage = $form->get('featuredImage')->getData();
 
-            if($heroImage) {
-                $newFilename = $this->uploaderHelper->uploadHeroImage($heroImage);
-                $company->setHeroImage($newFilename);
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            if($featuredImage) {
+                $mimeType = $featuredImage->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setFeaturedImage($image);
+                $this->entityManager->persist($image);
+            }
+
+            /** @var UploadedFile[] $photos */
+            $photos = $form->get('photos')->getData();
+            foreach($photos as $photo) {
+                $mimeType = $photo->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
+                $image = new CompanyImage();
+                $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->addCompanyImage($image);
+                $this->entityManager->persist($image);
             }
 
             $this->entityManager->persist($company);
-            $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
 

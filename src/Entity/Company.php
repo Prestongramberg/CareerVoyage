@@ -24,7 +24,7 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget an address!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget an address!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $address;
@@ -51,7 +51,7 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a primary contact!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a primary contact!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $primaryContact;
@@ -60,16 +60,6 @@ class Company
      * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalUser", mappedBy="company")
      */
     private $professionalUsers;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $logo;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $heroImage;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\CompanyImage", mappedBy="company", orphanRemoval=true)
@@ -94,39 +84,55 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Don't forget a short description!", groups={"EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $shortDescription;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a long description!", groups={"EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a website!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $website;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget an email address!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $emailAddress;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="companies")
      */
     private $primaryIndustry;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
+     */
+    private $thumbnailImage;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
+     */
+    private $featuredImage;
 
     public function __construct()
     {
@@ -220,38 +226,14 @@ class Company
         return $this;
     }
 
-    public function getLogo(): ?string
+    public function getFeaturedImagePath()
     {
-        return $this->logo;
+        return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
     }
 
-    public function setLogo(?string $logo): self
+    public function getThumbnailImagePath()
     {
-        $this->logo = $logo;
-
-        return $this;
-    }
-
-    public function getLogoPath()
-    {
-        return UploaderHelper::COMPANY_LOGO.'/'.$this->getLogo();
-    }
-
-    public function getHeroImagePath()
-    {
-        return UploaderHelper::HERO_IMAGE.'/'.$this->getHeroImage();
-    }
-
-    public function getHeroImage(): ?string
-    {
-        return $this->heroImage;
-    }
-
-    public function setHeroImage(?string $heroImage): self
-    {
-        $this->heroImage = $heroImage;
-
-        return $this;
+        return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
     }
 
     /**
@@ -293,7 +275,7 @@ class Company
         return $this->companyVideos;
     }
 
-    public function addCompanyVideoUrl(CompanyVideo $companyVideo): self
+    public function addCompanyVideo(CompanyVideo $companyVideo): self
     {
         if (!$this->companyVideos->contains($companyVideo)) {
             $this->companyVideos[] = $companyVideo;
@@ -430,5 +412,28 @@ class Company
 
         return $this;
     }
-    
+
+    public function getThumbnailImage(): ?Image
+    {
+        return $this->thumbnailImage;
+    }
+
+    public function setThumbnailImage(?Image $thumbnailImage): self
+    {
+        $this->thumbnailImage = $thumbnailImage;
+
+        return $this;
+    }
+
+    public function getFeaturedImage(): ?Image
+    {
+        return $this->featuredImage;
+    }
+
+    public function setFeaturedImage(?Image $featuredImage): self
+    {
+        $this->featuredImage = $featuredImage;
+
+        return $this;
+    }
 }
