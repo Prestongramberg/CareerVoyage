@@ -3,6 +3,7 @@
 namespace App\Service;
 
 
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Gedmo\Sluggable\Util\Urlizer;
 
@@ -23,12 +24,19 @@ class UploaderHelper
         $this->uploadsPath = $uploadsPath;
     }
 
-    public function upload(UploadedFile $uploadedFile, $folder = self::PROFILE_PHOTO) {
+    public function upload(File $file, $folder = self::PROFILE_PHOTO) {
 
         $destination = $this->uploadsPath.'/' . $folder;
-        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
-        $uploadedFile->move(
+
+        if ($file instanceof UploadedFile) {
+            $originalFilename = $file->getClientOriginalName();
+        } else {
+            $originalFilename = $file->getFilename();
+        }
+
+        $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
+
+        $file->move(
             $destination,
             $newFilename
         );
