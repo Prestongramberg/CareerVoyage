@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190707194138 extends AbstractMigration
+final class Version20190713181148 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,8 +22,7 @@ final class Version20190707194138 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE company_image CHANGE id id INT NOT NULL');
-        $this->addSql('ALTER TABLE company_image ADD CONSTRAINT FK_82CCA63ABF396750 FOREIGN KEY (id) REFERENCES image (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE company ADD approved TINYINT(1) NOT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -31,7 +30,6 @@ final class Version20190707194138 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE company_image DROP FOREIGN KEY FK_82CCA63ABF396750');
-        $this->addSql('ALTER TABLE company_image CHANGE id id INT AUTO_INCREMENT NOT NULL');
+        $this->addSql('ALTER TABLE company DROP approved');
     }
 }

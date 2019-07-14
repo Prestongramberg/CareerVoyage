@@ -24,7 +24,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 /**
  * Class ProfileController
  * @package App\Controller
- * @Route("/admin")
+ * @Route("/dashboard")
  */
 class ProfileController extends AbstractController
 {

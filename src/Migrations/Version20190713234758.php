@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190707194823 extends AbstractMigration
+final class Version20190713234758 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,9 +22,7 @@ final class Version20190707194823 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE professional_user DROP FOREIGN KEY FK_9FD6EF977E9E4C8C');
-        $this->addSql('DROP INDEX UNIQ_9FD6EF977E9E4C8C ON professional_user');
-        $this->addSql('ALTER TABLE professional_user ADD photo VARCHAR(255) DEFAULT NULL, DROP photo_id');
+        $this->addSql('ALTER TABLE professional_user DROP name');
     }
 
     public function down(Schema $schema) : void
@@ -32,8 +30,6 @@ final class Version20190707194823 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE professional_user ADD photo_id INT DEFAULT NULL, DROP photo');
-        $this->addSql('ALTER TABLE professional_user ADD CONSTRAINT FK_9FD6EF977E9E4C8C FOREIGN KEY (photo_id) REFERENCES image (id)');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_9FD6EF977E9E4C8C ON professional_user (photo_id)');
+        $this->addSql('ALTER TABLE professional_user ADD name VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_unicode_ci');
     }
 }

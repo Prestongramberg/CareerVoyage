@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190707172112 extends AbstractMigration
+final class Version20190714031259 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,9 @@ final class Version20190707172112 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE company ADD hero_image VARCHAR(255) DEFAULT NULL, ADD company_images LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:array)\'');
+        $this->addSql('ALTER TABLE company ADD primary_industry_id INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE company ADD CONSTRAINT FK_4FBF094F8FF6C7B5 FOREIGN KEY (primary_industry_id) REFERENCES industry (id)');
+        $this->addSql('CREATE INDEX IDX_4FBF094F8FF6C7B5 ON company (primary_industry_id)');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +32,8 @@ final class Version20190707172112 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE company DROP hero_image, DROP company_images');
+        $this->addSql('ALTER TABLE company DROP FOREIGN KEY FK_4FBF094F8FF6C7B5');
+        $this->addSql('DROP INDEX IDX_4FBF094F8FF6C7B5 ON company');
+        $this->addSql('ALTER TABLE company DROP primary_industry_id');
     }
 }

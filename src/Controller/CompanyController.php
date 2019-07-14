@@ -7,11 +7,13 @@ use App\Entity\CompanyImage;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Repository\CompanyRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -34,7 +36,7 @@ use Symfony\Component\Asset\Packages;
 /**
  * Class ProfileController
  * @package App\Controller
- * @Route("/admin")
+ * @Route("/dashboard")
  */
 class CompanyController extends AbstractController
 {
@@ -71,6 +73,11 @@ class CompanyController extends AbstractController
     private $assetsManager;
 
     /**
+     * @var CompanyRepository
+     */
+    private $companyRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -78,6 +85,7 @@ class CompanyController extends AbstractController
      * @param ImageCacheGenerator $imageCacheGenerator
      * @param UploaderHelper $uploaderHelper
      * @param Packages $assetsManager
+     * @param CompanyRepository $companyRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -85,7 +93,8 @@ class CompanyController extends AbstractController
         UserPasswordEncoderInterface $passwordEncoder,
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
-        Packages $assetsManager
+        Packages $assetsManager,
+        CompanyRepository $companyRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -93,8 +102,8 @@ class CompanyController extends AbstractController
         $this->imageCacheGenerator = $imageCacheGenerator;
         $this->uploaderHelper = $uploaderHelper;
         $this->assetsManager = $assetsManager;
+        $this->companyRepository = $companyRepository;
     }
-
 
     /**
      * @Route("/companies", name="company_index", methods={"GET"})
@@ -103,58 +112,15 @@ class CompanyController extends AbstractController
      */
     public function indexAction(Request $request) {
 
+        $companies = $this->companyRepository->findBy([
+            'approved' => false
+        ]);
+
         $user = $this->getUser();
         return $this->render('company/index.html.twig', [
-            'user' => $user
+            'user' => $user,
+            'companies' => $companies
         ]);
-    }
-
-    /**
-     * @Route("/companies/{id}/upload-company-image", name="upload_company_image", methods={"POST"})
-     * @param Company $company
-     * @param Request $request
-     * @param UploaderHelper $uploaderHelper
-     * @param EntityManagerInterface $entityManager
-     * @param ValidatorInterface $validator
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
-     */
-    public function uploadCompanyImage(Company $company, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer)
-    {
-        /** @var UploadedFile $uploadedFile */
-        $uploadedFile = $request->files->get('company_image');
-
-        if($uploadedFile) {
-
-            $mimeType = $uploadedFile->getMimeType();
-            $fileName = $this->uploaderHelper->uploadCompanyImage($uploadedFile);
-            $companyImage = new CompanyImage();
-            $companyImage->setFileName($fileName);
-            $companyImage->setOriginalName($uploadedFile->getClientOriginalName() ?? $fileName);
-            $companyImage->setMimeType($mimeType ?? 'application/octet-stream');
-            $companyImage->setCompany($company);
-
-            $entityManager->persist($companyImage);
-            $entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'data' => [
-                        'imagePath' => $this->assetsManager->getUrl($this->uploaderHelper->getPublicPath($companyImage->getPath()))
-                    ]
-                ],
-                Response::HTTP_OK
-            );
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false
-            ],
-            Response::HTTP_BAD_REQUEST
-        );
-
     }
 
     /**
@@ -188,14 +154,29 @@ class CompanyController extends AbstractController
             /** @var Company $company */
             $company = $form->getData();
 
+            $user->setCompany($company);
+
             $logo = $form->get('logo')->getData();
 
             if($logo) {
                 $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
                 $company->setLogo($newFilename);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_LOGO) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            $heroImage = $form->get('heroImage')->getData();
+
+            if($heroImage) {
+                $newFilename = $this->uploaderHelper->uploadHeroImage($heroImage);
+                $company->setHeroImage($newFilename);
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
             $this->entityManager->persist($company);
+            $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
 
@@ -214,7 +195,8 @@ class CompanyController extends AbstractController
     public function viewAction(Request $request, Company $company) {
 
         return $this->render('company/view.html.twig', [
-            'user' => $this->getUser()
+            'user' => $this->getUser(),
+            'company' => $company
         ]);
     }
 
@@ -226,11 +208,57 @@ class CompanyController extends AbstractController
      */
     public function editAction(Request $request, Company $company) {
 
-        $professionalUser = $this->getUser();
+        $user = $this->getUser();
+
+        if(!$user instanceof ProfessionalUser) {
+            throw new AccessDeniedException();
+        }
+
+        if(!$user->getCompany()) {
+            return $this->redirectToRoute('company_new');
+        }
+
+        $form = $this->createForm(EditCompanyFormType::class, $company, [
+            'method' => 'POST',
+            'company' => $company
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var Company $company */
+            $company = $form->getData();
+
+            $user->setCompany($company);
+
+            $logo = $form->get('logo')->getData();
+
+            if($logo) {
+                $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
+                $company->setLogo($newFilename);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_LOGO) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            $heroImage = $form->get('heroImage')->getData();
+
+            if($heroImage) {
+                $newFilename = $this->uploaderHelper->uploadHeroImage($heroImage);
+                $company->setHeroImage($newFilename);
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            $this->entityManager->persist($company);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
 
         return $this->render('company/edit.html.twig', [
             'company' => $company,
-            'user' => $professionalUser
+            'form' => $form->createView(),
+            'user' => $user
         ]);
     }
 }

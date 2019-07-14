@@ -11,6 +11,8 @@ class UploaderHelper
     const PROFILE_PHOTO = 'profile_photo';
     const COMPANY_LOGO = 'company_logo';
     const COMPANY_IMAGE = 'company_image';
+    const COMPANY_DOCUMENT = 'company_document';
+    const HERO_IMAGE = 'hero_image';
 
     private $uploadsPath;
     public function __construct(string $uploadsPath)
@@ -44,9 +46,35 @@ class UploaderHelper
         return $newFilename;
     }
 
+    public function uploadHeroImage(UploadedFile $uploadedFile): string
+    {
+        $destination = $this->uploadsPath.'/' . self::HERO_IMAGE;
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+        $uploadedFile->move(
+            $destination,
+            $newFilename
+        );
+
+        return $newFilename;
+    }
+
     public function uploadCompanyImage(UploadedFile $uploadedFile): string
     {
         $destination = $this->uploadsPath.'/' . self::COMPANY_IMAGE;
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+        $uploadedFile->move(
+            $destination,
+            $newFilename
+        );
+
+        return $newFilename;
+    }
+
+    public function uploadCompanyDocument(UploadedFile $uploadedFile): string
+    {
+        $destination = $this->uploadsPath.'/' . self::COMPANY_DOCUMENT;
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
         $uploadedFile->move(
@@ -62,4 +90,7 @@ class UploaderHelper
         return 'uploads/'.$path;
     }
 
+    public function getUploadsPath() {
+        return $this->uploadsPath;
+    }
 }

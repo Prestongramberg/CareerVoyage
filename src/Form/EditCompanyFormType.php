@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
-class NewCompanyFormType extends AbstractType
+class EditCompanyFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -77,14 +77,14 @@ class NewCompanyFormType extends AbstractType
         $imageConstraints = [
             new Image([
                 'maxSize' => '5M',
-                'groups'  => ['CREATE']
+                'groups'  => ['EDIT']
             ])
         ];
 
         if (!$company->getLogo()) {
             $imageConstraints[] = new NotNull([
                 'message' => 'Please upload a logo',
-                'groups'  => ['CREATE']
+                'groups'  => ['EDIT']
             ]);
         }
 
@@ -101,14 +101,14 @@ class NewCompanyFormType extends AbstractType
         $imageConstraints = [
             new Image([
                 'maxSize' => '5M',
-                'groups'  => ['CREATE']
+                'groups'  => ['EDIT']
             ])
         ];
 
         if (!$company->getHeroImage()) {
             $imageConstraints[] = new NotNull([
                 'message' => 'Please upload a hero image',
-                'groups'  => ['CREATE']
+                'groups'  => ['EDIT']
             ]);
         }
 

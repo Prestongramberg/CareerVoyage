@@ -1,7 +1,21 @@
-{% extends 'baseAuthenticated.html.twig' %}
+{% extends 'baseSinglePageApp.html.twig' %}
 
 {% block title %}Companies{% endblock %}
 
-{% block body %}
+{#{% block body %}
     <a href="{{ path('company_new') }}">Add company</a>
+
+    {% for company in companies %}
+        {{ company.address }}
+    {% endfor %}
+{% endblock %}#}
+
+{% block stylesheets %}
+    {{ parent() }}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/companies.js') }}"></script>
+{% endblock %}
+

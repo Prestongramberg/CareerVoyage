@@ -14,11 +14,6 @@ class ProfessionalUser extends User
 {
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $name;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $briefBio;
@@ -63,18 +58,6 @@ class ProfessionalUser extends User
      * @ORM\Column(type="boolean")
      */
     private $deactivated = 0;
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
 
     public function getBriefBio(): ?string
     {

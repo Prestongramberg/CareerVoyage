@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190707183757 extends AbstractMigration
+final class Version20190713231429 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,9 +22,7 @@ final class Version20190707183757 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE company_image ADD company_id INT NOT NULL');
-        $this->addSql('ALTER TABLE company_image ADD CONSTRAINT FK_82CCA63A979B1AD6 FOREIGN KEY (company_id) REFERENCES company (id)');
-        $this->addSql('CREATE INDEX IDX_82CCA63A979B1AD6 ON company_image (company_id)');
+        $this->addSql('ALTER TABLE company ADD name VARCHAR(255) NOT NULL, ADD short_description VARCHAR(255) NOT NULL, ADD description LONGTEXT DEFAULT NULL, ADD website VARCHAR(255) NOT NULL, ADD email_address VARCHAR(255) NOT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -32,8 +30,6 @@ final class Version20190707183757 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE company_image DROP FOREIGN KEY FK_82CCA63A979B1AD6');
-        $this->addSql('DROP INDEX IDX_82CCA63A979B1AD6 ON company_image');
-        $this->addSql('ALTER TABLE company_image DROP company_id');
+        $this->addSql('ALTER TABLE company DROP name, DROP short_description, DROP description, DROP website, DROP email_address');
     }
 }
