@@ -2,17 +2,16 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProfessionalUserRepository")
  */
 class ProfessionalUser extends User
 {
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $name;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -20,6 +19,12 @@ class ProfessionalUser extends User
     private $briefBio;
 
     /**
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
+     *     match=true,
+     *     message="The phone number needs to be in this format: xxx-xxx-xxx",
+     *     groups={"CREATE", "EDIT"}
+     * )
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
@@ -40,21 +45,19 @@ class ProfessionalUser extends User
     private $company;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\File", inversedBy="professionalUser", cascade={"persist", "remove"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $photo;
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $interests;
 
-    public function setName(?string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deactivated = 0;
 
     public function getBriefBio(): ?string
     {
@@ -116,15 +119,48 @@ class ProfessionalUser extends User
         return $this;
     }
 
-    public function getPhoto(): ?File
+    public function getInterests(): ?string
+    {
+        return $this->interests;
+    }
+
+    public function setInterests(?string $interests): self
+    {
+        $this->interests = $interests;
+
+        return $this;
+    }
+
+    public function getDeactivated(): ?bool
+    {
+        return $this->deactivated;
+    }
+
+    public function setDeactivated(bool $deactivated): self
+    {
+        $this->deactivated = $deactivated;
+
+        return $this;
+    }
+
+    public function getPhotoPath()
+    {
+        return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhoto()
     {
         return $this->photo;
     }
 
-    public function setPhoto(?File $photo): self
+    /**
+     * @param mixed $photo
+     */
+    public function setPhoto($photo): void
     {
         $this->photo = $photo;
-
-        return $this;
     }
 }

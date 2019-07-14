@@ -2,8 +2,7 @@
 
 namespace App\Form;
 
-
-use App\Entity\File;
+use App\Entity\Image;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,7 +17,7 @@ class ImageType extends AbstractType
             'label' => 'Photo upload',
 
             // unmapped means that this field is not associated to any entity property
-            /*'mapped' => false,*/
+            'mapped' => false,
 
             // make it optional so you don't have to re-upload the PDF file
             // everytime you edit the Product details
@@ -29,7 +28,7 @@ class ImageType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'  => File::class,
+            'data_class'  => Image::class,
             'attr'        => ['novalidate' => 'novalidate'],
         ]);
     }

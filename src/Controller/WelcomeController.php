@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\EducatorUser;
 use App\Entity\ProfessionalUser;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EducatorRegistrationFormType;
 use App\Form\ProfessionalRegistrationFormType;
@@ -34,6 +36,13 @@ class WelcomeController extends AbstractController
      */
     public function index(Request $request, AuthenticationUtils $authenticationUtils, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator): Response
     {
+
+        $securityContext = $this->container->get('security.authorization_checker');
+        if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            return $this->redirectToRoute('profile_index', ['id' => $this->getUser()->getId()]);
+        }
+
+
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
@@ -47,12 +56,14 @@ class WelcomeController extends AbstractController
         ]);
 
         // START EDUCATOR REGISTRATION FORM
-        $educatorRegistrationForm = $this->createForm(EducatorRegistrationFormType::class, $professionalUser, [
+        $educatorUser = new EducatorUser();
+        $educatorRegistrationForm = $this->createForm(EducatorRegistrationFormType::class, $educatorUser, [
             'action' => $this->generateUrl('welcome'),
             'method' => 'POST',
         ]);
 
-        $studentRegistrationForm = $this->createForm(StudentRegistrationFormType::class, $professionalUser, [
+        $studentUser = new StudentUser();
+        $studentRegistrationForm = $this->createForm(StudentRegistrationFormType::class, $studentUser, [
             'action' => $this->generateUrl('welcome'),
             'method' => 'POST',
         ]);
@@ -105,17 +116,22 @@ class WelcomeController extends AbstractController
                     )
                 );
 
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($user);
-                $entityManager->flush();
+                if (true === $form['agreeTerms']->getData()) {
 
-                // do anything else you need here, like send an email
-                return $guardHandler->authenticateUserAndHandleSuccess(
-                    $user,
-                    $request,
-                    $authenticator,
-                    'main' // firewall name in security.yaml
-                );
+                    $user->agreeToTerms();
+
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($user);
+                    $entityManager->flush();
+
+                    // do anything else you need here, like send an email
+                    return $guardHandler->authenticateUserAndHandleSuccess(
+                        $user,
+                        $request,
+                        $authenticator,
+                        'main' // firewall name in security.yaml
+                    );
+                }
             }
         }
 

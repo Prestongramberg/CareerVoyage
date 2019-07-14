@@ -12,7 +12,10 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-intl": "*",
+        "api-platform/api-pack": "^1.2",
         "friendsofsymfony/jsrouting-bundle": "^2.3",
+        "lexik/form-filter-bundle": "dev-master",
+        "liip/imagine-bundle": "^2.1",
         "rollerworks/password-strength-bundle": "^2.1",
         "sensio/framework-extra-bundle": "^5.1",
         "sociallydev/spaces-api": "dev-master",
@@ -37,9 +40,12 @@
         "symfony/validator": "4.3.*",
         "symfony/web-link": "4.3.*",
         "symfony/webpack-encore-bundle": "^1.6",
-        "symfony/yaml": "4.3.*"
+        "symfony/yaml": "4.3.*",
+      "ext-json": "*"
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.2",
+        "fzaninotto/faker": "^1.8",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
         "symfony/profiler-pack": "*",

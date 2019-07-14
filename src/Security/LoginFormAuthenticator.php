@@ -80,6 +80,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user)
     {
+        // Check to make sure the user account hasn't been deleted
+        if($user->getDeleted()) {
+            throw new CustomUserMessageAuthenticationException('Account has been deleted.');
+        }
+
         return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
     }
 

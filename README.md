@@ -10,6 +10,8 @@
 192.168.56.109 pintex.test
 192.168.56.109 www.pintex.test
 
+9. bin/console doctrine:fixtures:load --append
+
 That's it!
 
 Visit www.pintex.test in your browser
