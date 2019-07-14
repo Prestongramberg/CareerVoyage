@@ -49,6 +49,7 @@ class CompanyResultsPage {
 
     handlePrimaryIndustryFilterChange(e) {
 
+        debugger;
         let value = $(e.target).val();
 
         if("" === value) {
@@ -58,11 +59,13 @@ class CompanyResultsPage {
 
         this.list.filter((item) => {
 
+            debugger;
             if(!_.has(item.values(), 'primaryIndustry.name')) {
                 return false;
             }
 
             if (item.values().primaryIndustry.name === value) {
+                debugger;
                 return true;
             } else {
                 return false;
@@ -96,13 +99,16 @@ class CompanyResultsPage {
         debugger;
         let companies = this.companies = data.data;
 
-        for(let company of companies) {
+       /* for(let company of companies) {
             this.$wrapper.find('.list').append(cardTemplate(company));
         }
+*/
+        this.$wrapper.find('.list').append(cardTemplate(companies[0]));
 
         let options = {
             valueNames: [
                 'name',
+                /*{ name: 'industry', attr: 'data-industry' }*/
                 /*'born',
                 { data: ['id'] },
                 { name: 'timestamp', attr: 'data-timestamp' },
@@ -124,7 +130,13 @@ class CompanyResultsPage {
             }]
         };
 
-        this.list = new List('hacker-list', options);
+        this.list = new List('hacker-list', options, companies);
+
+        this.list.on('searchComplete', () => {
+            this.$wrapper.find('.list').find('.card').first().remove();
+        });
+
+        this.$wrapper.find('.list').find('.card').first().remove();
     }
 
     loadCompanies() {
@@ -181,9 +193,9 @@ const selectOptionTemplate = (value) => `
     <option value="${value}">${value}</option>
 `;
 
-const cardTemplate = ({name}) => `
-    <li data-id="1">
-     <p class="name">${name}</p>
+const cardTemplate = () => `
+    <li class="card" data-id="1">
+     <p class="name"></p>
    </li>
 `;
 
