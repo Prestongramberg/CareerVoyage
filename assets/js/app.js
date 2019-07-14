@@ -10,3 +10,6 @@ require('./vendor/uikit-icons.js');
 require('./vendor/fontawesome.js');
 
 // App Custom JS
+$(document).ready(function() {
+    $('body').addClass('ready');
+});
