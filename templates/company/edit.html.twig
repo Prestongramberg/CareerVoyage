@@ -30,23 +30,21 @@
 
         <hr>
         {{ form_row(form.thumbnailImage) }}
-        {% if company.thumbnailImage is defined %}
-            <img src="{{ asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+        {% if company.thumbnailImage %}
+            <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
         {% endif %}
         <hr>
 
 
         {{ form_row(form.featuredImage) }}
         <hr>
-        {{ form_row(form.featuredImage) }}
-        {% if company.featuredImage is defined %}
+        {% if company.featuredImage %}
             <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>
         {% endif %}
         <hr>
 
         Company Photos
         {{ form_row(form.photos) }}
-
         {% for companyPhoto in company.companyPhotos %}
             <a href="{{ path('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}">Remove</a>
             <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
