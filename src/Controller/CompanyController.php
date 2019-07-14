@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Company;
-use App\Entity\CompanyImage;
+use App\Entity\CompanyPhoto;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
@@ -13,6 +13,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -21,6 +22,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -78,6 +80,11 @@ class CompanyController extends AbstractController
     private $companyRepository;
 
     /**
+     * @var CompanyPhotoRepository
+     */
+    private $companyPhotoRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -86,6 +93,7 @@ class CompanyController extends AbstractController
      * @param UploaderHelper $uploaderHelper
      * @param Packages $assetsManager
      * @param CompanyRepository $companyRepository
+     * @param CompanyPhotoRepository $companyPhotoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -94,7 +102,8 @@ class CompanyController extends AbstractController
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
         Packages $assetsManager,
-        CompanyRepository $companyRepository
+        CompanyRepository $companyRepository,
+        CompanyPhotoRepository $companyPhotoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -103,6 +112,7 @@ class CompanyController extends AbstractController
         $this->uploaderHelper = $uploaderHelper;
         $this->assetsManager = $assetsManager;
         $this->companyRepository = $companyRepository;
+        $this->companyPhotoRepository = $companyPhotoRepository;
     }
 
     /**
@@ -208,6 +218,8 @@ class CompanyController extends AbstractController
      */
     public function editAction(Request $request, Company $company) {
 
+        $this->denyAccessUnlessGranted('edit', $company);
+
         $user = $this->getUser();
 
         if(!$user instanceof ProfessionalUser) {
@@ -267,11 +279,11 @@ class CompanyController extends AbstractController
             foreach($photos as $photo) {
                 $mimeType = $photo->getMimeType();
                 $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
-                $image = new CompanyImage();
+                $image = new CompanyPhoto();
                 $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
                 $image->setMimeType($mimeType ?? 'application/octet-stream');
                 $image->setFileName($newFilename);
-                $company->addCompanyImage($image);
+                $company->addCompanyPhoto($image);
                 $this->entityManager->persist($image);
             }
 
@@ -284,5 +296,23 @@ class CompanyController extends AbstractController
             'form' => $form->createView(),
             'user' => $user
         ]);
+    }
+
+    /**
+     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove")
+     * @ParamConverter("image", options={"id" = "image_id"})
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @param Company $company
+     * @param Request $request
+     * @param CompanyPhoto $image
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function removeCompanyPhotoAction(Company $company, Request $request, CompanyPhoto $image) {
+
+        $this->denyAccessUnlessGranted('delete', $image);
+
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+        return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
     }
 }

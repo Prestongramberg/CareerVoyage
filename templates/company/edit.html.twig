@@ -9,14 +9,12 @@
     <script src="{{ asset('build/editCompanies.js') }}"></script>
 {% endblock %}
 
-{% block _edit_company_form_photos_row %}
+{#{% block _edit_company_form_photos_row %}
     hello world
 
-{% endblock %}
+{% endblock %}#}
 
 {% block body %}
-
-    {{ dump(form.vars.data.companyImages) }}
 
     <div id="app">
         <h1>Edit Company</h1>
@@ -46,21 +44,29 @@
         {% endif %}
         <hr>
 
-        {% set sharedButtonMarkup %}
-            <a href="#" class="js-addPhoto"><i class="fa fa-plus" aria-hidden="true"></i> Add a photo</a>
-        {% endset %}
+        Company Photos
+        {{ form_row(form.photos) }}
 
-        {% if form.photos is defined %}
-            <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.photos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
-                {% for photo in form.photos %}
+        {% for companyPhoto in company.companyPhotos %}
+            <a href="{{ path('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}">Remove</a>
+            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+        {% endfor %}
+
+       {# {% set sharedButtonMarkup %}
+            <a href="#" class="js-addPhoto"><i class="fa fa-plus" aria-hidden="true"></i> Add a photo</a>
+        {% endset %}#}
+
+        {#{% if form.photos is defined %}#}
+          {#  <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.companyImages.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                {% for photo in form.companyImages %}
                     <li class="list-group-item js-child-item">
-                        {{ form_errors(photo) }}
-                        {{ form_widget(photo) }}
+                        {{ form_errors(photo.file) }}
+                        {{ form_widget(photo.file) }}
                     </li>
                 {% endfor %}
-            </ul>
-            {{ sharedButtonMarkup }}
-        {% endif %}
+            </ul>#}
+            {#{{ sharedButtonMarkup }}#}
+        {#{% endif %}#}
 
 
 
@@ -132,9 +138,9 @@
          <hr>
 
          <hr>#}
-
-        <hr>
-        <button class="btn">Update</button>
+        <div>
+            <button class="btn">Update</button>
+        </div>
         {{ form_end(form) }}
     </div>
 

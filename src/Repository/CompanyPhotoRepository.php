@@ -2,21 +2,21 @@
 
 namespace App\Repository;
 
-use App\Entity\CompanyImage;
+use App\Entity\CompanyPhoto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method CompanyImage|null find($id, $lockMode = null, $lockVersion = null)
- * @method CompanyImage|null findOneBy(array $criteria, array $orderBy = null)
- * @method CompanyImage[]    findAll()
- * @method CompanyImage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CompanyPhoto|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CompanyPhoto|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CompanyPhoto[]    findAll()
+ * @method CompanyPhoto[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CompanyImageRepository extends ServiceEntityRepository
+class CompanyPhotoRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, CompanyImage::class);
+        parent::__construct($registry, CompanyPhoto::class);
     }
 
     // /**

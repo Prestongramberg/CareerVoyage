@@ -62,9 +62,9 @@ class Company
     private $professionalUsers;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyImage", mappedBy="company", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="CompanyPhoto", mappedBy="company", orphanRemoval=true, cascade={"persist"})
      */
-    private $companyImages;
+    private $companyPhotos;
 
     /**
      * @ORM\OneToMany(targetEntity="CompanyVideo", mappedBy="company", orphanRemoval=true)
@@ -137,7 +137,7 @@ class Company
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
-        $this->companyImages = new ArrayCollection();
+        $this->companyPhotos = new ArrayCollection();
         $this->companyVideos = new ArrayCollection();
         $this->companyDocuments = new ArrayCollection();
     }
@@ -237,30 +237,30 @@ class Company
     }
 
     /**
-     * @return Collection|CompanyImage[]
+     * @return Collection|CompanyPhoto[]
      */
-    public function getCompanyImages(): Collection
+    public function getCompanyPhotos(): Collection
     {
-        return $this->companyImages;
+        return $this->companyPhotos;
     }
 
-    public function addCompanyImage(CompanyImage $companyImage): self
+    public function addCompanyPhoto(CompanyPhoto $companyPhoto): self
     {
-        if (!$this->companyImages->contains($companyImage)) {
-            $this->companyImages[] = $companyImage;
-            $companyImage->setCompany($this);
+        if (!$this->companyPhotos->contains($companyPhoto)) {
+            $this->companyPhotos[] = $companyPhoto;
+            $companyPhoto->setCompany($this);
         }
 
         return $this;
     }
 
-    public function removeCompanyImage(CompanyImage $companyImage): self
+    public function removeCompanyPhoto(CompanyPhoto $companyPhoto): self
     {
-        if ($this->companyImages->contains($companyImage)) {
-            $this->companyImages->removeElement($companyImage);
+        if ($this->companyPhotos->contains($companyPhoto)) {
+            $this->companyPhotos->removeElement($companyPhoto);
             // set the owning side to null (unless already changed)
-            if ($companyImage->getCompany() === $this) {
-                $companyImage->setCompany(null);
+            if ($companyPhoto->getCompany() === $this) {
+                $companyPhoto->setCompany(null);
             }
         }
 

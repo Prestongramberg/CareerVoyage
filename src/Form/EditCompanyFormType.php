@@ -64,15 +64,24 @@ class EditCompanyFormType extends AbstractType
                 // make it optional so you don't have to re-upload files
                 // everytime you edit the entity
                 'required' => false
-            ])->add('photos', CollectionType::class, array(
-                'entry_type' => FileType::class,
+            ])
+            ->add('photos', FileType::class, array(
+                        'multiple' => true,
+                        'label' => false,
+                        'mapped' => false
+            ));
+
+
+
+            /*->add('photos', CollectionType::class, array(
+                'entry_type' => ImageType::class,
                 'allow_add' => true,
                 'error_bubbling' => false,
                 'prototype' => true,
                 'prototype_name' => '__prototype_one__',
                 'label' => false,
                 'mapped' => false
-            ));
+            ));*/
 
 
         /*
