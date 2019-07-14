@@ -30,8 +30,19 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $professionalUser->setUsername('joshcrawmer4');
         $professionalUser->agreeToTerms();
         $professionalUser->setupAsProfessional();
+        $manager->persist($professionalUser);
 
-
+        $professionalUser = new ProfessionalUser();
+        $professionalUser->setFirstName('Travis');
+        $professionalUser->setLastName('Hoglund');
+        $professionalUser->setPassword($this->passwordEncoder->encodePassword(
+            $professionalUser,
+            'TEST1234'
+        ));
+        $professionalUser->setEmail('travis@travishoglund.com');
+        $professionalUser->setUsername('travishoglund');
+        $professionalUser->agreeToTerms();
+        $professionalUser->setupAsProfessional();
         $manager->persist($professionalUser);
 
         $manager->flush();
