@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Company;
-use App\Entity\CompanyImage;
+use App\Entity\CompanyPhoto;
+use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
@@ -13,6 +14,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -21,6 +23,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -78,6 +81,11 @@ class CompanyController extends AbstractController
     private $companyRepository;
 
     /**
+     * @var CompanyPhotoRepository
+     */
+    private $companyPhotoRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -86,6 +94,7 @@ class CompanyController extends AbstractController
      * @param UploaderHelper $uploaderHelper
      * @param Packages $assetsManager
      * @param CompanyRepository $companyRepository
+     * @param CompanyPhotoRepository $companyPhotoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -94,7 +103,8 @@ class CompanyController extends AbstractController
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
         Packages $assetsManager,
-        CompanyRepository $companyRepository
+        CompanyRepository $companyRepository,
+        CompanyPhotoRepository $companyPhotoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -103,6 +113,7 @@ class CompanyController extends AbstractController
         $this->uploaderHelper = $uploaderHelper;
         $this->assetsManager = $assetsManager;
         $this->companyRepository = $companyRepository;
+        $this->companyPhotoRepository = $companyPhotoRepository;
     }
 
     /**
@@ -156,7 +167,7 @@ class CompanyController extends AbstractController
 
             $user->setCompany($company);
 
-            $logo = $form->get('logo')->getData();
+          /*  $logo = $form->get('logo')->getData();
 
             if($logo) {
                 $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
@@ -173,7 +184,7 @@ class CompanyController extends AbstractController
                 $company->setHeroImage($newFilename);
                 $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
                 $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
+            }*/
 
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
@@ -208,6 +219,8 @@ class CompanyController extends AbstractController
      */
     public function editAction(Request $request, Company $company) {
 
+        $this->denyAccessUnlessGranted('edit', $company);
+
         $user = $this->getUser();
 
         if(!$user instanceof ProfessionalUser) {
@@ -231,27 +244,64 @@ class CompanyController extends AbstractController
 
             $user->setCompany($company);
 
-            $logo = $form->get('logo')->getData();
+            /** @var UploadedFile $thumbnailImage */
+            $thumbnailImage = $form->get('thumbnailImage')->getData();
 
-            if($logo) {
-                $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
-                $company->setLogo($newFilename);
+            if($thumbnailImage) {
+                $mimeType = $thumbnailImage->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setThumbnailImage($image);
+                $this->entityManager->persist($image);
 
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_LOGO) .'/'. $newFilename;
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
                 $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
-            $heroImage = $form->get('heroImage')->getData();
+            /** @var UploadedFile $featuredImage */
+            $featuredImage = $form->get('featuredImage')->getData();
 
-            if($heroImage) {
-                $newFilename = $this->uploaderHelper->uploadHeroImage($heroImage);
-                $company->setHeroImage($newFilename);
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            if($featuredImage) {
+                $mimeType = $featuredImage->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setFeaturedImage($image);
+                $this->entityManager->persist($image);
+            }
+
+            /** @var UploadedFile[] $photos */
+            $photos = $form->get('photos')->getData();
+            foreach($photos as $photo) {
+                $mimeType = $photo->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
+                $image = new CompanyPhoto();
+                $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->addCompanyPhoto($image);
+                $this->entityManager->persist($image);
+            }
+
+            /** @var UploadedFile[] $photos */
+            $resources = $form->get('resources')->getData();
+            foreach($resources as $resource) {
+                $mimeType = $resource->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::COMPANY_RESOURCE);
+                $companyResource = new CompanyResource();
+                $companyResource->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+                $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
+                $companyResource->setFileName($newFilename);
+                $company->addCompanyResource($companyResource);
+                $this->entityManager->persist($companyResource);
             }
 
             $this->entityManager->persist($company);
-            $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
 
@@ -260,5 +310,23 @@ class CompanyController extends AbstractController
             'form' => $form->createView(),
             'user' => $user
         ]);
+    }
+
+    /**
+     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove")
+     * @ParamConverter("image", options={"id" = "image_id"})
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @param Company $company
+     * @param Request $request
+     * @param CompanyPhoto $image
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function removeCompanyPhotoAction(Company $company, Request $request, CompanyPhoto $image) {
+
+        $this->denyAccessUnlessGranted('delete', $image);
+
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+        return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
     }
 }

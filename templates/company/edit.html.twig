@@ -1,83 +1,156 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
+{% form_theme form with _self %}
+
 {% block title %}Edit Company{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/editCompanies.js') }}"></script>
+{% endblock %}
+
+{#{% block _edit_company_form_photos_row %}
+    hello world
+
+{% endblock %}#}
 
 {% block body %}
 
-    <h1>Edit Company</h1>
+    <div id="app">
+        <h1>Edit Company</h1>
 
-    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-    {{ form_row(form.address) }}
-    {{ form_row(form.briefCompanyDescription) }}
-
-
-    <h2>Company Logo</h2>
-    {{ form_row(form.logo) }}
-    {% if company.logo is defined %}
-        <img src="{{ asset(uploaded_asset(company.logoPath))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
-    {% endif %}
-
-    <h2>Hero Image</h2>
-    {{ form_row(form.heroImage) }}
-    {% if company.heroImage is defined %}
-        <img src="{{ asset(uploaded_asset(company.heroImagePath))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
-    {% endif %}
-
-
-    {{ form_row(form.primaryContact) }}
-    {{ form_row(form.companyLinkedinPage) }}
-
-    {{ form_row(form.phone) }}
-    <button class="btn">Update</button>
-    {{ form_end(form) }}
-
-    {% if user.company %}
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.website) }}
+        {{ form_row(form.phone) }}
+        {{ form_row(form.emailAddress) }}
+        {{ form_row(form.primaryIndustry) }}
+        {{ form_row(form.shortDescription) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.companyLinkedinPage) }}
 
         <hr>
-        <h2>Company Images</h2>
-        <form action="{{ path('upload_company_image', {
-            id: company.id
-        }) }}" method="POST" enctype="multipart/form-data">
-            <input type="file" name="company_image">
-            <input type="submit" name="submit">
-        </form>
-
-    {% endif %}
-
-    {% for image in company.companyImages %}
-        <img src="{{ asset(uploaded_asset(image.path))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
-    {% endfor %}
-    <hr>
+        {{ form_row(form.thumbnailImage) }}
+        {% if company.thumbnailImage %}
+            <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+        {% endif %}
+        <hr>
 
 
-    <h2>Video URL</h2>
-    <form action="{{ path('add_video_url', {
-        id: company.id
-    }) }}" method="POST">
-        <input type="text" name="video_url">
-        <input type="submit" name="submit">
-    </form>
+        {{ form_row(form.featuredImage) }}
+        <hr>
+        {% if company.featuredImage %}
+            <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>
+        {% endif %}
+        <hr>
+
+        Company Photos
+        {{ form_row(form.photos) }}
+        {% for companyPhoto in company.companyPhotos %}
+            <a href="{{ path('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}">Remove</a>
+            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+        {% endfor %}
 
 
-    {% for video in company.companyVideos %}
-        <iframe width="1135" height="454" src="{{ video.url }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    {% endfor %}
-    <hr>
+        {% set sharedButtonMarkup %}
+            <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a video</a>
+        {% endset %}
 
-    <h2>Company Documents</h2>
-    <form action="{{ path('upload_company_document', {
-        id: company.id
-    }) }}" method="POST" enctype="multipart/form-data">
-        <input type="file" name="company_document">
-        <input type="submit" name="submit">
-    </form>
+        {# TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it
+        so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
+        {% if form.videos is defined %}
+            <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.videos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                {% for video in form.videos %}
+                    <li class="list-group-item js-child-item">
+                        {{ form_row(video.name) }}
+                        {{ form_row(video.videoId) }}
+                    </li>
+                {% endfor %}
+            </ul>
+            {{ sharedButtonMarkup }}
+        {% endif %}
 
-    {% for document in company.companyDocuments %}
-        <a href="{{ asset(uploaded_asset(document.path)) }}" download>{{ document.path }}</a>
-    {% endfor %}
-    <hr>
+        <br>
+        <br>
+        Company Resources
+        {{ form_row(form.resources) }}
+        {% for resource in company.companyResources %}
+            <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>
+        {% endfor %}
 
-    <hr>
 
+        {#
+            <h2>Company Documents</h2>
+            <form action="{{ path('upload_company_document', {
+                id: company.id
+            }) }}" method="POST" enctype="multipart/form-data">
+                <input type="file" name="company_document">
+                <input type="submit" name="submit">
+            </form>
+        #}
+
+
+
+        {# <h2>Company Logo</h2>
+
+
+         {{ form_row(form.primaryContact) }}
+         {{ form_row(form.companyLinkedinPage) }}
+
+         {{ form_row(form.phone) }}
+
+
+         {% if user.company %}
+
+             <hr>
+             <h2>Company Images</h2>
+             <form action="{{ path('upload_company_image', {
+                 id: company.id
+             }) }}" method="POST" enctype="multipart/form-data">
+                 <input type="file" name="company_image">
+                 <input type="submit" name="submit">
+             </form>
+
+         {% endif %}
+
+         {% for image in company.companyImages %}
+             <img src="{{ asset(uploaded_asset(image.path))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
+         {% endfor %}
+         <hr>
+
+
+         <h2>Video URL</h2>
+         <form action="{{ path('add_video_url', {
+             id: company.id
+         }) }}" method="POST">
+             <input type="text" name="video_url">
+             <input type="submit" name="submit">
+         </form>
+
+
+         {% for video in company.companyVideos %}
+             <iframe width="1135" height="454" src="{{ video.url }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+         {% endfor %}
+         <hr>
+
+         <h2>Company Documents</h2>
+         <form action="{{ path('upload_company_document', {
+             id: company.id
+         }) }}" method="POST" enctype="multipart/form-data">
+             <input type="file" name="company_document">
+             <input type="submit" name="submit">
+         </form>
+
+         {% for document in company.companyDocuments %}
+             <a href="{{ asset(uploaded_asset(document.path)) }}" download>{{ document.path }}</a>
+         {% endfor %}
+         <hr>
+
+         <hr>#}
+        <div>
+            <button class="btn">Update</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
 
 {% endblock %}

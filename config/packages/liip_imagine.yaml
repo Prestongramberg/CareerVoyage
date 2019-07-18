@@ -18,6 +18,6 @@ liip_imagine:
       squared_thumbnail_small:
         filters:
           thumbnail:
-            size:          [200, 200]
+            size:          [300, 300]
             mode:          outbound
             allow_upscale: true

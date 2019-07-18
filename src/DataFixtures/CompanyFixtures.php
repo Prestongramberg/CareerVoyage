@@ -3,12 +3,15 @@
 namespace App\DataFixtures;
 
 use App\Entity\Company;
+use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -84,21 +87,86 @@ class CompanyFixtures extends BaseFixture
 
     protected function loadData(ObjectManager $manager)
     {
-        for($i = 1; $i <= 20; $i++) {
             $company = new Company();
-            $company->setName($this->faker->randomElement(self::$companyNames));
-            $company->setAddress($this->faker->randomElement(self::$companyAddresses));
-            $company->setShortDescription($this->faker->randomElement(self::$companyDescriptions));
-            $company->setWebsite($this->faker->randomElement(self::$companyWebsites));
-            $company->setEmailAddress($this->faker->randomElement(self::$companyEmails));
+            $company->setName('Best Buy');
+            $company->setAddress('7601 Penn Ave. S Richfield, MN 55423');
+            $company->setShortDescription('Best Buy Co., Inc. is an American multinational consumer electronics retailer headquartered in Richfield, Minnesota. It was originally founded by Richard M. Schulze and James Wheeler in 1966 as an audio specialty store called Sound of Music');
+            $company->setWebsite('http://www.bestbuy.com');
+            $company->setEmailAddress('info@bestbuy.com');
 
-            if($i >= 1 && $i <= 10) {
-                $company->setPrimaryIndustry($this->getReference("industry{$i}"));
+            $thumbnailImage = new File(__DIR__.'/images/bestbuy.jpg');
+
+            if($thumbnailImage) {
+                $mimeType = $thumbnailImage->getMimeType();
+                $newFilename = $this->fakeUploadImage('bestbuy.jpg', UploaderHelper::THUMBNAIL_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($thumbnailImage->getFilename() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setThumbnailImage($image);
+                $manager->persist($image);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
+            $company->setPrimaryIndustry($this->getReference("industry1"));
             $manager->persist($company);
-        }
-        $manager->flush();
+
+            $company = new Company();
+            $company->setName('Walmart');
+            $company->setAddress('1101 East street Bentonville, Arkansas 67009');
+            $company->setShortDescription('Walmart Inc. is an American multinational retail corporation that operates a chain of hypermarkets, discount department stores, and grocery stores, headquartered in Bentonville, Arkansas.');
+            $company->setWebsite('http://www.walmart.com');
+            $company->setEmailAddress('info@walmart.com');
+
+            $thumbnailImage = new File(__DIR__.'/images/walmart.jpg');
+
+
+            if($thumbnailImage) {
+                $mimeType = $thumbnailImage->getMimeType();
+                $newFilename = $this->fakeUploadImage('walmart.jpg', UploaderHelper::THUMBNAIL_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($thumbnailImage->getFilename() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setThumbnailImage($image);
+                $manager->persist($image);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            $company->setPrimaryIndustry($this->getReference("industry2"));
+            $manager->persist($company);
+
+            $company = new Company();
+            $company->setName('Target');
+            $company->setAddress('8890 west 9th street Miami FL 65430');
+            $company->setShortDescription('Target Corporation is the eighth-largest retailer in the United States, and is a component of the S&P 500 Index');
+            $company->setWebsite('http://www.target.com');
+            $company->setEmailAddress('info@target.com');
+
+            $thumbnailImage = new File(__DIR__.'/images/target.jpg');
+
+            if($thumbnailImage) {
+                $mimeType = $thumbnailImage->getMimeType();
+                $newFilename = $this->fakeUploadImage('target.jpg', UploaderHelper::THUMBNAIL_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($thumbnailImage->getFilename() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setThumbnailImage($image);
+                $manager->persist($image);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            $company->setPrimaryIndustry($this->getReference("industry13"));
+            $manager->persist($company);
+
+            $manager->flush();
     }
 
     /**
@@ -112,5 +180,18 @@ class CompanyFixtures extends BaseFixture
         return array(
             IndustryFixtures::class,
         );
+    }
+
+    /**
+     * @param $imageName
+     * @param $folder
+     * @return string
+     */
+    private function fakeUploadImage($imageName, $folder): string
+    {
+        $fs = new Filesystem();
+        $targetPath = sys_get_temp_dir().'/'.$imageName;
+        $fs->copy(__DIR__.'/images/'.$imageName, $targetPath, true);
+        return $this->uploaderHelper->upload(new File($targetPath), $folder);
     }
 }

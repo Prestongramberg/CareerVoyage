@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190713234758 extends AbstractMigration
+final class Version20190714204742 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,9 @@ final class Version20190713234758 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE professional_user DROP name');
+        $this->addSql('CREATE TABLE company_resource (id INT NOT NULL, company_id INT NOT NULL, INDEX IDX_A406E17B979B1AD6 (company_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE company_resource ADD CONSTRAINT FK_A406E17B979B1AD6 FOREIGN KEY (company_id) REFERENCES company (id)');
+        $this->addSql('ALTER TABLE company_resource ADD CONSTRAINT FK_A406E17BBF396750 FOREIGN KEY (id) REFERENCES image (id) ON DELETE CASCADE');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +32,6 @@ final class Version20190713234758 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE professional_user ADD name VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_unicode_ci');
+        $this->addSql('DROP TABLE company_resource');
     }
 }

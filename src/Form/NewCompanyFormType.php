@@ -3,8 +3,10 @@
 namespace App\Form;
 
 use App\Entity\Company;
+use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -28,32 +30,13 @@ class NewCompanyFormType extends AbstractType
         $company = $options['company'];
 
         $builder
-            ->add('address', TextType::class, [])
-            ->add('briefCompanyDescription', TextareaType::class)
-            ->add('primaryContact', TextType::class)
-            ->add('companyLinkedinPage', TextType::class)
+            ->add('name', TextType::class, [])
+            ->add('website', TextType::class, [])
             ->add('phone', TextType::class)
-            ->add('logo', FileType::class, [
-                'label' => 'Company logo',
-                'constraints' => $this->logoImageConstraints($company),
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false
-            ])
-            ->add('heroImage', FileType::class, [
-                'label' => 'Company hero image',
-                'constraints' => $this->heroImageConstraints($company),
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false
+            ->add('emailAddress', TextType::class)
+            ->add('primaryIndustry', EntityType::class, [
+                'class' => Industry::class,
+                'choice_label' => 'name',
             ]);
     }
 
@@ -65,53 +48,5 @@ class NewCompanyFormType extends AbstractType
         ]);
 
         $resolver->setRequired('company');
-
-    }
-
-    /**
-     * @param Company $company
-     * @return array
-     */
-    private function logoImageConstraints($company) {
-
-        $imageConstraints = [
-            new Image([
-                'maxSize' => '5M',
-                'groups'  => ['CREATE']
-            ])
-        ];
-
-        if (!$company->getLogo()) {
-            $imageConstraints[] = new NotNull([
-                'message' => 'Please upload a logo',
-                'groups'  => ['CREATE']
-            ]);
-        }
-
-        return $imageConstraints;
-    }
-
-
-    /**
-     * @param Company $company
-     * @return array
-     */
-    private function heroImageConstraints($company) {
-
-        $imageConstraints = [
-            new Image([
-                'maxSize' => '5M',
-                'groups'  => ['CREATE']
-            ])
-        ];
-
-        if (!$company->getHeroImage()) {
-            $imageConstraints[] = new NotNull([
-                'message' => 'Please upload a hero image',
-                'groups'  => ['CREATE']
-            ]);
-        }
-
-        return $imageConstraints;
     }
 }

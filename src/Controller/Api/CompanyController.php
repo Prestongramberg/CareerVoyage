@@ -4,7 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Company;
 use App\Entity\CompanyDocument;
-use App\Entity\CompanyImage;
+use App\Entity\CompanyPhoto;
 use App\Entity\CompanyVideo;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
@@ -185,7 +185,7 @@ class CompanyController extends AbstractController
 
             $mimeType = $uploadedFile->getMimeType();
             $fileName = $this->uploaderHelper->uploadCompanyImage($uploadedFile);
-            $companyImage = new CompanyImage();
+            $companyImage = new CompanyPhoto();
             $companyImage->setFileName($fileName);
             $companyImage->setOriginalName($uploadedFile->getClientOriginalName() ?? $fileName);
             $companyImage->setMimeType($mimeType ?? 'application/octet-stream');

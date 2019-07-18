@@ -24,7 +24,7 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget an address!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget an address!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $address;
@@ -51,7 +51,7 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a primary contact!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a primary contact!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $primaryContact;
@@ -62,29 +62,9 @@ class Company
     private $professionalUsers;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\OneToMany(targetEntity="CompanyPhoto", mappedBy="company", orphanRemoval=true, cascade={"persist"})
      */
-    private $logo;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $heroImage;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyImage", mappedBy="company", orphanRemoval=true)
-     */
-    private $companyImages;
-
-    /**
-     * @ORM\OneToMany(targetEntity="CompanyVideo", mappedBy="company", orphanRemoval=true)
-     */
-    private $companyVideos;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyDocument", mappedBy="company", orphanRemoval=true)
-     */
-    private $companyDocuments;
+    private $companyPhotos;
 
     /**
      * @Groups({"RESULTS_PAGE"})
@@ -94,46 +74,72 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Don't forget a short description!", groups={"EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $shortDescription;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a long description!", groups={"EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a website!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $website;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget an email address!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $emailAddress;
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="companies")
      */
     private $primaryIndustry;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
+     */
+    private $thumbnailImage;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
+     */
+    private $featuredImage;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Video", mappedBy="company", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $videos;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", orphanRemoval=true, cascade={"persist"})
+     */
+    private $companyResources;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
-        $this->companyImages = new ArrayCollection();
-        $this->companyVideos = new ArrayCollection();
-        $this->companyDocuments = new ArrayCollection();
+        $this->companyPhotos = new ArrayCollection();
+        $this->videos = new ArrayCollection();
+        $this->companyResources = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -220,127 +226,41 @@ class Company
         return $this;
     }
 
-    public function getLogo(): ?string
+    public function getFeaturedImagePath()
     {
-        return $this->logo;
+        return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
     }
 
-    public function setLogo(?string $logo): self
+    public function getThumbnailImagePath()
     {
-        $this->logo = $logo;
-
-        return $this;
-    }
-
-    public function getLogoPath()
-    {
-        return UploaderHelper::COMPANY_LOGO.'/'.$this->getLogo();
-    }
-
-    public function getHeroImagePath()
-    {
-        return UploaderHelper::HERO_IMAGE.'/'.$this->getHeroImage();
-    }
-
-    public function getHeroImage(): ?string
-    {
-        return $this->heroImage;
-    }
-
-    public function setHeroImage(?string $heroImage): self
-    {
-        $this->heroImage = $heroImage;
-
-        return $this;
+        return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
     }
 
     /**
-     * @return Collection|CompanyImage[]
+     * @return Collection|CompanyPhoto[]
      */
-    public function getCompanyImages(): Collection
+    public function getCompanyPhotos(): Collection
     {
-        return $this->companyImages;
+        return $this->companyPhotos;
     }
 
-    public function addCompanyImage(CompanyImage $companyImage): self
+    public function addCompanyPhoto(CompanyPhoto $companyPhoto): self
     {
-        if (!$this->companyImages->contains($companyImage)) {
-            $this->companyImages[] = $companyImage;
-            $companyImage->setCompany($this);
+        if (!$this->companyPhotos->contains($companyPhoto)) {
+            $this->companyPhotos[] = $companyPhoto;
+            $companyPhoto->setCompany($this);
         }
 
         return $this;
     }
 
-    public function removeCompanyImage(CompanyImage $companyImage): self
+    public function removeCompanyPhoto(CompanyPhoto $companyPhoto): self
     {
-        if ($this->companyImages->contains($companyImage)) {
-            $this->companyImages->removeElement($companyImage);
+        if ($this->companyPhotos->contains($companyPhoto)) {
+            $this->companyPhotos->removeElement($companyPhoto);
             // set the owning side to null (unless already changed)
-            if ($companyImage->getCompany() === $this) {
-                $companyImage->setCompany(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|CompanyVideo[]
-     */
-    public function getCompanyVideos(): Collection
-    {
-        return $this->companyVideos;
-    }
-
-    public function addCompanyVideoUrl(CompanyVideo $companyVideo): self
-    {
-        if (!$this->companyVideos->contains($companyVideo)) {
-            $this->companyVideos[] = $companyVideo;
-            $companyVideo->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompanyVideo(CompanyVideo $companyVideo): self
-    {
-        if ($this->companyVideos->contains($companyVideo)) {
-            $this->companyVideos->removeElement($companyVideo);
-            // set the owning side to null (unless already changed)
-            if ($companyVideo->getCompany() === $this) {
-                $companyVideo->setCompany(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|CompanyDocument[]
-     */
-    public function getCompanyDocuments(): Collection
-    {
-        return $this->companyDocuments;
-    }
-
-    public function addCompanyDocument(CompanyDocument $companyDocument): self
-    {
-        if (!$this->companyDocuments->contains($companyDocument)) {
-            $this->companyDocuments[] = $companyDocument;
-            $companyDocument->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompanyDocument(CompanyDocument $companyDocument): self
-    {
-        if ($this->companyDocuments->contains($companyDocument)) {
-            $this->companyDocuments->removeElement($companyDocument);
-            // set the owning side to null (unless already changed)
-            if ($companyDocument->getCompany() === $this) {
-                $companyDocument->setCompany(null);
+            if ($companyPhoto->getCompany() === $this) {
+                $companyPhoto->setCompany(null);
             }
         }
 
@@ -430,5 +350,90 @@ class Company
 
         return $this;
     }
-    
+
+    public function getThumbnailImage(): ?Image
+    {
+        return $this->thumbnailImage;
+    }
+
+    public function setThumbnailImage(?Image $thumbnailImage): self
+    {
+        $this->thumbnailImage = $thumbnailImage;
+
+        return $this;
+    }
+
+    public function getFeaturedImage(): ?Image
+    {
+        return $this->featuredImage;
+    }
+
+    public function setFeaturedImage(?Image $featuredImage): self
+    {
+        $this->featuredImage = $featuredImage;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Video[]
+     */
+    public function getVideos(): Collection
+    {
+        return $this->videos;
+    }
+
+    public function addVideo(Video $video): self
+    {
+        if (!$this->videos->contains($video)) {
+            $this->videos[] = $video;
+            $video->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideo(Video $video): self
+    {
+        if ($this->videos->contains($video)) {
+            $this->videos->removeElement($video);
+            // set the owning side to null (unless already changed)
+            if ($video->getCompany() === $this) {
+                $video->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyResource[]
+     */
+    public function getCompanyResources(): Collection
+    {
+        return $this->companyResources;
+    }
+
+    public function addCompanyResource(CompanyResource $companyResource): self
+    {
+        if (!$this->companyResources->contains($companyResource)) {
+            $this->companyResources[] = $companyResource;
+            $companyResource->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyResource(CompanyResource $companyResource): self
+    {
+        if ($this->companyResources->contains($companyResource)) {
+            $this->companyResources->removeElement($companyResource);
+            // set the owning side to null (unless already changed)
+            if ($companyResource->getCompany() === $this) {
+                $companyResource->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
 }

@@ -5,9 +5,9 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CompanyVideoRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\VideoRepository")
  */
-class CompanyVideo
+class Video
 {
     /**
      * @ORM\Id()
@@ -19,10 +19,15 @@ class CompanyVideo
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $url;
+    private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyVideoUrls")
+     * @ORM\Column(type="string", length=255)
+     */
+    private $videoId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="videos")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;
@@ -32,14 +37,26 @@ class CompanyVideo
         return $this->id;
     }
 
-    public function getUrl(): ?string
+    public function getName(): ?string
     {
-        return $this->url;
+        return $this->name;
     }
 
-    public function setUrl(string $url): self
+    public function setName(string $name): self
     {
-        $this->url = $url;
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getVideoId(): ?string
+    {
+        return $this->videoId;
+    }
+
+    public function setVideoId(string $videoId): self
+    {
+        $this->videoId = $videoId;
 
         return $this;
     }

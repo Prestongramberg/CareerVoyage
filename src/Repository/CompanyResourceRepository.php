@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\CompanyDocument;
+use App\Entity\CompanyResource;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method CompanyDocument|null find($id, $lockMode = null, $lockVersion = null)
- * @method CompanyDocument|null findOneBy(array $criteria, array $orderBy = null)
- * @method CompanyDocument[]    findAll()
- * @method CompanyDocument[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CompanyResource|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CompanyResource|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CompanyResource[]    findAll()
+ * @method CompanyResource[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CompanyDocumentRepository extends ServiceEntityRepository
+class CompanyResourceRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, CompanyDocument::class);
+        parent::__construct($registry, CompanyResource::class);
     }
 
     // /**
-    //  * @return CompanyDocuments[] Returns an array of CompanyDocuments objects
+    //  * @return CompanyResource[] Returns an array of CompanyResource objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class CompanyDocumentRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?CompanyDocuments
+    public function findOneBySomeField($value): ?CompanyResource
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.exampleField = :val')

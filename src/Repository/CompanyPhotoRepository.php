@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\CompanyVideo;
+use App\Entity\CompanyPhoto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method CompanyVideo|null find($id, $lockMode = null, $lockVersion = null)
- * @method CompanyVideo|null findOneBy(array $criteria, array $orderBy = null)
- * @method CompanyVideo[]    findAll()
- * @method CompanyVideo[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CompanyPhoto|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CompanyPhoto|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CompanyPhoto[]    findAll()
+ * @method CompanyPhoto[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CompanyVideoRepository extends ServiceEntityRepository
+class CompanyPhotoRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, CompanyVideo::class);
+        parent::__construct($registry, CompanyPhoto::class);
     }
 
     // /**
-    //  * @return CompanyVideoUrl[] Returns an array of CompanyVideoUrl objects
+    //  * @return CompanyImage[] Returns an array of CompanyImage objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class CompanyVideoRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?CompanyVideoUrl
+    public function findOneBySomeField($value): ?CompanyImage
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.exampleField = :val')

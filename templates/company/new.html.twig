@@ -5,16 +5,12 @@
 {% block body %}
 
     <h1>Add Company</h1>
-
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-    {{ form_row(form.address) }}
-    {{ form_row(form.briefCompanyDescription) }}
-    {{ form_row(form.logo) }}
-    {{ form_row(form.heroImage) }}
-    {{ form_row(form.primaryContact) }}
-    {{ form_row(form.companyLinkedinPage) }}
-
+    {{ form_row(form.name) }}
+    {{ form_row(form.website) }}
     {{ form_row(form.phone) }}
+    {{ form_row(form.emailAddress) }}
+    {{ form_row(form.primaryIndustry) }}
     <button class="btn">Create</button>
     {{ form_end(form) }}
 

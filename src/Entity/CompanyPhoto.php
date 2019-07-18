@@ -6,27 +6,16 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CompanyImageRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CompanyPhotoRepository")
  */
-class CompanyImage extends Image
+class CompanyPhoto extends Image
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyImages")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getCompany(): ?Company
     {
@@ -42,6 +31,6 @@ class CompanyImage extends Image
 
     public function getPath()
     {
-        return UploaderHelper::COMPANY_IMAGE.'/'.$this->getFileName();
+        return UploaderHelper::COMPANY_PHOTO.'/'.$this->getFileName();
     }
 }

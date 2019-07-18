@@ -3,6 +3,7 @@
 namespace App\Service;
 
 
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Gedmo\Sluggable\Util\Urlizer;
 
@@ -13,11 +14,35 @@ class UploaderHelper
     const COMPANY_IMAGE = 'company_image';
     const COMPANY_DOCUMENT = 'company_document';
     const HERO_IMAGE = 'hero_image';
+    const THUMBNAIL_IMAGE = 'thumbnail_image';
+    const FEATURE_IMAGE = 'feature_image';
+    const COMPANY_PHOTO = 'company_photo';
+    const COMPANY_RESOURCE = 'company_resource';
 
     private $uploadsPath;
     public function __construct(string $uploadsPath)
     {
         $this->uploadsPath = $uploadsPath;
+    }
+
+    public function upload(File $file, $folder = self::PROFILE_PHOTO) {
+
+        $destination = $this->uploadsPath.'/' . $folder;
+
+        if ($file instanceof UploadedFile) {
+            $originalFilename = $file->getClientOriginalName();
+        } else {
+            $originalFilename = $file->getFilename();
+        }
+
+        $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
+
+        $file->move(
+            $destination,
+            $newFilename
+        );
+
+        return $newFilename;
     }
 
     public function uploadArticleImage(UploadedFile $uploadedFile): string
