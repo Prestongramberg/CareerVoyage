@@ -1,14 +1,118 @@
-{% extends 'baseSinglePageApp.html.twig' %}
+{% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}Companies{% endblock %}
 
-{#{% block body %}
-    <a href="{{ path('company_new') }}">Add company</a>
+{% block body %}
+    <div class="uk-container">
+        <ul class="" data-uk-tab="{connect: '#tab-companies'}" uk-switcher>
+            <li class="uk-active"><a href="#all-companies">All Companies</a></li>
+            <li><a href="#favorite-companies">Favorites</a></li>
+            <li><a href="#my-company">My Company</a></li>
+        </ul>
 
-    {% for company in companies %}
-        {{ company.address }}
-    {% endfor %}
-{% endblock %}#}
+        <div class="uk-switcher" id="tab-companies">
+            <div class="companies__all">
+                <div id="app">
+                    <!-- A template element is needed when list is empty, TODO: needs a better solution -->
+                    <li id="hacker-item">
+                        <h3 class="name"></h3>
+                        <p class="city"></p>
+                    </li>
+                </div>
+            </div>
+            <div class="companies_library">
+                <div class="uk-grid" uk-grid>
+                    <div class="uk-width-1-1 company-listings">
+                        <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" uk-grid>
+                            <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
+                                <div class="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light" data-src="images/company-best-buy.jpg" uk-img style="min-height: 150px;">
+                                    <div class="uk-inline uk-padding-small">
+                                        <a href="#">
+                                            <i class="fa fa-heart" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-1 uk-width-expand@m">
+                                <div class="uk-card-body">
+                                    <div class="company-listing__meta">
+                                        <a href="companies-detail.php"><h3 class="uk-card-title-small uk-heading-divider">Best Buy</h3></a>
+                                        <p>Best Buy Co., Inc., incorporated on October 20, 1966, is a provider of technology products, services and solutions. The Company offers products and services to the customers visiting its stores, engaging with Geek Squad agents, or using its Websites or mobile applications.</p>
+                                        <div class="uk-grid uk-flex-middle" uk-grid>
+                                            <div class="uk-width-auto">
+                                                <div class="company-links">
+                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
+                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
+                                                </div>
+                                            </div>
+                                            <div class="uk-width-expand uk-visible@m">
+                                                <div class="uk-align-right">
+                                                    <a href="companies-detail.php" class="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="companies_mine">
+
+                <div class="uk-margin uk-width-1-1" style="display: block;">
+                    <div class="uk-alert-primary" uk-alert>
+                        <p>Your request for "Best Buy" is currently pending approval.</p>
+                    </div>
+                </div>
+                <div class="uk-margin uk-width-1-1" style="display: block;">
+                    <div class="uk-placeholder uk-text-center">
+                        <p>You aren't associated with a company yet.</p>
+                        <a href="company-join.php" class="uk-button uk-button-primary uk-button-small">Join a Company</a>
+                        <a href="company-create.php" class="uk-button uk-button-primary uk-button-small">Create a Company</a>
+                    </div>
+                </div>
+
+                <div class="uk-margin" style="display: block;">
+                    <div class="uk-card">
+                        <div class="uk-grid uk-flex-middle" uk-grid>
+                            <div class="uk-width-small">
+                                <img src="images/company-best-buy.jpg" alt="">
+                            </div>
+                            <div class="uk-width-expand">
+                                <h3>Best Buy</h3>
+                            </div>
+                            <div class="uk-width-auto">
+                                <a href="companies-detail.php" class="uk-button uk-button-default uk-button-small">View</a>
+                                <button uk-toggle="target: #remove-from-company" type="button" class="uk-button uk-button-secondary uk-button-small">Remove</button>
+                                <button uk-toggle="target: #remove-company" type="button" class="uk-button uk-button-danger uk-button-small">Delete</button>
+                                <div id="remove-from-company" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        <h2 class="uk-modal-title">Are you sure you want to remove yourself from "Best Buy"?</h2>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-danger uk-modal-close">Yes</button>
+                                            <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="remove-company" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        <h2 class="uk-modal-title">Are you sure you want to delete company "Best Buy"?</h2>
+                                        <button class="uk-button uk-button-danger uk-modal-close">Yes</button>
+                                        <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -18,4 +122,3 @@
     {{ parent() }}
     <script src="{{ asset('build/companies.js') }}"></script>
 {% endblock %}
-
