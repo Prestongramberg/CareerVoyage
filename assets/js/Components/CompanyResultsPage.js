@@ -175,37 +175,19 @@ class CompanyResultsPage {
                 <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                     <form class="uk-search uk-search-default uk-width-1-1">
                         <span uk-search-icon></span>
-                        <input class="uk-search-input" type="search" placeholder="Search by Name...">
+                        <input class="uk-search-input search" type="search" placeholder="Search by Name...">
                     </form>
                 </div>
-                <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l js-filters">
                     <div class="uk-width-1-1 uk-text-truncate" uk-form-custom="target: > * > span:first-child">
-                        <select>
-                            <option value="">Filter by Industry...</option>
-                            <option value="1">Agriculture, Food, and Natural Resources</option>
-                            <option value="2">Architecture and Construction</option>
-                            <option value="3">Arts, A/V Technology & Communications</option>
-                            <option value="4">Business Management & Administration</option>
-                            <option value="5">Education & Training</option>
-                            <option value="6">Finance</option>
-                            <option value="7">Government & Public Administration</option>
-                            <option value="8">Health Science</option>
-                            <option value="9">Hospitality & Tourism</option>
-                            <option value="10">Human Services</option>
-                            <option value="11">Information Technology</option>
-                            <option value="12">Law, Public Safety, Corrections & Security</option>
-                            <option value="13">Manufacturing</option>
-                            <option value="14">Marketing</option>
-                            <option value="15">Science, Technology, Engineering & Mathematics</option>
-                            <option value="16">Transportation, Distribution & Logistics</option>
-                        </select>
+                        <select class="js-primary-industry-filter"></select>
                         <button class="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button" tabindex="-1">
                             <span></span>
                             <span uk-icon="icon: chevron-down"></span>
                         </button>
                     </div>
                 </div>
-                <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l js-filters">
                     <div class="uk-width-1-1 uk-text-truncate" uk-form-custom="target: > * > span:first-child">
                         <select>
                             <option value="">Filter by Events...</option>
@@ -226,75 +208,11 @@ class CompanyResultsPage {
             <div class="uk-grid" uk-grid>
                 <div class="uk-width-1-1 company-listings">
 
-                    <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" uk-grid>
-                        <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
-                            <div class="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light" data-src="images/company-vomela.jpg" uk-img style="min-height: 150px;">
-                                <div class="uk-inline uk-padding-small">
-                                    <a href="#">
-                                        <i class="fa fa-heart" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="uk-width-1-1 uk-width-expand@m">
-                            <div class="uk-card-body">
-                                <div class="company-listing__meta">
-                                    <a href="companies-detail.php"><h3 class="uk-card-title-small uk-heading-divider">Vomela</h3></a>
-                                    <p>No matter your business, telling your brand story is where we excel. From doors, floors, ceilings, walls, windows, vehicles or buildings, The Vomela Companies can transform your ideas into memorable experiences for your employees and customers.</p>
-                                    <div class="uk-grid uk-flex-middle" uk-grid>
-                                        <div class="uk-width-auto">
-                                            <div class="company-links">
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
-                                            </div>
-                                        </div>
-                                        <div class="uk-width-expand uk-visible@m">
-                                            <div class="uk-align-right">
-                                                <a href="companies-detail.php" class="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" uk-grid>
-                        <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
-                            <div class="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light" data-src="images/company-best-buy.jpg" uk-img style="min-height: 150px;">
-                                <div class="uk-inline uk-padding-small">
-                                    <a href="#">
-                                        <i class="fa fa-heart" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="uk-width-1-1 uk-width-expand@m">
-                            <div class="uk-card-body">
-                                <div class="company-listing__meta">
-                                    <a href="companies-detail.php"><h3 class="uk-card-title-small uk-heading-divider">Best Buy</h3></a>
-                                    <p>Best Buy Co., Inc., incorporated on October 20, 1966, is a provider of technology products, services and solutions. The Company offers products and services to the customers visiting its stores, engaging with Geek Squad agents, or using its Websites or mobile applications.</p>
-                                    <div class="uk-grid uk-flex-middle" uk-grid>
-                                        <div class="uk-width-auto">
-                                            <div class="company-links">
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
-                                            </div>
-                                        </div>
-                                        <div class="uk-width-expand uk-visible@m">
-                                            <div class="uk-align-right">
-                                                <a href="companies-detail.php" class="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- A template element is needed when list is empty, TODO: needs a better solution -->
+                    <li id="hacker-item" class="card">
+                     <span class="name"></span>
+                     <span class="shortDescription"></span>
+                    </li>
 
                 </div>
             </div>
@@ -307,27 +225,6 @@ class CompanyResultsPage {
                     </ul>
                 </div>
             </div>
-            git a
-            <div class="js-filters">
-                <select class="js-primary-industry-filter"></select>
-            </div>
-            
-            <div id="hacker-list">
-                <ul class="paginationTop"></ul>
-                <input class="search" />
-                <span class="sort" data-sort="name">Sort by name</span>
-                <span class="sort" data-sort="address">Sort by address</span>
-                <ul class="list"></ul>
-                <ul class="paginationBottom"></ul>
-            </div>
-            
-            <div style="display:none;">
-              <!-- A template element is needed when list is empty, TODO: needs a better solution -->
-              <li id="hacker-item" class="card">
-                 <span class="name"></span>
-                 <span class="shortDescription"></span>
-               </li>
-            </div>
     `;
     }
 }
@@ -338,9 +235,45 @@ const selectOptionTemplate = (value) => `
 
 const cardTemplate = () => `
     <li class="card" data-id="1">
-     <span class="name"></span>
-     <span class="shortDescription"></span>
-   </li>
+        <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" uk-grid>
+            <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
+                <div class="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light" data-src="images/company-vomela.jpg" uk-img style="min-height: 150px;">
+                    <div class="uk-inline uk-padding-small">
+                        <a href="#">
+                            <i class="fa fa-heart" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <div class="uk-card-body">
+                    <div class="company-listing__meta">
+                        <a href="companies-detail.php">
+                            <h3 class="uk-card-title-small uk-heading-divider">
+                                <span class="name"></span>
+                            </h3>
+                        </a>
+                        <p><span class="shortDescription"></span></p>
+                        <div class="uk-grid uk-flex-middle" uk-grid>
+                            <div class="uk-width-auto">
+                                <div class="company-links">
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
+                                </div>
+                            </div>
+                            <div class="uk-width-expand uk-visible@m">
+                                <div class="uk-align-right">
+                                    <a href="companies-detail.php" class="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </li>
 `;
 
 export default CompanyResultsPage;
