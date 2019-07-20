@@ -81,14 +81,17 @@ class App extends React.Component {
 
         return this.props.companies.filter(company => {
 
-            // Filter Search Term
-            if ( this.props.search.query && company.name.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) === -1 ) {
-                return false;
-            }
+            // Set Searchable Fields
+            const searchableFields = ["name", "shortDescription"];
 
             // Filter Category
             if ( !!this.props.search.industry && parseInt(company.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
                 return false;
+            }
+
+            // Filter By Search Term
+            if( this.props.search.query ) {
+                return searchableFields.some((field) => company[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
             }
 
             return true;
