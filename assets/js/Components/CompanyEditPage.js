@@ -17,6 +17,9 @@ class CompanyEditPage {
         this.companies = [];
         this.list = null;
 
+        let url = Routing.generate('company_view', {'id': 4});
+
+
         this.unbindEvents();
 
         this.bindEvents();

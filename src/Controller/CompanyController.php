@@ -117,7 +117,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies", name="company_index", methods={"GET"})
+     * @Route("/companies", name="company_index", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -137,7 +137,7 @@ class CompanyController extends AbstractController
     /**
      * @IsGranted("ROLE_PROFESSIONAL_USER")
      *
-     * @Route("/companies/new", name="company_new")
+     * @Route("/companies/new", name="company_new", options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -198,7 +198,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{id}/view", name="company_view")
+     * @Route("/companies/{id}/view", name="company_view", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
@@ -212,7 +212,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{id}/edit", name="company_edit")
+     * @Route("/companies/{id}/edit", name="company_edit", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
@@ -313,7 +313,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove")
+     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove", options = { "expose" = true })
      * @ParamConverter("image", options={"id" = "image_id"})
      * @ParamConverter("company", options={"id" = "company_id"})
      * @param Company $company
