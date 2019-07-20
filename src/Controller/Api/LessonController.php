@@ -5,6 +5,8 @@ namespace App\Controller\Api;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\Image;
+use App\Entity\Lesson;
+use App\Entity\LessonFavorite;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
@@ -15,6 +17,8 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Repository\CompanyRepository;
 use App\Repository\IndustryRepository;
+use App\Repository\LessonFavoriteRepository;
+use App\Repository\LessonRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -35,11 +39,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class CompanyController
+ * Class LessonController
  * @package App\Controller
  * @Route("/api")
  */
-class CompanyController extends AbstractController
+class LessonController extends AbstractController
 {
     use FileHelper;
 
@@ -90,7 +94,17 @@ class CompanyController extends AbstractController
     private $industryRepository;
 
     /**
-     * CompanyController constructor.
+     * @var LessonRepository
+     */
+    private $lessonRepository;
+
+    /**
+     * @var LessonFavoriteRepository
+     */
+    private $lessonFavoriteRepository;
+
+    /**
+     * LessonController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -100,6 +114,8 @@ class CompanyController extends AbstractController
      * @param SerializerInterface $serializer
      * @param CompanyRepository $companyRepository
      * @param IndustryRepository $industryRepository
+     * @param LessonRepository $lessonRepository
+     * @param LessonFavoriteRepository $lessonFavoriteRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -110,7 +126,9 @@ class CompanyController extends AbstractController
         Packages $assetsManager,
         SerializerInterface $serializer,
         CompanyRepository $companyRepository,
-        IndustryRepository $industryRepository
+        IndustryRepository $industryRepository,
+        LessonRepository $lessonRepository,
+        LessonFavoriteRepository $lessonFavoriteRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -121,18 +139,18 @@ class CompanyController extends AbstractController
         $this->serializer = $serializer;
         $this->companyRepository = $companyRepository;
         $this->industryRepository = $industryRepository;
+        $this->lessonRepository = $lessonRepository;
+        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
     }
 
     /**
-     * @Route("/companies", name="get_companies", methods={"GET"}, options = { "expose" = true })
+     * @Route("/lessons", name="get_lessons", methods={"GET"}, options = { "expose" = true })
      */
-    public function getCompanies() {
+    public function getLessons() {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => true
-        ]);
+        $lessons = $this->lessonRepository->findAll();
 
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $json = $this->serializer->serialize($lessons, 'json', ['groups' => ['LESSON_DATA']]);
 
         $payload = json_decode($json, true);
 
@@ -146,13 +164,40 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/industries", name="get_industries", methods={"GET"}, options = { "expose" = true })
+     * @Route("/lessons/{id}/favorite", name="favorite_lesson", methods={"POST"}, options = { "expose" = true })
+     * @param Lesson $lesson
+     * @return JsonResponse
      */
-    public function getIndustries() {
+    public function favoriteLesson(Lesson $lesson) {
 
-        $industries = $this->industryRepository->findAll();
+        $lessonFavorite = new LessonFavorite();
+        $lessonFavorite->setUser($this->getUser());
+        $lessonFavorite->setLesson($lesson);
 
-        $json = $this->serializer->serialize($industries, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $this->entityManager->persist($lessonFavorite);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/lessons/favorites", name="get_favorite_lessons", methods={"GET"}, options = { "expose" = true })
+     * @return JsonResponse
+     */
+    public function getFavoriteLessons() {
+
+        $favorites = $this->lessonFavoriteRepository->findBy(
+            [
+                'user' => $this->getUser()
+            ]
+        );
+
+        $json = $this->serializer->serialize($favorites, 'json', ['groups' => ['LESSON_DATA']]);
 
         $payload = json_decode($json, true);
 

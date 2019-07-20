@@ -15,6 +15,8 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Repository\CompanyRepository;
 use App\Repository\IndustryRepository;
+use App\Repository\LessonRepository;
+use App\Repository\ProfessionalUserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -35,11 +37,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class CompanyController
+ * Class ProfessionalController
  * @package App\Controller
  * @Route("/api")
  */
-class CompanyController extends AbstractController
+class ProfessionalController extends AbstractController
 {
     use FileHelper;
 
@@ -90,7 +92,17 @@ class CompanyController extends AbstractController
     private $industryRepository;
 
     /**
-     * CompanyController constructor.
+     * @var LessonRepository
+     */
+    private $lessonRepository;
+
+    /**
+     * @var ProfessionalUserRepository
+     */
+    private $professionalUserRepository;
+
+    /**
+     * ProfessionalController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -100,6 +112,8 @@ class CompanyController extends AbstractController
      * @param SerializerInterface $serializer
      * @param CompanyRepository $companyRepository
      * @param IndustryRepository $industryRepository
+     * @param LessonRepository $lessonRepository
+     * @param ProfessionalUserRepository $professionalUserRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -110,7 +124,9 @@ class CompanyController extends AbstractController
         Packages $assetsManager,
         SerializerInterface $serializer,
         CompanyRepository $companyRepository,
-        IndustryRepository $industryRepository
+        IndustryRepository $industryRepository,
+        LessonRepository $lessonRepository,
+        ProfessionalUserRepository $professionalUserRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -121,38 +137,18 @@ class CompanyController extends AbstractController
         $this->serializer = $serializer;
         $this->companyRepository = $companyRepository;
         $this->industryRepository = $industryRepository;
+        $this->lessonRepository = $lessonRepository;
+        $this->professionalUserRepository = $professionalUserRepository;
     }
 
     /**
-     * @Route("/companies", name="get_companies", methods={"GET"}, options = { "expose" = true })
+     * @Route("/professionals", name="get_professionals", methods={"GET"}, options = { "expose" = true })
      */
-    public function getCompanies() {
+    public function getLessons() {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => true
-        ]);
+        $lessons = $this->professionalUserRepository->findAll();
 
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/industries", name="get_industries", methods={"GET"}, options = { "expose" = true })
-     */
-    public function getIndustries() {
-
-        $industries = $this->industryRepository->findAll();
-
-        $json = $this->serializer->serialize($industries, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $json = $this->serializer->serialize($lessons, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
 
         $payload = json_decode($json, true);
 

@@ -36,6 +36,7 @@ abstract class User implements UserInterface
     const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -43,6 +44,7 @@ abstract class User implements UserInterface
     protected $id;
     
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     checkMX = true,
@@ -54,6 +56,7 @@ abstract class User implements UserInterface
     protected $email;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
@@ -69,6 +72,7 @@ abstract class User implements UserInterface
     protected $password;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -76,6 +80,7 @@ abstract class User implements UserInterface
     protected $firstName;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -93,11 +98,13 @@ abstract class User implements UserInterface
     protected $passwordResetTokenTimestamp;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="json")
      */
     protected $roles = [];
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="boolean")
      */
     protected $deleted = 0;
@@ -105,7 +112,17 @@ abstract class User implements UserInterface
     /**
      * @ORM\Column(type="datetime")
      */
-    private $agreedToTermsAt;
+    protected $agreedToTermsAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="user", orphanRemoval=true)
+     */
+    protected $lessonFavorites;
+
+    public function __construct()
+    {
+        $this->lessonFavorites = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -368,6 +385,37 @@ abstract class User implements UserInterface
     public function agreeToTerms()
     {
         $this->agreedToTermsAt = new \DateTime();
+    }
+
+    /**
+     * @return Collection|LessonFavorite[]
+     */
+    public function getLessonFavorites(): Collection
+    {
+        return $this->lessonFavorites;
+    }
+
+    public function addLessonFavorite(LessonFavorite $lessonFavorite): self
+    {
+        if (!$this->lessonFavorites->contains($lessonFavorite)) {
+            $this->lessonFavorites[] = $lessonFavorite;
+            $lessonFavorite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLessonFavorite(LessonFavorite $lessonFavorite): self
+    {
+        if ($this->lessonFavorites->contains($lessonFavorite)) {
+            $this->lessonFavorites->removeElement($lessonFavorite);
+            // set the owning side to null (unless already changed)
+            if ($lessonFavorite->getUser() === $this) {
+                $lessonFavorite->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 }

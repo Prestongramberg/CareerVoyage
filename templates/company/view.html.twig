@@ -16,27 +16,5 @@
     <p>Linkedin: {{ company.companyLinkedinPage }}</p>
     <p>Primary contact: {{ company.primaryContact }}</p>
 
-    <h2>Company Logo</h2>
-    {% if company.logo is defined %}
-        <img src="{{ asset(uploaded_asset(company.logoPath))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
-    {% endif %}
-
-    <h2>Hero Image</h2>
-    {% if company.heroImage is defined %}
-        <img src="{{ asset(uploaded_asset(company.heroImagePath))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
-    {% endif %}
-
-    <hr>
-
-    <h2>Company Videos</h2>
-    {% for video in company.companyVideos %}
-        <iframe width="1135" height="454" src="{{ video.url }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    {% endfor %}
-
-    <h2>Company Documents</h2>
-
-    {% for document in company.companyDocuments %}
-        <a href="{{ asset(uploaded_asset(document.path)) }}" download>{{ document.path }}</a>
-    {% endfor %}
 
 {% endblock %}

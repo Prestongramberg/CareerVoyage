@@ -4,4 +4,8 @@
 
 {% block body %}
     <a href="{{ path('profile_edit', {'id': user.id}) }}">Edit Profile</a>
+
+    <form method="get" action="{{ path('get_favorite_lessons') }}">
+        <input type="submit" value="submit">
+    </form>
 {% endblock %}
