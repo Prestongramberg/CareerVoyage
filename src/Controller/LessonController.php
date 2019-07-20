@@ -167,6 +167,7 @@ class LessonController extends AbstractController
                 $lesson->setFeaturedImage($newFilename);
             }
 
+            $lesson->setUser($user);
             $this->entityManager->persist($lesson);
             $this->entityManager->flush();
         }

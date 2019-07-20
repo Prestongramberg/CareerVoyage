@@ -125,10 +125,16 @@ abstract class User implements UserInterface
      */
     protected $lessons;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="created_by", orphanRemoval=true)
+     */
+    protected $requests;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
         $this->lessons = new ArrayCollection();
+        $this->requests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -466,6 +472,37 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($lesson->getUser() === $this) {
                 $lesson->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Request[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(Request $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(Request $request): self
+    {
+        if ($this->requests->contains($request)) {
+            $this->requests->removeElement($request);
+            // set the owning side to null (unless already changed)
+            if ($request->getCreatedBy() === $this) {
+                $request->setCreatedBy(null);
             }
         }
 

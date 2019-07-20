@@ -186,6 +186,32 @@ class LessonController extends AbstractController
     }
 
     /**
+     * @Route("/lessons/mine", name="lessons_mine", methods={"GET"}, options = { "expose" = true })
+     * @return JsonResponse
+     */
+    public function myLessons() {
+
+        $lessons = $this->lessonRepository->findBy(
+            [
+                'user' => $this->getUser()
+            ]
+        );
+
+        $json = $this->serializer->serialize($lessons, 'json', ['groups' => ['LESSON_DATA']]);
+
+        $payload = json_decode($json, true);
+
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/lessons/favorites", name="get_favorite_lessons", methods={"GET"}, options = { "expose" = true })
      * @return JsonResponse
      */

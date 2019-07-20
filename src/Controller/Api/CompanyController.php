@@ -22,6 +22,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -130,6 +131,48 @@ class CompanyController extends AbstractController
 
         $companies = $this->companyRepository->findBy([
             'approved' => true
+        ]);
+
+        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
+
+        $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Security("is_granted('ROLE_ADMIN_USER')")
+     *
+     * @Route("/companies/{id}/approve", name="approve_company", methods={"POST"}, options = { "expose" = true })
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function approveCompany(Company $company) {
+
+        $company->setApproved(true);
+
+        return new JsonResponse(
+            [
+                'success' => true
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/unapproved", name="approve_company", methods={"GET"}, options = { "expose" = true })
+     * @return JsonResponse
+     */
+    public function unapprovedCompanies() {
+
+        $companies = $this->companyRepository->findBy([
+            'approved' => false
         ]);
 
         $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);

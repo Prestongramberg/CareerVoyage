@@ -134,12 +134,18 @@ class Company
      */
     private $companyResources;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\JoinCompanyRequest", mappedBy="company", orphanRemoval=true)
+     */
+    private $joinCompanyRequests;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
         $this->companyPhotos = new ArrayCollection();
         $this->videos = new ArrayCollection();
         $this->companyResources = new ArrayCollection();
+        $this->joinCompanyRequests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -455,5 +461,36 @@ class Company
             return '/uploads/' . $this->getFeaturedImagePath();
         }
         return '';
+    }
+
+    /**
+     * @return Collection|JoinCompanyRequest[]
+     */
+    public function getJoinCompanyRequests(): Collection
+    {
+        return $this->joinCompanyRequests;
+    }
+
+    public function addJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest): self
+    {
+        if (!$this->joinCompanyRequests->contains($joinCompanyRequest)) {
+            $this->joinCompanyRequests[] = $joinCompanyRequest;
+            $joinCompanyRequest->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest): self
+    {
+        if ($this->joinCompanyRequests->contains($joinCompanyRequest)) {
+            $this->joinCompanyRequests->removeElement($joinCompanyRequest);
+            // set the owning side to null (unless already changed)
+            if ($joinCompanyRequest->getCompany() === $this) {
+                $joinCompanyRequest->setCompany(null);
+            }
+        }
+
+        return $this;
     }
 }
