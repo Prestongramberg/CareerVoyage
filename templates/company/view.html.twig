@@ -17,4 +17,32 @@
     <p>Primary contact: {{ company.primaryContact }}</p>
 
 
+    {% if company.thumbnailImage %}
+        <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+    {% endif %}
+
+    {% if company.featuredImage %}
+        <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>
+    {% endif %}
+    <hr>
+
+    Company Photos
+    {% for companyPhoto in company.companyPhotos %}
+        <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+    {% endfor %}
+
+    <br>
+    Videos
+    {% for video in company.videos %}
+        <a href="{{ video }}">{{ video }}</a>
+    {% endfor %}
+
+    <br>
+    Company Resources
+    {% for resource in company.companyResources %}
+        <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>
+    {% endfor %}
+
+
+
 {% endblock %}
