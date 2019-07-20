@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 class CompanyListing extends Component {
 
     render() {
-        console.log(this.props);
         return (
             <div className="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" data-uk-grid>
                 <div className="uk-card-media-left uk-width-1-1 uk-width-medium@m">
@@ -20,7 +19,7 @@ class CompanyListing extends Component {
                 <div className="uk-width-1-1 uk-width-expand@m">
                     <div className="uk-card-body">
                         <div className="company-listing__meta">
-                            <a href={`/companies/${this.props.id}/view`}>
+                            <a href={ window.Routing.generate('company_view', { id: this.props.id }) }>
                                 <h3 className="uk-card-title-small uk-heading-divider">{ this.props.name }</h3>
                             </a>
                             <p>{ this.props.description }</p>
@@ -35,7 +34,7 @@ class CompanyListing extends Component {
                                 </div>
                                 <div className="uk-width-expand uk-visible@m">
                                     <div className="uk-align-right">
-                                        <a href={`/companies/${this.props.id}/view`}
+                                        <a href={ window.Routing.generate('company_view', { id: this.props.id }) }
                                            className="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
                                     </div>
                                 </div>
