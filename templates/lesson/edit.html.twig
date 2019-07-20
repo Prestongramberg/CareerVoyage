@@ -1,0 +1,40 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Edit Lesson{% endblock %}
+
+{% block body %}
+
+    <h1>Edit Lesson</h1>
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(form.title) }}
+    <br>
+    {{ form_row(form.careers) }}
+    <br>
+    {{ form_row(form.grades) }}
+    <br>
+    {{ form_row(form.primaryCourse) }}
+    <br>
+    {{ form_row(form.secondaryCourses) }}
+    <br>
+    {{ form_row(form.summary) }}
+    <br>
+    {{ form_row(form.learningOutcomes) }}
+    <br>
+    {{ form_row(form.educationalStandards) }}
+    <br>
+    {{ form_row(form.thumbnailImage) }}
+    {% if lesson.thumbnailImage %}
+        <img src="{{ asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+    {% endif %}
+
+
+    <br>
+    {{ form_row(form.featuredImage) }}
+    {% if lesson.featuredImage %}
+        <img src="{{ asset(uploaded_asset(lesson.featuredImagePath)) }}" />
+    {% endif %}
+    <br>
+    <button class="btn">Update</button>
+    {{ form_end(form) }}
+
+{% endblock %}

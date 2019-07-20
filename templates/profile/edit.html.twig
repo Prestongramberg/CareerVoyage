@@ -13,7 +13,7 @@
     {{ form_row(form.firstName) }}
     {{ form_row(form.lastName) }}
     {% if user.photo %}
-    <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" height="100"/>
+    <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" />
     {% endif %}
     {{ form_row(form.file) }}
     {{ form_row(form.email) }}

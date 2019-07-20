@@ -18,6 +18,8 @@ class UploaderHelper
     const FEATURE_IMAGE = 'feature_image';
     const COMPANY_PHOTO = 'company_photo';
     const COMPANY_RESOURCE = 'company_resource';
+    const LESSON_THUMBNAIL = 'lesson_thumbnail';
+    const LESSON_FEATURED = 'lesson_featured';
 
     private $uploadsPath;
     public function __construct(string $uploadsPath)

@@ -1,20 +1,23 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller;
 
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
+use App\Entity\CompanyResource;
 use App\Entity\Image;
+use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
+use App\Form\NewLessonType;
 use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
-use App\Repository\IndustryRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -22,7 +25,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -36,11 +39,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class CompanyController
+ * Class ProfessionalController
  * @package App\Controller
- * @Route("/api")
+ * @Route("/dashboard")
  */
-class CompanyController extends AbstractController
+class ProfessionalController extends AbstractController
 {
     use FileHelper;
 
@@ -75,20 +78,14 @@ class CompanyController extends AbstractController
     private $assetsManager;
 
     /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-
-    /**
      * @var CompanyRepository
      */
     private $companyRepository;
 
     /**
-     * @var IndustryRepository
+     * @var CompanyPhotoRepository
      */
-    private $industryRepository;
+    private $companyPhotoRepository;
 
     /**
      * CompanyController constructor.
@@ -98,9 +95,8 @@ class CompanyController extends AbstractController
      * @param ImageCacheGenerator $imageCacheGenerator
      * @param UploaderHelper $uploaderHelper
      * @param Packages $assetsManager
-     * @param SerializerInterface $serializer
      * @param CompanyRepository $companyRepository
-     * @param IndustryRepository $industryRepository
+     * @param CompanyPhotoRepository $companyPhotoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -109,9 +105,8 @@ class CompanyController extends AbstractController
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
         Packages $assetsManager,
-        SerializerInterface $serializer,
         CompanyRepository $companyRepository,
-        IndustryRepository $industryRepository
+        CompanyPhotoRepository $companyPhotoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -119,92 +114,20 @@ class CompanyController extends AbstractController
         $this->imageCacheGenerator = $imageCacheGenerator;
         $this->uploaderHelper = $uploaderHelper;
         $this->assetsManager = $assetsManager;
-        $this->serializer = $serializer;
         $this->companyRepository = $companyRepository;
-        $this->industryRepository = $industryRepository;
+        $this->companyPhotoRepository = $companyPhotoRepository;
     }
 
     /**
-     * @Route("/companies", name="get_companies", methods={"GET"}, options = { "expose" = true })
+     * @Route("/professionals", name="professional_index", methods={"GET"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getCompanies() {
+    public function indexAction(Request $request) {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => true
+        $user = $this->getUser();
+        return $this->render('professionals/index.html.twig', [
+            'user' => $user,
         ]);
-
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Security("is_granted('ROLE_ADMIN_USER')")
-     *
-     * @Route("/companies/{id}/approve", name="approve_company", methods={"POST"}, options = { "expose" = true })
-     * @param Company $company
-     * @return JsonResponse
-     */
-    public function approveCompany(Company $company) {
-
-        $company->setApproved(true);
-
-        return new JsonResponse(
-            [
-                'success' => true
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/unapproved", name="approve_company", methods={"GET"}, options = { "expose" = true })
-     * @return JsonResponse
-     */
-    public function unapprovedCompanies() {
-
-        $companies = $this->companyRepository->findBy([
-            'approved' => false
-        ]);
-
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/industries", name="get_industries", methods={"GET"}, options = { "expose" = true })
-     */
-    public function getIndustries() {
-
-        $industries = $this->industryRepository->findAll();
-
-        $json = $this->serializer->serialize($industries, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload
-            ],
-            Response::HTTP_OK
-        );
     }
 }

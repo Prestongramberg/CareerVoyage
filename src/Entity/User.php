@@ -34,6 +34,7 @@ abstract class User implements UserInterface
     const ROLE_PROFESSIONAL_USER = 'ROLE_PROFESSIONAL_USER';
     const ROLE_EDUCATOR_USER = 'ROLE_EDUCATOR_USER ';
     const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
+    const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
@@ -119,9 +120,21 @@ abstract class User implements UserInterface
      */
     protected $lessonFavorites;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Lesson", mappedBy="user")
+     */
+    protected $lessons;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="created_by", orphanRemoval=true)
+     */
+    protected $requests;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
+        $this->lessons = new ArrayCollection();
+        $this->requests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -349,6 +362,22 @@ abstract class User implements UserInterface
         return false;
     }
 
+    /**
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_ADMIN_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+
     public function setupAsProfessional() {
 
         if (!in_array(self::ROLE_PROFESSIONAL_USER, $this->roles)) {
@@ -417,6 +446,68 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($lessonFavorite->getUser() === $this) {
                 $lessonFavorite->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Lesson[]
+     */
+    public function getLessons(): Collection
+    {
+        return $this->lessons;
+    }
+
+    public function addLesson(Lesson $lesson): self
+    {
+        if (!$this->lessons->contains($lesson)) {
+            $this->lessons[] = $lesson;
+            $lesson->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLesson(Lesson $lesson): self
+    {
+        if ($this->lessons->contains($lesson)) {
+            $this->lessons->removeElement($lesson);
+            // set the owning side to null (unless already changed)
+            if ($lesson->getUser() === $this) {
+                $lesson->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Request[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(Request $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(Request $request): self
+    {
+        if ($this->requests->contains($request)) {
+            $this->requests->removeElement($request);
+            // set the owning side to null (unless already changed)
+            if ($request->getCreatedBy() === $this) {
+                $request->setCreatedBy(null);
             }
         }
 

@@ -1,0 +1,31 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Add Lesson{% endblock %}
+
+{% block body %}
+
+    <h1>Add Lesson</h1>
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_row(form.title) }}
+    <br>
+    {{ form_row(form.careers) }}
+    <br>
+    {{ form_row(form.grades) }}
+    <br>
+    {{ form_row(form.primaryCourse) }}
+    <br>
+    {{ form_row(form.secondaryCourses) }}
+    <br>
+    {{ form_row(form.summary) }}
+    <br>
+    {{ form_row(form.learningOutcomes) }}
+    <br>
+    {{ form_row(form.educationalStandards) }}
+    <br>
+    {{ form_row(form.thumbnailImage) }}
+    <br>
+    {{ form_row(form.featuredImage) }}
+    <button class="btn">Create</button>
+    {{ form_end(form) }}
+
+{% endblock %}

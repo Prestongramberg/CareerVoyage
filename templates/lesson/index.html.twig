@@ -1,0 +1,13 @@
+{% extends 'baseSinglePageApp.html.twig' %}
+
+{% block title %}Lessons{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/lessons.js') }}"></script>
+{% endblock %}
+
