@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -53,13 +54,13 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $summary;
 
     /**
      * @Groups({"LESSON_DATA"})
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $learningOutcomes;
 
@@ -70,13 +71,11 @@ class Lesson
     private $educationalStandards;
 
     /**
-     * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $thumbnailImage;
 
     /**
-     * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $featuredImage;
@@ -85,6 +84,11 @@ class Lesson
      * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="lesson", orphanRemoval=true)
      */
     private $lessonFavorites;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="lessons")
+     */
+    private $user;
 
     public function __construct()
     {
@@ -288,6 +292,48 @@ class Lesson
                 $lessonFavorite->setLesson(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFeaturedImagePath()
+    {
+        return UploaderHelper::LESSON_FEATURED.'/'.$this->getFeaturedImage();
+    }
+
+    public function getThumbnailImagePath()
+    {
+        return UploaderHelper::LESSON_THUMBNAIL.'/'.$this->getThumbnailImage();
+    }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     */
+    public function getThumbnailImageURL() {
+        if($this->getThumbnailImage()) {
+            return '/media/cache/squared_thumbnail_small/uploads/' . $this->getThumbnailImagePath();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     */
+    public function getFeaturedImageURL() {
+        if($this->getFeaturedImage()) {
+            return '/uploads/' . $this->getFeaturedImagePath();
+        }
+        return '';
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
