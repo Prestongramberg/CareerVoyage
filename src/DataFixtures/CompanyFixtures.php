@@ -114,6 +114,8 @@ class CompanyFixtures extends BaseFixture
             $company->setPrimaryIndustry($this->getReference("industry1"));
             $manager->persist($company);
 
+            $this->addReference("company1", $company);
+
             $company = new Company();
             $company->setName('Walmart');
             $company->setAddress('1101 East street Bentonville, Arkansas 67009');
@@ -142,6 +144,8 @@ class CompanyFixtures extends BaseFixture
             $company->setPrimaryIndustry($this->getReference("industry2"));
             $manager->persist($company);
 
+            $this->addReference("company2", $company);
+
             $company = new Company();
             $company->setName('Target');
             $company->setAddress('8890 west 9th street Miami FL 65430');
@@ -166,6 +170,7 @@ class CompanyFixtures extends BaseFixture
                 $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
+            $this->addReference("company3", $company);
             $company->setPrimaryIndustry($this->getReference("industry13"));
             $manager->persist($company);
 

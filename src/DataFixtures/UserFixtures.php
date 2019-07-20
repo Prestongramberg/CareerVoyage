@@ -30,6 +30,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $professionalUser->setUsername('joshcrawmer4');
         $professionalUser->agreeToTerms();
         $professionalUser->setupAsProfessional();
+        $professionalUser->setCompany($this->getReference('company1'));
         $manager->persist($professionalUser);
 
         $professionalUser = new ProfessionalUser();
@@ -43,6 +44,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $professionalUser->setUsername('travishoglund');
         $professionalUser->agreeToTerms();
         $professionalUser->setupAsProfessional();
+        $professionalUser->setCompany($this->getReference('company2'));
         $manager->persist($professionalUser);
 
         $manager->flush();
