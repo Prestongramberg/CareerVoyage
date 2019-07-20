@@ -38,14 +38,15 @@ class App extends React.Component {
                         )}
                         { !this.props.search.loading && relevantCompanies.map(company => (
                             <CompanyListing
-                                key={company.id}
-                                id={company.id}
-                                name={company.name}
                                 description={company.shortDescription}
-                                website={company.website}
-                                phone={company.phone}
                                 email={company.emailAddress}
-                                linkedIn={company.companyLinkedinPage} />
+                                id={company.id}
+                                image={company.thumbnailImageURL}
+                                key={company.id}
+                                linkedIn={company.companyLinkedinPage}
+                                name={company.name}
+                                phone={company.phone}
+                                website={company.website} />
                         ))}
                         { !this.props.search.loading && relevantCompanies.length === 0 && (
                             <p>No results match your selection</p>

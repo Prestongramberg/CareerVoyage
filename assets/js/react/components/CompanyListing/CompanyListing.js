@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 class CompanyListing extends Component {
 
     render() {
+        console.log(this.props);
         return (
             <div className="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" data-uk-grid>
                 <div className="uk-card-media-left uk-width-1-1 uk-width-medium@m">
-                    <div
-                        className="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
-                        data-src="images/company-best-buy.jpg" data-uk-img style={{minHeight: '150px'}}>
+                    <div className="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+                        style={{backgroundImage: `url(${this.props.image})`, minHeight: '150px'}}>
                         <div className="uk-inline uk-padding-small">
                             <a href={'#'}>
                                 <i className="fa fa-heart" aria-hidden="true"></i>
@@ -52,6 +52,7 @@ CompanyListing.propTypes = {
     description: PropTypes.string,
     email: PropTypes.string,
     id: PropTypes.number,
+    image: PropTypes.string,
     name: PropTypes.string,
     linkedIn: PropTypes.string,
     phone: PropTypes.string,
