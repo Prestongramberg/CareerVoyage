@@ -436,4 +436,24 @@ class Company
 
         return $this;
     }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     */
+    public function getThumbnailImageURL() {
+        if($this->getThumbnailImage()) {
+            return '/media/cache/squared_thumbnail_small/uploads/' . $this->getThumbnailImagePath();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     */
+    public function getFeaturedImageURL() {
+        if($this->getFeaturedImage()) {
+            return '/uploads/' . $this->getFeaturedImagePath();
+        }
+        return '';
+    }
 }

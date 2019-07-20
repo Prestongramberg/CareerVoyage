@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -14,11 +15,13 @@ class ProfessionalUser extends User
 {
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $briefBio;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
@@ -30,11 +33,13 @@ class ProfessionalUser extends User
     private $phone;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $linkedinProfile;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="array", nullable=true)
      */
     private $rolesWillingToFulfill = [];
@@ -45,16 +50,19 @@ class ProfessionalUser extends User
     private $company;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $photo;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $interests;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="boolean")
      */
     private $deactivated = 0;

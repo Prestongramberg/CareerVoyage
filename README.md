@@ -4,13 +4,16 @@
 4. cd /var/www
 5. composer install
 6. yarn install
-7. ./bin/console doctrine:migrations:migrate
+7. ./bin/console doctrine:schema:create
 8. add to your /etc/hosts file
 
 192.168.56.109 pintex.test
 192.168.56.109 www.pintex.test
 
 9. bin/console doctrine:fixtures:load --append
+
+(To keep the tables starting at 1 index you need to completely delete all tables and rerun )
+10. bin/console lesson:import ./lessons.csv
 
 That's it!
 
