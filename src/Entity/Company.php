@@ -68,12 +68,6 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @ORM\Column(type="boolean")
-     */
-    private $approved = false;
-
-    /**
-     * @Groups({"RESULTS_PAGE"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -138,6 +132,17 @@ class Company
      * @ORM\OneToMany(targetEntity="App\Entity\JoinCompanyRequest", mappedBy="company", orphanRemoval=true)
      */
     private $joinCompanyRequests;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\OneToOne(targetEntity="App\Entity\NewCompanyRequest", mappedBy="company", cascade={"persist", "remove"})
+     */
+    private $newCompanyRequest;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="ownedCompany", cascade={"persist", "remove"})
+     */
+    private $owner;
 
     public function __construct()
     {
@@ -269,18 +274,6 @@ class Company
                 $companyPhoto->setCompany(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getApproved(): ?bool
-    {
-        return $this->approved;
-    }
-
-    public function setApproved(bool $approved): self
-    {
-        $this->approved = $approved;
 
         return $this;
     }
@@ -490,6 +483,35 @@ class Company
                 $joinCompanyRequest->setCompany(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getNewCompanyRequest(): ?NewCompanyRequest
+    {
+        return $this->newCompanyRequest;
+    }
+
+    public function setNewCompanyRequest(NewCompanyRequest $newCompanyRequest): self
+    {
+        $this->newCompanyRequest = $newCompanyRequest;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $newCompanyRequest->getCompany()) {
+            $newCompanyRequest->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function getOwner(): ?ProfessionalUser
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?ProfessionalUser $owner): self
+    {
+        $this->owner = $owner;
 
         return $this;
     }

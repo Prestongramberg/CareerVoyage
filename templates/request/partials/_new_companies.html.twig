@@ -1,0 +1,15 @@
+<div>
+    <p>
+        {{ request.createdBy.firstName }} {{ request.createdBy.lastName }} from {{ request.company.name }} Has requested to create a new company
+    </p>
+
+    <p>{{ request.company.emailAddress }}</p>
+    <p>{{ request.company.website }}</p>
+    <p>{{ request.company.phone }}</p>
+    <p>{{ request.company.primaryIndustry.name }}</p>
+
+    <form method="post">
+        <input type="submit" value="Approve">
+        <input type="hidden" name="request" value="{{ request.id }}">
+    </form>
+</div>

@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Image;
+use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
@@ -14,6 +15,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Service\FileUploader;
@@ -86,6 +88,11 @@ class CompanyController extends AbstractController
     private $companyPhotoRepository;
 
     /**
+     * @var AdminUserRepository
+     */
+    private $adminUserRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -95,6 +102,7 @@ class CompanyController extends AbstractController
      * @param Packages $assetsManager
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
+     * @param AdminUserRepository $adminUserRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -104,7 +112,8 @@ class CompanyController extends AbstractController
         UploaderHelper $uploaderHelper,
         Packages $assetsManager,
         CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository
+        CompanyPhotoRepository $companyPhotoRepository,
+        AdminUserRepository $adminUserRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -114,6 +123,7 @@ class CompanyController extends AbstractController
         $this->assetsManager = $assetsManager;
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
+        $this->adminUserRepository = $adminUserRepository;
     }
 
     /**
@@ -123,14 +133,9 @@ class CompanyController extends AbstractController
      */
     public function indexAction(Request $request) {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => false
-        ]);
-
         $user = $this->getUser();
         return $this->render('company/index.html.twig', [
             'user' => $user,
-            'companies' => $companies
         ]);
     }
 
@@ -164,31 +169,26 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Company $company */
             $company = $form->getData();
+            $company->setOwner($user);
 
             $user->setCompany($company);
 
-          /*  $logo = $form->get('logo')->getData();
+            $adminUsers = $this->adminUserRepository->findAll();
+            $adminUser = $adminUsers[0];
 
-            if($logo) {
-                $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
-                $company->setLogo($newFilename);
+            // create a new company request
+            $newCompanyRequest = new NewCompanyRequest();
+            $newCompanyRequest->setCreatedBy($user);
+            $newCompanyRequest->setCompany($company);
+            $newCompanyRequest->setNeedsApprovalBy($adminUser);
 
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_LOGO) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            $heroImage = $form->get('heroImage')->getData();
-
-            if($heroImage) {
-                $newFilename = $this->uploaderHelper->uploadHeroImage($heroImage);
-                $company->setHeroImage($newFilename);
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }*/
-
+            $this->entityManager->persist($newCompanyRequest);
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+
         }
 
         return $this->render('company/new.html.twig', [

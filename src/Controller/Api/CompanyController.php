@@ -129,51 +129,7 @@ class CompanyController extends AbstractController
      */
     public function getCompanies() {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => true
-        ]);
-
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Security("is_granted('ROLE_ADMIN_USER')")
-     *
-     * @Route("/companies/{id}/approve", name="approve_company", methods={"POST"}, options = { "expose" = true })
-     * @param Company $company
-     * @return JsonResponse
-     */
-    public function approveCompany(Company $company) {
-
-        $company->setApproved(true);
-
-        return new JsonResponse(
-            [
-                'success' => true
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/unapproved", name="approve_company", methods={"GET"}, options = { "expose" = true })
-     * @return JsonResponse
-     */
-    public function unapprovedCompanies() {
-
-        $companies = $this->companyRepository->findBy([
-            'approved' => false
-        ]);
+        $companies = $this->companyRepository->getApprovedCompanies();
 
         $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
 

@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Company;
 use App\Entity\JoinCompanyRequest;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +49,21 @@ class JoinCompanyRequestRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param Company $company
+     * @param User $user
+     * @return mixed
+     */
+    public function getJoinCompanyRequestsByCompanyAndUser(Company $company, User $user) {
+
+        return $this->createQueryBuilder('joinCompanyRequest')
+            ->join('joinCompanyRequest.company', 'c')
+            ->where('c.id = :companyID')
+            ->andWhere('joinCompanyRequest.created_by = :user')
+            ->setParameter('companyID', $company->getId())
+            ->setParameter('user', $user->getId())
+            ->getQuery()
+            ->getResult();
+    }
 }

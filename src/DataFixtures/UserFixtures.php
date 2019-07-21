@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\AdminUser;
 use App\Entity\ProfessionalUser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -24,14 +25,18 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $professionalUser->setLastName('Crawmer');
         $professionalUser->setPassword($this->passwordEncoder->encodePassword(
             $professionalUser,
-            'Iluv2rap!'
+            'Pintex123!'
         ));
         $professionalUser->setEmail('joshcrawmer4@yahoo.com');
         $professionalUser->setUsername('joshcrawmer4');
         $professionalUser->agreeToTerms();
         $professionalUser->setupAsProfessional();
-        $professionalUser->setCompany($this->getReference('company1'));
+        $company = $this->getReference('company1');
+        $company->setOwner($professionalUser);
+        $professionalUser->setCompany($company);
+        $manager->persist($company);
         $manager->persist($professionalUser);
+        $this->setReference('user1', $professionalUser);
 
         $professionalUser = new ProfessionalUser();
         $professionalUser->setFirstName('Travis');
@@ -44,8 +49,28 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $professionalUser->setUsername('travishoglund');
         $professionalUser->agreeToTerms();
         $professionalUser->setupAsProfessional();
-        $professionalUser->setCompany($this->getReference('company2'));
+        $company = $this->getReference('company2');
+        $professionalUser->setCompany($company);
+        $company = $this->getReference('company1');
+        $company->setOwner($professionalUser);
+        $professionalUser->setCompany($company);
         $manager->persist($professionalUser);
+        $this->setReference('user2', $professionalUser);
+
+        $manager->flush();
+
+        $adminUser = new AdminUser();
+        $adminUser->setFirstName('adminFirstName');
+        $adminUser->setLastName('adminLastName');
+        $adminUser->setPassword($this->passwordEncoder->encodePassword(
+            $adminUser,
+            'Admin123!'
+        ));
+        $adminUser->setEmail('admin@pintex.com');
+        $adminUser->setUsername('pintexAdmin');
+        $adminUser->agreeToTerms();
+        $adminUser->setupAsAdmin();
+        $manager->persist($adminUser);
 
         $manager->flush();
     }

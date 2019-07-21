@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser"})
  */
 abstract class User implements UserInterface
 {
@@ -130,11 +130,17 @@ abstract class User implements UserInterface
      */
     protected $requests;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="needsApprovalBy")
+     */
+    protected $requestsThatNeedMyApproval;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
         $this->lessons = new ArrayCollection();
         $this->requests = new ArrayCollection();
+        $this->requestsThatNeedMyApproval = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -371,6 +377,12 @@ abstract class User implements UserInterface
         return false;
     }
 
+    public function setupAsAdmin() {
+
+        if (!in_array(self::ROLE_ADMIN_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_ADMIN_USER;
+        }
+    }
 
 
     public function setupAsProfessional() {
@@ -503,6 +515,37 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($request->getCreatedBy() === $this) {
                 $request->setCreatedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Request[]
+     */
+    public function getRequestsThatNeedMyApproval(): Collection
+    {
+        return $this->requestsThatNeedMyApproval;
+    }
+
+    public function addRequestsThatNeedMyApproval(Request $request): self
+    {
+        if (!$this->requestsThatNeedMyApproval->contains($request)) {
+            $this->requestsThatNeedMyApproval[] = $request;
+            $request->setNeedsApprovalBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestsThatNeedMyApproval(Request $request): self
+    {
+        if ($this->requestsThatNeedMyApproval->contains($request)) {
+            $this->requestsThatNeedMyApproval->removeElement($request);
+            // set the owning side to null (unless already changed)
+            if ($request->getNeedsApprovalBy() === $this) {
+                $request->setNeedsApprovalBy(null);
             }
         }
 

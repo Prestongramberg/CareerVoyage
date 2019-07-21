@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RequestRepository")
@@ -13,7 +15,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class Request
 {
+    use TimestampableEntity;
+
     /**
+     * @Groups({"RESULTS_PAGE"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,15 +26,21 @@ abstract class Request
     protected $id;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
      * @ORM\Column(type="boolean")
      */
-    protected $approved;
+    protected $approved = false;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requests")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $created_by;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requestsThatNeedMyApproval")
+     */
+    private $needsApprovalBy;
 
     public function getId(): ?int
     {
@@ -58,5 +69,22 @@ abstract class Request
         $this->created_by = $created_by;
 
         return $this;
+    }
+
+    public function getNeedsApprovalBy(): ?User
+    {
+        return $this->needsApprovalBy;
+    }
+
+    public function setNeedsApprovalBy(?User $needsApprovalBy): self
+    {
+        $this->needsApprovalBy = $needsApprovalBy;
+
+        return $this;
+    }
+
+    public function getClassName()
+    {
+        return (new \ReflectionClass($this))->getShortName();
     }
 }

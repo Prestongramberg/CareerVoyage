@@ -1,0 +1,42 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Requests{% endblock %}
+
+
+
+{% block body %}
+
+    <h1>Requests that need my approval</h1>
+    {# requests that need my approval #}
+    {% for request in requestsThatNeedMyApproval %}
+
+        {% if request.className == 'JoinCompanyRequest' %}
+            {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
+        {% endif %}
+
+        {% if request.className == 'NewCompanyRequest' %}
+            {% include 'request/partials/_new_companies.html.twig' with {'request': request} %}
+        {% endif %}
+
+    {% endfor %}
+
+
+    <h1>My Requests</h1>
+    {# requests that I've created #}
+    {% for request in myCreatedRequests %}
+
+        {% if request.className == 'JoinCompanyRequest' %}
+            {% include 'request/partials/myRequests/_join_companies.html.twig' with {'request': request} %}
+        {% endif %}
+
+        {% if request.className == 'NewCompanyRequest' %}
+            {% include 'request/partials/myRequests/_new_companies.html.twig' with {'request': request} %}
+        {% endif %}
+
+    {% endfor %}
+
+
+{% endblock %}
+
+
+

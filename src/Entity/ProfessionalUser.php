@@ -67,6 +67,11 @@ class ProfessionalUser extends User
      */
     private $deactivated = 0;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner", cascade={"persist", "remove"})
+     */
+    private $ownedCompany;
+
     public function getBriefBio(): ?string
     {
         return $this->briefBio;
@@ -170,5 +175,23 @@ class ProfessionalUser extends User
     public function setPhoto($photo): void
     {
         $this->photo = $photo;
+    }
+
+    public function getOwnedCompany(): ?Company
+    {
+        return $this->ownedCompany;
+    }
+
+    public function setOwnedCompany(?Company $ownedCompany): self
+    {
+        $this->ownedCompany = $ownedCompany;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newOwner = $ownedCompany === null ? null : $this;
+        if ($newOwner !== $ownedCompany->getOwner()) {
+            $ownedCompany->setOwner($newOwner);
+        }
+
+        return $this;
     }
 }
