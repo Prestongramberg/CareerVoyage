@@ -324,21 +324,4 @@ class CompanyController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove", options = { "expose" = true })
-     * @ParamConverter("image", options={"id" = "image_id"})
-     * @ParamConverter("company", options={"id" = "company_id"})
-     * @param Company $company
-     * @param Request $request
-     * @param CompanyPhoto $image
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     */
-    public function removeCompanyPhotoAction(Company $company, Request $request, CompanyPhoto $image) {
-
-        $this->denyAccessUnlessGranted('delete', $image);
-
-        $this->entityManager->remove($image);
-        $this->entityManager->flush();
-        return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
-    }
 }

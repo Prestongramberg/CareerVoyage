@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Entity\Video;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalDeactivateProfileFormType;
@@ -22,6 +23,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
@@ -159,6 +161,53 @@ class CompanyController extends AbstractController
             [
                 'success' => true,
                 'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{companyID}/video/{videoID}/remove", name="remove_company_video", methods={"POST"}, options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("video", options={"id" = "videoID"})
+     * @param Company $company
+     * @param Video $video
+     * @return JsonResponse
+     */
+    public function removeCompanyVideo(Company $company, Video $video) {
+
+        $this->denyAccessUnlessGranted('delete', $video);
+
+        $this->entityManager->remove($video);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove", options = { "expose" = true })
+     * @ParamConverter("image", options={"id" = "image_id"})
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @param Company $company
+     * @param Request $request
+     * @param CompanyPhoto $image
+     * @return JsonResponse
+     */
+    public function removeCompanyPhotoAction(Company $company, Request $request, CompanyPhoto $image) {
+
+        $this->denyAccessUnlessGranted('delete', $image);
+
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
             ],
             Response::HTTP_OK
         );
