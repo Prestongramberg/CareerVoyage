@@ -20,7 +20,7 @@ class CompanyListing extends Component {
                     <div className="uk-card-body">
                         <div className="company-listing__meta">
                             <a href={ window.Routing.generate('company_view', { id: this.props.id }) }>
-                                <h3 className="uk-card-title-small uk-heading-divider">{ this.props.name }</h3>
+                                <h4 className="uk-card-title-small uk-heading-divider">{ this.props.name }</h4>
                             </a>
                             <p>{ this.props.description }</p>
                             <div className="uk-grid uk-flex-middle" data-uk-grid>

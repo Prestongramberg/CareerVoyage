@@ -11,14 +11,11 @@ class CompanyEditPage {
      * @param globalEventDispatcher
      */
     constructor($wrapper, globalEventDispatcher) {
-        debugger;
+
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.companies = [];
         this.list = null;
-
-        let url = Routing.generate('company_view', {'id': 4});
-
 
         this.unbindEvents();
 
@@ -28,8 +25,8 @@ class CompanyEditPage {
     }
 
     unbindEvents() {
-
         this.$wrapper.off('click', CompanyEditPage._selectors.addVideo);
+        this.$wrapper.off('click', CompanyEditPage._selectors.removePhoto);
     }
 
     /**
@@ -37,7 +34,8 @@ class CompanyEditPage {
      */
     static get _selectors() {
         return {
-            addVideo: '.js-addVideo'
+            addVideo: '.js-addVideo',
+            removePhoto: '.js-removePhoto'
         }
     }
 
@@ -49,11 +47,39 @@ class CompanyEditPage {
             this.handleAddItemButtonClick.bind(this)
         );
 
+        this.$wrapper.on(
+            'click',
+            CompanyEditPage._selectors.removePhoto,
+            this.handleRemovePhoto
+        );
+    }
+
+    handleRemovePhoto(e) {
+
+        console.log(this);
+
+        const $this = $(this);
+        const endpoint = $this.attr('data-remove');
+
+        console.log(endpoint);
+
+        $.ajax({
+            url: endpoint,
+        }).then(data => {
+            $this.parent().remove();
+            UIkit.notification({
+                message: 'Photo Removed!',
+                pos: 'bottom-center',
+                timeout: 1500
+            });
+        }).catch(jqXHR => {
+            const errorData = JSON.parse(jqXHR.responseText);
+            console.log(errorData);
+        });
     }
 
     handleAddItemButtonClick(e) {
 
-        debugger;
         if(e.cancelable) {
             e.preventDefault();
         }

@@ -1,20 +1,20 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadCompanies, loadIndustries, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { loadLessons, loadIndustries, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
-import CompanyListing from "../../components/CompanyListing/CompanyListing";
+import LessonListing from "../../components/LessonListing/LessonListing";
 
 class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["renderIndustryDropdown", "getRelevantCompanies"];
+        const methods = ["renderIndustryDropdown", "getRelevantLessons"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     render() {
 
-        const relevantCompanies = this.getRelevantCompanies();
+        const relevantLessons = this.getRelevantLessons();
 
         return (
             <div>
@@ -28,29 +28,24 @@ class App extends React.Component {
                     { this.renderIndustryDropdown() }
                 </div>
 
-                <div className="uk-grid" data-uk-grid>
-                    <div className="uk-width-1-1 company-listings">
-                        { this.props.search.loading && (
-                            <div className="uk-width-1-1 uk-align-center">
-                                <div data-uk-spinner></div>
-                            </div>
-                        )}
-                        { !this.props.search.loading && relevantCompanies.map(company => (
-                            <CompanyListing
-                                description={company.shortDescription}
-                                email={company.emailAddress}
-                                id={company.id}
-                                image={company.thumbnailImageURL}
-                                key={company.id}
-                                linkedIn={company.companyLinkedinPage}
-                                name={company.name}
-                                phone={company.phone}
-                                website={company.website} />
-                        ))}
-                        { !this.props.search.loading && relevantCompanies.length === 0 && (
-                            <p>No results match your selection</p>
-                        )}
-                    </div>
+                <div className="lesson-listings" uk-grid="masonry: true">
+                    { this.props.search.loading && (
+                        <div className="uk-width-1-1 uk-align-center">
+                            <div data-uk-spinner></div>
+                        </div>
+                    )}
+                    { !this.props.search.loading && relevantLessons.map(lesson => (
+                        <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                            <LessonListing
+                                description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                id={lesson.id}
+                                image={lesson.thumbnailImageURL}
+                                title={lesson.title} />
+                        </div>
+                    ))}
+                    { !this.props.search.loading && relevantLessons.length === 0 && (
+                        <p>No results match your selection</p>
+                    )}
                 </div>
             </div>
         )
@@ -77,21 +72,21 @@ class App extends React.Component {
         return null;
     }
 
-    getRelevantCompanies () {
+    getRelevantLessons () {
 
-        return this.props.companies.filter(company => {
+        return this.props.lessons.filter(lesson => {
 
             // Set Searchable Fields
-            const searchableFields = ["name", "shortDescription"];
+            const searchableFields = ["title"];
 
             // Filter Category
-            if ( !!this.props.search.industry && parseInt(company.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
-                return false;
-            }
+            // if ( !!this.props.search.industry && parseInt(lesson.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
+            //     return false;
+            // }
 
             // Filter By Search Term
             if( this.props.search.query ) {
-                return searchableFields.some((field) => company[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
+                return searchableFields.some((field) => lesson[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
             }
 
             return true;
@@ -100,30 +95,31 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.props.loadCompanies( window.Routing.generate('get_companies') );
+        this.props.loadLessons( window.Routing.generate('get_lessons') );
         this.props.loadIndustries( window.Routing.generate('get_industries') );
     }
 }
 
 App.propTypes = {
     search: PropTypes.object,
-    companies: PropTypes.array
+    industries: PropTypes.array,
+    lessons: PropTypes.array
 };
 
 App.defaultProps = {
-    companies: [],
     industries: [],
+    lessons: [],
     search: {}
 };
 
 export const mapStateToProps = (state = {}) => ({
-    companies: state.companies,
     industries: state.industries,
+    lessons: state.lessons,
     search: state.search
 });
 
 export const mapDispatchToProps = dispatch => ({
-    loadCompanies: (url) => dispatch(loadCompanies(url)),
+    loadLessons: (url) => dispatch(loadLessons(url)),
     loadIndustries: (url) => dispatch(loadIndustries(url)),
     updateIndustryQuery: (event) => dispatch(updateIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),

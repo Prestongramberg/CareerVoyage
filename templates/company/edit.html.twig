@@ -3,85 +3,233 @@
 {% form_theme form with _self %}
 
 {% block title %}Edit Company{% endblock %}
+{% block bodyClass %}page-company-edit{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('build/editCompanies.js') }}"></script>
 {% endblock %}
 
-{#{% block _edit_company_form_photos_row %}
-    hello world
-
-{% endblock %}#}
-
 {% block body %}
 
-    <div id="app">
-        <h1>Edit Company</h1>
+    <div class="uk-container">
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-        {{ form_row(form.name) }}
-        {{ form_row(form.website) }}
-        {{ form_row(form.phone) }}
-        {{ form_row(form.emailAddress) }}
-        {{ form_row(form.primaryIndustry) }}
-        {{ form_row(form.shortDescription) }}
-        {{ form_row(form.description) }}
-        {{ form_row(form.companyLinkedinPage) }}
 
-        <hr>
-        {{ form_row(form.thumbnailImage) }}
-        {% if company.thumbnailImage %}
-            <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-        {% endif %}
-        <hr>
+        <ul class="uk-tab" uk-switcher="connect: #tab-edit-company" uk-tab>
+            <li class="uk-active"><a href="#company-details">Edit Company</a></li>
+            <li><a href="#company-photos">Photos</a></li>
+            <li><a href="#company-videos">Videos</a></li>
+            <li><a href="#company-resources">Resources</a></li>
+        </ul>
 
-
-        {{ form_row(form.featuredImage) }}
-        <hr>
-        {% if company.featuredImage %}
-            <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>
-        {% endif %}
-        <hr>
-
-        Company Photos
-        {{ form_row(form.photos) }}
-        {% for companyPhoto in company.companyPhotos %}
-            <a href="{{ path('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}">Remove</a>
-            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
-        {% endfor %}
-
-
-        {% set sharedButtonMarkup %}
-            <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a video</a>
-        {% endset %}
-
-        {# TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it
-        so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
-        {% if form.videos is defined %}
-            <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.videos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
-                {% for video in form.videos %}
-                    <li class="list-group-item js-child-item">
-                        {{ form_row(video.name) }}
-                        {{ form_row(video.videoId) }}
-                    </li>
-                {% endfor %}
-            </ul>
-            {{ sharedButtonMarkup }}
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
         {% endif %}
 
-        <br>
-        <br>
-        Company Resources
-        {{ form_row(form.resources) }}
-        {% for resource in company.companyResources %}
-            <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>
-        {% endfor %}
+        <div class="uk-switcher" id="tab-edit-company">
+            <div class="page-company-edit__details">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.name, 'Name*') }}
+                            {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.website, 'Website*') }}
+                            {{ form_widget(form.website, {'attr': {'class': 'uk-input' ~ ( form_errors(form.website) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.website) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.phone, 'Phone*') }}
+                            {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.phone) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.emailAddress, 'Email Address*') }}
+                            {{ form_widget(form.emailAddress, {'attr': {'class': 'uk-input' ~ ( form_errors(form.emailAddress) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.emailAddress) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryIndustry) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.shortDescription, 'Short Description*') }}
+                            {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.shortDescription) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.description, 'Description*') }}
+                            <div data-wysiwyg="[name='edit_company_form[description]']" class="{{ ( form_errors(form.description) ? 'wysiwyg-error' : '' ) }}"></div>
+                            <div style="display: none;">
+                                {{ form_widget(form.description) }}
+                            </div>
+                            {{ form_errors(form.description) }}
+                        </div>
+                        <div class="uk-margin uk-grid" uk-grid>
+                            {% if company.thumbnailImage %}
+                                <div class="uk-width-small">
+                                    <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                </div>
+                            {% endif %}
+                            <div class="uk-width-expand">
+                                {{ form_label(form.thumbnailImage, 'Thumbnail*') }}<br />
+                                <div uk-form-custom="target: true">
+                                    {{ form_widget(form.thumbnailImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.thumbnailImage) ? ' uk-form-danger' : '' ) }}) }}
+                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
+                                </div>
+                                {{ form_errors(form.thumbnailImage) }}
+                            </div>
+                        </div>
+                        <div class="uk-margin uk-grid" uk-grid>
+                            {% if company.featuredImage %}
+                                <div class="uk-width-small">
+                                    <img src="{{ asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                </div>
+                            {% endif %}
+                            <div class="uk-width-expand">
+                                {{ form_label(form.featuredImage, 'Featured Image*') }}<br />
+                                <div uk-form-custom="target: true">
+                                    {{ form_widget(form.featuredImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.featuredImage) ? ' uk-form-danger' : '' ) }}) }}
+                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
+                                </div>
+                                {{ form_errors(form.featuredImage) }}
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.companyLinkedinPage, 'Company LinkedIn Page*') }}
+                            {{ form_widget(form.companyLinkedinPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyLinkedinPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.companyLinkedinPage) }}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-company-edit__photos">
 
-        <div>
-            <button class="btn">Update</button>
+                <div class="uk-width-1-1">
+                    {{ form_label(form.photos, 'Add New Photos*') }}<br />
+                    <div uk-form-custom="target: true">
+                        {{ form_widget(form.photos, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.photos) ? ' uk-form-danger' : '' ) }}) }}
+                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photos" disabled>
+                    </div>
+                    {{ form_errors(form.photos) }}
+                </div>
+
+                <h4>Remove Existing Photos</h4>
+                <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid>
+                    {% for companyPhoto in company.companyPhotos %}
+                        <div class="page-company-edit__uploaded-photos">
+                            <button class="js-removePhoto" type="button" data-remove="{{ url('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}" uk-close></button>
+                            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="page-company-edit__videos">
+                Videos
+                {% set sharedButtonMarkup %}
+                    <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a video</a>
+                {% endset %}
+
+{#                 TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it#}
+{#                so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
+                {% if form.videos is defined %}
+                    <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.videos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                        {% for video in form.videos %}
+                            <li class="list-group-item js-child-item">
+                                {{ form_row(video.name) }}
+                                {{ form_row(video.videoId) }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {{ sharedButtonMarkup }}
+                {% endif %}
+            </div>
+            <div class="page-company-edit__resources">
+                Resources
+            </div>
         </div>
+
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+        </div>
+
         {{ form_end(form) }}
+
     </div>
+
+{#    <div id="app">#}
+{#        <h1>Edit Company</h1>#}
+
+{#        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}#}
+{#        {{ form_row(form.name) }}#}
+{#        {{ form_row(form.website) }}#}
+{#        {{ form_row(form.phone) }}#}
+{#        {{ form_row(form.emailAddress) }}#}
+{#        {{ form_row(form.primaryIndustry) }}#}
+{#        {{ form_row(form.shortDescription) }}#}
+{#        {{ form_row(form.description) }}#}
+{#        {{ form_row(form.companyLinkedinPage) }}#}
+
+{#        <hr>#}
+{#        {{ form_row(form.thumbnailImage) }}#}
+{#        {% if company.thumbnailImage %}#}
+{#            <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />#}
+{#        {% endif %}#}
+{#        <hr>#}
+
+
+{#        {{ form_row(form.featuredImage) }}#}
+{#        <hr>#}
+{#        {% if company.featuredImage %}#}
+{#            <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>#}
+{#        {% endif %}#}
+{#        <hr>#}
+
+{#        Company Photos#}
+{#        {{ form_row(form.photos) }}#}
+{#        {% for companyPhoto in company.companyPhotos %}#}
+{#            <a href="{{ path('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}">Remove</a>#}
+{#            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />#}
+{#        {% endfor %}#}
+
+
+{#        {% set sharedButtonMarkup %}#}
+{#            <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a video</a>#}
+{#        {% endset %}#}
+
+{#        #}{# TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it#}
+{#        so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
+{#        {% if form.videos is defined %}#}
+{#            <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.videos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">#}
+{#                {% for video in form.videos %}#}
+{#                    <li class="list-group-item js-child-item">#}
+{#                        {{ form_row(video.name) }}#}
+{#                        {{ form_row(video.videoId) }}#}
+{#                    </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#            {{ sharedButtonMarkup }}#}
+{#        {% endif %}#}
+
+{#        <br>#}
+{#        <br>#}
+{#        Company Resources#}
+{#        {{ form_row(form.resources) }}#}
+{#        {% for resource in company.companyResources %}#}
+{#            <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>#}
+{#        {% endfor %}#}
+
+{#        <div>#}
+{#            <button class="btn">Update</button>#}
+{#        </div>#}
+{#        {{ form_end(form) }}#}
+{#    </div>#}
 
 {% endblock %}

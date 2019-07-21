@@ -1,8 +1,169 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}My Company{% endblock %}
+{% block bodyClass %}page-company-view{% endblock %}
 
 {% block body %}
+
+    <div class="page-company-view__featured-image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+         data-src="{{ company.featuredImageURL }}" uk-img>
+
+        <div class="uk-width-1-1" style="background: rgba(0,0,0,0.6)">
+            <div class="uk-container">
+                <div class="uk-padding-small">
+                    <div class="uk-grid-small uk-flex-middle" uk-grid>
+                        <div class="uk-width-expand">
+                            <h3>{{ company.name }}</h3>
+                        </div>
+                        <div class="uk-width-auto">
+                            <div class="uk-align-right">
+                                <i class="fa fa-heart" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-container">
+
+        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+            <div class="uk-width-expand">
+                <div class="uk-align-right@l">
+                    <button class="uk-button uk-button-default uk-button-small">Join this Company</button>
+                    <button class="uk-button uk-button-primary uk-button-small">Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <ul class="" data-uk-tab="{connect: '#tab-lesson-detail'}" uk-switcher>
+            <li class="uk-active"><a href="#company-summary">Summary</a></li>
+            <li><a href="#company-photos">Photos</a></li>
+            <li><a href="#company-videos">Videos</a></li>
+            <li><a href="#company-events">Events</a></li>
+            <li><a href="#company-events">Resources</a></li>
+        </ul>
+
+        <div class="uk-switcher" id="tab-lesson-detail">
+            <div class="company__summary">
+                <div class="uk-width-xlarge">
+                    {{ company.description }}
+                    <div class="company-links">
+                        <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
+                        <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                        <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                        <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="company__photos">
+
+                <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide">
+                    <div>
+                        <a class="uk-inline" href="images/company-photo-1.jpg">
+                            <img src="images/company-photo-1.jpg" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <a class="uk-inline" href="images/company-photo-2.jpg">
+                            <img src="images/company-photo-2.jpg" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <a class="uk-inline" href="images/company-photo-3.jpg">
+                            <img src="images/company-photo-3.jpg" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <a class="uk-inline" href="images/company-photo-4.jpg">
+                            <img src="images/company-photo-4.jpg" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <a class="uk-inline" href="images/company-photo-5.jpg">
+                            <img src="images/company-photo-5.jpg" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="company__videos">
+                <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                    <div>
+                        <a class="uk-inline" href="https://www.youtube.com/watch?v=QWOBac1bNH0">
+                            <img src="http://i.ytimg.com/vi/QWOBac1bNH0/hqdefault.jpg" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <a class="uk-inline" href="https://www.youtube.com/watch?v=LPBDIh9gSOQ">
+                            <img src="http://i.ytimg.com/vi/LPBDIh9gSOQ/hqdefault.jpg" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <a class="uk-inline" href="https://www.youtube.com/watch?v=j7RGZYcO7ss">
+                            <img src="http://i.ytimg.com/vi/j7RGZYcO7ss/hqdefault.jpg" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="company__events">
+                <div class="uk-grid event-listing uk-child-width-1-2@m" uk-grid="masonry: true">
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">
+                            <div class="uk-card-badge uk-label">Site Host</div>
+                            <div class="uk-text-meta">October 4, 2019</div>
+                            <div class="uk-margin">
+                                <a href="#"><h3 class="uk-card-title">Code Hackathon at Best Buy HQ!</h3></a>
+                                <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">
+                            <div class="uk-card-badge uk-label">Interview</div>
+                            <div class="uk-text-meta">October 8, 2019</div>
+                            <div class="uk-margin">
+                                <a href="#"><h3 class="uk-card-title">Mastering Interview Questions</h3></a>
+                                <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-body">
+                            <div class="uk-card-badge uk-label">Job Shadow</div>
+                            <div class="uk-text-meta">October 15, 2019</div>
+                            <div class="uk-margin">
+                                <a href="#"><h3 class="uk-card-title">Learning React with our Senior Developers</h3></a>
+                                <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="company__resources">
+                <dl class="uk-description-list uk-description-list-divider">
+                    <div class="uk-grid uk-flex-middle" uk-grid>
+                        <div class="uk-width-expand">
+                            <dt>Company Culture</dt>
+                            <dd>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab adipisci amet culpa dolorem esse est laborum magni</dd>
+                        </div>
+                        <div class="uk-width-auto">
+                            <button class="uk-button uk-button-default uk-button-small">View</button>
+                        </div>
+                    </div>
+                    <div class="uk-grid uk-flex-middle" uk-grid>
+                        <div class="uk-width-expand">
+                            <dt>How our Employees Matter</dt>
+                            <dd>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab adipisci amet culpa dolorem esse est laborum magni</dd>
+                        </div>
+                        <div class="uk-width-auto">
+                            <button class="uk-button uk-button-default uk-button-small">View</button>
+                        </div>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
 
     <h1>My Company</h1>
     <a href="{{ path('company_edit', {id: company.id}) }}">Edit Company</a>

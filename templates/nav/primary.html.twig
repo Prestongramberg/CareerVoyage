@@ -12,10 +12,10 @@
         <ul class="uk-nav uk-nav-default">
 
             <li><a href="/">Home</a></li>
-            <li><a href="#">Lessons</a></li>
+            <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
             <li><a href="#">Schools</a></li>
             <li><a href="{{ path('company_index') }}">Companies</a></li>
-            <li><a href="#">Professionals</a></li>
+            <li><a href="{{ path('professional_index') }}">Professionals</a></li>
             <li><a href="#">My Library</a></li>
             <li><a href="#">Notifications (2)</a></li>
             <li><a href="#">Advanced Search</a></li>
@@ -50,7 +50,7 @@
                             <i class="fa fa-paper-plane" aria-hidden="true"></i>
                         </span>
                         <span class="main-navigation__meta-profile">
-                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.jpg') }}">
+                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             <div uk-dropdown>
                                 <ul class="uk-nav uk-dropdown-nav">
                                     <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>

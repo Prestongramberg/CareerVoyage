@@ -12,11 +12,9 @@
                     <div class="uk-card uk-card-default">
                         <div class="uk-card-header">
                             <div class="uk-grid-small uk-flex-middle" uk-grid>
-                                {% if user.isProfessional and user.photo %}
-                                    <div class="uk-width-auto">
-                                        <img class="uk-border-circle" width="40" height="40" src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}">
-                                    </div>
-                                {% endif %}
+                                <div class="uk-width-auto">
+                                    <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                </div>
                                 <div class="uk-width-auto">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                     <p class="uk-text-meta uk-margin-remove-top">
@@ -35,8 +33,9 @@
                             </div>
                         </div>
                         <div class="uk-card-body">
-                            <!-- TODO: Logic needs personal description -->
-                            <p>I am a Senior Project Manager at Centerpoint. I am a graduate of University of Minnesota and hold a Masters Degree in Project Management</p>
+                            {% if user.isProfessional %}
+                                {{ user.briefBio|raw }}
+                            {% endif %}
                             <div class="professional-links">
                                 <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                                 {% if user.isProfessional and user.getPhone %}
@@ -121,7 +120,7 @@
                             </div>
                             <div class="uk-width-expand">
                                 <div class="uk-align-right">
-                                    <a href="lessons-detail.php">
+                                    <a href="#">
                                         <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
                                     </a>
                                 </div>

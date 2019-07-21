@@ -12,74 +12,25 @@
 
         <div class="uk-switcher" id="tab-companies">
             <div class="companies__all">
-                <div id="searchable-company-listing">Hey</div>
+                <div id="searchable-company-listing"></div>
             </div>
             <div class="companies_library">
-                <div class="uk-grid" uk-grid>
-                    <div class="uk-width-1-1 company-listings">
-                        <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" uk-grid>
-                            <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
-                                <div class="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light" data-src="images/company-best-buy.jpg" uk-img style="min-height: 150px;">
-                                    <div class="uk-inline uk-padding-small">
-                                        <a href="#">
-                                            <i class="fa fa-heart" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="uk-width-1-1 uk-width-expand@m">
-                                <div class="uk-card-body">
-                                    <div class="company-listing__meta">
-                                        <a href="companies-detail.php"><h3 class="uk-card-title-small uk-heading-divider">Best Buy</h3></a>
-                                        <p>Best Buy Co., Inc., incorporated on October 20, 1966, is a provider of technology products, services and solutions. The Company offers products and services to the customers visiting its stores, engaging with Geek Squad agents, or using its Websites or mobile applications.</p>
-                                        <div class="uk-grid uk-flex-middle" uk-grid>
-                                            <div class="uk-width-auto">
-                                                <div class="company-links">
-                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
-                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
-                                                </div>
-                                            </div>
-                                            <div class="uk-width-expand uk-visible@m">
-                                                <div class="uk-align-right">
-                                                    <a href="companies-detail.php" class="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="uk-placeholder uk-text-center">
+                    <p>You haven't favorited any companies yet.</p>
                 </div>
             </div>
             <div class="companies_mine">
-
-                <div class="uk-margin uk-width-1-1" style="display: block;">
-                    <div class="uk-alert-primary" uk-alert>
-                        <p>Your request for "Best Buy" is currently pending approval.</p>
-                    </div>
-                </div>
-                <div class="uk-margin uk-width-1-1" style="display: block;">
-                    <div class="uk-placeholder uk-text-center">
-                        <p>You aren't associated with a company yet.</p>
-                        <a href="company-join.php" class="uk-button uk-button-primary uk-button-small">Join a Company</a>
-                        <a href="company-create.php" class="uk-button uk-button-primary uk-button-small">Create a Company</a>
-                    </div>
-                </div>
-
-                <div class="uk-margin" style="display: block;">
+                {% if user.company %}
                     <div class="uk-card">
                         <div class="uk-grid uk-flex-middle" uk-grid>
                             <div class="uk-width-small">
-                                <img src="images/company-best-buy.jpg" alt="">
+                                <img src="{{ asset(uploaded_asset(user.company.thumbnailImagePath)) }}" alt="">
                             </div>
                             <div class="uk-width-expand">
-                                <h3>Best Buy</h3>
+                                <h3>{{ user.company.name }}</h3>
                             </div>
                             <div class="uk-width-auto">
-                                <a href="companies-detail.php" class="uk-button uk-button-default uk-button-small">View</a>
+                                <a href="{{ path('company_view', {'id': user.company.id}) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                 <button uk-toggle="target: #remove-from-company" type="button" class="uk-button uk-button-secondary uk-button-small">Remove</button>
                                 <button uk-toggle="target: #remove-company" type="button" class="uk-button uk-button-danger uk-button-small">Delete</button>
                                 <div id="remove-from-company" uk-modal>
@@ -101,8 +52,13 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
+                {% else %}
+                    <div class="uk-placeholder uk-text-center">
+                        <p>You aren't associated with a company yet.</p>
+                        <a href="#" class="uk-button uk-button-primary uk-button-small">Join a Company</a>
+                        <a href="{{ path('company_new') }}" class="uk-button uk-button-primary uk-button-small">Create a Company</a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

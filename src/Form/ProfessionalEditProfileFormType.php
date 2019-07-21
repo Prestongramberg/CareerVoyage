@@ -45,7 +45,6 @@ class ProfessionalEditProfileFormType extends AbstractType
             ])
             ->add('lastName', TextType::class)
             ->add('email')
-            ->add('username')
             ->add('file', FileType::class, [
                 'label' => 'Photo upload',
                 'constraints' => $imageConstraints,
@@ -67,7 +66,10 @@ class ProfessionalEditProfileFormType extends AbstractType
                     'Job shadow host' => 'JOB_SHADOW_HOST',
                 ],
                 'expanded' => true,
-                'multiple' => true
+                'multiple' => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('interests', TextareaType::class)
             ->add('briefBio', TextareaType::class)

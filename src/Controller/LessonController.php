@@ -179,7 +179,7 @@ class LessonController extends AbstractController
     }
 
     /**
-     * @Route("/lessons/{id}/view", name="lesson_view")
+     * @Route("/lessons/{id}/view", name="lesson_view", options = { "expose" = true })
      * @param Request $request
      * @param Lesson $lesson
      * @return \Symfony\Component\HttpFoundation\Response
