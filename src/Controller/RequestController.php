@@ -16,6 +16,9 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Mailer\MyRequests\NewCompanyApprovedMailer;
+use App\Mailer\MyRequests\RequestFromCompanyToUserToJoinCompanyMailer;
+use App\Mailer\MyRequests\RequestFromUserToJoinCompanyMailer;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\JoinCompanyRequestRepository;
@@ -107,6 +110,21 @@ class RequestController extends AbstractController
     private $requestRepository;
 
     /**
+     * @var NewCompanyApprovedMailer
+     */
+    private $newCompanyApprovedMailer;
+
+    /**
+     * @var RequestFromCompanyToUserToJoinCompanyMailer
+     */
+    private $requestFromCompanyToUserToJoinCompany;
+
+    /**
+     * @var RequestFromUserToJoinCompanyMailer
+     */
+    private $requestFromUserToJoinCompanyMailer;
+
+    /**
      * RequestController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -119,6 +137,9 @@ class RequestController extends AbstractController
      * @param NewCompanyRequestRepository $newCompanyRequestRepository
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param RequestRepository $requestRepository
+     * @param NewCompanyApprovedMailer $newCompanyApprovedMailer
+     * @param RequestFromCompanyToUserToJoinCompanyMailer $requestFromCompanyToUserToJoinCompany
+     * @param RequestFromUserToJoinCompanyMailer $requestFromUserToJoinCompanyMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -131,7 +152,10 @@ class RequestController extends AbstractController
         CompanyPhotoRepository $companyPhotoRepository,
         NewCompanyRequestRepository $newCompanyRequestRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
-        RequestRepository $requestRepository
+        RequestRepository $requestRepository,
+        NewCompanyApprovedMailer $newCompanyApprovedMailer,
+        RequestFromCompanyToUserToJoinCompanyMailer $requestFromCompanyToUserToJoinCompany,
+        RequestFromUserToJoinCompanyMailer $requestFromUserToJoinCompanyMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -144,6 +168,9 @@ class RequestController extends AbstractController
         $this->newCompanyRequestRepository = $newCompanyRequestRepository;
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->requestRepository = $requestRepository;
+        $this->newCompanyApprovedMailer = $newCompanyApprovedMailer;
+        $this->requestFromCompanyToUserToJoinCompany = $requestFromCompanyToUserToJoinCompany;
+        $this->requestFromUserToJoinCompanyMailer = $requestFromUserToJoinCompanyMailer;
     }
 
     /**
@@ -187,7 +214,8 @@ class RequestController extends AbstractController
                     $request = $this->newCompanyRequestRepository->find($request);
                     $request->setApproved(true);
                     $this->addFlash('message', 'Company approved');
-                    break;
+                    $this->newCompanyApprovedMailer->send($request->getCreatedBy(), $request->getCompany());
+;                    break;
                 case 'JoinCompanyRequest':
                     /** @var JoinCompanyRequestRepository $request */
                     $request = $this->joinCompanyRequestRepository->find($request);
@@ -215,12 +243,12 @@ class RequestController extends AbstractController
     }
 
     /**
-     * @Route("/requests/{id}/join-company", name="request_join_company", methods={"POST"}, options = { "expose" = true })
+     * @Route("/requests/companies/{id}/company-join-request", name="company_join_request", methods={"POST"}, options = { "expose" = true })
      * @param Company $company
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function requestJoinCompany(Company $company, Request $request) {
+    public function companyJoinRequest(Company $company, Request $request) {
 
         /** @var User $user */
         $user = $this->getUser();
@@ -249,6 +277,47 @@ class RequestController extends AbstractController
             [
                 'success' => true,
                 'message' => 'Request to join company successful'
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/requests/companies/{companyID}/users/{userID}/from-company-join-request", name="from_company_join_request", methods={"POST"}, options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("user", options={"id" = "userID"})
+     * @param Company $company
+     * @param User $user
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function fromCompanyJoinRequest(Company $company, User $user, Request $request) {
+
+
+        $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsFromCompanyByUser($user);
+
+        if(count($requests) > 0) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'message' => 'You have already sent a request to this user to join this company'
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        $joinCompanyRequest = new JoinCompanyRequest();
+        $joinCompanyRequest->setCompany($company);
+        $joinCompanyRequest->setCreatedBy($this->getUser());
+        $joinCompanyRequest->setNeedsApprovalBy($user);
+
+        $this->entityManager->persist($joinCompanyRequest);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'message' => 'Request for user to join company successful'
             ],
             Response::HTTP_OK
         );

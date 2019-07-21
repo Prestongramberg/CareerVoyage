@@ -14,7 +14,12 @@
     <br>
     {{ user.username }}
 
-    <form method="post" action="{{ path('request_join_company', {'id': '1'}) }}">
+    <form method="post" action="{{ path('company_join_request', {'id': '1'}) }}">
         <input type="submit" value="request to join">
     </form>
+
+    <form method="post" action="{{ path('from_company_join_request', {'userID': '1', 'companyID': '3'}) }}">
+        <input type="submit" value="request to join">
+    </form>
+
 {% endblock %}

@@ -15,6 +15,8 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Mailer\MyRequests\NewCompanyApprovedMailer;
+use App\Mailer\RequestsThatNeedMyApproval\NewCompanyNeedsApprovalMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -93,6 +95,11 @@ class CompanyController extends AbstractController
     private $adminUserRepository;
 
     /**
+     * @var NewCompanyNeedsApprovalMailer
+     */
+    private $newCompanyNeedsApprovalMailer;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -103,6 +110,7 @@ class CompanyController extends AbstractController
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param AdminUserRepository $adminUserRepository
+     * @param NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -113,7 +121,8 @@ class CompanyController extends AbstractController
         Packages $assetsManager,
         CompanyRepository $companyRepository,
         CompanyPhotoRepository $companyPhotoRepository,
-        AdminUserRepository $adminUserRepository
+        AdminUserRepository $adminUserRepository,
+        NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -124,6 +133,7 @@ class CompanyController extends AbstractController
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->adminUserRepository = $adminUserRepository;
+        $this->newCompanyNeedsApprovalMailer = $newCompanyNeedsApprovalMailer;
     }
 
     /**
@@ -186,6 +196,8 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            $this->newCompanyNeedsApprovalMailer->send($user, $company);
 
             return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
 

@@ -66,4 +66,17 @@ class JoinCompanyRequestRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    public function getJoinCompanyRequestsFromCompanyByUser(User $user) {
+
+        return $this->createQueryBuilder('joinCompanyRequest')
+            ->where('joinCompanyRequest.needsApprovalBy = :user')
+            ->setParameter('user', $user->getId())
+            ->getQuery()
+            ->getResult();
+    }
 }
