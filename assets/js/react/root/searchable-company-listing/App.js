@@ -16,7 +16,7 @@ class App extends React.Component {
 
         const relevantCompanies = this.getRelevantCompanies();
         const favoriteCompanies = this.props.companies.filter(company => company.favorite === true);
-        const myCompanies = this.props.companies.filter(company => ( company.owner & company.owner.id === this.props.userId ));
+        const myCompanies = this.props.companies.filter(company => ( company.owner && company.owner.id === this.props.userId ));
 
         return (
             <div className="uk-container">
@@ -150,7 +150,7 @@ class App extends React.Component {
                         { myCompanies.length === 0 && (
                             <div className="uk-placeholder uk-text-center">
                                 <p>You aren't associated with a company yet.</p>
-                                <a href={ window.Routing.generate("company_join") } className="uk-button uk-button-primary uk-button-small">Join a Company</a>
+                                {/*<a href={ window.Routing.generate("company_join") } className="uk-button uk-button-primary uk-button-small">Join a Company</a>*/}
                                 <a href={ window.Routing.generate("company_new") } className="uk-button uk-button-primary uk-button-small">Create a Company</a>
                             </div>
                         )}
