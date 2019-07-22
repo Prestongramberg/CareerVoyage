@@ -72,6 +72,69 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($professionalUser);
         $this->setReference('user2', $professionalUser);
 
+
+
+        $professionalUser = new ProfessionalUser();
+        $professionalUser->setFirstName('Tom');
+        $professionalUser->setLastName('Brady');
+        $professionalUser->setPassword($this->passwordEncoder->encodePassword(
+            $professionalUser,
+            'Pintex123!'
+        ));
+        $professionalUser->setEmail('tombrady@yahoo.com');
+        $professionalUser->setUsername('tombrady4');
+        $professionalUser->agreeToTerms();
+        $professionalUser->setupAsProfessional();
+        $company = $this->getReference('company1');
+        $professionalUser->setCompany($company);
+        $manager->persist($professionalUser);
+
+        $professionalUser = new ProfessionalUser();
+        $professionalUser->setFirstName('Jill');
+        $professionalUser->setLastName('House');
+        $professionalUser->setPassword($this->passwordEncoder->encodePassword(
+            $professionalUser,
+            'Pintex123!'
+        ));
+        $professionalUser->setEmail('jillhouse@yahoo.com');
+        $professionalUser->setUsername('jillhouse44');
+        $professionalUser->agreeToTerms();
+        $professionalUser->setupAsProfessional();
+        $company = $this->getReference('company2');
+        $professionalUser->setCompany($company);
+        $manager->persist($professionalUser);
+
+        $professionalUser = new ProfessionalUser();
+        $professionalUser->setFirstName('Jeff');
+        $professionalUser->setLastName('Mason');
+        $professionalUser->setPassword($this->passwordEncoder->encodePassword(
+            $professionalUser,
+            'Pintex123!'
+        ));
+        $professionalUser->setEmail('jeffreymason@gmail.com');
+        $professionalUser->setUsername('jeffreymason33');
+        $professionalUser->agreeToTerms();
+        $professionalUser->setupAsProfessional();
+        $company = $this->getReference('company1');
+        $professionalUser->setCompany($company);
+        $manager->persist($professionalUser);
+
+        $professionalUser = new ProfessionalUser();
+        $professionalUser->setFirstName('Nora');
+        $professionalUser->setLastName('Jones');
+        $professionalUser->setPassword($this->passwordEncoder->encodePassword(
+            $professionalUser,
+            'Pintex123!'
+        ));
+        $professionalUser->setEmail('norajones@gmail.com');
+        $professionalUser->setUsername('norajones55');
+        $professionalUser->agreeToTerms();
+        $professionalUser->setupAsProfessional();
+        $company = $this->getReference('company2');
+        $professionalUser->setCompany($company);
+        $manager->persist($professionalUser);
+
+
         $manager->flush();
 
         $adminUser = new AdminUser();
