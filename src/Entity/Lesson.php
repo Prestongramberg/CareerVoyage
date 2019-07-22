@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LessonRepository")
@@ -23,23 +24,35 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA"})
+     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
 
     /**
      * @Groups({"LESSON_DATA"})
+     * @Assert\Count(
+     *      min = 1,
+     *      minMessage = "You must specify at least one career.",
+     *     groups={"CREATE"}
+     * )
      * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="lessons")
      */
     private $careers;
 
     /**
+     * @Assert\Count(
+     *      min = 1,
+     *      minMessage = "You must specify at least one grade.",
+     *     groups={"CREATE"}
+     * )
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Grade", inversedBy="lessons")
      */
     private $grades;
 
     /**
+     * @Assert\NotBlank(message="Don't forget to select a primary course!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="lessons")
      * @ORM\JoinColumn(nullable=true)
@@ -47,35 +60,47 @@ class Lesson
     private $primaryCourse;
 
     /**
+     *  @Assert\Count(
+     *      min = 1,
+     *      minMessage = "You must specify at least one secondary course",
+     *     groups={"CREATE"}
+     * )
+     *
+     * @Assert\NotBlank(message="Don't forget to select at least one secondary course!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="lessons")
      */
     private $secondaryCourses;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a summary!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $summary;
 
     /**
+     * @Assert\NotBlank(message="Don't forget learning outcomes!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $learningOutcomes;
 
     /**
+     * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educationalStandards;
 
     /**
+     * @Assert\NotBlank(message="Don't forget to add a thumbnail image!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $thumbnailImage;
 
     /**
+     * @Assert\NotBlank(message="Don't forget to add a featured image!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $featuredImage;
@@ -104,6 +129,19 @@ class Lesson
      * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="lesson", orphanRemoval=true)
      */
     private $lessonTeachables;
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
+     *      groups={"EDIT"}
+     * )
+     * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE"})
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $shortDescription;
 
     public function __construct()
     {
@@ -415,6 +453,18 @@ class Lesson
                 $lessonTeachable->setLesson(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getShortDescription(): ?string
+    {
+        return $this->shortDescription;
+    }
+
+    public function setShortDescription(?string $shortDescription): self
+    {
+        $this->shortDescription = $shortDescription;
 
         return $this;
     }

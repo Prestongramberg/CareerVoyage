@@ -18,6 +18,7 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\CourseRepository;
 use App\Repository\IndustryRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -101,6 +102,11 @@ class CompanyController extends AbstractController
     private $companyFavoriteRepository;
 
     /**
+     * @var CourseRepository
+     */
+    private $courseRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -112,6 +118,7 @@ class CompanyController extends AbstractController
      * @param CompanyRepository $companyRepository
      * @param IndustryRepository $industryRepository
      * @param CompanyFavoriteRepository $companyFavoriteRepository
+     * @param CourseRepository $courseRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -123,7 +130,8 @@ class CompanyController extends AbstractController
         SerializerInterface $serializer,
         CompanyRepository $companyRepository,
         IndustryRepository $industryRepository,
-        CompanyFavoriteRepository $companyFavoriteRepository
+        CompanyFavoriteRepository $companyFavoriteRepository,
+        CourseRepository $courseRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -135,6 +143,7 @@ class CompanyController extends AbstractController
         $this->companyRepository = $companyRepository;
         $this->industryRepository = $industryRepository;
         $this->companyFavoriteRepository = $companyFavoriteRepository;
+        $this->courseRepository = $courseRepository;
     }
 
     /**
@@ -142,7 +151,30 @@ class CompanyController extends AbstractController
      */
     public function getCompanies() {
 
+        /** @var User $user */
+        $user = $this->getUser();
+
         $companies = $this->companyRepository->getApprovedCompanies();
+
+        foreach($companies as $company) {
+
+            $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
+                'company' => $company,
+                'user' => $user
+            ]);
+
+            if($favoriteCompany) {
+                $company->setIsFavorite(true);
+            } else {
+                $company->setIsFavorite(false);
+            }
+
+            if($user->isProfessional() && $user->getCompany()->getId() === $company->getId()) {
+                $company->setIsMine(true);
+            } else {
+                $company->setIsMine(false);
+            }
+        }
 
         $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
 
@@ -165,6 +197,26 @@ class CompanyController extends AbstractController
         $industries = $this->industryRepository->findAll();
 
         $json = $this->serializer->serialize($industries, 'json', ['groups' => ['RESULTS_PAGE']]);
+
+        $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/courses", name="get_courses", methods={"GET"}, options = { "expose" = true })
+     */
+    public function getCourses() {
+
+        $courses = $this->courseRepository->findAll();
+
+        $json = $this->serializer->serialize($courses, 'json', ['groups' => ['LESSON_DATA']]);
 
         $payload = json_decode($json, true);
 

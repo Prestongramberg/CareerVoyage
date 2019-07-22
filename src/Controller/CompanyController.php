@@ -20,6 +20,7 @@ use App\Mailer\RequestsThatNeedMyApproval\NewCompanyNeedsApprovalMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\ProfessionalUserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -101,6 +102,11 @@ class CompanyController extends AbstractController
     private $newCompanyNeedsApprovalMailer;
 
     /**
+     * @var ProfessionalUserRepository
+     */
+    private $professionalUserRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -112,6 +118,7 @@ class CompanyController extends AbstractController
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param AdminUserRepository $adminUserRepository
      * @param NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
+     * @param ProfessionalUserRepository $professionalUserRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -123,7 +130,8 @@ class CompanyController extends AbstractController
         CompanyRepository $companyRepository,
         CompanyPhotoRepository $companyPhotoRepository,
         AdminUserRepository $adminUserRepository,
-        NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
+        NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer,
+        ProfessionalUserRepository $professionalUserRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -135,6 +143,7 @@ class CompanyController extends AbstractController
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->adminUserRepository = $adminUserRepository;
         $this->newCompanyNeedsApprovalMailer = $newCompanyNeedsApprovalMailer;
+        $this->professionalUserRepository = $professionalUserRepository;
     }
 
     /**

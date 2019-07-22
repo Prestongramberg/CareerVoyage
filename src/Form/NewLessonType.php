@@ -63,6 +63,7 @@ class NewLessonType extends AbstractType
                 'expanded'  => true,
                 'multiple'  => true,
             ])
+            ->add('shortDescription', TextareaType::class, [])
             ->add('summary', TextType::class, [])
             ->add('learningOutcomes', TextareaType::class, [])
             ->add('educationalStandards', TextareaType::class, [])
