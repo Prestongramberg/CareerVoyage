@@ -40,10 +40,14 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function supports(Request $request)
     {
-        return 'welcome' === $request->attributes->get('_route')
+
+        $name = 'welcome' === $request->attributes->get('_route')
             && $request->isMethod('POST')
             && !in_array($request->request->get('formType'),
                 ['educatorRegistrationForm', 'professionalRegistrationForm', 'studentRegistrationForm']);
+
+
+        return $name;
     }
 
     public function getCredentials(Request $request)
@@ -93,7 +97,6 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         /*if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }*/
-
 
         $targetPath = $this->router->generate('profile_index', ['id' => $token->getUser()->getId()]);
         return new RedirectResponse($targetPath);

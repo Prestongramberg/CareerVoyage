@@ -3,6 +3,7 @@
 namespace App\Util;
 
 
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait FileHelper

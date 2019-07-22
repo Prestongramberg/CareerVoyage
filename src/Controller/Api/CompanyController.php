@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Company;
+use App\Entity\CompanyFavorite;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Image;
@@ -15,6 +16,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\IndustryRepository;
 use App\Service\FileUploader;
@@ -94,6 +96,11 @@ class CompanyController extends AbstractController
     private $industryRepository;
 
     /**
+     * @var CompanyFavoriteRepository
+     */
+    private $companyFavoriteRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -104,6 +111,7 @@ class CompanyController extends AbstractController
      * @param SerializerInterface $serializer
      * @param CompanyRepository $companyRepository
      * @param IndustryRepository $industryRepository
+     * @param CompanyFavoriteRepository $companyFavoriteRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -114,7 +122,8 @@ class CompanyController extends AbstractController
         Packages $assetsManager,
         SerializerInterface $serializer,
         CompanyRepository $companyRepository,
-        IndustryRepository $industryRepository
+        IndustryRepository $industryRepository,
+        CompanyFavoriteRepository $companyFavoriteRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -125,6 +134,7 @@ class CompanyController extends AbstractController
         $this->serializer = $serializer;
         $this->companyRepository = $companyRepository;
         $this->industryRepository = $industryRepository;
+        $this->companyFavoriteRepository = $companyFavoriteRepository;
     }
 
     /**
@@ -232,6 +242,106 @@ class CompanyController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/favorite", name="favorite_company", methods={"POST"}, options = { "expose" = true })
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function favoriteCompany(Company $company) {
+
+
+        $company = $this->companyFavoriteRepository->findOneBy([
+           'user' => $this->getUser(),
+           'company' => $company
+        ]);
+
+        if($company) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'message' => 'company has already been added to favorites.'
+
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        $companyFavorite = new CompanyFavorite();
+        $companyFavorite->setUser($this->getUser());
+        $companyFavorite->setCompany($company);
+
+        $this->entityManager->persist($companyFavorite);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'message' => 'company added to favorites.'
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/unfavorite", name="unfavorite_company", methods={"POST"}, options = { "expose" = true })
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function unFavoriteCompany(Company $company) {
+
+
+        $companyObj = $this->companyFavoriteRepository->findOneBy([
+            'user' => $this->getUser(),
+            'company' => $company
+        ]);
+
+        if($companyObj) {
+            $this->entityManager->remove($companyObj);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'message' => 'company removed from favorites.'
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'message' => 'company cannot be removed from favorites cause it does not exist in favorites'
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/favorites", name="get_favorite_companies", methods={"GET"}, options = { "expose" = true })
+     * @return JsonResponse
+     */
+    public function getFavoriteCompanies() {
+
+        $favorites = $this->companyFavoriteRepository->findBy(
+            [
+                'user' => $this->getUser()
+            ]
+        );
+
+        $json = $this->serializer->serialize($favorites, 'json', ['groups' => ['RESULTS_PAGE']]);
+
+        $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
             ],
             Response::HTTP_OK
         );

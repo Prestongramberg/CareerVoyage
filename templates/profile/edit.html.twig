@@ -59,9 +59,9 @@
                             {{ form_errors(form.email) }}
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.password, 'Change Password') }}
-                            {{ form_widget(form.password, {'attr': {'class': 'uk-input' ~ ( form_errors(form.password) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.password) }}
+                            {{ form_label(form.plainPassword, 'Change Password') }}
+                            {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.plainPassword) }}
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.rolesWillingToFulfill, 'Roles Willing To Fulfill') }}
@@ -144,5 +144,6 @@
             </div>
         </div>
     </div>
+
 
 {% endblock %}

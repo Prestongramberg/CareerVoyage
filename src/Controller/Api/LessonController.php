@@ -170,6 +170,22 @@ class LessonController extends AbstractController
      */
     public function favoriteLesson(Lesson $lesson) {
 
+        $lessonObj = $this->lessonFavoriteRepository->findOneBy([
+            'user' => $this->getUser(),
+            'lesson' => $lesson
+        ]);
+
+        if($lessonObj) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'message' => 'lesson has already been added to favorites.'
+
+                ],
+                Response::HTTP_OK
+            );
+        }
+
         $lessonFavorite = new LessonFavorite();
         $lessonFavorite->setUser($this->getUser());
         $lessonFavorite->setLesson($lesson);
@@ -185,6 +201,39 @@ class LessonController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/lessons/{id}/unfavorite", name="unfavorite_lesson", methods={"POST"}, options = { "expose" = true })
+     * @param Lesson $lesson
+     * @return JsonResponse
+     */
+    public function unFavoriteLesson(Lesson $lesson) {
+
+        $lessonObj = $this->lessonFavoriteRepository->findOneBy([
+            'user' => $this->getUser(),
+            'lesson' => $lesson
+        ]);
+
+        if($lessonObj) {
+           $this->entityManager->remove($lessonObj);
+           $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'message' => 'lesson removed from favorites'
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'message' => 'lesson cannot be removed from favorites cause it does not exist in favorites'
+            ],
+            Response::HTTP_OK
+        );
+    }
     /**
      * @Route("/lessons/mine", name="lessons_mine", methods={"GET"}, options = { "expose" = true })
      * @return JsonResponse

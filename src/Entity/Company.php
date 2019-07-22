@@ -75,6 +75,11 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
+     *      groups={"EDIT"}
+     * )
      * @Assert\NotBlank(message="Don't forget a short description!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -144,6 +149,11 @@ class Company
      */
     private $owner;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="company", orphanRemoval=true)
+     */
+    private $companyFavorites;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -151,55 +161,56 @@ class Company
         $this->videos = new ArrayCollection();
         $this->companyResources = new ArrayCollection();
         $this->joinCompanyRequests = new ArrayCollection();
+        $this->companyFavorites = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
-    public function getAddress(): ?string
+    public function getAddress()
     {
         return $this->address;
     }
 
-    public function setAddress(?string $address): self
+    public function setAddress(?string $address)
     {
         $this->address = $address;
 
         return $this;
     }
 
-    public function getPhone(): ?string
+    public function getPhone()
     {
         return $this->phone;
     }
 
-    public function setPhone(?string $phone): self
+    public function setPhone(?string $phone)
     {
         $this->phone = $phone;
 
         return $this;
     }
 
-    public function getCompanyLinkedinPage(): ?string
+    public function getCompanyLinkedinPage()
     {
         return $this->companyLinkedinPage;
     }
 
-    public function setCompanyLinkedinPage(?string $companyLinkedinPage): self
+    public function setCompanyLinkedinPage(?string $companyLinkedinPage)
     {
         $this->companyLinkedinPage = $companyLinkedinPage;
 
         return $this;
     }
 
-    public function getPrimaryContact(): ?string
+    public function getPrimaryContact()
     {
         return $this->primaryContact;
     }
 
-    public function setPrimaryContact(?string $primaryContact): self
+    public function setPrimaryContact(?string $primaryContact)
     {
         $this->primaryContact = $primaryContact;
 
@@ -209,12 +220,12 @@ class Company
     /**
      * @return Collection|ProfessionalUser[]
      */
-    public function getProfessionalUsers(): Collection
+    public function getProfessionalUsers()
     {
         return $this->professionalUsers;
     }
 
-    public function addProfessionalUser(ProfessionalUser $professionalUser): self
+    public function addProfessionalUser(ProfessionalUser $professionalUser)
     {
         if (!$this->professionalUsers->contains($professionalUser)) {
             $this->professionalUsers[] = $professionalUser;
@@ -224,7 +235,7 @@ class Company
         return $this;
     }
 
-    public function removeProfessionalUser(ProfessionalUser $professionalUser): self
+    public function removeProfessionalUser(ProfessionalUser $professionalUser)
     {
         if ($this->professionalUsers->contains($professionalUser)) {
             $this->professionalUsers->removeElement($professionalUser);
@@ -250,12 +261,12 @@ class Company
     /**
      * @return Collection|CompanyPhoto[]
      */
-    public function getCompanyPhotos(): Collection
+    public function getCompanyPhotos()
     {
         return $this->companyPhotos;
     }
 
-    public function addCompanyPhoto(CompanyPhoto $companyPhoto): self
+    public function addCompanyPhoto(CompanyPhoto $companyPhoto)
     {
         if (!$this->companyPhotos->contains($companyPhoto)) {
             $this->companyPhotos[] = $companyPhoto;
@@ -265,7 +276,7 @@ class Company
         return $this;
     }
 
-    public function removeCompanyPhoto(CompanyPhoto $companyPhoto): self
+    public function removeCompanyPhoto(CompanyPhoto $companyPhoto)
     {
         if ($this->companyPhotos->contains($companyPhoto)) {
             $this->companyPhotos->removeElement($companyPhoto);
@@ -278,96 +289,96 @@ class Company
         return $this;
     }
 
-    public function getName(): ?string
+    public function getName()
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName($name)
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getShortDescription(): ?string
+    public function getShortDescription()
     {
         return $this->shortDescription;
     }
 
-    public function setShortDescription(string $shortDescription): self
+    public function setShortDescription(?string $shortDescription)
     {
         $this->shortDescription = $shortDescription;
 
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription()
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description)
     {
         $this->description = $description;
 
         return $this;
     }
 
-    public function getWebsite(): ?string
+    public function getWebsite()
     {
         return $this->website;
     }
 
-    public function setWebsite(string $website): self
+    public function setWebsite($website)
     {
         $this->website = $website;
 
         return $this;
     }
 
-    public function getEmailAddress(): ?string
+    public function getEmailAddress()
     {
         return $this->emailAddress;
     }
 
-    public function setEmailAddress(string $emailAddress): self
+    public function setEmailAddress(string $emailAddress)
     {
         $this->emailAddress = $emailAddress;
 
         return $this;
     }
 
-    public function getPrimaryIndustry(): ?Industry
+    public function getPrimaryIndustry()
     {
         return $this->primaryIndustry;
     }
 
-    public function setPrimaryIndustry(?Industry $primaryIndustry): self
+    public function setPrimaryIndustry(?Industry $primaryIndustry)
     {
         $this->primaryIndustry = $primaryIndustry;
 
         return $this;
     }
 
-    public function getThumbnailImage(): ?Image
+    public function getThumbnailImage()
     {
         return $this->thumbnailImage;
     }
 
-    public function setThumbnailImage(?Image $thumbnailImage): self
+    public function setThumbnailImage(?Image $thumbnailImage)
     {
         $this->thumbnailImage = $thumbnailImage;
 
         return $this;
     }
 
-    public function getFeaturedImage(): ?Image
+    public function getFeaturedImage()
     {
         return $this->featuredImage;
     }
 
-    public function setFeaturedImage(?Image $featuredImage): self
+    public function setFeaturedImage(?Image $featuredImage)
     {
         $this->featuredImage = $featuredImage;
 
@@ -377,12 +388,12 @@ class Company
     /**
      * @return Collection|Video[]
      */
-    public function getVideos(): Collection
+    public function getVideos()
     {
         return $this->videos;
     }
 
-    public function addVideo(Video $video): self
+    public function addVideo(Video $video)
     {
         if (!$this->videos->contains($video)) {
             $this->videos[] = $video;
@@ -392,7 +403,7 @@ class Company
         return $this;
     }
 
-    public function removeVideo(Video $video): self
+    public function removeVideo(Video $video)
     {
         if ($this->videos->contains($video)) {
             $this->videos->removeElement($video);
@@ -408,12 +419,12 @@ class Company
     /**
      * @return Collection|CompanyResource[]
      */
-    public function getCompanyResources(): Collection
+    public function getCompanyResources()
     {
         return $this->companyResources;
     }
 
-    public function addCompanyResource(CompanyResource $companyResource): self
+    public function addCompanyResource(CompanyResource $companyResource)
     {
         if (!$this->companyResources->contains($companyResource)) {
             $this->companyResources[] = $companyResource;
@@ -423,7 +434,7 @@ class Company
         return $this;
     }
 
-    public function removeCompanyResource(CompanyResource $companyResource): self
+    public function removeCompanyResource(CompanyResource $companyResource)
     {
         if ($this->companyResources->contains($companyResource)) {
             $this->companyResources->removeElement($companyResource);
@@ -459,12 +470,12 @@ class Company
     /**
      * @return Collection|JoinCompanyRequest[]
      */
-    public function getJoinCompanyRequests(): Collection
+    public function getJoinCompanyRequests()
     {
         return $this->joinCompanyRequests;
     }
 
-    public function addJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest): self
+    public function addJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest)
     {
         if (!$this->joinCompanyRequests->contains($joinCompanyRequest)) {
             $this->joinCompanyRequests[] = $joinCompanyRequest;
@@ -474,7 +485,7 @@ class Company
         return $this;
     }
 
-    public function removeJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest): self
+    public function removeJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest)
     {
         if ($this->joinCompanyRequests->contains($joinCompanyRequest)) {
             $this->joinCompanyRequests->removeElement($joinCompanyRequest);
@@ -487,12 +498,12 @@ class Company
         return $this;
     }
 
-    public function getNewCompanyRequest(): ?NewCompanyRequest
+    public function getNewCompanyRequest()
     {
         return $this->newCompanyRequest;
     }
 
-    public function setNewCompanyRequest(NewCompanyRequest $newCompanyRequest): self
+    public function setNewCompanyRequest(NewCompanyRequest $newCompanyRequest)
     {
         $this->newCompanyRequest = $newCompanyRequest;
 
@@ -504,14 +515,45 @@ class Company
         return $this;
     }
 
-    public function getOwner(): ?ProfessionalUser
+    public function getOwner()
     {
         return $this->owner;
     }
 
-    public function setOwner(?ProfessionalUser $owner): self
+    public function setOwner(?ProfessionalUser $owner)
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyFavorite[]
+     */
+    public function getCompanyFavorites(): Collection
+    {
+        return $this->companyFavorites;
+    }
+
+    public function addCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if (!$this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites[] = $companyFavorite;
+            $companyFavorite->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if ($this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites->removeElement($companyFavorite);
+            // set the owning side to null (unless already changed)
+            if ($companyFavorite->getCompany() === $this) {
+                $companyFavorite->setCompany(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,42 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Library{% endblock %}
+
+{% block body %}
+
+
+    <h1>Favorite Companies</h1>
+    {% for favorite in favoriteCompanies %}
+
+        {{ favorite.company.name }}
+
+        {% if favorite.company.thumbnailImage %}
+            <img src="{{ asset(uploaded_asset(favorite.company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+        {% endif %}
+
+        <p>Address: {{ favorite.company.address }}</p>
+        <p>Phone: {{ favorite.company.phone }}</p>
+        <p>Brief company description: {{ favorite.company.shortDescription }}</p>
+        <p>Linkedin: {{ favorite.company.companyLinkedinPage }}</p>
+        <p>Primary contact: {{ favorite.company.primaryContact }}</p>
+
+    {% endfor %}
+    <h1>Favorite Lessons</h1>
+
+
+    {% for favorite in favoriteLessons %}
+        <h2>title</h2>
+        {{ favorite.lesson.title }}
+        <br>
+
+        <h2>summary</h2>
+        {{ favorite.lesson.summary }}
+
+        <h1>Thumbnail</h1>
+        {% if favorite.lesson.thumbnailImage %}
+            <img src="{{ asset(uploaded_asset(favorite.lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+        {% endif %}
+
+    {% endfor %}
+
+{% endblock %}

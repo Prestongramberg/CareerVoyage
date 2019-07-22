@@ -56,7 +56,9 @@ class ProfessionalEditProfileFormType extends AbstractType
                 // everytime you edit the entity
                 'required' => false,
                 ])
-            ->add('password', PasswordType::class)
+            ->add('plainPassword', PasswordType::class, [
+                'label' => 'Password'
+            ])
             ->add('rolesWillingToFulfill', ChoiceType::class, [
                 'choices'  => [
                     'Guest instructor' => 'GUEST_INSTRUCTOR',

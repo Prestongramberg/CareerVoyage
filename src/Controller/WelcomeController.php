@@ -56,7 +56,7 @@ class WelcomeController extends AbstractController
         ]);
 
         // START EDUCATOR REGISTRATION FORM
-        $educatorUser = new EducatorUser();
+       /* $educatorUser = new EducatorUser();
         $educatorRegistrationForm = $this->createForm(EducatorRegistrationFormType::class, $educatorUser, [
             'action' => $this->generateUrl('welcome'),
             'method' => 'POST',
@@ -66,7 +66,7 @@ class WelcomeController extends AbstractController
         $studentRegistrationForm = $this->createForm(StudentRegistrationFormType::class, $studentUser, [
             'action' => $this->generateUrl('welcome'),
             'method' => 'POST',
-        ]);
+        ]);*/
 
 
         // HANDLE FORM SUBMISSIONS
@@ -76,13 +76,13 @@ class WelcomeController extends AbstractController
             $formType = $request->request->get('formType');
             switch ($formType) {
                 case 'educatorRegistrationForm':
-                    $form = $educatorRegistrationForm;
+                    /*$form = $educatorRegistrationForm;*/
                     break;
                 case 'professionalRegistrationForm':
                     $form = $professionalRegistrationForm;
                     break;
                 case 'studentRegistrationForm':
-                    $form = $studentRegistrationForm;
+                    /*$form = $studentRegistrationForm;*/
                     break;
                 default:
                     throw new \Exception("Form type not found");
@@ -138,8 +138,8 @@ class WelcomeController extends AbstractController
         return $this->render('welcome/index.html.twig', [
             'last_username' => $lastUsername, 'error' => $error,
             'professionalRegistrationForm' => $professionalRegistrationForm->createView(),
-            'educatorRegistrationForm' => $educatorRegistrationForm->createView(),
-            'studentRegistrationForm' => $studentRegistrationForm->createView(),
+            /*'educatorRegistrationForm' => $educatorRegistrationForm->createView(),
+            'studentRegistrationForm' => $studentRegistrationForm->createView(),*/
             'formType' => $formType
         ]);
     }

@@ -65,11 +65,16 @@ abstract class User implements UserInterface
     /**
      * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
      * @Assert\NotBlank(message="Don't forget a password for your user!", groups={"CREATE"})
-     *
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
     protected $password;
+
+    /**
+     * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a password for your user!", groups={"CREATE"})
+     */
+    protected $plainPassword;
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
@@ -134,12 +139,18 @@ abstract class User implements UserInterface
      */
     protected $requestsThatNeedMyApproval;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="user", orphanRemoval=true)
+     */
+    protected $companyFavorites;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
         $this->lessons = new ArrayCollection();
         $this->requests = new ArrayCollection();
         $this->requestsThatNeedMyApproval = new ArrayCollection();
+        $this->companyFavorites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,7 +218,7 @@ abstract class User implements UserInterface
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+         $this->plainPassword = null;
     }
 
     public function getFirstName(): ?string
@@ -550,6 +561,53 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($request->getNeedsApprovalBy() === $this) {
                 $request->setNeedsApprovalBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param mixed $plainPassword
+     */
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+    }
+
+    /**
+     * @return Collection|CompanyFavorite[]
+     */
+    public function getCompanyFavorites(): Collection
+    {
+        return $this->companyFavorites;
+    }
+
+    public function addCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if (!$this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites[] = $companyFavorite;
+            $companyFavorite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if ($this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites->removeElement($companyFavorite);
+            // set the owning side to null (unless already changed)
+            if ($companyFavorite->getUser() === $this) {
+                $companyFavorite->setUser(null);
             }
         }
 

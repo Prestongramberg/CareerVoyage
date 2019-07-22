@@ -106,19 +106,14 @@ class ProfileController extends AbstractController
             'professionalUser' => $professionalUser
         ]);
 
-        $originalPassword = $professionalUser->getPassword();
-
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
             /** @var ProfessionalUser $professionalUser */
             $professionalUser = $form->getData();
 
-            // if there is no password just set the password back to the original
-            if(!$professionalUser->getPassword()) {
-                $professionalUser->setPassword($originalPassword);
-            } else {
-                $encodedPassword = $this->passwordEncoder->encodePassword($professionalUser, $professionalUser->getPassword());
+            if($professionalUser->getPlainPassword()) {
+                $encodedPassword = $this->passwordEncoder->encodePassword($professionalUser, $professionalUser->getPlainPassword());
                 $professionalUser->setPassword($encodedPassword);
             }
 
@@ -180,7 +175,10 @@ class ProfileController extends AbstractController
             $this->entityManager->flush();
         }
 
-        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+        $this->get('security.token_storage')->setToken(null);
+        $request->getSession()->invalidate();
+
+        return $this->redirectToRoute('welcome');
     }
 
     /**
