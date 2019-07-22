@@ -195,7 +195,7 @@
     <br>
     Videos
     {% for video in company.videos %}
-        <a href="{{ video }}">{{ video }}</a>
+        <a href="{{ video.videoId }}">{{ video.name }}</a>
     {% endfor %}
 
     <br>
