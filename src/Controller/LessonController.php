@@ -18,6 +18,8 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\LessonFavoriteRepository;
+use App\Repository\LessonTeachableRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -88,7 +90,17 @@ class LessonController extends AbstractController
     private $companyPhotoRepository;
 
     /**
-     * CompanyController constructor.
+     * @var LessonFavoriteRepository
+     */
+    private $lessonFavoriteRepository;
+
+    /**
+     * @var LessonTeachableRepository
+     */
+    private $lessonTeachableRepository;
+
+    /**
+     * LessonController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -97,6 +109,8 @@ class LessonController extends AbstractController
      * @param Packages $assetsManager
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
+     * @param LessonFavoriteRepository $lessonFavoriteRepository
+     * @param LessonTeachableRepository $lessonTeachableRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -106,7 +120,9 @@ class LessonController extends AbstractController
         UploaderHelper $uploaderHelper,
         Packages $assetsManager,
         CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository
+        CompanyPhotoRepository $companyPhotoRepository,
+        LessonFavoriteRepository $lessonFavoriteRepository,
+        LessonTeachableRepository $lessonTeachableRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -116,6 +132,8 @@ class LessonController extends AbstractController
         $this->assetsManager = $assetsManager;
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
+        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
+        $this->lessonTeachableRepository = $lessonTeachableRepository;
     }
 
     /**
@@ -125,9 +143,20 @@ class LessonController extends AbstractController
      */
     public function indexAction(Request $request) {
 
+        $favoritedLessons = $this->lessonFavoriteRepository->findBy([
+            'user' => $this->getUser()
+        ]);
+
+        // teachable lessons
+        $teachableLessons = $this->lessonTeachableRepository->findBy([
+            'user' => $this->getUser()
+        ]);
+
         $user = $this->getUser();
         return $this->render('lesson/index.html.twig', [
             'user' => $user,
+            'favoritedLessons' => $favoritedLessons,
+            'teachableLessons' => $teachableLessons
         ]);
     }
 

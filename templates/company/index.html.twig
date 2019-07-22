@@ -34,7 +34,13 @@
                                 <button uk-toggle="target: #remove-from-company" type="button" class="uk-button uk-button-secondary uk-button-small">Remove</button>
                                 <button uk-toggle="target: #remove-company" type="button" class="uk-button uk-button-danger uk-button-small">Delete</button>
 
-
+                                <form method="post" action="{{ path('company_remove_user', {userID: user.id, companyID: user.company.id}) }}">
+                                    <input type="submit" value="Remove from company">
+                                </form>
+                                <br>
+                                <form method="post" action="{{ path('company_delete', {id: 1}) }}">
+                                    <input type="submit" value="Delete Company">
+                                </form>
 
                                 <div id="remove-from-company" uk-modal>
                                     <div class="uk-modal-dialog uk-modal-body">

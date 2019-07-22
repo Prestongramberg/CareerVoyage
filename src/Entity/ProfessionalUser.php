@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -46,6 +47,7 @@ class ProfessionalUser extends User
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="professionalUsers")
+     * @JoinColumn(name="company_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $company;
 
