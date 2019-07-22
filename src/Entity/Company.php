@@ -145,6 +145,7 @@ class Company
     private $newCompanyRequest;
 
     /**
+     * @Assert\NotBlank(message="Don't forget an owner!", groups={"EDIT"})
      * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="ownedCompany")
      */
     private $owner;
@@ -158,6 +159,16 @@ class Company
      * @ORM\Column(type="boolean")
      */
     private $deleted = false;
+
+    /**
+     * @var boolean
+     */
+    private $isFavorite;
+
+    /**
+     * @var boolean
+     */
+    private $isMine;
 
     public function __construct()
     {
@@ -574,4 +585,39 @@ class Company
 
         return $this;
     }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @return bool
+     */
+    public function isFavorite()
+    {
+        return $this->isFavorite;
+    }
+
+    /**
+     * @param bool $isFavorite
+     */
+    public function setIsFavorite($isFavorite)
+    {
+        $this->isFavorite = $isFavorite;
+    }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @return bool
+     */
+    public function isMine()
+    {
+        return $this->isMine;
+    }
+
+    /**
+     * @param bool $isMine
+     */
+    public function setIsMine(bool $isMine)
+    {
+        $this->isMine = $isMine;
+    }
+
 }

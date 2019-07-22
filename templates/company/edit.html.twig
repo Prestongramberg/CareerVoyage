@@ -103,9 +103,14 @@
                             </div>
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.companyLinkedinPage, 'Company LinkedIn Page*') }}
+                            {{ form_label(form.companyLinkedinPage, 'Company LinkedIn Page') }}
                             {{ form_widget(form.companyLinkedinPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyLinkedinPage) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.companyLinkedinPage) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.owner, 'Company Ownership*') }}
+                            {{ form_widget(form.owner, {'attr': {'class': 'uk-input' ~ ( form_errors(form.owner) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.owner) }}
                         </div>
                     </fieldset>
                 </div>

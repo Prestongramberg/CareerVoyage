@@ -120,8 +120,11 @@ class ProfileController extends AbstractController
             $uploadedFile = $form->get('file')->getData();
 
             if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->uploadArticleImage($uploadedFile);
+                $newFilename = $this->uploaderHelper->uploadProfilePhoto($uploadedFile);
                 $professionalUser->setPhoto($newFilename);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::PROFILE_PHOTO) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
             $this->entityManager->persist($professionalUser);

@@ -47,7 +47,7 @@ class UploaderHelper
         return $newFilename;
     }
 
-    public function uploadArticleImage(UploadedFile $uploadedFile): string
+    public function uploadProfilePhoto(UploadedFile $uploadedFile): string
     {
         $destination = $this->uploadsPath.'/' . self::PROFILE_PHOTO;
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);

@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -32,7 +33,11 @@ class EditCompanyFormType extends AbstractType
         $builder
             ->add('name', TextType::class, [])
             ->add('website', TextType::class, [])
-            ->add('phone', TextType::class)
+            ->add('phone', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'XXX-XXX-XXXX'
+                ]
+            ])
             ->add('emailAddress', TextType::class)
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
@@ -85,7 +90,15 @@ class EditCompanyFormType extends AbstractType
                 'prototype_name' => '__prototype_one__',
                 'label' => false,
                 'by_reference' => false,
-            ));
+            ))->add('owner', EntityType::class, [
+                'class' => ProfessionalUser::class,
+                'query_builder' => function (EntityRepository $er) use ($company) {
+                    return $er->createQueryBuilder('p')
+                        ->where('p.company = :company')
+                        ->setParameter('company', $company->getId());
+                },
+                'choice_label' => 'username',
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
