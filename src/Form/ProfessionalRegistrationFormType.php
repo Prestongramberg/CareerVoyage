@@ -24,7 +24,7 @@ class ProfessionalRegistrationFormType extends AbstractType
             ->add('lastName', TextType::class)
             ->add('email')
             ->add('username')
-            ->add('password', PasswordType::class, [])
+            ->add('plainPassword', PasswordType::class, [])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
                 'constraints' => [

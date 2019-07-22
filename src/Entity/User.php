@@ -63,8 +63,6 @@ abstract class User implements UserInterface
     protected $username;
 
     /**
-     * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT"})
-     * @Assert\NotBlank(message="Don't forget a password for your user!", groups={"CREATE"})
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
