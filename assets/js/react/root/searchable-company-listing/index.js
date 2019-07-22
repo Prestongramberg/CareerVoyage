@@ -7,26 +7,29 @@ import reducers from "./reducers";
 import { getInitialCompaniesState, getInitialIndustriesState, getInitialSearchState } from "./init";
 import App from "./App";
 
-const store = createStore(
-    reducers,
-    {
-        companies: getInitialCompaniesState(),
-        industries: getInitialIndustriesState(),
-        search: getInitialSearchState()
-    },
-    compose(
-        applyMiddleware(thunk),
-        window.devToolsExtension ? window.devToolsExtension() : f => f
-    )
-);
+if( document.getElementById("searchable-company-listing") ) {
 
-const render = () => {
-    ReactDOM.render(
-        <Provider store={store}>
-            <App />
-        </Provider>,
-        document.getElementById("searchable-company-listing")
+    const store = createStore(
+        reducers,
+        {
+            companies: getInitialCompaniesState(),
+            industries: getInitialIndustriesState(),
+            search: getInitialSearchState()
+        },
+        compose(
+            applyMiddleware(thunk),
+            window.devToolsExtension ? window.devToolsExtension() : f => f
+        )
     );
-};
-render();
-store.subscribe(render);
+
+    const render = () => {
+        ReactDOM.render(
+            <Provider store={store}>
+                <App />
+            </Provider>,
+            document.getElementById("searchable-company-listing")
+        );
+    };
+    render();
+    store.subscribe(render);
+}
