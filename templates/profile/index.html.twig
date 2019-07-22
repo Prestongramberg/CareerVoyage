@@ -14,22 +14,4 @@
     <br>
     {{ user.username }}
 
-    <form method="post" action="{{ path('company_join_request', {'id': '1'}) }}">
-        <input type="submit" value="request to join">
-    </form>
-
-    <form method="post" action="{{ path('from_company_join_request', {'userID': '1', 'companyID': '3'}) }}">
-        <input type="submit" value="request to join">
-    </form>
-
-
-    <form method="post" action="{{ path('remove_company_video', {'videoID': '1', 'companyID': '7'}) }}">
-        <input type="submit" value="request to join">
-    </form>
-
-
-    <form method="post" action="{{ path('remove_company_resource', {'resourceID': '9', 'companyID': '7'}) }}">
-        <input type="submit" value="request to join">
-    </form>
-
 {% endblock %}

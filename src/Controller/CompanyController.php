@@ -303,6 +303,11 @@ class CompanyController extends AbstractController
 
             $companyResources = $company->getCompanyResources();
             foreach($companyResources as $companyResource) {
+
+                if(!$companyResource->getFile()) {
+                    continue;
+                }
+
                 /** @var UploadedFile $file */
                 $file = $companyResource->getFile();
                 $mimeType = $file->getMimeType();
@@ -310,12 +315,14 @@ class CompanyController extends AbstractController
                 $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
                 $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
                 $companyResource->setFileName($newFilename);
-                /*$company->addCompanyResource($companyResource);*/
+                $companyResource->setFile(null);
                 $this->entityManager->persist($companyResource);
             }
 
             $this->entityManager->persist($company);
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
 
         return $this->render('company/edit.html.twig', [
