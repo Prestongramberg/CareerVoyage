@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonFavorite;
+use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
@@ -19,6 +20,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonRepository;
+use App\Repository\LessonTeachableRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -104,6 +106,11 @@ class LessonController extends AbstractController
     private $lessonFavoriteRepository;
 
     /**
+     * @var LessonTeachableRepository
+     */
+    private $lessonTeachableRepository;
+
+    /**
      * LessonController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -116,6 +123,7 @@ class LessonController extends AbstractController
      * @param IndustryRepository $industryRepository
      * @param LessonRepository $lessonRepository
      * @param LessonFavoriteRepository $lessonFavoriteRepository
+     * @param LessonTeachableRepository $lessonTeachableRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -128,7 +136,8 @@ class LessonController extends AbstractController
         CompanyRepository $companyRepository,
         IndustryRepository $industryRepository,
         LessonRepository $lessonRepository,
-        LessonFavoriteRepository $lessonFavoriteRepository
+        LessonFavoriteRepository $lessonFavoriteRepository,
+        LessonTeachableRepository $lessonTeachableRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -141,7 +150,9 @@ class LessonController extends AbstractController
         $this->industryRepository = $industryRepository;
         $this->lessonRepository = $lessonRepository;
         $this->lessonFavoriteRepository = $lessonFavoriteRepository;
+        $this->lessonTeachableRepository = $lessonTeachableRepository;
     }
+
 
     /**
      * @Route("/lessons", name="get_lessons", methods={"GET"}, options = { "expose" = true })
@@ -150,6 +161,36 @@ class LessonController extends AbstractController
 
         $lessons = $this->lessonRepository->findAll();
 
+        $user = $this->getUser();
+
+        /** @var Lesson $lesson */
+        foreach($lessons as $lesson) {
+
+            // let's go ahead and be crazy here and add whether or not this lesson is a logged in use favorite
+            $favoriteLesson = $this->lessonFavoriteRepository->findOneBy([
+                'lesson' => $lesson,
+                'user' => $user
+            ]);
+
+            if($favoriteLesson) {
+                $lesson->setIsFavorite(true);
+            } else {
+                $lesson->setIsFavorite(false);
+            }
+
+            // let's be even more crazy and add whether or not it's a teachable lesson
+            $teachableLesson = $this->lessonTeachableRepository->findOneBy([
+                'lesson' => $lesson,
+                'user' => $user
+            ]);
+
+            if($teachableLesson) {
+                $lesson->setIsTeachable(true);
+            } else {
+                $lesson->setIsTeachable(false);
+            }
+        }
+
         $json = $this->serializer->serialize($lessons, 'json', ['groups' => ['LESSON_DATA']]);
 
         $payload = json_decode($json, true);
@@ -157,10 +198,83 @@ class LessonController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $payload
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );
+    }
+
+    /**
+     * @Route("/lessons/{id}/teach", name="teach_lesson", methods={"POST"}, options = { "expose" = true })
+     * @param Lesson $lesson
+     * @return JsonResponse
+     */
+    public function teachLesson(Lesson $lesson) {
+
+        $lessonObj = $this->lessonTeachableRepository->findOneBy([
+            'user' => $this->getUser(),
+            'lesson' => $lesson,
+        ]);
+
+        if($lessonObj) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'message' => 'lesson has already been added as a teachable lesson.',
+
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        $lessonTeachable = new LessonTeachable();
+        $lessonTeachable->setUser($this->getUser());
+        $lessonTeachable->setLesson($lesson);
+
+        $this->entityManager->persist($lessonTeachable);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/lessons/{id}/unteach", name="unteach_lesson", methods={"POST"}, options = { "expose" = true })
+     * @param Lesson $lesson
+     * @return JsonResponse
+     */
+    public function unteachLesson(Lesson $lesson) {
+
+        $lessonObj = $this->lessonTeachableRepository->findOneBy([
+            'user' => $this->getUser(),
+            'lesson' => $lesson,
+        ]);
+
+        if($lessonObj) {
+            $this->entityManager->remove($lessonObj);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'message' => 'lesson removed from teachable lessons.',
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'message' => 'lesson cannot be removed from teachable lessons cause it does not exist in the teachable lessons for this user.',
+            ],
+            Response::HTTP_OK
+        );
+
     }
 
     /**
@@ -172,14 +286,14 @@ class LessonController extends AbstractController
 
         $lessonObj = $this->lessonFavoriteRepository->findOneBy([
             'user' => $this->getUser(),
-            'lesson' => $lesson
+            'lesson' => $lesson,
         ]);
 
         if($lessonObj) {
             return new JsonResponse(
                 [
                     'success' => false,
-                    'message' => 'lesson has already been added to favorites.'
+                    'message' => 'lesson has already been added to favorites.',
 
                 ],
                 Response::HTTP_OK
@@ -210,7 +324,7 @@ class LessonController extends AbstractController
 
         $lessonObj = $this->lessonFavoriteRepository->findOneBy([
             'user' => $this->getUser(),
-            'lesson' => $lesson
+            'lesson' => $lesson,
         ]);
 
         if($lessonObj) {
@@ -220,7 +334,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'message' => 'lesson removed from favorites'
+                    'message' => 'lesson removed from favorites',
                 ],
                 Response::HTTP_OK
             );
@@ -229,7 +343,7 @@ class LessonController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'message' => 'lesson cannot be removed from favorites cause it does not exist in favorites'
+                'message' => 'lesson cannot be removed from favorites cause it does not exist in favorites',
             ],
             Response::HTTP_OK
         );
@@ -242,7 +356,7 @@ class LessonController extends AbstractController
 
         $lessons = $this->lessonRepository->findBy(
             [
-                'user' => $this->getUser()
+                'user' => $this->getUser(),
             ]
         );
 
@@ -254,7 +368,7 @@ class LessonController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $payload
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );
@@ -268,7 +382,7 @@ class LessonController extends AbstractController
 
         $favorites = $this->lessonFavoriteRepository->findBy(
             [
-                'user' => $this->getUser()
+                'user' => $this->getUser(),
             ]
         );
 
@@ -279,7 +393,7 @@ class LessonController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $payload
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );

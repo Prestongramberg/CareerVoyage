@@ -90,12 +90,28 @@ class Lesson
      */
     private $user;
 
+    /**
+     * @var boolean
+     */
+    private $isFavorite;
+
+    /**
+     * @var boolean
+     */
+    private $isTeachable;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="lesson", orphanRemoval=true)
+     */
+    private $lessonTeachables;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
         $this->grades = new ArrayCollection();
         $this->secondaryCourses = new ArrayCollection();
         $this->lessonFavorites = new ArrayCollection();
+        $this->lessonTeachables = new ArrayCollection();
     }
 
     public function getId()
@@ -334,6 +350,71 @@ class Lesson
     public function setUser(?User $user)
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     * @return bool
+     */
+    public function isFavorite()
+    {
+        return $this->isFavorite;
+    }
+
+    /**
+     * @param bool $isFavorite
+     */
+    public function setIsFavorite($isFavorite)
+    {
+        $this->isFavorite = $isFavorite;
+    }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     * @return bool
+     */
+    public function isTeachable()
+    {
+        return $this->isTeachable;
+    }
+
+    /**
+     * @param bool $isTeachable
+     */
+    public function setIsTeachable($isTeachable)
+    {
+        $this->isTeachable = $isTeachable;
+    }
+
+    /**
+     * @return Collection|LessonTeachable[]
+     */
+    public function getLessonTeachables(): Collection
+    {
+        return $this->lessonTeachables;
+    }
+
+    public function addLessonTeachable(LessonTeachable $lessonTeachable): self
+    {
+        if (!$this->lessonTeachables->contains($lessonTeachable)) {
+            $this->lessonTeachables[] = $lessonTeachable;
+            $lessonTeachable->setLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLessonTeachable(LessonTeachable $lessonTeachable): self
+    {
+        if ($this->lessonTeachables->contains($lessonTeachable)) {
+            $this->lessonTeachables->removeElement($lessonTeachable);
+            // set the owning side to null (unless already changed)
+            if ($lessonTeachable->getLesson() === $this) {
+                $lessonTeachable->setLesson(null);
+            }
+        }
 
         return $this;
     }

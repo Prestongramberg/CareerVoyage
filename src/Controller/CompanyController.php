@@ -332,4 +332,42 @@ class CompanyController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/companies/{companyID}/users/{userID}/remove", name="company_edit", options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("user", options={"id" = "userID"})
+     *
+     * @param Request $request
+     * @param Company $company
+     * @param ProfessionalUser $professionalUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function removeUserFromCompanyAction(Request $request, Company $company, ProfessionalUser $professionalUser) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if($professionalUser->getCompany()->getId() !== $company->getId()) {
+            throw new \Exception("That user doesn't belong to that company");
+        }
+
+        // let an admin do whatever they want
+        if($user->isAdmin()) {
+            $professionalUser->setCompany(null);
+        }
+
+        // if the logged in user is the owner of the company let them do whatever they want
+        if($company->getOwner()->getId() === $user->getId()) {
+            $professionalUser->setCompany(null);
+        }
+
+        // if the logged in user is trying to remove themselves from the company
+        if($user->getId() === $professionalUser->getId()) {
+            $professionalUser->setCompany(null);
+        }
+
+        return $this->redirectToRoute('company_index');
+    }
+
 }
