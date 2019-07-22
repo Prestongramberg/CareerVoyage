@@ -1,49 +1,110 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}View Lesson{% endblock %}
+{% block bodyClass %}page-lesson-view{% endblock %}
 
 {% block body %}
 
-    <h1>View Lesson</h1>
+    <div class="page-lesson-view__featured-image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+         data-src="{{ lesson.featuredImageURL }}" uk-img>
+        <div class="uk-width-1-1" style="background: rgba(0,0,0,0.6)">
+            <div class="uk-container">
+                <div class="uk-padding-small">
+                    <div class="uk-grid-small uk-flex-middle" uk-grid>
+                        <div class="uk-width-expand">
+                            <h3>{{ lesson.title }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h2>title</h2>
-    {{ lesson.title }}
-    <br>
+    <div class="uk-container">
 
-    <h2>Careers</h2>
-    {% for career in lesson.careers %}
-    <p>{{ career.title }}</p>
-    {% endfor %}
+        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+            <div class="uk-width-expand">
+                <div class="uk-align-right@l">
+                    {% if user.admin or (lesson.user and user.id == lesson.user.id) %}
+                        <a href="{{ path('lesson_id', {'id': lesson.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit this Lesson</a>
+                    {% endif %}
+{#                    TODO: Add button for Professionals to "teach this lesson" #}
+                </div>
+            </div>
+        </div>
 
-    <h2>Grades</h2>
-    {% for grade in lesson.grades %}
-        <p>{{ grade.title }}</p>
-    {% endfor %}
+        <ul class="" data-uk-tab="{connect: '#tab-lesson-detail'}" uk-switcher>
+            <li class="uk-active"><a href="#lesson-summary">Summary</a></li>
+            {% if lesson.learningOutcomes %}
+                <li><a href="#lesson-outcomes">Learning Outcomes</a></li>
+            {% endif %}
+            {% if lesson.educationalStandards %}
+                <li><a href="#lesson-standards">Educational Standards</a></li>
+            {% endif %}
+        </ul>
 
-    <h2>Primary Course</h2>
-    <p>{{ lesson.primaryCourse.title }}</p>
+        <div class="uk-switcher" id="tab-lesson-detail">
+            <div class="page-lesson-view__summary">
 
-    <h2>Secondary Courses</h2>
-    {% for course in lesson.secondaryCourses %}
-        <p>{{ course.title}}</p>
-    {% endfor %}
+                <div class="uk-margin">
+                    {{ lesson.summary|raw }}
+                </div>
 
-    <h2>summary</h2>
-    {{ lesson.summary }}
-    <h2>learning outcomes</h2>
-    {{ lesson.learningOutcomes }}
-    <h2>educational standards</h2>
-    {{ lesson.educationalStandards }}
+                <hr>
 
-    <h1>Thumbnail</h1>
-    {% if lesson.thumbnailImage %}
-        <img src="{{ asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-    {% endif %}
-
-    <h1>Featured</h1>
-    {% if lesson.featuredImage %}
-        <img src="{{ asset(uploaded_asset(lesson.featuredImagePath)) }}" />
-    {% endif %}
+                <div class="uk-margin">
+                    <table class="uk-table uk-table-small uk-table-divider">
+                        <thead>
+                            <tr>
+                                <th>Info</th>
+                                <th>Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Grades</td>
+                                <td>
+                                    {% for grade in lesson.grades %}
+                                        {{ grade.title }}{% if not loop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Careers</td>
+                                <td>
+                                    {% for career in lesson.careers %}
+                                        {{ career.title }}{% if not loop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Primary Course</td>
+                                <td>{{ lesson.primaryCourse.title }}</td>
+                            </tr>
+                            <tr>
+                                <td>Secondary Courses</td>
+                                <td>
+                                    {% for course in lesson.secondaryCourses %}
+                                        {{ course.title }}{% if not loop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if lesson.learningOutcomes %}
+                <div class="page-lesson-view__outcomes">
+                    {{ lesson.learningOutcomes|raw }}
+                </div>
+            {% endif %}
+            {% if lesson.educationalStandards %}
+                <div class="page-lesson-view__standards">
+                    {{ lesson.educationalStandards|raw }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 
 
 {% endblock %}

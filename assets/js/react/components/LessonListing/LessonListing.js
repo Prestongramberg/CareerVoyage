@@ -3,6 +3,12 @@ import PropTypes from "prop-types";
 
 class LessonListing extends Component {
 
+    constructor() {
+        super();
+        const methods = ["toggleFavorite", "toggleTeacher"];
+        methods.forEach(method => (this[method] = this[method].bind(this)));
+    }
+
     render() {
         return (
             <div className="uk-card uk-card-default">
@@ -31,11 +37,13 @@ class LessonListing extends Component {
     }
 
     toggleFavorite() {
-
+        const lessonId = this.props.id;
+        this.props.isFavorite ? this.props.lessonUnfavorite(lessonId) : this.props.lessonFavorite(lessonId);
     }
 
     toggleTeacher() {
-
+        const lessonId = this.props.id;
+        this.props.isTeacher ? this.props.lessonUnteach(lessonId) : this.props.lessonTeach(lessonId);
     }
 }
 
@@ -45,12 +53,20 @@ LessonListing.propTypes = {
     isFavorite: PropTypes.bool,
     isTeacher: PropTypes.bool,
     image: PropTypes.string,
+    lessonFavorite: PropTypes.func,
+    lessonUnfavorite: PropTypes.func,
+    lessonTeach: PropTypes.func,
+    lessonUnteach: PropTypes.func,
     title: PropTypes.string
 };
 
 LessonListing.defaultProps = {
     isFavorite: false,
-    isTeacher: false
+    isTeacher: false,
+    lessonFavorite: () => {},
+    lessonUnfavorite: () => {},
+    lessonTeach: () => {},
+    lessonUnteach: () => {}
 };
 
 export default LessonListing;
