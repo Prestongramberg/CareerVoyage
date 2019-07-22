@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Company;
 use App\Entity\Image;
+use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -93,7 +94,6 @@ class CompanyFixtures extends BaseFixture
             $company->setShortDescription('Best Buy Co., Inc. is an American multinational consumer electronics retailer headquartered in Richfield, Minnesota. It was originally founded by Richard M. Schulze and James Wheeler in 1966 as an audio specialty store called Sound of Music');
             $company->setWebsite('http://www.bestbuy.com');
             $company->setEmailAddress('info@bestbuy.com');
-            $company->setApproved(true);
 
             $thumbnailImage = new File(__DIR__.'/images/bestbuy.jpg');
 
@@ -122,7 +122,6 @@ class CompanyFixtures extends BaseFixture
             $company->setShortDescription('Walmart Inc. is an American multinational retail corporation that operates a chain of hypermarkets, discount department stores, and grocery stores, headquartered in Bentonville, Arkansas.');
             $company->setWebsite('http://www.walmart.com');
             $company->setEmailAddress('info@walmart.com');
-            $company->setApproved(true);
 
             $thumbnailImage = new File(__DIR__.'/images/walmart.jpg');
 
@@ -152,7 +151,7 @@ class CompanyFixtures extends BaseFixture
             $company->setShortDescription('Target Corporation is the eighth-largest retailer in the United States, and is a component of the S&P 500 Index');
             $company->setWebsite('http://www.target.com');
             $company->setEmailAddress('info@target.com');
-            $company->setApproved(true);
+
 
             $thumbnailImage = new File(__DIR__.'/images/target.jpg');
 
@@ -186,7 +185,7 @@ class CompanyFixtures extends BaseFixture
     public function getDependencies()
     {
         return array(
-            IndustryFixtures::class,
+            IndustryFixtures::class
         );
     }
 

@@ -47,4 +47,27 @@ class CompanyRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @return mixed
+     */
+    public function getApprovedCompanies() {
+
+        return $this->createQueryBuilder('c')
+            ->join('c.newCompanyRequest', 'cr')
+            ->where('cr.approved = :approved')
+            ->setParameter('approved', true)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getUnApprovedCompanies() {
+
+        return $this->createQueryBuilder('c')
+            ->join('c.newCompanyRequest', 'cr')
+            ->where('cr.approved = :approved')
+            ->setParameter('approved', false)
+            ->getQuery()
+            ->getResult();
+    }
 }

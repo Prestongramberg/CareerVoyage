@@ -29,16 +29,23 @@ class AbstractMailer
     protected $templating;
 
     /**
+     * @var string
+     */
+    protected $siteFromEmail;
+
+    /**
      * AbstractMailer constructor.
      * @param Swift_Mailer $mailer
      * @param RouterInterface $router
      * @param Environment $templating
+     * @param $siteFromEmail
      */
-    public function __construct(Swift_Mailer $mailer, RouterInterface $router, Environment $templating)
+    public function __construct(Swift_Mailer $mailer, RouterInterface $router, Environment $templating, $siteFromEmail)
     {
         $this->mailer = $mailer;
         $this->router = $router;
         $this->templating = $templating;
+        $this->siteFromEmail = $siteFromEmail;
     }
 
     /**

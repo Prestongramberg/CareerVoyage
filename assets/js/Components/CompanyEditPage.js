@@ -17,6 +17,10 @@ class CompanyEditPage {
         this.companies = [];
         this.list = null;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
         this.unbindEvents();
 
         this.bindEvents();
@@ -26,7 +30,11 @@ class CompanyEditPage {
 
     unbindEvents() {
         this.$wrapper.off('click', CompanyEditPage._selectors.addVideo);
+<<<<<<< HEAD
         this.$wrapper.off('click', CompanyEditPage._selectors.removePhoto);
+=======
+        this.$wrapper.off('click', CompanyEditPage._selectors.addResource);
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
     }
 
     /**
@@ -35,7 +43,11 @@ class CompanyEditPage {
     static get _selectors() {
         return {
             addVideo: '.js-addVideo',
+<<<<<<< HEAD
             removePhoto: '.js-removePhoto'
+=======
+            addResource: '.js-addResource'
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
         }
     }
 
@@ -49,6 +61,7 @@ class CompanyEditPage {
 
         this.$wrapper.on(
             'click',
+<<<<<<< HEAD
             CompanyEditPage._selectors.removePhoto,
             this.handleRemovePhoto
         );
@@ -76,6 +89,11 @@ class CompanyEditPage {
             const errorData = JSON.parse(jqXHR.responseText);
             console.log(errorData);
         });
+=======
+            CompanyEditPage._selectors.addResource,
+            this.handleAddResourceItemButtonClick.bind(this)
+        );
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
     }
 
     handleAddItemButtonClick(e) {
@@ -85,6 +103,22 @@ class CompanyEditPage {
         }
 
         let $parentContainer = $('.js-parent-container');
+        let index = $parentContainer.children('.js-child-item').length;
+        let template = $parentContainer.data('template');
+        let tpl = eval('`'+template+'`');
+        let $container = $('<li>').addClass('list-group-item js-child-item');
+        $container.append(tpl);
+        $parentContainer.append($container);
+    }
+
+    handleAddResourceItemButtonClick(e) {
+
+        debugger;
+        if(e.cancelable) {
+            e.preventDefault();
+        }
+
+        let $parentContainer = $('.js-add-resource-parent-container');
         let index = $parentContainer.children('.js-child-item').length;
         let template = $parentContainer.data('template');
         let tpl = eval('`'+template+'`');

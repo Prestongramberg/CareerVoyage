@@ -4,9 +4,11 @@ namespace App\Controller\Api;
 
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
+use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Entity\Video;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalDeactivateProfileFormType;
@@ -22,6 +24,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
@@ -129,51 +132,7 @@ class CompanyController extends AbstractController
      */
     public function getCompanies() {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => true
-        ]);
-
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Security("is_granted('ROLE_ADMIN_USER')")
-     *
-     * @Route("/companies/{id}/approve", name="approve_company", methods={"POST"}, options = { "expose" = true })
-     * @param Company $company
-     * @return JsonResponse
-     */
-    public function approveCompany(Company $company) {
-
-        $company->setApproved(true);
-
-        return new JsonResponse(
-            [
-                'success' => true
-            ],
-            Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/unapproved", name="approve_company", methods={"GET"}, options = { "expose" = true })
-     * @return JsonResponse
-     */
-    public function unapprovedCompanies() {
-
-        $companies = $this->companyRepository->findBy([
-            'approved' => false
-        ]);
+        $companies = $this->companyRepository->getApprovedCompanies();
 
         $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
 
@@ -203,6 +162,76 @@ class CompanyController extends AbstractController
             [
                 'success' => true,
                 'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{companyID}/video/{videoID}/remove", name="remove_company_video", methods={"POST"}, options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("video", options={"id" = "videoID"})
+     * @param Company $company
+     * @param Video $video
+     * @return JsonResponse
+     */
+    public function removeCompanyVideo(Company $company, Video $video) {
+
+        $this->denyAccessUnlessGranted('delete', $video);
+
+        $this->entityManager->remove($video);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{companyID}/resource/{resourceID}/remove", name="remove_company_resource", methods={"POST"}, options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("companyResource", options={"id" = "resourceID"})
+     * @param Company $company
+     * @param CompanyResource $companyResource
+     * @return JsonResponse
+     */
+    public function removeCompanyResource(Company $company, CompanyResource $companyResource) {
+
+        $this->denyAccessUnlessGranted('delete', $companyResource);
+
+        $this->entityManager->remove($companyResource);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove", options = { "expose" = true })
+     * @ParamConverter("image", options={"id" = "image_id"})
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @param Company $company
+     * @param Request $request
+     * @param CompanyPhoto $image
+     * @return JsonResponse
+     */
+    public function removeCompanyPhotoAction(Company $company, Request $request, CompanyPhoto $image) {
+
+        $this->denyAccessUnlessGranted('delete', $image);
+
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
             ],
             Response::HTTP_OK
         );

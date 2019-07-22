@@ -77,10 +77,14 @@ class EditCompanyFormType extends AbstractType
                 'prototype_name' => '__prototype_one__',
                 'label' => false,
                 'by_reference' => false,
-            ))->add('resources', FileType::class, array(
-                'multiple' => true,
+            ))->add('companyResources', CollectionType::class, array(
+                'entry_type' => ResourceType::class,
+                'allow_add' => true,
+                'error_bubbling' => false,
+                'prototype' => true,
+                'prototype_name' => '__prototype_one__',
                 'label' => false,
-                'mapped' => false
+                'by_reference' => false,
             ));
     }
 

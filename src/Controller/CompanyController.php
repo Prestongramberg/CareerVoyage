@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Image;
+use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
@@ -14,6 +15,9 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Mailer\MyRequests\NewCompanyApprovedMailer;
+use App\Mailer\RequestsThatNeedMyApproval\NewCompanyNeedsApprovalMailer;
+use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Service\FileUploader;
@@ -26,6 +30,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,6 +91,16 @@ class CompanyController extends AbstractController
     private $companyPhotoRepository;
 
     /**
+     * @var AdminUserRepository
+     */
+    private $adminUserRepository;
+
+    /**
+     * @var NewCompanyNeedsApprovalMailer
+     */
+    private $newCompanyNeedsApprovalMailer;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -95,6 +110,8 @@ class CompanyController extends AbstractController
      * @param Packages $assetsManager
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
+     * @param AdminUserRepository $adminUserRepository
+     * @param NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -104,7 +121,9 @@ class CompanyController extends AbstractController
         UploaderHelper $uploaderHelper,
         Packages $assetsManager,
         CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository
+        CompanyPhotoRepository $companyPhotoRepository,
+        AdminUserRepository $adminUserRepository,
+        NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -114,6 +133,8 @@ class CompanyController extends AbstractController
         $this->assetsManager = $assetsManager;
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
+        $this->adminUserRepository = $adminUserRepository;
+        $this->newCompanyNeedsApprovalMailer = $newCompanyNeedsApprovalMailer;
     }
 
     /**
@@ -123,14 +144,9 @@ class CompanyController extends AbstractController
      */
     public function indexAction(Request $request) {
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => false
-        ]);
-
         $user = $this->getUser();
         return $this->render('company/index.html.twig', [
             'user' => $user,
-            'companies' => $companies
         ]);
     }
 
@@ -164,31 +180,28 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Company $company */
             $company = $form->getData();
+            $company->setOwner($user);
 
             $user->setCompany($company);
 
-          /*  $logo = $form->get('logo')->getData();
+            $adminUsers = $this->adminUserRepository->findAll();
+            $adminUser = $adminUsers[0];
 
-            if($logo) {
-                $newFilename = $this->uploaderHelper->uploadCompanyLogo($logo);
-                $company->setLogo($newFilename);
+            // create a new company request
+            $newCompanyRequest = new NewCompanyRequest();
+            $newCompanyRequest->setCreatedBy($user);
+            $newCompanyRequest->setCompany($company);
+            $newCompanyRequest->setNeedsApprovalBy($adminUser);
 
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_LOGO) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            $heroImage = $form->get('heroImage')->getData();
-
-            if($heroImage) {
-                $newFilename = $this->uploaderHelper->uploadHeroImage($heroImage);
-                $company->setHeroImage($newFilename);
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::HERO_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }*/
-
+            $this->entityManager->persist($newCompanyRequest);
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            $this->newCompanyNeedsApprovalMailer->send($user, $company);
+
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+
         }
 
         return $this->render('company/new.html.twig', [
@@ -288,21 +301,28 @@ class CompanyController extends AbstractController
                 $this->entityManager->persist($image);
             }
 
-            /** @var UploadedFile[] $photos */
-            $resources = $form->get('resources')->getData();
-            foreach($resources as $resource) {
-                $mimeType = $resource->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::COMPANY_RESOURCE);
-                $companyResource = new CompanyResource();
-                $companyResource->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $companyResources = $company->getCompanyResources();
+            foreach($companyResources as $companyResource) {
+
+                if(!$companyResource->getFile()) {
+                    continue;
+                }
+
+                /** @var UploadedFile $file */
+                $file = $companyResource->getFile();
+                $mimeType = $file->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
+                $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
                 $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
                 $companyResource->setFileName($newFilename);
-                $company->addCompanyResource($companyResource);
+                $companyResource->setFile(null);
                 $this->entityManager->persist($companyResource);
             }
 
             $this->entityManager->persist($company);
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
 
         return $this->render('company/edit.html.twig', [
@@ -312,21 +332,4 @@ class CompanyController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove", options = { "expose" = true })
-     * @ParamConverter("image", options={"id" = "image_id"})
-     * @ParamConverter("company", options={"id" = "company_id"})
-     * @param Company $company
-     * @param Request $request
-     * @param CompanyPhoto $image
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     */
-    public function removeCompanyPhotoAction(Company $company, Request $request, CompanyPhoto $image) {
-
-        $this->denyAccessUnlessGranted('delete', $image);
-
-        $this->entityManager->remove($image);
-        $this->entityManager->flush();
-        return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
-    }
 }
