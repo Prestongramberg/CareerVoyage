@@ -15,8 +15,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
-use App\Mailer\MyRequests\NewCompanyApprovedMailer;
-use App\Mailer\RequestsThatNeedMyApproval\NewCompanyNeedsApprovalMailer;
+use App\Mailer\RequestsMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -97,9 +96,9 @@ class CompanyController extends AbstractController
     private $adminUserRepository;
 
     /**
-     * @var NewCompanyNeedsApprovalMailer
+     * @var RequestsMailer
      */
-    private $newCompanyNeedsApprovalMailer;
+    private $requestsMailer;
 
     /**
      * @var ProfessionalUserRepository
@@ -117,7 +116,7 @@ class CompanyController extends AbstractController
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param AdminUserRepository $adminUserRepository
-     * @param NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
+     * @param RequestsMailer $requestsMailer
      * @param ProfessionalUserRepository $professionalUserRepository
      */
     public function __construct(
@@ -130,7 +129,7 @@ class CompanyController extends AbstractController
         CompanyRepository $companyRepository,
         CompanyPhotoRepository $companyPhotoRepository,
         AdminUserRepository $adminUserRepository,
-        NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer,
+        RequestsMailer $requestsMailer,
         ProfessionalUserRepository $professionalUserRepository
     ) {
         $this->entityManager = $entityManager;
@@ -142,7 +141,7 @@ class CompanyController extends AbstractController
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->adminUserRepository = $adminUserRepository;
-        $this->newCompanyNeedsApprovalMailer = $newCompanyNeedsApprovalMailer;
+        $this->requestsMailer = $requestsMailer;
         $this->professionalUserRepository = $professionalUserRepository;
     }
 
@@ -174,7 +173,7 @@ class CompanyController extends AbstractController
             throw new AccessDeniedException();
         }
 
-        if($user->getCompany()) {
+        if($user->getCompany()->getOwner() && $user->getCompany()->getOwner()->getId() === $user->getId()) {
             return $this->redirectToRoute('company_view', ['id' => $user->getCompany()->getId()]);
         }
 
@@ -207,7 +206,7 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            $this->newCompanyNeedsApprovalMailer->send($user, $company);
+            $this->requestsMailer->newCompanyNeedsApproval($newCompanyRequest);
 
             return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
 

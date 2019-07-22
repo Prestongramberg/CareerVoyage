@@ -16,9 +16,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
-use App\Mailer\MyRequests\NewCompanyApprovedMailer;
-use App\Mailer\MyRequests\RequestFromCompanyToUserToJoinCompanyMailer;
-use App\Mailer\MyRequests\RequestFromUserToJoinCompanyMailer;
+use App\Mailer\RequestsMailer;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\JoinCompanyRequestRepository;
@@ -110,19 +108,9 @@ class RequestController extends AbstractController
     private $requestRepository;
 
     /**
-     * @var NewCompanyApprovedMailer
+     * @var RequestsMailer
      */
-    private $newCompanyApprovedMailer;
-
-    /**
-     * @var RequestFromCompanyToUserToJoinCompanyMailer
-     */
-    private $requestFromCompanyToUserToJoinCompany;
-
-    /**
-     * @var RequestFromUserToJoinCompanyMailer
-     */
-    private $requestFromUserToJoinCompanyMailer;
+    private $requestsMailer;
 
     /**
      * RequestController constructor.
@@ -137,9 +125,7 @@ class RequestController extends AbstractController
      * @param NewCompanyRequestRepository $newCompanyRequestRepository
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param RequestRepository $requestRepository
-     * @param NewCompanyApprovedMailer $newCompanyApprovedMailer
-     * @param RequestFromCompanyToUserToJoinCompanyMailer $requestFromCompanyToUserToJoinCompany
-     * @param RequestFromUserToJoinCompanyMailer $requestFromUserToJoinCompanyMailer
+     * @param RequestsMailer $requestsMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -153,9 +139,7 @@ class RequestController extends AbstractController
         NewCompanyRequestRepository $newCompanyRequestRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
         RequestRepository $requestRepository,
-        NewCompanyApprovedMailer $newCompanyApprovedMailer,
-        RequestFromCompanyToUserToJoinCompanyMailer $requestFromCompanyToUserToJoinCompany,
-        RequestFromUserToJoinCompanyMailer $requestFromUserToJoinCompanyMailer
+        RequestsMailer $requestsMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -168,9 +152,7 @@ class RequestController extends AbstractController
         $this->newCompanyRequestRepository = $newCompanyRequestRepository;
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->requestRepository = $requestRepository;
-        $this->newCompanyApprovedMailer = $newCompanyApprovedMailer;
-        $this->requestFromCompanyToUserToJoinCompany = $requestFromCompanyToUserToJoinCompany;
-        $this->requestFromUserToJoinCompanyMailer = $requestFromUserToJoinCompanyMailer;
+        $this->requestsMailer = $requestsMailer;
     }
 
     /**
@@ -214,8 +196,8 @@ class RequestController extends AbstractController
                     $request = $this->newCompanyRequestRepository->find($request);
                     $request->setApproved(true);
                     $this->addFlash('message', 'Company approved');
-                    $this->newCompanyApprovedMailer->send($request->getCreatedBy(), $request->getCompany());
-;                    break;
+                    $this->requestsMailer->newCompanyApproved($request);
+                    break;
                 case 'JoinCompanyRequest':
                     /** @var JoinCompanyRequestRepository $request */
                     $request = $this->joinCompanyRequestRepository->find($request);
@@ -223,6 +205,12 @@ class RequestController extends AbstractController
                     $this->addFlash('message', 'You have joined the company!');
                     $user->setCompany($request->getCompany());
                     $this->entityManager->persist($user);
+
+                    if($request->getType() === JoinCompanyRequest::TYPE_COMPANY_TO_USER) {
+                        $this->requestsMailer->companyToUserApproval($request);
+                    } elseif($request->getType() === JoinCompanyRequest::TYPE_USER_TO_COMPANY) {
+                        $this->requestsMailer->userToCompanyApproval($request);
+                    }
                     break;
             }
 
@@ -243,12 +231,15 @@ class RequestController extends AbstractController
     }
 
     /**
-     * @Route("/requests/companies/{id}/company-join-request", name="company_join_request", methods={"POST"}, options = { "expose" = true })
+     * @Route("/requests/companies/{id}/user-to-company", name="user_to_company_request", methods={"POST"}, options = { "expose" = true })
      * @param Company $company
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
-    public function companyJoinRequest(Company $company, Request $request) {
+    public function userToCompanyRequest(Company $company, Request $request) {
 
         /** @var User $user */
         $user = $this->getUser();
@@ -269,9 +260,12 @@ class RequestController extends AbstractController
         $joinCompanyRequest->setCompany($company);
         $joinCompanyRequest->setCreatedBy($user);
         $joinCompanyRequest->setNeedsApprovalBy($company->getOwner());
+        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_USER_TO_COMPANY);
 
         $this->entityManager->persist($joinCompanyRequest);
         $this->entityManager->flush();
+
+        $this->requestsMailer->userToCompanyRequest($joinCompanyRequest);
 
         return new JsonResponse(
             [
@@ -283,7 +277,7 @@ class RequestController extends AbstractController
     }
 
     /**
-     * @Route("/requests/companies/{companyID}/users/{userID}/from-company-join-request", name="from_company_join_request", methods={"POST"}, options = { "expose" = true })
+     * @Route("/requests/companies/{companyID}/users/{userID}/company-to-user", name="company_to_user_request", methods={"POST"}, options = { "expose" = true })
      * @ParamConverter("company", options={"id" = "companyID"})
      * @ParamConverter("user", options={"id" = "userID"})
      * @param Company $company
@@ -291,7 +285,7 @@ class RequestController extends AbstractController
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function fromCompanyJoinRequest(Company $company, User $user, Request $request) {
+    public function companyToUserRequest(Company $company, User $user, Request $request) {
 
 
         $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsFromCompanyByUser($user);
@@ -310,9 +304,12 @@ class RequestController extends AbstractController
         $joinCompanyRequest->setCompany($company);
         $joinCompanyRequest->setCreatedBy($this->getUser());
         $joinCompanyRequest->setNeedsApprovalBy($user);
+        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_COMPANY_TO_USER);
 
         $this->entityManager->persist($joinCompanyRequest);
         $this->entityManager->flush();
+
+        $this->requestsMailer->companyToUserRequest($joinCompanyRequest);
 
         return new JsonResponse(
             [

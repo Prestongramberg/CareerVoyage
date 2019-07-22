@@ -2,6 +2,7 @@
 
 namespace App\Mailer;
 
+use App\Repository\UserRepository;
 use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -34,18 +35,30 @@ class AbstractMailer
     protected $siteFromEmail;
 
     /**
+     * @var UserRepository
+     */
+    protected $userRepository;
+
+    /**
      * AbstractMailer constructor.
      * @param Swift_Mailer $mailer
      * @param RouterInterface $router
      * @param Environment $templating
-     * @param $siteFromEmail
+     * @param string $siteFromEmail
+     * @param UserRepository $userRepository
      */
-    public function __construct(Swift_Mailer $mailer, RouterInterface $router, Environment $templating, $siteFromEmail)
-    {
+    public function __construct(
+        Swift_Mailer $mailer,
+        RouterInterface $router,
+        Environment $templating,
+        string $siteFromEmail,
+        UserRepository $userRepository
+    ) {
         $this->mailer = $mailer;
         $this->router = $router;
         $this->templating = $templating;
         $this->siteFromEmail = $siteFromEmail;
+        $this->userRepository = $userRepository;
     }
 
     /**

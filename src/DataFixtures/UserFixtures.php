@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\AdminUser;
 use App\Entity\ProfessionalUser;
+use App\Repository\CompanyRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -11,11 +12,25 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserFixtures extends Fixture implements DependentFixtureInterface
 {
+    /**
+     * @var UserPasswordEncoderInterface
+     */
     private $passwordEncoder;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    /**
+     * @var CompanyRepository
+     */
+    private $companyRepository;
+
+    /**
+     * UserFixtures constructor.
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param CompanyRepository $companyRepository
+     */
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, CompanyRepository $companyRepository)
     {
         $this->passwordEncoder = $passwordEncoder;
+        $this->companyRepository = $companyRepository;
     }
 
     public function load(ObjectManager $manager)
@@ -51,9 +66,9 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         $professionalUser->setupAsProfessional();
         $company = $this->getReference('company2');
         $professionalUser->setCompany($company);
-        $company = $this->getReference('company1');
         $company->setOwner($professionalUser);
         $professionalUser->setCompany($company);
+        $manager->persist($company);
         $manager->persist($professionalUser);
         $this->setReference('user2', $professionalUser);
 

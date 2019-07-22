@@ -7,6 +7,7 @@ use App\Entity\Lesson;
 use App\Repository\CareerRepository;
 use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
+use App\Repository\UserRepository;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
@@ -57,6 +58,11 @@ class LessonImportCommand extends Command
     private $uploaderHelper;
 
     /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
      * LessonImportCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param CareerRepository $careerRepository
@@ -64,6 +70,7 @@ class LessonImportCommand extends Command
      * @param CourseRepository $courseRepository
      * @param ImageCacheGenerator $imageCacheGenerator
      * @param UploaderHelper $uploaderHelper
+     * @param UserRepository $userRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -71,7 +78,8 @@ class LessonImportCommand extends Command
         GradeRepository $gradeRepository,
         CourseRepository $courseRepository,
         ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper
+        UploaderHelper $uploaderHelper,
+        UserRepository $userRepository
     ) {
         $this->entityManager = $entityManager;
         $this->careerRepository = $careerRepository;
@@ -79,9 +87,11 @@ class LessonImportCommand extends Command
         $this->courseRepository = $courseRepository;
         $this->imageCacheGenerator = $imageCacheGenerator;
         $this->uploaderHelper = $uploaderHelper;
+        $this->userRepository = $userRepository;
 
         parent::__construct();
     }
+
 
     protected function configure()
     {
@@ -122,9 +132,14 @@ class LessonImportCommand extends Command
             fclose($fp);
         }
 
+        $user = $this->userRepository->findOneBy([
+            'email' => 'travis@travishoglund.com'
+        ]);
+
         foreach($lessons as $lesson) {
 
             $lessonObject = new Lesson();
+            $lessonObject->setUser($user);
 
             // careers
             $careerIDs = explode(',', $lesson['Career Cluster ID']);

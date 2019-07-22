@@ -15,8 +15,6 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
-use App\Mailer\MyRequests\NewCompanyApprovedMailer;
-use App\Mailer\RequestsThatNeedMyApproval\NewCompanyNeedsApprovalMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyPhotoRepository;
@@ -98,11 +96,6 @@ class LibraryController extends AbstractController
     private $adminUserRepository;
 
     /**
-     * @var NewCompanyNeedsApprovalMailer
-     */
-    private $newCompanyNeedsApprovalMailer;
-
-    /**
      * @var CompanyFavoriteRepository
      */
     private $companyFavoriteRepository;
@@ -123,7 +116,6 @@ class LibraryController extends AbstractController
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param AdminUserRepository $adminUserRepository
-     * @param NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer
      * @param CompanyFavoriteRepository $companyFavoriteRepository
      * @param LessonFavoriteRepository $lessonFavoriteRepository
      */
@@ -137,7 +129,6 @@ class LibraryController extends AbstractController
         CompanyRepository $companyRepository,
         CompanyPhotoRepository $companyPhotoRepository,
         AdminUserRepository $adminUserRepository,
-        NewCompanyNeedsApprovalMailer $newCompanyNeedsApprovalMailer,
         CompanyFavoriteRepository $companyFavoriteRepository,
         LessonFavoriteRepository $lessonFavoriteRepository
     ) {
@@ -150,10 +141,10 @@ class LibraryController extends AbstractController
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->adminUserRepository = $adminUserRepository;
-        $this->newCompanyNeedsApprovalMailer = $newCompanyNeedsApprovalMailer;
         $this->companyFavoriteRepository = $companyFavoriteRepository;
         $this->lessonFavoriteRepository = $lessonFavoriteRepository;
     }
+
 
     /**
      * @Route("/library", name="library", methods={"GET"}, options = { "expose" = true })

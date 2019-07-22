@@ -9,11 +9,19 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class JoinCompanyRequest extends Request
 {
+    const TYPE_COMPANY_TO_USER = 'TYPE_COMPANY_TO_USER';
+    const TYPE_USER_TO_COMPANY = 'TYPE_USER_TO_COMPANY';
+
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="joinCompanyRequests")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $type;
 
     public function getCompany(): ?Company
     {
@@ -23,6 +31,18 @@ class JoinCompanyRequest extends Request
     public function setCompany(?Company $company): self
     {
         $this->company = $company;
+
+        return $this;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }

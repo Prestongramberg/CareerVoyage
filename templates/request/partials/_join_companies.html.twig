@@ -1,15 +1,24 @@
 <div>
-    <p>
-        {{ request.createdBy.firstName }} {{ request.createdBy.lastName }} from {{ request.company.name }} Has requested that you join their company
-    </p>
 
-    <p>{{ request.company.emailAddress }}</p>
-    <p>{{ request.company.website }}</p>
-    <p>{{ request.company.phone }}</p>
-    <p>{{ request.company.primaryIndustry.name }}</p>
+    {% if request.type == 'TYPE_COMPANY_TO_USER' %}
+
+        {{ request.company.name}} has requested that you join their company.
+
+
+        <p>{{ request.company.emailAddress }}</p>
+        <p>{{ request.company.website }}</p>
+        <p>{{ request.company.phone }}</p>
+        <p>{{ request.company.primaryIndustry.name }}</p>
+
+        {% elseif request.type == 'TYPE_USER_TO_COMPANY' %}
+            <p>
+                {{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company
+            </p>
+    {% endif %}
 
     <form method="post">
-        <input type="submit" value="Join">
+        <input type="submit" value="Approve">
         <input type="hidden" name="request" value="{{ request.id }}">
     </form>
+
 </div>

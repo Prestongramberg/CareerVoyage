@@ -1,12 +1,18 @@
 <div>
-    <p>
-        You have made a request to join company {{ request.company.name }}
-    </p>
 
-    <p>{{ request.company.emailAddress }}</p>
-    <p>{{ request.company.website }}</p>
-    <p>{{ request.company.phone }}</p>
-    <p>{{ request.company.primaryIndustry.name }}</p>
+    {% if request.type == 'TYPE_COMPANY_TO_USER' %}
+
+        You have requested that {{ request.needsApprovalBy.fullName}} join your company.
+
+    {% elseif request.type == 'TYPE_USER_TO_COMPANY' %}
+        <p>
+            You have made a request to join company {{ request.company.name }}
+        </p>
+        <p>{{ request.company.emailAddress }}</p>
+        <p>{{ request.company.website }}</p>
+        <p>{{ request.company.phone }}</p>
+        <p>{{ request.company.primaryIndustry.name }}</p>
+    {% endif %}
 
     <p>Status: {% if request.approved %}Approved{% else %}Pending Approval{% endif %}</p>
 </div>
