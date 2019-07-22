@@ -57,7 +57,7 @@ class App extends React.Component {
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateIndustryQuery}>
-                        <option value="">Filter by Industry...</option>
+                        <option value="">Filter by Course...</option>
                         { this.props.industries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"

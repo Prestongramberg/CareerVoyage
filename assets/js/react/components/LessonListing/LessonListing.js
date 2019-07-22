@@ -28,6 +28,7 @@ class LessonListing extends Component {
 LessonListing.propTypes = {
     description: PropTypes.string,
     id: PropTypes.number,
+    image: PropTypes.string,
     title: PropTypes.string
 };
 

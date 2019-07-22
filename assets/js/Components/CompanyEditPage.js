@@ -36,6 +36,7 @@ class CompanyEditPage {
     static get _selectors() {
         return {
             addVideo: '.js-addVideo',
+            newVideoFields: '.js-new-video-fields',
             removePhoto: '.js-removePhoto',
             addResource: '.js-addResource'
         }
