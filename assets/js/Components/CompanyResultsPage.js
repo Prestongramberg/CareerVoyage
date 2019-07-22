@@ -11,7 +11,6 @@ class CompanyResultsPage {
      * @param globalEventDispatcher
      */
     constructor($wrapper, globalEventDispatcher) {
-        debugger;
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.companies = [];
@@ -49,7 +48,6 @@ class CompanyResultsPage {
 
     handlePrimaryIndustryFilterChange(e) {
 
-        debugger;
         let value = $(e.target).val();
 
         if("" === value) {
@@ -59,13 +57,11 @@ class CompanyResultsPage {
 
         this.list.filter((item) => {
 
-            debugger;
             if(!_.has(item.values(), 'primaryIndustry.name')) {
                 return false;
             }
 
             if (item.values().primaryIndustry.name === value) {
-                debugger;
                 return true;
             } else {
                 return false;
@@ -77,6 +73,7 @@ class CompanyResultsPage {
     render() {
         this.$wrapper.html(CompanyResultsPage.markup(this));
         this.loadCompanies().then(data => {
+            console.log(data);
             this.renderCompanies(data);
         });
 
@@ -96,18 +93,19 @@ class CompanyResultsPage {
 
     renderCompanies(data) {
 
-        debugger;
         let companies = this.companies = data.data;
 
        /* for(let company of companies) {
             this.$wrapper.find('.list').append(cardTemplate(company));
         }
 */
-        this.$wrapper.find('.list').append(cardTemplate(companies[0]));
+        //this.$wrapper.find('.list').append(cardTemplate());
 
         let options = {
+            item: "hacker-item",
             valueNames: [
                 'name',
+                'shortDescription'
                 /*{ name: 'industry', attr: 'data-industry' }*/
                 /*'born',
                 { data: ['id'] },
@@ -132,11 +130,11 @@ class CompanyResultsPage {
 
         this.list = new List('hacker-list', options, companies);
 
-        this.list.on('searchComplete', () => {
-            this.$wrapper.find('.list').find('.card').first().remove();
-        });
-
-        this.$wrapper.find('.list').find('.card').first().remove();
+        // this.list.on('searchComplete', () => {
+        //     this.$wrapper.find('.list').find('.card').first().remove();
+        // });
+        //
+        // this.$wrapper.find('.list').find('.card').first().remove();
     }
 
     loadCompanies() {
@@ -173,17 +171,59 @@ class CompanyResultsPage {
 
     static markup() {
         return `
-            <div class="js-filters">
-                <select class="js-primary-industry-filter"></select>
+            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                    <form class="uk-search uk-search-default uk-width-1-1">
+                        <span uk-search-icon></span>
+                        <input class="uk-search-input search" type="search" placeholder="Search by Name...">
+                    </form>
+                </div>
+                <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l js-filters">
+                    <div class="uk-width-1-1 uk-text-truncate" uk-form-custom="target: > * > span:first-child">
+                        <select class="js-primary-industry-filter"></select>
+                        <button class="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button" tabindex="-1">
+                            <span></span>
+                            <span uk-icon="icon: chevron-down"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l js-filters">
+                    <div class="uk-width-1-1 uk-text-truncate" uk-form-custom="target: > * > span:first-child">
+                        <select>
+                            <option value="">Filter by Events...</option>
+                            <option value="1">Hosting Site Visits</option>
+                            <option value="2">Hosting Events</option>
+                            <option value="3">Job Opportunities</option>
+                            <option value="4">Externships Available</option>
+                            <option value="5">Internships Available</option>
+                        </select>
+                        <button class="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button" tabindex="-1">
+                            <span></span>
+                            <span uk-icon="icon: chevron-down"></span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            
-            <div id="hacker-list">
-                <ul class="paginationTop"></ul>
-                <input class="search" />
-                <span class="sort" data-sort="name">Sort by name</span>
-                <span class="sort" data-sort="address">Sort by address</span>
-                <ul class="list"></ul>
-                <ul class="paginationBottom"></ul>
+
+            <div class="uk-grid" uk-grid>
+                <div class="uk-width-1-1 company-listings">
+
+                    <!-- A template element is needed when list is empty, TODO: needs a better solution -->
+                    <li id="hacker-item" class="card">
+                     <span class="name"></span>
+                     <span class="shortDescription"></span>
+                    </li>
+
+                </div>
+            </div>
+
+            <div class="uk-grid" uk-grid>
+                <div class="uk-width-1-1">
+                    <ul class="uk-pagination uk-margin">
+                        <li><a href="#"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>
+                        <li class="uk-margin-auto-left"><a href="#">Next <span class="uk-margin-small-left" uk-pagination-next></span></a></li>
+                    </ul>
+                </div>
             </div>
     `;
     }
@@ -195,8 +235,45 @@ const selectOptionTemplate = (value) => `
 
 const cardTemplate = () => `
     <li class="card" data-id="1">
-     <p class="name"></p>
-   </li>
+        <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" uk-grid>
+            <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
+                <div class="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light" data-src="images/company-vomela.jpg" uk-img style="min-height: 150px;">
+                    <div class="uk-inline uk-padding-small">
+                        <a href="#">
+                            <i class="fa fa-heart" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <div class="uk-card-body">
+                    <div class="company-listing__meta">
+                        <a href="companies-detail.php">
+                            <h3 class="uk-card-title-small uk-heading-divider">
+                                <span class="name"></span>
+                            </h3>
+                        </a>
+                        <p><span class="shortDescription"></span></p>
+                        <div class="uk-grid uk-flex-middle" uk-grid>
+                            <div class="uk-width-auto">
+                                <div class="company-links">
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                                    <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
+                                </div>
+                            </div>
+                            <div class="uk-width-expand uk-visible@m">
+                                <div class="uk-align-right">
+                                    <a href="companies-detail.php" class="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </li>
 `;
 
 export default CompanyResultsPage;

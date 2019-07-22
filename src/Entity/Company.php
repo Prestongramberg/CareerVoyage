@@ -75,6 +75,11 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
+     *      groups={"EDIT"}
+     * )
      * @Assert\NotBlank(message="Don't forget a short description!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -144,6 +149,11 @@ class Company
      */
     private $owner;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="company", orphanRemoval=true)
+     */
+    private $companyFavorites;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -151,6 +161,7 @@ class Company
         $this->videos = new ArrayCollection();
         $this->companyResources = new ArrayCollection();
         $this->joinCompanyRequests = new ArrayCollection();
+        $this->companyFavorites = new ArrayCollection();
     }
 
     public function getId()
@@ -512,6 +523,37 @@ class Company
     public function setOwner(?ProfessionalUser $owner)
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyFavorite[]
+     */
+    public function getCompanyFavorites(): Collection
+    {
+        return $this->companyFavorites;
+    }
+
+    public function addCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if (!$this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites[] = $companyFavorite;
+            $companyFavorite->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if ($this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites->removeElement($companyFavorite);
+            // set the owning side to null (unless already changed)
+            if ($companyFavorite->getCompany() === $this) {
+                $companyFavorite->setCompany(null);
+            }
+        }
 
         return $this;
     }

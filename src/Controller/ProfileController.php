@@ -175,7 +175,10 @@ class ProfileController extends AbstractController
             $this->entityManager->flush();
         }
 
-        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+        $this->get('security.token_storage')->setToken(null);
+        $request->getSession()->invalidate();
+
+        return $this->redirectToRoute('welcome');
     }
 
     /**

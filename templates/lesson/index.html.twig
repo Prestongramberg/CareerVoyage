@@ -1,6 +1,40 @@
-{% extends 'baseSinglePageApp.html.twig' %}
+{% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}Lessons{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <ul class="" data-uk-tab="{connect: '#tab-lessons'}" uk-switcher>
+            <li class="uk-active"><a href="#all-lessons">All Lessons</a></li>
+            <li><a href="#favorite-lessons">Favorites</a></li>
+            <li><a href="#my-lessons">My Lessons</a></li>
+        </ul>
+
+        <div class="uk-switcher" id="tab-lessons">
+            <div class="lessons__all">
+                <div id="searchable-lesson-listing"></div>
+            </div>
+            <div class="lessons_library">
+                <div class="uk-placeholder uk-text-center">
+                    <p>You haven't favorited any lessons yet.</p>
+                </div>
+            </div>
+            <div class="lessons_mine">
+                {% if user.lessons|length > 0 %}
+                    {% for lesson in user.lessons %}
+                        <p>{{ lesson.title }}</p>
+                    {% endfor %}
+                {% else %}
+                    <div class="uk-placeholder uk-text-center">
+                        <p>You aren't associated with any lessons yet.</p>
+                        <a href="#" class="uk-button uk-button-primary uk-button-small">Teach a Lesson</a>
+                        <a href="{{ path('lesson_new') }}" class="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}

@@ -139,12 +139,18 @@ abstract class User implements UserInterface
      */
     protected $requestsThatNeedMyApproval;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="user", orphanRemoval=true)
+     */
+    private $companyFavorites;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
         $this->lessons = new ArrayCollection();
         $this->requests = new ArrayCollection();
         $this->requestsThatNeedMyApproval = new ArrayCollection();
+        $this->companyFavorites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -237,6 +243,11 @@ abstract class User implements UserInterface
         $this->lastName = $lastName;
 
         return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->firstName . " " . $this->lastName;
     }
 
 
@@ -570,6 +581,37 @@ abstract class User implements UserInterface
     public function setPlainPassword($plainPassword)
     {
         $this->plainPassword = $plainPassword;
+    }
+
+    /**
+     * @return Collection|CompanyFavorite[]
+     */
+    public function getCompanyFavorites(): Collection
+    {
+        return $this->companyFavorites;
+    }
+
+    public function addCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if (!$this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites[] = $companyFavorite;
+            $companyFavorite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyFavorite(CompanyFavorite $companyFavorite): self
+    {
+        if ($this->companyFavorites->contains($companyFavorite)) {
+            $this->companyFavorites->removeElement($companyFavorite);
+            // set the owning side to null (unless already changed)
+            if ($companyFavorite->getUser() === $this) {
+                $companyFavorite->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 }

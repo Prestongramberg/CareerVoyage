@@ -98,17 +98,17 @@ class Lesson
         $this->lessonFavorites = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle()
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle($title)
     {
         $this->title = $title;
 
@@ -118,12 +118,12 @@ class Lesson
     /**
      * @return Collection|Career[]
      */
-    public function getCareers(): Collection
+    public function getCareers()
     {
         return $this->careers;
     }
 
-    public function addCareer(Career $career): self
+    public function addCareer(Career $career)
     {
         if (!$this->careers->contains($career)) {
             $this->careers[] = $career;
@@ -132,7 +132,7 @@ class Lesson
         return $this;
     }
 
-    public function removeCareer(Career $career): self
+    public function removeCareer(Career $career)
     {
         if ($this->careers->contains($career)) {
             $this->careers->removeElement($career);
@@ -144,12 +144,12 @@ class Lesson
     /**
      * @return Collection|Grade[]
      */
-    public function getGrades(): Collection
+    public function getGrades()
     {
         return $this->grades;
     }
 
-    public function addGrade(Grade $grade): self
+    public function addGrade(Grade $grade)
     {
         if (!$this->grades->contains($grade)) {
             $this->grades[] = $grade;
@@ -158,7 +158,7 @@ class Lesson
         return $this;
     }
 
-    public function removeGrade(Grade $grade): self
+    public function removeGrade(Grade $grade)
     {
         if ($this->grades->contains($grade)) {
             $this->grades->removeElement($grade);
@@ -167,12 +167,12 @@ class Lesson
         return $this;
     }
 
-    public function getPrimaryCourse(): ?Course
+    public function getPrimaryCourse()
     {
         return $this->primaryCourse;
     }
 
-    public function setPrimaryCourse(?Course $primaryCourse): self
+    public function setPrimaryCourse(Course $primaryCourse)
     {
         $this->primaryCourse = $primaryCourse;
 
@@ -182,12 +182,12 @@ class Lesson
     /**
      * @return Collection|Course[]
      */
-    public function getSecondaryCourses(): Collection
+    public function getSecondaryCourses()
     {
         return $this->secondaryCourses;
     }
 
-    public function addSecondaryCourse(Course $secondaryCourse): self
+    public function addSecondaryCourse(Course $secondaryCourse)
     {
         if (!$this->secondaryCourses->contains($secondaryCourse)) {
             $this->secondaryCourses[] = $secondaryCourse;
@@ -196,7 +196,7 @@ class Lesson
         return $this;
     }
 
-    public function removeSecondaryCourse(Course $secondaryCourse): self
+    public function removeSecondaryCourse(Course $secondaryCourse)
     {
         if ($this->secondaryCourses->contains($secondaryCourse)) {
             $this->secondaryCourses->removeElement($secondaryCourse);
@@ -205,60 +205,60 @@ class Lesson
         return $this;
     }
 
-    public function getSummary(): ?string
+    public function getSummary()
     {
         return $this->summary;
     }
 
-    public function setSummary(string $summary): self
+    public function setSummary($summary)
     {
         $this->summary = $summary;
 
         return $this;
     }
 
-    public function getLearningOutcomes(): ?string
+    public function getLearningOutcomes()
     {
         return $this->learningOutcomes;
     }
 
-    public function setLearningOutcomes(string $learningOutcomes): self
+    public function setLearningOutcomes($learningOutcomes)
     {
         $this->learningOutcomes = $learningOutcomes;
 
         return $this;
     }
 
-    public function getEducationalStandards(): ?string
+    public function getEducationalStandards()
     {
         return $this->educationalStandards;
     }
 
-    public function setEducationalStandards(?string $educationalStandards): self
+    public function setEducationalStandards($educationalStandards)
     {
         $this->educationalStandards = $educationalStandards;
 
         return $this;
     }
 
-    public function getThumbnailImage(): ?string
+    public function getThumbnailImage()
     {
         return $this->thumbnailImage;
     }
 
-    public function setThumbnailImage(?string $thumbnailImage): self
+    public function setThumbnailImage($thumbnailImage)
     {
         $this->thumbnailImage = $thumbnailImage;
 
         return $this;
     }
 
-    public function getFeaturedImage(): ?string
+    public function getFeaturedImage()
     {
         return $this->featuredImage;
     }
 
-    public function setFeaturedImage(?string $featuredImage): self
+    public function setFeaturedImage($featuredImage)
     {
         $this->featuredImage = $featuredImage;
 
@@ -268,12 +268,12 @@ class Lesson
     /**
      * @return Collection|LessonFavorite[]
      */
-    public function getLessonFavorites(): Collection
+    public function getLessonFavorites()
     {
         return $this->lessonFavorites;
     }
 
-    public function addLessonFavorite(LessonFavorite $lessonFavorite): self
+    public function addLessonFavorite(LessonFavorite $lessonFavorite)
     {
         if (!$this->lessonFavorites->contains($lessonFavorite)) {
             $this->lessonFavorites[] = $lessonFavorite;
@@ -283,7 +283,7 @@ class Lesson
         return $this;
     }
 
-    public function removeLessonFavorite(LessonFavorite $lessonFavorite): self
+    public function removeLessonFavorite(LessonFavorite $lessonFavorite)
     {
         if ($this->lessonFavorites->contains($lessonFavorite)) {
             $this->lessonFavorites->removeElement($lessonFavorite);
@@ -331,7 +331,7 @@ class Lesson
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?User $user)
     {
         $this->user = $user;
 

@@ -6,22 +6,32 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Pintex Solutions{% endblock %}</title>
+
+    <style>
+        body .wrapper {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+    </style>
+
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 
 </head>
 <body class="non-authenticated {% block bodyClass %}{% endblock %}">
+    <div class="wrapper">
+        {% block body %}{% endblock %}
 
-{% block body %}{% endblock %}
+        {% block javascripts %}
 
-{% block javascripts %}
+            <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+            <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
-    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
-    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+            <script src="{{ asset('build/runtime.js') }}"></script>
+            {{ encore_entry_script_tags('app') }}
 
-    {{ encore_entry_script_tags('app') }}
-
-{% endblock %}
+        {% endblock %}
+    </div>
 </body>
 </html>

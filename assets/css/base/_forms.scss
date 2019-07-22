@@ -1,0 +1,19 @@
+label {
+  color: #000;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.uk-checkboxes {
+  input {
+    margin-right: 5px;
+  }
+  label {
+    margin-right: 15px;
+    white-space: nowrap;
+  }
+}
+
+.ql-editor{
+  min-height:200px;
+}
