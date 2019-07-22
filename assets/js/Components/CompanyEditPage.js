@@ -43,11 +43,8 @@ class CompanyEditPage {
     static get _selectors() {
         return {
             addVideo: '.js-addVideo',
-<<<<<<< HEAD
-            removePhoto: '.js-removePhoto'
-=======
+            removePhoto: '.js-removePhoto',
             addResource: '.js-addResource'
->>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
         }
     }
 
@@ -61,15 +58,18 @@ class CompanyEditPage {
 
         this.$wrapper.on(
             'click',
-<<<<<<< HEAD
             CompanyEditPage._selectors.removePhoto,
             this.handleRemovePhoto
+        );
+
+        this.$wrapper.on(
+            'click',
+            CompanyEditPage._selectors.addResource,
+            this.handleAddResourceItemButtonClick.bind(this)
         );
     }
 
     handleRemovePhoto(e) {
-
-        console.log(this);
 
         const $this = $(this);
         const endpoint = $this.attr('data-remove');
@@ -89,11 +89,6 @@ class CompanyEditPage {
             const errorData = JSON.parse(jqXHR.responseText);
             console.log(errorData);
         });
-=======
-            CompanyEditPage._selectors.addResource,
-            this.handleAddResourceItemButtonClick.bind(this)
-        );
->>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
     }
 
     handleAddItemButtonClick(e) {
