@@ -21,6 +21,14 @@
 </head>
 <body class="authenticated {% block bodyClass %}{% endblock %}">
 
+    {% for flashMessage in app.session.flashbag.get('success') %}
+        {% set successMessage = flashMessage %}
+    {% endfor %}
+
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        {% set errorMessage = flashMessage %}
+    {% endfor %}
+
     <div class="wrapper">
         {% include 'nav/primary.html.twig' %}
 

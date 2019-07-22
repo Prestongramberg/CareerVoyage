@@ -333,7 +333,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{companyID}/users/{userID}/remove", name="company_edit", options = { "expose" = true })
+     * @Route("/companies/{companyID}/users/{userID}/remove", name="company_remove_user", options = { "expose" = true })
      * @ParamConverter("company", options={"id" = "companyID"})
      * @ParamConverter("user", options={"id" = "userID"})
      *
@@ -348,23 +348,44 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if($professionalUser->getCompany()->getId() !== $company->getId()) {
-            throw new \Exception("That user doesn't belong to that company");
+        $canRemove = ($user->isAdmin() ||
+                $company->getOwner()->getId() === $user->getId() ||
+                $user->getId() === $professionalUser->getId())
+            && $professionalUser->getCompany()->getId() === $company->getId();
+
+        if($canRemove) {
+            $professionalUser->setCompany(null);
+            $this->entityManager->persist($professionalUser);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'user removed from company');
+        } else {
+            $this->addFlash('error', 'user cannot be removed from company');
         }
 
-        // let an admin do whatever they want
-        if($user->isAdmin()) {
-            $professionalUser->setCompany(null);
-        }
+        return $this->redirectToRoute('company_index');
+    }
 
-        // if the logged in user is the owner of the company let them do whatever they want
-        if($company->getOwner()->getId() === $user->getId()) {
-            $professionalUser->setCompany(null);
-        }
+    /**
+     * @Route("/companies/{id}/delete", name="company_delete", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function deleteCompanyAction(Company $company, Request $request) {
 
-        // if the logged in user is trying to remove themselves from the company
-        if($user->getId() === $professionalUser->getId()) {
-            $professionalUser->setCompany(null);
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $canDelete = $user->isAdmin() || $company->getOwner()->getId() === $user->getId();
+
+        if($canDelete) {
+            $this->entityManager->remove($company);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'company deleted');
+        } else {
+            $this->addFlash('error', 'company can not be deleted');
         }
 
         return $this->redirectToRoute('company_index');

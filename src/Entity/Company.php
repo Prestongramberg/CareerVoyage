@@ -114,22 +114,22 @@ class Company
     private $primaryIndustry;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $thumbnailImage;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $featuredImage;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Video", mappedBy="company", orphanRemoval=true, cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Video", mappedBy="company", orphanRemoval=true, cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $videos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", orphanRemoval=true, cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", orphanRemoval=true, cascade={"persist"}, orphanRemoval=true)
      */
     private $companyResources;
 
@@ -145,7 +145,7 @@ class Company
     private $newCompanyRequest;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="ownedCompany", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="ownedCompany")
      */
     private $owner;
 
@@ -153,6 +153,11 @@ class Company
      * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="company", orphanRemoval=true)
      */
     private $companyFavorites;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deleted = false;
 
     public function __construct()
     {
@@ -554,6 +559,18 @@ class Company
                 $companyFavorite->setCompany(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }
