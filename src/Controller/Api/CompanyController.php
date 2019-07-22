@@ -295,33 +295,28 @@ class CompanyController extends AbstractController
     public function unFavoriteCompany(Company $company) {
 
 
-        $company = $this->companyFavoriteRepository->findOneBy([
+        $companyObj = $this->companyFavoriteRepository->findOneBy([
             'user' => $this->getUser(),
             'company' => $company
         ]);
 
-        if($company) {
+        if($companyObj) {
+            $this->entityManager->remove($companyObj);
+            $this->entityManager->flush();
+
             return new JsonResponse(
                 [
-                    'success' => false,
-                    'message' => 'company has already been added to favorites.'
-
+                    'success' => true,
+                    'message' => 'company removed from favorites.'
                 ],
                 Response::HTTP_OK
             );
         }
 
-        $companyFavorite = new CompanyFavorite();
-        $companyFavorite->setUser($this->getUser());
-        $companyFavorite->setCompany($company);
-
-        $this->entityManager->persist($companyFavorite);
-        $this->entityManager->flush();
-
         return new JsonResponse(
             [
                 'success' => true,
-                'message' => 'company added to favorites.'
+                'message' => 'company cannot be removed from favorites cause it does not exist in favorites'
             ],
             Response::HTTP_OK
         );

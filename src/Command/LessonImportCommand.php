@@ -7,14 +7,20 @@ use App\Entity\Lesson;
 use App\Repository\CareerRepository;
 use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
+use App\Service\ImageCacheGenerator;
+use App\Service\UploaderHelper;
+use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
 
 class LessonImportCommand extends Command
 {
+    use FileHelper;
 
     const COMMAND = 'lesson:import';
 
@@ -41,22 +47,38 @@ class LessonImportCommand extends Command
     private $courseRepository;
 
     /**
+     * @var ImageCacheGenerator
+     */
+    private $imageCacheGenerator;
+
+    /**
+     * @var UploaderHelper
+     */
+    private $uploaderHelper;
+
+    /**
      * LessonImportCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param CareerRepository $careerRepository
      * @param GradeRepository $gradeRepository
      * @param CourseRepository $courseRepository
+     * @param ImageCacheGenerator $imageCacheGenerator
+     * @param UploaderHelper $uploaderHelper
      */
     public function __construct(
         EntityManagerInterface $entityManager,
         CareerRepository $careerRepository,
         GradeRepository $gradeRepository,
-        CourseRepository $courseRepository
+        CourseRepository $courseRepository,
+        ImageCacheGenerator $imageCacheGenerator,
+        UploaderHelper $uploaderHelper
     ) {
         $this->entityManager = $entityManager;
         $this->careerRepository = $careerRepository;
         $this->gradeRepository = $gradeRepository;
         $this->courseRepository = $courseRepository;
+        $this->imageCacheGenerator = $imageCacheGenerator;
+        $this->uploaderHelper = $uploaderHelper;
 
         parent::__construct();
     }
@@ -125,6 +147,25 @@ class LessonImportCommand extends Command
             $lessonObject->setSummary($lesson['Lesson Summary']);
             $lessonObject->setTitle($lesson['Lesson Title']);
 
+            // thumbnail image
+            $thumbnailImage = new File(__DIR__.'/ImportedLessonImages/' . $lesson['Thumbnail Image']);
+
+            if($thumbnailImage) {
+                $newFilename = $this->fakeUploadImage($lesson['Thumbnail Image'], UploaderHelper::LESSON_THUMBNAIL);
+                $lessonObject->setThumbnailImage($newFilename);
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_THUMBNAIL) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            // featured image
+            $featuredImage = new File(__DIR__.'/ImportedLessonImages/' . $lesson['Featured Image']);
+
+            if($featuredImage) {
+                $newFilename = $this->fakeUploadImage($lesson['Thumbnail Image'], UploaderHelper::LESSON_FEATURED);
+                $lessonObject->setFeaturedImage($newFilename);
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_FEATURED) .'/'. $newFilename;
+            }
+
             // primary course
             $course = $this->courseRepository->find($lesson['Primary Course ID']);
             $lessonObject->setPrimaryCourse($course);
@@ -148,5 +189,12 @@ class LessonImportCommand extends Command
 
     }
 
+    public function fakeUploadImage($imageName, $folder): string
+    {
+        $fs = new Filesystem();
+        $targetPath = sys_get_temp_dir().'/'.$imageName;
+        $fs->copy(__DIR__.'/ImportedLessonImages/'.$imageName, $targetPath, true);
+        return $this->uploaderHelper->upload(new File($targetPath), $folder);
+    }
 
 }

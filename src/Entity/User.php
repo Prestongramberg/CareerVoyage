@@ -142,7 +142,7 @@ abstract class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="user", orphanRemoval=true)
      */
-    private $companyFavorites;
+    protected $companyFavorites;
 
     public function __construct()
     {
