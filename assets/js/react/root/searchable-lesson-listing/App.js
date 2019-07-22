@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadLessons, loadIndustries, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { lessonFavorite, lessonUnfavorite, lessonTeach, lessonUnteach, loadLessons, loadIndustries, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import LessonListing from "../../components/LessonListing/LessonListing";
 
@@ -15,37 +15,113 @@ class App extends React.Component {
     render() {
 
         const relevantLessons = this.getRelevantLessons();
+        const favoriteLessons = this.props.lessons.filter(lesson => lesson.favorite === true);
+        const teachableLessons = this.props.lessons.filter(lesson => lesson.teachable === true);
 
         return (
-            <div>
-                <div className="uk-grid-small uk-flex-middle" data-uk-grid>
-                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                        <form className="uk-search uk-search-default uk-width-1-1">
-                            <span data-uk-search-icon></span>
-                            <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
-                        </form>
-                    </div>
-                    { this.renderIndustryDropdown() }
-                </div>
+            <div className="uk-container">
+                <ul className="" data-uk-tab="{connect: '#tab-lessons'}" data-uk-switcher>
+                    <li className="uk-active"><a href="#all-lessons">All Lessons</a></li>
+                    <li><a href="#favorite-lessons">Favorites</a></li>
+                    <li><a href="#my-lessons">My Lessons</a></li>
+                </ul>
 
-                <div className="lesson-listings" uk-grid="masonry: true">
-                    { this.props.search.loading && (
-                        <div className="uk-width-1-1 uk-align-center">
-                            <div data-uk-spinner></div>
+                <div className="uk-switcher" id="tab-lessons">
+                    <div className="lessons__all">
+                        <div>
+                            <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                                <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                    <form className="uk-search uk-search-default uk-width-1-1">
+                                        <span data-uk-search-icon></span>
+                                        <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+                                    </form>
+                                </div>
+                                {/*{ this.renderIndustryDropdown() }*/}
+                            </div>
+
+                            <div className="lesson-listings" data-uk-grid="masonry: true">
+                                { this.props.search.loading && (
+                                    <div className="uk-width-1-1 uk-align-center">
+                                        <div data-uk-spinner></div>
+                                    </div>
+                                )}
+                                { !this.props.search.loading && relevantLessons.map(lesson => (
+                                    <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                                        <LessonListing
+                                            description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                            id={lesson.id}
+                                            image={lesson.thumbnailImageURL}
+                                            isFavorite={lesson.favorite}
+                                            isTeacher={lesson.teachable}
+                                            lessonFavorite={this.props.lessonFavorite}
+                                            lessonUnfavorite={this.props.lessonUnfavorite}
+                                            lessonTeach={this.props.lessonTeach}
+                                            lessonUnteach={this.props.lessonUnteach}
+                                            title={lesson.title} />
+                                    </div>
+                                ))}
+                                { !this.props.search.loading && relevantLessons.length === 0 && (
+                                    <p>No results match your selection</p>
+                                )}
+                            </div>
                         </div>
-                    )}
-                    { !this.props.search.loading && relevantLessons.map(lesson => (
-                        <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
-                            <LessonListing
-                                description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
-                                id={lesson.id}
-                                image={lesson.thumbnailImageURL}
-                                title={lesson.title} />
+                    </div>
+                    <div className="lessons_library">
+                        { favoriteLessons.length > 0 && (
+                            <div className="lesson-listings" data-uk-grid="masonry: true">
+                                { favoriteLessons.map(lesson => (
+                                    <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                                        <LessonListing
+                                            description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                            id={lesson.id}
+                                            image={lesson.thumbnailImageURL}
+                                            isFavorite={lesson.favorite}
+                                            isTeacher={lesson.teachable}
+                                            lessonFavorite={this.props.lessonFavorite}
+                                            lessonUnfavorite={this.props.lessonUnfavorite}
+                                            lessonTeach={this.props.lessonTeach}
+                                            lessonUnteach={this.props.lessonUnteach}
+                                            title={lesson.title} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        { favoriteLessons.length === 0 && (
+                            <div className="uk-placeholder uk-text-center uk-width-1-1">
+                                <p>You don't have any favorite <i className="fa fa-heart" aria-hidden="true"></i> lessons yet.</p>
+                            </div>
+                        )}
+                    </div>
+                    <div className="lessons_mine">
+                        <div className="uk-flex uk-flex-right">
+                            <a href={ window.Routing.generate('lesson_new') } className="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
                         </div>
-                    ))}
-                    { !this.props.search.loading && relevantLessons.length === 0 && (
-                        <p>No results match your selection</p>
-                    )}
+
+                        { favoriteLessons.length > 0 && (
+                            <div className="lesson-listings" data-uk-grid="masonry: true">
+                                { teachableLessons.map(lesson => (
+                                    <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                                        <LessonListing
+                                            description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                            id={lesson.id}
+                                            image={lesson.thumbnailImageURL}
+                                            isFavorite={lesson.favorite}
+                                            isTeacher={lesson.teachable}
+                                            lessonFavorite={this.props.lessonFavorite}
+                                            lessonUnfavorite={this.props.lessonUnfavorite}
+                                            lessonTeach={this.props.lessonTeach}
+                                            lessonUnteach={this.props.lessonUnteach}
+                                            title={lesson.title} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        { teachableLessons.length === 0 && (
+                            <div className="uk-placeholder uk-text-center uk-width-1-1">
+                                <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         )
@@ -57,7 +133,7 @@ class App extends React.Component {
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateIndustryQuery}>
-                        <option value="">Filter by Industry...</option>
+                        <option value="">Filter by Course...</option>
                         { this.props.industries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
@@ -119,6 +195,10 @@ export const mapStateToProps = (state = {}) => ({
 });
 
 export const mapDispatchToProps = dispatch => ({
+    lessonFavorite: (lessonId) => dispatch(lessonFavorite(lessonId)),
+    lessonUnfavorite: (lessonId) => dispatch(lessonUnfavorite(lessonId)),
+    lessonTeach: (lessonId) => dispatch(lessonTeach(lessonId)),
+    lessonUnteach: (lessonId) => dispatch(lessonUnteach(lessonId)),
     loadLessons: (url) => dispatch(loadLessons(url)),
     loadIndustries: (url) => dispatch(loadIndustries(url)),
     updateIndustryQuery: (event) => dispatch(updateIndustryQuery(event.target.value)),

@@ -7,26 +7,29 @@ import reducers from "./reducers";
 import { getInitialLessonsState, getInitialIndustriesState, getInitialSearchState } from "./init";
 import App from "./App";
 
-const store = createStore(
-    reducers,
-    {
-        lessons: getInitialLessonsState(),
-        industries: getInitialIndustriesState(),
-        search: getInitialSearchState()
-    },
-    compose(
-        applyMiddleware(thunk),
-        window.devToolsExtension ? window.devToolsExtension() : f => f
-    )
-);
+if( document.getElementById("searchable-lesson-listing") ) {
 
-const render = () => {
-    ReactDOM.render(
-        <Provider store={store}>
-            <App />
-        </Provider>,
-        document.getElementById("searchable-lesson-listing")
+    const store = createStore(
+        reducers,
+        {
+            lessons: getInitialLessonsState(),
+            industries: getInitialIndustriesState(),
+            search: getInitialSearchState()
+        },
+        compose(
+            applyMiddleware(thunk),
+            window.devToolsExtension ? window.devToolsExtension() : f => f
+        )
     );
-};
-render();
-store.subscribe(render);
+
+    const render = () => {
+        ReactDOM.render(
+            <Provider store={store}>
+                <App />
+            </Provider>,
+            document.getElementById("searchable-lesson-listing")
+        );
+    };
+    render();
+    store.subscribe(render);
+}
