@@ -40,6 +40,8 @@ class App extends React.Component {
                                 description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
                                 id={lesson.id}
                                 image={lesson.thumbnailImageURL}
+                                isFavorite={lesson.favorite}
+                                isTeachable={lesson.teachable}
                                 title={lesson.title} />
                         </div>
                     ))}
