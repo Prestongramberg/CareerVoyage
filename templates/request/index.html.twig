@@ -11,6 +11,7 @@
     {% for request in requestsThatNeedMyApproval %}
 
         {% if request.className == 'JoinCompanyRequest' %}
+            {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
             {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
         {% endif %}
 

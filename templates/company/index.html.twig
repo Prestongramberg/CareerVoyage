@@ -24,7 +24,9 @@
                     <div class="uk-card">
                         <div class="uk-grid uk-flex-middle" uk-grid>
                             <div class="uk-width-small">
+                                {% if user.company.thumbnailImage %}
                                 <img src="{{ asset(uploaded_asset(user.company.thumbnailImagePath)) }}" alt="">
+                                {% endif %}
                             </div>
                             <div class="uk-width-expand">
                                 <h3>{{ user.company.name }}</h3>
