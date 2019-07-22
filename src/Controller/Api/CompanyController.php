@@ -307,12 +307,12 @@ class CompanyController extends AbstractController
     public function favoriteCompany(Company $company) {
 
 
-        $company = $this->companyFavoriteRepository->findOneBy([
+        $companyObj = $this->companyFavoriteRepository->findOneBy([
            'user' => $this->getUser(),
            'company' => $company
         ]);
 
-        if($company) {
+        if($companyObj) {
             return new JsonResponse(
                 [
                     'success' => false,

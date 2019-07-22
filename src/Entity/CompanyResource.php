@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,12 +20,14 @@ class CompanyResource extends Image
     private $company;
 
     /**
+     * @Groups({"COMPANY_RESOURCE"})
      * @Assert\NotBlank(message="Don't forget a title for your resource!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $title;
 
     /**
+     * @Groups({"COMPANY_RESOURCE"})
      * @Assert\NotBlank(message="Don't forget a description for your resource!", groups={"EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
