@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
+use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
@@ -179,6 +180,29 @@ class CompanyController extends AbstractController
         $this->denyAccessUnlessGranted('delete', $video);
 
         $this->entityManager->remove($video);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{companyID}/resource/{resourceID}/remove", name="remove_company_resource", methods={"POST"}, options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("companyResource", options={"id" = "resourceID"})
+     * @param Company $company
+     * @param CompanyResource $companyResource
+     * @return JsonResponse
+     */
+    public function removeCompanyResource(Company $company, CompanyResource $companyResource) {
+
+        $this->denyAccessUnlessGranted('delete', $companyResource);
+
+        $this->entityManager->remove($companyResource);
         $this->entityManager->flush();
 
         return new JsonResponse(

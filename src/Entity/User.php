@@ -48,7 +48,6 @@ abstract class User implements UserInterface
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     checkMX = true,
      *     groups={"CREATE", "EDIT"}
      * )
      * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT"})

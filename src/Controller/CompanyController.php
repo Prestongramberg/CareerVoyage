@@ -30,6 +30,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -300,16 +301,16 @@ class CompanyController extends AbstractController
                 $this->entityManager->persist($image);
             }
 
-            /** @var UploadedFile[] $photos */
-            $resources = $form->get('resources')->getData();
-            foreach($resources as $resource) {
-                $mimeType = $resource->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::COMPANY_RESOURCE);
-                $companyResource = new CompanyResource();
-                $companyResource->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $companyResources = $company->getCompanyResources();
+            foreach($companyResources as $companyResource) {
+                /** @var UploadedFile $file */
+                $file = $companyResource->getFile();
+                $mimeType = $file->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
+                $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
                 $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
                 $companyResource->setFileName($newFilename);
-                $company->addCompanyResource($companyResource);
+                /*$company->addCompanyResource($companyResource);*/
                 $this->entityManager->persist($companyResource);
             }
 

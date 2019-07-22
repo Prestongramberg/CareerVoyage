@@ -73,10 +73,22 @@
         <br>
         <br>
         Company Resources
-        {{ form_row(form.resources) }}
-        {% for resource in company.companyResources %}
-            <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>
-        {% endfor %}
+
+        {# TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it
+       so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
+        {% if form.companyResources is defined %}
+            <ul class="list-group list-group-flush js-add-resource-parent-container" data-template="{{ form_widget(form.companyResources.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                {% for companyResource in form.companyResources %}
+                    <li class="list-group-item js-child-item">
+                        <a href="{{asset(uploaded_asset(companyResource.vars.data.path)) }}" download="">{{ companyResource.vars.data.fileName }}</a>
+                        {{ form_row(companyResource.file) }}
+                        {{ form_row(companyResource.title) }}
+                        {{ form_row(companyResource.description) }}
+                    </li>
+                {% endfor %}
+            </ul>
+            <a href="#" class="js-addResource"><i class="fa fa-plus" aria-hidden="true"></i> Add a resource</a>
+        {% endif %}
 
         <div>
             <button class="btn">Update</button>
