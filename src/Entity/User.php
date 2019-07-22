@@ -144,6 +144,11 @@ abstract class User implements UserInterface
      */
     protected $companyFavorites;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="user", orphanRemoval=true)
+     */
+    protected $lessonTeachables;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -151,6 +156,7 @@ abstract class User implements UserInterface
         $this->requests = new ArrayCollection();
         $this->requestsThatNeedMyApproval = new ArrayCollection();
         $this->companyFavorites = new ArrayCollection();
+        $this->lessonTeachables = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -608,6 +614,37 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($companyFavorite->getUser() === $this) {
                 $companyFavorite->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|LessonTeachable[]
+     */
+    public function getLessonTeachables(): Collection
+    {
+        return $this->lessonTeachables;
+    }
+
+    public function addLessonTeachable(LessonTeachable $lessonTeachable): self
+    {
+        if (!$this->lessonTeachables->contains($lessonTeachable)) {
+            $this->lessonTeachables[] = $lessonTeachable;
+            $lessonTeachable->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLessonTeachable(LessonTeachable $lessonTeachable): self
+    {
+        if ($this->lessonTeachables->contains($lessonTeachable)) {
+            $this->lessonTeachables->removeElement($lessonTeachable);
+            // set the owning side to null (unless already changed)
+            if ($lessonTeachable->getUser() === $this) {
+                $lessonTeachable->setUser(null);
             }
         }
 
