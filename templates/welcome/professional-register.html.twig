@@ -29,9 +29,9 @@
             {{ form_errors(professionalRegistrationForm.email) }}
         </div>
         <div class="uk-margin">
-            {{ form_label(professionalRegistrationForm.password, 'Password*') }}
-            {{ form_widget(professionalRegistrationForm.password, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.password) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(professionalRegistrationForm.password) }}
+            {{ form_label(professionalRegistrationForm.plainPassword, 'Password*') }}
+            {{ form_widget(professionalRegistrationForm.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(professionalRegistrationForm.plainPassword) }}
         </div>
         <div class="uk-margin">
             <label>{{ form_widget(professionalRegistrationForm.agreeTerms, {'attr': {'class': 'uk-checkbox' ~ ( form_errors(professionalRegistrationForm.agreeTerms) ? ' uk-form-danger' : '' ) }}) }} I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
