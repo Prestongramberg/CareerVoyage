@@ -11,13 +11,16 @@ class CompanyEditPage {
      * @param globalEventDispatcher
      */
     constructor($wrapper, globalEventDispatcher) {
-        debugger;
+
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.companies = [];
         this.list = null;
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
         this.unbindEvents();
 
         this.bindEvents();
@@ -26,9 +29,12 @@ class CompanyEditPage {
     }
 
     unbindEvents() {
-
         this.$wrapper.off('click', CompanyEditPage._selectors.addVideo);
+<<<<<<< HEAD
+        this.$wrapper.off('click', CompanyEditPage._selectors.removePhoto);
+=======
         this.$wrapper.off('click', CompanyEditPage._selectors.addResource);
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
     }
 
     /**
@@ -37,7 +43,11 @@ class CompanyEditPage {
     static get _selectors() {
         return {
             addVideo: '.js-addVideo',
+<<<<<<< HEAD
+            removePhoto: '.js-removePhoto'
+=======
             addResource: '.js-addResource'
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
         }
     }
 
@@ -51,14 +61,43 @@ class CompanyEditPage {
 
         this.$wrapper.on(
             'click',
+<<<<<<< HEAD
+            CompanyEditPage._selectors.removePhoto,
+            this.handleRemovePhoto
+        );
+    }
+
+    handleRemovePhoto(e) {
+
+        console.log(this);
+
+        const $this = $(this);
+        const endpoint = $this.attr('data-remove');
+
+        console.log(endpoint);
+
+        $.ajax({
+            url: endpoint,
+        }).then(data => {
+            $this.parent().remove();
+            UIkit.notification({
+                message: 'Photo Removed!',
+                pos: 'bottom-center',
+                timeout: 1500
+            });
+        }).catch(jqXHR => {
+            const errorData = JSON.parse(jqXHR.responseText);
+            console.log(errorData);
+        });
+=======
             CompanyEditPage._selectors.addResource,
             this.handleAddResourceItemButtonClick.bind(this)
         );
+>>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
     }
 
     handleAddItemButtonClick(e) {
 
-        debugger;
         if(e.cancelable) {
             e.preventDefault();
         }
