@@ -17,6 +17,15 @@ require('./vendor/fontawesome.js');
 // Binds to Window
 window.globalEventDispatcher = new EventDispatcher();
 window.UIkit = UIkit;
+window.Pintex = {
+    notification: function(message) {
+        UIkit.notification({
+            message: message,
+            pos: 'bottom-center',
+            timeout: 1500
+        });
+    }
+};
 
 // React
 require('./react/root');

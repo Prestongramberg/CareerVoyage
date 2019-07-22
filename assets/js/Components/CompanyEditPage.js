@@ -74,11 +74,7 @@ class CompanyEditPage {
             url: endpoint,
         }).then(data => {
             $this.parent().remove();
-            UIkit.notification({
-                message: 'Photo Removed!',
-                pos: 'bottom-center',
-                timeout: 1500
-            });
+            Pintex.notification("Photo Removed!");
         }).catch(jqXHR => {
             const errorData = JSON.parse(jqXHR.responseText);
             console.log(errorData);

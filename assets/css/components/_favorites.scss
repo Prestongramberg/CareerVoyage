@@ -1,0 +1,9 @@
+.favorite-lesson,
+.teach-lesson {
+  cursor: pointer;
+  cursor: hand;
+
+  &:hover i {
+    opacity: 1 !important;
+  }
+}
