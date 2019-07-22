@@ -17,10 +17,6 @@ class CompanyEditPage {
         this.companies = [];
         this.list = null;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
         this.unbindEvents();
 
         this.bindEvents();
@@ -30,11 +26,8 @@ class CompanyEditPage {
 
     unbindEvents() {
         this.$wrapper.off('click', CompanyEditPage._selectors.addVideo);
-<<<<<<< HEAD
         this.$wrapper.off('click', CompanyEditPage._selectors.removePhoto);
-=======
         this.$wrapper.off('click', CompanyEditPage._selectors.addResource);
->>>>>>> 0d0db8d3985e55df67f0aabca20094e09031f8ee
     }
 
     /**
