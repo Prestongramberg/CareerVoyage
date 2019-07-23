@@ -205,6 +205,38 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setCompany($company);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
 
+            /** @var UploadedFile $thumbnailImage */
+            $thumbnailImage = $form->get('thumbnailImage')->getData();
+
+            if($thumbnailImage) {
+                $mimeType = $thumbnailImage->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setThumbnailImage($image);
+                $this->entityManager->persist($image);
+
+                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+                $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            }
+
+            /** @var UploadedFile $featuredImage */
+            $featuredImage = $form->get('featuredImage')->getData();
+
+            if($featuredImage) {
+                $mimeType = $featuredImage->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
+                $image = new Image();
+                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
+                $image->setMimeType($mimeType ?? 'application/octet-stream');
+                $image->setFileName($newFilename);
+                $company->setFeaturedImage($image);
+                $this->entityManager->persist($image);
+            }
+
+
             $this->entityManager->persist($newCompanyRequest);
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
@@ -314,8 +346,9 @@ class CompanyController extends AbstractController
             }
 
             // resource
+            /** @var CompanyResource $resource */
             $resource = $form->get('resources')->getData();
-            if($resource->getFile()) {
+            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
                 $file = $resource->getFile();
                 $mimeType = $file->getMimeType();
                 $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
@@ -329,11 +362,12 @@ class CompanyController extends AbstractController
 
             // video
             $video = $form->get('videos')->getData();
-            $video->setCompany($company);
+            if($video->getName() && $video->getVideoId()) {
+                $video->setCompany($company);
+                $this->entityManager->persist($video);
+            }
 
             $this->entityManager->persist($company);
-            $this->entityManager->persist($resource);
-            $this->entityManager->persist($video);
             $this->entityManager->flush();
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);

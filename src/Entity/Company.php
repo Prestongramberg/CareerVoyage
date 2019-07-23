@@ -8,8 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Validator\Constraints as CustomAssert;
 
 /**
+ * @CustomAssert\ProfessionalAlreadyOwnsCompany(groups={"CREATE"});
  * @ORM\Entity(repositoryClass="App\Repository\CompanyRepository")
  */
 class Company
@@ -124,12 +126,12 @@ class Company
     private $featuredImage;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Video", mappedBy="company", orphanRemoval=true, cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Video", mappedBy="company", cascade={"remove"}, orphanRemoval=true)
      */
     private $videos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", orphanRemoval=true, cascade={"persist"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", cascade={"remove"}, orphanRemoval=true)
      */
     private $companyResources;
 

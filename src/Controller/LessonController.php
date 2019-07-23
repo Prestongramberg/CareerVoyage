@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\Lesson;
+use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
@@ -198,7 +199,15 @@ class LessonController extends AbstractController
 
             $lesson->setUser($user);
             $this->entityManager->persist($lesson);
+
+            $teachableLesson = new LessonTeachable();
+            $teachableLesson->setLesson($lesson);
+            $teachableLesson->setUser($user);
+            $this->entityManager->persist($teachableLesson);
+
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('lesson_index');
         }
 
         return $this->render('lesson/new.html.twig', [

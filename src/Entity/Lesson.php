@@ -88,13 +88,11 @@ class Lesson
     private $educationalStandards;
 
     /**
-     * @Assert\NotBlank(message="Don't forget to add a thumbnail image!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $thumbnailImage;
 
     /**
-     * @Assert\NotBlank(message="Don't forget to add a featured image!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $featuredImage;

@@ -34,7 +34,8 @@ class NewLessonType extends AbstractType
         $imageConstraints = [
             new Image([
                 'maxSize' => '5M'
-            ])
+            ]),
+            new NotBlank(['groups' => ['CREATE']])
         ];
 
         $builder
