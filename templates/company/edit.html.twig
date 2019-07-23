@@ -139,29 +139,38 @@
                 {% endif %}
             </div>
             <div class="page-company-edit__videos">
-                {{ form_widget(form.videos) }}
-
-                {% if company.videos|length > 0 %}
-                    {% for video in company.videos %}
-                        {{ video.name }}
-                        {{ video.videoId }}
-                    {% endfor %}
-                {% endif %}
-
-
+                <div class="uk-width-xlarge">
+                    <p>Videos can help showcase what a great place your establishment is to work for.  Upload your videos to Youtube and then attach them here.</p>
+                    {% if form.videos is defined %}
+                        <ul class="list-group list-group-flush js-add-resource-parent-container" data-template="{{ form_widget(form.companyResources.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                            {% for companyResource in form.companyResources %}
+                                <li class="list-group-item js-child-item">
+                                    {{ form_row(video.name) }}
+                                    {{ form_row(video.videoId) }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a Youtube Video</a>
+                    {% endif %}
+                </div>
             </div>
             <div class="page-company-edit__resources">
-                Resources
-                {{ form_widget(form.resources) }}
-
-                {% if company.companyResources|length > 0 %}
-                    {% for companyResource in company.companyResources %}
-                        {{ companyResource.title }}
-                        {{ companyResource.description }}
-                        <img src="{{ asset(uploaded_asset(companyResource.path))|imagine_filter('squared_thumbnail_small') }}" />
-                    {% endfor %}
-                {% endif %}
-
+                <div class="uk-width-xlarge">
+                    <p>Resources are meant to provide helpful resources to understand more about your company.  Things like Employee Handbooks, Campus Maps, and Company Culture are highly encouraged!</p>
+                    {% if form.companyResources is defined %}
+                        <div class="list-group list-group-flush js-add-resource-parent-container" data-template="{{ form_widget(form.companyResources.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
+                            {% for companyResource in form.companyResources %}
+                                <div class="list-group-item js-child-item">
+                                    <a href="{{asset(uploaded_asset(companyResource.vars.data.path)) }}" download="">{{ companyResource.vars.data.fileName }}</a>
+                                    {{ form_row(companyResource.file) }}
+                                    {{ form_row(companyResource.title) }}
+                                    {{ form_row(companyResource.description) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <a href="#" class="js-addResource"><i class="fa fa-plus" aria-hidden="true"></i> Add a resource</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -173,72 +182,25 @@
 
     </div>
 
-{#    <div id="app">#}
-{#        <h1>Edit Company</h1>#}
+    <div class="uk-container" style="display: none">
+        {{ form_widget(form.videos) }}
 
-{#        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}#}
-{#        {{ form_row(form.name) }}#}
-{#        {{ form_row(form.website) }}#}
-{#        {{ form_row(form.phone) }}#}
-{#        {{ form_row(form.emailAddress) }}#}
-{#        {{ form_row(form.primaryIndustry) }}#}
-{#        {{ form_row(form.shortDescription) }}#}
-{#        {{ form_row(form.description) }}#}
-{#        {{ form_row(form.companyLinkedinPage) }}#}
+        {% if company.videos|length > 0 %}
+            {% for video in company.videos %}
+                {{ video.name }}
+                {{ video.videoId }}
+            {% endfor %}
+        {% endif %}
 
-{#        <hr>#}
-{#        {{ form_row(form.thumbnailImage) }}#}
-{#        {% if company.thumbnailImage %}#}
-{#            <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />#}
-{#        {% endif %}#}
-{#        <hr>#}
+        {{ form_widget(form.resources) }}
 
-
-{#        {{ form_row(form.featuredImage) }}#}
-{#        <hr>#}
-{#        {% if company.featuredImage %}#}
-{#            <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>#}
-{#        {% endif %}#}
-{#        <hr>#}
-
-{#        Company Photos#}
-{#        {{ form_row(form.photos) }}#}
-{#        {% for companyPhoto in company.companyPhotos %}#}
-{#            <a href="{{ path('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}">Remove</a>#}
-{#            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />#}
-{#        {% endfor %}#}
-
-
-{#        {% set sharedButtonMarkup %}#}
-{#            <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a video</a>#}
-{#        {% endset %}#}
-
-{#        #}{# TRAVIS!!! LEAVE THE js-parent-container class and the js-child-item classes. Also if you need to change this and make it#}
-{#        so it's not a list you will need to update CompanyEditPage.js right here: https://cl.ly/d3184b85c52c #}
-{#        {% if form.videos is defined %}#}
-{#            <ul class="list-group list-group-flush js-parent-container" data-template="{{ form_widget(form.videos.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">#}
-{#                {% for video in form.videos %}#}
-{#                    <li class="list-group-item js-child-item">#}
-{#                        {{ form_row(video.name) }}#}
-{#                        {{ form_row(video.videoId) }}#}
-{#                    </li>#}
-{#                {% endfor %}#}
-{#            </ul>#}
-{#            {{ sharedButtonMarkup }}#}
-{#        {% endif %}#}
-
-{#        <br>#}
-{#        <br>#}
-{#        Company Resources#}
-{#        {{ form_row(form.resources) }}#}
-{#        {% for resource in company.companyResources %}#}
-{#            <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>#}
-{#        {% endfor %}#}
-
-{#        <div>#}
-{#            <button class="btn">Update</button>#}
-{#        </div>#}
-{#        {{ form_end(form) }}#}
-{#    </div>#}
+        {% if company.companyResources|length > 0 %}
+            {% for companyResource in company.companyResources %}
+                {{ companyResource.title }}
+                {{ companyResource.description }}
+                <img src="{{ asset(uploaded_asset(companyResource.path))|imagine_filter('squared_thumbnail_small') }}" />
+            {% endfor %}
+        {% endif %}
+    </div>
 
 {% endblock %}

@@ -44,17 +44,23 @@ class NewLessonType extends AbstractType
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('grades', EntityType::class, [
                 'class' => Grade::class,
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('primaryCourse', EntityType::class, [
                 'class' => Course::class,
                 'choice_label' => 'title',
-                'expanded'  => true,
+                'expanded'  => false,
                 'multiple'  => false,
             ])
             ->add('secondaryCourses', EntityType::class, [
@@ -62,6 +68,9 @@ class NewLessonType extends AbstractType
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('shortDescription', TextareaType::class, [])
             ->add('summary', TextType::class, [])

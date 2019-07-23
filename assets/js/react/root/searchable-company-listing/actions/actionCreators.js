@@ -58,3 +58,52 @@ export function loadIndustries(url) {
             }))
     }
 }
+
+export function companyFavorite(companyId) {
+
+    const url = window.Routing.generate("favorite_company", {id: companyId});
+
+    return (dispatch, getState) => {
+        dispatch({type: actionTypes.COMPANY_FAVORITE})
+
+        return api.post(url)
+            .then((response) => {
+                if (response.statusCode < 300 && response.responseBody.success === true) {
+                    dispatch({type: actionTypes.COMPANY_FAVORITE_SUCCESS, companyId: companyId })
+                }  else {
+                    dispatch({
+                        type: actionTypes.COMPANY_FAVORITE_FAILURE
+                    })
+
+                }
+            })
+            .catch(()=> dispatch({
+                type: actionTypes.COMPANY_FAVORITE_FAILURE
+            }))
+    }
+}
+
+export function companyUnfavorite(companyId) {
+
+    const url = window.Routing.generate("unfavorite_company", {id: companyId});
+
+    return (dispatch, getState) => {
+        dispatch({type: actionTypes.COMPANY_UNFAVORITE})
+
+        return api.post(url)
+            .then((response) => {
+                console.log(response);
+                if (response.statusCode < 300 && response.responseBody.success === true) {
+                    dispatch({type: actionTypes.COMPANY_UNFAVORITE_SUCCESS, companyId: companyId})
+                }  else {
+                    dispatch({
+                        type: actionTypes.COMPANY_UNFAVORITE_FAILURE
+                    })
+
+                }
+            })
+            .catch(()=> dispatch({
+                type: actionTypes.COMPANY_UNFAVORITE_FAILURE
+            }))
+    }
+}

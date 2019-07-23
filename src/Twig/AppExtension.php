@@ -4,6 +4,7 @@
 namespace App\Twig;
 
 
+use App\Entity\CompanyResource;
 use App\Entity\Lesson;
 use App\Entity\User;
 use App\Repository\RequestRepository;
@@ -52,6 +53,7 @@ class AppExtension extends AbstractExtension
         return [
             new TwigFunction('uploaded_asset', [$this, 'getUploadedAssetPath']),
             new TwigFunction('encode_lesson', [$this, 'encodeLesson']),
+            new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources']),
             new TwigFunction('pending_requests', [$this, 'pendingRequests'])
         ];
     }
@@ -61,9 +63,14 @@ class AppExtension extends AbstractExtension
         return $this->uploadHelper->getPublicPath($path);
     }
 
-    public function encodeLesson(Lesson $lesson): string
+    public function encodeLesson(Lesson $object): string
     {
-        return $this->serializer->serialize($lesson, 'json', ['groups' => ['LESSON_DATA']]);
+        return $this->serializer->serialize($object, 'json', ['groups' => ['LESSON_DATA']]);
+    }
+
+    public function encodeCompanyResources($companyResources): string
+    {
+        return $this->serializer->serialize($companyResources, 'json', ['groups' => ['COMPANY_RESOURCE']]);
     }
 
     public function pendingRequests(User $user) {

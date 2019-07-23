@@ -8,10 +8,10 @@ export function updateSearchQuery(query) {
     };
 }
 
-export function updateIndustryQuery(industry) {
+export function updateCourseQuery(course) {
     return {
-        type: actionTypes.INDUSTRY_QUERY_CHANGED,
-        industry: industry
+        type: actionTypes.COURSE_QUERY_CHANGED,
+        course: course
     };
 }
 
@@ -38,23 +38,23 @@ export function loadLessons(url) {
     }
 }
 
-export function loadIndustries(url) {
+export function loadCourses(url) {
     return (dispatch, getState) => {
-        dispatch({type: actionTypes.INDUSTRIES_LOADING})
+        dispatch({type: actionTypes.COURSES_LOADING})
 
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    dispatch({type: actionTypes.INDUSTRIES_LOADING_SUCCESS, response: response.responseBody})
+                    dispatch({type: actionTypes.COURSES_LOADING_SUCCESS, response: response.responseBody})
                 }  else {
                     dispatch({
-                        type: actionTypes.INDUSTRIES_LOADING_FAILURE
+                        type: actionTypes.COURSES_LOADING_FAILURE
                     })
 
                 }
             })
             .catch(()=> dispatch({
-                type: actionTypes.INDUSTRIES_LOADING_FAILURE
+                type: actionTypes.COURSES_LOADING_FAILURE
             }))
     }
 }
