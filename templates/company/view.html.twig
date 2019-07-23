@@ -5,6 +5,9 @@
 
 {% block body %}
 
+
+    <h1>{{ pending_requests(user) }}</h1>
+
     <div class="page-company-view__featured-image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
          data-src="{{ company.featuredImageURL }}" uk-img>
 
