@@ -144,11 +144,11 @@ class ProfessionalController extends AbstractController
     /**
      * @Route("/professionals", name="get_professionals", methods={"GET"}, options = { "expose" = true })
      */
-    public function getLessons() {
+    public function getProfessionals() {
 
-        $lessons = $this->professionalUserRepository->findAll();
+        $professionals = $this->professionalUserRepository->findAll();
 
-        $json = $this->serializer->serialize($lessons, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
+        $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
 
         $payload = json_decode($json, true);
 

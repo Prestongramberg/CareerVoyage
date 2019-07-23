@@ -6,6 +6,8 @@ namespace App\Twig;
 
 use App\Entity\CompanyResource;
 use App\Entity\Lesson;
+use App\Entity\User;
+use App\Repository\RequestRepository;
 use App\Service\UploaderHelper;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
@@ -26,14 +28,24 @@ class AppExtension extends AbstractExtension
     private $serializer;
 
     /**
+     * @var RequestRepository
+     */
+    private $requestRepository;
+
+    /**
      * AppExtension constructor.
      * @param UploaderHelper $uploadHelper
      * @param SerializerInterface $serializer
+     * @param RequestRepository $requestRepository
      */
-    public function __construct(UploaderHelper $uploadHelper, SerializerInterface $serializer)
-    {
+    public function __construct(
+        UploaderHelper $uploadHelper,
+        SerializerInterface $serializer,
+        RequestRepository $requestRepository
+    ) {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
+        $this->requestRepository = $requestRepository;
     }
 
     public function getFunctions(): array
@@ -41,7 +53,8 @@ class AppExtension extends AbstractExtension
         return [
             new TwigFunction('uploaded_asset', [$this, 'getUploadedAssetPath']),
             new TwigFunction('encode_lesson', [$this, 'encodeLesson']),
-            new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources'])
+            new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources']),
+            new TwigFunction('pending_requests', [$this, 'pendingRequests'])
         ];
     }
 
@@ -58,5 +71,15 @@ class AppExtension extends AbstractExtension
     public function encodeCompanyResources($companyResources): string
     {
         return $this->serializer->serialize($companyResources, 'json', ['groups' => ['COMPANY_RESOURCE']]);
+    }
+
+    public function pendingRequests(User $user) {
+
+        $requests = $this->requestRepository->findBy([
+            'needsApprovalBy' => $user,
+            'approved' => false
+        ]);
+
+        return count($requests);
     }
 }

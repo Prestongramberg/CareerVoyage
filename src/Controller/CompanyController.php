@@ -5,12 +5,16 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\Experience;
+use App\Entity\ExperienceFile;
+use App\Entity\ExperienceWaver;
 use App\Entity\Image;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
+use App\Form\NewExperienceType;
 use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -309,25 +313,27 @@ class CompanyController extends AbstractController
                 $this->entityManager->persist($image);
             }
 
-            $companyResources = $company->getCompanyResources();
-            foreach($companyResources as $companyResource) {
-
-                if(!$companyResource->getFile()) {
-                    continue;
-                }
-
-                /** @var UploadedFile $file */
-                $file = $companyResource->getFile();
+            // resource
+            $resource = $form->get('resources')->getData();
+            if($resource->getFile()) {
+                $file = $resource->getFile();
                 $mimeType = $file->getMimeType();
                 $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
-                $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
-                $companyResource->setFileName($newFilename);
-                $companyResource->setFile(null);
-                $this->entityManager->persist($companyResource);
+                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+                $resource->setMimeType($mimeType ?? 'application/octet-stream');
+                $resource->setFileName($newFilename);
+                $resource->setFile(null);
+                $resource->setCompany($company);
+                $this->entityManager->persist($resource);
             }
 
+            // video
+            $video = $form->get('videos')->getData();
+            $video->setCompany($company);
+
             $this->entityManager->persist($company);
+            $this->entityManager->persist($resource);
+            $this->entityManager->persist($video);
             $this->entityManager->flush();
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
@@ -397,6 +403,72 @@ class CompanyController extends AbstractController
         }
 
         return $this->redirectToRoute('company_index');
+    }
+
+    /**
+     * @Route("/companies/{id}/experience/create", name="company_experience_create", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createExperienceAction(Request $request, Company $company) {
+
+        /*$this->denyAccessUnlessGranted('edit', $company);*/
+
+        $user = $this->getUser();
+
+        $experience = new Experience();
+        $form = $this->createForm(NewExperienceType::class, $experience, [
+            'method' => 'POST',
+            'company' => $company
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var Experience $experience */
+            $experience = $form->getData();
+
+            $this->entityManager->persist($experience);
+
+            // wavers
+            /** @var UploadedFile[] $wavers */
+            $wavers = $form->get('wavers')->getData();
+            foreach($wavers as $waver) {
+                $mimeType = $waver->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($waver, UploaderHelper::EXPERIENCE_WAVER);
+                $experienceWaver = new ExperienceWaver();
+                $experienceWaver->setOriginalName($waver->getClientOriginalName() ?? $newFilename);
+                $experienceWaver->setMimeType($mimeType ?? 'application/octet-stream');
+                $experienceWaver->setFileName($newFilename);
+                $experienceWaver->setExperience($experience);
+                $this->entityManager->persist($experienceWaver);
+            }
+
+            // other files
+            /** @var UploadedFile[] $otherFiles */
+            $otherFiles = $form->get('otherFiles')->getData();
+            foreach($otherFiles as $otherFile) {
+                $mimeType = $otherFile->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($otherFile, UploaderHelper::EXPERIENCE_OTHER_FILE);
+                $experienceFile = new ExperienceFile();
+                $experienceFile->setOriginalName($otherFile->getClientOriginalName() ?? $newFilename);
+                $experienceFile->setMimeType($mimeType ?? 'application/octet-stream');
+                $experienceFile->setFileName($newFilename);
+                $experienceFile->setExperience($experience);
+                $this->entityManager->persist($experienceFile);
+            }
+
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+        }
+
+        return $this->render('company/experiences.html.twig', [
+            'company' => $company,
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
     }
 
 }

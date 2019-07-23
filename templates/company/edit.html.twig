@@ -182,4 +182,25 @@
 
     </div>
 
+    <div class="uk-container" style="display: none">
+        {{ form_widget(form.videos) }}
+
+        {% if company.videos|length > 0 %}
+            {% for video in company.videos %}
+                {{ video.name }}
+                {{ video.videoId }}
+            {% endfor %}
+        {% endif %}
+
+        {{ form_widget(form.resources) }}
+
+        {% if company.companyResources|length > 0 %}
+            {% for companyResource in company.companyResources %}
+                {{ companyResource.title }}
+                {{ companyResource.description }}
+                <img src="{{ asset(uploaded_asset(companyResource.path))|imagine_filter('squared_thumbnail_small') }}" />
+            {% endfor %}
+        {% endif %}
+    </div>
+
 {% endblock %}
