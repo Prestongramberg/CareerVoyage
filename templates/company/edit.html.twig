@@ -141,34 +141,27 @@
             <div class="page-company-edit__videos">
                 <div class="uk-width-xlarge">
                     <p>Videos can help showcase what a great place your establishment is to work for.  Upload your videos to Youtube and then attach them here.</p>
-                    {% if form.videos is defined %}
-                        <ul class="list-group list-group-flush js-add-resource-parent-container" data-template="{{ form_widget(form.companyResources.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
-                            {% for companyResource in form.companyResources %}
-                                <li class="list-group-item js-child-item">
-                                    {{ form_row(video.name) }}
-                                    {{ form_row(video.videoId) }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                        <a href="#" class="js-addVideo"><i class="fa fa-plus" aria-hidden="true"></i> Add a Youtube Video</a>
+                    {{ form_widget(form.videos) }}
+
+                    {% if company.videos|length > 0 %}
+                        {% for video in company.videos %}
+                            {{ video.name }}
+                            {{ video.videoId }}
+                        {% endfor %}
                     {% endif %}
                 </div>
             </div>
             <div class="page-company-edit__resources">
                 <div class="uk-width-xlarge">
                     <p>Resources are meant to provide helpful resources to understand more about your company.  Things like Employee Handbooks, Campus Maps, and Company Culture are highly encouraged!</p>
-                    {% if form.companyResources is defined %}
-                        <div class="list-group list-group-flush js-add-resource-parent-container" data-template="{{ form_widget(form.companyResources.vars.prototype)|replace({'__prototype_one__': '${index}'})|e }}">
-                            {% for companyResource in form.companyResources %}
-                                <div class="list-group-item js-child-item">
-                                    <a href="{{asset(uploaded_asset(companyResource.vars.data.path)) }}" download="">{{ companyResource.vars.data.fileName }}</a>
-                                    {{ form_row(companyResource.file) }}
-                                    {{ form_row(companyResource.title) }}
-                                    {{ form_row(companyResource.description) }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <a href="#" class="js-addResource"><i class="fa fa-plus" aria-hidden="true"></i> Add a resource</a>
+                    {{ form_widget(form.resources) }}
+
+                    {% if company.companyResources|length > 0 %}
+                        {% for companyResource in company.companyResources %}
+                            {{ companyResource.title }}
+                            {{ companyResource.description }}
+                            <img src="{{ asset(uploaded_asset(companyResource.path))|imagine_filter('squared_thumbnail_small') }}" />
+                        {% endfor %}
                     {% endif %}
                 </div>
             </div>
@@ -180,27 +173,6 @@
 
         {{ form_end(form) }}
 
-    </div>
-
-    <div class="uk-container" style="display: none">
-        {{ form_widget(form.videos) }}
-
-        {% if company.videos|length > 0 %}
-            {% for video in company.videos %}
-                {{ video.name }}
-                {{ video.videoId }}
-            {% endfor %}
-        {% endif %}
-
-        {{ form_widget(form.resources) }}
-
-        {% if company.companyResources|length > 0 %}
-            {% for companyResource in company.companyResources %}
-                {{ companyResource.title }}
-                {{ companyResource.description }}
-                <img src="{{ asset(uploaded_asset(companyResource.path))|imagine_filter('squared_thumbnail_small') }}" />
-            {% endfor %}
-        {% endif %}
     </div>
 
 {% endblock %}
