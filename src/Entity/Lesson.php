@@ -60,12 +60,6 @@ class Lesson
     private $primaryCourse;
 
     /**
-     *  @Assert\Count(
-     *      min = 1,
-     *      minMessage = "You must specify at least one secondary course",
-     *     groups={"CREATE"}
-     * )
-     *
      * @Assert\NotBlank(message="Don't forget to select at least one secondary course!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="lessons")

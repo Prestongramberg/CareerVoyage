@@ -1,5 +1,5 @@
 import getInitialSearchState from "./getInitialSearchState";
-import getInitialLessonsState from "./getInitialLEssonsState";
-import getInitialIndustriesState from "./getInitialIndustriesState";
+import getInitialLessonsState from "./getInitialLessonsState";
+import getInitialCoursesState from "./getInitialCoursesState";
 
-export { getInitialSearchState, getInitialLessonsState, getInitialIndustriesState };
+export { getInitialSearchState, getInitialLessonsState, getInitialCoursesState };

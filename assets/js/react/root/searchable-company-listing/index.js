@@ -7,7 +7,11 @@ import reducers from "./reducers";
 import { getInitialCompaniesState, getInitialIndustriesState, getInitialSearchState } from "./init";
 import App from "./App";
 
-if( document.getElementById("searchable-company-listing") ) {
+const searchableCompanyListing = document.getElementById("searchable-company-listing");
+
+if( searchableCompanyListing ) {
+
+    const userId = parseInt( searchableCompanyListing.getAttribute("data-user-id") );
 
     const store = createStore(
         reducers,
@@ -25,7 +29,7 @@ if( document.getElementById("searchable-company-listing") ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App />
+                <App userId={userId} />
             </Provider>,
             document.getElementById("searchable-company-listing")
         );

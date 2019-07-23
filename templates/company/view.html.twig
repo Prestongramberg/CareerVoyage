@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <ul class="" data-uk-tab="{connect: '#tab-lesson-detail'}" uk-switcher>
+        <ul class="" data-uk-tab="{connect: '#tab-company-detail'}" uk-switcher>
             <li class="uk-active"><a href="#company-summary">Summary</a></li>
             <li><a href="#company-photos">Photos</a></li>
             <li><a href="#company-videos">Videos</a></li>
@@ -49,10 +49,10 @@
             <li><a href="#company-events">Resources</a></li>
         </ul>
 
-        <div class="uk-switcher" id="tab-lesson-detail">
+        <div class="uk-switcher" id="tab-company-detail">
             <div class="company__summary">
                 <div class="uk-width-xlarge">
-                    {{ company.description }}
+                    {{ company.description|raw }}
                     <div class="company-links">
                         <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
                         <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
@@ -63,33 +63,21 @@
             </div>
             <div class="company__photos">
 
-                <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide">
-                    <div>
-                        <a class="uk-inline" href="images/company-photo-1.jpg">
-                            <img src="images/company-photo-1.jpg" alt="">
-                        </a>
+                {% if company.companyPhotos|length > 0 %}
+                    <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid="masonry: true" uk-lightbox="animation: slide">
+                        {% for companyPhoto in company.companyPhotos %}
+                            <div>
+                                <a class="uk-inline" href="{{ asset(uploaded_asset(companyPhoto.path)) }}">
+                                    <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+                                </a>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <div>
-                        <a class="uk-inline" href="images/company-photo-2.jpg">
-                            <img src="images/company-photo-2.jpg" alt="">
-                        </a>
+                {% else %}
+                    <div class="placeholder">
+                        No photos have been added yet for this company. Check back soon!
                     </div>
-                    <div>
-                        <a class="uk-inline" href="images/company-photo-3.jpg">
-                            <img src="images/company-photo-3.jpg" alt="">
-                        </a>
-                    </div>
-                    <div>
-                        <a class="uk-inline" href="images/company-photo-4.jpg">
-                            <img src="images/company-photo-4.jpg" alt="">
-                        </a>
-                    </div>
-                    <div>
-                        <a class="uk-inline" href="images/company-photo-5.jpg">
-                            <img src="images/company-photo-5.jpg" alt="">
-                        </a>
-                    </div>
-                </div>
+                {% endif %}
             </div>
             <div class="company__videos">
                 <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
@@ -168,46 +156,5 @@
             </div>
         </div>
     </div>
-
-    <h1>My Company</h1>
-    <a href="{{ path('company_edit', {id: company.id}) }}">Edit Company</a>
-
-
-
-    <h2>Company Info</h2>
-    <p>Address: {{ company.address }}</p>
-    <p>Phone: {{ company.phone }}</p>
-    <p>Brief company description: {{ company.shortDescription }}</p>
-    <p>Linkedin: {{ company.companyLinkedinPage }}</p>
-    <p>Primary contact: {{ company.primaryContact }}</p>
-
-
-    {% if company.thumbnailImage %}
-        <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-    {% endif %}
-
-    {% if company.featuredImage %}
-        <img src="{{ asset(uploaded_asset(company.featuredImagePath)) }}"/>
-    {% endif %}
-    <hr>
-
-    Company Photos
-    {% for companyPhoto in company.companyPhotos %}
-        <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
-    {% endfor %}
-
-    <br>
-    Videos
-    {% for video in company.videos %}
-        <a href="{{ video.videoId }}">{{ video.name }}</a>
-    {% endfor %}
-
-    <br>
-    Company Resources
-    {% for resource in company.companyResources %}
-        <a href="{{asset(uploaded_asset(resource.path)) }}" download="">{{ resource.originalName }}</a>
-    {% endfor %}
-
-
 
 {% endblock %}

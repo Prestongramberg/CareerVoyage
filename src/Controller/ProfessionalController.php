@@ -18,6 +18,7 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\ProfessionalUserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -88,7 +89,12 @@ class ProfessionalController extends AbstractController
     private $companyPhotoRepository;
 
     /**
-     * CompanyController constructor.
+     * @var ProfessionalUserRepository
+     */
+    private $professionalUserRepository;
+
+    /**
+     * ProfessionalController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -97,17 +103,10 @@ class ProfessionalController extends AbstractController
      * @param Packages $assetsManager
      * @param CompanyRepository $companyRepository
      * @param CompanyPhotoRepository $companyPhotoRepository
+     * @param ProfessionalUserRepository $professionalUserRepository
      */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository
-    ) {
+    public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader, UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator, UploaderHelper $uploaderHelper, Packages $assetsManager, CompanyRepository $companyRepository, CompanyPhotoRepository $companyPhotoRepository, ProfessionalUserRepository $professionalUserRepository)
+    {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
         $this->passwordEncoder = $passwordEncoder;
@@ -116,7 +115,9 @@ class ProfessionalController extends AbstractController
         $this->assetsManager = $assetsManager;
         $this->companyRepository = $companyRepository;
         $this->companyPhotoRepository = $companyPhotoRepository;
+        $this->professionalUserRepository = $professionalUserRepository;
     }
+
 
     /**
      * @Route("/professionals", name="professional_index", methods={"GET"})
@@ -125,9 +126,12 @@ class ProfessionalController extends AbstractController
      */
     public function indexAction(Request $request) {
 
+        $professionalUsers = $this->professionalUserRepository->findAll();
+
         $user = $this->getUser();
         return $this->render('professionals/index.html.twig', [
             'user' => $user,
+            'professionalUsers' => $professionalUsers
         ]);
     }
 }

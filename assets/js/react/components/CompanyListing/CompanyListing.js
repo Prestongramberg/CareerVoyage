@@ -3,6 +3,12 @@ import PropTypes from "prop-types";
 
 class CompanyListing extends Component {
 
+    constructor() {
+        super();
+        const methods = ["toggleFavorite"];
+        methods.forEach(method => (this[method] = this[method].bind(this)));
+    }
+
     render() {
         return (
             <div className="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" data-uk-grid>
@@ -10,9 +16,10 @@ class CompanyListing extends Component {
                     <div className="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                         style={{backgroundImage: `url(${this.props.image})`, minHeight: '150px'}}>
                         <div className="uk-inline uk-padding-small">
-                            <a href={'#'}>
-                                <i className="fa fa-heart" aria-hidden="true"></i>
-                            </a>
+                            <span className="favorite-company" onClick={this.toggleFavorite}>
+                                { this.props.isFavorite && <i className="fa fa-heart" aria-hidden="true"></i> }
+                                { !this.props.isFavorite && <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i> }
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -45,19 +52,31 @@ class CompanyListing extends Component {
             </div>
         );
     }
+
+    toggleFavorite() {
+        const companyId = this.props.id;
+        this.props.isFavorite ? this.props.companyUnfavorite(companyId) : this.props.companyFavorite(companyId);
+    }
 }
 
 CompanyListing.propTypes = {
+    companyFavorite: PropTypes.func,
+    companyUnfavorite: PropTypes.func,
     description: PropTypes.string,
     email: PropTypes.string,
     id: PropTypes.number,
     image: PropTypes.string,
+    isFavorite: PropTypes.bool,
     name: PropTypes.string,
     linkedIn: PropTypes.string,
     phone: PropTypes.string,
     website: PropTypes.string
 };
 
-CompanyListing.defaultProps = {};
+CompanyListing.defaultProps = {
+    companyFavorite: () => {},
+    companyUnfavorite: () => {},
+    isFavorite: false
+};
 
 export default CompanyListing;

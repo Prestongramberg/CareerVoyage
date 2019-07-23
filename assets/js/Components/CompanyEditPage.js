@@ -36,7 +36,6 @@ class CompanyEditPage {
     static get _selectors() {
         return {
             addVideo: '.js-addVideo',
-            newVideoFields: '.js-new-video-fields',
             removePhoto: '.js-removePhoto',
             addResource: '.js-addResource'
         }
@@ -91,14 +90,13 @@ class CompanyEditPage {
         let index = $parentContainer.children('.js-child-item').length;
         let template = $parentContainer.data('template');
         let tpl = eval('`'+template+'`');
-        let $container = $('<li>').addClass('list-group-item js-child-item');
+        let $container = $('<div>').addClass('list-group-item js-child-item');
         $container.append(tpl);
         $parentContainer.append($container);
     }
 
     handleAddResourceItemButtonClick(e) {
 
-        debugger;
         if(e.cancelable) {
             e.preventDefault();
         }
@@ -107,7 +105,7 @@ class CompanyEditPage {
         let index = $parentContainer.children('.js-child-item').length;
         let template = $parentContainer.data('template');
         let tpl = eval('`'+template+'`');
-        let $container = $('<li>').addClass('list-group-item js-child-item');
+        let $container = $('<div>').addClass('list-group-item js-child-item');
         $container.append(tpl);
         $parentContainer.append($container);
     }

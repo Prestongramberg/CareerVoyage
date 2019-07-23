@@ -4,7 +4,7 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialLessonsState, getInitialIndustriesState, getInitialSearchState } from "./init";
+import { getInitialLessonsState, getInitialCoursesState, getInitialSearchState } from "./init";
 import App from "./App";
 
 if( document.getElementById("searchable-lesson-listing") ) {
@@ -13,7 +13,7 @@ if( document.getElementById("searchable-lesson-listing") ) {
         reducers,
         {
             lessons: getInitialLessonsState(),
-            industries: getInitialIndustriesState(),
+            courses: getInitialCoursesState(),
             search: getInitialSearchState()
         },
         compose(

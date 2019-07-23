@@ -7,13 +7,13 @@ export default (state = {}, action) => {
                 ...state,
                 query: action.query
             };
-        case actionTypes.INDUSTRY_QUERY_CHANGED:
+        case actionTypes.COURSE_QUERY_CHANGED:
             return {
                 ...state,
-                industry: action.industry
+                course: action.course
             };
-        case actionTypes.INDUSTRIES_LOADING_SUCCESS:
-        case actionTypes.INDUSTRIES_LOADING_FAILURE:
+        case actionTypes.COURSES_LOADING_SUCCESS:
+        case actionTypes.COURSES_LOADING_FAILURE:
             return {
                 ...state,
                 loading: !!state.loadingLessons,
