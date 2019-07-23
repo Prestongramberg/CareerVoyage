@@ -173,7 +173,7 @@ class CompanyController extends AbstractController
             throw new AccessDeniedException();
         }
 
-        if($user->getCompany()->getOwner() && $user->getCompany()->getOwner()->getId() === $user->getId()) {
+        if($user->getCompany() && $user->getCompany()->getOwner() && $user->getCompany()->getOwner()->getId() === $user->getId()) {
             return $this->redirectToRoute('company_view', ['id' => $user->getCompany()->getId()]);
         }
 

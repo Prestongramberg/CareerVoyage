@@ -1,40 +1,145 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}Edit Lesson{% endblock %}
+{% block bodyClass %}page-lesson-edit{% endblock %}
 
 {% block body %}
 
-    <h1>Edit Lesson</h1>
-    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-    {{ form_row(form.title) }}
-    <br>
-    {{ form_row(form.careers) }}
-    <br>
-    {{ form_row(form.grades) }}
-    <br>
-    {{ form_row(form.primaryCourse) }}
-    <br>
-    {{ form_row(form.secondaryCourses) }}
-    <br>
-    {{ form_row(form.summary) }}
-    <br>
-    {{ form_row(form.learningOutcomes) }}
-    <br>
-    {{ form_row(form.educationalStandards) }}
-    <br>
-    {{ form_row(form.thumbnailImage) }}
-    {% if lesson.thumbnailImage %}
-        <img src="{{ asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-    {% endif %}
+    <div class="uk-container">
 
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
-    <br>
-    {{ form_row(form.featuredImage) }}
-    {% if lesson.featuredImage %}
-        <img src="{{ asset(uploaded_asset(lesson.featuredImagePath)) }}" />
-    {% endif %}
-    <br>
-    <button class="btn">Update</button>
-    {{ form_end(form) }}
+        <ul class="uk-tab" uk-switcher="connect: #tab-edit-lesson" uk-tab>
+            <li class="uk-active"><a href="#lesson-details">Edit Lesson</a></li>
+            <li><a href="#lesson-courses">Courses</a></li>
+            <li><a href="#lesson-careers">Careers</a></li>
+            <li><a href="#lesson-outcomes">Outcomes</a></li>
+        </ul>
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        <div class="uk-switcher" id="tab-edit-lesson">
+            <div class="page-lesson-edit__details">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.title, 'Title*') }}
+                            {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.shortDescription, 'Short Description*') }}
+                            {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.shortDescription) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.summary, 'Summary*') }}
+                            <div data-wysiwyg="[name='new_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
+                            <div style="display: none;">
+                                {{ form_widget(form.summary) }}
+                            </div>
+                            {{ form_errors(form.summary) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.grades, 'Grades*') }}
+                            {{ form_widget(form.grades, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.grades) }}
+                        </div>
+                        <div class="uk-margin uk-grid" uk-grid>
+                            {% if lesson.thumbnailImage %}
+                                <div class="uk-width-small">
+                                    <img src="{{ asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                </div>
+                            {% endif %}
+                            <div class="uk-width-expand">
+                                {{ form_label(form.thumbnailImage, 'Thumbnail*') }}<br />
+                                <div uk-form-custom="target: true">
+                                    {{ form_widget(form.thumbnailImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.thumbnailImage) ? ' uk-form-danger' : '' ) }}) }}
+                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
+                                </div>
+                                {{ form_errors(form.thumbnailImage) }}
+                            </div>
+                        </div>
+                        <div class="uk-margin uk-grid" uk-grid>
+                            {% if lesson.featuredImage %}
+                                <div class="uk-width-small">
+                                    <img src="{{ asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                </div>
+                            {% endif %}
+                            <div class="uk-width-expand">
+                                {{ form_label(form.featuredImage, 'Featured Image*') }}<br />
+                                <div uk-form-custom="target: true">
+                                    {{ form_widget(form.featuredImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.featuredImage) ? ' uk-form-danger' : '' ) }}) }}
+                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
+                                </div>
+                                {{ form_errors(form.featuredImage) }}
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-lesson-edit__courses">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryCourse, 'Primary Course*') }}
+                            {{ form_widget(form.primaryCourse, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryCourse) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryCourse) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.secondaryCourses, 'Secondary Courses') }}
+                            {{ form_widget(form.secondaryCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryCourses) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.secondaryCourses) }}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-lesson-edit__careers">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.careers, 'Careers*') }}
+                            {{ form_widget(form.careers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.careers) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.careers) }}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-lesson-edit__outcomes">
+                <fieldset class="uk-fieldset">
+                    <div class="uk-margin">
+                        {{ form_label(form.learningOutcomes, 'Learning Outcomes') }}
+                        <div data-wysiwyg="[name='new_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"></div>
+                        <div style="display: none;">
+                            {{ form_widget(form.learningOutcomes) }}
+                        </div>
+                        {{ form_errors(form.learningOutcomes) }}
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.educationalStandards, 'Educational Standards') }}
+                        <div data-wysiwyg="[name='new_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"></div>
+                        <div style="display: none;">
+                            {{ form_widget(form.educationalStandards) }}
+                        </div>
+                        {{ form_errors(form.educationalStandards) }}
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
 
 {% endblock %}

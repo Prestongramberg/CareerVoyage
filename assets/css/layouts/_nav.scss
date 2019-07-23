@@ -13,11 +13,16 @@
 
   &__meta-help,
   &__meta-requests {
+    color: #666;
     cursor: pointer;
     cursor: hand;
     font-size: 24px;
     position: relative;
     top: 5px;
+
+    &:hover {
+      text-decoration: none;
+    }
   }
 
   &__meta-requests-num {

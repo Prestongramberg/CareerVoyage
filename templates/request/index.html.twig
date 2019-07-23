@@ -1,40 +1,59 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}New Requests{% endblock %}
+{% block bodyClass %}requests-landing{% endblock %}
 
 
 
 {% block body %}
 
-    <h1>Requests that need my approval</h1>
-    {# requests that need my approval #}
-    {% for request in requestsThatNeedMyApproval %}
+    <div class="uk-container">
 
-        {% if request.className == 'JoinCompanyRequest' %}
-            {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
-            {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
-        {% endif %}
+        <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
+            <li class="uk-active"><a href="#requests-mine">My Requests</a></li>
+            {% if requestsThatNeedMyApproval|length > 0 %}
+                <li><a href="#requests-approvals">My Approvals</a></li>
+            {% endif %}
+        </ul>
 
-        {% if request.className == 'NewCompanyRequest' %}
-            {% include 'request/partials/_new_companies.html.twig' with {'request': request} %}
-        {% endif %}
+        <div class="uk-switcher" id="tab-requests">
+            <div class="requests-landing__my-requests">
+                {% if myCreatedRequests|length > 0 %}
+                    {% for request in myCreatedRequests %}
 
-    {% endfor %}
+                        {% if request.className == 'JoinCompanyRequest' %}
+                            {% include 'request/partials/myRequests/_join_companies.html.twig' with {'request': request} %}
+                        {% endif %}
 
+                        {% if request.className == 'NewCompanyRequest' %}
+                            {% include 'request/partials/myRequests/_new_companies.html.twig' with {'request': request} %}
+                        {% endif %}
 
-    <h1>My Requests</h1>
-    {# requests that I've created #}
-    {% for request in myCreatedRequests %}
+                    {% endfor %}
+                {% else %}
+                    <div class="placeholder">
+                        You have no pending requests currently.
+                    </div>
+                {% endif %}
+            </div>
+            {% if requestsThatNeedMyApproval|length > 0 %}
+                <div class="requests-landing__my-approvals">
+                    {% for request in requestsThatNeedMyApproval %}
 
-        {% if request.className == 'JoinCompanyRequest' %}
-            {% include 'request/partials/myRequests/_join_companies.html.twig' with {'request': request} %}
-        {% endif %}
+                        {% if request.className == 'JoinCompanyRequest' %}
+                            {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
+                            {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
+                        {% endif %}
 
-        {% if request.className == 'NewCompanyRequest' %}
-            {% include 'request/partials/myRequests/_new_companies.html.twig' with {'request': request} %}
-        {% endif %}
+                        {% if request.className == 'NewCompanyRequest' %}
+                            {% include 'request/partials/_new_companies.html.twig' with {'request': request} %}
+                        {% endif %}
 
-    {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 
 
 {% endblock %}

@@ -195,7 +195,7 @@ class App extends React.Component {
 
             // Filter By Search Term
             if( this.props.search.query ) {
-                return searchableFields.some((field) => company[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
+                return searchableFields.some((field) => company[field] && company[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
             }
 
             return true;
