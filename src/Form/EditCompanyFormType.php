@@ -74,22 +74,12 @@ class EditCompanyFormType extends AbstractType
                         'label' => false,
                         'mapped' => false
             ))
-            ->add('videos', CollectionType::class, array(
-                'entry_type' => VideoType::class,
-                'allow_add' => true,
-                'error_bubbling' => false,
-                'prototype' => true,
-                'prototype_name' => '__prototype_one__',
+            ->add('videos', VideoType::class, array(
                 'label' => false,
-                'by_reference' => false,
-            ))->add('companyResources', CollectionType::class, array(
-                'entry_type' => ResourceType::class,
-                'allow_add' => true,
-                'error_bubbling' => false,
-                'prototype' => true,
-                'prototype_name' => '__prototype_one__',
+                'mapped' => false
+            ))->add('resources', ResourceType::class, array(
                 'label' => false,
-                'by_reference' => false,
+                'mapped' => false
             ))->add('owner', EntityType::class, [
                 'class' => ProfessionalUser::class,
                 'query_builder' => function (EntityRepository $er) use ($company) {

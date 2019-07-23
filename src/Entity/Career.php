@@ -31,9 +31,15 @@ class Career
      */
     private $lessons;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Experience", mappedBy="careers")
+     */
+    private $experiences;
+
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
+        $this->experiences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,6 +82,34 @@ class Career
         if ($this->lessons->contains($lesson)) {
             $this->lessons->removeElement($lesson);
             $lesson->removeCareer($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Experience[]
+     */
+    public function getExperiences(): Collection
+    {
+        return $this->experiences;
+    }
+
+    public function addExperience(Experience $experience): self
+    {
+        if (!$this->experiences->contains($experience)) {
+            $this->experiences[] = $experience;
+            $experience->addCareer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperience(Experience $experience): self
+    {
+        if ($this->experiences->contains($experience)) {
+            $this->experiences->removeElement($experience);
+            $experience->removeCareer($this);
         }
 
         return $this;

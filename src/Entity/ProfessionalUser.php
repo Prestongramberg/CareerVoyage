@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Service\UploaderHelper;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -73,6 +75,16 @@ class ProfessionalUser extends User
      * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner", cascade={"persist", "remove"})
      */
     private $ownedCompany;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Experience", mappedBy="employeeContact", cascade={"persist", "remove"})
+     */
+    private $experience;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     public function getBriefBio(): ?string
     {
@@ -196,4 +208,22 @@ class ProfessionalUser extends User
 
         return $this;
     }
+
+    public function getExperience(): ?Experience
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(Experience $experience): self
+    {
+        $this->experience = $experience;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $experience->getEmployeeContact()) {
+            $experience->setEmployeeContact($this);
+        }
+
+        return $this;
+    }
+
 }

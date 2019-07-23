@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"image" = "Image", "companyPhoto" = "CompanyPhoto", "companyResource" = "CompanyResource"})
+ * @ORM\DiscriminatorMap({"image" = "Image", "companyPhoto" = "CompanyPhoto", "companyResource" = "CompanyResource", "experienceFile" = "ExperienceFile", "experienceWaver" = "ExperienceWaver"})
  */
 class Image
 {

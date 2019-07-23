@@ -20,6 +20,9 @@ class UploaderHelper
     const COMPANY_RESOURCE = 'company_resource';
     const LESSON_THUMBNAIL = 'lesson_thumbnail';
     const LESSON_FEATURED = 'lesson_featured';
+    const EXPERIENCE_WAVER = 'experience_waver';
+    const EXPERIENCE_OTHER_FILE = 'experience_other_file';
+
 
     private $uploadsPath;
     public function __construct(string $uploadsPath)
