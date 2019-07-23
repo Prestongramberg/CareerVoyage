@@ -169,7 +169,7 @@ class CompanyController extends AbstractController
                 $company->setIsFavorite(false);
             }
 
-            if($user->isProfessional() && $user->getCompany()->getId() === $company->getId()) {
+            if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
                 $company->setIsMine(true);
             } else {
                 $company->setIsMine(false);

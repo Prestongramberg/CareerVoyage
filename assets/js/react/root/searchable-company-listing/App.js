@@ -16,7 +16,6 @@ class App extends React.Component {
 
         const relevantCompanies = this.getRelevantCompanies();
         const favoriteCompanies = this.props.companies.filter(company => company.favorite === true);
-        const myCompanies = this.props.companies.filter(company => ( company.owner && company.owner.id === this.props.userId ));
 
         return (
             <div className="uk-container">
@@ -93,48 +92,34 @@ class App extends React.Component {
                         )}
                     </div>
                     <div className="companies_mine">
-                        { myCompanies.length > 0 && (
+                        { this.props.userCompany.id && (
                             <div>
-                                { myCompanies.map(company => (
-                                    <div className="uk-card">
-                                        <div className="uk-grid uk-flex-middle" data-uk-grid>
-                                            <div className="uk-width-small">
-                                                <img src={company.thumbnailImageURL} alt="" />
-                                            </div>
-                                            <div className="uk-width-expand">
-                                                <h3>{ company.name }</h3>
-                                            </div>
-                                            <div className="uk-width-auto">
-                                                <a href={window.Routing.generate('company_view', {'id': company.id})}
-                                                   className="uk-button uk-button-default uk-button-small">View</a>
-                                                <button data-uk-toggle="target: #remove-from-company" type="button"
-                                                        className="uk-button uk-button-secondary uk-button-small">Remove
-                                                </button>
-                                                <button data-uk-toggle="target: #remove-company" type="button"
-                                                        className="uk-button uk-button-danger uk-button-small">Delete
-                                                </button>
+                                <div className="uk-card">
+                                    <div className="uk-grid uk-flex-middle" data-uk-grid>
+                                        <div className="uk-width-small">
+                                            <img src={this.props.userCompany.thumbnailImageURL} alt="" />
+                                        </div>
+                                        <div className="uk-width-expand">
+                                            <h3>{ this.props.userCompany.name }</h3>
+                                        </div>
+                                        <div className="uk-width-auto">
+                                            <a href={window.Routing.generate('company_view', {'id': this.props.userCompany.id})}
+                                               className="uk-button uk-button-default uk-button-small uk-margin-small-left">View</a>
+                                            <button data-uk-toggle="target: #remove-from-company" type="button"
+                                                    className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove
+                                            </button>
+                                            <button data-uk-toggle="target: #remove-company" type="button"
+                                                    className="uk-button uk-button-danger uk-button-small uk-margin-small-left">Delete
+                                            </button>
 
-                                                <div id="remove-from-company" data-uk-modal>
-                                                    <div className="uk-modal-dialog uk-modal-body">
-                                                        <h2 className="uk-modal-title">Are you sure you want to remove yourself
-                                                            from "{ company.name }"?</h2>
-                                                        <div className="uk-margin">
-                                                            <form method="post"
-                                                                  action={window.Routing.generate('company_remove_user', { userID: this.props.userId, companyID: company.id })}>
-                                                                <button className="uk-button uk-button-danger uk-modal-close" type="submit">Yes</button>
-                                                            </form>
-                                                            <button className="uk-button uk-button-default uk-modal-close">No,
-                                                                Cancel
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div id="remove-company" data-uk-modal>
-                                                    <div className="uk-modal-dialog uk-modal-body">
-                                                        <h2 className="uk-modal-title">Are you sure you want to delete company "{ company.name }"?</h2>
-                                                        <button className="uk-button uk-button-danger uk-modal-close">Yes</button>
-                                                        <form method="post" action={ window.Routing.generate('company_delete', { id: company.id }) }>
-                                                            <button className="uk-button uk-button-danger uk-modal-close" type="submit">Yes</button>
+                                            <div id="remove-from-company" data-uk-modal>
+                                                <div className="uk-modal-dialog uk-modal-body">
+                                                    <h2 className="uk-modal-title">Are you sure you want to remove yourself
+                                                        from "{ this.props.userCompany.name }"?</h2>
+                                                    <div className="uk-margin">
+                                                        <form className="uk-inline uk-margin-right" method="post"
+                                                              action={window.Routing.generate('company_remove_user', { userID: this.props.userId, companyID: this.props.userCompany.id })}>
+                                                            <button className="uk-button uk-button-danger" type="submit">Yes</button>
                                                         </form>
                                                         <button className="uk-button uk-button-default uk-modal-close">No,
                                                             Cancel
@@ -142,12 +127,23 @@ class App extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div id="remove-company" data-uk-modal>
+                                                <div className="uk-modal-dialog uk-modal-body">
+                                                    <h2 className="uk-modal-title">Are you sure you want to delete company "{ this.props.userCompany.name }"?</h2>
+                                                    <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: this.props.userCompany.id }) }>
+                                                        <button className="uk-button uk-button-danger" type="submit">Yes</button>
+                                                    </form>
+                                                    <button className="uk-button uk-button-default uk-modal-close">No,
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
                             </div>
                         )}
-                        { myCompanies.length === 0 && (
+                        { !this.props.userCompany.id && (
                             <div className="uk-placeholder uk-text-center">
                                 <p>You aren't associated with a company yet.</p>
                                 {/*<a href={ window.Routing.generate("company_join") } className="uk-button uk-button-primary uk-button-small">Join a Company</a>*/}
@@ -212,14 +208,16 @@ class App extends React.Component {
 App.propTypes = {
     search: PropTypes.object,
     companies: PropTypes.array,
-    userId: PropTypes.number
+    userId: PropTypes.number,
+    userCompany: PropTypes.object
 };
 
 App.defaultProps = {
     companies: [],
     industries: [],
     search: {},
-    userId: 0
+    userId: 0,
+    userCompany: {}
 };
 
 export const mapStateToProps = (state = {}) => ({
