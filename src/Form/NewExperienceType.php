@@ -112,7 +112,7 @@ class NewExperienceType extends AbstractType
             ->add('careers', EntityType::class, [
                 'class' => Career::class,
                 'choice_label' => 'title',
-                'expanded'  => false,
+                'expanded'  => true,
                 'multiple'  => true,
             ])
             ->add('availableSpaces', NumberType::class, [])

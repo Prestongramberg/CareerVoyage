@@ -98,7 +98,7 @@ class App extends React.Component {
                         </div>
 
                         { teachableLessons.length > 0 && (
-                            <div className="lesson-listings" data-uk-grid="masonry: true">
+                            <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
                                 { teachableLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
                                         <LessonListing
@@ -117,7 +117,7 @@ class App extends React.Component {
                             </div>
                         )}
                         { teachableLessons.length === 0 && (
-                            <div className="uk-placeholder uk-text-center uk-width-1-1">
+                            <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
                                 <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
                             </div>
                         )}
