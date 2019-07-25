@@ -69,7 +69,7 @@ class Lesson
     /**
      * @Assert\NotBlank(message="Don't forget a summary!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $summary;
 
@@ -83,7 +83,7 @@ class Lesson
     /**
      * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE"})
      * @Groups({"LESSON_DATA"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $educationalStandards;
 
@@ -124,14 +124,9 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA"})
-     * @Assert\Length(
-     *      max = 255,
-     *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
-     *      groups={"EDIT"}
-     * )
      * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE"})
      *
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $shortDescription;
 

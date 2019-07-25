@@ -195,6 +195,8 @@ class LessonImportCommand extends Command
                 $lessonObject->addSecondaryCourse($secondaryCourse);
             }
 
+            $lessonObject->setShortDescription($lesson['Short Description']);
+
             $this->entityManager->persist($lessonObject);
         }
 
