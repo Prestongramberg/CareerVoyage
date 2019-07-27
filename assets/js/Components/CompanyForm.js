@@ -9,14 +9,12 @@ class CompanyForm {
     /**
      * @param $wrapper
      * @param globalEventDispatcher
-     * @param editForm
      */
-    constructor($wrapper, globalEventDispatcher, editForm = false) {
+    constructor($wrapper, globalEventDispatcher) {
 
         debugger;
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
-        this.editForm = editForm;
         this.companyId = this.$wrapper.attr('data-company');
 
         this.unbindEvents();
@@ -78,7 +76,7 @@ class CompanyForm {
     _changePrimaryIndustry(data) {
         return new Promise((resolve, reject) => {
             debugger;
-            const url = this.editForm ? Routing.generate('company_edit', {id: this.companyId}) : Routing.generate('company_new');
+            const url = this.companyId ? Routing.generate('company_edit', {id: this.companyId}) : Routing.generate('company_new');
 
             $.ajax({
                 url,
