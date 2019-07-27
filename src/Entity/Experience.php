@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Experience
 {
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,105 +22,122 @@ class Experience
     private $id;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $briefDescription;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $about;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $type;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="experiences")
      */
     private $careers;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
     private $availableSpaces;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="decimal", precision=10, scale=2)
      */
     private $payment;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $paymentShownIsPer;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phoneNumber;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $website;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $street;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $city;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $state;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $zipcode;
 
     /**
-     *
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $startDateAndTime;
 
-    /**
+    /**@Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $endDateAndTime;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
     private $length;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="experience", cascade={"persist", "remove"})
+     * @Groups({"EXPERIENCE_DATA"})
+     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="experience")
      * @ORM\JoinColumn(nullable=false)
      */
     private $employeeContact;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE"}
@@ -130,19 +148,20 @@ class Experience
     private $email;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ExperienceWaver", mappedBy="experience", orphanRemoval=true)
-     */
-    private $experienceWavers;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ExperienceFile", mappedBy="experience", orphanRemoval=true)
+     * @Groups({"EXPERIENCE_DATA"})
+     * @ORM\OneToMany(targetEntity="App\Entity\ExperienceFile", mappedBy="experience", cascade={"remove"}, orphanRemoval=true)
      */
     private $experienceFiles;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="experiences")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $company;
 
     public function __construct()
     {
         $this->careers = new ArrayCollection();
-        $this->experienceWavers = new ArrayCollection();
         $this->experienceFiles = new ArrayCollection();
     }
 
@@ -394,37 +413,6 @@ class Experience
     }
 
     /**
-     * @return Collection|ExperienceWaver[]
-     */
-    public function getExperienceWavers(): Collection
-    {
-        return $this->experienceWavers;
-    }
-
-    public function addExperienceWaver(ExperienceWaver $experienceWaver): self
-    {
-        if (!$this->experienceWavers->contains($experienceWaver)) {
-            $this->experienceWavers[] = $experienceWaver;
-            $experienceWaver->setExperience($this);
-        }
-
-        return $this;
-    }
-
-    public function removeExperienceWaver(ExperienceWaver $experienceWaver): self
-    {
-        if ($this->experienceWavers->contains($experienceWaver)) {
-            $this->experienceWavers->removeElement($experienceWaver);
-            // set the owning side to null (unless already changed)
-            if ($experienceWaver->getExperience() === $this) {
-                $experienceWaver->setExperience(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|ExperienceFile[]
      */
     public function getExperienceFiles(): Collection
@@ -451,6 +439,18 @@ class Experience
                 $experienceFile->setExperience(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?Company $company): self
+    {
+        $this->company = $company;
 
         return $this;
     }

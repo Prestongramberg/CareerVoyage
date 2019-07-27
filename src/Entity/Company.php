@@ -37,7 +37,7 @@ class Company
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
-     *     message="The phone number needs to be in this format: xxx-xxx-xxx",
+     *     message="The phone number needs to be in this format: xxx-xxx-xxxx",
      *     groups={"CREATE", "EDIT"}
      * )
      *
@@ -172,6 +172,21 @@ class Company
      */
     private $isMine;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Experience", mappedBy="company", orphanRemoval=true)
+     */
+    private $experiences;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You must specify at least one secondary industry",
+     *     groups={"CREATE","EDIT"}
+     * )
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="companies")
+     */
+    private $secondaryIndustries;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -180,6 +195,8 @@ class Company
         $this->companyResources = new ArrayCollection();
         $this->joinCompanyRequests = new ArrayCollection();
         $this->companyFavorites = new ArrayCollection();
+        $this->experiences = new ArrayCollection();
+        $this->secondaryIndustries = new ArrayCollection();
     }
 
     public function getId()
@@ -360,7 +377,7 @@ class Company
         return $this->emailAddress;
     }
 
-    public function setEmailAddress(string $emailAddress)
+    public function setEmailAddress($emailAddress)
     {
         $this->emailAddress = $emailAddress;
 
@@ -576,12 +593,12 @@ class Company
         return $this;
     }
 
-    public function getDeleted(): ?bool
+    public function getDeleted()
     {
         return $this->deleted;
     }
 
-    public function setDeleted(bool $deleted): self
+    public function setDeleted($deleted): self
     {
         $this->deleted = $deleted;
 
@@ -617,9 +634,66 @@ class Company
     /**
      * @param bool $isMine
      */
-    public function setIsMine(bool $isMine)
+    public function setIsMine($isMine)
     {
         $this->isMine = $isMine;
+    }
+
+    /**
+     * @return Collection|Experience[]
+     */
+    public function getExperiences(): Collection
+    {
+        return $this->experiences;
+    }
+
+    public function addExperience(Experience $experience): self
+    {
+        if (!$this->experiences->contains($experience)) {
+            $this->experiences[] = $experience;
+            $experience->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperience(Experience $experience): self
+    {
+        if ($this->experiences->contains($experience)) {
+            $this->experiences->removeElement($experience);
+            // set the owning side to null (unless already changed)
+            if ($experience->getCompany() === $this) {
+                $experience->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SecondaryIndustry[]
+     */
+    public function getSecondaryIndustries(): Collection
+    {
+        return $this->secondaryIndustries;
+    }
+
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry)
+    {
+        if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries[] = $secondaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry)
+    {
+        if ($this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries->removeElement($secondaryIndustry);
+        }
+
+        return $this;
     }
 
 }

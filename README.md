@@ -13,7 +13,14 @@
 9. bin/console doctrine:fixtures:load --append
 
 (To keep the tables starting at 1 index you need to completely delete all tables and rerun )
-10. bin/console lesson:import ./lessons.csv
+
+10. import the industries
+./bin/console industry:import ./secondaryIndustries.csv
+
+11. import the lessons
+./bin/console lesson:import ./lessons.csv
+
+
 
 That's it!
 

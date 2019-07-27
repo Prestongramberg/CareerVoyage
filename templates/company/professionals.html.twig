@@ -1,0 +1,24 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Company Professionals{% endblock %}
+
+{% block body %}
+    <h2>Company Professionals</h2>
+
+    {% for professional in professionals %}
+
+        {{ professional.firstName }} -
+        {{ professional.lastName }}
+        {% if isOwner %}
+            {% if user.id != professional.id %}
+                <form action="{{ path('company_professional_remove', {'companyID': professional.company.id, 'professionalID': professional.id}) }}" method="post">
+                    <input type="submit" value="Remove user from company">
+                </form>
+            {% endif %}
+        {% endif %}
+        <br>
+    {% endfor %}
+
+
+{% endblock %}
+

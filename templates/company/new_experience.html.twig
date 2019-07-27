@@ -2,12 +2,12 @@
 
 {% form_theme form with _self %}
 
-{% block title %}Company experiences{% endblock %}
+{% block title %}Create Company experience{% endblock %}
 {% block bodyClass %}page-company-experience-add{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('build/editCompanies.js') }}"></script>
+    <script src="{{ asset('build/companies.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -133,8 +133,9 @@
                 </div>
             </div>
             <div class="page-company-experience-add__files">
-                {{ form_row(form.wavers) }}
-                {{ form_row(form.otherFiles) }}
+                {{ form_row(form.resources.file) }}
+                {{ form_row(form.resources.title) }}
+                {{ form_row(form.resources.description) }}
             </div>
         </div>
 

@@ -170,13 +170,7 @@ class NewExperienceType extends AbstractType
                 'attr' => ['class' => 'js-datepicker'],
             ])
             ->add('length', NumberType::class, [])
-            ->add('wavers', FileType::class, array(
-                'multiple' => true,
-                'label' => false,
-                'mapped' => false
-            ))
-            ->add('otherFiles', FileType::class, array(
-                'multiple' => true,
+            ->add('resources', ExperienceFileType::class, array(
                 'label' => false,
                 'mapped' => false
             ));

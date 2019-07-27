@@ -226,4 +226,8 @@ class ProfessionalUser extends User
         return $this;
     }
 
+    public function isOwner(Company $company) {
+        return $this->getId() === $company->getOwner()->getId();
+    }
+
 }

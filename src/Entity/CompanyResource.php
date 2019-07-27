@@ -15,7 +15,7 @@ class CompanyResource extends Image
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyResources")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $company;
 

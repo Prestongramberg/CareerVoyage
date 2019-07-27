@@ -37,7 +37,7 @@ abstract class User implements UserInterface
     const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -45,7 +45,7 @@ abstract class User implements UserInterface
     protected $id;
     
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT"}
@@ -75,7 +75,7 @@ abstract class User implements UserInterface
     protected $plainPassword;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -83,7 +83,7 @@ abstract class User implements UserInterface
     protected $firstName;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)

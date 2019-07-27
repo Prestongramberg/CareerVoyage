@@ -130,6 +130,11 @@ class Lesson
      */
     private $shortDescription;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonResource", mappedBy="lesson", orphanRemoval=true)
+     */
+    private $lessonResources;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
@@ -137,6 +142,7 @@ class Lesson
         $this->secondaryCourses = new ArrayCollection();
         $this->lessonFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
+        $this->lessonResources = new ArrayCollection();
     }
 
     public function getId()
@@ -452,6 +458,37 @@ class Lesson
     public function setShortDescription(?string $shortDescription): self
     {
         $this->shortDescription = $shortDescription;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|LessonResource[]
+     */
+    public function getLessonResources(): Collection
+    {
+        return $this->lessonResources;
+    }
+
+    public function addLessonResource(LessonResource $lessonResource): self
+    {
+        if (!$this->lessonResources->contains($lessonResource)) {
+            $this->lessonResources[] = $lessonResource;
+            $lessonResource->setLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLessonResource(LessonResource $lessonResource): self
+    {
+        if ($this->lessonResources->contains($lessonResource)) {
+            $this->lessonResources->removeElement($lessonResource);
+            // set the owning side to null (unless already changed)
+            if ($lessonResource->getLesson() === $this) {
+                $lessonResource->setLesson(null);
+            }
+        }
 
         return $this;
     }

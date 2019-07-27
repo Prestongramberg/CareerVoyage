@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\Lesson;
+use App\Entity\LessonResource;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
@@ -200,6 +201,20 @@ class LessonController extends AbstractController
             $lesson->setUser($user);
             $this->entityManager->persist($lesson);
 
+            /** @var LessonResource $resource */
+            $resource = $form->get('resources')->getData();
+            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
+                $file = $resource->getFile();
+                $mimeType = $file->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
+                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+                $resource->setMimeType($mimeType ?? 'application/octet-stream');
+                $resource->setFileName($newFilename);
+                $resource->setFile(null);
+                $resource->setLesson($lesson);
+                $this->entityManager->persist($resource);
+            }
+
             $teachableLesson = new LessonTeachable();
             $teachableLesson->setLesson($lesson);
             $teachableLesson->setUser($user);
@@ -269,6 +284,21 @@ class LessonController extends AbstractController
             }
 
             $this->entityManager->persist($lesson);
+
+            /** @var LessonResource $resource */
+            $resource = $form->get('resources')->getData();
+            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
+                $file = $resource->getFile();
+                $mimeType = $file->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
+                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+                $resource->setMimeType($mimeType ?? 'application/octet-stream');
+                $resource->setFileName($newFilename);
+                $resource->setFile(null);
+                $resource->setLesson($lesson);
+                $this->entityManager->persist($resource);
+            }
+
             $this->entityManager->flush();
         }
 

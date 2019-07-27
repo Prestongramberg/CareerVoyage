@@ -31,9 +31,15 @@ class Industry
      */
     private $companies;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SecondaryIndustry", mappedBy="primaryIndustry")
+     */
+    private $secondaryIndustries;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
+        $this->secondaryIndustries = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -78,6 +84,37 @@ class Industry
             // set the owning side to null (unless already changed)
             if ($company->getPrimaryIndustry() === $this) {
                 $company->setPrimaryIndustry(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SecondaryIndustry[]
+     */
+    public function getSecondaryIndustries(): Collection
+    {
+        return $this->secondaryIndustries;
+    }
+
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries[] = $secondaryIndustry;
+            $secondaryIndustry->setPrimaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if ($this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries->removeElement($secondaryIndustry);
+            // set the owning side to null (unless already changed)
+            if ($secondaryIndustry->getPrimaryIndustry() === $this) {
+                $secondaryIndustry->setPrimaryIndustry(null);
             }
         }
 

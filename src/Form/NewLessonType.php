@@ -79,7 +79,6 @@ class NewLessonType extends AbstractType
             ->add('educationalStandards', TextareaType::class, [])
             ->add('thumbnailImage', FileType::class, [
                 'label' => 'Thumbnail image',
-                'constraints' => $imageConstraints,
 
                 // unmapped means that this field is not associated to any entity property
                 'mapped' => false,
@@ -90,15 +89,17 @@ class NewLessonType extends AbstractType
             ])
             ->add('featuredImage', FileType::class, [
                 'label' => 'Featured image',
-                'constraints' => $imageConstraints,
-
                 // unmapped means that this field is not associated to any entity property
                 'mapped' => false,
 
                 // make it optional so you don't have to re-upload files
                 // everytime you edit the entity
                 'required' => false,
-            ]);
+            ])
+            ->add('resources', LessonResourceType::class, array(
+                'label' => false,
+                'mapped' => false
+            ));
     }
 
     public function configureOptions(OptionsResolver $resolver)

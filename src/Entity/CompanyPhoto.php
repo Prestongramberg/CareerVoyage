@@ -12,7 +12,7 @@ class CompanyPhoto extends Image
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyImages")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $company;
 

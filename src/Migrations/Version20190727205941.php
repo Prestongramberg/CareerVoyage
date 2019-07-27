@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190725150159 extends AbstractMigration
+final class Version20190727205941 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,8 @@ final class Version20190725150159 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE lesson CHANGE summary summary LONGTEXT DEFAULT NULL, CHANGE educational_standards educational_standards LONGTEXT DEFAULT NULL');
+        $this->addSql('CREATE TABLE lesson_resource (id INT AUTO_INCREMENT NOT NULL, lesson_id INT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, INDEX IDX_F4D6BE0FCDF80196 (lesson_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE lesson_resource ADD CONSTRAINT FK_F4D6BE0FCDF80196 FOREIGN KEY (lesson_id) REFERENCES lesson (id)');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +31,6 @@ final class Version20190725150159 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE lesson CHANGE summary summary VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_unicode_ci, CHANGE educational_standards educational_standards VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_unicode_ci');
+        $this->addSql('DROP TABLE lesson_resource');
     }
 }
