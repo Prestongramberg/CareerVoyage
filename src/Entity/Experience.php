@@ -7,12 +7,33 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ExperienceRepository")
  */
 class Experience
 {
+
+    /**
+     * @Assert\Callback(groups={"CREATE"})
+     */
+    public function validate(ExecutionContextInterface $context, $payload)
+    {
+        if(!$this->payment) {
+            $context->buildViolation('You must enter a payment!')
+                ->atPath('payment')
+                ->addViolation();
+            return;
+        }
+
+        if(!is_float($this->payment) && !is_numeric($this->payment)) {
+            $context->buildViolation('You must enter a valid number or decimal for the payment!')
+                ->atPath('payment')
+                ->addViolation();
+        }
+    }
+
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Id()
@@ -55,6 +76,9 @@ class Experience
     private $careers;
 
     /**
+     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget to enter the total number of available spaces!", groups={"CREATE"})
+     *
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
@@ -124,6 +148,7 @@ class Experience
     private $endDateAndTime;
 
     /**
+     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */

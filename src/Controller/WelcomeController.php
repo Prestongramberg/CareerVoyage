@@ -11,6 +11,7 @@ use App\Form\ProfessionalRegistrationFormType;
 use App\Form\StudentRegistrationFormType;
 use App\Security\LoginFormAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,10 +32,10 @@ class WelcomeController extends AbstractController
      * @param UserPasswordEncoderInterface $passwordEncoder
      * @param GuardAuthenticatorHandler $guardHandler
      * @param LoginFormAuthenticator $authenticator
-     * @return Response
+     * @return JsonResponse|Response
      * @throws \Exception
      */
-    public function index(Request $request, AuthenticationUtils $authenticationUtils, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator): Response
+    public function index(Request $request, AuthenticationUtils $authenticationUtils, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator)
     {
 
         $securityContext = $this->container->get('security.authorization_checker');
@@ -48,12 +49,16 @@ class WelcomeController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
+
+        $options = [
+            'method' => 'POST',
+            'action' => $this->generateUrl('welcome'),
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ];
+
         // START PROFESSIONAL REGISTRATION FORM
         $professionalUser = new ProfessionalUser();
-        $professionalRegistrationForm = $this->createForm(ProfessionalRegistrationFormType::class, $professionalUser, [
-            'action' => $this->generateUrl('welcome'),
-            'method' => 'POST',
-        ]);
+        $professionalRegistrationForm = $this->createForm(ProfessionalRegistrationFormType::class, $professionalUser, $options);
 
         // START EDUCATOR REGISTRATION FORM
        /* $educatorUser = new EducatorUser();
@@ -135,6 +140,17 @@ class WelcomeController extends AbstractController
             }
         }
 
+        if($request->request->has('primary_industry_change')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                        'form' => $form->createView()
+                    ])
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
         return $this->render('welcome/index.html.twig', [
             'last_username' => $lastUsername, 'error' => $error,
             'professionalRegistrationForm' => $professionalRegistrationForm->createView(),
@@ -142,5 +158,39 @@ class WelcomeController extends AbstractController
             'studentRegistrationForm' => $studentRegistrationForm->createView(),*/
             'formType' => $formType
         ]);
+    }
+
+    /**
+     * @Route("/industry-change", name="industry_change")
+     * @param Request $request
+     * @return JsonResponse|Response
+     * @throws \Exception
+     */
+    public function industryChange(Request $request)
+    {
+        $options = [
+            'method' => 'POST',
+            'action' => $this->generateUrl('welcome'),
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ];
+
+        // START PROFESSIONAL REGISTRATION FORM
+        $professionalUser = new ProfessionalUser();
+        $form = $this->createForm(ProfessionalRegistrationFormType::class, $professionalUser, $options);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // noop cause form will never be valid for this request
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+                'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                    'form' => $form->createView()
+                ])
+            ], Response::HTTP_BAD_REQUEST
+        );
     }
 }

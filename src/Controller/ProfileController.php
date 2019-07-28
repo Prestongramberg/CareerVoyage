@@ -16,6 +16,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -95,16 +96,19 @@ class ProfileController extends AbstractController
      * @Route("/profiles/{id}/edit", name="profile_edit")
      * @param Request $request
      * @param ProfessionalUser $professionalUser
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse|Response
      */
     public function editAction(Request $request, ProfessionalUser $professionalUser) {
 
         $this->denyAccessUnlessGranted('edit', $professionalUser);
 
-        $form = $this->createForm(ProfessionalEditProfileFormType::class, $professionalUser, [
+        $options = [
             'method' => 'POST',
+            'skip_validation' => $request->request->get('skip_validation', false),
             'professionalUser' => $professionalUser
-        ]);
+        ];
+
+        $form = $this->createForm(ProfessionalEditProfileFormType::class, $professionalUser, $options);
 
         $form->handleRequest($request);
 
@@ -130,6 +134,20 @@ class ProfileController extends AbstractController
             $this->entityManager->persist($professionalUser);
             $this->entityManager->flush();
 
+            $this->addFlash('success', 'Profile successfully updated');
+            return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+
+        }
+
+        if($request->request->has('primary_industry_change')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                        'form' => $form->createView()
+                    ])
+                ], Response::HTTP_BAD_REQUEST
+            );
         }
 
         $deleteForm = $this->createForm(ProfessionalDeleteProfileFormType::class, null, [

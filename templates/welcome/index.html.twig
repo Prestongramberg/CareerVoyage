@@ -3,9 +3,13 @@
 {% block title %}Pintex Solutions - Welcome{% endblock %}
 {% block bodyClass %}page-login{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/profile.js') }}"></script>
+{% endblock %}
 
 {% block body %}
-    <div class="uk-flex uk-flex-center uk-height-viewport">
+    <div class="uk-flex uk-flex-center uk-height-viewport js-form" data-route="{{ path('industry_change') }}">
         <div class="uk-container login-box">
             <div class="uk-card uk-card-default uk-card-body">
 

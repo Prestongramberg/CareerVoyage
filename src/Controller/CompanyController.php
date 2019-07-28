@@ -180,19 +180,13 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_view', ['id' => $user->getCompany()->getId()]);
         }
 
-
-        $skipValidation = $request->request->get('skip_validation', false);
-
         $company = new Company();
 
         $options = [
             'method' => 'POST',
-            'company' => $company
+            'company' => $company,
+            'skip_validation' => $request->request->get('skip_validation', false)
         ];
-
-        if(!$skipValidation) {
-            $options['validation_groups'] = ['CREATE'];
-        }
 
         $form = $this->createForm(NewCompanyFormType::class, $company, $options);
 
@@ -253,6 +247,8 @@ class CompanyController extends AbstractController
 
             $this->requestsMailer->newCompanyNeedsApproval($newCompanyRequest);
 
+            $this->addFlash('success', 'Company successfully created');
+
             return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
 
         }
@@ -261,7 +257,7 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView('api/form/company_form.html.twig', [
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
                         'form' => $form->createView()
                     ])
                 ], Response::HTTP_BAD_REQUEST
@@ -365,16 +361,11 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_new');
         }
 
-        $skipValidation = $request->request->get('skip_validation', false);
-
         $options = [
             'method' => 'POST',
-            'company' => $company
+            'company' => $company,
+            'skip_validation' => $request->request->get('skip_validation', false)
         ];
-
-        if(!$skipValidation) {
-            $options['validation_groups'] = ['EDIT'];
-        }
 
         $form = $this->createForm(EditCompanyFormType::class, $company, $options);
 
@@ -455,6 +446,8 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
+            $this->addFlash('success', 'Company successfully updated');
+
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
 
@@ -462,7 +455,7 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView('api/form/company_form.html.twig', [
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
                         'form' => $form->createView()
                     ])
                 ], Response::HTTP_BAD_REQUEST
@@ -498,8 +491,16 @@ class CompanyController extends AbstractController
             && $professionalUser->getCompany()->getId() === $company->getId();
 
         if($canRemove) {
+
+            // if the user we are removing is the owner of the company
+            if($company->getOwner()->getId() === $professionalUser->getId()) {
+                $company->setOwner(null);
+            }
+
+
             $professionalUser->setCompany(null);
             $this->entityManager->persist($professionalUser);
+            $this->entityManager->persist($company);
             $this->entityManager->flush();
             $this->addFlash('success', 'user removed from company');
         } else {
@@ -578,6 +579,8 @@ class CompanyController extends AbstractController
             $experience->setCompany($company);
 
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'Experience successfully created!');
 
             return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
         }

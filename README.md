@@ -20,6 +20,9 @@
 11. import the lessons
 ./bin/console lesson:import ./lessons.csv
 
+12. import the schools
+./bin/console school:import ./southeast-school-list.csv
+
 
 
 That's it!

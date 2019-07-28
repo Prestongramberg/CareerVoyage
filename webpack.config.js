@@ -26,6 +26,8 @@ Encore
     .addEntry('app', './assets/js/app.js')
     // .addEntry('professionals', './assets/js/professionals.js')
     .addEntry('companies', './assets/js/companies.js')
+    .addEntry('lessons', './assets/js/lessons.js')
+    .addEntry('profile', './assets/js/profile.js')
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
 

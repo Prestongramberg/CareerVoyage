@@ -37,7 +37,7 @@ class Company
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
-     *     message="The phone number needs to be in this format: xxx-xxx-xxxx",
+     *     message="The phone number needs to be in this format: xxxxxxxxxx",
      *     groups={"CREATE", "EDIT"}
      * )
      *
@@ -82,14 +82,14 @@ class Company
      *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
      *      groups={"EDIT"}
      * )
-     * @Assert\NotBlank(message="Don't forget a short description!", groups={"EDIT"})
+     * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $shortDescription;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a long description!", groups={"EDIT"})
+     * @Assert\NotBlank(message="Don't forget a long description!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
@@ -181,11 +181,21 @@ class Company
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must specify at least one secondary industry",
-     *     groups={"CREATE","EDIT"}
+     *     groups={"SECONDARY_INDUSTRY"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="companies")
      */
     private $secondaryIndustries;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You must specify at least one school",
+     *     groups={"CREATE", "EDIT"}
+     * )
+     * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="companies")
+     */
+    private $schools;
 
     public function __construct()
     {
@@ -197,6 +207,7 @@ class Company
         $this->companyFavorites = new ArrayCollection();
         $this->experiences = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
+        $this->schools = new ArrayCollection();
     }
 
     public function getId()
@@ -691,6 +702,32 @@ class Company
     {
         if ($this->secondaryIndustries->contains($secondaryIndustry)) {
             $this->secondaryIndustries->removeElement($secondaryIndustry);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|School[]
+     */
+    public function getSchools(): Collection
+    {
+        return $this->schools;
+    }
+
+    public function addSchool(School $school): self
+    {
+        if (!$this->schools->contains($school)) {
+            $this->schools[] = $school;
+        }
+
+        return $this;
+    }
+
+    public function removeSchool(School $school): self
+    {
+        if ($this->schools->contains($school)) {
+            $this->schools->removeElement($school);
         }
 
         return $this;

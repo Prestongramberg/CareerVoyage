@@ -7,9 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SecondaryIndustryRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SchoolRepository")
  */
-class SecondaryIndustry
+class School
 {
     /**
      * @ORM\Id()
@@ -24,35 +24,18 @@ class SecondaryIndustry
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $url;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="secondaryIndustries")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $primaryIndustry;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Company", mappedBy="secondaryIndustries")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Company", mappedBy="schools")
      */
     private $companies;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Lesson", mappedBy="secondaryIndustries")
-     */
-    private $lessons;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\ProfessionalUser", mappedBy="secondaryIndustries")
+     * @ORM\ManyToMany(targetEntity="App\Entity\ProfessionalUser", mappedBy="schools")
      */
     private $professionalUsers;
 
     public function __construct()
     {
         $this->companies = new ArrayCollection();
-        $this->lessons = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
     }
 
@@ -73,30 +56,6 @@ class SecondaryIndustry
         return $this;
     }
 
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function getPrimaryIndustry(): ?Industry
-    {
-        return $this->primaryIndustry;
-    }
-
-    public function setPrimaryIndustry(?Industry $primaryIndustry): self
-    {
-        $this->primaryIndustry = $primaryIndustry;
-
-        return $this;
-    }
-
     /**
      * @return Collection|Company[]
      */
@@ -109,7 +68,7 @@ class SecondaryIndustry
     {
         if (!$this->companies->contains($company)) {
             $this->companies[] = $company;
-            $company->addSecondaryIndustry($this);
+            $company->addSchool($this);
         }
 
         return $this;
@@ -119,35 +78,7 @@ class SecondaryIndustry
     {
         if ($this->companies->contains($company)) {
             $this->companies->removeElement($company);
-            $company->removeSecondaryIndustry($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Lesson[]
-     */
-    public function getLessons(): Collection
-    {
-        return $this->lessons;
-    }
-
-    public function addLesson(Lesson $lesson): self
-    {
-        if (!$this->lessons->contains($lesson)) {
-            $this->lessons[] = $lesson;
-            $lesson->addSecondaryIndustry($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLesson(Lesson $lesson): self
-    {
-        if ($this->lessons->contains($lesson)) {
-            $this->lessons->removeElement($lesson);
-            $lesson->removeSecondaryIndustry($this);
+            $company->removeSchool($this);
         }
 
         return $this;
@@ -165,7 +96,7 @@ class SecondaryIndustry
     {
         if (!$this->professionalUsers->contains($professionalUser)) {
             $this->professionalUsers[] = $professionalUser;
-            $professionalUser->addSecondaryIndustry($this);
+            $professionalUser->addSchool($this);
         }
 
         return $this;
@@ -175,10 +106,9 @@ class SecondaryIndustry
     {
         if ($this->professionalUsers->contains($professionalUser)) {
             $this->professionalUsers->removeElement($professionalUser);
-            $professionalUser->removeSecondaryIndustry($this);
+            $professionalUser->removeSchool($this);
         }
 
         return $this;
     }
-
 }

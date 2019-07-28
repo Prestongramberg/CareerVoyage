@@ -12,7 +12,7 @@
 
 {% block body %}
 
-    <div class="uk-container js-company-form" data-company="{{ company.id }}">
+    <div class="uk-container js-form" data-route="{{ path('company_edit', {'id' : company.id}) }}">
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -68,6 +68,12 @@
                                     {{ form_errors(form.secondaryIndustries) }}
                                 </div>
                             {% endif %}
+                        </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            {{ form_widget(form.schools, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schools) }}
                         </div>
 
                         <div class="uk-margin">

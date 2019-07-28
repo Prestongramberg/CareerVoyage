@@ -36,10 +36,22 @@ class Industry
      */
     private $secondaryIndustries;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Lesson", mappedBy="primaryIndustry")
+     */
+    private $lessons;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalUser", mappedBy="primaryIndustry")
+     */
+    private $professionalUsers;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
+        $this->lessons = new ArrayCollection();
+        $this->professionalUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -115,6 +127,68 @@ class Industry
             // set the owning side to null (unless already changed)
             if ($secondaryIndustry->getPrimaryIndustry() === $this) {
                 $secondaryIndustry->setPrimaryIndustry(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Lesson[]
+     */
+    public function getLessons(): Collection
+    {
+        return $this->lessons;
+    }
+
+    public function addLesson(Lesson $lesson): self
+    {
+        if (!$this->lessons->contains($lesson)) {
+            $this->lessons[] = $lesson;
+            $lesson->setPrimaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLesson(Lesson $lesson): self
+    {
+        if ($this->lessons->contains($lesson)) {
+            $this->lessons->removeElement($lesson);
+            // set the owning side to null (unless already changed)
+            if ($lesson->getPrimaryIndustry() === $this) {
+                $lesson->setPrimaryIndustry(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProfessionalUser[]
+     */
+    public function getProfessionalUsers(): Collection
+    {
+        return $this->professionalUsers;
+    }
+
+    public function addProfessionalUser(ProfessionalUser $professionalUser): self
+    {
+        if (!$this->professionalUsers->contains($professionalUser)) {
+            $this->professionalUsers[] = $professionalUser;
+            $professionalUser->setPrimaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfessionalUser(ProfessionalUser $professionalUser): self
+    {
+        if ($this->professionalUsers->contains($professionalUser)) {
+            $this->professionalUsers->removeElement($professionalUser);
+            // set the owning side to null (unless already changed)
+            if ($professionalUser->getPrimaryIndustry() === $this) {
+                $professionalUser->setPrimaryIndustry(null);
             }
         }
 

@@ -31,13 +31,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
-class NewLessonType extends AbstractType
+class EditLessonType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
         $imageConstraints = [
-            new NotBlank(['groups' => ['CREATE']])
+            new NotBlank(['groups' => ['EDIT']])
         ];
 
         $builder
@@ -78,8 +78,6 @@ class NewLessonType extends AbstractType
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
                 'choice_label' => 'name',
-                'required' => false,
-                'placeholder' => 'Select a primary Industry'
             ])
             ->add('shortDescription', TextareaType::class, [])
             ->add('summary', TextType::class, [])
@@ -161,14 +159,14 @@ class NewLessonType extends AbstractType
                 /** @var Company $data */
                 $data = $form->getData();
                 if(!$data->getPrimaryIndustry()) {
-                    return ['CREATE'];
+                    return ['EDIT'];
                 }
 
                 if($data->getPrimaryIndustry()) {
-                    return ['CREATE', 'SECONDARY_INDUSTRY'];
+                    return ['EDIT', 'SECONDARY_INDUSTRY'];
                 }
 
-                return ['CREATE'];
+                return ['EDIT'];
             },
         ]);
 

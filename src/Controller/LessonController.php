@@ -12,6 +12,7 @@ use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
+use App\Form\EditLessonType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalDeactivateProfileFormType;
@@ -171,9 +172,13 @@ class LessonController extends AbstractController
 
         $user = $this->getUser();
         $lesson = new Lesson();
-        $form = $this->createForm(NewLessonType::class, $lesson, [
-            'method' => 'POST'
-        ]);
+
+        $options = [
+            'method' => 'POST',
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ];
+
+        $form = $this->createForm(NewLessonType::class, $lesson, $options);
 
         $form->handleRequest($request);
 
@@ -222,7 +227,19 @@ class LessonController extends AbstractController
 
             $this->entityManager->flush();
 
+            $this->addFlash('success', 'Lesson successfully created');
             return $this->redirectToRoute('lesson_index');
+        }
+
+        if($request->request->has('primary_industry_change')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                        'form' => $form->createView()
+                    ])
+                ], Response::HTTP_BAD_REQUEST
+            );
         }
 
         return $this->render('lesson/new.html.twig', [
@@ -256,11 +273,16 @@ class LessonController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $lesson);
 
         $user = $this->getUser();
-        $form = $this->createForm(NewLessonType::class, $lesson, [
-            'method' => 'POST'
-        ]);
+
+        $options = [
+            'method' => 'POST',
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ];
+
+        $form = $this->createForm(EditLessonType::class, $lesson, $options);
 
         $form->handleRequest($request);
+
 
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Lesson $lesson */
@@ -300,6 +322,21 @@ class LessonController extends AbstractController
             }
 
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'Lesson successfully updated');
+            return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId()]);
+
+        }
+
+        if($request->request->has('primary_industry_change')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                        'form' => $form->createView()
+                    ])
+                ], Response::HTTP_BAD_REQUEST
+            );
         }
 
         return $this->render('lesson/edit.html.twig', [

@@ -24,7 +24,7 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA"})
-     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
@@ -34,7 +34,7 @@ class Lesson
      * @Assert\Count(
      *      min = 1,
      *      minMessage = "You must specify at least one career.",
-     *     groups={"CREATE"}
+     *     groups={"CREATE", "EDIT"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="lessons")
      */
@@ -44,7 +44,7 @@ class Lesson
      * @Assert\Count(
      *      min = 1,
      *      minMessage = "You must specify at least one grade.",
-     *     groups={"CREATE"}
+     *     groups={"CREATE", "EDIT"}
      * )
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Grade", inversedBy="lessons")
@@ -52,7 +52,7 @@ class Lesson
     private $grades;
 
     /**
-     * @Assert\NotBlank(message="Don't forget to select a primary course!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget to select a primary course!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="lessons")
      * @ORM\JoinColumn(nullable=true)
@@ -60,28 +60,28 @@ class Lesson
     private $primaryCourse;
 
     /**
-     * @Assert\NotBlank(message="Don't forget to select at least one secondary course!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget to select at least one secondary course!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="lessons")
      */
     private $secondaryCourses;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a summary!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a summary!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $summary;
 
     /**
-     * @Assert\NotBlank(message="Don't forget learning outcomes!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget learning outcomes!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $learningOutcomes;
 
     /**
-     * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
@@ -124,7 +124,7 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA"})
-     * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="text", nullable=true)
      */
@@ -135,6 +135,24 @@ class Lesson
      */
     private $lessonResources;
 
+    /**
+     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="lessons")
+     */
+    private $primaryIndustry;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You must specify at least one secondary industry",
+     *     groups={"SECONDARY_INDUSTRY"}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="lessons")
+     */
+    private $secondaryIndustries;
+
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
@@ -143,6 +161,7 @@ class Lesson
         $this->lessonFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
         $this->lessonResources = new ArrayCollection();
+        $this->secondaryIndustries = new ArrayCollection();
     }
 
     public function getId()
@@ -219,7 +238,7 @@ class Lesson
         return $this->primaryCourse;
     }
 
-    public function setPrimaryCourse(Course $primaryCourse)
+    public function setPrimaryCourse(?Course $primaryCourse)
     {
         $this->primaryCourse = $primaryCourse;
 
@@ -492,4 +511,43 @@ class Lesson
 
         return $this;
     }
+
+    public function getPrimaryIndustry(): ?Industry
+    {
+        return $this->primaryIndustry;
+    }
+
+    public function setPrimaryIndustry(?Industry $primaryIndustry): self
+    {
+        $this->primaryIndustry = $primaryIndustry;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SecondaryIndustry[]
+     */
+    public function getSecondaryIndustries(): Collection
+    {
+        return $this->secondaryIndustries;
+    }
+
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries[] = $secondaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if ($this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries->removeElement($secondaryIndustry);
+        }
+
+        return $this;
+    }
+
 }

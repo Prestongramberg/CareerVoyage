@@ -4,7 +4,7 @@ import $ from 'jquery';
 import List from "list.js";
 import Routing from "../Routing";
 
-class CompanyForm {
+class PrimaryIndustrySelect {
 
     /**
      * @param $wrapper
@@ -15,7 +15,7 @@ class CompanyForm {
         debugger;
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
-        this.companyId = this.$wrapper.attr('data-company');
+        this.route = this.$wrapper.attr('data-route');
 
         this.unbindEvents();
         this.bindEvents();
@@ -23,7 +23,7 @@ class CompanyForm {
     }
 
     unbindEvents() {
-        this.$wrapper.off('change', CompanyForm._selectors.primaryIndustry);
+        this.$wrapper.off('change', PrimaryIndustrySelect._selectors.primaryIndustry);
     }
 
     /**
@@ -39,7 +39,7 @@ class CompanyForm {
 
         this.$wrapper.on(
             'change',
-            CompanyForm._selectors.primaryIndustry,
+            PrimaryIndustrySelect._selectors.primaryIndustry,
             this.handlePrimaryIndustryChange.bind(this)
         );
     }
@@ -54,7 +54,7 @@ class CompanyForm {
         const formData = {};
 
         formData[$(e.target).attr('name')] = $(e.target).val();
-        formData[$(CompanyForm._selectors.primaryIndustry).attr('name')] = $(CompanyForm._selectors.primaryIndustry).val();
+        formData[$(PrimaryIndustrySelect._selectors.primaryIndustry).attr('name')] = $(PrimaryIndustrySelect._selectors.primaryIndustry).val();
         formData['skip_validation'] = true;
         formData['primary_industry_change'] = true;
 
@@ -76,10 +76,8 @@ class CompanyForm {
     _changePrimaryIndustry(data) {
         return new Promise((resolve, reject) => {
             debugger;
-            const url = this.companyId ? Routing.generate('company_edit', {id: this.companyId}) : Routing.generate('company_new');
-
             $.ajax({
-                url,
+                url: this.route,
                 method: 'POST',
                 data: data
             }).then((data, textStatus, jqXHR) => {
@@ -96,4 +94,4 @@ class CompanyForm {
     render() {}
 }
 
-export default CompanyForm;
+export default PrimaryIndustrySelect;
