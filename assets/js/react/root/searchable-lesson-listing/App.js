@@ -154,7 +154,12 @@ class App extends React.Component {
 
             // Set Searchable Fields
             const searchableFields = ["title"];
-            const lessonCourseIds = lesson.secondaryCourses.map(course => course.id).concat([ lesson.primaryCourse.id ]);
+            const lessonCourseIds = lesson.secondaryCourses.map(course => course.id);
+
+            // Add a Primary Course If Applicable
+            if( lesson.primaryCourse && lesson.primaryCourse.id ) {
+                lessonCourseIds.concat([ lesson.primaryCourse.id ]);
+            }
 
             // Filter Category
             if ( !!this.props.search.course && lessonCourseIds.indexOf( parseInt( this.props.search.course ) ) === -1 ) {
