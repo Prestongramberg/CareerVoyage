@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Career
 {
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "EXPERIENCE_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,7 +21,7 @@ class Career
     private $id;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;

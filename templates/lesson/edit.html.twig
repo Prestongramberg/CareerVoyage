@@ -3,9 +3,15 @@
 {% block title %}Edit Lesson{% endblock %}
 {% block bodyClass %}page-lesson-edit{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/lessons.js') }}"></script>
+{% endblock %}
+
+
 {% block body %}
 
-    <div class="uk-container">
+    <div class="uk-container js-form" data-route="{{ path('lesson_edit', {'id': lesson.id}) }}">
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -50,6 +56,23 @@
                             {{ form_widget(form.grades, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.grades) }}
                         </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryIndustry) }}
+                        </div>
+
+                        <div class="js-secondary-industry-container">
+                            {% if form.secondaryIndustries is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.secondaryIndustries) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
                         <div class="uk-margin uk-grid" uk-grid>
                             {% if lesson.thumbnailImage %}
                                 <div class="uk-width-small">
@@ -57,7 +80,7 @@
                                 </div>
                             {% endif %}
                             <div class="uk-width-expand">
-                                {{ form_label(form.thumbnailImage, 'Thumbnail*') }}<br />
+                                {{ form_label(form.thumbnailImage, 'Thumbnail') }}<br />
                                 <div uk-form-custom="target: true">
                                     {{ form_widget(form.thumbnailImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.thumbnailImage) ? ' uk-form-danger' : '' ) }}) }}
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
@@ -72,7 +95,7 @@
                                 </div>
                             {% endif %}
                             <div class="uk-width-expand">
-                                {{ form_label(form.featuredImage, 'Featured Image*') }}<br />
+                                {{ form_label(form.featuredImage, 'Featured Image') }}<br />
                                 <div uk-form-custom="target: true">
                                     {{ form_widget(form.featuredImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.featuredImage) ? ' uk-form-danger' : '' ) }}) }}
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
@@ -133,6 +156,27 @@
                 </fieldset>
             </div>
         </div>
+
+        {{ form_row(form.resources.file) }}
+        {{ form_row(form.resources.title) }}
+        {{ form_row(form.resources.description) }}
+
+
+        {% if lesson.lessonResources|length > 0 %}
+            <h4>Current Resources</h4>
+            {% for lessonResource in lesson.lessonResources %}
+                <p>
+                    {{ lessonResource.title }}
+                </p>
+                <p>
+                    {{ lessonResource.description }}
+                </p>
+                <p>
+                    <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" target="_blank">View</a>
+                </p>
+
+            {% endfor %}
+        {% endif %}
 
         <div class="uk-margin">
             <button class="uk-button uk-button-primary uk-button-small">Save</button>

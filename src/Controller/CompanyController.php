@@ -7,7 +7,6 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
-use App\Entity\ExperienceWaver;
 use App\Entity\Image;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
@@ -182,10 +181,14 @@ class CompanyController extends AbstractController
         }
 
         $company = new Company();
-        $form = $this->createForm(NewCompanyFormType::class, $company, [
+
+        $options = [
             'method' => 'POST',
-            'company' => $company
-        ]);
+            'company' => $company,
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ];
+
+        $form = $this->createForm(NewCompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -244,8 +247,21 @@ class CompanyController extends AbstractController
 
             $this->requestsMailer->newCompanyNeedsApproval($newCompanyRequest);
 
+            $this->addFlash('success', 'Company successfully created');
+
             return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
 
+        }
+
+        if($request->request->has('primary_industry_change')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                        'form' => $form->createView()
+                    ])
+                ], Response::HTTP_BAD_REQUEST
+            );
         }
 
         return $this->render('company/new.html.twig', [
@@ -269,6 +285,63 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @Route("/companies/{id}/professionals", name="company_professionals", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyProfessionalsAction(Request $request, Company $company) {
+
+        $professionals = $this->professionalUserRepository->findBy([
+           'company' => $company->getId()
+        ]);
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $isOwner = false;
+        if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
+            $isOwner = true;
+        }
+
+        return $this->render('company/professionals.html.twig', [
+            'user' => $user,
+            'company' => $company,
+            'professionals' => $professionals,
+            'isOwner' => $isOwner
+        ]);
+    }
+
+    /**
+     * @Route("/companies/{companyID}/professionals/{professionalID}/remove", name="company_professional_remove", options = { "expose" = true }, methods={"POST"})
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("professional", options={"id" = "professionalID"})
+     * @param Request $request
+     * @param Company $company
+     * @param ProfessionalUser $professional
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyProfessionalRemoveAction(Request $request, Company $company, ProfessionalUser $professional) {
+
+
+        if($professional->isOwner($company)) {
+            $this->addFlash('error', 'you do not have permission to do this');
+
+            return $this->redirectToRoute('company_professionals', ['id' => $company->getId()]);
+        }
+
+        if($professional->getCompany()->getId() === $company->getId()) {
+            $professional->setCompany(null);
+            $this->entityManager->persist($professional);
+            $this->entityManager->flush();
+
+        }
+
+        $this->addFlash('success', 'professional removed from company');
+
+        return $this->redirectToRoute('company_professionals', ['id' => $company->getId()]);
+    }
+
+    /**
      * @Route("/companies/{id}/edit", name="company_edit", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
@@ -288,10 +361,13 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_new');
         }
 
-        $form = $this->createForm(EditCompanyFormType::class, $company, [
+        $options = [
             'method' => 'POST',
-            'company' => $company
-        ]);
+            'company' => $company,
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ];
+
+        $form = $this->createForm(EditCompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -370,7 +446,20 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
+            $this->addFlash('success', 'Company successfully updated');
+
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
+        }
+
+        if($request->request->has('primary_industry_change')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                        'form' => $form->createView()
+                    ])
+                ], Response::HTTP_BAD_REQUEST
+            );
         }
 
         return $this->render('company/edit.html.twig', [
@@ -402,8 +491,16 @@ class CompanyController extends AbstractController
             && $professionalUser->getCompany()->getId() === $company->getId();
 
         if($canRemove) {
+
+            // if the user we are removing is the owner of the company
+            if($company->getOwner()->getId() === $professionalUser->getId()) {
+                $company->setOwner(null);
+            }
+
+
             $professionalUser->setCompany(null);
             $this->entityManager->persist($professionalUser);
+            $this->entityManager->persist($company);
             $this->entityManager->flush();
             $this->addFlash('success', 'user removed from company');
         } else {
@@ -440,14 +537,14 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{id}/experience/create", name="company_experience_create", options = { "expose" = true })
+     * @Route("/companies/{id}/experiences/create", name="company_experience_create", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function createExperienceAction(Request $request, Company $company) {
 
-        /*$this->denyAccessUnlessGranted('edit', $company);*/
+        $this->denyAccessUnlessGranted('edit', $company);
 
         $user = $this->getUser();
 
@@ -465,43 +562,91 @@ class CompanyController extends AbstractController
 
             $this->entityManager->persist($experience);
 
-            // wavers
-            /** @var UploadedFile[] $wavers */
-            $wavers = $form->get('wavers')->getData();
-            foreach($wavers as $waver) {
-                $mimeType = $waver->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($waver, UploaderHelper::EXPERIENCE_WAVER);
-                $experienceWaver = new ExperienceWaver();
-                $experienceWaver->setOriginalName($waver->getClientOriginalName() ?? $newFilename);
-                $experienceWaver->setMimeType($mimeType ?? 'application/octet-stream');
-                $experienceWaver->setFileName($newFilename);
-                $experienceWaver->setExperience($experience);
-                $this->entityManager->persist($experienceWaver);
+            /** @var ExperienceFile $resource */
+            $resource = $form->get('resources')->getData();
+            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
+                $file = $resource->getFile();
+                $mimeType = $file->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
+                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+                $resource->setMimeType($mimeType ?? 'application/octet-stream');
+                $resource->setFileName($newFilename);
+                $resource->setFile(null);
+                $resource->setExperience($experience);
+                $this->entityManager->persist($resource);
             }
 
-            // other files
-            /** @var UploadedFile[] $otherFiles */
-            $otherFiles = $form->get('otherFiles')->getData();
-            foreach($otherFiles as $otherFile) {
-                $mimeType = $otherFile->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($otherFile, UploaderHelper::EXPERIENCE_OTHER_FILE);
-                $experienceFile = new ExperienceFile();
-                $experienceFile->setOriginalName($otherFile->getClientOriginalName() ?? $newFilename);
-                $experienceFile->setMimeType($mimeType ?? 'application/octet-stream');
-                $experienceFile->setFileName($newFilename);
-                $experienceFile->setExperience($experience);
-                $this->entityManager->persist($experienceFile);
-            }
+            $experience->setCompany($company);
 
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'Experience successfully created!');
 
             return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
         }
 
-        return $this->render('company/experiences.html.twig', [
+        return $this->render('company/new_experience.html.twig', [
             'company' => $company,
             'form' => $form->createView(),
             'user' => $user
+        ]);
+    }
+
+    /**
+     * @Route("/experiences/{id}/edit", name="company_experience_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param Experience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editExperienceAction(Request $request, Experience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience);
+
+        $company = $experience->getCompany();
+
+        $user = $this->getUser();
+
+        $form = $this->createForm(NewExperienceType::class, $experience, [
+            'method' => 'POST',
+            'company' => $company
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var Experience $experience */
+            $experience = $form->getData();
+
+            $this->entityManager->persist($experience);
+
+            /** @var ExperienceFile $resource */
+            $resource = $form->get('resources')->getData();
+            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
+                $file = $resource->getFile();
+                $mimeType = $file->getMimeType();
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
+                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+                $resource->setMimeType($mimeType ?? 'application/octet-stream');
+                $resource->setFileName($newFilename);
+                $resource->setFile(null);
+                $resource->setExperience($experience);
+                $this->entityManager->persist($resource);
+            }
+
+            $experience->setCompany($company);
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Experience successfully updated!');
+
+            return $this->redirectToRoute('company_experience_edit', ['id' => $experience->getId()]);
+        }
+
+        return $this->render('company/edit_experience.html.twig', [
+            'company' => $company,
+            'form' => $form->createView(),
+            'user' => $user,
+            'experience' => $experience
         ]);
     }
 

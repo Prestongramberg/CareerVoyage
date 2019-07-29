@@ -3,9 +3,14 @@
 {% block title %}Add Company{% endblock %}
 {% block bodyClass %}page-company-new{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/companies.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 
-    <div class="uk-container">
+    <div class="uk-container js-form" data-route="{{ path('company_new') }}">
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -46,9 +51,26 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.primaryIndustry) }}
                         </div>
+
+                        <div class="js-secondary-industry-container">
+                        {% if form.secondaryIndustries is defined %}
+                            <div class="uk-margin">
+                                {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.secondaryIndustries) }}
+                            </div>
+                        {% endif %}
+                        </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            {{ form_widget(form.schools, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schools) }}
+                        </div>
+
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}

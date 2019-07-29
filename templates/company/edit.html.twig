@@ -7,12 +7,12 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('build/editCompanies.js') }}"></script>
+    <script src="{{ asset('build/companies.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 
-    <div class="uk-container">
+    <div class="uk-container js-form" data-route="{{ path('company_edit', {'id' : company.id}) }}">
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -56,9 +56,26 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.primaryIndustry) }}
                         </div>
+
+                        <div class="js-secondary-industry-container">
+                            {% if form.secondaryIndustries is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.secondaryIndustries) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            {{ form_widget(form.schools, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schools) }}
+                        </div>
+
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
@@ -141,29 +158,77 @@
             <div class="page-company-edit__videos">
                 <div class="uk-width-xlarge">
                     <p>Videos can help showcase what a great place your establishment is to work for.  Upload your videos to Youtube and then attach them here.</p>
-                    {{ form_widget(form.videos) }}
+                    <h4>Add New Video</h4>
 
-                    {% if company.videos|length > 0 %}
-                        {% for video in company.videos %}
-                            {{ video.name }}
-                            {{ video.videoId }}
-                        {% endfor %}
-                    {% endif %}
+                    <div class="uk-margin">
+                        {{ form_label(form.videos.name, 'Name*') }}
+                        {{ form_widget(form.videos.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.name) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.videos.name) }}
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.videos.videoId, 'Youtube Video ID*') }}
+                        {{ form_widget(form.videos.videoId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.videoId) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.videos.videoId) }}
+                    </div>
                 </div>
+
+                {% if company.videos|length > 0 %}
+                    <div class="uk-margin">
+                        <h4>Current Videos</h4>
+                        <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                            {% for video in company.videos %}
+                                <div>
+                                    <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId }}">
+                                        <img src="http://i.ytimg.com/vi/{{ video.videoId }}/hqdefault.jpg" alt="">
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             <div class="page-company-edit__resources">
                 <div class="uk-width-xlarge">
                     <p>Resources are meant to provide helpful resources to understand more about your company.  Things like Employee Handbooks, Campus Maps, and Company Culture are highly encouraged!</p>
-                    {{ form_widget(form.resources) }}
-
-                    {% if company.companyResources|length > 0 %}
-                        {% for companyResource in company.companyResources %}
-                            {{ companyResource.title }}
-                            {{ companyResource.description }}
-                            <img src="{{ asset(uploaded_asset(companyResource.path))|imagine_filter('squared_thumbnail_small') }}" />
-                        {% endfor %}
-                    {% endif %}
+                    <h4>Add New Resource</h4>
+                    <div class="uk-margin">
+                        <div class="uk-width-1-1">
+                            {{ form_label(form.resources.file, 'Resource File*') }}<br />
+                            <div uk-form-custom="target: true">
+                                {{ form_widget(form.resources.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.resources.file) ? ' uk-form-danger' : '' ) }}) }}
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select Resource" disabled>
+                            </div>
+                            {{ form_errors(form.resources.file) }}
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.resources.title, 'Resource Title*') }}
+                        {{ form_widget(form.resources.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.resources.title) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.resources.title) }}
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.resources.description, 'Resource Description*') }}
+                        {{ form_widget(form.resources.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.resources.description) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.resources.description) }}
+                    </div>
                 </div>
+
+                {% if company.companyResources|length > 0 %}
+                    <div class="uk-margin">
+                        <h4>Current Resources</h4>
+                        {% for companyResource in company.companyResources %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ companyResource.title }}</dt>
+                                    <dd>{{ companyResource.description }}</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
         </div>
 

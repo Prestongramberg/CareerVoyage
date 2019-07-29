@@ -28,9 +28,10 @@ class ProfessionalUser extends User
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
-     *     message="The phone number needs to be in this format: xxx-xxx-xxx",
+     *     message="The phone number needs to be in this format: xxxxxxxxxx",
      *     groups={"CREATE", "EDIT"}
      * )
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
@@ -81,9 +82,37 @@ class ProfessionalUser extends User
      */
     private $experience;
 
+    /**
+     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="professionalUsers")
+     */
+    private $primaryIndustry;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You must specify at least one secondary industry",
+     *     groups={"SECONDARY_INDUSTRY"}
+     * )
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="professionalUsers")
+     */
+    private $secondaryIndustries;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You must specify at least one school",
+     *     groups={"EDIT"}
+     * )
+     * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="professionalUsers")
+     */
+    private $schools;
+
     public function __construct()
     {
         parent::__construct();
+        $this->secondaryIndustries = new ArrayCollection();
+        $this->schools = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -221,6 +250,74 @@ class ProfessionalUser extends User
         // set the owning side of the relation if necessary
         if ($this !== $experience->getEmployeeContact()) {
             $experience->setEmployeeContact($this);
+        }
+
+        return $this;
+    }
+
+    public function isOwner(Company $company) {
+        return $this->getId() === $company->getOwner()->getId();
+    }
+
+    public function getPrimaryIndustry(): ?Industry
+    {
+        return $this->primaryIndustry;
+    }
+
+    public function setPrimaryIndustry(?Industry $primaryIndustry): self
+    {
+        $this->primaryIndustry = $primaryIndustry;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SecondaryIndustry[]
+     */
+    public function getSecondaryIndustries(): Collection
+    {
+        return $this->secondaryIndustries;
+    }
+
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries[] = $secondaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if ($this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries->removeElement($secondaryIndustry);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|School[]
+     */
+    public function getSchools(): Collection
+    {
+        return $this->schools;
+    }
+
+    public function addSchool(School $school): self
+    {
+        if (!$this->schools->contains($school)) {
+            $this->schools[] = $school;
+        }
+
+        return $this;
+    }
+
+    public function removeSchool(School $school): self
+    {
+        if ($this->schools->contains($school)) {
+            $this->schools->removeElement($school);
         }
 
         return $this;

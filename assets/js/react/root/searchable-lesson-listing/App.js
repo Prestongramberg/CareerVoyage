@@ -48,7 +48,7 @@ class App extends React.Component {
                                 { !this.props.search.loading && relevantLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
                                         <LessonListing
-                                            description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                            description={lesson.shortDescription}
                                             id={lesson.id}
                                             image={lesson.thumbnailImageURL}
                                             isFavorite={lesson.favorite}
@@ -72,7 +72,7 @@ class App extends React.Component {
                                 { favoriteLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
                                         <LessonListing
-                                            description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                            description={lesson.shortDescription}
                                             id={lesson.id}
                                             image={lesson.thumbnailImageURL}
                                             isFavorite={lesson.favorite}
@@ -98,11 +98,11 @@ class App extends React.Component {
                         </div>
 
                         { teachableLessons.length > 0 && (
-                            <div className="lesson-listings" data-uk-grid="masonry: true">
+                            <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
                                 { teachableLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
                                         <LessonListing
-                                            description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud'}
+                                            description={lesson.shortDescription}
                                             id={lesson.id}
                                             image={lesson.thumbnailImageURL}
                                             isFavorite={lesson.favorite}
@@ -117,7 +117,7 @@ class App extends React.Component {
                             </div>
                         )}
                         { teachableLessons.length === 0 && (
-                            <div className="uk-placeholder uk-text-center uk-width-1-1">
+                            <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
                                 <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
                             </div>
                         )}

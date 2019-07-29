@@ -5,10 +5,13 @@ namespace App\Form;
 use App\Entity\Company;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
+use App\Entity\School;
+use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -17,6 +20,9 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -35,13 +41,19 @@ class EditCompanyFormType extends AbstractType
             ->add('website', TextType::class, [])
             ->add('phone', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'XXX-XXX-XXXX'
+                    'placeholder' => 'XXXXXXXXXX'
                 ]
             ])
             ->add('emailAddress', TextType::class)
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
                 'choice_label' => 'name',
+            ])
+            ->add('schools', EntityType::class, [
+                'class' => School::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'expanded' => false,
             ])
             ->add('companyLinkedinPage', TextType::class, [])
 
@@ -89,16 +101,80 @@ class EditCompanyFormType extends AbstractType
                 },
                 'choice_label' => 'username',
             ]);
+
+        $builder->get('phone')->addModelTransformer(new CallbackTransformer(
+            function ($phone) {
+                return str_replace('-', '', $phone);
+            },
+            function ($phone) {
+                return $this->localize_us_number($phone);
+            }
+        ));
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+
+            $data = $event->getData();
+            if(!$data->getPrimaryIndustry()) {
+                return;
+            }
+            $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
+        });
+
+        $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            /** @var Industry $industry */
+            $industry = $event->getForm()->getData();
+
+            if(!$industry) {
+                return;
+            }
+
+            $this->modifyForm($event->getForm()->getParent(), $industry);
+        });
+    }
+
+    private function modifyForm(FormInterface $form, Industry $industry) {
+
+        $form->add('secondaryIndustries', EntityType::class, [
+            'class' => SecondaryIndustry::class,
+            'query_builder' => function (EntityRepository $er) use ($industry) {
+                return $er->createQueryBuilder('si')
+                    ->where('si.primaryIndustry = :primaryIndustry')
+                    ->setParameter('primaryIndustry', $industry->getId());
+            },
+            'choice_label' => 'name',
+            'expanded' => false,
+            'multiple' => true
+        ]);
+
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Company::class,
-            'validation_groups' => ['EDIT'],
+            'validation_groups' => function (FormInterface $form) {
+
+                $skipValidation = $form->getConfig()->getOption('skip_validation');
+
+                if($skipValidation) {
+                    return [];
+                }
+
+                /** @var Company $data */
+                $data = $form->getData();
+                if(!$data->getPrimaryIndustry()) {
+                    return ['EDIT'];
+                }
+
+                if($data->getPrimaryIndustry()) {
+                    return ['EDIT', 'SECONDARY_INDUSTRY'];
+                }
+
+                return ['EDIT'];
+            },
         ]);
 
-        $resolver->setRequired('company');
+        $resolver->setRequired(['company', 'skip_validation']);
 
     }
 
@@ -108,12 +184,7 @@ class EditCompanyFormType extends AbstractType
      */
     private function thumbnailImageConstraints($company) {
 
-        $imageConstraints = [
-            new Image([
-                'maxSize' => '5M',
-                'groups'  => ['EDIT']
-            ])
-        ];
+        $imageConstraints = [];
 
         if (!$company->getThumbnailImage()) {
             $imageConstraints[] = new NotNull([
@@ -132,12 +203,7 @@ class EditCompanyFormType extends AbstractType
      */
     private function featuredImageConstraints($company) {
 
-        $imageConstraints = [
-            new Image([
-                'maxSize' => '5M',
-                'groups'  => ['EDIT']
-            ])
-        ];
+        $imageConstraints = [];
 
         if (!$company->getFeaturedImage()) {
             $imageConstraints[] = new NotNull([
@@ -147,5 +213,10 @@ class EditCompanyFormType extends AbstractType
         }
 
         return $imageConstraints;
+    }
+
+    private function localize_us_number($phone) {
+        $numbers_only = preg_replace("/[^\d]/", "", $phone);
+        return preg_replace("/^1?(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $numbers_only);
     }
 }

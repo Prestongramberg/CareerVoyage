@@ -1,0 +1,152 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% form_theme form with _self %}
+
+{% block title %}Create Company experience{% endblock %}
+{% block bodyClass %}page-company-experience-add{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/companies.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+        <ul class="uk-tab" uk-switcher="connect: #tab-add-experience" uk-tab>
+            <li class="uk-active"><a href="#experience-details">Edit Event</a></li>
+            <li><a href="#experience-careers">Careers</a></li>
+            <li><a href="#experience-contact">Contact</a></li>
+            <li><a href="#experience-attachments">Attachments</a></li>
+        </ul>
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        <div class="uk-switcher" id="tab-add-experience">
+            <div class="page-company-experience-add__details">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.title, 'Title*') }}
+                            {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.briefDescription, 'Brief Description*') }}
+                            {{ form_widget(form.briefDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.briefDescription) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.briefDescription) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.about, 'About*') }}
+                            {{ form_widget(form.about, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.about) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.about) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.type, 'Type*') }}
+                            {{ form_widget(form.type, {'attr': {'class': 'uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.availableSpaces, 'Available Spaces*') }}
+                            {{ form_widget(form.availableSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableSpaces) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.availableSpaces) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.payment, 'Payment*') }}
+                            {{ form_widget(form.payment, {'attr': {'class': 'uk-input' ~ ( form_errors(form.payment) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.payment) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.paymentShownIsPer, 'Payment Per*') }}
+                            {{ form_widget(form.paymentShownIsPer, {'attr': {'class': 'uk-select' ~ ( form_errors(form.paymentShownIsPer) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.paymentShownIsPer) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.startDateAndTime, 'Start Date*') }}
+                            {{ form_widget(form.startDateAndTime, {'attr': {'class': 'uk-input' ~ ( form_errors(form.startDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.startDateAndTime) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.endDateAndTime, 'End Date*') }}
+                            {{ form_widget(form.endDateAndTime, {'attr': {'class': 'uk-input' ~ ( form_errors(form.endDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.endDateAndTime) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.length, 'Length*') }}
+                            {{ form_widget(form.length, {'attr': {'class': 'uk-input' ~ ( form_errors(form.length) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.length) }}
+                        </div>
+                    </fieldset>
+
+                </div>
+            </div>
+            <div class="page-company-experience-add__careers">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.careers, 'Careers*') }}
+                            {{ form_widget(form.careers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.careers) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.careers) }}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-company-experience-add__contact">
+                <div class="uk-margin">
+                    {{ form_label(form.employeeContact, 'Employee Contact*') }}
+                    {{ form_widget(form.employeeContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.employeeContact) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.employeeContact) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.email, 'Email*') }}
+                    {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.street, 'Street*') }}
+                    {{ form_widget(form.street, {'attr': {'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.street) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.city, 'City*') }}
+                    {{ form_widget(form.city, {'attr': {'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.city) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.state, 'State*') }}
+                    {{ form_widget(form.state, {'attr': {'class': 'uk-select' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.state) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.zipcode, 'Zip*') }}
+                    {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.zipcode) }}
+                </div>
+            </div>
+            <div class="page-company-experience-add__files">
+                {{ form_row(form.resources.file) }}
+                {{ form_row(form.resources.title) }}
+                {{ form_row(form.resources.description) }}
+            </div>
+        </div>
+
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+
+
+{% endblock %}
