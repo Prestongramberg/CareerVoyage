@@ -12,6 +12,7 @@ use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use mysql_xdevapi\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -196,11 +197,11 @@ class LessonImportCommand extends Command
             }
 
             $lessonObject->setShortDescription($lesson['Short Description']);
-
             $this->entityManager->persist($lessonObject);
         }
 
         $this->entityManager->flush();
+
 
         $output->writeln('Lessons successfully imported!');
 
