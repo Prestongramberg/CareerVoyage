@@ -19,115 +19,168 @@
         </ul>
         <div class="uk-switcher" id="tab-account">
             <div class="account_details">
-                <div class="uk-width-xlarge">
 
-                    <h3>Edit Profile</h3>
+                {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
-                    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+                {% if form_errors(form) %}
+                    <div class="uk-alert-danger" uk-alert>
+                        <a class="uk-alert-close" uk-close></a>
+                        <div>{{ form_errors(form) }}</div>
+                    </div>
+                {% endif %}
 
-                    {% if form_errors(form) %}
-                        <div class="uk-alert-danger" uk-alert>
-                            <a class="uk-alert-close" uk-close></a>
-                            <div>{{ form_errors(form) }}</div>
-                        </div>
-                    {% endif %}
+                <div uk-grid>
+                    <div class="uk-width-1-1 uk-width-small@m">
+                        <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                            <li><a href="#account-details-profile">Personal</a></li>
+                            <li><a href="#account-details-profile-industries">Industry</a></li>
+                            <li><a href="#account-details-profile-roles">Roles</a></li>
+                            <li><a href="#account-details-profile-schools">Schools</a></li>
+                            <li><a href="#account-details-profile-account">Account</a></li>
+                        </ul>
+                    </div>
+                    <div class="uk-width-1-1 uk-width-expand@m">
+                        <ul id="tab-account-inner" class="uk-switcher">
+                            <div class="account_details_personal">
+                                <div class="uk-width-xlarge">
+                                    <fieldset class="uk-fieldset">
 
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.firstName, 'First Name*') }}
-                            {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.firstName) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.lastName, 'Last Name*') }}
-                            {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.lastName) }}
-                        </div>
-                        <div class="uk-margin uk-grid" uk-grid>
-                            {% if user.photo %}
-                                <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" />
+                                        <div class="uk-margin">
+                                            {{ form_label(form.firstName, 'First Name*') }}
+                                            {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.firstName) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(form.lastName, 'Last Name*') }}
+                                            {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.lastName) }}
+                                        </div>
+                                        <div class="uk-margin uk-grid" uk-grid>
+                                            {% if user.photo %}
+                                                <div class="uk-width-small">
+                                                    <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" />
+                                                </div>
+                                            {% endif %}
+                                            <div class="uk-width-expand">
+                                                {{ form_label(form.file, 'Photo*') }}<br />
+                                                <div uk-form-custom="target: true">
+                                                    {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
+                                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                                </div>
+                                                {{ form_errors(form.file) }}
+                                            </div>
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(form.briefBio, 'Brief Bio') }}
+                                            <div class="uk-text-meta">Tell us a little about yourself to be featured on our platform</div>
+                                            <div data-wysiwyg="[name='professional_edit_profile_form[briefBio]']" class="{{ ( form_errors(form.briefBio) ? 'wysiwyg-error' : '' ) }}"></div>
+                                            <div style="display: none;">
+                                                {{ form_widget(form.briefBio) }}
+                                            </div>
+                                            {{ form_errors(form.briefBio) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(form.interests, 'Interests') }}
+                                            {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.interests) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        </div>
+                                    </fieldset>
                                 </div>
-                            {% endif %}
-                            <div class="uk-width-expand">
-                                {{ form_label(form.file, 'Photo*') }}<br />
-                                <div uk-form-custom="target: true">
-                                    {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
-                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
-                                </div>
-                                {{ form_errors(form.file) }}
                             </div>
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.email, 'Email') }}
-                            {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.email) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.plainPassword, 'Change Password') }}
-                            {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.plainPassword) }}
-                        </div>
-
-                        <div class="uk-margin">
-                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.primaryIndustry) }}
-                        </div>
-
-                        <div class="js-secondary-industry-container">
-                            {% if form.secondaryIndustries is defined %}
-                                <div class="uk-margin">
-                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.secondaryIndustries) }}
+                            <div class="account_details_industries">
+                                <div class="uk-width-xlarge">
+                                    <fieldset class="uk-fieldset">
+                                        <div class="uk-margin">
+                                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.primaryIndustry) }}
+                                        </div>
+                                        <div class="js-secondary-industry-container">
+                                            {% if form.secondaryIndustries is defined %}
+                                                <div class="uk-margin">
+                                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                                    <div class="clear"></div>
+                                                    {{ form_errors(form.secondaryIndustries) }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        </div>
+                                    </fieldset>
                                 </div>
-                            {% endif %}
-                        </div>
-
-
-                        <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }}
-                            {{ form_widget(form.schools, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.schools) }}
-                        </div>
-
-                        <div class="uk-margin">
-                            {{ form_label(form.rolesWillingToFulfill, 'Roles Willing To Fulfill') }}
-                            {{ form_widget(form.rolesWillingToFulfill, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.rolesWillingToFulfill) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.rolesWillingToFulfill) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.interests, 'Interests') }}
-                            {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.interests) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.briefBio, 'Brief Bio') }}
-                            <div data-wysiwyg="[name='professional_edit_profile_form[briefBio]']" class="{{ ( form_errors(form.briefBio) ? 'wysiwyg-error' : '' ) }}"></div>
-                            <div style="display: none;">
-                                {{ form_widget(form.briefBio) }}
                             </div>
-                            {{ form_errors(form.briefBio) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.linkedinProfile, 'Linked In Profile') }}
-                            {{ form_widget(form.linkedinProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.linkedinProfile) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.linkedinProfile) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.phone, 'Phone') }}
-                            {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.phone) }}
-                        </div>
-                        <div class="uk-margin">
-                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
-                        </div>
-                    </fieldset>
-                    <input type="hidden" name="formType" value="professionalRegistrationForm">
-
-                    {{ form_end(form) }}
+                            <div class="account_details_roles">
+                                <div class="uk-width-xlarge">
+                                    <fieldset class="uk-fieldset">
+                                        <div class="uk-margin">
+                                            {{ form_label(form.rolesWillingToFulfill, 'Roles Willing To Fulfill') }}
+                                            {{ form_widget(form.rolesWillingToFulfill, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.rolesWillingToFulfill) ? ' uk-form-danger' : '' ) }}) }}
+                                            <div class="clear"></div>
+                                            {{ form_errors(form.rolesWillingToFulfill) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="account_details_schools">
+                                <div class="uk-width-xlarge">
+                                    <fieldset class="uk-fieldset">
+                                        <div class="uk-margin">
+                                            {{ form_label(form.schools, 'Schools*') }}
+                                            {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                                            <div class="clear"></div>
+                                            {{ form_errors(form.schools) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="account_details_account">
+                                <div class="uk-width-xlarge">
+                                    <fieldset class="uk-fieldset">
+                                        <div class="uk-margin">
+                                            {{ form_label(form.email, 'Email') }}
+                                            {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.email) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(form.plainPassword, 'Change Password') }}
+                                            {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.plainPassword) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(form.linkedinProfile, 'Linked In Profile') }}
+                                            {{ form_widget(form.linkedinProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.linkedinProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.linkedinProfile) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            {{ form_label(form.phone, 'Phone') }}
+                                            {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.phone) }}
+                                        </div>
+                                        <div class="uk-margin">
+                                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </ul>
+                    </div>
                 </div>
+
+                <input type="hidden" name="formType" value="professionalRegistrationForm">
+
+                {{ form_end(form) }}
+
             </div>
             <div class="account_settings">
                 <div class="uk-width-xlarge">

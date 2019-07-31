@@ -61,7 +61,7 @@ class App extends React.Component {
                                     </div>
                                 ))}
                                 { !this.props.search.loading && relevantLessons.length === 0 && (
-                                    <p>No results match your selection</p>
+                                    <p>No lessons match your selection</p>
                                 )}
                             </div>
                         </div>

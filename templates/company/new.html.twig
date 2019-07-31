@@ -59,7 +59,8 @@
                         {% if form.secondaryIndustries is defined %}
                             <div class="uk-margin">
                                 {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                <div class="clear"></div>
                                 {{ form_errors(form.secondaryIndustries) }}
                             </div>
                         {% endif %}

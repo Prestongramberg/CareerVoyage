@@ -16,10 +16,12 @@ class CompanyListing extends Component {
                     <div className="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                         style={{backgroundImage: `url(${this.props.image})`, minHeight: '150px'}}>
                         <div className="uk-inline uk-padding-small">
-                            <span className="favorite-company" onClick={this.toggleFavorite}>
-                                { this.props.isFavorite && <i className="fa fa-heart" aria-hidden="true"></i> }
-                                { !this.props.isFavorite && <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i> }
-                            </span>
+                            { this.props.isFavorite && <span className="favorite-company" data-uk-tooltip="title: Remove from My Favorites" onClick={this.toggleFavorite}>
+                                <i className="fa fa-heart" aria-hidden="true"></i>
+                            </span> }
+                                { !this.props.isFavorite && <span className="favorite-company" data-uk-tooltip="title: Add to My Favorites" onClick={this.toggleFavorite}>
+                                <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i>
+                            </span> }
                         </div>
                     </div>
                 </div>

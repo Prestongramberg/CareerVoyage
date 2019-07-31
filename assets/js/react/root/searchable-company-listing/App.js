@@ -60,7 +60,7 @@ class App extends React.Component {
                                         website={company.website} />
                                 ))}
                                 { !this.props.search.loading && relevantCompanies.length === 0 && (
-                                    <p>No results match your selection</p>
+                                    <p>No companies match your selection</p>
                                 )}
                             </div>
                         </div>

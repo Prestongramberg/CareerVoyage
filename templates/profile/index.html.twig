@@ -18,9 +18,19 @@
                                 <div class="uk-width-auto">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                     <p class="uk-text-meta uk-margin-remove-top">
-                                        {{ user.isProfessional ? "Professional" : '' }}
                                         {{ user.isEducator ? "Educator" : '' }}
                                         {{ user.isStudent ? "Student" : '' }}
+
+                                        {% if user.isProfessional %}
+                                            Professional
+                                            {% if user.primaryIndustry %}
+                                                - {{ user.primaryIndustry.name }}
+                                            {% endif %}
+                                            {% if user.secondaryIndustries %}
+                                                - {{ user.secondaryIndustries[0].name }}
+                                            {% endif %}
+                                        {% endif %}
+
                                     </p>
                                 </div>
                                 <div class="uk-width-expand">
@@ -34,17 +44,21 @@
                         </div>
                         <div class="uk-card-body">
                             {% if user.isProfessional %}
-                                {{ user.briefBio|raw }}
+                                {% if user.briefBio %}
+                                    {{ user.briefBio|raw }}
+                                {% else %}
+                                    <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to be featured in our search results!</p>
+                                {% endif %}
+                                <div class="professional-links">
+                                    <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                                    {% if user.getPhone %}
+                                        <a href="tel:{{ user.getPhone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                                    {% endif %}
+                                    {% if user.getLinkedinProfile %}
+                                        <a href="{{ user.getLinkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
+                                    {% endif %}
+                                </div>
                             {% endif %}
-                            <div class="professional-links">
-                                <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                {% if user.isProfessional and user.getPhone %}
-                                    <a href="tel:{{ user.getPhone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                                {% endif %}
-                                {% if user.isProfessional and user.getLinkedinProfile %}
-                                    <a href="{{ user.getLinkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
-                                {% endif %}
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -82,7 +96,7 @@
 
     <div class="uk-container">
         <div class="uk-grid" uk-grid>
-            <div class="uk-width-1-2@m uk-width-1-1">
+            <div class="uk-width-2-3@m uk-width-1-1">
                 <!-- Schools -->
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
@@ -95,7 +109,7 @@
                             </div>
                             <div class="uk-width-expand">
                                 <div class="uk-align-right">
-                                    <a href="#">
+                                    <a href="{{ path('profile_edit', {'id': user.id}) }}">
                                         <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
                                     </a>
                                 </div>
@@ -103,11 +117,19 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <p>You haven't added any schools yet.</p>
+                        {% if user.schools %}
+                            <ul class="uk-list uk-list-divider">
+                                {% for school in user.schools %}
+                                    <li>{{ school.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>You haven't added any schools yet.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="uk-width-1-2@m uk-width-1-1">
+            <div class="uk-width-2-3@m uk-width-1-1">
                 <!-- Lessons -->
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
@@ -128,7 +150,15 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <p>You haven't added any lessons yet.</p>
+                        {% if user.schools %}
+                            <ul class="uk-list uk-list-divider">
+                                {% for school in user.schools %}
+                                    <li>{{ school.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>You haven't added any lessons yet.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

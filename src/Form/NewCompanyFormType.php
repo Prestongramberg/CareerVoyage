@@ -136,7 +136,10 @@ class NewCompanyFormType extends AbstractType
             },
             'choice_label' => 'name',
             'expanded' => false,
-            'multiple' => true
+            'multiple' => true,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-checkbox'];
+            }
         ]);
 
     }

@@ -97,7 +97,7 @@ jQuery(document).ready(function($) {
         if( $tab.length > 0 ) {
             var index = $tab.index();
             $(this).children().removeClass('uk-active').eq(index).addClass('uk-active');
-            $(this).parent().find('.uk-tab').children().removeClass('uk-active').eq(index).addClass('uk-active');
+            $("[uk-tab*=" + $(this).attr('id') + "]").children().removeClass('uk-active').eq(index).addClass('uk-active');
         }
     });
 
