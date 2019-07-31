@@ -93,7 +93,7 @@ jQuery(document).ready(function($) {
      * Errors Triggering Correct Tabs
      */
     $('form .uk-switcher').each(function() {
-        var $tab = $(this).children().has('ul').first();
+        var $tab = $(this).children().has('ul:not(".ql-container ul")').first();
         if( $tab.length > 0 ) {
             var index = $tab.index();
             $(this).children().removeClass('uk-active').eq(index).addClass('uk-active');

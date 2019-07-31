@@ -41,11 +41,13 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
+                            <div class="uk-text-meta">One sentence summary that describes lesson, often framed as an ESSENTIAL question</div>
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.shortDescription) }}
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.summary, 'Summary*') }}
+                            <div class="uk-text-meta">Provide an overview of the lesson for students and professionals</div>
                             <div data-wysiwyg="[name='edit_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
                                 {{ form_widget(form.summary) }}
@@ -66,6 +68,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 {{ form_label(form.thumbnailImage, 'Thumbnail') }}<br />
+                                <div class="uk-text-meta">Visible on result pages</div>
                                 <div uk-form-custom="target: true">
                                     {{ form_widget(form.thumbnailImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.thumbnailImage) ? ' uk-form-danger' : '' ) }}) }}
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
@@ -81,6 +84,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 {{ form_label(form.featuredImage, 'Featured Image') }}<br />
+                                <div class="uk-text-meta">Visible as a featured banner on the lesson page</div>
                                 <div uk-form-custom="target: true">
                                     {{ form_widget(form.featuredImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.featuredImage) ? ' uk-form-danger' : '' ) }}) }}
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
@@ -133,7 +137,16 @@
                 <fieldset class="uk-fieldset">
                     <div class="uk-margin">
                         {{ form_label(form.learningOutcomes, 'Learning Outcomes') }}
-                        <div data-wysiwyg="[name='edit_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"></div>
+                        <div data-wysiwyg="[name='edit_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"
+                             data-placeholder="Use the following to describe what students will learn in this lesson:
+“By the end of this lesson, students will:
+Be able…
+Understand….
+Be aware….
+Know….”
+After describing learning outcomes, feel free to share additional resources which will help the guest instructor teach this lesson. This can be links to websites, videos or Google drive docs.
+">
+                        </div>
                         <div style="display: none;">
                             {{ form_widget(form.learningOutcomes) }}
                         </div>
@@ -141,7 +154,9 @@
                     </div>
                     <div class="uk-margin">
                         {{ form_label(form.educationalStandards, 'Educational Standards') }}
-                        <div data-wysiwyg="[name='edit_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"></div>
+                        <div data-wysiwyg="[name='edit_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"
+                             data-placeholder="If you know which specific state, national or common core standards insert them here">
+                        </div>
                         <div style="display: none;">
                             {{ form_widget(form.educationalStandards) }}
                         </div>
@@ -152,7 +167,9 @@
             <div class="page-lesson-edit__resources">
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
-
+                        <div class="uk-margin">
+                            <p>Resources are optional, but help provide more details about the lesson.  These can include PDFs, Powerpoints, etc.</p>
+                        </div>
                         <h4>Add New Resource</h4>
                         <div class="uk-margin">
                             <div class="uk-width-1-1">

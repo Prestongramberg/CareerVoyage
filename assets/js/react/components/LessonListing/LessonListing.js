@@ -15,15 +15,19 @@ class LessonListing extends Component {
                 <div className="lesson-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                      style={{backgroundImage: `url(${this.props.image})`}}>
                     <div className="uk-inline uk-padding-small">
-                        <span className="teach-lesson" onClick={this.toggleTeacher}>
-                            { this.props.isTeacher && <i className="fa fa-graduation-cap" aria-hidden="true"></i> }
-                            { !this.props.isTeacher && <i style={{ opacity: 0.5 }} className="fa fa-graduation-cap" aria-hidden="true"></i> }
-                        </span>
+                        { this.props.isTeacher && <span className="teach-lesson" data-uk-tooltip="title: Remove from My Teachable Lessons" onClick={this.toggleTeacher}>
+                            <i className="fa fa-graduation-cap" aria-hidden="true"></i>
+                        </span> }
+                        { !this.props.isTeacher && <span className="teach-lesson" data-uk-tooltip="title: Add to My Teachable Lessons" onClick={this.toggleTeacher}>
+                            <i style={{ opacity: 0.5 }} className="fa fa-graduation-cap" aria-hidden="true"></i>
+                        </span> }
                         &nbsp;&nbsp;&nbsp;
-                        <span className="favorite-lesson" onClick={this.toggleFavorite}>
-                            { this.props.isFavorite && <i className="fa fa-heart" aria-hidden="true"></i> }
-                            { !this.props.isFavorite && <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i> }
-                        </span>
+                        { this.props.isFavorite && <span className="favorite-lesson" data-uk-tooltip="title: Remove from My Favorites" onClick={this.toggleFavorite}>
+                            <i className="fa fa-heart" aria-hidden="true"></i>
+                        </span> }
+                        { !this.props.isFavorite && <span className="favorite-lesson" data-uk-tooltip="title: Add to My Favorites" onClick={this.toggleFavorite}>
+                            <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i>
+                        </span> }
                     </div>
                 </div>
                 <div className="uk-card-body">
