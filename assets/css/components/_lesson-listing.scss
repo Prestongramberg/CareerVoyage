@@ -1,0 +1,32 @@
+.lesson-listing {
+
+  &__image {
+    background-color: #aaa;
+    position: relative;
+
+    &:before {
+      background: rgba(0,0,0,0.75);
+      bottom: 0;
+      content: '';
+      display: block;
+      height: 50px;
+      left: 0;
+      position: absolute;
+      right: 0;
+      width: 100%;
+    }
+
+    &:after {
+      background: transparent url("../../images/logo-future-forward.png") no-repeat bottom left;
+      background-size: 150px 41px;
+      bottom: 5px;
+      content: '';
+      display: block;
+      height: 41px;
+      left: 10px;
+      position: absolute;
+      width: 150px;
+    }
+  }
+
+}

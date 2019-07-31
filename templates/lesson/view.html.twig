@@ -42,6 +42,9 @@
             {% if lesson.educationalStandards %}
                 <li><a href="#lesson-standards">Educational Standards</a></li>
             {% endif %}
+            {% if lesson.lessonResources|length > 0 %}
+                <li><a href="#lesson-resources">Resources</a></li>
+            {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-lesson-detail">
@@ -70,26 +73,40 @@
                                     {% endfor %}
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Careers</td>
-                                <td>
-                                    {% for career in lesson.careers %}
-                                        {{ career.title }}{% if not loop.last %},{% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Primary Course</td>
-                                <td>{{ lesson.primaryCourse.title }}</td>
-                            </tr>
-                            <tr>
-                                <td>Secondary Courses</td>
-                                <td>
-                                    {% for course in lesson.secondaryCourses %}
-                                        {{ course.title }}{% if not loop.last %},{% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
+                            {% if lesson.primaryIndustry %}
+                                <tr>
+                                    <td>Primary Industry</td>
+                                    <td>
+                                        {{ lesson.primaryIndustry.name }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% if lesson.secondaryIndustries|length %}
+                                <tr>
+                                    <td>Secondary Industry</td>
+                                    <td>
+                                        {% for industry in lesson.secondaryIndustries %}
+                                            {{ industry.name }}{% if not loop.last %},{% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% if lesson.primaryCourse %}
+                                <tr>
+                                    <td>Primary Course</td>
+                                    <td>{{ lesson.primaryCourse.title }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if lesson.secondaryCourses|length %}
+                                <tr>
+                                    <td>Secondary Courses</td>
+                                    <td>
+                                        {% for course in lesson.secondaryCourses %}
+                                            {{ course.title }}{% if not loop.last %},{% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -102,6 +119,23 @@
             {% if lesson.educationalStandards %}
                 <div class="page-lesson-view__standards">
                     {{ lesson.educationalStandards|raw }}
+                </div>
+            {% endif %}
+            {% if lesson.lessonResources|length > 0 %}
+                <div class="page-lesson-view__resources">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for lessonResource in lesson.lessonResources %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ lessonResource.title }}</dt>
+                                    <dd>{{ lessonResource.description }}</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
                 </div>
             {% endif %}
         </div>

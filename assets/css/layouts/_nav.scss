@@ -43,4 +43,13 @@
     cursor: pointer;
     cursor: hand;
   }
+
+  .uk-logo {
+    img {
+      height: auto;
+      max-height: 60px;
+      max-width: 250px;
+      width: 100%;
+    }
+  }
 }

@@ -2,10 +2,14 @@ import Quill from 'quill';
 
 jQuery(document).ready(function($) {
 
-    // Smooth Page Transitions
+    /**
+     * Smooth Page Transitions
+     */
     $('body').addClass('ready');
 
-    // WYSIWYG
+    /**
+     * WYSIWYG
+     */
     const toolbarOptions = [
         ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
         // ['blockquote', 'code-block'],
@@ -45,6 +49,7 @@ jQuery(document).ready(function($) {
                 modules: {
                     toolbar: toolbarOptions
                 },
+                placeholder: $elem.attr('data-placeholder'),
                 theme: 'snow'
             });
 
@@ -82,6 +87,18 @@ jQuery(document).ready(function($) {
             instance++;
 
         })($(this));
+    });
+
+    /**
+     * Errors Triggering Correct Tabs
+     */
+    $('form .uk-switcher').each(function() {
+        var $tab = $(this).children().has('ul').first();
+        if( $tab.length > 0 ) {
+            var index = $tab.index();
+            $(this).children().removeClass('uk-active').eq(index).addClass('uk-active');
+            $(this).parent().find('.uk-tab').children().removeClass('uk-active').eq(index).addClass('uk-active');
+        }
     });
 
 });

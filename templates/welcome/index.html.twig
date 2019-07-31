@@ -45,31 +45,11 @@
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                         </form>
 
-                        <p>Dont have an Account yet? <a href="#register">Register</a></p>
+                        <p>Dont have an Account yet? <a href="#register" data-uk-switcher-item="1">Register</a></p>
                     </div>
                     <div class="login-box__register">
-                        <ul class="uk-flex uk-flex-around" data-uk-tab="{connect: '#tab-register-options'}" uk-switcher>
-                            <li {{ formType is null or formType == 'professionalRegistrationForm'  ? 'class="uk-active"' : ''  }}><a href="#register-professional"><i class="fas fa-briefcase"></i>Professional</a></li>
-                            <li {{ formType == 'educatorRegistrationForm'  ? 'class="uk-active"' : ''  }}><a href="#register-educator"><i class="fas fa-graduation-cap"></i>Educator</a></li>
-                            <li {{ formType == 'studentRegistrationForm'  ? 'class="uk-active"' : ''  }}><a href="#register-student"><i class="fas fa-book-reader"></i>Student</a></li>
-                        </ul>
-
-                        <div class="uk-switcher login-box__register-tab-contents" id="tab-register-options">
-                            <div>
-                                <p>Pintex empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
-                                {% include 'welcome/professional-register.html.twig' %}
-                            </div>
-                            <div>
-                                <p>Pintex makes it easy for educators to find community resources such as guest instructors, site visits hosts, mentors, advisors and project providers.</p>
-                                <div class="uk-placeholder uk-text-center">This feature will be NOT be ready to test until August 9, 2019.</div>
-{#                                {% include 'welcome/educator-register.html.twig' %}#}
-                            </div>
-                            <div>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad adipisci asperiores assumenda commodi deserunt dolor in maxime nemo perferendis praesentium, quam quia quisquam recusandae reprehenderit sint suscipit voluptate! Iste, nostrum?</p>
-                                <div class="uk-placeholder uk-text-center">This feature will NOT be ready to test until August 23, 2019.</div>
-{#                                {% include 'welcome/student-register.html.twig' %}#}
-                            </div>
-                        </div>
+                        <p>Pintex empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
+                        {% include 'welcome/professional-register.html.twig' %}
                     </div>
                 </div>
             </div>

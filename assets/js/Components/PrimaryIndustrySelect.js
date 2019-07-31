@@ -12,7 +12,6 @@ class PrimaryIndustrySelect {
      */
     constructor($wrapper, globalEventDispatcher) {
 
-        debugger;
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.route = this.$wrapper.attr('data-route');
@@ -45,7 +44,6 @@ class PrimaryIndustrySelect {
     }
 
     handlePrimaryIndustryChange(e) {
-        debugger;
 
         if(e.cancelable) {
             e.preventDefault();
@@ -58,13 +56,9 @@ class PrimaryIndustrySelect {
         formData['skip_validation'] = true;
         formData['primary_industry_change'] = true;
 
-        debugger;
         this._changePrimaryIndustry(formData)
             .then((data) => {
-                debugger;
             }).catch((errorData) => {
-
-            debugger;
             $('.js-secondary-industry-container').replaceWith(
                 // ... with the returned one from the AJAX response.
                 $(errorData.formMarkup).find('.js-secondary-industry-container')
@@ -75,16 +69,13 @@ class PrimaryIndustrySelect {
 
     _changePrimaryIndustry(data) {
         return new Promise((resolve, reject) => {
-            debugger;
             $.ajax({
                 url: this.route,
                 method: 'POST',
                 data: data
             }).then((data, textStatus, jqXHR) => {
-                debugger;
                 resolve(data);
             }).catch((jqXHR) => {
-                debugger;
                 const errorData = JSON.parse(jqXHR.responseText);
                 reject(errorData);
             });

@@ -15,19 +15,20 @@
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
-        <ul class="uk-tab" uk-switcher="connect: #tab-edit-lesson" uk-tab>
-            <li class="uk-active"><a href="#lesson-details">Edit Lesson</a></li>
-            <li><a href="#lesson-courses">Courses</a></li>
-            <li><a href="#lesson-careers">Careers</a></li>
-            <li><a href="#lesson-outcomes">Outcomes</a></li>
-        </ul>
-
         {% if form_errors(form) %}
             <div class="uk-alert-danger" uk-alert>
                 <a class="uk-alert-close" uk-close></a>
                 <div>{{ form_errors(form) }}</div>
             </div>
         {% endif %}
+
+        <ul class="uk-tab" uk-switcher="connect: #tab-edit-lesson" uk-tab>
+            <li class="uk-active"><a href="#lesson-details">Edit Lesson</a></li>
+            <li><a href="#lesson-industries">Industries</a></li>
+            <li><a href="#lesson-courses">Courses</a></li>
+            <li><a href="#lesson-outcomes">Outcomes</a></li>
+            <li><a href="#lesson-resources">Resources</a></li>
+        </ul>
 
         <div class="uk-switcher" id="tab-edit-lesson">
             <div class="page-lesson-edit__details">
@@ -45,7 +46,7 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.summary, 'Summary*') }}
-                            <div data-wysiwyg="[name='new_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
+                            <div data-wysiwyg="[name='edit_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
                                 {{ form_widget(form.summary) }}
                             </div>
@@ -55,22 +56,6 @@
                             {{ form_label(form.grades, 'Grades*') }}
                             {{ form_widget(form.grades, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.grades) }}
-                        </div>
-
-                        <div class="uk-margin">
-                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.primaryIndustry) }}
-                        </div>
-
-                        <div class="js-secondary-industry-container">
-                            {% if form.secondaryIndustries is defined %}
-                                <div class="uk-margin">
-                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.secondaryIndustries) }}
-                                </div>
-                            {% endif %}
                         </div>
 
                         <div class="uk-margin uk-grid" uk-grid>
@@ -106,6 +91,27 @@
                     </fieldset>
                 </div>
             </div>
+            <div class="page-lesson-edit__industries">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryIndustry) }}
+                        </div>
+                        <div class="js-secondary-industry-container">
+                            {% if form.secondaryIndustries is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.secondaryIndustries) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
             <div class="page-lesson-edit__courses">
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
@@ -123,23 +129,11 @@
                     </fieldset>
                 </div>
             </div>
-            <div class="page-lesson-edit__careers">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.careers, 'Careers*') }}
-                            {{ form_widget(form.careers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.careers) ? ' uk-form-danger' : '' ) }}) }}
-                            <div class="clear"></div>
-                            {{ form_errors(form.careers) }}
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
             <div class="page-lesson-edit__outcomes">
                 <fieldset class="uk-fieldset">
                     <div class="uk-margin">
                         {{ form_label(form.learningOutcomes, 'Learning Outcomes') }}
-                        <div data-wysiwyg="[name='new_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"></div>
+                        <div data-wysiwyg="[name='edit_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"></div>
                         <div style="display: none;">
                             {{ form_widget(form.learningOutcomes) }}
                         </div>
@@ -147,7 +141,7 @@
                     </div>
                     <div class="uk-margin">
                         {{ form_label(form.educationalStandards, 'Educational Standards') }}
-                        <div data-wysiwyg="[name='new_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"></div>
+                        <div data-wysiwyg="[name='edit_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"></div>
                         <div style="display: none;">
                             {{ form_widget(form.educationalStandards) }}
                         </div>
@@ -155,28 +149,54 @@
                     </div>
                 </fieldset>
             </div>
+            <div class="page-lesson-edit__resources">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+
+                        <h4>Add New Resource</h4>
+                        <div class="uk-margin">
+                            <div class="uk-width-1-1">
+                                {{ form_label(form.resources.file, 'Resource File*') }}<br />
+                                <div uk-form-custom="target: true">
+                                    {{ form_widget(form.resources.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.resources.file) ? ' uk-form-danger' : '' ) }}) }}
+                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select Resource" disabled>
+                                </div>
+                                {{ form_errors(form.resources.file) }}
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.resources.title, 'Resource Title*') }}
+                            {{ form_widget(form.resources.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.resources.title) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.resources.title) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.resources.description, 'Resource Description*') }}
+                            {{ form_widget(form.resources.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.resources.description) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.resources.description) }}
+                        </div>
+
+                        {% if lesson.lessonResources|length > 0 %}
+                        <h4>Existing Resources</h4>
+                        <div class="uk-margin">
+                            <dl class="uk-description-list uk-description-list-divider">
+                                {% for lessonResource in lesson.lessonResources %}
+                                    <div class="uk-grid uk-flex-middle" uk-grid>
+                                        <div class="uk-width-expand">
+                                            <dt>{{ lessonResource.title }}</dt>
+                                            <dd>{{ lessonResource.description }}</dd>
+                                        </div>
+                                        <div class="uk-width-auto">
+                                            <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </dl>
+                        </div>
+                        {% endif %}
+                    </fieldset>
+                </div>
+            </div>
         </div>
-
-        {{ form_row(form.resources.file) }}
-        {{ form_row(form.resources.title) }}
-        {{ form_row(form.resources.description) }}
-
-
-        {% if lesson.lessonResources|length > 0 %}
-            <h4>Current Resources</h4>
-            {% for lessonResource in lesson.lessonResources %}
-                <p>
-                    {{ lessonResource.title }}
-                </p>
-                <p>
-                    {{ lessonResource.description }}
-                </p>
-                <p>
-                    <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" target="_blank">View</a>
-                </p>
-
-            {% endfor %}
-        {% endif %}
 
         <div class="uk-margin">
             <button class="uk-button uk-button-primary uk-button-small">Save</button>

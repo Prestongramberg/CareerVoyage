@@ -31,12 +31,20 @@ label {
   }
 }
 
-form fieldset ul:not([data-wysiwyg] ul) {
+form fieldset ul {
   list-style: none;
   padding-left: 0;
   margin: 5px 0;
   font-size: 12px;
   color: red;
+}
+
+.ql-container .ql-editor ul {
+  list-style: inherit;
+  padding-left: inherit;
+  margin: inherit;
+  font-size: inherit;
+  color: inherit;
 }
 
 .ql-editor{
@@ -45,4 +53,8 @@ form fieldset ul:not([data-wysiwyg] ul) {
 
 .ql-showHtml:after {
   content: "[source]";
+}
+
+form .uk-text-meta {
+  margin-bottom: 8px;
 }

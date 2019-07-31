@@ -11,8 +11,8 @@ class LessonListing extends Component {
 
     render() {
         return (
-            <div className="uk-card uk-card-default">
-                <div className="uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+            <div className="lesson-listing uk-card uk-card-default">
+                <div className="lesson-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                      style={{backgroundImage: `url(${this.props.image})`}}>
                     <div className="uk-inline uk-padding-small">
                         <span className="teach-lesson" onClick={this.toggleTeacher}>

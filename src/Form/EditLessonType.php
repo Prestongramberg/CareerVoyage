@@ -42,15 +42,6 @@ class EditLessonType extends AbstractType
 
         $builder
             ->add('title', TextType::class, [])
-            ->add('careers', EntityType::class, [
-                'class' => Career::class,
-                'choice_label' => 'title',
-                'expanded'  => true,
-                'multiple'  => true,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
-                },
-            ])
             ->add('grades', EntityType::class, [
                 'class' => Grade::class,
                 'choice_label' => 'title',
@@ -138,8 +129,11 @@ class EditLessonType extends AbstractType
                     ->setParameter('primaryIndustry', $industry->getId());
             },
             'choice_label' => 'name',
-            'expanded' => false,
-            'multiple' => true
+            'expanded' => true,
+            'multiple' => true,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-checkbox'];
+            }
         ]);
 
     }

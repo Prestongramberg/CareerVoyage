@@ -30,17 +30,6 @@ class Lesson
     private $title;
 
     /**
-     * @Groups({"LESSON_DATA"})
-     * @Assert\Count(
-     *      min = 1,
-     *      minMessage = "You must specify at least one career.",
-     *     groups={"CREATE", "EDIT"}
-     * )
-     * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="lessons")
-     */
-    private $careers;
-
-    /**
      * @Assert\Count(
      *      min = 1,
      *      minMessage = "You must specify at least one grade.",
@@ -155,7 +144,6 @@ class Lesson
 
     public function __construct()
     {
-        $this->careers = new ArrayCollection();
         $this->grades = new ArrayCollection();
         $this->secondaryCourses = new ArrayCollection();
         $this->lessonFavorites = new ArrayCollection();
@@ -177,32 +165,6 @@ class Lesson
     public function setTitle($title)
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Career[]
-     */
-    public function getCareers()
-    {
-        return $this->careers;
-    }
-
-    public function addCareer(Career $career)
-    {
-        if (!$this->careers->contains($career)) {
-            $this->careers[] = $career;
-        }
-
-        return $this;
-    }
-
-    public function removeCareer(Career $career)
-    {
-        if ($this->careers->contains($career)) {
-            $this->careers->removeElement($career);
-        }
 
         return $this;
     }
