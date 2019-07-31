@@ -79,13 +79,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'expanded' => false,
             ])
             ->add('rolesWillingToFulfill', ChoiceType::class, [
-                'choices'  => [
-                    'Guest instructor' => 'GUEST_INSTRUCTOR',
-                    'Site visit host for students' => 'SITE_VISIT_HOST_FOR_STUDENTS',
-                    'Field experiences' => 'FIELD_EXPERIENCES',
-                    'Informational interviewer' => 'INFORMATIONAL_INTERVIEWER',
-                    'Job shadow host' => 'JOB_SHADOW_HOST',
-                ],
+                'choices'  => ProfessionalUser::$possibleRolesWillingToFulfill,
                 'expanded' => true,
                 'multiple' => true,
                 'choice_attr' => function($choice, $key, $value) {

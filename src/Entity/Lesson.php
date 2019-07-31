@@ -63,14 +63,12 @@ class Lesson
     private $summary;
 
     /**
-     * @Assert\NotBlank(message="Don't forget learning outcomes!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $learningOutcomes;
 
     /**
-     * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
