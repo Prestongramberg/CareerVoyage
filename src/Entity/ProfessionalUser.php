@@ -59,6 +59,7 @@ class ProfessionalUser extends User
     private $rolesWillingToFulfill = [];
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="professionalUsers")
      * @JoinColumn(name="company_id", referencedColumnName="id", onDelete="SET NULL")
      */
@@ -93,12 +94,14 @@ class ProfessionalUser extends User
     private $experience;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="professionalUsers")
      */
     private $primaryIndustry;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must specify at least one secondary industry",
