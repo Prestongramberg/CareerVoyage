@@ -16,12 +16,13 @@ export default (state = {}, action) => {
         case actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED:
             return {
                 ...state,
-                industry: action.industry
+                industry: action.industry,
+                secondaryIndustry: ''
             };
         case actionTypes.SECONDARY_INDUSTRY_QUERY_CHANGED:
             return {
                 ...state,
-                industry: action.industry
+                secondaryIndustry: action.industry
             };
         case actionTypes.COMPANY_QUERY_CHANGED:
             return {

@@ -15,8 +15,8 @@ class ProfessionalListing extends Component {
                             <div className="uk-width-expand">
                                 <h3 className="uk-card-title uk-margin-remove-bottom">{ this.props.firstName } {this.props.lastName}</h3>
                                 <p className="uk-text-meta uk-margin-remove-top">
-                                    { this.props.company && <span>{ this.props.company } - </span> }
-                                    { this.props.primaryIndustry && <span>{ this.props.primaryIndustry }</span> }
+                                    { this.props.company && <span>{ this.props.company }</span> }
+                                    { this.props.primaryIndustry && <span> - { this.props.primaryIndustry }</span> }
                                     { this.props.secondaryIndustry && <span> - { this.props.secondaryIndustry }</span> }
                                 </p>
                             </div>
@@ -24,7 +24,7 @@ class ProfessionalListing extends Component {
                     </div>
                     <div className="uk-card-body">
                         <div className="uk-margin">
-                            { this.props.briefBio }
+                            { this.props.briefBio || "This professional hasn't added a description yet." }
                         </div>
                         <div className="professional-links">
                             <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>

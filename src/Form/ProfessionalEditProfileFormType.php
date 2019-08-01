@@ -86,6 +86,9 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'class' => RolesWillingToFulfill::class,
                 'expanded' => true,
                 'multiple' => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('interests', TextareaType::class)
             ->add('briefBio', TextareaType::class)

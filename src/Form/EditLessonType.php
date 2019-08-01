@@ -69,6 +69,8 @@ class EditLessonType extends AbstractType
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
                 'choice_label' => 'name',
+                'placeholder' => 'Select a Primary Industry',
+                'required' => false,
             ])
             ->add('shortDescription', TextareaType::class, [])
             ->add('summary', TextType::class, [])

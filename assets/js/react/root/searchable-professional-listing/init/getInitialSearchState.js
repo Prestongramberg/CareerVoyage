@@ -1,10 +1,10 @@
 export default function getInitialSearchState() {
     return {
-        company: 0,
-        industry: 0,
+        company: '',
+        industry: '',
         query: '',
         loading: true,
-        role: 0,
-        secondaryIndustry: 0
+        role: '',
+        secondaryIndustry: ''
     }
 }

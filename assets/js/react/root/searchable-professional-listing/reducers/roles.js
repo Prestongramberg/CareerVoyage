@@ -10,5 +10,17 @@ export default (state = {}, action) => {
 };
 
 function get_roles_from_request( professionals ) {
-    return [];
+    const role_ids = [];
+    const roles = [];
+
+    professionals.forEach(professional => {
+        professional.rolesWillingToFulfill.forEach(role => {
+            if ( role_ids.indexOf( role.id ) === -1 ) {
+                role_ids.push(role.id);
+                roles.push(role);
+            }
+        });
+    });
+
+    return roles;
 }

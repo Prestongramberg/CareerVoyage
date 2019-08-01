@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadProfessionals, updateCompanyQuery, updatePrimaryIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { loadProfessionals, updateCompanyQuery, updatePrimaryIndustryQuery, updateRoleQuery, updateSearchQuery, updateSecondaryIndustryQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import ProfessionalListing from "../../components/ProfessionalListing/ProfessionalListing";
 
@@ -8,7 +8,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["renderCompanyDropdown", "renderIndustryDropdown", "renderRolesDropdown", "getRelevantProfessionals"];
+        const methods = ["renderCompanyDropdown", "renderIndustryDropdown", "renderRolesDropdown", "renderSecondaryIndustryDropdown", "getRelevantProfessionals"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -34,16 +34,21 @@ class App extends React.Component {
                             { this.renderCompanyDropdown() }
                             { this.renderRolesDropdown() }
                             { this.renderIndustryDropdown() }
+                            { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
                         </div>
 
-                        <div className="uk-grid" data-uk-grid>
+                        <div className="professional-listings" data-uk-grid="masonry: true">
                             { this.props.search.loading && (
                                 <div className="uk-width-1-1 uk-align-center">
                                     <div data-uk-spinner></div>
                                 </div>
                             )}
-                            { !this.props.search.loading && relevantProfessionals.map(professional => (
-                                <div className="uk-width-1-1 uk-width-1-2@l" key={professional.id}>
+                            { !this.props.search.loading && relevantProfessionals.map(professional => {
+
+                                const primaryIndustry = professional.primaryIndustry !== null ? professional.primaryIndustry.name : null;
+                                const secondaryIndustry = professional.secondaryIndustries.length > 0 ? professional.secondaryIndustries[0].name : null;
+
+                                return <div className="uk-width-1-1 uk-width-1-2@l" key={professional.id}>
                                     <ProfessionalListing
                                         briefBio={professional.briefBio}
                                         company={professional.company.name}
@@ -54,11 +59,11 @@ class App extends React.Component {
                                         lastName={professional.lastName}
                                         linkedIn={professional.linkedinProfile}
                                         phone={professional.phone}
-                                        primaryIndustry={professional.primaryIndustry && professional.primaryIndustry.name}
-                                        secondaryIndustry={professional.secondaryIndustries && professional.secondaryIndustries.length > 0 && professional.secondaryIndustries[0].name}
+                                        primaryIndustry={primaryIndustry}
+                                        secondaryIndustry={secondaryIndustry}
                                     />
                                 </div>
-                            ))}
+                            })}
                             { !this.props.search.loading && relevantProfessionals.length === 0 && (
                                 <p>No professionals match your selection</p>
                             )}
@@ -91,7 +96,25 @@ class App extends React.Component {
     }
 
     renderRolesDropdown() {
+
+        if ( this.props.roles.length > 0 ) {
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateRoleQuery}>
+                        <option value="">Filter by Roles...</option>
+                        { this.props.roles.map( role => <option key={role.id} value={role.id}>{role.name}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
+
         return null;
+
     }
 
     renderIndustryDropdown() {
@@ -115,6 +138,32 @@ class App extends React.Component {
         return null;
     }
 
+    renderSecondaryIndustryDropdown() {
+
+        if ( this.props.industries.length > 0 ) {
+
+            const secondaryIndustries = this.props.industries.map( industry => {
+                return parseInt(this.props.search.industry ) === parseInt( industry.id ) ? industry.secondaryIndustries : [];
+            } ).reduce((a, b) => a.concat(b), []).filter((v,i,a)=>a.findIndex((t)=>(t.id === v.id))===i);
+
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateSecondaryIndustryQuery}>
+                        <option value="">Filter by Career...</option>
+                        { secondaryIndustries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        return null;
+    }
+
     getRelevantProfessionals () {
 
         return this.props.professionals.filter(professional => {
@@ -123,17 +172,27 @@ class App extends React.Component {
             const searchableFields = ["firstName", "lastName", "briefBio"];
 
             // Filter By Company
+            if ( !!this.props.search.company && professional.company && parseInt(professional.company.id ) !== parseInt( this.props.search.company ) ) {
+                return false;
+            }
 
             // Filter By Role
+            if ( !!this.props.search.role && professional.rolesWillingToFulfill.filter(role => parseInt( role.id ) === parseInt( this.props.search.role ) ).length === 0 ) {
+                return false;
+            }
 
             // Filter By Industry
+            if (
+                ( !!this.props.search.industry && !professional.primaryIndustry ) ||
+                ( !!this.props.search.industry && parseInt(professional.primaryIndustry.id ) !== parseInt( this.props.search.industry ) )
+            ) {
+                return false;
+            }
 
             // Filter By Sub Industry
-
-            // Filter Category
-            // if ( !!this.props.search.industry && parseInt(professional.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
-            //     return false;
-            // }
+            if ( !!this.props.search.secondaryIndustry && professional.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
+                return false;
+            }
 
             // Filter By Search Term
             if( this.props.search.query ) {
@@ -177,7 +236,9 @@ export const mapDispatchToProps = dispatch => ({
     loadProfessionals: (url) => dispatch(loadProfessionals(url)),
     updateCompanyQuery: (event) => dispatch(updateCompanyQuery(event.target.value)),
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
+    updateRoleQuery: (event) => dispatch(updateRoleQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
+    updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value))
 });
 
 const ConnectedApp = connect(
