@@ -54,12 +54,6 @@ class ProfessionalUser extends User
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $rolesWillingToFulfill = [];
-
-    /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="professionalUsers")
      * @JoinColumn(name="company_id", referencedColumnName="id", onDelete="SET NULL")
      */
@@ -121,11 +115,18 @@ class ProfessionalUser extends User
      */
     private $schools;
 
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @ORM\ManyToMany(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="professionalUsers")
+     */
+    private $rolesWillingToFulfill;
+
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
         $this->schools = new ArrayCollection();
+        $this->rolesWillingToFulfill = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -163,19 +164,7 @@ class ProfessionalUser extends User
 
         return $this;
     }
-
-    public function getRolesWillingToFulfill(): ?array
-    {
-        return $this->rolesWillingToFulfill;
-    }
-
-    public function setRolesWillingToFulfill(?array $rolesWillingToFulfill): self
-    {
-        $this->rolesWillingToFulfill = $rolesWillingToFulfill;
-
-        return $this;
-    }
-
+    
     public function getCompany(): ?Company
     {
         return $this->company;
@@ -346,4 +335,29 @@ class ProfessionalUser extends User
         return $this;
     }
 
+    /**
+     * @return Collection|RolesWillingToFulfill[]
+     */
+    public function getRolesWillingToFulfill(): Collection
+    {
+        return $this->rolesWillingToFulfill;
+    }
+
+    public function addRolesWillingToFulfill(RolesWillingToFulfill $rolesWillingToFulfill): self
+    {
+        if (!$this->rolesWillingToFulfill->contains($rolesWillingToFulfill)) {
+            $this->rolesWillingToFulfill[] = $rolesWillingToFulfill;
+        }
+
+        return $this;
+    }
+
+    public function removeRolesWillingToFulfill(RolesWillingToFulfill $rolesWillingToFulfill): self
+    {
+        if ($this->rolesWillingToFulfill->contains($rolesWillingToFulfill)) {
+            $this->rolesWillingToFulfill->removeElement($rolesWillingToFulfill);
+        }
+
+        return $this;
+    }
 }

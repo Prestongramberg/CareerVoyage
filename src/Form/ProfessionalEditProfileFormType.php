@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
+use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
@@ -81,13 +82,10 @@ class ProfessionalEditProfileFormType extends AbstractType
                     return ['class' => 'uk-checkbox'];
                 },
             ])
-            ->add('rolesWillingToFulfill', ChoiceType::class, [
-                'choices'  => ProfessionalUser::$possibleRolesWillingToFulfill,
+            ->add('rolesWillingToFulfill', EntityType::class, [
+                'class' => RolesWillingToFulfill::class,
                 'expanded' => true,
                 'multiple' => true,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
-                },
             ])
             ->add('interests', TextareaType::class)
             ->add('briefBio', TextareaType::class)

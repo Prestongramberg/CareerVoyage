@@ -142,14 +142,6 @@ class LessonImportCommand extends Command
             $lessonObject = new Lesson();
             $lessonObject->setUser($user);
 
-            // careers
-            $careerIDs = explode(',', $lesson['Career Cluster ID']);
-            foreach($careerIDs as $careerID) {
-                if(empty($careerID)) continue;
-                $career = $this->careerRepository->find($careerID);
-                $lessonObject->addCareer($career);
-            }
-
             // grades
             $gradeIDs = explode(',', $lesson['Grade IDs']);
             foreach($gradeIDs as $gradeID) {
