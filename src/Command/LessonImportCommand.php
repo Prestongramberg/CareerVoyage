@@ -7,6 +7,7 @@ use App\Entity\Lesson;
 use App\Repository\CareerRepository;
 use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
+use App\Repository\IndustryRepository;
 use App\Repository\UserRepository;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -64,6 +65,11 @@ class LessonImportCommand extends Command
     private $userRepository;
 
     /**
+     * @var IndustryRepository;
+     */
+    private $primaryIndustryRepository;
+
+    /**
      * LessonImportCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param CareerRepository $careerRepository
@@ -72,6 +78,7 @@ class LessonImportCommand extends Command
      * @param ImageCacheGenerator $imageCacheGenerator
      * @param UploaderHelper $uploaderHelper
      * @param UserRepository $userRepository
+     * @param IndustryRepository $primaryIndustryRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -80,7 +87,8 @@ class LessonImportCommand extends Command
         CourseRepository $courseRepository,
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        IndustryRepository $primaryIndustryRepository
     ) {
         $this->entityManager = $entityManager;
         $this->careerRepository = $careerRepository;
@@ -89,6 +97,7 @@ class LessonImportCommand extends Command
         $this->imageCacheGenerator = $imageCacheGenerator;
         $this->uploaderHelper = $uploaderHelper;
         $this->userRepository = $userRepository;
+        $this->primaryIndustryRepository = $primaryIndustryRepository;
 
         parent::__construct();
     }
@@ -189,6 +198,18 @@ class LessonImportCommand extends Command
             }
 
             $lessonObject->setShortDescription($lesson['Short Description']);
+
+            // primary industry
+            // todo we only support one primary industry being attached to a lesson
+            // todo despite the csv importer having multiple. We might need to change this down
+            // todo the road to support multiple
+            $primaryIndustryIds = explode(',', $lesson['Career Cluster ID']);
+            foreach($primaryIndustryIds as $primaryIndustryId) {
+                if(empty($primaryIndustryId)) continue;
+                $primaryIndustry = $this->primaryIndustryRepository->find($primaryIndustryId);
+                $lessonObject->setPrimaryIndustry($primaryIndustry);
+            }
+
             $this->entityManager->persist($lessonObject);
         }
 

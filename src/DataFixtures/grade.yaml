@@ -1,0 +1,11 @@
+App\Entity\Grade:
+    grade_1:
+        title: 'K-3'
+    grade_2:
+      title: '4-5'
+    grade_3:
+      title: '6-8'
+    grade_4:
+      title: '9-10'
+    grade_5:
+      title: '11-12'

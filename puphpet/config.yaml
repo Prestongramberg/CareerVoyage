@@ -239,7 +239,8 @@ php:
             - soap
             - zip
         pear: {  }
-        pecl: {  }
+        pecl:
+          - mysql_xdevapi
     ini:
         display_errors: 'On'
         error_reporting: '-1'

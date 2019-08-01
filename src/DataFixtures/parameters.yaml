@@ -1,0 +1,2 @@
+parameters:
+  app.alice.parameters.password: "$2y$12$hCJhH5RgYN/3.m96.aC7j.eZwJIAI7fURv6UG4QkPo9zTrHLOzSK2"

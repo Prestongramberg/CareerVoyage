@@ -1,0 +1,119 @@
+App\Entity\Course:
+    course_1:
+        title: 'AP Comparative Politics'
+    course_2:
+      title: 'AP US Government'
+    course_3:
+      title: 'Accounting'
+    course_4:
+      title: 'Agri- Business'
+    course_5:
+      title: 'Architecture'
+    course_6:
+      title: 'Art & Design'
+    course_7:
+      title: 'Automation and Robotics'
+    course_8:
+      title: 'Biology'
+    course_9:
+      title: 'Business'
+    course_10:
+      title: 'Career Exploration'
+    course_11:
+      title: 'Chemistry'
+    course_12:
+      title: 'Child Development'
+    course_13:
+      title: 'Civics'
+    course_14:
+      title: 'Computer Science'
+    course_15:
+      title: 'Construction'
+    course_16:
+      title: 'Culinary Skills'
+    course_17:
+      title: 'Cyber Security'
+    course_18:
+      title: 'Design Thinking'
+    course_19:
+      title: 'Economics'
+    course_20:
+      title: 'Energy, Environment and Society'
+    course_21:
+      title: 'Engineering High School Level'
+    course_22:
+      title: 'English: Communications'
+    course_23:
+      title: 'Entrepreneurship'
+    course_24:
+      title: 'Environmental Science'
+    course_25:
+      title: 'Fashion Design & Apparel'
+    course_26:
+      title: 'Food Science'
+    course_27:
+      title: 'Geography'
+    course_28:
+      title: 'Graphic Design'
+    course_29:
+      title: 'Health Career Exploration'
+    course_30:
+      title: 'Healthcare'
+    course_31:
+      title: 'Human Geography'
+    course_32:
+      title: 'Information Technology'
+    course_33:
+      title: 'Interior Design'
+    course_34:
+      title: 'Intro to Engineering: Grades 5-9'
+    course_35:
+      title: 'Intro to Transportation Industry'
+    course_36:
+      title: 'Knitting, Crocheting and other crafts'
+    course_37:
+      title: 'Manufacturing'
+    course_38:
+      title: 'Marketing'
+    course_39:
+      title: 'Math'
+    course_40:
+      title: 'Media Studies'
+    course_41:
+      title: 'Metals Technology'
+    course_42:
+      title: 'Metals: construction, installation and operation'
+    course_43:
+      title: 'OSHA 10 Training'
+    course_44:
+      title: 'Photography'
+    course_45:
+      title: 'Power & Energy: Engines'
+    course_46:
+      title: 'Project Management'
+    course_47:
+      title: 'Psychology'
+    course_48:
+      title: 'Race 2 Reduce Grade 4'
+    course_49:
+      title: 'Renewable Energy Solar Focus'
+    course_50:
+      title: 'Science'
+    course_51:
+      title: 'Senior Strategies: post high school lifeskill'
+    course_52:
+      title: 'Service Projects'
+    course_53:
+      title: 'Sociology'
+    course_54:
+      title: 'Statistics'
+    course_55:
+      title: 'TV & Video Production'
+    course_56:
+      title: 'Transition skills for the post high school world'
+    course_57:
+      title: 'Web Design'
+    course_58:
+      title: 'Wood Technology & Carpentry'
+    course_59:
+      title: 'Workplace Skills'
