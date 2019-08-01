@@ -74,12 +74,18 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'class' => School::class,
                 'choice_label' => 'name',
                 'multiple' => true,
-                'expanded' => false,
+                'expanded' => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('rolesWillingToFulfill', EntityType::class, [
                 'class' => RolesWillingToFulfill::class,
                 'expanded' => true,
                 'multiple' => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
             ])
             ->add('interests', TextareaType::class)
             ->add('briefBio', TextareaType::class)
@@ -127,8 +133,11 @@ class ProfessionalEditProfileFormType extends AbstractType
                     ->setParameter('primaryIndustry', $industry->getId());
             },
             'choice_label' => 'name',
-            'expanded' => false,
-            'multiple' => true
+            'expanded' => true,
+            'multiple' => true,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-checkbox'];
+            }
         ]);
 
     }

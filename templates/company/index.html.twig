@@ -3,7 +3,7 @@
 {% block title %}Companies{% endblock %}
 
 {% block body %}
-    <div id="searchable-company-listing" data-user-id="{{ user.id }}" data-user-company="{{ user.company is not defined ? "{}" : encode_company( user.company ) }}"></div>
+    <div id="searchable-company-listing" data-user-id="{{ user.id }}" data-user-roles="{{ user.roles|json_encode() }}" data-user-company="{{ user.company is not defined ? "{}" : encode_company( user.company ) }}"></div>
 {% endblock %}
 
 {% block stylesheets %}

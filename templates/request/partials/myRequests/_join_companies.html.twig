@@ -1,18 +1,41 @@
-<div>
-
+<li>
     {% if request.type == 'TYPE_COMPANY_TO_USER' %}
-
-        You have requested that {{ request.needsApprovalBy.fullName}} join your company.
+        <a class="uk-accordion-title" href="#">Request to join your company</a>
+        <div class="uk-accordion-content">
+            <p>You have requested that {{ request.needsApprovalBy.fullName}} join your company.</p>
+            <p>Status: <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span></p>
+        </div>
 
     {% elseif request.type == 'TYPE_USER_TO_COMPANY' %}
-        <p>
-            You have made a request to join company {{ request.company.name }}
-        </p>
-        <p>{{ request.company.emailAddress }}</p>
-        <p>{{ request.company.website }}</p>
-        <p>{{ request.company.phone }}</p>
-        <p>{{ request.company.primaryIndustry.name }}</p>
+        <a class="uk-accordion-title" href="#">Request to join another company</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request Type</td>
+                    <td>JOIN COMPANY</td>
+                </tr>
+                <tr>
+                    <td>Company Name</td>
+                    <td>{{ request.company.name }}</td>
+                </tr>
+                <tr>
+                    <td>Website</td>
+                    <td>{{ request.company.website }}</td>
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td>{{ request.company.phone }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     {% endif %}
 
-    <p>Status: {% if request.approved %}Approved{% else %}Pending Approval{% endif %}</p>
-</div>
+</li>

@@ -1,15 +1,45 @@
-<div>
-    <p>
-        {{ request.createdBy.firstName }} {{ request.createdBy.lastName }} from {{ request.company.name }} Has requested to create a new company
-    </p>
-
-    <p>{{ request.company.emailAddress }}</p>
-    <p>{{ request.company.website }}</p>
-    <p>{{ request.company.phone }}</p>
-    <p>{{ request.company.primaryIndustry.name }}</p>
-
-    <form method="post">
-        <input type="submit" value="Approve">
-        <input type="hidden" name="request" value="{{ request.id }}">
-    </form>
-</div>
+<li>
+    <a class="uk-accordion-title" href="#">Request to create a new company</a>
+    <div class="uk-accordion-content">
+        <table class="uk-table uk-table-small uk-table-divider">
+            <tbody>
+            <tr>
+                <td>Request Type</td>
+                <td>NEW COMPANY</td>
+            </tr>
+            <tr>
+                <td>Initiated By</td>
+                <td>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</td>
+            </tr>
+            <tr>
+                <td>Company Name</td>
+                <td>{{ request.company.name }}</td>
+            </tr>
+            <tr>
+                <td>Website</td>
+                <td>{{ request.company.website }}</td>
+            </tr>
+            <tr>
+                <td>Phone</td>
+                <td>{{ request.company.phone }}</td>
+            </tr>
+            {% if request.company.primaryIndustry %}
+                <tr>
+                    <td>Industry</td>
+                    <td>{{ request.company.primaryIndustry.name }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td>Status</td>
+                <td>
+                    <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
+                    <form method="post" class="uk-inline">
+                        <input class="uk-label uk-label-success" type="submit" value="Approve">
+                        <input type="hidden" name="request" value="{{ request.id }}">
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</li>

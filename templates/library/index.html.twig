@@ -1,42 +1,58 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}Library{% endblock %}
+{% block bodyClass %}page-library-landing{% endblock %}
 
 {% block body %}
 
+    <div class="uk-container">
+        <ul class="uk-tab" uk-switcher="connect: #tab-library" uk-tab>
+            <li class="uk-active"><a href="#library-lessons">Lessons</a></li>
+            <li><a href="#library-companies">Companies</a></li>
+        </ul>
+        <div class="uk-switcher" id="tab-library">
+            <div class="page-library-landing__lessons">
 
-    <h1>Favorite Companies</h1>
-    {% for favorite in favoriteCompanies %}
+            </div>
+            <div class="page-library-landing__companies">
 
-        {{ favorite.company.name }}
-
-        {% if favorite.company.thumbnailImage %}
-            <img src="{{ asset(uploaded_asset(favorite.company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-        {% endif %}
-
-        <p>Address: {{ favorite.company.address }}</p>
-        <p>Phone: {{ favorite.company.phone }}</p>
-        <p>Brief company description: {{ favorite.company.shortDescription }}</p>
-        <p>Linkedin: {{ favorite.company.companyLinkedinPage }}</p>
-        <p>Primary contact: {{ favorite.company.primaryContact }}</p>
-
-    {% endfor %}
-    <h1>Favorite Lessons</h1>
+            </div>
+        </div>
+    </div>
 
 
-    {% for favorite in favoriteLessons %}
-        <h2>title</h2>
-        {{ favorite.lesson.title }}
-        <br>
+{#    <h1>Favorite Companies</h1>#}
+{#    {% for favorite in favoriteCompanies %}#}
 
-        <h2>summary</h2>
-        {{ favorite.lesson.summary }}
+{#        {{ favorite.company.name }}#}
 
-        <h1>Thumbnail</h1>
-        {% if favorite.lesson.thumbnailImage %}
-            <img src="{{ asset(uploaded_asset(favorite.lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-        {% endif %}
+{#        {% if favorite.company.thumbnailImage %}#}
+{#            <img src="{{ asset(uploaded_asset(favorite.company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />#}
+{#        {% endif %}#}
 
-    {% endfor %}
+{#        <p>Address: {{ favorite.company.address }}</p>#}
+{#        <p>Phone: {{ favorite.company.phone }}</p>#}
+{#        <p>Brief company description: {{ favorite.company.shortDescription }}</p>#}
+{#        <p>Linkedin: {{ favorite.company.companyLinkedinPage }}</p>#}
+{#        <p>Primary contact: {{ favorite.company.primaryContact }}</p>#}
+
+{#    {% endfor %}#}
+{#    <h1>Favorite Lessons</h1>#}
+
+
+{#    {% for favorite in favoriteLessons %}#}
+{#        <h2>title</h2>#}
+{#        {{ favorite.lesson.title }}#}
+{#        <br>#}
+
+{#        <h2>summary</h2>#}
+{#        {{ favorite.lesson.summary }}#}
+
+{#        <h1>Thumbnail</h1>#}
+{#        {% if favorite.lesson.thumbnailImage %}#}
+{#            <img src="{{ asset(uploaded_asset(favorite.lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />#}
+{#        {% endif %}#}
+
+{#    {% endfor %}#}
 
 {% endblock %}

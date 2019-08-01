@@ -44,7 +44,8 @@
             {% if professionalRegistrationForm.secondaryIndustries is defined %}
                 <div class="uk-margin">
                     {{ form_label(professionalRegistrationForm.secondaryIndustries, 'Secondary Industry*') }}
-                    {{ form_widget(professionalRegistrationForm.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(professionalRegistrationForm.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_widget(professionalRegistrationForm.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(professionalRegistrationForm.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                    <div class="clear"></div>
                     {{ form_errors(professionalRegistrationForm.secondaryIndustries) }}
                 </div>
             {% endif %}

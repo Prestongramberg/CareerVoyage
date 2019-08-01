@@ -100,11 +100,6 @@ class ProfessionalUser extends User
     private $secondaryIndustries;
 
     /**
-     * @Assert\Count(
-     *      min = "1",
-     *      minMessage = "You must specify at least one school",
-     *     groups={"EDIT"}
-     * )
      * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="professionalUsers")
      */
     private $schools;

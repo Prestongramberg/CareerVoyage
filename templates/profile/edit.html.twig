@@ -11,8 +11,6 @@
 
 {% block body %}
 
-
-
     {% if user.isAdmin %}
         {% include 'profile/partials/_edit_admin_profile_form.html.twig' %}
     {% elseif user.isProfessional %}

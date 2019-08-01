@@ -26,7 +26,7 @@ abstract class Request
     protected $id;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="boolean")
      */
     protected $approved = false;

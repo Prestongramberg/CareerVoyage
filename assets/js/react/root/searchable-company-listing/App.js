@@ -22,7 +22,7 @@ class App extends React.Component {
                 <ul className="" data-uk-tab="{connect: '#tab-companies'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-companies">All Companies</a></li>
                     <li><a href="#favorite-companies">Favorites</a></li>
-                    <li><a href="#my-company">My Company</a></li>
+                    {this.props.userRoles.indexOf("ROLE_ADMIN_USER") === -1 && <li><a href="#my-company">My Company</a></li> }
                 </ul>
 
                 <div className="uk-switcher" id="tab-companies">
@@ -60,7 +60,7 @@ class App extends React.Component {
                                         website={company.website} />
                                 ))}
                                 { !this.props.search.loading && relevantCompanies.length === 0 && (
-                                    <p>No results match your selection</p>
+                                    <p>No companies match your selection</p>
                                 )}
                             </div>
                         </div>
@@ -91,34 +91,47 @@ class App extends React.Component {
                             </div>
                         )}
                     </div>
-                    <div className="companies_mine">
-                        { this.props.userCompany.id && (
-                            <div>
-                                <div className="uk-card">
-                                    <div className="uk-grid uk-flex-middle" data-uk-grid>
-                                        <div className="uk-width-small">
-                                            <img src={this.props.userCompany.thumbnailImageURL} alt="" />
-                                        </div>
-                                        <div className="uk-width-expand">
-                                            <h3>{ this.props.userCompany.name }</h3>
-                                        </div>
-                                        <div className="uk-width-auto">
-                                            <a href={window.Routing.generate('company_view', {'id': this.props.userCompany.id})}
-                                               className="uk-button uk-button-default uk-button-small uk-margin-small-left">View</a>
-                                            <button data-uk-toggle="target: #remove-from-company" type="button"
-                                                    className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove
-                                            </button>
-                                            <button data-uk-toggle="target: #remove-company" type="button"
-                                                    className="uk-button uk-button-danger uk-button-small uk-margin-small-left">Delete
-                                            </button>
+                    {this.props.userRoles.indexOf("ROLE_ADMIN_USER") === -1 && (
+                        <div className="companies_mine">
+                            { this.props.userCompany.id && (
+                                <div>
+                                    <div className="uk-card">
+                                        <div className="uk-grid uk-flex-middle" data-uk-grid>
+                                            <div className="uk-width-small">
+                                                <img src={this.props.userCompany.thumbnailImageURL} alt="" />
+                                            </div>
+                                            <div className="uk-width-expand">
+                                                <h3>{ this.props.userCompany.name }</h3>
+                                            </div>
+                                            <div className="uk-width-auto">
+                                                <a href={window.Routing.generate('company_view', {'id': this.props.userCompany.id})}
+                                                   className="uk-button uk-button-default uk-button-small uk-margin-small-left">View</a>
+                                                <button data-uk-toggle="target: #remove-from-company" type="button"
+                                                        className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove
+                                                </button>
+                                                <button data-uk-toggle="target: #remove-company" type="button"
+                                                        className="uk-button uk-button-danger uk-button-small uk-margin-small-left">Delete
+                                                </button>
 
-                                            <div id="remove-from-company" data-uk-modal>
-                                                <div className="uk-modal-dialog uk-modal-body">
-                                                    <h2 className="uk-modal-title">Are you sure you want to remove yourself
-                                                        from "{ this.props.userCompany.name }"?</h2>
-                                                    <div className="uk-margin">
-                                                        <form className="uk-inline uk-margin-right" method="post"
-                                                              action={window.Routing.generate('company_remove_user', { userID: this.props.userId, companyID: this.props.userCompany.id })}>
+                                                <div id="remove-from-company" data-uk-modal>
+                                                    <div className="uk-modal-dialog uk-modal-body">
+                                                        <h2 className="uk-modal-title">Are you sure you want to remove yourself
+                                                            from "{ this.props.userCompany.name }"?</h2>
+                                                        <div className="uk-margin">
+                                                            <form className="uk-inline uk-margin-right" method="post"
+                                                                  action={window.Routing.generate('company_remove_user', { userID: this.props.userId, companyID: this.props.userCompany.id })}>
+                                                                <button className="uk-button uk-button-danger" type="submit">Yes</button>
+                                                            </form>
+                                                            <button className="uk-button uk-button-default uk-modal-close">No,
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="remove-company" data-uk-modal>
+                                                    <div className="uk-modal-dialog uk-modal-body">
+                                                        <h2 className="uk-modal-title">Are you sure you want to delete company "{ this.props.userCompany.name }"?</h2>
+                                                        <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: this.props.userCompany.id }) }>
                                                             <button className="uk-button uk-button-danger" type="submit">Yes</button>
                                                         </form>
                                                         <button className="uk-button uk-button-default uk-modal-close">No,
@@ -127,30 +140,19 @@ class App extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="remove-company" data-uk-modal>
-                                                <div className="uk-modal-dialog uk-modal-body">
-                                                    <h2 className="uk-modal-title">Are you sure you want to delete company "{ this.props.userCompany.name }"?</h2>
-                                                    <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: this.props.userCompany.id }) }>
-                                                        <button className="uk-button uk-button-danger" type="submit">Yes</button>
-                                                    </form>
-                                                    <button className="uk-button uk-button-default uk-modal-close">No,
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                        { !this.props.userCompany.id && (
-                            <div className="uk-placeholder uk-text-center">
-                                <p>You aren't associated with a company yet.</p>
-                                {/*<a href={ window.Routing.generate("company_join") } className="uk-button uk-button-primary uk-button-small">Join a Company</a>*/}
-                                <a href={ window.Routing.generate("company_new") } className="uk-button uk-button-primary uk-button-small">Create a Company</a>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                            { !this.props.userCompany.id && (
+                                <div className="uk-placeholder uk-text-center">
+                                    <p>You aren't associated with a company yet.</p>
+                                    {/*<a href={ window.Routing.generate("company_join") } className="uk-button uk-button-primary uk-button-small">Join a Company</a>*/}
+                                    <a href={ window.Routing.generate("company_new") } className="uk-button uk-button-primary uk-button-small">Create a Company</a>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         )
@@ -209,7 +211,8 @@ App.propTypes = {
     search: PropTypes.object,
     companies: PropTypes.array,
     userId: PropTypes.number,
-    userCompany: PropTypes.object
+    userCompany: PropTypes.object,
+    userRoles: PropTypes.array
 };
 
 App.defaultProps = {
@@ -217,6 +220,7 @@ App.defaultProps = {
     industries: [],
     search: {},
     userId: 0,
+    userRoles: [],
     userCompany: {}
 };
 
