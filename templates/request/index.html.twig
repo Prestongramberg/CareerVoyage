@@ -18,38 +18,44 @@
 
         <div class="uk-switcher" id="tab-requests">
             <div class="requests-landing__my-requests">
-                {% if myCreatedRequests|length > 0 %}
-                    {% for request in myCreatedRequests %}
+                <div class="uk-width-xlarge">
+                    {% if myCreatedRequests|length > 0 %}
+                        <ul uk-accordion>
+                            {% for request in myCreatedRequests %}
 
-                        {% if request.className == 'JoinCompanyRequest' %}
-                            {% include 'request/partials/myRequests/_join_companies.html.twig' with {'request': request} %}
-                        {% endif %}
+                                {% if request.className == 'JoinCompanyRequest' %}
+                                    {% include 'request/partials/myRequests/_join_companies.html.twig' with {'request': request} %}
+                                {% endif %}
 
-                        {% if request.className == 'NewCompanyRequest' %}
-                            {% include 'request/partials/myRequests/_new_companies.html.twig' with {'request': request} %}
-                        {% endif %}
+                                {% if request.className == 'NewCompanyRequest' %}
+                                    {% include 'request/partials/myRequests/_new_companies.html.twig' with {'request': request} %}
+                                {% endif %}
 
-                    {% endfor %}
-                {% else %}
-                    <div class="placeholder">
-                        You have no pending requests currently.
-                    </div>
-                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="uk-placeholder">
+                            You have no pending requests currently.
+                        </div>
+                    {% endif %}
+                </div>
             </div>
             {% if requestsThatNeedMyApproval|length > 0 %}
                 <div class="requests-landing__my-approvals">
-                    {% for request in requestsThatNeedMyApproval %}
+                    <ul uk-accordion>
+                        {% for request in requestsThatNeedMyApproval %}
 
-                        {% if request.className == 'JoinCompanyRequest' %}
-                            {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
-                            {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
-                        {% endif %}
+                            {% if request.className == 'JoinCompanyRequest' %}
+                                {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
+                                {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
+                            {% endif %}
 
-                        {% if request.className == 'NewCompanyRequest' %}
-                            {% include 'request/partials/_new_companies.html.twig' with {'request': request} %}
-                        {% endif %}
+                            {% if request.className == 'NewCompanyRequest' %}
+                                {% include 'request/partials/_new_companies.html.twig' with {'request': request} %}
+                            {% endif %}
 
-                    {% endfor %}
+                        {% endfor %}
+                    </ul>
                 </div>
             {% endif %}
         </div>

@@ -141,7 +141,7 @@ class Company
     private $joinCompanyRequests;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      * @ORM\OneToOne(targetEntity="App\Entity\NewCompanyRequest", mappedBy="company", cascade={"persist", "remove"})
      */
     private $newCompanyRequest;

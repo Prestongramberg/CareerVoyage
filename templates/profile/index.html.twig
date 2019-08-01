@@ -49,7 +49,7 @@
                                         {{ user.briefBio|raw }}
                                     </div>
                                 {% else %}
-                                    <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to be featured in our search results!</p>
+                                    <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
                                 {% endif %}
                                 <div class="professional-links">
                                     <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
@@ -80,13 +80,14 @@
                             </div>
                         </div>
                         <div class="uk-card-body">
-                            <ul class="uk-list uk-list-divider">
-                                <li><a href="lessons.php">Instruct a Lesson</a></li>
-                                <li><a>Host a Site Visit</a></li>
-                                <li><a>Share Field Experience</a></li>
-                                <li><a>Informational Interview</a></li>
-                                <li><a>Host a Job Shadow</a></li>
-                            </ul>
+                            <p>Actions to be defined</p>
+{#                            <ul class="uk-list uk-list-divider">#}
+{#                                <li><a href="lessons.php">Instruct a Lesson</a></li>#}
+{#                                <li><a>Host a Site Visit</a></li>#}
+{#                                <li><a>Share Field Experience</a></li>#}
+{#                                <li><a>Informational Interview</a></li>#}
+{#                                <li><a>Host a Job Shadow</a></li>#}
+{#                            </ul>#}
                         </div>
                     </div>
                 </div>
@@ -119,7 +120,7 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.schools %}
+                        {% if user.schools|length > 0 %}
                             <ul class="uk-list uk-list-divider">
                                 {% for school in user.schools %}
                                     <li>{{ school.name }}</li>
@@ -144,7 +145,7 @@
                             </div>
                             <div class="uk-width-expand">
                                 <div class="uk-align-right">
-                                    <a href="#">
+                                    <a href="{{ path('lesson_index') }}">
                                         <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
                                     </a>
                                 </div>
@@ -152,10 +153,10 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.schools %}
+                        {% if user.lessonTeachables|length > 0 %}
                             <ul class="uk-list uk-list-divider">
-                                {% for school in user.schools %}
-                                    <li>{{ school.name }}</li>
+                                {% for teachable in user.lessonTeachables %}
+                                    <li>{{ teachable.lesson.title }}</li>
                                 {% endfor %}
                             </ul>
                         {% else %}

@@ -66,7 +66,10 @@ class NewCompanyFormType extends AbstractType
                 'class' => School::class,
                 'choice_label' => 'name',
                 'multiple' => true,
-                'expanded' => false,
+                'expanded' => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                }
             ])
             ->add('shortDescription', TextareaType::class, [])
             ->add('description', TextareaType::class)
@@ -135,7 +138,7 @@ class NewCompanyFormType extends AbstractType
                     ->setParameter('primaryIndustry', $industry->getId());
             },
             'choice_label' => 'name',
-            'expanded' => false,
+            'expanded' => true,
             'multiple' => true,
             'choice_attr' => function($choice, $key, $value) {
                 return ['class' => 'uk-checkbox'];

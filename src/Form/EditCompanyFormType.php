@@ -54,6 +54,9 @@ class EditCompanyFormType extends AbstractType
                 'choice_label' => 'name',
                 'multiple' => true,
                 'expanded' => false,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                }
             ])
             ->add('companyLinkedinPage', TextType::class, [])
 

@@ -16,8 +16,8 @@
 {#            <li><a href="#">Schools</a></li>#}
             <li><a href="{{ path('company_index') }}">Companies</a></li>
             <li><a href="{{ path('professional_index') }}">Professionals</a></li>
-            <li><a href="#">My Library</a></li>
-            <li><a href="{{ path('requests') }}">Requests</a></li>
+{#            <li><a href="{{ path('library') }}">My Library</a></li>#}
+            <li><a href="{{ path('requests') }}">Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
 
             <li class="uk-nav-divider"></li>
 
@@ -44,7 +44,9 @@
                 <div>
                     <div class="main-navigation__meta uk-inline">
                         <a href="{{ path('requests') }}" class="main-navigation__meta-requests">
-{#                            <span class="main-navigation__meta-requests-num">2</span>#}
+                            {% if pending_requests(user) > 0 %}
+                                <span class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>
+                            {% endif %}
                             <i class="fa fa-paper-plane" aria-hidden="true"></i>
                         </a>
                         <span class="main-navigation__meta-profile">
