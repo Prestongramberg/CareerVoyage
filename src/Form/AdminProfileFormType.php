@@ -71,7 +71,7 @@ class AdminProfileFormType extends AbstractType
                 'label' => 'Password'
             ]);
     }
-    
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
