@@ -16,6 +16,16 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 class ProfessionalUser extends User
 {
+    /**
+     * @var array
+     */
+    public static $possibleRolesWillingToFulfill = [
+        'Guest instructor' => 'GUEST_INSTRUCTOR',
+        'Site visit host for students' => 'SITE_VISIT_HOST_FOR_STUDENTS',
+        'Field experiences' => 'FIELD_EXPERIENCES',
+        'Informational interviewer' => 'INFORMATIONAL_INTERVIEWER',
+        'Job shadow host' => 'JOB_SHADOW_HOST',
+    ];
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
@@ -49,6 +59,7 @@ class ProfessionalUser extends User
     private $rolesWillingToFulfill = [];
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="professionalUsers")
      * @JoinColumn(name="company_id", referencedColumnName="id", onDelete="SET NULL")
      */
@@ -83,12 +94,14 @@ class ProfessionalUser extends User
     private $experience;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="professionalUsers")
      */
     private $primaryIndustry;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must specify at least one secondary industry",

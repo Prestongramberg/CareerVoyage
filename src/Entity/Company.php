@@ -17,7 +17,7 @@ use App\Validator\Constraints as CustomAssert;
 class Company
 {
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -69,7 +69,7 @@ class Company
     private $companyPhotos;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */

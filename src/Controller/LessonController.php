@@ -312,7 +312,7 @@ class LessonController extends AbstractController
             if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
                 $file = $resource->getFile();
                 $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
+                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
                 $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
                 $resource->setMimeType($mimeType ?? 'application/octet-stream');
                 $resource->setFileName($newFilename);
