@@ -38,21 +38,12 @@ services:
         public: false
 
     app.file_uploader:
-        alias: App\Service\FileUploader
+        alias: App\Service\UploaderHelper
         public: true
 
-    App\Service\DataLoader:
-        arguments:
-          - "@liip_imagine"
-          - "@app.file_uploader"
-        tags:
-          - { name: "liip_imagine.binary.loader", loader: spaces_data_loader }
-    App\Service\ProfilePictureCacheResolver:
-        arguments:
-          - "@liip_imagine"
-          - "@app.file_uploader"
-        tags:
-          - { name: "liip_imagine.cache.resolver", resolver: profile_picture_cache_resolver }
+    app.image_cache_generator:
+      alias: App\Service\ImageCacheGenerator
+      public: true
 
     App\Service\ImageCacheGenerator:
         arguments:
@@ -61,3 +52,10 @@ services:
           - "@liip_imagine.filter.manager"
           - "@liip_imagine.filter.configuration"
           - "@logger"
+
+    App\DataFixtures\Faker\Provider\UploadProvider:
+        tags: [ { name: nelmio_alice.faker.provider } ]
+        arguments:
+          - "@app.file_uploader"
+          - "@app.image_cache_generator"
+          - "@doctrine.orm.entity_manager"

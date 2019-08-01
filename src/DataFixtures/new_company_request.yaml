@@ -1,0 +1,51 @@
+App\Entity\NewCompanyRequest:
+    new_company_request_1:
+        company: '@company_1'
+        approved: true
+        created_by: '@professional_user_1'
+        needs_approval_by: '@admin_user_1'
+    new_company_request_2:
+        company: '@company_2'
+        approved: true
+        created_by: '@professional_user_2'
+        needs_approval_by: '@admin_user_1'
+    new_company_request_3:
+      company: '@company_3'
+      approved: false
+      created_by: '@professional_user_3'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_4:
+      company: '@company_4'
+      approved: false
+      created_by: '@professional_user_4'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_5:
+      company: '@company_5'
+      approved: false
+      created_by: '@professional_user_5'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_6:
+      company: '@company_6'
+      approved: false
+      created_by: '@professional_user_6'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_7:
+      company: '@company_7'
+      approved: false
+      created_by: '@professional_user_7'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_8:
+      company: '@company_8'
+      approved: false
+      created_by: '@professional_user_8'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_9:
+      company: '@company_9'
+      approved: false
+      created_by: '@professional_user_9'
+      needs_approval_by: '@admin_user_1'
+    new_company_request_10:
+      company: '@company_10'
+      approved: false
+      created_by: '@professional_user_10'
+      needs_approval_by: '@admin_user_1'

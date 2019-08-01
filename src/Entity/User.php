@@ -447,6 +447,11 @@ abstract class User implements UserInterface
         $this->agreedToTermsAt = new \DateTime();
     }
 
+    public function setAgreedToTermsAt($agreedToTermsAt)
+    {
+        $this->agreedToTermsAt = $agreedToTermsAt;
+    }
+
     /**
      * @return Collection|LessonFavorite[]
      */

@@ -31,6 +31,11 @@ class RolesWillingToFulfill
      */
     private $professionalUsers;
 
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $description;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -84,5 +89,17 @@ class RolesWillingToFulfill
     public function __toString()
     {
         return $this->name;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }
