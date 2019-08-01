@@ -226,6 +226,16 @@ class ProfessionalUser extends User
     }
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     */
+    public function getProfilePhotoImageURL() {
+        if($this->getPhoto()) {
+            return '/media/cache/squared_thumbnail_small/uploads/' . $this->getPhotoPath();
+        }
+        return '';
+    }
+
+    /**
      * @param mixed $photo
      */
     public function setPhoto($photo): void

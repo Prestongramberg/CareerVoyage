@@ -45,7 +45,9 @@
                         <div class="uk-card-body">
                             {% if user.isProfessional %}
                                 {% if user.briefBio %}
-                                    {{ user.briefBio|raw }}
+                                    <div class="uk-margin">
+                                        {{ user.briefBio|raw }}
+                                    </div>
                                 {% else %}
                                     <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to be featured in our search results!</p>
                                 {% endif %}

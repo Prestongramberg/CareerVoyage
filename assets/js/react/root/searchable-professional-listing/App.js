@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadProfessionals, updatePrimaryIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { loadProfessionals, updateCompanyQuery, updatePrimaryIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import ProfessionalListing from "../../components/ProfessionalListing/ProfessionalListing";
 
@@ -8,7 +8,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["renderIndustryDropdown", "getRelevantProfessionals"];
+        const methods = ["renderCompanyDropdown", "renderIndustryDropdown", "renderRolesDropdown", "getRelevantProfessionals"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -19,7 +19,7 @@ class App extends React.Component {
         return (
             <div className="uk-container">
                 <ul className="" data-uk-tab="{connect: '#tab-professionals'}" data-uk-switcher>
-                    <li className="uk-active"><a href="#all-companies">All Professionals</a></li>
+                    <li className="uk-active"><a href="#all-professionals">All Professionals</a></li>
                 </ul>
 
                 <div className="uk-switcher" id="tab-professionals">
@@ -31,28 +31,67 @@ class App extends React.Component {
                                     <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                                 </form>
                             </div>
+                            { this.renderCompanyDropdown() }
+                            { this.renderRolesDropdown() }
                             { this.renderIndustryDropdown() }
                         </div>
 
                         <div className="uk-grid" data-uk-grid>
-                            <div className="uk-width-1-1 professional-listings">
-                                { this.props.search.loading && (
-                                    <div className="uk-width-1-1 uk-align-center">
-                                        <div data-uk-spinner></div>
-                                    </div>
-                                )}
-                                { !this.props.search.loading && relevantProfessionals.map(professional => (
-                                    <ProfessionalListing />
-                                ))}
-                                { !this.props.search.loading && relevantProfessionals.length === 0 && (
-                                    <p>No professionals match your selection</p>
-                                )}
-                            </div>
+                            { this.props.search.loading && (
+                                <div className="uk-width-1-1 uk-align-center">
+                                    <div data-uk-spinner></div>
+                                </div>
+                            )}
+                            { !this.props.search.loading && relevantProfessionals.map(professional => (
+                                <div className="uk-width-1-1 uk-width-1-2@l" key={professional.id}>
+                                    <ProfessionalListing
+                                        briefBio={professional.briefBio}
+                                        company={professional.company.name}
+                                        email={professional.email}
+                                        firstName={professional.firstName}
+                                        key={professional.id}
+                                        image={professional.profilePhotoImageURL}
+                                        lastName={professional.lastName}
+                                        linkedIn={professional.linkedinProfile}
+                                        phone={professional.phone}
+                                        primaryIndustry={professional.primaryIndustry && professional.primaryIndustry.name}
+                                        secondaryIndustry={professional.secondaryIndustries && professional.secondaryIndustries.length > 0 && professional.secondaryIndustries[0].name}
+                                    />
+                                </div>
+                            ))}
+                            { !this.props.search.loading && relevantProfessionals.length === 0 && (
+                                <p>No professionals match your selection</p>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
         )
+    }
+
+    renderCompanyDropdown() {
+
+        if ( this.props.companies.length > 0 ) {
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateCompanyQuery}>
+                        <option value="">Filter by Company...</option>
+                        { this.props.companies.map( company => <option key={company.id} value={company.id}>{company.name}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        return null;
+    }
+
+    renderRolesDropdown() {
+        return null;
     }
 
     renderIndustryDropdown() {
@@ -81,12 +120,20 @@ class App extends React.Component {
         return this.props.professionals.filter(professional => {
 
             // Set Searchable Fields
-            const searchableFields = ["name", "shortDescription"];
+            const searchableFields = ["firstName", "lastName", "briefBio"];
+
+            // Filter By Company
+
+            // Filter By Role
+
+            // Filter By Industry
+
+            // Filter By Sub Industry
 
             // Filter Category
-            if ( !!this.props.search.industry && parseInt(professional.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
-                return false;
-            }
+            // if ( !!this.props.search.industry && parseInt(professional.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
+            //     return false;
+            // }
 
             // Filter By Search Term
             if( this.props.search.query ) {
@@ -110,18 +157,25 @@ App.propTypes = {
 };
 
 App.defaultProps = {
+    companies: [],
+    industries: [],
     professionals: [],
+    roles: [],
     search: {},
     userId: 0
 };
 
 export const mapStateToProps = (state = {}) => ({
+    companies: state.companies,
+    industries: state.industries,
     professionals: state.professionals,
+    roles: state.roles,
     search: state.search
 });
 
 export const mapDispatchToProps = dispatch => ({
     loadProfessionals: (url) => dispatch(loadProfessionals(url)),
+    updateCompanyQuery: (event) => dispatch(updateCompanyQuery(event.target.value)),
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
 });

@@ -8,6 +8,20 @@ export function updateSearchQuery(query) {
     };
 }
 
+export function updateCompanyQuery(company) {
+    return {
+        type: actionTypes.COMPANY_QUERY_CHANGED,
+        company: company
+    };
+}
+
+export function updateRoleQuery(role) {
+    return {
+        type: actionTypes.ROLE_QUERY_CHANGED,
+        role: role
+    };
+}
+
 export function updatePrimaryIndustryQuery(industry) {
     return {
         type: actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED,

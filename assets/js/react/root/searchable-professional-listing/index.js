@@ -4,7 +4,7 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialProfessionalsState, getInitialSearchState } from "./init";
+import { getInitialSearchState } from "./init";
 import App from "./App";
 
 const searchableProfessionalListing = document.getElementById("searchable-professional-listing");
@@ -16,7 +16,10 @@ if( searchableProfessionalListing ) {
     const store = createStore(
         reducers,
         {
-            professionals: getInitialProfessionalsState(),
+            companies: [],
+            industries: [],
+            professionals: [],
+            roles: [],
             search: getInitialSearchState()
         },
         compose(

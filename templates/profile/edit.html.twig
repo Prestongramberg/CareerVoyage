@@ -73,10 +73,7 @@
                                         <div class="uk-margin">
                                             {{ form_label(form.briefBio, 'Brief Bio') }}
                                             <div class="uk-text-meta">Tell us a little about yourself to be featured on our platform</div>
-                                            <div data-wysiwyg="[name='professional_edit_profile_form[briefBio]']" class="{{ ( form_errors(form.briefBio) ? 'wysiwyg-error' : '' ) }}"></div>
-                                            <div style="display: none;">
-                                                {{ form_widget(form.briefBio) }}
-                                            </div>
+                                            {{ form_widget(form.briefBio, {'attr': {'class': 'uk-textarea uk-height-small' ~ ( form_errors(form.briefBio) ? ' uk-form-danger' : '' ) }}) }}
                                             {{ form_errors(form.briefBio) }}
                                         </div>
                                         <div class="uk-margin">
