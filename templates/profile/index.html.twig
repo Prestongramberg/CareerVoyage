@@ -31,6 +31,10 @@
                                             {% endif %}
                                         {% endif %}
 
+                                        {% if user.isAdmin %}
+                                            Administrator
+                                        {% endif %}
+
                                     </p>
                                 </div>
                                 <div class="uk-width-expand">
@@ -120,7 +124,7 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.schools|length > 0 %}
+                        {% if user.schools is defined and user.schools|length > 0 %}
                             <ul class="uk-list uk-list-divider">
                                 {% for school in user.schools %}
                                     <li>{{ school.name }}</li>

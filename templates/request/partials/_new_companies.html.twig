@@ -23,16 +23,18 @@
                 <td>Phone</td>
                 <td>{{ request.company.phone }}</td>
             </tr>
-            <tr>
-                <td>Industry</td>
-                <td>{{ request.company.primaryIndustry.name }}</td>
-            </tr>
+            {% if request.company.primaryIndustry %}
+                <tr>
+                    <td>Industry</td>
+                    <td>{{ request.company.primaryIndustry.name }}</td>
+                </tr>
+            {% endif %}
             <tr>
                 <td>Status</td>
                 <td>
                     <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
                     <form method="post" class="uk-inline">
-                        <input type="submit" value="Approve">
+                        <input class="uk-label uk-label-success" type="submit" value="Approve">
                         <input type="hidden" name="request" value="{{ request.id }}">
                     </form>
                 </td>

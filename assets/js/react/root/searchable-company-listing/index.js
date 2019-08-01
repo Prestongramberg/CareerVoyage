@@ -12,6 +12,7 @@ const searchableCompanyListing = document.getElementById("searchable-company-lis
 if( searchableCompanyListing ) {
 
     const userId = parseInt( searchableCompanyListing.getAttribute("data-user-id") );
+    const userRoles = JSON.parse( searchableCompanyListing.getAttribute("data-user-roles") );
     const userCompany = JSON.parse( searchableCompanyListing.getAttribute("data-user-company") );
 
     const store = createStore(
@@ -30,7 +31,7 @@ if( searchableCompanyListing ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App userId={userId} userCompany={userCompany} />
+                <App userId={userId} userRoles={userRoles} userCompany={userCompany} />
             </Provider>,
             document.getElementById("searchable-company-listing")
         );
