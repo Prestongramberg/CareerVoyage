@@ -40,16 +40,6 @@ class AdminProfileFormType extends AbstractType
             ])
         ];
 
-        /** @var ProfessionalUser $professionalUser */
-        $professionalUser = $options['professionalUser'];
-
-        /*if (!$professionalUser->getPhoto()) {
-            $imageConstraints[] = new NotNull([
-                'message' => 'Please upload an image',
-                'groups'  => ['EDIT']
-            ]);
-        }*/
-
         $builder
             ->add('firstName', TextType::class, [
                 'block_prefix' => 'wrapped_text',
@@ -79,10 +69,5 @@ class AdminProfileFormType extends AbstractType
             'validation_groups' => ['EDIT']
         ]);
 
-    }
-
-    private function localize_us_number($phone) {
-        $numbers_only = preg_replace("/[^\d]/", "", $phone);
-        return preg_replace("/^1?(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $numbers_only);
     }
 }

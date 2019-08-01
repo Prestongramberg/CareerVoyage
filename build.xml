@@ -53,7 +53,7 @@
     </target>
 
     <target name="database:fixtures" description="Running fixtures">
-        <exec passthru="true" checkreturn="true" command="${dir.app}/console hautelook:fixtures:load"/>
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console hautelook:fixtures:load --append"/>
     </target>
 
     <target name="import:lessons" description="Import Schools">

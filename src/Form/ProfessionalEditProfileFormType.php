@@ -39,9 +39,6 @@ class ProfessionalEditProfileFormType extends AbstractType
             ])
         ];
 
-        /** @var ProfessionalUser $professionalUser */
-        $professionalUser = $options['professionalUser'];
-
         /*if (!$professionalUser->getPhoto()) {
             $imageConstraints[] = new NotNull([
                 'message' => 'Please upload an image',
@@ -172,7 +169,6 @@ class ProfessionalEditProfileFormType extends AbstractType
         ]);
 
         $resolver->setRequired([
-           'professionalUser',
             'skip_validation'
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -146,6 +147,12 @@ abstract class User implements UserInterface
      * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="user", orphanRemoval=true)
      */
     protected $lessonTeachables;
+
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $photo;
 
     public function __construct()
     {
@@ -652,6 +659,27 @@ abstract class User implements UserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhoto()
+    {
+        return $this->photo;
+    }
+
+    /**
+     * @param mixed $photo
+     */
+    public function setPhoto($photo): void
+    {
+        $this->photo = $photo;
+    }
+
+    public function getPhotoPath()
+    {
+        return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
     }
 
 }

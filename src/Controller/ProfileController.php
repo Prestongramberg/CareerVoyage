@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Form\AdminProfileFormType;
 use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -95,47 +96,50 @@ class ProfileController extends AbstractController
     /**
      * @Route("/profiles/{id}/edit", name="profile_edit")
      * @param Request $request
-     * @param ProfessionalUser $professionalUser
+     * @param User $user
      * @return JsonResponse|Response
      */
-    public function editAction(Request $request, ProfessionalUser $professionalUser) {
+    public function editAction(Request $request, User $user) {
 
-        $this->denyAccessUnlessGranted('edit', $professionalUser);
+        $this->denyAccessUnlessGranted('edit', $user);
 
         $options = [
             'method' => 'POST',
-            'skip_validation' => $request->request->get('skip_validation', false),
-            'professionalUser' => $professionalUser
         ];
 
-        $form = $this->createForm(ProfessionalEditProfileFormType::class, $professionalUser, $options);
+        if($user->isAdmin()) {
+            $form = $this->createForm(AdminProfileFormType::class, $user, $options);
+        } elseif (($user->isProfessional())) {
+            $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $form = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
+        }
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var ProfessionalUser $professionalUser */
-            $professionalUser = $form->getData();
 
-            if($professionalUser->getPlainPassword()) {
-                $encodedPassword = $this->passwordEncoder->encodePassword($professionalUser, $professionalUser->getPlainPassword());
-                $professionalUser->setPassword($encodedPassword);
+            $user = $form->getData();
+
+            if($user->getPlainPassword()) {
+                $encodedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
+                $user->setPassword($encodedPassword);
             }
 
             $uploadedFile = $form->get('file')->getData();
 
             if($uploadedFile) {
                 $newFilename = $this->uploaderHelper->uploadProfilePhoto($uploadedFile);
-                $professionalUser->setPhoto($newFilename);
+                $user->setPhoto($newFilename);
 
                 $path = $this->uploaderHelper->getPublicPath(UploaderHelper::PROFILE_PHOTO) .'/'. $newFilename;
                 $this->imageCacheGenerator->cacheImageForAllFilters($path);
             }
 
-            $this->entityManager->persist($professionalUser);
+            $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Profile successfully updated');
-            return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+            return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
 
         }
 
@@ -152,26 +156,25 @@ class ProfileController extends AbstractController
 
         $deleteForm = $this->createForm(ProfessionalDeleteProfileFormType::class, null, [
             'method' => 'POST',
-            'action' => $this->generateUrl('profile_delete', ['id' => $professionalUser->getId()])
+            'action' => $this->generateUrl('profile_delete', ['id' => $user->getId()])
         ]);
 
         $deactivateForm = $this->createForm(ProfessionalDeactivateProfileFormType::class, null, [
             'method' => 'POST',
-            'action' => $this->generateUrl('profile_deactivate', ['id' => $professionalUser->getId()])
+            'action' => $this->generateUrl('profile_deactivate', ['id' => $user->getId()])
         ]);
 
         $reactivateForm = $this->createForm(ProfessionalReactivateProfileFormType::class, null, [
             'method' => 'POST',
-            'action' => $this->generateUrl('profile_reactivate', ['id' => $professionalUser->getId()])
+            'action' => $this->generateUrl('profile_reactivate', ['id' => $user->getId()])
         ]);
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
-            'user' => $professionalUser,
+            'user' => $user,
             'deleteForm' => $deleteForm->createView(),
             'deactivateForm' => $deactivateForm->createView(),
             'reactivateForm' => $reactivateForm->createView(),
-
         ]);
     }
 

@@ -61,12 +61,6 @@ class ProfessionalUser extends User
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $photo;
-
-    /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $interests;
@@ -194,37 +188,6 @@ class ProfessionalUser extends User
         $this->deactivated = $deactivated;
 
         return $this;
-    }
-
-    public function getPhotoPath()
-    {
-        return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPhoto()
-    {
-        return $this->photo;
-    }
-
-    /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
-     */
-    public function getProfilePhotoImageURL() {
-        if($this->getPhoto()) {
-            return '/media/cache/squared_thumbnail_small/uploads/' . $this->getPhotoPath();
-        }
-        return '';
-    }
-
-    /**
-     * @param mixed $photo
-     */
-    public function setPhoto($photo): void
-    {
-        $this->photo = $photo;
     }
 
     public function getOwnedCompany(): ?Company

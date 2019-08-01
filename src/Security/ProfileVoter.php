@@ -36,21 +36,19 @@ class ProfileVoter extends Voter
             return false;
         }
 
-        // you know $subject is a Post object, thanks to supports
-        /** @var ProfessionalUser $professionalUser
-         */
-        $professionalUser = $subject;
+        /** @var User $userToVoteOn */
+        $userToVoteOn = $subject;
 
         switch ($attribute) {
             case self::EDIT:
-                return $this->canEdit($professionalUser, $user);
+                return $this->canEdit($userToVoteOn, $user);
         }
 
         throw new \LogicException('This code should not be reached!');
     }
 
-    private function canEdit(ProfessionalUser $professionalUser, User $user)
+    private function canEdit(User $userToVoteOn, User $user)
     {
-        return $user->getId() === $professionalUser->getId();
+        return $user->getId() === $userToVoteOn->getId();
     }
 }
