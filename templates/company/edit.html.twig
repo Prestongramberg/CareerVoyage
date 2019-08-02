@@ -18,6 +18,8 @@
 
         <ul class="uk-tab" uk-switcher="connect: #tab-edit-company" uk-tab>
             <li class="uk-active"><a href="#company-details">Edit Company</a></li>
+            <li><a href="#company-industries">Industry</a></li>
+            <li><a href="#company-schools">Schools</a></li>
             <li><a href="#company-photos">Photos</a></li>
             <li><a href="#company-videos">Videos</a></li>
             <li><a href="#company-resources">Resources</a></li>
@@ -54,28 +56,6 @@
                             {{ form_widget(form.emailAddress, {'attr': {'class': 'uk-input' ~ ( form_errors(form.emailAddress) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.emailAddress) }}
                         </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.primaryIndustry) }}
-                        </div>
-
-                        <div class="js-secondary-industry-container">
-                            {% if form.secondaryIndustries is defined %}
-                                <div class="uk-margin">
-                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.secondaryIndustries) }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }}
-                            {{ form_widget(form.schools, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.schools) }}
-                        </div>
-
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
@@ -128,6 +108,40 @@
                             {{ form_label(form.owner, 'Company Ownership*') }}
                             {{ form_widget(form.owner, {'attr': {'class': 'uk-input' ~ ( form_errors(form.owner) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.owner) }}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-company-edit__industry">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryIndustry) }}
+                        </div>
+
+                        <div class="js-secondary-industry-container">
+                            {% if form.secondaryIndustries is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.secondaryIndustries) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-company-edit__schools">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.schools) }}
                         </div>
                     </fieldset>
                 </div>
