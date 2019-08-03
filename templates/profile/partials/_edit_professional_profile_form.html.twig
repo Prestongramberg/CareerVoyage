@@ -49,7 +49,7 @@
                                             </div>
                                         {% endif %}
                                         <div class="uk-width-expand">
-                                            {{ form_label(form.file, 'Photo*') }}<br />
+                                            {{ form_label(form.file, 'Photo') }}<br />
                                             <div uk-form-custom="target: true">
                                                 {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
                                                 <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
@@ -78,14 +78,14 @@
                             <div class="uk-width-xlarge">
                                 <fieldset class="uk-fieldset">
                                     <div class="uk-margin">
-                                        {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                                        {{ form_label(form.primaryIndustry, 'Industry*') }}
                                         {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
                                         {{ form_errors(form.primaryIndustry) }}
                                     </div>
                                     <div class="js-secondary-industry-container">
                                         {% if form.secondaryIndustries is defined %}
                                             <div class="uk-margin">
-                                                {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                                {{ form_label(form.secondaryIndustries, 'Career Fields*') }}
                                                 {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
                                                 <div class="clear"></div>
                                                 {{ form_errors(form.secondaryIndustries) }}
@@ -117,7 +117,7 @@
                             <div class="uk-width-xlarge">
                                 <fieldset class="uk-fieldset">
                                     <div class="uk-margin">
-                                        {{ form_label(form.schools, 'Schools*') }}
+                                        {{ form_label(form.schools, 'Schools') }}
                                         {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
                                         <div class="clear"></div>
                                         {{ form_errors(form.schools) }}

@@ -21,6 +21,8 @@
 </head>
 <body class="authenticated {% block bodyClass %}{% endblock %}">
 
+    {% include 'partials/help-center-logged-in.html.twig' %}
+
     {% for flashMessage in app.session.flashbag.get('success') %}
         {% set successMessage = flashMessage %}
     {% endfor %}
