@@ -20,6 +20,9 @@
 
 </head>
 <body class="non-authenticated {% block bodyClass %}{% endblock %}">
+
+    {% include 'partials/help-center-not-logged-in.html.twig' %}
+
     <div class="wrapper">
         {% block body %}{% endblock %}
 
