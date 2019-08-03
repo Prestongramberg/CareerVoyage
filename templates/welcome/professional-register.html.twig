@@ -35,7 +35,7 @@
         </div>
 
         <div class="uk-margin">
-            {{ form_label(professionalRegistrationForm.primaryIndustry, 'Primary Industry*') }}
+            {{ form_label(professionalRegistrationForm.primaryIndustry, 'Industry*') }}
             {{ form_widget(professionalRegistrationForm.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(professionalRegistrationForm.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
             {{ form_errors(professionalRegistrationForm.primaryIndustry) }}
         </div>
@@ -43,7 +43,7 @@
         <div class="js-secondary-industry-container">
             {% if professionalRegistrationForm.secondaryIndustries is defined %}
                 <div class="uk-margin">
-                    {{ form_label(professionalRegistrationForm.secondaryIndustries, 'Secondary Industry*') }}
+                    {{ form_label(professionalRegistrationForm.secondaryIndustries, 'Career Fields*') }}
                     {{ form_widget(professionalRegistrationForm.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(professionalRegistrationForm.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
                     <div class="clear"></div>
                     {{ form_errors(professionalRegistrationForm.secondaryIndustries) }}
@@ -53,7 +53,7 @@
 
 
         <div class="uk-margin">
-            <label>{{ form_widget(professionalRegistrationForm.agreeTerms, {'attr': {'class': 'uk-checkbox' ~ ( form_errors(professionalRegistrationForm.agreeTerms) ? ' uk-form-danger' : '' ) }}) }} I agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.</label>
+            <label>{{ form_widget(professionalRegistrationForm.agreeTerms, {'attr': {'class': 'uk-checkbox' ~ ( form_errors(professionalRegistrationForm.agreeTerms) ? ' uk-form-danger' : '' ) }}) }} I agree to the <a href="javascript:void(0)" uk-toggle="target: #modal-privacy-policy">Privacy Policy</a> and <a href="javascript:void(0)" uk-toggle="target: #modal-user-agreement">User Agreement</a>.</label>
             {{ form_errors(professionalRegistrationForm.agreeTerms) }}
         </div>
         <div class="uk-margin">

@@ -53,7 +53,7 @@ class EditCompanyFormType extends AbstractType
                 'class' => School::class,
                 'choice_label' => 'name',
                 'multiple' => true,
-                'expanded' => false,
+                'expanded' => true,
                 'choice_attr' => function($choice, $key, $value) {
                     return ['class' => 'uk-checkbox'];
                 }
