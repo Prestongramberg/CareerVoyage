@@ -4,8 +4,8 @@ export default (state = {}, action) => {
     switch (action.type) {
         case actionTypes.LESSONS_LOADING_SUCCESS:
             return action.response.data;
-        case actionTypes.LESSON_FAVORITE_SUCCESS:
-        case actionTypes.LESSON_UNFAVORITE_SUCCESS:
+        case actionTypes.LESSON_FAVORITE:
+        case actionTypes.LESSON_UNFAVORITE:
             return state.map((item, index) => {
                 if (item.id !== action.lessonId) {
                     return item

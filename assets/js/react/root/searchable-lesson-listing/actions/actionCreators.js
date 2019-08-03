@@ -15,6 +15,20 @@ export function updateCourseQuery(course) {
     };
 }
 
+export function lessonFavorited(lessonId) {
+    return {
+        type: actionTypes.LESSON_FAVORITE,
+        lessonId: lessonId
+    };
+}
+
+export function lessonUnfavorited(lessonId) {
+    return {
+        type: actionTypes.LESSON_UNFAVORITE,
+        lessonId: lessonId
+    };
+}
+
 export function loadLessons(url) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.LESSONS_LOADING})
@@ -55,55 +69,6 @@ export function loadCourses(url) {
             })
             .catch(()=> dispatch({
                 type: actionTypes.COURSES_LOADING_FAILURE
-            }))
-    }
-}
-
-export function lessonFavorite(lessonId) {
-
-    const url = window.Routing.generate("favorite_lesson", {id: lessonId});
-
-    return (dispatch, getState) => {
-        dispatch({type: actionTypes.LESSON_FAVORITE})
-
-        return api.post(url)
-            .then((response) => {
-                if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.LESSON_FAVORITE_SUCCESS, lessonId: lessonId })
-                }  else {
-                    dispatch({
-                        type: actionTypes.LESSON_FAVORITE_FAILURE
-                    })
-
-                }
-            })
-            .catch(()=> dispatch({
-                type: actionTypes.LESSON_FAVORITE_FAILURE
-            }))
-    }
-}
-
-export function lessonUnfavorite(lessonId) {
-
-    const url = window.Routing.generate("unfavorite_lesson", {id: lessonId});
-
-    return (dispatch, getState) => {
-        dispatch({type: actionTypes.LESSON_UNFAVORITE})
-
-        return api.post(url)
-            .then((response) => {
-                console.log(response);
-                if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.LESSON_UNFAVORITE_SUCCESS, lessonId: lessonId})
-                }  else {
-                    dispatch({
-                        type: actionTypes.LESSON_UNFAVORITE_FAILURE
-                    })
-
-                }
-            })
-            .catch(()=> dispatch({
-                type: actionTypes.LESSON_UNFAVORITE_FAILURE
             }))
     }
 }
