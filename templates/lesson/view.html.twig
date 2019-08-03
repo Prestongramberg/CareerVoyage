@@ -27,6 +27,14 @@
 
     <div class="uk-container">
 
+        <div class="uk-margin">
+            <ul class="uk-breadcrumb">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
+                <li><span>{{ lesson.title }}</span></li>
+            </ul>
+        </div>
+
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
