@@ -15,7 +15,7 @@ class UploaderHelper
     const COMPANY_DOCUMENT = 'company_document';
     const HERO_IMAGE = 'hero_image';
     const THUMBNAIL_IMAGE = 'thumbnail_image';
-    const FEATURE_IMAGE = 'feature_image';
+    const FEATURE_IMAGE = 'featured_image';
     const COMPANY_PHOTO = 'company_photo';
     const COMPANY_RESOURCE = 'company_resource';
     const LESSON_THUMBNAIL = 'lesson_thumbnail';

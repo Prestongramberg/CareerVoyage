@@ -1,0 +1,13 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Request to regional coordinator{% endblock %}
+{% block bodyClass %}page-lesson-add{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/lessons.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    {{ render(controller('App\\Controller\\RequestController::getRequestFormAction', { 'requestType': 'BECOME_STATE_COORDINATOR_REQUEST_FROM_SUPER_ADMIN' })) }}
+{% endblock %}

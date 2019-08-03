@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class LessonFavorite
 {
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -24,7 +25,7 @@ class LessonFavorite
     private $user;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson", inversedBy="lessonFavorites")
      * @ORM\JoinColumn(nullable=false)
      */

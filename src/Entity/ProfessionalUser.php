@@ -72,11 +72,13 @@ class ProfessionalUser extends User
     private $deactivated = 0;
 
     /**
+     *
      * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner", cascade={"persist", "remove"})
      */
     private $ownedCompany;
 
     /**
+     *
      * @ORM\OneToOne(targetEntity="App\Entity\Experience", mappedBy="employeeContact", cascade={"persist", "remove"})
      */
     private $experience;

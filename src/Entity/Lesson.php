@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Lesson
 {
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -23,7 +23,7 @@ class Lesson
     private $id;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -57,19 +57,19 @@ class Lesson
 
     /**
      * @Assert\NotBlank(message="Don't forget a summary!", groups={"CREATE", "EDIT"})
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $summary;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $learningOutcomes;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $educationalStandards;

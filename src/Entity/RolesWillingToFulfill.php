@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class RolesWillingToFulfill
 {
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,7 +21,7 @@ class RolesWillingToFulfill
     private $id;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;

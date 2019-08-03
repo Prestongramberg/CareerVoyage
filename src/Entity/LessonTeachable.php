@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LessonTeachableRepository")
@@ -10,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class LessonTeachable
 {
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -23,6 +25,7 @@ class LessonTeachable
     private $user;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson", inversedBy="lessonTeachables")
      * @ORM\JoinColumn(nullable=false)
      */

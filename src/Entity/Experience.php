@@ -35,7 +35,7 @@ class Experience
     }
 
     /**
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -43,27 +43,27 @@ class Experience
     private $id;
 
     /**
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
 
     /**
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
     private $briefDescription;
 
     /**
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $about;
 
     /**
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */

@@ -17,7 +17,7 @@ use App\Validator\Constraints as CustomAssert;
 class Company
 {
     /**
-     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -25,14 +25,14 @@ class Company
     private $id;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget an address!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $address;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a phone number!", groups={"CREATE", "EDIT"})
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
@@ -46,13 +46,13 @@ class Company
     private $phone;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $companyLinkedinPage;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a primary contact!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -69,7 +69,7 @@ class Company
     private $companyPhotos;
 
     /**
-     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */

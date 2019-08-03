@@ -53,7 +53,7 @@ services:
           - "@liip_imagine.filter.configuration"
           - "@logger"
 
-    App\DataFixtures\Faker\Provider\UploadProvider:
+    App\DataFixtures\Faker\Provider\FixtureHelper:
         tags: [ { name: nelmio_alice.faker.provider } ]
         arguments:
           - "@app.file_uploader"

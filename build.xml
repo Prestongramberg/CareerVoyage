@@ -27,10 +27,12 @@
                 database:drop,
                 database:update:schema,
                 import:industries,
-                database:fixtures,
+                database:nelmio:fixtures,
+                database:normal:fixtures,
                 import:lessons,
                 import:schools,
-                clean:cache:clear
+                clean:cache:clear,
+                webpack
             "
             description="Vagrant Install Project">
     </target>
@@ -52,8 +54,12 @@
         <exec passthru="true" checkreturn="true" command="${dir.app}/console industry:import ./secondaryIndustries.csv"/>
     </target>
 
-    <target name="database:fixtures" description="Running fixtures">
+    <target name="database:nelmio:fixtures" description="Running fixtures">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console hautelook:fixtures:load --append"/>
+    </target>
+
+    <target name="database:normal:fixtures" description="Running fixtures">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console doctrine:fixtures:load --append"/>
     </target>
 
     <target name="import:lessons" description="Import Schools">
@@ -62,6 +68,10 @@
 
     <target name="import:schools" description="Import Lessons">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console school:import ./southeast-school-list.csv"/>
+    </target>
+
+    <target name="webpack" description="Run webpack">
+        <exec passthru="true" checkreturn="true" command="${project.basedir}/node_modules/.bin/encore dev"/>
     </target>
 
 </project>
