@@ -510,4 +510,22 @@ class Lesson
         return $this;
     }
 
+    public function isTeachableByUser(User $user)
+    {
+        return ($this->lessonTeachables->filter(
+                function (LessonTeachable $lessonTeachable) use ($user) {
+                    return $lessonTeachable->getUser()->getId() === $user->getId();
+                }
+            )->count() > 0);
+    }
+
+    public function isFavoritedByUser(User $user)
+    {
+        return ($this->lessonFavorites->filter(
+                function (LessonFavorite $lessonFavorite) use ($user) {
+                    return $lessonFavorite->getUser()->getId() === $user->getId();
+                }
+            )->count() > 0);
+    }
+
 }
