@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { lessonFavorite, lessonUnfavorite, lessonTeach, lessonUnteach, loadLessons, loadCourses, updateCourseQuery, updateSearchQuery } from './actions/actionCreators'
+import { lessonFavorited, lessonUnfavorited, lessonTeach, lessonUnteach, loadLessons, loadCourses, updateCourseQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import LessonListing from "../../components/LessonListing/LessonListing";
 
@@ -53,8 +53,8 @@ class App extends React.Component {
                                             image={lesson.thumbnailImageURL}
                                             isFavorite={lesson.favorite}
                                             isTeacher={lesson.teachable}
-                                            lessonFavorite={this.props.lessonFavorite}
-                                            lessonUnfavorite={this.props.lessonUnfavorite}
+                                            lessonFavorited={this.props.lessonFavorited}
+                                            lessonUnfavorited={this.props.lessonUnfavorited}
                                             lessonTeach={this.props.lessonTeach}
                                             lessonUnteach={this.props.lessonUnteach}
                                             title={lesson.title} />
@@ -77,8 +77,8 @@ class App extends React.Component {
                                             image={lesson.thumbnailImageURL}
                                             isFavorite={lesson.favorite}
                                             isTeacher={lesson.teachable}
-                                            lessonFavorite={this.props.lessonFavorite}
-                                            lessonUnfavorite={this.props.lessonUnfavorite}
+                                            lessonFavorited={this.props.lessonFavorited}
+                                            lessonUnfavorited={this.props.lessonUnfavorited}
                                             lessonTeach={this.props.lessonTeach}
                                             lessonUnteach={this.props.lessonUnteach}
                                             title={lesson.title} />
@@ -107,8 +107,8 @@ class App extends React.Component {
                                             image={lesson.thumbnailImageURL}
                                             isFavorite={lesson.favorite}
                                             isTeacher={lesson.teachable}
-                                            lessonFavorite={this.props.lessonFavorite}
-                                            lessonUnfavorite={this.props.lessonUnfavorite}
+                                            lessonFavorited={this.props.lessonFavorited}
+                                            lessonUnfavorited={this.props.lessonUnfavorited}
                                             lessonTeach={this.props.lessonTeach}
                                             lessonUnteach={this.props.lessonUnteach}
                                             title={lesson.title} />
@@ -201,8 +201,8 @@ export const mapStateToProps = (state = {}) => ({
 });
 
 export const mapDispatchToProps = dispatch => ({
-    lessonFavorite: (lessonId) => dispatch(lessonFavorite(lessonId)),
-    lessonUnfavorite: (lessonId) => dispatch(lessonUnfavorite(lessonId)),
+    lessonFavorited: (lessonId) => dispatch(lessonFavorited(lessonId)),
+    lessonUnfavorited: (lessonId) => dispatch(lessonUnfavorited(lessonId)),
     lessonTeach: (lessonId) => dispatch(lessonTeach(lessonId)),
     lessonUnteach: (lessonId) => dispatch(lessonUnteach(lessonId)),
     loadLessons: (url) => dispatch(loadLessons(url)),

@@ -14,6 +14,12 @@
                         <div class="uk-width-expand">
                             <h3>{{ lesson.title }}</h3>
                         </div>
+                        <div class="uk-width-auto">
+                            <div class="uk-align-right">
+                                <div class="react-teach-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-teachable="{{ lesson.isTeachableByUser( user ) }}"></div>&nbsp;&nbsp;&nbsp;
+                                <div class="react-favorite-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-favorited="{{ lesson.isFavoritedByUser( user ) }}"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -21,7 +27,15 @@
     </div>
 
     <div class="uk-container">
-        
+
+        <div class="uk-margin">
+            <ul class="uk-breadcrumb">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
+                <li><span>{{ lesson.title }}</span></li>
+            </ul>
+        </div>
+
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">

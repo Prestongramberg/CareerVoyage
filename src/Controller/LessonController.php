@@ -256,8 +256,10 @@ class LessonController extends AbstractController
      */
     public function viewAction(Request $request, Lesson $lesson) {
 
+        $user = $this->getUser();
+
         return $this->render('lesson/view.html.twig', [
-            'user' => $this->getUser(),
+            'user' => $user,
             'lesson' => $lesson
         ]);
     }

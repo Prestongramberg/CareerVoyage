@@ -1,11 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import FavoriteLesson from "../FavoriteLesson/FavoriteLesson"
+import TeachLesson from "../TeachLesson/TeachLesson"
+
 
 class LessonListing extends Component {
 
     constructor() {
         super();
-        const methods = ["toggleFavorite", "toggleTeacher"];
+        const methods = ["toggleTeacher"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -15,19 +18,22 @@ class LessonListing extends Component {
                 <div className="lesson-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                      style={{backgroundImage: `url(${this.props.image})`}}>
                     <div className="uk-inline uk-padding-small">
-                        { this.props.isTeacher && <span className="teach-lesson" data-uk-tooltip="title: Remove from My Teachable Lessons" onClick={this.toggleTeacher}>
-                            <i className="fa fa-graduation-cap" aria-hidden="true"></i>
-                        </span> }
-                        { !this.props.isTeacher && <span className="teach-lesson" data-uk-tooltip="title: Add to My Teachable Lessons" onClick={this.toggleTeacher}>
-                            <i style={{ opacity: 0.5 }} className="fa fa-graduation-cap" aria-hidden="true"></i>
-                        </span> }
+
+                        <TeachLesson
+                            boundByProps={true}
+                            id={this.props.id}
+                            isTeachable={this.props.isTeacher}
+                            lessonIsNowTeachable={this.props.lessonTeach}
+                            lessonIsNowUnteachable={this.props.lessonUnteach}
+                        />
                         &nbsp;&nbsp;&nbsp;
-                        { this.props.isFavorite && <span className="favorite-lesson" data-uk-tooltip="title: Remove from My Favorites" onClick={this.toggleFavorite}>
-                            <i className="fa fa-heart" aria-hidden="true"></i>
-                        </span> }
-                        { !this.props.isFavorite && <span className="favorite-lesson" data-uk-tooltip="title: Add to My Favorites" onClick={this.toggleFavorite}>
-                            <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i>
-                        </span> }
+                        <FavoriteLesson
+                            boundByProps={true}
+                            id={this.props.id}
+                            isFavorited={this.props.isFavorite}
+                            lessonFavorited={this.props.lessonFavorited}
+                            lessonUnfavorited={this.props.lessonUnfavorited}
+                        />
                     </div>
                 </div>
                 <div className="uk-card-body">
@@ -38,11 +44,6 @@ class LessonListing extends Component {
                 </div>
             </div>
         );
-    }
-
-    toggleFavorite() {
-        const lessonId = this.props.id;
-        this.props.isFavorite ? this.props.lessonUnfavorite(lessonId) : this.props.lessonFavorite(lessonId);
     }
 
     toggleTeacher() {
@@ -57,8 +58,8 @@ LessonListing.propTypes = {
     isFavorite: PropTypes.bool,
     isTeacher: PropTypes.bool,
     image: PropTypes.string,
-    lessonFavorite: PropTypes.func,
-    lessonUnfavorite: PropTypes.func,
+    lessonFavorited: PropTypes.func,
+    lessonUnfavorited: PropTypes.func,
     lessonTeach: PropTypes.func,
     lessonUnteach: PropTypes.func,
     title: PropTypes.string
@@ -67,8 +68,8 @@ LessonListing.propTypes = {
 LessonListing.defaultProps = {
     isFavorite: false,
     isTeacher: false,
-    lessonFavorite: () => {},
-    lessonUnfavorite: () => {},
+    lessonFavorited: () => {},
+    lessonUnfavorited: () => {},
     lessonTeach: () => {},
     lessonUnteach: () => {}
 };
