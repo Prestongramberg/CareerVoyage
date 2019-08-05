@@ -15,8 +15,8 @@ export default (state = {}, action) => {
                     favorite: !item.favorite
                 }
             });
-        case actionTypes.LESSON_TEACH_SUCCESS:
-        case actionTypes.LESSON_UNTEACH_SUCCESS:
+        case actionTypes.LESSON_TEACH:
+        case actionTypes.LESSON_UNTEACH:
             return state.map((item, index) => {
                 if (item.id !== action.lessonId) {
                     return item
