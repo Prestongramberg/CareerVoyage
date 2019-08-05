@@ -17,8 +17,10 @@ abstract class Request
 {
     use TimestampableEntity;
 
+    const BECOME_STATE_COORDINATOR = 'BECOME_STATE_COORDINATOR';
+
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "REQUEST"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -26,18 +28,20 @@ abstract class Request
     protected $id;
 
     /**
-     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "REQUEST"})
      * @ORM\Column(type="boolean")
      */
     protected $approved = false;
 
     /**
+     * @Groups({"REQUEST"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requests")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $created_by;
 
     /**
+     * @Groups({"REQUEST"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requestsThatNeedMyApproval")
      */
     private $needsApprovalBy;

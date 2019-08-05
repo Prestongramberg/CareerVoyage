@@ -15,6 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksPassword;
 use App\Validator\Constraints as CustomAssert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 
 /**
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "schoolAdminUser" = "SchoolAdminUser", "schoolMultiSiteAdmin" = "SchoolMultiSiteAdmin", "schoolRegionalUser" = "SchoolRegionalUser", "schoolStateUser" = "SchoolStateUser"})
  */
 abstract class User implements UserInterface
 {
@@ -38,7 +39,7 @@ abstract class User implements UserInterface
     const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -46,7 +47,7 @@ abstract class User implements UserInterface
     protected $id;
     
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT"}
@@ -57,7 +58,7 @@ abstract class User implements UserInterface
     protected $email;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
@@ -76,7 +77,7 @@ abstract class User implements UserInterface
     protected $plainPassword;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -84,7 +85,7 @@ abstract class User implements UserInterface
     protected $firstName;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT"})
      *
      * @ORM\Column(type="string", length=24)
@@ -102,28 +103,31 @@ abstract class User implements UserInterface
     protected $passwordResetTokenTimestamp;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="json")
      */
     protected $roles = [];
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="boolean")
      */
     protected $deleted = 0;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\Column(type="datetime")
      */
     protected $agreedToTermsAt;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="user", orphanRemoval=true)
      */
     protected $lessonFavorites;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\OneToMany(targetEntity="App\Entity\Lesson", mappedBy="user")
      */
     protected $lessons;
@@ -139,11 +143,13 @@ abstract class User implements UserInterface
     protected $requestsThatNeedMyApproval;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="user", orphanRemoval=true)
      */
     protected $companyFavorites;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="user", orphanRemoval=true)
      */
     protected $lessonTeachables;
@@ -348,6 +354,7 @@ abstract class User implements UserInterface
     }
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @return bool
      */
     public function isProfessional()
@@ -362,6 +369,7 @@ abstract class User implements UserInterface
     }
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @return bool
      */
     public function isEducator()
@@ -376,6 +384,7 @@ abstract class User implements UserInterface
     }
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @return bool
      */
     public function isStudent()
@@ -390,6 +399,7 @@ abstract class User implements UserInterface
     }
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @return bool
      */
     public function isAdmin()

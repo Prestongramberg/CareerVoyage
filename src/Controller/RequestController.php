@@ -10,6 +10,7 @@ use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Factory\RequestFactory;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalDeactivateProfileFormType;
@@ -37,6 +38,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -113,6 +115,11 @@ class RequestController extends AbstractController
     private $requestsMailer;
 
     /**
+     * @var RequestFactory
+     */
+    private $requestFactory;
+
+    /**
      * RequestController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -126,6 +133,7 @@ class RequestController extends AbstractController
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param RequestRepository $requestRepository
      * @param RequestsMailer $requestsMailer
+     * @param RequestFactory $requestFactory
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -139,7 +147,8 @@ class RequestController extends AbstractController
         NewCompanyRequestRepository $newCompanyRequestRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
         RequestRepository $requestRepository,
-        RequestsMailer $requestsMailer
+        RequestsMailer $requestsMailer,
+        RequestFactory $requestFactory
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -153,12 +162,16 @@ class RequestController extends AbstractController
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->requestRepository = $requestRepository;
         $this->requestsMailer = $requestsMailer;
+        $this->requestFactory = $requestFactory;
     }
 
     /**
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function requests(Request $request) {
 
@@ -318,6 +331,26 @@ class RequestController extends AbstractController
             ],
             Response::HTTP_OK
         );
+    }
+
+    /**
+     * @Route("/requests/create", name="requests_create", methods={"POST"}, options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "companyID"})
+     * @ParamConverter("user", options={"id" = "userID"})
+     * @param Request $request
+     */
+    public function requestsCreateAction(Request $request) {
+
+        $requestType = $request->request->get('requestType');
+
+        $form = $this->requestFactory->getForm($requestType);
+
+        $name = "Josh";
+    }
+
+    public function getRequestFormAction($requestType) {
+
+        return $this->requestFactory->getForm($requestType);
     }
 
 }

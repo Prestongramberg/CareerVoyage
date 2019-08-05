@@ -18,10 +18,11 @@ require('./vendor/fontawesome.js');
 window.globalEventDispatcher = new EventDispatcher();
 window.UIkit = UIkit;
 window.Pintex = {
-    notification: function(message) {
+    notification: function(message, status = null) {
         UIkit.notification({
             message: message,
             pos: 'bottom-center',
+            status: status,
             timeout: 1500
         });
     }

@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class SecondaryIndustry
 {
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,7 +21,7 @@ class SecondaryIndustry
     private $id;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
@@ -52,11 +52,17 @@ class SecondaryIndustry
      */
     private $professionalUsers;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\EducatorUser", mappedBy="secondaryIndustries")
+     */
+    private $educatorUsers;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
         $this->lessons = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
+        $this->educatorUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,6 +185,34 @@ class SecondaryIndustry
         if ($this->professionalUsers->contains($professionalUser)) {
             $this->professionalUsers->removeElement($professionalUser);
             $professionalUser->removeSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorUser[]
+     */
+    public function getEducatorUsers(): Collection
+    {
+        return $this->educatorUsers;
+    }
+
+    public function addEducatorUser(EducatorUser $educatorUser): self
+    {
+        if (!$this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers[] = $educatorUser;
+            $educatorUser->addSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorUser(EducatorUser $educatorUser): self
+    {
+        if ($this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers->removeElement($educatorUser);
+            $educatorUser->removeSecondaryIndustry($this);
         }
 
         return $this;

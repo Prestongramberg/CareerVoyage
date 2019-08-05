@@ -16,7 +16,8 @@
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
-                                <div class="react-favorite-lesson" data-lesson-id="{{ lesson.id }}" data-lesson-favorited="{{ lesson.isFavorite }}"></div>
+                                <div class="react-teach-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-teachable="{{ lesson.isTeachableByUser( user ) }}"></div>&nbsp;&nbsp;&nbsp;
+                                <div class="react-favorite-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-favorited="{{ lesson.isFavoritedByUser( user ) }}"></div>
                             </div>
                         </div>
                     </div>

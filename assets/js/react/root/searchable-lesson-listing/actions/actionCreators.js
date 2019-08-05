@@ -29,6 +29,20 @@ export function lessonUnfavorited(lessonId) {
     };
 }
 
+export function lessonTeach(lessonId) {
+    return {
+        type: actionTypes.LESSON_TEACH,
+        lessonId: lessonId
+    };
+}
+
+export function lessonUnteach(lessonId) {
+    return {
+        type: actionTypes.LESSON_UNTEACH,
+        lessonId: lessonId
+    };
+}
+
 export function loadLessons(url) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.LESSONS_LOADING})
@@ -69,58 +83,6 @@ export function loadCourses(url) {
             })
             .catch(()=> dispatch({
                 type: actionTypes.COURSES_LOADING_FAILURE
-            }))
-    }
-}
-
-export function lessonTeach(lessonId) {
-
-    const url = window.Routing.generate("teach_lesson", {id: lessonId});
-
-    console.log(url);
-
-    return (dispatch, getState) => {
-        dispatch({type: actionTypes.LESSON_TEACH})
-
-        return api.post(url)
-            .then((response) => {
-                if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.LESSON_TEACH_SUCCESS, lessonId: lessonId })
-                }  else {
-                    dispatch({
-                        type: actionTypes.LESSON_TEACH_FAILURE
-                    })
-
-                }
-            })
-            .catch(()=> dispatch({
-                type: actionTypes.LESSON_TEACH_FAILURE
-            }))
-    }
-}
-
-export function lessonUnteach(lessonId) {
-
-    const url = window.Routing.generate("unteach_lesson", {id: lessonId});
-
-    console.log(url);
-
-    return (dispatch, getState) => {
-        dispatch({type: actionTypes.LESSON_UNTEACH})
-
-        return api.post(url)
-            .then((response) => {
-                if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.LESSON_UNTEACH_SUCCESS, lessonId: lessonId })
-                }  else {
-                    dispatch({
-                        type: actionTypes.LESSON_UNTEACH_FAILURE
-                    })
-
-                }
-            })
-            .catch(()=> dispatch({
-                type: actionTypes.LESSON_UNTEACH_FAILURE
             }))
     }
 }

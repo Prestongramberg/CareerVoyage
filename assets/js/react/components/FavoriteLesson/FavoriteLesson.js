@@ -6,7 +6,7 @@ class FavoriteLesson extends Component {
 
     constructor(props) {
         super(props);
-        const methods = ["favorite", "renderBasedOnFavorite", "showError", "unFavorite"];
+        const methods = ["favorite", "renderBasedOnFavorite", "unFavorite"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
 
         // Only used on Root Binding
@@ -43,11 +43,11 @@ class FavoriteLesson extends Component {
                     });
                     this.props.lessonUnfavorited(this.props.id);
                 }  else {
-                    this.showError("Unable to unfavorite lesson.  Please try again.");
+                    window.Pintex.notification("Unable to unfavorite lesson.  Please try again.");
                 }
             })
             .catch(()=> {
-                this.showError("Unable to unfavorite lesson.  Please try again.");
+                window.Pintex.notification("Unable to unfavorite lesson.  Please try again.");
             });
     }
 
@@ -62,16 +62,12 @@ class FavoriteLesson extends Component {
                     });
                     this.props.lessonFavorited(this.props.id);
                 }  else {
-                    this.showError("Unable to favorite lesson.  Please try again.");
+                    window.Pintex.notification("Unable to favorite lesson.  Please try again.");
                 }
             })
             .catch(()=> {
-                this.showError("Unable to favorite lesson.  Please try again.");
+                window.Pintex.notification("Unable to favorite lesson.  Please try again.");
             });
-    }
-
-    showError(text) {
-        alert(text);
     }
 }
 

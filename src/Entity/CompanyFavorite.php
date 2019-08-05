@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class CompanyFavorite
 {
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -26,7 +26,7 @@ class CompanyFavorite
     private $user;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyFavorites")
      * @ORM\JoinColumn(nullable=false)
      */
