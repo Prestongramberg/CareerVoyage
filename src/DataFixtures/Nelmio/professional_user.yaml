@@ -1,13 +1,14 @@
 App\Entity\ProfessionalUser:
     professional_user (template):
         password: <{app.alice.parameters.password}>
-        roles: [ "ROLE_PROFESSIONAL_USER" ]
+        roles: [ "ROLE_PROFESSIONAL_USER", "ROLE_DASHBOARD_USER" ]
         agreed_to_terms_at: <(new DateTime("2018-01-01"))>
         briefBio: <paragraph(2)>
         photo: <upload('profile_photo', 'people')>
         phone: <phoneNumber()>
         linkedinProfile: <url()>
         interests: <paragraph(2)>
+        activated: true
     professional_user_1 (extends professional_user):
         email: "travis+professional@pintex.com"
         firstName: "Travis"

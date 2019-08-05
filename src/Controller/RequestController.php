@@ -9,6 +9,7 @@ use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
+use App\Entity\StateCoordinator;
 use App\Entity\User;
 use App\Factory\RequestFactory;
 use App\Form\EditCompanyFormType;
@@ -169,9 +170,6 @@ class RequestController extends AbstractController
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
      */
     public function requests(Request $request) {
 
@@ -188,105 +186,60 @@ class RequestController extends AbstractController
             'created_by' => $user
         ]);
 
-        $companies = $this->companyRepository->getUnApprovedCompanies();
-
-        $messages = $this->container->get('session')->getFlashBag()->get('message');
-        $message = '';
-        if(!empty($messages)) {
-            $message = $messages[0];
-        }
-
-        if($request->getMethod() === 'POST') {
-
-            $request = $request->request->get('request');
-            $request = $this->requestRepository->find($request);
-
-
-
-            switch($request->getClassName()) {
-                case 'NewCompanyRequest':
-                    /** @var NewCompanyRequest $request */
-                    $request = $this->newCompanyRequestRepository->find($request);
-                    $request->setApproved(true);
-                    $this->addFlash('message', 'Company approved');
-                    $this->requestsMailer->newCompanyApproved($request);
-                    break;
-                case 'JoinCompanyRequest':
-                    /** @var JoinCompanyRequestRepository $request */
-                    $request = $this->joinCompanyRequestRepository->find($request);
-                    $request->setApproved(true);
-                    $this->addFlash('message', 'You have joined the company!');
-                    $user->setCompany($request->getCompany());
-                    $this->entityManager->persist($user);
-
-                    if($request->getType() === JoinCompanyRequest::TYPE_COMPANY_TO_USER) {
-                        $this->requestsMailer->companyToUserApproval($request);
-                    } elseif($request->getType() === JoinCompanyRequest::TYPE_USER_TO_COMPANY) {
-                        $this->requestsMailer->userToCompanyApproval($request);
-                    }
-                    break;
-            }
-
-            $this->entityManager->persist($request);
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('requests');
-        }
-
         // todo you could return a different view per user role as well
         return $this->render('request/index.html.twig', [
             'user' => $user,
-            'companies' => $companies,
             'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
-            'myCreatedRequests' => $myCreatedRequests,
-            'message' => $message
+            'myCreatedRequests' => $myCreatedRequests
         ]);
     }
 
     /**
-     * @Route("/requests/companies/{id}/user-to-company", name="user_to_company_request", methods={"POST"}, options = { "expose" = true })
-     * @param Company $company
-     * @param Request $request
+     * @Route("/requests/{id}/approve", name="approve_request", methods={"POST"}, options = { "expose" = true })
+     * @param \App\Entity\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function userToCompanyRequest(Company $company, Request $request) {
+    public function approveRequest(\App\Entity\Request $request) {
 
         /** @var User $user */
         $user = $this->getUser();
 
-        $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsByCompanyAndUser($company, $user);
+        switch($request->getClassName()) {
+            case 'NewCompanyRequest':
+                /** @var NewCompanyRequest $request */
+                $request->setApproved(true);
+                $this->addFlash('success', 'Company approved');
+                $this->requestsMailer->newCompanyApproved($request);
+                break;
+            case 'JoinCompanyRequest':
+                /** @var JoinCompanyRequest $request */
+                $request->setApproved(true);
+                $this->addFlash('success', 'You have joined the company!');
+                $createdBy = $request->getCreatedBy();
+                $createdBy->setCompany($request->getCompany());
+                $this->entityManager->persist($createdBy);
 
-        if(count($requests) > 0) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'message' => 'You have already sent a request to join this company'
-                ],
-                Response::HTTP_OK
-            );
+                if($request->getType() === JoinCompanyRequest::TYPE_COMPANY_TO_USER) {
+                    $this->requestsMailer->companyToUserApproval($request);
+                } elseif($request->getType() === JoinCompanyRequest::TYPE_USER_TO_COMPANY) {
+                    $this->requestsMailer->userToCompanyApproval($request);
+                }
+                break;
+            case 'StateCoordinatorRequest':
+                /** @var StateCoordinator $request */
+                $request->setApproved(true);
+                $this->addFlash('success', 'You have accepted a state coordinator position!');
+                $user->setState($request->getState());
+                $this->entityManager->persist($user);
+                break;
         }
 
-        $joinCompanyRequest = new JoinCompanyRequest();
-        $joinCompanyRequest->setCompany($company);
-        $joinCompanyRequest->setCreatedBy($user);
-        $joinCompanyRequest->setNeedsApprovalBy($company->getOwner());
-        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_USER_TO_COMPANY);
-
-        $this->entityManager->persist($joinCompanyRequest);
+        $this->entityManager->persist($request);
         $this->entityManager->flush();
-
-        $this->requestsMailer->userToCompanyRequest($joinCompanyRequest);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'message' => 'Request to join company successful'
-            ],
-            Response::HTTP_OK
-        );
+        return $this->redirectToRoute('requests');
     }
 
     /**

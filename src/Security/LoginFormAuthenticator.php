@@ -89,6 +89,10 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             throw new CustomUserMessageAuthenticationException('Account has been deleted.');
         }
 
+        if(!$user->getActivated()) {
+            throw new CustomUserMessageAuthenticationException('Account needs to be activated first.');
+        }
+
         return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
     }
 

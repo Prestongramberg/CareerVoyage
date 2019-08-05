@@ -9,6 +9,8 @@ use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\StateCoordinator;
+use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -17,15 +19,23 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Form\StateCoordinatorFormType;
+use App\Mailer\RequestsMailer;
+use App\Mailer\SecurityMailer;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
+use App\Repository\StateCoordinatorRepository;
+use App\Repository\StateCoordinatorRequestRepository;
+use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\RandomStringGenerator;
 use Doctrine\ORM\EntityManagerInterface;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -42,13 +52,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class SchoolController
+ * Class StateCoordinatorController
  * @package App\Controller
- * @Route("/dashboard")
+ * @Route("/dashboard/state-coordinator")
  */
-class SchoolController extends AbstractController
+class StateCoordinatorController extends AbstractController
 {
     use FileHelper;
+    use RandomStringGenerator;
 
     /**
      * @var EntityManagerInterface
@@ -101,7 +112,32 @@ class SchoolController extends AbstractController
     private $lessonTeachableRepository;
 
     /**
-     * LessonController constructor.
+     * @var SecurityMailer
+     */
+    private $securityMailer;
+
+    /**
+     * @var RequestsMailer
+     */
+    private $requestsMailer;
+
+    /**
+     * @var StateCoordinatorRequestRepository
+     */
+    private $stateCoordinatorRequestRepository;
+
+    /**
+     * @var StateCoordinatorRepository
+     */
+    private $stateCoordinatorRepository;
+
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
+     * StateCoordinatorController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -112,6 +148,11 @@ class SchoolController extends AbstractController
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param LessonFavoriteRepository $lessonFavoriteRepository
      * @param LessonTeachableRepository $lessonTeachableRepository
+     * @param SecurityMailer $securityMailer
+     * @param RequestsMailer $requestsMailer
+     * @param StateCoordinatorRequestRepository $stateCoordinatorRequestRepository
+     * @param StateCoordinatorRepository $stateCoordinatorRepository
+     * @param UserRepository $userRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -123,7 +164,12 @@ class SchoolController extends AbstractController
         CompanyRepository $companyRepository,
         CompanyPhotoRepository $companyPhotoRepository,
         LessonFavoriteRepository $lessonFavoriteRepository,
-        LessonTeachableRepository $lessonTeachableRepository
+        LessonTeachableRepository $lessonTeachableRepository,
+        SecurityMailer $securityMailer,
+        RequestsMailer $requestsMailer,
+        StateCoordinatorRequestRepository $stateCoordinatorRequestRepository,
+        StateCoordinatorRepository $stateCoordinatorRepository,
+        UserRepository $userRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -135,79 +181,68 @@ class SchoolController extends AbstractController
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->lessonFavoriteRepository = $lessonFavoriteRepository;
         $this->lessonTeachableRepository = $lessonTeachableRepository;
+        $this->securityMailer = $securityMailer;
+        $this->requestsMailer = $requestsMailer;
+        $this->stateCoordinatorRequestRepository = $stateCoordinatorRequestRepository;
+        $this->stateCoordinatorRepository = $stateCoordinatorRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
-     * @Route("/schools", name="school_index", methods={"GET"})
+     * @Route("/new", name="state_coordinator_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
-    public function indexAction(Request $request) {
+    public function newAction(Request $request) {
 
         $user = $this->getUser();
-        return $this->render('experience/index.html.twig', [
-            'user' => $user,
+        $stateCoordinator = new StateCoordinator();
+
+        $form = $this->createForm(StateCoordinatorFormType::class, $stateCoordinator, [
+            'method' => 'POST'
         ]);
-    }
 
-    /**
-     * @Route("/schools/regional-coordinator/new", name="school_regional_coordinator_new")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function requestToRegionalCoordinatorAction(Request $request) {
+        $form->handleRequest($request);
 
-        $user = $this->getUser();
-        return $this->render('school/request_to_regional_coordinator.html.twig', [
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var StateCoordinator $stateCoordinator */
+            $stateCoordinator = $form->getData();
+
+            $userObj = $this->userRepository->findOneBy(['email' => $stateCoordinator->getEmail()]);
+
+            if($userObj && !$userObj->isStateCoordinator()) {
+                $this->addFlash('error', 'This user already exists and is assigned to a different role.');
+                return $this->redirectToRoute('state_coordinator_new');
+            } elseif ($userObj && $userObj->isStateCoordinator()) {
+                $stateCoordinator = $userObj;
+            } else {
+                $stateCoordinator->initializeNewUser();
+                $stateCoordinator->setPasswordResetToken();
+                $this->entityManager->persist($stateCoordinator);
+            }
+
+            $stateCoordinatorRequest = new StateCoordinatorRequest();
+            $stateCoordinatorRequest->setState($stateCoordinator->getState());
+            $stateCoordinatorRequest->setNeedsApprovalBy($stateCoordinator);
+
+            $stateCoordinatorRequest->setCreatedBy($user);
+            $this->entityManager->persist($stateCoordinatorRequest);
+            $this->entityManager->flush();
+
+            if(!$userObj) {
+                $this->securityMailer->sendAccountActivation($stateCoordinator);
+            }
+
+            $this->requestsMailer->stateCoordinatorRequest($stateCoordinatorRequest);
+
+            $this->addFlash('success', 'State coordinator invite sent.');
+            return $this->redirectToRoute('state_coordinator_new');
+        }
+
+        return $this->render('stateCoordinator/new.html.twig', [
             'user' => $user,
-        ]);
-    }
-
-    /**
-     * @Route("/schools/administrator/new", name="school_administrator_new")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function schoolAdministratorAction(Request $request) {
-
-
-        return new Response("school administrator");
-
-        $user = $this->getUser();
-        return $this->render('experience/index.html.twig', [
-            'user' => $user,
-        ]);
-    }
-
-    /**
-     * @Route("/schools/{id}/students", name="school_students")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function schoolStudentsAction(Request $request) {
-
-
-        return new Response("school students");
-
-        $user = $this->getUser();
-        return $this->render('experience/index.html.twig', [
-            'user' => $user,
-        ]);
-    }
-
-    /**
-     * @Route("/schools/{id}/educators", name="school_educators")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function schoolEducatorsAction(Request $request) {
-
-
-        return new Response("school educators");
-
-        $user = $this->getUser();
-        return $this->render('experience/index.html.twig', [
-            'user' => $user,
+            'form' => $form->createView()
         ]);
     }
 }

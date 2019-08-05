@@ -5,6 +5,7 @@ namespace App\Mailer;
 use App\Entity\Company;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
+use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
 use App\Mailer\AbstractMailer;
 use App\Repository\AdminUserRepository;
@@ -135,5 +136,22 @@ class RequestsMailer extends AbstractMailer
 
             $this->mailer->send($message);
         }
+    }
+
+    public function stateCoordinatorRequest(StateCoordinatorRequest $stateCoordinatorRequest) {
+
+        $message = (new \Swift_Message("State Coordinator Request."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($stateCoordinatorRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/stateCoordinatorRequest.html.twig',
+                    ['request' => $stateCoordinatorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
     }
 }

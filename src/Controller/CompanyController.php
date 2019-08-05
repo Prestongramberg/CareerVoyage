@@ -8,9 +8,11 @@ use App\Entity\CompanyResource;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
+use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewExperienceType;
@@ -19,10 +21,13 @@ use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Mailer\RequestsMailer;
+use App\Model\CompanyInvite;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
+use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -109,6 +114,16 @@ class CompanyController extends AbstractController
     private $professionalUserRepository;
 
     /**
+     * @var JoinCompanyRequestRepository
+     */
+    private $joinCompanyRequestRepository;
+
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -121,6 +136,8 @@ class CompanyController extends AbstractController
      * @param AdminUserRepository $adminUserRepository
      * @param RequestsMailer $requestsMailer
      * @param ProfessionalUserRepository $professionalUserRepository
+     * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
+     * @param UserRepository $userRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -133,7 +150,9 @@ class CompanyController extends AbstractController
         CompanyPhotoRepository $companyPhotoRepository,
         AdminUserRepository $adminUserRepository,
         RequestsMailer $requestsMailer,
-        ProfessionalUserRepository $professionalUserRepository
+        ProfessionalUserRepository $professionalUserRepository,
+        JoinCompanyRequestRepository $joinCompanyRequestRepository,
+        UserRepository $userRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -146,6 +165,8 @@ class CompanyController extends AbstractController
         $this->adminUserRepository = $adminUserRepository;
         $this->requestsMailer = $requestsMailer;
         $this->professionalUserRepository = $professionalUserRepository;
+        $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -282,6 +303,118 @@ class CompanyController extends AbstractController
             'user' => $this->getUser(),
             'company' => $company
         ]);
+    }
+
+    /**
+     * @Route("/companies/{id}/join", name="company_join", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function joinAction(Request $request, Company $company) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsByCompanyAndUser($company, $user);
+
+        if(count($requests) > 0) {
+            $this->addFlash('error', 'You have already made a request to join that company.');
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+        }
+
+        $joinCompanyRequest = new JoinCompanyRequest();
+        $joinCompanyRequest->setCompany($company);
+        $joinCompanyRequest->setCreatedBy($user);
+        $joinCompanyRequest->setNeedsApprovalBy($company->getOwner());
+        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_USER_TO_COMPANY);
+        $this->entityManager->persist($joinCompanyRequest);
+        $this->entityManager->flush();
+
+        $this->requestsMailer->userToCompanyRequest($joinCompanyRequest);
+
+        $this->addFlash('success', 'Request successfully sent!');
+        return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+    }
+
+    /**
+     * @Route("/companies/{id}/invite", name="company_invite", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function inviteAction(Request $request, Company $company) {
+
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $companyRequest = new CompanyInvite();
+        $form = $this->createForm(CompanyInviteFormType::class, $companyRequest, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var CompanyInvite $companyRequest */
+            $companyRequest = $form->getData();
+
+            $emails = explode(',', $companyRequest->getEmailAddress());
+
+            foreach($emails as $email) {
+
+                if($needsApprovalBy = $this->userRepository->getByEmailAddress($email)) {
+
+                } else {
+                    $needsApprovalBy = new ProfessionalUser();
+                }
+
+
+
+                $joinCompanyRequest = new JoinCompanyRequest();
+                $joinCompanyRequest->setCompany($company);
+
+            /*    $userObj = $this->userRepository->findOneBy(['email' => $email]);
+
+                if($userObj && !$userObj->isStateCoordinator()) {
+                    $this->addFlash('error', 'This user already exists and is assigned to a different role.');
+                    return $this->redirectToRoute('state_coordinator_new');
+                } elseif ($userObj && $userObj->isStateCoordinator()) {
+                    $stateCoordinator = $userObj;
+                } else {
+
+                    $stateCoordinator->initializeNewUser();
+                    $stateCoordinator->setPasswordResetToken();
+                    $this->entityManager->persist($stateCoordinator);
+                }*/
+
+
+            }
+
+            //$this->entityManager->persist($company);
+            $this->entityManager->flush();
+
+            //$this->addFlash('success', 'Company successfully updated');
+
+            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
+        }
+
+        return $this->render('company/request.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
+
+
+
+
+
+
     }
 
     /**

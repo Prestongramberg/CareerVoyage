@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "schoolAdminUser" = "SchoolAdminUser", "schoolMultiSiteAdmin" = "SchoolMultiSiteAdmin", "schoolRegionalUser" = "SchoolRegionalUser", "schoolStateUser" = "SchoolStateUser"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "schoolAdminUser" = "SchoolAdminUser", "schoolMultiSiteAdmin" = "SchoolMultiSiteAdmin", "schoolRegionalUser" = "SchoolRegionalUser", "schoolStateUser" = "SchoolStateUser", "stateCoordinator" = "StateCoordinator"})
  */
 abstract class User implements UserInterface
 {
@@ -33,10 +33,12 @@ abstract class User implements UserInterface
     use TimestampableEntity;
 
     const ROLE_USER = 'ROLE_USER';
+    const ROLE_DASHBOARD_USER = 'ROLE_DASHBOARD_USER';
     const ROLE_PROFESSIONAL_USER = 'ROLE_PROFESSIONAL_USER';
     const ROLE_EDUCATOR_USER = 'ROLE_EDUCATOR_USER ';
     const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
     const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
+    const ROLE_STATE_COORDINATOR_USER = 'ROLE_STATE_COORDINATOR_USER';
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
@@ -52,7 +54,7 @@ abstract class User implements UserInterface
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
     protected $email;
@@ -60,13 +62,13 @@ abstract class User implements UserInterface
     /**
      * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $username;
 
     /**
      * @var string The hashed password
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected $password;
 
@@ -77,8 +79,19 @@ abstract class User implements UserInterface
     protected $plainPassword;
 
     /**
+     * InvitationCode
+     *
+     * The invitation code associated with a user.
+     *
+     * @var string
+     *
+     * @ORM\Column(name="invitation_code", type="string", length=16, nullable=true)
+     */
+    protected $invitationCode;
+
+    /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
-     * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      *
      * @ORM\Column(type="string", length=24)
      */
@@ -86,7 +99,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
-     * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      *
      * @ORM\Column(type="string", length=24)
      */
@@ -116,7 +129,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"ALL_USER_DATA"})
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     protected $agreedToTermsAt;
 
@@ -159,6 +172,16 @@ abstract class User implements UserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $photo;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $activated = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $activationCode;
 
     public function __construct()
     {
@@ -413,6 +436,21 @@ abstract class User implements UserInterface
         return false;
     }
 
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     * @return bool
+     */
+    public function isStateCoordinator()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_STATE_COORDINATOR_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function setupAsAdmin() {
 
         if (!in_array(self::ROLE_ADMIN_USER, $this->roles)) {
@@ -420,11 +458,17 @@ abstract class User implements UserInterface
         }
     }
 
-
     public function setupAsProfessional() {
 
         if (!in_array(self::ROLE_PROFESSIONAL_USER, $this->roles)) {
             $this->roles[] = self::ROLE_PROFESSIONAL_USER;
+        }
+    }
+
+    public function setupAsStateCoordinator() {
+
+        if (!in_array(self::ROLE_STATE_COORDINATOR_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_STATE_COORDINATOR_USER;
         }
     }
 
@@ -692,4 +736,51 @@ abstract class User implements UserInterface
         return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
     }
 
+    public function getActivated()
+    {
+        return $this->activated;
+    }
+
+    public function setActivated($activated)
+    {
+        $this->activated = $activated;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInvitationCode()
+    {
+        return $this->invitationCode;
+    }
+
+    /**
+     * @param string $invitationCode
+     */
+    public function setInvitationCode($invitationCode)
+    {
+        $this->invitationCode = $invitationCode;
+    }
+
+    public function initializeNewUser()
+    {
+        $activationCode = bin2hex(random_bytes(32));
+        $this->setActivationCode($activationCode);
+        $roles = $this->getRoles();
+        $this->roles[] = self::ROLE_DASHBOARD_USER;
+    }
+
+    public function getActivationCode()
+    {
+        return $this->activationCode;
+    }
+
+    public function setActivationCode($activationCode)
+    {
+        $this->activationCode = $activationCode;
+
+        return $this;
+    }
 }

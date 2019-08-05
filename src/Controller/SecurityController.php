@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\ForgotPasswordType;
 use App\Form\ResetPasswordType;
-use App\Mailer\ResetPasswordMailer;
+use App\Mailer\SecurityMailer;
 use App\Model\ForgotPassword;
 use App\Model\ResetPassword;
 use App\Repository\UserRepository;
@@ -41,27 +41,27 @@ class SecurityController extends AbstractController
     private $passwordEncoder;
 
     /**
-     * @var ResetPasswordMailer
+     * @var SecurityMailer
      */
-    private $resetPasswordMailer;
+    private $securityMailer;
 
     /**
      * SecurityController constructor.
      * @param EntityManagerInterface $entityManager
      * @param UserRepository $userRepository
      * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ResetPasswordMailer $resetPasswordMailer
+     * @param SecurityMailer $securityMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
         UserPasswordEncoderInterface $passwordEncoder,
-        ResetPasswordMailer $resetPasswordMailer
+        SecurityMailer $securityMailer
     ) {
         $this->entityManager = $entityManager;
         $this->userRepository = $userRepository;
         $this->passwordEncoder = $passwordEncoder;
-        $this->resetPasswordMailer = $resetPasswordMailer;
+        $this->securityMailer = $securityMailer;
     }
 
     /**
@@ -116,7 +116,7 @@ class SecurityController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
 
-                $this->resetPasswordMailer->send($user);
+                $this->securityMailer->sendPasswordReset($user);
 
                 return $this->render('security/password-reset-code-sent.html.twig', [
                     'user' => $user
@@ -140,6 +140,16 @@ class SecurityController extends AbstractController
         return $this->render('security/password-created.html.twig');
     }
 
+    /**
+     * @Route("/account-activated", name="account_activated", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return Response
+     * @throws \Exception
+     */
+    public function accountActivatedAction(Request $request): Response
+    {
+        return $this->render('security/account-activated.html.twig');
+    }
     /**
      * @Route("/reset-password/{token}", name="reset_password", requirements={"token" = "^[a-f0-9]{64}$"})
      *
@@ -200,44 +210,90 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @Route("/set-password/{token}", name="set_password", requirements={"token" = "^[a-f0-9]{64}$"})
+     *
      * @param Request $request
-     * @param User $user
-     * @param RedirectResponse $redirectResponse
-     * @return RedirectResponse|Response
+     * @param string $token
+     * @return Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    protected function generatePasswordActionResponse(Request $request, User $user, RedirectResponse $redirectResponse)
+    public function setPasswordAction(Request $request, $token)
     {
-        $form = $this->createForm('app_set_password');
+
+        $user = $this->userRepository->getByPasswordResetToken($token);
+
+        if(!$user) {
+            return $this->render('security/reset-password-error.html.twig');
+        }
+
+        $resetPassword = new ResetPassword();
+
+        $form = $this->createForm(ResetPasswordType::class, $resetPassword, [
+            'action' => $this->generateUrl('reset_password', ['token' => $token]),
+            'method' => 'POST'
+        ]);
 
         $form->handleRequest($request);
 
-        if ($request->isMethod(Request::METHOD_POST) && $form->isValid()) {
-            /** @var ChangePassword $changePassword */
-            $changePassword = $form->getData();
+        if ($form->isSubmitted()) {
 
-            $encodedPassword = $this->passwordEncoder->encodePassword($user, $changePassword->getPassword());
-            $user->setPassword($encodedPassword)
-                ->clearPasswordResetToken()
-                ->setIsPasswordSetUp(true);
+            if (!$form->isValid()) {
 
-            $this->entityManager->persist($user);
-            $this->entityManager->flush($user);
+                return $this->render('security/reset_password_form.html.twig', [
+                    'form' => $form->createView()
+                ]);
 
-            return $redirectResponse;
+            } else {
+
+                /** @var ResetPassword $resetPassword */
+                $resetPassword = $form->getData();
+
+                $user->setPassword($this->passwordEncoder->encodePassword(
+                    $user,
+                    $resetPassword->getPassword()
+                ));
+
+                $user->clearPasswordResetToken();
+
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+
+                return $this->redirectToRoute('password_created');
+            }
         }
 
-        $returnUrl = $request->headers->get('referer');
+        return $this->render('security/set_password_form.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
 
-        if (!empty($returnUrl)) {
-            $session = $this->get('session');
-            $session->set('return_destination', $returnUrl);
+    /**
+     * @Route("/account-activation/{activationCode}", name="account_activation", requirements={"activationCode" = "^[a-f0-9]{64}$"})
+     *
+     * @param Request $request
+     * @param $activationCode
+     * @return Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function accountActivationAction(Request $request, $activationCode)
+    {
+        /** @var User $user */
+        $user = $this->userRepository->getByActivationCode($activationCode);
+
+        if (!$user) {
+            return $this->redirectToRoute('welcome');
         }
 
-        return $this->render('security/set-password.html.twig', array(
-            'method' => 'post',
-            'form'   => $form->createView(),
-            'user'   => $user,
-        ));
+        $user->setActivated(true);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        // When the account is activated it needs the password set right away we redirect to password reset page
+        if($user->getPasswordResetToken()) {
+            return $this->redirectToRoute('set_password', ['token' => $user->getPasswordResetToken()]);
+        }
+
+        return $this->redirectToRoute('account_activated');
     }
 
     /**
