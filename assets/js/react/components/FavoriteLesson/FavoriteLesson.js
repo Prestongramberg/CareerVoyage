@@ -6,16 +6,21 @@ class FavoriteLesson extends Component {
 
     constructor(props) {
         super(props);
-        const methods = ["favorite", "showError", "unFavorite"];
+        const methods = ["favorite", "renderBasedOnFavorite", "showError", "unFavorite"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
+
+        // Only used on Root Binding
         this.state = {
             isFavorited: props.isFavorited
-        };
+        }
     }
 
     render() {
+        return this.renderBasedOnFavorite( this.props.boundByProps ? this.props.isFavorited : this.state.isFavorited );
+    }
 
-        if( this.state.isFavorited ) {
+    renderBasedOnFavorite( isFavorited ) {
+        if( isFavorited ) {
             return <span className="favorite-lesson" data-uk-tooltip="title: Remove from My Favorites" onClick={this.unFavorite}>
                         <i className="fa fa-heart" aria-hidden="true"></i>
                     </span>
@@ -74,10 +79,12 @@ FavoriteLesson.propTypes = {
     id: PropTypes.number,
     isFavorited: PropTypes.bool,
     lessonFavorited: PropTypes.func,
-    lessonUnfavorited: PropTypes.func
+    lessonUnfavorited: PropTypes.func,
+    boundByProps: PropTypes.bool
 };
 
 FavoriteLesson.defaultProps = {
+    boundByProps: false,
     lessonFavorited: () => {},
     lessonUnfavorited: () => {}
 };

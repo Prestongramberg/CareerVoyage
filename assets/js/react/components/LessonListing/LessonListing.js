@@ -26,6 +26,7 @@ class LessonListing extends Component {
                         </span> }
                         &nbsp;&nbsp;&nbsp;
                         <FavoriteLesson
+                            boundByProps={true}
                             id={this.props.id}
                             isFavorited={this.props.isFavorite}
                             lessonFavorited={this.props.lessonFavorited}
