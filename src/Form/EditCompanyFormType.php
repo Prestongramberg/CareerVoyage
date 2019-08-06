@@ -65,9 +65,6 @@ class EditCompanyFormType extends AbstractType
             ->add('videos', VideoType::class, array(
                 'label' => false,
                 'mapped' => false
-            ))->add('resources', ResourceType::class, array(
-                'label' => false,
-                'mapped' => false
             ))->add('owner', EntityType::class, [
                 'class' => ProfessionalUser::class,
                 'query_builder' => function (EntityRepository $er) use ($company) {

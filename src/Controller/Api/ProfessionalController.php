@@ -160,18 +160,4 @@ class ProfessionalController extends AbstractController
             Response::HTTP_OK
         );
     }
-
-    /**
-     * @Route("/professionals/roles", name="get_professional_roles", methods={"GET"}, options = { "expose" = true })
-     */
-    public function getProfessionalRoles() {
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => ProfessionalUser::$possibleRolesWillingToFulfill
-            ],
-            Response::HTTP_OK
-        );
-    }
 }

@@ -6,7 +6,26 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('build/lessons.js') }}"></script>
+    <script src="{{ asset('build/companies.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js" integrity="sha256-cs4thShDfjkqFGk5s2Lxj35sgSRr4MRcyccmi0WKqCM=" crossorigin="anonymous"></script>
+
+    <script>
+        Dropzone.options.thumbnailDropzone = {
+            paramName: "file",
+            maxFiles: 1
+        };
+
+        Dropzone.options.featuredDropzone = {
+            paramName: "file",
+            maxFiles: 1
+        };
+    </script>
 {% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" integrity="sha256-e47xOkXs1JXFbjjpoRr1/LhVcqSzRmGmPqsrUQeVs+g=" crossorigin="anonymous" />
+ {% endblock %}
 
 
 {% block body %}
@@ -67,13 +86,6 @@
                                 </div>
                             {% endif %}
                             <div class="uk-width-expand">
-                                {{ form_label(form.thumbnailImage, 'Thumbnail') }}<br />
-                                <div class="uk-text-meta">Visible on result pages</div>
-                                <div uk-form-custom="target: true">
-                                    {{ form_widget(form.thumbnailImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.thumbnailImage) ? ' uk-form-danger' : '' ) }}) }}
-                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
-                                </div>
-                                {{ form_errors(form.thumbnailImage) }}
                             </div>
                         </div>
                         <div class="uk-margin uk-grid" uk-grid>
@@ -83,13 +95,7 @@
                                 </div>
                             {% endif %}
                             <div class="uk-width-expand">
-                                {{ form_label(form.featuredImage, 'Featured Image') }}<br />
-                                <div class="uk-text-meta">Visible as a featured banner on the lesson page</div>
-                                <div uk-form-custom="target: true">
-                                    {{ form_widget(form.featuredImage, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.featuredImage) ? ' uk-form-danger' : '' ) }}) }}
-                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select photo" disabled>
-                                </div>
-                                {{ form_errors(form.featuredImage) }}
+
                             </div>
                         </div>
                     </fieldset>
@@ -171,7 +177,7 @@ After describing learning outcomes, feel free to share additional resources whic
                             <p>Resources are optional, but help provide more details about the lesson.  These can include PDFs, Powerpoints, etc.</p>
                         </div>
                         <h4>Add New Resource</h4>
-                        <div class="uk-margin">
+                 {#       <div class="uk-margin">
                             <div class="uk-width-1-1">
                                 {{ form_label(form.resources.file, 'Resource File*') }}<br />
                                 <div uk-form-custom="target: true">
@@ -191,7 +197,7 @@ After describing learning outcomes, feel free to share additional resources whic
                             {{ form_widget(form.resources.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.resources.description) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.resources.description) }}
                         </div>
-
+#}
                         {% if lesson.lessonResources|length > 0 %}
                         <h4>Existing Resources</h4>
                         <div class="uk-margin">
@@ -222,5 +228,19 @@ After describing learning outcomes, feel free to share additional resources whic
         {{ form_end(form) }}
 
     </div>
+
+
+
+    <h1>Thumbnail Image</h1>
+    <form action="{{ path('lesson_thumbnail_add', {
+        id: lesson.id
+    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="thumbnail-dropzone">
+    </form>
+
+    <h1>Featured Image</h1>
+    <form action="{{ path('lesson_featured_add', {
+        id: lesson.id
+    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="featured-dropzone">
+    </form>
 
 {% endblock %}

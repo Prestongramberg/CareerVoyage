@@ -17,17 +17,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 class ProfessionalUser extends User
 {
     /**
-     * @var array
-     */
-    public static $possibleRolesWillingToFulfill = [
-        'Guest instructor' => 'GUEST_INSTRUCTOR',
-        'Site visit host for students' => 'SITE_VISIT_HOST_FOR_STUDENTS',
-        'Field experiences' => 'FIELD_EXPERIENCES',
-        'Informational interviewer' => 'INFORMATIONAL_INTERVIEWER',
-        'Job shadow host' => 'JOB_SHADOW_HOST',
-    ];
-
-    /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */

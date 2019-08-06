@@ -413,7 +413,6 @@ class CompanyController extends AbstractController
      */
     public function companyProfessionalRemoveAction(Request $request, Company $company, ProfessionalUser $professional) {
 
-
         if($professional->isOwner($company)) {
             $this->addFlash('error', 'you do not have permission to do this');
 
@@ -460,12 +459,19 @@ class CompanyController extends AbstractController
 
             $this->entityManager->persist($company);
             $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::THUMBNAIL_IMAGE.'/'.$newFilename
+                ], Response::HTTP_OK
+            );
         }
 
         return new JsonResponse(
             [
                 'success' => true,
-            ], Response::HTTP_OK
+            ], Response::HTTP_BAD_REQUEST
         );
     }
 
@@ -491,15 +497,65 @@ class CompanyController extends AbstractController
             $image->setFileName($newFilename);
             $company->setFeaturedImage($image);
             $this->entityManager->persist($image);
-
             $this->entityManager->persist($company);
             $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::FEATURE_IMAGE.'/'.$newFilename
+                ], Response::HTTP_OK
+            );
         }
 
         return new JsonResponse(
             [
-                'success' => true,
-            ], Response::HTTP_OK
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/resource/add", name="company_resource_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddResourceAction(Request $request, Company $company) {
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($file && $title && $description) {
+            $mimeType = $file->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
+            $companyResource = new CompanyResource();
+            $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+            $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
+            $companyResource->setFileName($newFilename);
+            $companyResource->setFile(null);
+            $companyResource->setCompany($company);
+            $companyResource->setDescription($description);
+            $companyResource->setTitle($title);
+            $this->entityManager->persist($companyResource);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
         );
     }
 
@@ -527,12 +583,19 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($image);
             $this->entityManager->persist($company);
             $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::COMPANY_PHOTO.'/'.$newFilename
+                ], Response::HTTP_OK
+            );
         }
 
         return new JsonResponse(
             [
-                'success' => true,
-            ], Response::HTTP_OK
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
         );
     }
 

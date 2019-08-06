@@ -124,13 +124,6 @@ class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE"})
-     * @ORM\Column(type="string", length=255)
-     */
-    private $state;
-
-    /**
-     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE"})
      * @ORM\Column(type="string", length=255)
      */
@@ -183,6 +176,13 @@ class Experience
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
+     */
+    private $state;
 
     public function __construct()
     {
@@ -352,19 +352,7 @@ class Experience
 
         return $this;
     }
-
-    public function getState()
-    {
-        return $this->state;
-    }
-
-    public function setState($state)
-    {
-        $this->state = $state;
-
-        return $this;
-    }
-
+    
     public function getZipcode()
     {
         return $this->zipcode;
@@ -476,6 +464,18 @@ class Experience
     public function setCompany(?Company $company): self
     {
         $this->company = $company;
+
+        return $this;
+    }
+
+    public function getState(): ?State
+    {
+        return $this->state;
+    }
+
+    public function setState(?State $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }
