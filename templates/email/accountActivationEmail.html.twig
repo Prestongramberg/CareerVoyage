@@ -1,0 +1,9 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : user.firstName } %}
+
+<p>Account activation requested.</p>
+<p>Click link below to activate your account.</p>
+
+<p><a href="{{ accountActivationUrl }}"><strong>{{ accountActivationUrl }}</strong></a></p>
+
+
+{% include 'email/partial/emailFooter.html.twig' %}

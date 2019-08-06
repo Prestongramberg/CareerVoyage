@@ -1,9 +1,10 @@
 App\Entity\AdminUser:
   admin_user_1:
     password: <{app.alice.parameters.password}>
-    roles: [ "ROLE_ADMIN_USER" ]
+    roles: [ "ROLE_ADMIN_USER", "ROLE_DASHBOARD_USER"]
     firstName: "Chris"
     lastName: "Pears"
     email: "chris+admin@pintex.com"
     username: "chris+admin"
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true

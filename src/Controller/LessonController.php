@@ -345,4 +345,29 @@ class LessonController extends AbstractController
             'lesson' => $lesson
         ]);
     }
+
+    /**
+     * @Route("/lessons/{id}/delete", name="lesson_delete", options = { "expose" = true })
+     * @param Lesson $lesson
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteLessonAction(Lesson $lesson, Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $canDelete = $user->isAdmin() || ($lesson->getUser() && $lesson->getUser()->getId() === $user->getId());
+
+        if($canDelete) {
+            $this->entityManager->remove($lesson);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'lesson deleted');
+        } else {
+            $this->addFlash('error', 'lesson can not be deleted');
+        }
+
+        return $this->redirectToRoute('lesson_index');
+    }
 }

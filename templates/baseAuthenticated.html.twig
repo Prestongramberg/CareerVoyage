@@ -21,18 +21,20 @@
 </head>
 <body class="authenticated {% block bodyClass %}{% endblock %}">
 
-    {% include 'partials/help-center-logged-in.html.twig' %}
-
-    {% for flashMessage in app.session.flashbag.get('success') %}
-        {% set successMessage = flashMessage %}
-    {% endfor %}
-
-    {% for flashMessage in app.session.flashbag.get('error') %}
-        {% set errorMessage = flashMessage %}
-    {% endfor %}
-
     <div class="wrapper">
         {% include 'nav/primary.html.twig' %}
+
+        {% include 'partials/help-center-logged-in.html.twig' %}
+
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            {% set successMessage = flashMessage %}
+            {{ flashMessage }}
+        {% endfor %}
+
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            {% set errorMessage = flashMessage %}
+            {{ flashMessage }}
+        {% endfor %}
 
         <div class="main-content">
             {% block body %}{% endblock %}

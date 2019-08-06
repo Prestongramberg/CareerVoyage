@@ -54,12 +54,12 @@
         <exec passthru="true" checkreturn="true" command="${dir.app}/console industry:import ./secondaryIndustries.csv"/>
     </target>
 
-    <target name="database:nelmio:fixtures" description="Running fixtures">
-        <exec passthru="true" checkreturn="true" command="${dir.app}/console hautelook:fixtures:load --append"/>
-    </target>
-
     <target name="database:normal:fixtures" description="Running fixtures">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console doctrine:fixtures:load --append"/>
+    </target>
+
+    <target name="database:nelmio:fixtures" description="Running fixtures">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console hautelook:fixtures:load --append"/>
     </target>
 
     <target name="import:lessons" description="Import Schools">

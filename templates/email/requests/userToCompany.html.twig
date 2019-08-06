@@ -1,7 +1,0 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.needsApprovalBy.firstName } %}
-
-<p>You have a new request from <strong>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</strong> wishing to join your company</p>
-
-<p>Please login to the dashboard to approve request.</p>
-
-{% include 'email/partial/emailFooter.html.twig' %}

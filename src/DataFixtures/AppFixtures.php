@@ -3,12 +3,20 @@
 namespace App\DataFixtures;
 
 
+use App\Entity\Region;
 use App\Entity\State;
+use App\Repository\StateRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
 class AppFixtures extends Fixture
 {
+    /**
+     * @var StateRepository
+     */
+    private $stateRepository;
+
+
     /**
      * @var array
      */
@@ -66,6 +74,15 @@ class AppFixtures extends Fixture
         'WY'=>'Wyoming',
     );
 
+    /**
+     * AppFixtures constructor.
+     * @param StateRepository $stateRepository
+     */
+    public function __construct(StateRepository $stateRepository)
+    {
+        $this->stateRepository = $stateRepository;
+    }
+
     public function load(ObjectManager $manager)
     {
         foreach(self::$states as $abbreviation => $fullName) {
@@ -74,7 +91,15 @@ class AppFixtures extends Fixture
             $stateObject->setAbbreviation($abbreviation);
             $manager->persist($stateObject);
         }
+        $manager->flush();
 
+        $region = new Region();
+        $state = $this->stateRepository->findOneBy([
+            'name' => 'Minnesota'
+        ]);
+        $region->setName('Southeast');
+        $region->setState($state);
+        $manager->persist($region);
         $manager->flush();
     }
 }

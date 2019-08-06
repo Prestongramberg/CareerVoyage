@@ -6,6 +6,7 @@ namespace App\DataFixtures\Faker\Provider;
 use App\Entity\CompanyPhoto;
 use App\Entity\Industry;
 use App\Entity\SecondaryIndustry;
+use App\Entity\State;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -87,5 +88,4 @@ class FixtureHelper
             'primaryIndustry' => $primaryIndustryId
         ], null, 5);
     }
-
 }

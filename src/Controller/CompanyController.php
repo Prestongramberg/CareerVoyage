@@ -8,9 +8,11 @@ use App\Entity\CompanyResource;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
+use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
+use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewExperienceType;
@@ -19,10 +21,13 @@ use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Mailer\RequestsMailer;
+use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
+use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -104,9 +109,24 @@ class CompanyController extends AbstractController
     private $requestsMailer;
 
     /**
+     * @var SecurityMailer
+     */
+    private $securityMailer;
+
+    /**
      * @var ProfessionalUserRepository
      */
     private $professionalUserRepository;
+
+    /**
+     * @var JoinCompanyRequestRepository
+     */
+    private $joinCompanyRequestRepository;
+
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
 
     /**
      * CompanyController constructor.
@@ -120,7 +140,10 @@ class CompanyController extends AbstractController
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param AdminUserRepository $adminUserRepository
      * @param RequestsMailer $requestsMailer
+     * @param SecurityMailer $securityMailer
      * @param ProfessionalUserRepository $professionalUserRepository
+     * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
+     * @param UserRepository $userRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -133,7 +156,10 @@ class CompanyController extends AbstractController
         CompanyPhotoRepository $companyPhotoRepository,
         AdminUserRepository $adminUserRepository,
         RequestsMailer $requestsMailer,
-        ProfessionalUserRepository $professionalUserRepository
+        SecurityMailer $securityMailer,
+        ProfessionalUserRepository $professionalUserRepository,
+        JoinCompanyRequestRepository $joinCompanyRequestRepository,
+        UserRepository $userRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -145,7 +171,10 @@ class CompanyController extends AbstractController
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->adminUserRepository = $adminUserRepository;
         $this->requestsMailer = $requestsMailer;
+        $this->securityMailer = $securityMailer;
         $this->professionalUserRepository = $professionalUserRepository;
+        $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -208,44 +237,12 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setCompany($company);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
 
-            /** @var UploadedFile $thumbnailImage */
-            $thumbnailImage = $form->get('thumbnailImage')->getData();
-
-            if($thumbnailImage) {
-                $mimeType = $thumbnailImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setThumbnailImage($image);
-                $this->entityManager->persist($image);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            /** @var UploadedFile $featuredImage */
-            $featuredImage = $form->get('featuredImage')->getData();
-
-            if($featuredImage) {
-                $mimeType = $featuredImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setFeaturedImage($image);
-                $this->entityManager->persist($image);
-            }
-
-
             $this->entityManager->persist($newCompanyRequest);
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            $this->requestsMailer->newCompanyNeedsApproval($newCompanyRequest);
+            $this->requestsMailer->newCompanyRequest($newCompanyRequest);
 
             $this->addFlash('success', 'Company successfully created');
 
@@ -281,6 +278,100 @@ class CompanyController extends AbstractController
         return $this->render('company/view.html.twig', [
             'user' => $this->getUser(),
             'company' => $company
+        ]);
+    }
+
+    /**
+     * @Route("/companies/{id}/join", name="company_join", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function joinAction(Request $request, Company $company) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsByCompanyAndUser($company, $user);
+
+        if(count($requests) > 0) {
+            $this->addFlash('error', 'You have already made a request to join that company.');
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+        }
+
+        $joinCompanyRequest = new JoinCompanyRequest();
+        $joinCompanyRequest->setCompany($company);
+        $joinCompanyRequest->setCreatedBy($user);
+        $joinCompanyRequest->setNeedsApprovalBy($company->getOwner());
+        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_USER_TO_COMPANY);
+        $this->entityManager->persist($joinCompanyRequest);
+        $this->entityManager->flush();
+
+        $this->requestsMailer->userToCompanyRequest($joinCompanyRequest);
+
+        $this->addFlash('success', 'Request successfully sent!');
+        return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+    }
+
+    /**
+     * @Route("/companies/{id}/invite", name="company_invite", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function inviteAction(Request $request, Company $company) {
+
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $form = $this->createForm(CompanyInviteFormType::class, null, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $emails = $form->get('emails')->getData();
+            $emails = explode(',', $emails);
+            foreach($emails as $email) {
+
+                // for now we are just skipping users that already exist in the system
+                $existingUser = $this->userRepository->getByEmailAddress($email);
+                if($existingUser) {
+                    continue;
+                } else {
+                    $professionalUser = new ProfessionalUser();
+                    $professionalUser->setEmail($email);
+                    $professionalUser->initializeNewUser();
+                    $professionalUser->setPasswordResetToken();
+                    $this->entityManager->persist($professionalUser);
+                }
+                $joinCompanyRequest = new JoinCompanyRequest();
+                $joinCompanyRequest->setCompany($company);
+                $joinCompanyRequest->setCreatedBy($this->getUser());
+                $joinCompanyRequest->setIsFromCompany(true);
+                $joinCompanyRequest->setNeedsApprovalBy($professionalUser);
+            }
+
+            $this->entityManager->flush();
+            $this->securityMailer->sendAccountActivation($professionalUser);
+            $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
+
+            $this->addFlash('success', 'Company invites successfully sent. ');
+            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
+        }
+
+        return $this->render('company/invite.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user
         ]);
     }
 
@@ -342,6 +433,110 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @Route("/companies/{id}/thumbnail/add", name="company_thumbnail_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddThumbnailAction(Request $request, Company $company) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $thumbnailImage = $request->files->get('file');
+
+        if($thumbnailImage) {
+            $mimeType = $thumbnailImage->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
+            $image = new Image();
+            $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $company->setThumbnailImage($image);
+            $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/featured/add", name="company_featured_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddFeaturedAction(Request $request, Company $company) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $featuredImage = $request->files->get('file');
+
+        if($featuredImage) {
+            $mimeType = $featuredImage->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
+            $image = new Image();
+            $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $company->setFeaturedImage($image);
+            $this->entityManager->persist($image);
+
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/photos/add", name="company_photos_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddPhotosAction(Request $request, Company $company) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $photo = $request->files->get('file');
+
+        if($photo) {
+            $mimeType = $photo->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
+            $image = new CompanyPhoto();
+            $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $company->addCompanyPhoto($image);
+            $this->entityManager->persist($image);
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/companies/{id}/edit", name="company_edit", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
@@ -376,50 +571,6 @@ class CompanyController extends AbstractController
             $company = $form->getData();
 
             $user->setCompany($company);
-
-            /** @var UploadedFile $thumbnailImage */
-            $thumbnailImage = $form->get('thumbnailImage')->getData();
-
-            if($thumbnailImage) {
-                $mimeType = $thumbnailImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setThumbnailImage($image);
-                $this->entityManager->persist($image);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            /** @var UploadedFile $featuredImage */
-            $featuredImage = $form->get('featuredImage')->getData();
-
-            if($featuredImage) {
-                $mimeType = $featuredImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setFeaturedImage($image);
-                $this->entityManager->persist($image);
-            }
-
-            /** @var UploadedFile[] $photos */
-            $photos = $form->get('photos')->getData();
-            foreach($photos as $photo) {
-                $mimeType = $photo->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
-                $image = new CompanyPhoto();
-                $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->addCompanyPhoto($image);
-                $this->entityManager->persist($image);
-            }
 
             // resource
             /** @var CompanyResource $resource */

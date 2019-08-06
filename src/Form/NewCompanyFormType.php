@@ -72,29 +72,7 @@ class NewCompanyFormType extends AbstractType
                 }
             ])
             ->add('shortDescription', TextareaType::class, [])
-            ->add('description', TextareaType::class)
-            ->add('thumbnailImage', FileType::class, [
-                'label' => 'Thumbnail image',
-                'constraints' => $this->thumbnailImageConstraints($company),
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false
-            ])
-            ->add('featuredImage', FileType::class, [
-                'label' => 'Featured image',
-                'constraints' => $this->featuredImageConstraints($company),
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false
-            ]);
+            ->add('description', TextareaType::class);
 
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(

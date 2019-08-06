@@ -63,6 +63,39 @@ class UserRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Fetch a user entity by invitation code
+     *
+     * @param $invitationCode
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByInvitationCode($invitationCode) {
+
+        return $this->createQueryBuilder('u')
+            ->where('u.invitationCode = :invitationCode')
+            ->setParameter('invitationCode', $invitationCode)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Fetch a user entity by activation code
+     *
+     * @param $activationCode
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByActivationCode($activationCode) {
+
+        return $this->createQueryBuilder('u')
+            ->where('u.activationCode = :activationCode')
+            ->setParameter('activationCode', $activationCode)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+
     public function loadUserByUsername($usernameOrEmail)
     {
         return $this->createQueryBuilder('u')

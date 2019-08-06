@@ -34,5 +34,5 @@ security:
     access_control:
        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
        - { path: ^/api$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-       - { path: ^/dashboard, roles: [ROLE_PROFESSIONAL_USER, ROLE_ADMIN_USER] }
+       - { path: ^/dashboard, roles: [ROLE_DASHBOARD_USER] }
         # - { path: ^/profile, roles: ROLE_USER }

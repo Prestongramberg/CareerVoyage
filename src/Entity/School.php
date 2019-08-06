@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SchoolRepository")
@@ -22,6 +23,7 @@ class School
 
     /**
      * @Groups({"ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
@@ -40,18 +42,42 @@ class School
      * @ORM\OneToMany(targetEntity="App\Entity\EducatorUser", mappedBy="school")
      */
     private $educatorUsers;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdministratorRequest", mappedBy="school")
+     */
+    private $schoolAdministratorRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminUser", mappedBy="school")
+     * @Assert\NotBlank(message="Don't forget an address!", groups={"EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $schoolAdminUsers;
+    private $address;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a school email!", groups={"EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $email;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget to add an overview and background!", groups={"EDIT"})
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $overviewAndBackground;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\SchoolAdministrator", inversedBy="schools")
+     */
+    private $schoolAdministrators;
 
     public function __construct()
     {
         $this->companies = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
-        $this->schoolAdminUsers = new ArrayCollection();
+        $this->schoolAdministratorRequests = new ArrayCollection();
+        $this->schoolAdministrators = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -159,31 +185,100 @@ class School
     }
 
     /**
-     * @return Collection|SchoolAdminUser[]
+     * @return Collection|SchoolAdministratorRequest[]
      */
-    public function getSchoolAdminUsers(): Collection
+    public function getSchoolAdministratorRequests(): Collection
     {
-        return $this->schoolAdminUsers;
+        return $this->schoolAdministratorRequests;
     }
 
-    public function addSchoolAdminUser(SchoolAdminUser $schoolAdminUser): self
+    public function addSchoolAdministratorRequest(SchoolAdministratorRequest $schoolAdministratorRequest): self
     {
-        if (!$this->schoolAdminUsers->contains($schoolAdminUser)) {
-            $this->schoolAdminUsers[] = $schoolAdminUser;
-            $schoolAdminUser->setSchool($this);
+        if (!$this->schoolAdministratorRequests->contains($schoolAdministratorRequest)) {
+            $this->schoolAdministratorRequests[] = $schoolAdministratorRequest;
+            $schoolAdministratorRequest->setSchool($this);
         }
 
         return $this;
     }
 
-    public function removeSchoolAdminUser(SchoolAdminUser $schoolAdminUser): self
+    public function removeSchoolAdministratorRequest(SchoolAdministratorRequest $schoolAdministratorRequest): self
     {
-        if ($this->schoolAdminUsers->contains($schoolAdminUser)) {
-            $this->schoolAdminUsers->removeElement($schoolAdminUser);
+        if ($this->schoolAdministratorRequests->contains($schoolAdministratorRequest)) {
+            $this->schoolAdministratorRequests->removeElement($schoolAdministratorRequest);
             // set the owning side to null (unless already changed)
-            if ($schoolAdminUser->getSchool() === $this) {
-                $schoolAdminUser->setSchool(null);
+            if ($schoolAdministratorRequest->getSchool() === $this) {
+                $schoolAdministratorRequest->setSchool(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getOverviewAndBackground(): ?string
+    {
+        return $this->overviewAndBackground;
+    }
+
+    public function setOverviewAndBackground(?string $overviewAndBackground): self
+    {
+        $this->overviewAndBackground = $overviewAndBackground;
+
+        return $this;
+    }
+
+    public function isUserSchoolAdministrator(User $user) {
+
+        return ($this->getSchoolAdministrators()->filter(function(SchoolAdministrator $schoolAdministrator) use ($user) {
+            return $schoolAdministrator->getId() === $user->getId();
+        })->count() > 0);
+    }
+
+    /**
+     * @return Collection|SchoolAdministrator[]
+     */
+    public function getSchoolAdministrators(): Collection
+    {
+        return $this->schoolAdministrators;
+    }
+
+    public function addSchoolAdministrator(SchoolAdministrator $schoolAdministrator): self
+    {
+        if (!$this->schoolAdministrators->contains($schoolAdministrator)) {
+            $this->schoolAdministrators[] = $schoolAdministrator;
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolAdministrator(SchoolAdministrator $schoolAdministrator): self
+    {
+        if ($this->schoolAdministrators->contains($schoolAdministrator)) {
+            $this->schoolAdministrators->removeElement($schoolAdministrator);
         }
 
         return $this;

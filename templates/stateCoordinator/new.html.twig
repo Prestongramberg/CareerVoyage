@@ -1,0 +1,14 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New State Coordinator{% endblock %}
+{% block bodyClass %}page-state-coordinator{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_row(form.firstName) }}
+        {{ form_row(form.lastName) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.state) }}
+        {{ form_row(form.submit) }}
+    {{ form_end(form) }}
+{% endblock %}

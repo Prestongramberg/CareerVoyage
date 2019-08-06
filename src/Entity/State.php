@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,6 +27,16 @@ class State
      * @ORM\Column(type="string", length=255)
      */
     private $abbreviation;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Region", mappedBy="state")
+     */
+    private $regions;
+
+    public function __construct()
+    {
+        $this->regions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -51,6 +63,37 @@ class State
     public function setAbbreviation(string $abbreviation): self
     {
         $this->abbreviation = $abbreviation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Region[]
+     */
+    public function getRegions(): Collection
+    {
+        return $this->regions;
+    }
+
+    public function addRegion(Region $region): self
+    {
+        if (!$this->regions->contains($region)) {
+            $this->regions[] = $region;
+            $region->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegion(Region $region): self
+    {
+        if ($this->regions->contains($region)) {
+            $this->regions->removeElement($region);
+            // set the owning side to null (unless already changed)
+            if ($region->getState() === $this) {
+                $region->setState(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,3 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
+<p>{{ request.needsApprovalBy.firstName }} has accepted your request to be a regional coordinator for the state of {{ request.region.state.name }} in region {{ request.region.name }}.</p>
+{% include 'email/partial/emailFooter.html.twig' %}

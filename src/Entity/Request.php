@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest", "joinCompanyRequest" = "JoinCompanyRequest"})
+ * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest", "joinCompanyRequest" = "JoinCompanyRequest", "stateCoordinatorRequest" = "StateCoordinatorRequest", "regionalCoordinatorRequest" = "RegionalCoordinatorRequest", "schoolAdministratorRequest" = "SchoolAdministratorRequest"})
  */
 abstract class Request
 {
@@ -90,5 +90,9 @@ abstract class Request
     public function getClassName()
     {
         return (new \ReflectionClass($this))->getShortName();
+    }
+
+    public function wasCreatedByUser(User $user) {
+        return $user->getId() === $this->created_by->getId();
     }
 }

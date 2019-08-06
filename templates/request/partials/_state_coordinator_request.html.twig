@@ -1,0 +1,63 @@
+{% if request.wasCreatedByUser(user) %}
+
+<li>
+    <a class="uk-accordion-title" href="#">Request to be a state coordinator</a>
+    <div class="uk-accordion-content">
+        <table class="uk-table uk-table-small uk-table-divider">
+            <tbody>
+            <tr>
+                <td>Request Type</td>
+                <td>STATE COORDINATOR</td>
+            </tr>
+            <tr>
+                <td>Initiated By</td>
+                <td>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</td>
+            </tr>
+            <tr>
+                <td>State Name</td>
+                <td>{{ request.state.name }}</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td>
+                    <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</li>
+
+{% else %}
+    <li>
+        <a class="uk-accordion-title" href="#">Request to be a state coordinator</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request Type</td>
+                    <td>STATE COORDINATOR</td>
+                </tr>
+                <tr>
+                    <td>Initiated By</td>
+                    <td>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</td>
+                </tr>
+                <tr>
+                    <td>State Name</td>
+                    <td>{{ request.state.name }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
+                        <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <input class="uk-label uk-label-success" type="submit" value="Approve">
+                            <input type="hidden" name="request" value="{{ request.id }}">
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </li>
+{% endif %}

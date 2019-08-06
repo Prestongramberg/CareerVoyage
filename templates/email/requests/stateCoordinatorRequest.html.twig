@@ -1,0 +1,7 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.needsApprovalBy.firstName } %}
+
+<p>You have a request to be a state coordinator for the state of {{ request.state.name }}.</p>
+<p>If you already have an account, just sign in and head over to the requests page to accept. If you don't
+ have an account, you will receive an email shortly with a link to activate your new account.</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

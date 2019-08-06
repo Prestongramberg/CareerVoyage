@@ -24,11 +24,23 @@
                             {% for request in myCreatedRequests %}
 
                                 {% if request.className == 'JoinCompanyRequest' %}
-                                    {% include 'request/partials/myRequests/_join_companies.html.twig' with {'request': request} %}
+                                    {% include 'request/partials/_join_companies.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
                                 {% if request.className == 'NewCompanyRequest' %}
-                                    {% include 'request/partials/myRequests/_new_companies.html.twig' with {'request': request} %}
+                                    {% include 'request/partials/_new_companies.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'StateCoordinatorRequest' %}
+                                    {% include 'request/partials/_state_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'RegionalCoordinatorRequest' %}
+                                    {% include 'request/partials/_regional_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'SchoolAdministratorRequest' %}
+                                    {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
                             {% endfor %}
@@ -48,11 +60,23 @@
 
                                 {% if request.className == 'JoinCompanyRequest' %}
                                     {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
-                                    {% include 'request/partials/_join_companies.html.twig' with {'request': request} %}
+                                    {% include 'request/partials/_join_companies.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
                                 {% if request.className == 'NewCompanyRequest' %}
-                                    {% include 'request/partials/_new_companies.html.twig' with {'request': request} %}
+                                    {% include 'request/partials/_new_companies.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'StateCoordinatorRequest' %}
+                                    {% include 'request/partials/_state_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'RegionalCoordinatorRequest' %}
+                                    {% include 'request/partials/_regional_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'SchoolAdministratorRequest' %}
+                                    {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
                             {% endfor %}
@@ -62,8 +86,6 @@
             {% endif %}
         </div>
     </div>
-
-
 {% endblock %}
 
 
