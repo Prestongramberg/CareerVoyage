@@ -23,7 +23,9 @@ class App extends React.Component {
                 <ul className="" data-uk-tab="{connect: '#tab-lessons'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-lessons">All Lessons</a></li>
                     <li><a href="#favorite-lessons">Favorites</a></li>
+                    <li><a href="#teachable-lessons">Teachable Lessons</a></li>
                     <li><a href="#my-lessons">My Lessons</a></li>
+
                 </ul>
 
                 <div className="uk-switcher" id="tab-lessons">
@@ -61,7 +63,11 @@ class App extends React.Component {
                                     </div>
                                 ))}
                                 { !this.props.search.loading && relevantLessons.length === 0 && (
-                                    <p>No lessons match your selection</p>
+                                    <div className="uk-width-1-1">
+                                        <div className="uk-placeholder uk-text-center">
+                                            No lessons match your search criteria
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -92,11 +98,7 @@ class App extends React.Component {
                             </div>
                         )}
                     </div>
-                    <div className="lessons_mine">
-                        <div className="uk-flex uk-flex-right">
-                            <a href={ window.Routing.generate('lesson_new') } className="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
-                        </div>
-
+                    <div className="lessons_teachable">
                         { teachableLessons.length > 0 && (
                             <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
                                 { teachableLessons.map(lesson => (
@@ -121,6 +123,18 @@ class App extends React.Component {
                                 <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
                             </div>
                         )}
+                    </div>
+                    <div className="lessons_mine">
+                        <div className="uk-margin">
+                            <div className="uk-flex uk-flex-right">
+                                <a href={ window.Routing.generate('lesson_new') } className="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
+                            </div>
+                        </div>
+                        <div className="uk-margin uk-width-1-1">
+                            <div className="uk-placeholder uk-text-center">
+                                You haven't created any lessons yet.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
