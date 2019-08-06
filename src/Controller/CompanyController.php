@@ -237,38 +237,6 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setCompany($company);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
 
-            /** @var UploadedFile $thumbnailImage */
-            $thumbnailImage = $form->get('thumbnailImage')->getData();
-
-            if($thumbnailImage) {
-                $mimeType = $thumbnailImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setThumbnailImage($image);
-                $this->entityManager->persist($image);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            /** @var UploadedFile $featuredImage */
-            $featuredImage = $form->get('featuredImage')->getData();
-
-            if($featuredImage) {
-                $mimeType = $featuredImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setFeaturedImage($image);
-                $this->entityManager->persist($image);
-            }
-
-
             $this->entityManager->persist($newCompanyRequest);
             $this->entityManager->persist($company);
             $this->entityManager->persist($user);
@@ -465,6 +433,110 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @Route("/companies/{id}/thumbnail/add", name="company_thumbnail_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddThumbnailAction(Request $request, Company $company) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $thumbnailImage = $request->files->get('file');
+
+        if($thumbnailImage) {
+            $mimeType = $thumbnailImage->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
+            $image = new Image();
+            $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $company->setThumbnailImage($image);
+            $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/featured/add", name="company_featured_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddFeaturedAction(Request $request, Company $company) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $featuredImage = $request->files->get('file');
+
+        if($featuredImage) {
+            $mimeType = $featuredImage->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
+            $image = new Image();
+            $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $company->setFeaturedImage($image);
+            $this->entityManager->persist($image);
+
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{id}/photos/add", name="company_photos_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddPhotosAction(Request $request, Company $company) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $photo = $request->files->get('file');
+
+        if($photo) {
+            $mimeType = $photo->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
+            $image = new CompanyPhoto();
+            $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $company->addCompanyPhoto($image);
+            $this->entityManager->persist($image);
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/companies/{id}/edit", name="company_edit", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
@@ -499,50 +571,6 @@ class CompanyController extends AbstractController
             $company = $form->getData();
 
             $user->setCompany($company);
-
-            /** @var UploadedFile $thumbnailImage */
-            $thumbnailImage = $form->get('thumbnailImage')->getData();
-
-            if($thumbnailImage) {
-                $mimeType = $thumbnailImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setThumbnailImage($image);
-                $this->entityManager->persist($image);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            /** @var UploadedFile $featuredImage */
-            $featuredImage = $form->get('featuredImage')->getData();
-
-            if($featuredImage) {
-                $mimeType = $featuredImage->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
-                $image = new Image();
-                $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->setFeaturedImage($image);
-                $this->entityManager->persist($image);
-            }
-
-            /** @var UploadedFile[] $photos */
-            $photos = $form->get('photos')->getData();
-            foreach($photos as $photo) {
-                $mimeType = $photo->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::COMPANY_PHOTO);
-                $image = new CompanyPhoto();
-                $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
-                $image->setMimeType($mimeType ?? 'application/octet-stream');
-                $image->setFileName($newFilename);
-                $company->addCompanyPhoto($image);
-                $this->entityManager->persist($image);
-            }
 
             // resource
             /** @var CompanyResource $resource */
