@@ -10,6 +10,7 @@ use App\Entity\Grade;
 use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
+use App\Entity\State;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -144,11 +145,11 @@ class NewExperienceType extends AbstractType
             ->add('email', TextType::class, [])
             ->add('street', TextType::class, [])
             ->add('city', TextType::class, [])
-            ->add('state', ChoiceType::class, [
-                'choices'  => self::$states,
+            ->add('state', EntityType::class, [
+                'class' => State::class,
+                'choice_label' => 'name',
                 'expanded'  => false,
                 'multiple'  => false,
-                'required' => true
             ])
             ->add('zipcode', TextType::class, [])
             ->add('startDateAndTime', DateType::class, [
@@ -169,11 +170,7 @@ class NewExperienceType extends AbstractType
                 // adds a class that can be selected in JavaScript
                 'attr' => ['class' => 'js-datepicker'],
             ])
-            ->add('length', NumberType::class, [])
-            ->add('resources', ExperienceFileType::class, array(
-                'label' => false,
-                'mapped' => false
-            ));
+            ->add('length', NumberType::class, []);
 
     }
 

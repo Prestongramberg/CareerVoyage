@@ -46,17 +46,6 @@ class AdminProfileFormType extends AbstractType
             ])
             ->add('lastName', TextType::class)
             ->add('email')
-            ->add('file', FileType::class, [
-                'label' => 'Photo upload',
-                'constraints' => $imageConstraints,
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false,
-                ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
             ]);

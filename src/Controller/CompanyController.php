@@ -776,20 +776,6 @@ class CompanyController extends AbstractController
 
             $this->entityManager->persist($experience);
 
-            /** @var ExperienceFile $resource */
-            $resource = $form->get('resources')->getData();
-            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
-                $file = $resource->getFile();
-                $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
-                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $resource->setMimeType($mimeType ?? 'application/octet-stream');
-                $resource->setFileName($newFilename);
-                $resource->setFile(null);
-                $resource->setExperience($experience);
-                $this->entityManager->persist($resource);
-            }
-
             $experience->setCompany($company);
 
             $this->entityManager->flush();
@@ -862,6 +848,50 @@ class CompanyController extends AbstractController
             'user' => $user,
             'experience' => $experience
         ]);
+    }
+
+    /**
+     * @Route("/experiences/{id}/file/add", name="experience_file_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Experience $experience
+     * @return JsonResponse
+     */
+    public function experienceAddFileAction(Request $request, Experience $experience) {
+
+        /** @var UploadedFile $resource */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($resource && $title && $description) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $file = new ExperienceFile();
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+            $file->setExperience($experience);
+            $file->setDescription($description);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
+        );
     }
 
 }
