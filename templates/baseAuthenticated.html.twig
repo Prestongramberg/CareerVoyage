@@ -26,14 +26,14 @@
 
         {% include 'partials/help-center-logged-in.html.twig' %}
 
+        {% set successMessage = '' %}
         {% for flashMessage in app.session.flashbag.get('success') %}
             {% set successMessage = flashMessage %}
-            {{ flashMessage }}
         {% endfor %}
 
+        {% set errorMessage = '' %}
         {% for flashMessage in app.session.flashbag.get('error') %}
             {% set errorMessage = flashMessage %}
-            {{ flashMessage }}
         {% endfor %}
 
         <div class="main-content">

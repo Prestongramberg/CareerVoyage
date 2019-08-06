@@ -374,7 +374,7 @@ class LessonController extends AbstractController
 
         return new JsonResponse(
             [
-                'success' => true,
+                'success' => false,
             ], Response::HTTP_BAD_REQUEST
         );
     }

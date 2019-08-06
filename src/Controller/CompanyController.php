@@ -275,8 +275,10 @@ class CompanyController extends AbstractController
      */
     public function viewAction(Request $request, Company $company) {
 
+        $user = $this->getUser();
+
         return $this->render('company/view.html.twig', [
-            'user' => $this->getUser(),
+            'user' => $user,
             'company' => $company
         ]);
     }
@@ -470,7 +472,7 @@ class CompanyController extends AbstractController
 
         return new JsonResponse(
             [
-                'success' => true,
+                'success' => false,
             ], Response::HTTP_BAD_REQUEST
         );
     }
