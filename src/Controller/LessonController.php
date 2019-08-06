@@ -186,39 +186,8 @@ class LessonController extends AbstractController
             /** @var Lesson $lesson */
             $lesson = $form->getData();
 
-            $uploadedFile = $form->get('thumbnailImage')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->upload($uploadedFile, UploaderHelper::LESSON_THUMBNAIL);
-                $lesson->setThumbnailImage($newFilename);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_THUMBNAIL) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            $uploadedFile = $form->get('featuredImage')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->upload($uploadedFile, UploaderHelper::LESSON_FEATURED);
-                $lesson->setFeaturedImage($newFilename);
-            }
-
             $lesson->setUser($user);
             $this->entityManager->persist($lesson);
-
-            /** @var LessonResource $resource */
-            $resource = $form->get('resources')->getData();
-            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
-                $file = $resource->getFile();
-                $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
-                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $resource->setMimeType($mimeType ?? 'application/octet-stream');
-                $resource->setFileName($newFilename);
-                $resource->setFile(null);
-                $resource->setLesson($lesson);
-                $this->entityManager->persist($resource);
-            }
 
             $teachableLesson = new LessonTeachable();
             $teachableLesson->setLesson($lesson);
@@ -371,5 +340,121 @@ class LessonController extends AbstractController
         }
 
         return $this->redirectToRoute('lesson_index');
+    }
+
+    /**
+     * @Route("/lessons/{id}/thumbnail/add", name="lesson_thumbnail_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Lesson $lesson
+     * @return JsonResponse
+     */
+    public function lessonAddThumbnailAction(Request $request, Lesson $lesson) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $thumbnailImage = $request->files->get('file');
+
+        if($thumbnailImage) {
+            $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::LESSON_THUMBNAIL);
+            $lesson->setThumbnailImage($newFilename);
+            $this->entityManager->persist($lesson);
+            $this->entityManager->flush();
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_THUMBNAIL) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::LESSON_THUMBNAIL.'/'.$newFilename
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/lessons/{id}/featured/add", name="lesson_featured_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Lesson $lesson
+     * @return JsonResponse
+     */
+    public function lessonAddFeaturedAction(Request $request, Lesson $lesson) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $featuredImage = $request->files->get('file');
+
+        if($featuredImage) {
+            $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::LESSON_FEATURED);
+            $lesson->setFeaturedImage($newFilename);
+            $this->entityManager->persist($lesson);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::LESSON_FEATURED.'/'.$newFilename
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/lessons/{id}/resource/add", name="lesson_resource_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Lesson $lesson
+     * @return JsonResponse
+     */
+    public function lessonAddResourceAction(Request $request, Lesson $lesson) {
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($file && $title && $description) {
+            $mimeType = $file->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
+            $lessonResource = new LessonResource();
+
+            $lessonResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+            $lessonResource->setMimeType($mimeType ?? 'application/octet-stream');
+            $lessonResource->setFileName($newFilename);
+            $lessonResource->setFile(null);
+            $lessonResource->setLesson($lesson);
+            $lessonResource->setDescription($description);
+            $lessonResource->setTitle($title);
+            $this->entityManager->persist($lessonResource);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
+        );
     }
 }

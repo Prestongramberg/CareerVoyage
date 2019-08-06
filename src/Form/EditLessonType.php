@@ -75,30 +75,7 @@ class EditLessonType extends AbstractType
             ->add('shortDescription', TextareaType::class, [])
             ->add('summary', TextType::class, [])
             ->add('learningOutcomes', TextareaType::class, [])
-            ->add('educationalStandards', TextareaType::class, [])
-            ->add('thumbnailImage', FileType::class, [
-                'label' => 'Thumbnail image',
-
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false,
-            ])
-            ->add('featuredImage', FileType::class, [
-                'label' => 'Featured image',
-                // unmapped means that this field is not associated to any entity property
-                'mapped' => false,
-
-                // make it optional so you don't have to re-upload files
-                // everytime you edit the entity
-                'required' => false,
-            ])
-            ->add('resources', LessonResourceType::class, array(
-                'label' => false,
-                'mapped' => false
-            ));
+            ->add('educationalStandards', TextareaType::class, []);
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
 

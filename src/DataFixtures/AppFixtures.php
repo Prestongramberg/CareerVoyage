@@ -3,6 +3,8 @@
 namespace App\DataFixtures;
 
 
+use App\Entity\Career;
+use App\Entity\Course;
 use App\Entity\Region;
 use App\Entity\State;
 use App\Repository\StateRepository;
@@ -74,6 +76,25 @@ class AppFixtures extends Fixture
         'WY'=>'Wyoming',
     );
 
+    public static $courses = [
+        'Agriculture, Food & Natural Resources',
+        'Architecture & Construction',
+        'Arts, A/V Technology & Communications',
+        'Business Management & Administration',
+        'Education & Training',
+        'Finance',
+        'Government & Public Administration',
+        'Health Science',
+        'Hospitality & Tourism',
+        'Human Services',
+        'Information Technology',
+        'Law, Public Safety, Corrections & Security',
+        'Manufacturing',
+        'Marketing',
+        'Science, Technology, Engineering & Mathematics',
+        'Transportation, Distribution & Logistics'
+    ];
+
     /**
      * AppFixtures constructor.
      * @param StateRepository $stateRepository
@@ -100,6 +121,13 @@ class AppFixtures extends Fixture
         $region->setName('Southeast');
         $region->setState($state);
         $manager->persist($region);
+        $manager->flush();
+
+        foreach(self::$courses as $courseTitle) {
+            $career = new Career();
+            $career->setTitle($courseTitle);
+            $manager->persist($career);
+        }
         $manager->flush();
     }
 }

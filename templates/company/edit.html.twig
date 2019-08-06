@@ -208,7 +208,7 @@
                 {% endif %}
             </div>
             <div class="page-company-edit__resources">
-                <div class="uk-width-xlarge">
+               {# <div class="uk-width-xlarge">
                     <p>Resources are meant to provide helpful resources to understand more about your company.  Things like Employee Handbooks, Campus Maps, and Company Culture are highly encouraged!</p>
                     <h4>Add New Resource</h4>
                     <div class="uk-margin">
@@ -231,7 +231,7 @@
                         {{ form_widget(form.resources.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.resources.description) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.resources.description) }}
                     </div>
-                </div>
+                </div>#}
 
                 {% if company.companyResources|length > 0 %}
                     <div class="uk-margin">
