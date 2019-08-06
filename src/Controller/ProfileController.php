@@ -20,6 +20,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -144,16 +145,6 @@ class ProfileController extends AbstractController
                 $user->setPassword($encodedPassword);
             }
 
-            $uploadedFile = $form->get('file')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->uploadProfilePhoto($uploadedFile);
-                $user->setPhoto($newFilename);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::PROFILE_PHOTO) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
@@ -195,6 +186,42 @@ class ProfileController extends AbstractController
             'deactivateForm' => $deactivateForm->createView(),
             'reactivateForm' => $reactivateForm->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/profiles/{id}/photo/add", name="profile_photo_add", options = { "expose" = true })
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function profileAddPhotoAction(Request $request, User $user) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $profilePhoto = $request->files->get('file');
+
+        if($profilePhoto) {
+            $newFilename = $this->uploaderHelper->upload($profilePhoto);
+            $user->setPhoto($newFilename);
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::PROFILE_PHOTO) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::PROFILE_PHOTO.'/'.$newFilename
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
     }
 
     /**

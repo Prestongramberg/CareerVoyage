@@ -1,5 +1,5 @@
 <li>
-    {% if request.type == 'TYPE_COMPANY_TO_USER' %}
+    {% if request.isFromCompany == true%}
 
     {% if request.wasCreatedByUser(user) %}
         <a class="uk-accordion-title" href="#">Request to join your company</a>
@@ -47,7 +47,7 @@
             </div>
     {% endif %}
 
-    {% elseif request.type == 'TYPE_USER_TO_COMPANY' %}
+    {% elseif request.isFromCompany == false %}
 
     {% if request.wasCreatedByUser(user) %}
         <a class="uk-accordion-title" href="#">Request to join another company</a>

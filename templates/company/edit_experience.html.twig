@@ -133,11 +133,6 @@
                 </div>
             </div>
             <div class="page-company-experience-add__files">
-                {{ form_row(form.resources.file) }}
-                {{ form_row(form.resources.title) }}
-                {{ form_row(form.resources.description) }}
-
-
                 {% if experience.experienceFiles|length > 0 %}
                     <h4>Current Resources</h4>
                     {% for experienceFile in experience.experienceFiles %}
@@ -164,7 +159,6 @@
         {{ form_end(form) }}
 
     </div>
-
 
 
 {% endblock %}
