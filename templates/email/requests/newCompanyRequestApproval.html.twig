@@ -1,4 +1,4 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.needsApprovalBy.firstName } %}
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
 
 <p>Your company <strong>{{ request.company.name }}</strong> has been approved!</p>
 

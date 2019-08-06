@@ -21,7 +21,7 @@ use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
 use App\Mailer\RequestsMailer;
-use App\Model\CompanyInvite;
+use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -109,6 +109,11 @@ class CompanyController extends AbstractController
     private $requestsMailer;
 
     /**
+     * @var SecurityMailer
+     */
+    private $securityMailer;
+
+    /**
      * @var ProfessionalUserRepository
      */
     private $professionalUserRepository;
@@ -135,6 +140,7 @@ class CompanyController extends AbstractController
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param AdminUserRepository $adminUserRepository
      * @param RequestsMailer $requestsMailer
+     * @param SecurityMailer $securityMailer
      * @param ProfessionalUserRepository $professionalUserRepository
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param UserRepository $userRepository
@@ -150,6 +156,7 @@ class CompanyController extends AbstractController
         CompanyPhotoRepository $companyPhotoRepository,
         AdminUserRepository $adminUserRepository,
         RequestsMailer $requestsMailer,
+        SecurityMailer $securityMailer,
         ProfessionalUserRepository $professionalUserRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
         UserRepository $userRepository
@@ -164,6 +171,7 @@ class CompanyController extends AbstractController
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->adminUserRepository = $adminUserRepository;
         $this->requestsMailer = $requestsMailer;
+        $this->securityMailer = $securityMailer;
         $this->professionalUserRepository = $professionalUserRepository;
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->userRepository = $userRepository;
@@ -266,7 +274,7 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            $this->requestsMailer->newCompanyNeedsApproval($newCompanyRequest);
+            $this->requestsMailer->newCompanyRequest($newCompanyRequest);
 
             $this->addFlash('success', 'Company successfully created');
 
@@ -346,6 +354,9 @@ class CompanyController extends AbstractController
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function inviteAction(Request $request, Company $company) {
 
@@ -353,68 +364,47 @@ class CompanyController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-
-        $companyRequest = new CompanyInvite();
-        $form = $this->createForm(CompanyInviteFormType::class, $companyRequest, [
+        $form = $this->createForm(CompanyInviteFormType::class, null, [
             'method' => 'POST',
         ]);
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var CompanyInvite $companyRequest */
-            $companyRequest = $form->getData();
-
-            $emails = explode(',', $companyRequest->getEmailAddress());
-
+            $emails = $form->get('emails')->getData();
+            $emails = explode(',', $emails);
             foreach($emails as $email) {
 
-                if($needsApprovalBy = $this->userRepository->getByEmailAddress($email)) {
-
+                // for now we are just skipping users that already exist in the system
+                $existingUser = $this->userRepository->getByEmailAddress($email);
+                if($existingUser) {
+                    continue;
                 } else {
-                    $needsApprovalBy = new ProfessionalUser();
+                    $professionalUser = new ProfessionalUser();
+                    $professionalUser->setEmail($email);
+                    $professionalUser->initializeNewUser();
+                    $professionalUser->setPasswordResetToken();
+                    $this->entityManager->persist($professionalUser);
                 }
-
-
-
                 $joinCompanyRequest = new JoinCompanyRequest();
                 $joinCompanyRequest->setCompany($company);
-
-            /*    $userObj = $this->userRepository->findOneBy(['email' => $email]);
-
-                if($userObj && !$userObj->isStateCoordinator()) {
-                    $this->addFlash('error', 'This user already exists and is assigned to a different role.');
-                    return $this->redirectToRoute('state_coordinator_new');
-                } elseif ($userObj && $userObj->isStateCoordinator()) {
-                    $stateCoordinator = $userObj;
-                } else {
-
-                    $stateCoordinator->initializeNewUser();
-                    $stateCoordinator->setPasswordResetToken();
-                    $this->entityManager->persist($stateCoordinator);
-                }*/
-
-
+                $joinCompanyRequest->setCreatedBy($this->getUser());
+                $joinCompanyRequest->setIsFromCompany(true);
+                $joinCompanyRequest->setNeedsApprovalBy($professionalUser);
             }
 
-            //$this->entityManager->persist($company);
             $this->entityManager->flush();
+            $this->securityMailer->sendAccountActivation($professionalUser);
+            $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
 
-            //$this->addFlash('success', 'Company successfully updated');
-
+            $this->addFlash('success', 'Company invites successfully sent. ');
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
 
-        return $this->render('company/request.html.twig', [
+        return $this->render('company/invite.html.twig', [
             'form' => $form->createView(),
             'user' => $user
         ]);
-
-
-
-
-
-
     }
 
     /**

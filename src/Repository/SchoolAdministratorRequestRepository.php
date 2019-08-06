@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\SchoolAdminUser;
+use App\Entity\SchoolAdministratorRequest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method SchoolAdminUser|null find($id, $lockMode = null, $lockVersion = null)
- * @method SchoolAdminUser|null findOneBy(array $criteria, array $orderBy = null)
- * @method SchoolAdminUser[]    findAll()
- * @method SchoolAdminUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method SchoolAdministratorRequest|null find($id, $lockMode = null, $lockVersion = null)
+ * @method SchoolAdministratorRequest|null findOneBy(array $criteria, array $orderBy = null)
+ * @method SchoolAdministratorRequest[]    findAll()
+ * @method SchoolAdministratorRequest[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class SchoolAdminUserRepository extends ServiceEntityRepository
+class SchoolAdministratorRequestRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, SchoolAdminUser::class);
+        parent::__construct($registry, SchoolAdministratorRequest::class);
     }
 
     // /**
-    //  * @return SchoolAdminUser[] Returns an array of SchoolAdminUser objects
+    //  * @return SchoolAdministratorRequest[] Returns an array of SchoolAdministratorRequest objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class SchoolAdminUserRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?SchoolAdminUser
+    public function findOneBySomeField($value): ?SchoolAdministratorRequest
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.exampleField = :val')

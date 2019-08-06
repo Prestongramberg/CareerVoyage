@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "schoolAdminUser" = "SchoolAdminUser", "schoolMultiSiteAdmin" = "SchoolMultiSiteAdmin", "schoolRegionalUser" = "SchoolRegionalUser", "schoolStateUser" = "SchoolStateUser", "stateCoordinator" = "StateCoordinator"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator"})
  */
 abstract class User implements UserInterface
 {
@@ -39,6 +39,8 @@ abstract class User implements UserInterface
     const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
     const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
     const ROLE_STATE_COORDINATOR_USER = 'ROLE_STATE_COORDINATOR_USER';
+    const ROLE_REGIONAL_COORDINATOR_USER = 'ROLE_REGIONAL_COORDINATOR_USER';
+    const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
@@ -93,7 +95,7 @@ abstract class User implements UserInterface
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      *
-     * @ORM\Column(type="string", length=24)
+     * @ORM\Column(type="string", length=24, nullable=true)
      */
     protected $firstName;
 
@@ -101,7 +103,7 @@ abstract class User implements UserInterface
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      *
-     * @ORM\Column(type="string", length=24)
+     * @ORM\Column(type="string", length=24, nullable=true)
      */
     protected $lastName;
 
@@ -469,6 +471,20 @@ abstract class User implements UserInterface
 
         if (!in_array(self::ROLE_STATE_COORDINATOR_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STATE_COORDINATOR_USER;
+        }
+    }
+
+    public function setupAsRegionalCoordinator() {
+
+        if (!in_array(self::ROLE_REGIONAL_COORDINATOR_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_REGIONAL_COORDINATOR_USER;
+        }
+    }
+
+    public function setupAsSchoolAdministrator() {
+
+        if (!in_array(self::ROLE_SCHOOL_ADMINISTRATOR_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_SCHOOL_ADMINISTRATOR_USER;
         }
     }
 

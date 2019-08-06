@@ -5,6 +5,8 @@ namespace App\Mailer;
 use App\Entity\Company;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
+use App\Entity\RegionalCoordinatorRequest;
+use App\Entity\SchoolAdministratorRequest;
 use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
 use App\Mailer\AbstractMailer;
@@ -18,19 +20,21 @@ class RequestsMailer extends AbstractMailer
 {
 
     /**
+     * Join company request
+     *
      * @param JoinCompanyRequest $joinCompanyRequest
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function userToCompanyApproval(JoinCompanyRequest $joinCompanyRequest) {
+    public function joinCompanyRequestApproval(JoinCompanyRequest $joinCompanyRequest) {
 
-        $message = (new \Swift_Message("Your request to join {$joinCompanyRequest->getCompany()->getName()} has been approved!"))
+        $message = (new \Swift_Message("Join Company Request Approval."))
             ->setFrom($this->siteFromEmail)
-            ->setTo($joinCompanyRequest->getNeedsApprovalBy()->getEmail())
+            ->setTo($joinCompanyRequest->getCreatedBy()->getEmail())
             ->setBody(
                 $this->templating->render(
-                    'email/requests/userToCompanyApproved.html.twig',
+                    'email/requests/joinCompanyRequestApproval.html.twig',
                     ['request' => $joinCompanyRequest]
                 ),
                 'text/html'
@@ -40,65 +44,7 @@ class RequestsMailer extends AbstractMailer
 
     }
 
-    /**
-     * @param JoinCompanyRequest $joinCompanyRequest
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function userToCompanyRequest(JoinCompanyRequest $joinCompanyRequest) {
-
-        $message = (new \Swift_Message("You have a new request from {$joinCompanyRequest->getCreatedBy()->getFullName()} to join your company!"))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($joinCompanyRequest->getNeedsApprovalBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/userToCompany.html.twig',
-                    ['request' => $joinCompanyRequest]
-                ),
-                'text/html'
-            );
-
-        $this->mailer->send($message);
-
-    }
-
-    public function companyToUserRequest(JoinCompanyRequest $joinCompanyRequest) {
-
-        $message = (new \Swift_Message("You have a new request from {$joinCompanyRequest->getCompany()->getName()} to join their company page!"))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($joinCompanyRequest->getNeedsApprovalBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/companyToUser.html.twig',
-                    ['request' => $joinCompanyRequest]
-                ),
-                'text/html'
-            );
-
-        $this->mailer->send($message);
-
-    }
-
-
-    public function companyToUserApproval(JoinCompanyRequest $joinCompanyRequest) {
-
-        $message = (new \Swift_Message("Your request for {$joinCompanyRequest->getNeedsApprovalBy()->getFullName()} to join your company page has been accepted!"))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($joinCompanyRequest->getNeedsApprovalBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/companyToUserApproved.html.twig',
-                    ['request' => $joinCompanyRequest]
-                ),
-                'text/html'
-            );
-
-        $this->mailer->send($message);
-
-    }
-
-    public function newCompanyNeedsApproval(NewCompanyRequest $newCompanyRequest) {
+    public function newCompanyRequest(NewCompanyRequest $newCompanyRequest) {
 
         $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
 
@@ -108,7 +54,7 @@ class RequestsMailer extends AbstractMailer
                 ->setTo($adminUser->getEmail())
                 ->setBody(
                     $this->templating->render(
-                        'email/requests/newCompanyNeedsApproval.html.twig',
+                        'email/requests/newCompanyRequest.html.twig',
                         ['request' => $newCompanyRequest]
                     ),
                     'text/html'
@@ -118,7 +64,7 @@ class RequestsMailer extends AbstractMailer
         }
     }
 
-    public function newCompanyApproved(NewCompanyRequest $newCompanyRequest) {
+    public function newCompanyRequestApproval(NewCompanyRequest $newCompanyRequest) {
 
         $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
 
@@ -128,7 +74,7 @@ class RequestsMailer extends AbstractMailer
                 ->setTo($newCompanyRequest->getCreatedBy()->getEmail())
                 ->setBody(
                     $this->templating->render(
-                        'email/requests/newCompanyApproved.html.twig',
+                        'email/requests/newCompanyRequestApproval.html.twig',
                         ['request' => $newCompanyRequest]
                     ),
                     'text/html'
@@ -138,6 +84,14 @@ class RequestsMailer extends AbstractMailer
         }
     }
 
+    /**
+     * Request from super admin to user to become state coordinator
+     *
+     * @param StateCoordinatorRequest $stateCoordinatorRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
     public function stateCoordinatorRequest(StateCoordinatorRequest $stateCoordinatorRequest) {
 
         $message = (new \Swift_Message("State Coordinator Request."))
@@ -153,5 +107,147 @@ class RequestsMailer extends AbstractMailer
 
         $this->mailer->send($message);
 
+    }
+
+    /**
+     * Request from state coordinator to user to become regional coordinator
+     *
+     * @param RegionalCoordinatorRequest $regionalCoordinatorRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function regionalCoordinatorRequest(RegionalCoordinatorRequest $regionalCoordinatorRequest) {
+
+        $message = (new \Swift_Message("Regional Coordinator Request."))
+            ->setFrom($regionalCoordinatorRequest->getCreatedBy()->getEmail())
+            ->setTo($regionalCoordinatorRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/regionalCoordinatorRequest.html.twig',
+                    ['request' => $regionalCoordinatorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    /**
+     * Request from regional coordinator to user to become school administrator
+     *
+     * @param SchoolAdministratorRequest $schoolAdministratorRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function schoolAdministratorRequest(SchoolAdministratorRequest $schoolAdministratorRequest) {
+
+        $message = (new \Swift_Message("School Administrator Request."))
+            ->setFrom($schoolAdministratorRequest->getCreatedBy()->getEmail())
+            ->setTo($schoolAdministratorRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/schoolAdministratorRequest.html.twig',
+                    ['request' => $schoolAdministratorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    /**
+     * State coordinator request approval
+     * @param StateCoordinatorRequest $stateCoordinatorRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function stateCoordinatorRequestApproval(StateCoordinatorRequest $stateCoordinatorRequest) {
+        $message = (new \Swift_Message("State Coordinator Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($stateCoordinatorRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/stateCoordinatorRequestApproval.html.twig',
+                    ['request' => $stateCoordinatorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     * Regional coordinator request approval
+     * @param RegionalCoordinatorRequest $regionalCoordinatorRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function regionalCoordinatorRequestApproval(RegionalCoordinatorRequest $regionalCoordinatorRequest) {
+
+        $message = (new \Swift_Message("Regional Coordinator Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($regionalCoordinatorRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/regionalCoordinatorRequestApproval.html.twig',
+                    ['request' => $regionalCoordinatorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     * School administrator request approval
+     * @param SchoolAdministratorRequest $schoolAdministratorRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function schoolAdministratorRequestApproval(SchoolAdministratorRequest $schoolAdministratorRequest) {
+
+        $message = (new \Swift_Message("School Administrator Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($schoolAdministratorRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/schoolAdministratorRequestApproval.html.twig',
+                    ['request' => $schoolAdministratorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     * Join company request
+     *
+     * @param JoinCompanyRequest $joinCompanyRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function joinCompanyRequest(JoinCompanyRequest $joinCompanyRequest) {
+
+        $message = (new \Swift_Message("Join Company Request."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($joinCompanyRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/joinCompanyRequest.html.twig',
+                    ['request' => $joinCompanyRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
     }
 }

@@ -28,6 +28,16 @@ class State
      */
     private $abbreviation;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Region", mappedBy="state")
+     */
+    private $regions;
+
+    public function __construct()
+    {
+        $this->regions = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -53,6 +63,37 @@ class State
     public function setAbbreviation(string $abbreviation): self
     {
         $this->abbreviation = $abbreviation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Region[]
+     */
+    public function getRegions(): Collection
+    {
+        return $this->regions;
+    }
+
+    public function addRegion(Region $region): self
+    {
+        if (!$this->regions->contains($region)) {
+            $this->regions[] = $region;
+            $region->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegion(Region $region): self
+    {
+        if ($this->regions->contains($region)) {
+            $this->regions->removeElement($region);
+            // set the owning side to null (unless already changed)
+            if ($region->getState() === $this) {
+                $region->setState(null);
+            }
+        }
 
         return $this;
     }

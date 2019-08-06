@@ -223,13 +223,13 @@ class SecurityController extends AbstractController
         $user = $this->userRepository->getByPasswordResetToken($token);
 
         if(!$user) {
-            return $this->render('security/reset-password-error.html.twig');
+            return $this->render('security/set-password-error.html.twig');
         }
 
         $resetPassword = new ResetPassword();
 
         $form = $this->createForm(ResetPasswordType::class, $resetPassword, [
-            'action' => $this->generateUrl('reset_password', ['token' => $token]),
+            'action' => $this->generateUrl('set_password', ['token' => $token]),
             'method' => 'POST'
         ]);
 
@@ -239,7 +239,7 @@ class SecurityController extends AbstractController
 
             if (!$form->isValid()) {
 
-                return $this->render('security/reset_password_form.html.twig', [
+                return $this->render('security/set_password_form.html.twig', [
                     'form' => $form->createView()
                 ]);
 

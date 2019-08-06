@@ -35,6 +35,14 @@
                                     {% include 'request/partials/_state_coordinator_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
+                                {% if request.className == 'RegionalCoordinatorRequest' %}
+                                    {% include 'request/partials/_regional_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'SchoolAdministratorRequest' %}
+                                    {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
                             {% endfor %}
                         </ul>
                     {% else %}
@@ -61,6 +69,14 @@
 
                                 {% if request.className == 'StateCoordinatorRequest' %}
                                     {% include 'request/partials/_state_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'RegionalCoordinatorRequest' %}
+                                    {% include 'request/partials/_regional_coordinator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'SchoolAdministratorRequest' %}
+                                    {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
                             {% endfor %}

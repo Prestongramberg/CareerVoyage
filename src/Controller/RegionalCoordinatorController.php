@@ -9,6 +9,8 @@ use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
+use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
@@ -19,6 +21,7 @@ use App\Form\ProfessionalDeactivateProfileFormType;
 use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\ProfessionalReactivateProfileFormType;
+use App\Form\RegionalCoordinatorFormType;
 use App\Form\StateCoordinatorFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -39,6 +42,7 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -52,11 +56,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class StateCoordinatorController
+ * Class RegionalCoordinatorController
  * @package App\Controller
- * @Route("/dashboard/state-coordinator")
+ * @Route("/dashboard/regional-coordinator")
  */
-class StateCoordinatorController extends AbstractController
+class RegionalCoordinatorController extends AbstractController
 {
     use FileHelper;
     use RandomStringGenerator;
@@ -189,53 +193,55 @@ class StateCoordinatorController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ADMIN_USER")
-     * @Route("/new", name="state_coordinator_new")
+     * @Security("is_granted('ROLE_STATE_COORDINATOR_USER')")
+     * @Route("/new", name="regional_coordinator_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      */
     public function newAction(Request $request) {
 
+        /** @var StateCoordinator $user */
         $user = $this->getUser();
-        $stateCoordinator = new StateCoordinator();
+        $regionalCoordinator = new RegionalCoordinator();
 
-        $form = $this->createForm(StateCoordinatorFormType::class, $stateCoordinator, [
-            'method' => 'POST'
+        $form = $this->createForm(RegionalCoordinatorFormType::class, $regionalCoordinator, [
+            'method' => 'POST',
+            'state' => $user->getState()
         ]);
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var StateCoordinator $stateCoordinator */
-            $stateCoordinator = $form->getData();
+            /** @var RegionalCoordinator $regionalCoordinator */
+            $regionalCoordinator = $form->getData();
 
-            $existingUser = $this->userRepository->findOneBy(['email' => $stateCoordinator->getEmail()]);
+            $existingUser = $this->userRepository->findOneBy(['email' => $regionalCoordinator->getEmail()]);
             // for now just skip users that are already in the system
             if($existingUser) {
                 $this->addFlash('error', 'This user already exists in the system');
-                return $this->redirectToRoute('state_coordinator_new');
+                return $this->redirectToRoute('regional_coordinator_new');
             } else {
-                $stateCoordinator->initializeNewUser();
-                $stateCoordinator->setPasswordResetToken();
-                $this->entityManager->persist($stateCoordinator);
+                $regionalCoordinator->initializeNewUser();
+                $regionalCoordinator->setPasswordResetToken();
+                $this->entityManager->persist($regionalCoordinator);
             }
 
-            $stateCoordinatorRequest = new StateCoordinatorRequest();
-            $stateCoordinatorRequest->setState($stateCoordinator->getState());
-            $stateCoordinatorRequest->setNeedsApprovalBy($stateCoordinator);
-            $stateCoordinatorRequest->setCreatedBy($user);
-            $this->entityManager->persist($stateCoordinatorRequest);
+            $regionalCoordinatorRequest = new RegionalCoordinatorRequest();
+            $regionalCoordinatorRequest->setRegion($regionalCoordinator->getRegion());
+            $regionalCoordinatorRequest->setNeedsApprovalBy($regionalCoordinator);
+            $regionalCoordinatorRequest->setCreatedBy($user);
+            $this->entityManager->persist($regionalCoordinatorRequest);
             $this->entityManager->flush();
 
-            $this->securityMailer->sendAccountActivation($stateCoordinator);
-            $this->requestsMailer->stateCoordinatorRequest($stateCoordinatorRequest);
+            $this->securityMailer->sendAccountActivation($regionalCoordinator);
+            $this->requestsMailer->regionalCoordinatorRequest($regionalCoordinatorRequest);
 
-            $this->addFlash('success', 'State coordinator invite sent.');
-            return $this->redirectToRoute('state_coordinator_new');
+            $this->addFlash('success', 'Regional coordinator invite sent.');
+            return $this->redirectToRoute('regional_coordinator_new');
         }
 
-        return $this->render('stateCoordinator/new.html.twig', [
+        return $this->render('regionalCoordinator/new.html.twig', [
             'user' => $user,
             'form' => $form->createView()
         ]);

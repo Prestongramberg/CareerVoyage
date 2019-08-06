@@ -2,12 +2,13 @@
 
 {% form_theme form with _self %}
 
-{% block title %}Request company users{% endblock %}
-{% block bodyClass %}page-company-request-users{% endblock %}
+{% block title %}Invite users to company{% endblock %}
+{% block bodyClass %}page-company-invite-users{% endblock %}
 
 {% block body %}
+    <h2>Invite users to company</h2>
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-        {{ form_row(form.emailAddress) }}
+        {{ form_row(form.emails) }}
         <div class="uk-margin">
             <button class="uk-button uk-button-primary uk-button-small">Save</button>
         </div>

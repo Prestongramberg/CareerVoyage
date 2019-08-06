@@ -23,6 +23,11 @@ class JoinCompanyRequest extends Request
      */
     private $type;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isFromCompany = false;
+
     public function getCompany(): ?Company
     {
         return $this->company;
@@ -43,6 +48,18 @@ class JoinCompanyRequest extends Request
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getIsFromCompany()
+    {
+        return $this->isFromCompany;
+    }
+
+    public function setIsFromCompany($isFromCompany)
+    {
+        $this->isFromCompany = $isFromCompany;
 
         return $this;
     }

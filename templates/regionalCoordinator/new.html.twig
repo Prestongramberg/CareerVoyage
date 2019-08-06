@@ -1,0 +1,14 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Regional Coordinator{% endblock %}
+{% block bodyClass %}page-regional-coordinator{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_row(form.firstName) }}
+        {{ form_row(form.lastName) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.region) }}
+        {{ form_row(form.submit) }}
+    {{ form_end(form) }}
+{% endblock %}

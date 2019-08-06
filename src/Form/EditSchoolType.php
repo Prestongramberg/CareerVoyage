@@ -2,19 +2,22 @@
 
 namespace App\Form;
 
-use App\Entity\AdminUser;
+use App\Entity\Career;
+use App\Entity\Company;
+use App\Entity\Course;
+use App\Entity\Grade;
 use App\Entity\Industry;
+use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
-use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
-use App\Model\CompanyInvite;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -30,20 +33,22 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
-class CompanyInviteFormType extends AbstractType
+class EditSchoolType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('emails', TextType::class, [
-            'attr' => [
-                'placeholder' => 'user1@example.com, user2@example.com'
-            ],
-            'mapped' => false,
-        ]);
+
+        $builder->add('name', TextType::class, [])
+            ->add('address', TextType::class, [])
+            ->add('email', EmailType::class, [])
+            ->add('overviewAndBackground', TextareaType::class, []);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => School::class,
+            'validation_groups' => ["EDIT"]
+        ]);
     }
 }

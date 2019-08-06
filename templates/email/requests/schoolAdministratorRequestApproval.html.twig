@@ -1,0 +1,3 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
+<p>{{ request.needsApprovalBy.firstName }} has accepted your request to be a school administrator for school {{ request.school.name }}.</p>
+{% include 'email/partial/emailFooter.html.twig' %}

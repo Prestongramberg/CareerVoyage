@@ -9,7 +9,6 @@ use App\Entity\Grade;
 use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
-use App\Entity\SchoolStateUser;
 use App\Entity\SecondaryIndustry;
 use App\Entity\State;
 use App\Entity\StateCoordinator;

@@ -5,13 +5,12 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SchoolAdminUserRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SchoolAdministratorRequestRepository")
  */
-class SchoolAdminUser extends User
+class SchoolAdministratorRequest extends Request
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolAdminUsers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolAdministratorRequests")
      */
     private $school;
 
