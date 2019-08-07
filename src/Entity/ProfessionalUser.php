@@ -61,12 +61,6 @@ class ProfessionalUser extends User
     private $ownedCompany;
 
     /**
-     *
-     * @ORM\OneToOne(targetEntity="App\Entity\Experience", mappedBy="employeeContact", cascade={"persist", "remove"})
-     */
-    private $experience;
-
-    /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="professionalUsers")
@@ -95,12 +89,18 @@ class ProfessionalUser extends User
      */
     private $rolesWillingToFulfill;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperience", mappedBy="employeeContact")
+     */
+    private $companyExperiences;
+
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
         $this->schools = new ArrayCollection();
         $this->rolesWillingToFulfill = new ArrayCollection();
+        $this->companyExperiences = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -176,23 +176,6 @@ class ProfessionalUser extends User
         $newOwner = $ownedCompany === null ? null : $this;
         if ($newOwner !== $ownedCompany->getOwner()) {
             $ownedCompany->setOwner($newOwner);
-        }
-
-        return $this;
-    }
-
-    public function getExperience(): ?Experience
-    {
-        return $this->experience;
-    }
-
-    public function setExperience(Experience $experience): self
-    {
-        $this->experience = $experience;
-
-        // set the owning side of the relation if necessary
-        if ($this !== $experience->getEmployeeContact()) {
-            $experience->setEmployeeContact($this);
         }
 
         return $this;
@@ -287,6 +270,37 @@ class ProfessionalUser extends User
     {
         if ($this->rolesWillingToFulfill->contains($rolesWillingToFulfill)) {
             $this->rolesWillingToFulfill->removeElement($rolesWillingToFulfill);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyExperience[]
+     */
+    public function getCompanyExperiences(): Collection
+    {
+        return $this->companyExperiences;
+    }
+
+    public function addCompanyExperience(CompanyExperience $companyExperience): self
+    {
+        if (!$this->companyExperiences->contains($companyExperience)) {
+            $this->companyExperiences[] = $companyExperience;
+            $companyExperience->setEmployeeContact($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyExperience(CompanyExperience $companyExperience): self
+    {
+        if ($this->companyExperiences->contains($companyExperience)) {
+            $this->companyExperiences->removeElement($companyExperience);
+            // set the owning side to null (unless already changed)
+            if ($companyExperience->getEmployeeContact() === $this) {
+                $companyExperience->setEmployeeContact(null);
+            }
         }
 
         return $this;

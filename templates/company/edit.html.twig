@@ -180,7 +180,7 @@
                     <p>Videos can help showcase what a great place your establishment is to work for.  Upload your videos to Youtube and then attach them here.</p>
                     <h4>Add New Video</h4>
 
-                    <div class="uk-margin">
+                  {#  <div class="uk-margin">
                         {{ form_label(form.videos.name, 'Name*') }}
                         {{ form_widget(form.videos.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.name) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.videos.name) }}
@@ -189,7 +189,7 @@
                         {{ form_label(form.videos.videoId, 'Youtube Video ID*') }}
                         {{ form_widget(form.videos.videoId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.videoId) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.videos.videoId) }}
-                    </div>
+                    </div>#}
                 </div>
 
                 {% if company.companyVideos|length > 0 %}

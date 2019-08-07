@@ -38,6 +38,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -286,21 +287,6 @@ class LessonController extends AbstractController
             }
 
             $this->entityManager->persist($lesson);
-
-            /** @var LessonResource $resource */
-            $resource = $form->get('resources')->getData();
-            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
-                $file = $resource->getFile();
-                $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
-                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $resource->setMimeType($mimeType ?? 'application/octet-stream');
-                $resource->setFileName($newFilename);
-                $resource->setFile(null);
-                $resource->setLesson($lesson);
-                $this->entityManager->persist($resource);
-            }
-
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Lesson successfully updated');
@@ -468,6 +454,34 @@ class LessonController extends AbstractController
                 'success' => false,
 
             ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/lessons/{lesson_id}/resource/{resource_id}/remove", name="lesson_resource_remove", options = { "expose" = true })
+     * @ParamConverter("lesson", options={"id" = "lesson_id"})
+     * @ParamConverter("lessonResource", options={"id" = "resource_id"})
+     * @param Request $request
+     * @param Lesson $lesson
+     * @param LessonResource $lessonResource
+     * @return JsonResponse
+     */
+    public function lessonRemoveResourceAction(Request $request, Lesson $lesson, LessonResource $lessonResource) {
+
+        $this->denyAccessUnlessGranted('edit', $lesson);
+
+        if($lesson->getId() !== $lessonResource->getLesson()->getId()) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->entityManager->remove($lessonResource);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
         );
     }
 }

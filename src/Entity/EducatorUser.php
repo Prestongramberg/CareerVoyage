@@ -47,10 +47,16 @@ class EducatorUser extends User
      */
     private $displayName;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact")
+     */
+    private $schoolExperiences;
+
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
+        $this->schoolExperiences = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -147,6 +153,37 @@ class EducatorUser extends User
     public function setDisplayName(?string $displayName): self
     {
         $this->displayName = $displayName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SchoolExperience[]
+     */
+    public function getSchoolExperiences(): Collection
+    {
+        return $this->schoolExperiences;
+    }
+
+    public function addSchoolExperience(SchoolExperience $schoolExperience): self
+    {
+        if (!$this->schoolExperiences->contains($schoolExperience)) {
+            $this->schoolExperiences[] = $schoolExperience;
+            $schoolExperience->setSchoolContact($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolExperience(SchoolExperience $schoolExperience): self
+    {
+        if ($this->schoolExperiences->contains($schoolExperience)) {
+            $this->schoolExperiences->removeElement($schoolExperience);
+            // set the owning side to null (unless already changed)
+            if ($schoolExperience->getSchoolContact() === $this) {
+                $schoolExperience->setSchoolContact(null);
+            }
+        }
 
         return $this;
     }

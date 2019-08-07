@@ -62,10 +62,7 @@ class EditCompanyFormType extends AbstractType
 
             ->add('shortDescription', TextareaType::class, [])
             ->add('description', TextareaType::class)
-            ->add('videos', VideoType::class, array(
-                'label' => false,
-                'mapped' => false
-            ))->add('owner', EntityType::class, [
+            ->add('owner', EntityType::class, [
                 'class' => ProfessionalUser::class,
                 'query_builder' => function (EntityRepository $er) use ($company) {
                     return $er->createQueryBuilder('p')

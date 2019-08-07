@@ -1,0 +1,92 @@
+App\Entity\CompanyExperience:
+    experience (template):
+        title: <catchPhrase()>
+        briefDescription: <paragraph(2)>
+        about: <paragraph(5)>
+        agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+        briefBio: <paragraph(2)>
+        photo: <upload('profile_photo', 'people')>
+        phone: <phoneNumber()>
+        linkedinProfile: <url()>
+        interests: <paragraph(2)>
+        activated: true
+    professional_user_1 (extends professional_user):
+        email: "travis+professional@pintex.com"
+        firstName: "Travis"
+        lastName: "Hoglund"
+        username: "travis+professional"
+        company: '@company_1'
+        primaryIndustry: <primaryIndustry(1)>
+        secondaryIndustries: <secondaryIndustry(1)>
+    professional_user_2 (extends professional_user):
+        email: "josh+professional@pintex.com"
+        firstName: "Josh"
+        lastName: "Crawmer"
+        username: "josh+professional"
+        company: '@company_2'
+        primaryIndustry: <primaryIndustry(2)>
+        secondaryIndustries: <secondaryIndustry(2)>
+    professional_user_3 (extends professional_user):
+        company: '@company_3'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(3)>
+        secondaryIndustries: <secondaryIndustry(3)>
+    professional_user_4 (extends professional_user):
+        company: '@company_4'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(4)>
+        secondaryIndustries: <secondaryIndustry(4)>
+    professional_user_5 (extends professional_user):
+        company: '@company_5'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(5)>
+        secondaryIndustries: <secondaryIndustry(5)>
+    professional_user_6 (extends professional_user):
+        company: '@company_6'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(6)>
+        secondaryIndustries: <secondaryIndustry(6)>
+    professional_user_7 (extends professional_user):
+        company: '@company_7'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(7)>
+        secondaryIndustries: <secondaryIndustry(7)>
+    professional_user_8 (extends professional_user):
+        company: '@company_8'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(8)>
+        secondaryIndustries: <secondaryIndustry(8)>
+    professional_user_9 (extends professional_user):
+        company: '@company_9'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(9)>
+        secondaryIndustries: <secondaryIndustry(9)>
+    professional_user_10 (extends professional_user):
+        company: '@company_10'
+        email: <email()>
+        firstName: <firstName()>
+        lastName: <lastName()>
+        username: <username()>
+        primaryIndustry: <primaryIndustry(10)>
+        secondaryIndustries: <secondaryIndustry(10)>

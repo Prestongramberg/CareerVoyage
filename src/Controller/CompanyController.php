@@ -33,6 +33,7 @@ use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Proxies\__CG__\App\Entity\Video;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,6 +43,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -572,6 +574,101 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @Route("/companies/{id}/video/add", name="company_video_add", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return JsonResponse
+     */
+    public function companyAddVideoAction(Request $request, Company $company) {
+
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+
+        if($name && $videoId) {
+            $video = new CompanyVideo();
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $video->setCompany($company);
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'videoId' => $video->getId()
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/companies/{company_id}/videos/{video_id}/remove", name="company_video_remove", options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @ParamConverter("companyVideo", options={"id" = "video_id"})
+     * @param Request $request
+     * @param Company $company
+     * @param CompanyVideo $companyVideo
+     * @return JsonResponse
+     */
+    public function companyRemoveVideoAction(Request $request, Company $company, CompanyVideo $companyVideo) {
+
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        if($company->getId() !== $companyVideo->getCompany()->getId()) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->entityManager->remove($companyVideo);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+
+    /**
+     * @Route("/companies/{company_id}/resource/{resource_id}/remove", name="company_resource_remove", options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @ParamConverter("companyResource", options={"id" = "resource_id"})
+     * @param Request $request
+     * @param Company $company
+     * @param CompanyResource $companyResource
+     * @return JsonResponse
+     */
+    public function companyRemoveResourceAction(Request $request, Company $company, CompanyResource $companyResource) {
+
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        if($company->getId() !== $companyResource->getCompany()->getId()) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->entityManager->remove($companyResource);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/companies/{id}/photos/add", name="company_photos_add", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
@@ -603,7 +700,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::COMPANY_PHOTO.'/'.$newFilename, 'squared_thumbnail_small')
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::COMPANY_PHOTO.'/'.$newFilename, 'squared_thumbnail_small'),
+                    'imageId' => $image->getId()
                 ], Response::HTTP_OK
             );
         }
@@ -612,6 +710,34 @@ class CompanyController extends AbstractController
             [
                 'success' => false,
             ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/companies/{company_id}/photos/{image_id}/remove", name="company_photo_remove", options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @ParamConverter("companyResource", options={"id" = "photo_id"})
+     * @param Request $request
+     * @param Company $company
+     * @param CompanyPhoto $companyPhoto
+     * @return JsonResponse
+     */
+    public function companyRemovePhotoAction(Request $request, Company $company, CompanyPhoto $companyPhoto) {
+
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        if($company->getId() !== $companyPhoto->getCompany()->getId()) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->entityManager->remove($companyPhoto);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
         );
     }
 
@@ -648,25 +774,11 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Company $company */
             $company = $form->getData();
-
             $user->setCompany($company);
-
-            // video
-            $videoName = $form->get('videos')->get('name')->getData();
-            $videoId = $form->get('videos')->get('videoId')->getData();
-
-            if($videoName && $videoId) {
-                $companyVideo = new CompanyVideo();
-                $companyVideo->setName($videoName);
-                $companyVideo->setVideoId($videoName);
-                $companyVideo->setCompany($company);
-                $this->entityManager->persist($companyVideo);
-            }
-
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Company successfully updated');
+            $this->addFlash('successMessage', 'Company successfully updated');
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
@@ -826,7 +938,7 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($experience);
 
             /** @var ExperienceFile $resource */
-            $resource = $form->get('resources')->getData();
+          /*  $resource = $form->get('resources')->getData();
             if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
                 $file = $resource->getFile();
                 $mimeType = $file->getMimeType();
@@ -839,7 +951,7 @@ class CompanyController extends AbstractController
                 $this->entityManager->persist($resource);
             }
 
-            $experience->setCompany($company);
+            $experience->setCompany($company);*/
 
             $this->entityManager->flush();
 

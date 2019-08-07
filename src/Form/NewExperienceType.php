@@ -102,13 +102,7 @@ class NewExperienceType extends AbstractType
             ->add('briefDescription', TextType::class, [])
             ->add('about', TextareaType::class, [])
             ->add('type', ChoiceType::class, [
-                'choices'  => [
-                    'Site Visit' => 'SITE_VISIT',
-                    'Event' => 'EVENT',
-                    'Externship' => 'EXTERNSHIP',
-                    'Internship' => 'INTERNSHIP',
-                    'Job' => 'JOB',
-                ],
+                'choices'  => Experience::$types
             ])
             ->add('careers', EntityType::class, [
                 'class' => Career::class,
