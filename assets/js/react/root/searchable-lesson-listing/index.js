@@ -4,7 +4,7 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialLessonsState, getInitialUserState, getInitialSearchState } from "./init";
+import { getInitialSearchState } from "./init";
 import App from "./App";
 
 if( document.getElementById("searchable-lesson-listing") ) {
@@ -13,8 +13,10 @@ if( document.getElementById("searchable-lesson-listing") ) {
         reducers,
         {
             courses: [],
+            favorites: [],
             lessons: [],
             search: getInitialSearchState(),
+            teachables: [],
             user: {}
         },
         compose(
