@@ -1,10 +1,15 @@
 App\Entity\SchoolAdministrator:
-  school_administrator_user_1:
+  school_administrator_user (template):
     password: <{app.alice.parameters.password}>
     roles: [ "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_DASHBOARD_USER"]
-    firstName: Brian
-    lastName: Jackson
-    email: "brian+school-administrator@pintex.com"
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
     schools: <schools()>
+  school_administrator_user_1 (extends school_administrator_user):
+    firstName: Brian
+    lastName: Jackson
+    email: "brian+school-administrator@pintex.com"
+  school_administrator_user_{2..10} (extends school_administrator_user):
+    email: <email()>
+    firstName: <firstName()>
+    lastName: <lastName()>

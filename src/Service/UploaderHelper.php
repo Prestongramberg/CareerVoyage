@@ -22,6 +22,7 @@ class UploaderHelper
     const LESSON_FEATURED = 'lesson_featured';
     const EXPERIENCE_FILE = 'experience_file';
     const LESSON_RESOURCE = 'lesson_resource';
+    const SCHOOL_PHOTO = 'school_photo';
 
 
     private $uploadsPath;

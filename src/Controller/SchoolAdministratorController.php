@@ -9,6 +9,7 @@ use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\SchoolAdministrator;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
@@ -23,6 +24,7 @@ use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
+use App\Repository\SchoolRepository;
 use App\Repository\StateCoordinatorRepository;
 use App\Repository\StateCoordinatorRequestRepository;
 use App\Repository\UserRepository;
@@ -49,11 +51,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class StateCoordinatorController
+ * Class SchoolAdministratorController
  * @package App\Controller
- * @Route("/dashboard/state-coordinator")
+ * @Route("/dashboard/school-administrator")
  */
-class StateCoordinatorController extends AbstractController
+class SchoolAdministratorController extends AbstractController
 {
     use FileHelper;
     use RandomStringGenerator;
@@ -134,7 +136,12 @@ class StateCoordinatorController extends AbstractController
     private $userRepository;
 
     /**
-     * StateCoordinatorController constructor.
+     * @var SchoolRepository
+     */
+    private $schoolRepository;
+
+    /**
+     * SchoolAdministratorController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -150,6 +157,7 @@ class StateCoordinatorController extends AbstractController
      * @param StateCoordinatorRequestRepository $stateCoordinatorRequestRepository
      * @param StateCoordinatorRepository $stateCoordinatorRepository
      * @param UserRepository $userRepository
+     * @param SchoolRepository $schoolRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -166,7 +174,8 @@ class StateCoordinatorController extends AbstractController
         RequestsMailer $requestsMailer,
         StateCoordinatorRequestRepository $stateCoordinatorRequestRepository,
         StateCoordinatorRepository $stateCoordinatorRepository,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        SchoolRepository $schoolRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -183,58 +192,26 @@ class StateCoordinatorController extends AbstractController
         $this->stateCoordinatorRequestRepository = $stateCoordinatorRequestRepository;
         $this->stateCoordinatorRepository = $stateCoordinatorRepository;
         $this->userRepository = $userRepository;
+        $this->schoolRepository = $schoolRepository;
     }
 
     /**
-     * @IsGranted("ROLE_ADMIN_USER")
-     * @Route("/new", name="state_coordinator_new")
+     * @Route("/{id}/schools", name="school_administrator_schools")
      * @param Request $request
+     * @param SchoolAdministrator $schoolAdministrator
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
      */
-    public function newAction(Request $request) {
+    public function schoolsAction(Request $request, SchoolAdministrator $schoolAdministrator) {
 
         $user = $this->getUser();
-        $stateCoordinator = new StateCoordinator();
 
-        $form = $this->createForm(StateCoordinatorFormType::class, $stateCoordinator, [
-            'method' => 'POST'
-        ]);
+        $schools = $this->schoolRepository->getSchoolsThatBelongToSchoolAdministrator($schoolAdministrator);
 
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-            /** @var StateCoordinator $stateCoordinator */
-            $stateCoordinator = $form->getData();
-
-            $existingUser = $this->userRepository->findOneBy(['email' => $stateCoordinator->getEmail()]);
-            // for now just skip users that are already in the system
-            if($existingUser) {
-                $this->addFlash('error', 'This user already exists in the system');
-                return $this->redirectToRoute('state_coordinator_new');
-            } else {
-                $stateCoordinator->initializeNewUser();
-                $stateCoordinator->setPasswordResetToken();
-                $this->entityManager->persist($stateCoordinator);
-            }
-
-            $stateCoordinatorRequest = new StateCoordinatorRequest();
-            $stateCoordinatorRequest->setState($stateCoordinator->getState());
-            $stateCoordinatorRequest->setNeedsApprovalBy($stateCoordinator);
-            $stateCoordinatorRequest->setCreatedBy($user);
-            $this->entityManager->persist($stateCoordinatorRequest);
-            $this->entityManager->flush();
-
-            $this->securityMailer->sendAccountActivation($stateCoordinator);
-            $this->requestsMailer->stateCoordinatorRequest($stateCoordinatorRequest);
-
-            $this->addFlash('success', 'State coordinator invite sent.');
-            return $this->redirectToRoute('state_coordinator_new');
-        }
-
-        return $this->render('stateCoordinator/new.html.twig', [
+        return $this->render('schoolAdministrator/schools.html.twig', [
+            'schools' => $schools,
             'user' => $user,
-            'form' => $form->createView()
+            'schoolAdministrator' => $schoolAdministrator
+
         ]);
     }
 }

@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"image" = "Image", "companyPhoto" = "CompanyPhoto", "companyResource" = "CompanyResource", "experienceFile" = "ExperienceFile", "lessonResource" = "LessonResource"})
+ * @ORM\DiscriminatorMap({"image" = "Image", "companyPhoto" = "CompanyPhoto", "companyResource" = "CompanyResource", "experienceFile" = "ExperienceFile", "lessonResource" = "LessonResource", "schoolPhoto" = "SchoolPhoto"})
  */
 class Image
 {

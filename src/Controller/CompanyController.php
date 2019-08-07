@@ -768,7 +768,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/photos/{id}/remove", name="company_photo_remove", options = { "expose" = true })
+     * @Route("/companies/photos/{id}/remove", name="company_photo_remove", options = { "expose" = true })
      * @ParamConverter("company", options={"id" = "company_id"})
      * @ParamConverter("companyResource", options={"id" = "photo_id"})
      * @param Request $request
