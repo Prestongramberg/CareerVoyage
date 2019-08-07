@@ -320,6 +320,8 @@ class LessonController extends AbstractController
      */
     public function deleteLessonAction(Lesson $lesson, Request $request) {
 
+        $this->denyAccessUnlessGranted('edit', $lesson);
+
         /** @var User $user */
         $user = $this->getUser();
 
@@ -344,6 +346,8 @@ class LessonController extends AbstractController
      * @return JsonResponse
      */
     public function lessonAddThumbnailAction(Request $request, Lesson $lesson) {
+
+        $this->denyAccessUnlessGranted('edit', $lesson);
 
         $user = $this->getUser();
 
@@ -382,6 +386,8 @@ class LessonController extends AbstractController
      */
     public function lessonAddFeaturedAction(Request $request, Lesson $lesson) {
 
+        $this->denyAccessUnlessGranted('edit', $lesson);
+
         $user = $this->getUser();
 
         /** @var UploadedFile $uploadedFile */
@@ -418,6 +424,8 @@ class LessonController extends AbstractController
      * @return JsonResponse
      */
     public function lessonAddResourceAction(Request $request, Lesson $lesson) {
+
+        $this->denyAccessUnlessGranted('edit', $lesson);
 
         /** @var UploadedFile $file */
         $file = $request->files->get('resource');
@@ -458,21 +466,60 @@ class LessonController extends AbstractController
     }
 
     /**
-     * @Route("/lessons/{lesson_id}/resource/{resource_id}/remove", name="lesson_resource_remove", options = { "expose" = true })
-     * @ParamConverter("lesson", options={"id" = "lesson_id"})
-     * @ParamConverter("lessonResource", options={"id" = "resource_id"})
+     * @Route("/lessons/resources/{id}/edit", name="lesson_resource_edit", options = { "expose" = true })
      * @param Request $request
-     * @param Lesson $lesson
      * @param LessonResource $lessonResource
      * @return JsonResponse
      */
-    public function lessonRemoveResourceAction(Request $request, Lesson $lesson, LessonResource $lessonResource) {
+    public function lessonEditResourceAction(Request $request, LessonResource $lessonResource) {
 
-        $this->denyAccessUnlessGranted('edit', $lesson);
+        $this->denyAccessUnlessGranted('edit', $lessonResource->getLesson());
 
-        if($lesson->getId() !== $lessonResource->getLesson()->getId()) {
-            throw new NotFoundHttpException();
+        /** @var UploadedFile $file */
+        $file = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($file && $title && $description) {
+            $mimeType = $file->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
+            $lessonResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+            $lessonResource->setMimeType($mimeType ?? 'application/octet-stream');
+            $lessonResource->setFileName($newFilename);
+            $lessonResource->setFile(null);
+            $lessonResource->setDescription($description);
+            $lessonResource->setTitle($title);
+            $this->entityManager->persist($lessonResource);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename,
+                    'resourceId' => $lessonResource->getId()
+
+                ], Response::HTTP_OK
+            );
         }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/lessons/resources/{id/remove", name="lesson_resource_remove", options = { "expose" = true })
+     * @ParamConverter("lessonResource", options={"id" = "resource_id"})
+     * @param Request $request
+     * @param LessonResource $lessonResource
+     * @return JsonResponse
+     */
+    public function lessonRemoveResourceAction(Request $request, LessonResource $lessonResource) {
+
+        $this->denyAccessUnlessGranted('edit', $lessonResource->getLesson());
 
         $this->entityManager->remove($lessonResource);
         $this->entityManager->flush();

@@ -148,7 +148,7 @@ class UserController extends AbstractController
      */
     public function getLoggedInUser() {
 
-        $json = $this->serializer->serialize($this->getUser(), 'json', ['groups' => ['ALL_USER_DATA']]);
+        $json = $this->serializer->serialize($this->getUser(), 'json', ['groups' => ['ALL_USER_DATA', 'PROFESSIONAL_USER_DATA']]);
 
         $payload = json_decode($json, true);
 

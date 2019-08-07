@@ -10,13 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 class SchoolExperience extends Experience
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolExperiences")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -27,11 +20,6 @@ class SchoolExperience extends Experience
      * @ORM\JoinColumn(nullable=false)
      */
     private $schoolContact;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getSchool(): ?School
     {

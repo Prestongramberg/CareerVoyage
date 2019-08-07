@@ -12,6 +12,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Career
 {
+    public static $types= [
+        'Agriculture, Food & Natural Resources',
+        'Architecture & Construction',
+        'Arts, A/V Technology & Communications',
+        'Business Management & Administration',
+        'Education & Training',
+        'Finance',
+        'Government & Public Administration',
+        'Health Science',
+        'Hospitality & Tourism',
+        'Human Services',
+        'Information Technology',
+        'Law, Public Safety, Corrections & Security',
+        'Manufacturing',
+        'Marketing',
+        'Science, Technology, Engineering & Mathematics',
+        'Transportation, Distribution & Logistics'
+    ];
+
     /**
      * @Groups({"LESSON_DATA", "EXPERIENCE_DATA"})
      * @ORM\Id()

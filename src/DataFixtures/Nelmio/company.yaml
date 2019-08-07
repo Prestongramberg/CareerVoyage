@@ -3,7 +3,7 @@ App\Entity\Company:
         name: <company()>
         address: <address()>
         shortDescription: <paragraph(2)>
-        website: <safeEmailDomain()>
+        website: <url()>
         emailAddress: <companyEmail()>
         phone: <phoneNumber()>
         description: <paragraph(2)>

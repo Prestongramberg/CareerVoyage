@@ -53,7 +53,11 @@ class NewCompanyFormType extends AbstractType
 
         $builder
             ->add('name', TextType::class, [])
-            ->add('website', TextType::class, [])
+            ->add('website', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'http://example.org'
+                ]
+            ])
             ->add('phone', TextType::class)
             ->add('emailAddress', TextType::class)
             ->add('primaryIndustry', EntityType::class, [

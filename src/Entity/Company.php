@@ -97,6 +97,7 @@ class Company
     /**
      * @Groups({"RESULTS_PAGE"})
      * @Assert\NotBlank(message="Don't forget a website!", groups={"CREATE", "EDIT"})
+     * @Assert\Regex("/^(http|https):\/\//", message="Website must start with http or https!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $website;
@@ -173,6 +174,7 @@ class Company
     private $experiences;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must specify at least one secondary industry",

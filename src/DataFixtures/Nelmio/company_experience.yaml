@@ -1,0 +1,57 @@
+App\Entity\CompanyExperience:
+    experience (template):
+        title: <catchPhrase()>
+        briefDescription: <paragraph(2)>
+        about: <paragraph(5)>
+        type: <randomExperienceType()>
+        careers: [<career()>, <career()>]
+        availableSpaces: <numberBetween(2, 100)>
+        payment: <randomFloat(2, 10, 100)>
+        paymentShownIsPer: <randomPaymentType()>
+        phoneNumber: <phoneNumber()>
+        website: <safeEmailDomain()>
+        street: <streetName()>
+        city: <city()>
+        zipcode: <postcode()>
+        state: <state()>
+        email: <email()>
+    experience_1 (extends experience):
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 1
+        company: '@company_1'
+        employeeContact: '@professional_user_1'
+    experience_2 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 2
+      company: '@company_1'
+      employeeContact: '@professional_user_1'
+    experience_3 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 5
+      company: '@company_1'
+      employeeContact: '@professional_user_1'
+    experience_4 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 2
+      company: '@company_1'
+      employeeContact: '@professional_user_1'
+    experience_5 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 1
+      company: '@company_2'
+      employeeContact: '@professional_user_2'
+    experience_6 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 2
+      company: '@company_2'
+      employeeContact: '@professional_user_2'
+    experience_7 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 5
+      company: '@company_2'
+      employeeContact: '@professional_user_2'
+    experience_8 (extends experience):
+      startDateAndTime: <dateTimeBetween('now', '+1 years')>
+      length: 2
+      company: '@company_2'
+      employeeContact: '@professional_user_2'
