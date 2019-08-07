@@ -8,22 +8,6 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('build/companies.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js" integrity="sha256-cs4thShDfjkqFGk5s2Lxj35sgSRr4MRcyccmi0WKqCM=" crossorigin="anonymous"></script>
-
-    <script>
-        Dropzone.options.thumbnailDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-
-        Dropzone.options.featuredDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-        Dropzone.options.photosDropzone = {
-            paramName: "file"
-        };
-    </script>
 {% endblock %}
 
  {% block stylesheets %}
@@ -34,6 +18,20 @@
 {% block body %}
 
     <div class="uk-container js-form" data-route="{{ path('company_edit', {'id' : company.id}) }}">
+
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>Company successfully updated.  <a href="{{ path('company_view', {'id': company.id}) }}">View your Company</a></p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -93,21 +91,23 @@
                         <div class="uk-margin uk-grid" uk-grid>
                             {% if company.thumbnailImage %}
                                 <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                    <img id="companyThumbnailImage" src="{{ asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
                                 </div>
                             {% endif %}
                             <div class="uk-width-expand">
-
+                                <label>Company Thumbnail</label>
+                                <div data-upload-url="{{ path('company_thumbnail_add', { id: company.id }) }}" data-type="image:companyThumbnailImage"></div>
                             </div>
                         </div>
                         <div class="uk-margin uk-grid" uk-grid>
                             {% if company.featuredImage %}
                                 <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                    <img id="companyFeaturedImage" src="{{ asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
                                 </div>
                             {% endif %}
                             <div class="uk-width-expand">
-
+                                <label>Company Featured Image</label>
+                                <div data-upload-url="{{ path('company_featured_add', { id: company.id }) }}" data-type="image:companyFeaturedImage"></div>
                             </div>
                         </div>
                         <div class="uk-margin">
@@ -160,20 +160,26 @@
             <div class="page-company-edit__photos">
 
                 <div class="uk-width-1-1">
-
+                    <h4>Add Additional Photos</h4>
+                    <div data-upload-url="{{ path('company_photos_add', { id: company.id }) }}" data-type="multiple:image:companyPhotos">
+                        <div class="page-company-edit__uploaded-photos">
+                            <button type="button" data-remove="{{ url('company_photo_remove', {company_id: company.id, image_id: 'UPLOAD_ID'}) }}" uk-close></button>
+                            <img src="UPLOAD_URL" />
+                        </div>
+                    </div>
                 </div>
 
+                <h4>Existing Photos</h4>
+                <div id="companyPhotos" class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid>
                 {% if company.companyPhotos|length > 0 %}
-                    <h4>Remove Existing Photos</h4>
-                    <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid>
-                        {% for companyPhoto in company.companyPhotos %}
-                            <div class="page-company-edit__uploaded-photos">
-                                <button class="js-removePhoto" type="button" data-remove="{{ url('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}" uk-close></button>
-                                <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {% for companyPhoto in company.companyPhotos %}
+                        <div class="page-company-edit__uploaded-photos">
+                            <button type="button" data-remove="{{ url('company_photo_remove', {company_id: company.id, image_id: companyPhoto.id}) }}" uk-close></button>
+                            <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+                        </div>
+                    {% endfor %}
                 {% endif %}
+                </div>
             </div>
             <div class="page-company-edit__videos">
                 <div class="uk-width-xlarge">
@@ -198,8 +204,15 @@
                         <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
                             {% for video in company.videos %}
                                 <div>
-                                    <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId }}">
+                                    <a class="uk-inline company-video" href="https://www.youtube.com/watch?v={{ video.videoId }}">
                                         <img src="http://i.ytimg.com/vi/{{ video.videoId }}/hqdefault.jpg" alt="">
+                                        <div class="company-video__overlay">
+                                            <div class="company-video__overlay-title">
+                                                {{ video.name }}
+                                            </div>
+                                        </div>
+                                        <button type="button" data-remove="#" uk-close></button>
+{#                                        {{ url('company_video_remove', {company_id: company.id, video_id: 0}) }}#}
                                     </a>
                                 </div>
                             {% endfor %}
@@ -208,30 +221,15 @@
                 {% endif %}
             </div>
             <div class="page-company-edit__resources">
-               {# <div class="uk-width-xlarge">
+                <div class="uk-width-xlarge">
                     <p>Resources are meant to provide helpful resources to understand more about your company.  Things like Employee Handbooks, Campus Maps, and Company Culture are highly encouraged!</p>
                     <h4>Add New Resource</h4>
                     <div class="uk-margin">
                         <div class="uk-width-1-1">
-                            {{ form_label(form.resources.file, 'Resource File*') }}<br />
-                            <div uk-form-custom="target: true">
-                                {{ form_widget(form.resources.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.resources.file) ? ' uk-form-danger' : '' ) }}) }}
-                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select Resource" disabled>
-                            </div>
-                            {{ form_errors(form.resources.file) }}
+                            ADD NEW RESOURCES BUTTON
                         </div>
                     </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.resources.title, 'Resource Title*') }}
-                        {{ form_widget(form.resources.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.resources.title) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.resources.title) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.resources.description, 'Resource Description*') }}
-                        {{ form_widget(form.resources.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.resources.description) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.resources.description) }}
-                    </div>
-                </div>#}
+                </div>
 
                 {% if company.companyResources|length > 0 %}
                     <div class="uk-margin">
@@ -259,27 +257,5 @@
         {{ form_end(form) }}
 
     </div>
-
-
-
-
-
-    <h1>Thumbnail Image</h1>
-    <form action="{{ path('company_thumbnail_add', {
-        id: company.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="thumbnail-dropzone">
-    </form>
-
-    <h1>Featured Image</h1>
-    <form action="{{ path('company_featured_add', {
-        id: company.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="featured-dropzone">
-    </form>
-
-    <h1>Photos</h1>
-    <form action="{{ path('company_photos_add', {
-        id: company.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="photos-dropzone">
-    </form>
 
 {% endblock %}

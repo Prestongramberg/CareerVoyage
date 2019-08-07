@@ -637,21 +637,6 @@ class CompanyController extends AbstractController
 
             $user->setCompany($company);
 
-            // resource
-            /** @var CompanyResource $resource */
-            $resource = $form->get('resources')->getData();
-            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
-                $file = $resource->getFile();
-                $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
-                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $resource->setMimeType($mimeType ?? 'application/octet-stream');
-                $resource->setFileName($newFilename);
-                $resource->setFile(null);
-                $resource->setCompany($company);
-                $this->entityManager->persist($resource);
-            }
-
             // video
             $video = $form->get('videos')->getData();
             if($video->getName() && $video->getVideoId()) {

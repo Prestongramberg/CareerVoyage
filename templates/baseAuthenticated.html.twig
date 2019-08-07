@@ -48,6 +48,28 @@
 
         {{ encore_entry_script_tags('app') }}
 
+        <script>
+            /**
+             * Global constants
+             *
+             * TODO: ideally these values would be filled in from the server side
+             *
+             * @class SETTINGS
+             * @static
+             */
+            window.SETTINGS = {};
+
+            /**
+             * Root path for all JavaScript files
+             *
+             * @property SCRIPT_PATH
+             * @type String
+             * @final
+             */
+            SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
+
+        </script>
+
     {% endblock %}
 </body>
 </html>

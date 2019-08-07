@@ -90,6 +90,135 @@ jQuery(document).ready(function($) {
     });
 
     /**
+     * Auto Upload Files in Forms
+     */
+    instance = 1;
+    $('[data-upload-url]').each(function(){
+        (function($elem) {
+
+            // Valid options so far
+            // image:#whereToAppendElement
+            // multiple:image:#whereToAppendElement (needs a data-template as well)
+
+            // Get the Target
+            const url = $elem.attr('data-upload-url');
+            const dataType = $elem.attr('data-type');
+            const type = dataType.split(':')[0];
+            const _template = $elem.html();
+            $elem.empty();
+
+            // Add a unique instance class
+           $elem.addClass('js-file-ajax-upload' + instance);
+
+            // Append the necessary elements
+            if(type === "multiple") {
+                $elem.append('<div class="js-upload-' + instance +' uk-placeholder uk-text-center">\n' +
+                    '    <span uk-icon="icon: cloud-upload"></span>\n' +
+                    '    <span class="uk-text-middle">Attach files by dropping them here or</span>\n' +
+                    '    <div data-uk-form-custom>\n' +
+                    '        <input type="file" multiple>\n' +
+                    '        <span class="uk-link">selecting one</span>\n' +
+                    '    </div>\n' +
+                    '</div>');
+            } else {
+                $elem.append('<div class="js-upload-' + instance +'" data-uk-form-custom>\n' +
+                    '    <input type="file" multiple>\n' +
+                    '    <button class="uk-button uk-button-default" type="button" tabindex="-1">Change</button>\n' +
+                    '</div>');
+            }
+
+            const $progressBar = $('<progress id="js-progressbar" class="uk-progress" value="0" max="100" style="display: none;"></progress>');
+            $elem.append($progressBar);
+
+            // Instantiate the Upload Field
+            UIkit.upload(`.js-upload-${instance}`, {
+
+                url: url,
+                multiple: type === "multiple",
+                name: 'file',
+
+                beforeSend: function (environment) {
+                    // console.log('beforeSend', arguments);
+                },
+                beforeAll: function () {
+                    // console.log('beforeAll', arguments);
+                },
+                load: function () {
+                    // console.log('load', arguments);
+                },
+                error: function () {
+                    //console.log('error', arguments);
+                    window.Pintex.notification("Failed to upload file", "error");
+                },
+                complete: function () {
+
+                    // console.log('complete', arguments);
+                    const response = JSON.parse(arguments[0].response);
+
+                    if( response && response.success === true ) {
+                        switch(type) {
+                            case 'multiple':
+                                var uploadType = dataType.split(':')[1];
+                                if( uploadType === "image" ) {
+                                    $(`#${dataType.split(':')[2]}`).append(
+                                        _template.replace(/UPLOAD_ID/g, 0).replace(/UPLOAD_URL/g, window.SETTINGS.BASE_URL + response.url)
+                                    );
+                                }
+                                break;
+                            case 'image':
+                                $(`#${dataType.split(':')[1]}`).attr("src", window.SETTINGS.BASE_URL + response.url);
+                                break;
+                        }
+
+                        window.Pintex.notification("Uploaded file successfully", "success");
+
+                    } else {
+                        window.Pintex.notification("Failed to upload file", "error");
+                    }
+                },
+
+                loadStart: function (e) {
+                    // console.log('loadStart', arguments);
+                    $progressBar.fadeIn();
+                    $progressBar.attr({
+                        'max': e.total,
+                        'value': e.loaded
+                    });
+                },
+
+                progress: function (e) {
+                    // console.log('progress', arguments);
+                    $progressBar.attr({
+                        'max': e.total,
+                        'value': e.loaded
+                    });
+                },
+
+                loadEnd: function (e) {
+                    // console.log('loadEnd', arguments);
+                    $progressBar.attr({
+                        'max': e.total,
+                        'value': e.loaded
+                    });
+                },
+
+                completeAll: function () {
+                    // console.log('completeAll', arguments);
+                    setTimeout(function () {
+                        $progressBar.fadeOut();
+                    }, 1000);
+                }
+
+            });
+
+
+            // Increment the unique instance
+            instance++;
+
+        })($(this));
+    });
+
+    /**
      * Errors Triggering Correct Tabs
      */
     $('form .uk-switcher').each(function() {
@@ -100,5 +229,22 @@ jQuery(document).ready(function($) {
             $("[uk-tab*=" + $(this).attr('id') + "]").children().removeClass('uk-active').eq(index).addClass('uk-active');
         }
     });
+
+    /**
+     * AJAX Delete
+     */
+    $(document).on('click', '[data-remove]', function() {
+
+        const $elem = $(this);
+
+        $.get( $elem.attr('data-remove') ).always(function( response ) {
+            if ( response.success === true ) {
+                window.Pintex.notification("Successfully deleted.", "success");
+                $elem.parent().remove();
+            } else {
+                window.Pintex.notification("Unable to delete. Refresh the page and try again.", "warning");
+            }
+        });
+    })
 
 });

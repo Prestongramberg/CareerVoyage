@@ -7,15 +7,6 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('build/profile.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js" integrity="sha256-cs4thShDfjkqFGk5s2Lxj35sgSRr4MRcyccmi0WKqCM=" crossorigin="anonymous"></script>
-
-    <script>
-
-        Dropzone.options.photoDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-    </script>
 {% endblock %}
 
  {% block stylesheets %}

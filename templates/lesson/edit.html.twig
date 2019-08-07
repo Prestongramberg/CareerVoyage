@@ -7,19 +7,6 @@
     {{ parent() }}
     <script src="{{ asset('build/lessons.js') }}"></script>
     <script src="{{ asset('build/companies.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js" integrity="sha256-cs4thShDfjkqFGk5s2Lxj35sgSRr4MRcyccmi0WKqCM=" crossorigin="anonymous"></script>
-
-    <script>
-        Dropzone.options.thumbnailDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-
-        Dropzone.options.featuredDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-    </script>
 {% endblock %}
 
  {% block stylesheets %}
