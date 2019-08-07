@@ -11,9 +11,20 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ExperienceRepository")
+ *
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience"})
  */
-class Experience
+abstract class Experience
 {
+    public static $types = [
+        'Site Visit' => 'SITE_VISIT',
+        'Event' => 'EVENT',
+        'Externship' => 'EXTERNSHIP',
+        'Internship' => 'INTERNSHIP',
+        'Job' => 'JOB',
+    ];
 
     /**
      * @Assert\Callback(groups={"CREATE"})
@@ -149,13 +160,6 @@ class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="experience")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $employeeContact;
-
-    /**
-     * @Groups({"EXPERIENCE_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE"}
@@ -170,12 +174,6 @@ class Experience
      * @ORM\OneToMany(targetEntity="App\Entity\ExperienceFile", mappedBy="experience", cascade={"remove"}, orphanRemoval=true)
      */
     private $experienceFiles;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="experiences")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $company;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
@@ -401,18 +399,6 @@ class Experience
         return $this;
     }
 
-    public function getEmployeeContact()
-    {
-        return $this->employeeContact;
-    }
-
-    public function setEmployeeContact(ProfessionalUser $employeeContact)
-    {
-        $this->employeeContact = $employeeContact;
-
-        return $this;
-    }
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -452,18 +438,6 @@ class Experience
                 $experienceFile->setExperience(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getCompany(): ?Company
-    {
-        return $this->company;
-    }
-
-    public function setCompany(?Company $company): self
-    {
-        $this->company = $company;
 
         return $this;
     }

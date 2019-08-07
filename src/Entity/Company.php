@@ -197,6 +197,11 @@ class Company
      */
     private $companyVideos;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperience", mappedBy="company")
+     */
+    private $companyExperiences;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -209,6 +214,7 @@ class Company
         $this->secondaryIndustries = new ArrayCollection();
         $this->schools = new ArrayCollection();
         $this->companyVideos = new ArrayCollection();
+        $this->companyExperiences = new ArrayCollection();
     }
 
     public function getId()
@@ -728,6 +734,37 @@ class Company
             // set the owning side to null (unless already changed)
             if ($companyVideo->getCompany() === $this) {
                 $companyVideo->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyExperience[]
+     */
+    public function getCompanyExperiences(): Collection
+    {
+        return $this->companyExperiences;
+    }
+
+    public function addCompanyExperience(CompanyExperience $companyExperience): self
+    {
+        if (!$this->companyExperiences->contains($companyExperience)) {
+            $this->companyExperiences[] = $companyExperience;
+            $companyExperience->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyExperience(CompanyExperience $companyExperience): self
+    {
+        if ($this->companyExperiences->contains($companyExperience)) {
+            $this->companyExperiences->removeElement($companyExperience);
+            // set the owning side to null (unless already changed)
+            if ($companyExperience->getCompany() === $this) {
+                $companyExperience->setCompany(null);
             }
         }
 

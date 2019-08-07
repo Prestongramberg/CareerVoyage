@@ -4,6 +4,7 @@ namespace App\DataFixtures\Faker\Provider;
 
 
 use App\Entity\CompanyPhoto;
+use App\Entity\Experience;
 use App\Entity\Industry;
 use App\Entity\Region;
 use App\Entity\School;
@@ -126,5 +127,9 @@ class FixtureHelper
         return $this->entityManager->getRepository(School::class)->findBy([
             'region' => $regionId
         ], null, 2);
+    }
+
+    public function randomExperienceType() {
+        return Experience::$types[array_rand(Experience::$types)];
     }
 }

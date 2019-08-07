@@ -12,13 +12,6 @@ use Symfony\Component\HttpFoundation\File\File;
 class LessonResource extends Image
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson", inversedBy="lessonResources")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
@@ -38,11 +31,6 @@ class LessonResource extends Image
      * @var File
      */
     private $file;
-
-    public function getId()
-    {
-        return $this->id;
-    }
 
     public function getLesson()
     {
