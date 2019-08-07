@@ -779,4 +779,13 @@ class Company
         return $this;
     }
 
+    public function isFavoritedByUser(User $user)
+    {
+        return ($this->companyFavorites->filter(
+                function (CompanyFavorite $companyFavorite) use ($user) {
+                    return $companyFavorite->getUser()->getId() === $user->getId();
+                }
+            )->count() > 0);
+    }
+
 }
