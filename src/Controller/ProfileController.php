@@ -202,9 +202,9 @@ class ProfileController extends AbstractController
      */
     public function profileAddPhotoAction(Request $request, User $user) {
 
-        $user = $this->getUser();
-
         $this->denyAccessUnlessGranted('edit', $user);
+
+        $user = $this->getUser();
 
         /** @var UploadedFile $uploadedFile */
         $profilePhoto = $request->files->get('file');
@@ -242,12 +242,6 @@ class ProfileController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $user);
 
-        /** @var Company $company */
-        $company = $user->getCompany();
-        $company->setOwner(null);
-        $this->entityManager->persist($company);
-        $this->entityManager->flush();
-
         $this->entityManager->remove($user);
         $this->entityManager->flush();
 
@@ -265,6 +259,8 @@ class ProfileController extends AbstractController
      */
     public function deactivateAction(Request $request, User $user) {
 
+        $this->denyAccessUnlessGranted('edit', $user);
+
         $user->setActivated(false);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -279,6 +275,8 @@ class ProfileController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function reactivateAction(Request $request, User $user) {
+
+        $this->denyAccessUnlessGranted('edit', $user);
 
         $user->setActivated(true);
         $this->entityManager->persist($user);

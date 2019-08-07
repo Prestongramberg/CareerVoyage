@@ -245,9 +245,9 @@ class SchoolController extends AbstractController
      */
     public function editAction(Request $request, School $school) {
 
-        $user = $this->getUser();
-
         $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
 
         $form = $this->createForm(EditSchoolType::class, $school, [
             'method' => 'POST',

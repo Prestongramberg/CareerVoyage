@@ -307,16 +307,10 @@ class LessonController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $canDelete = $user->isAdmin() || ($lesson->getUser() && $lesson->getUser()->getId() === $user->getId());
+        $this->entityManager->remove($lesson);
+        $this->entityManager->flush();
 
-        if($canDelete) {
-            $this->entityManager->remove($lesson);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'lesson deleted');
-        } else {
-            $this->addFlash('error', 'lesson can not be deleted');
-        }
+        $this->addFlash('success', 'lesson deleted');
 
         return $this->redirectToRoute('lesson_index');
     }

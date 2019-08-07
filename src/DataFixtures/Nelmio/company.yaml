@@ -15,10 +15,12 @@ App\Entity\Company:
         owner: '@professional_user_1'
         primaryIndustry: <primaryIndustry(1)>
         secondaryIndustries: <secondaryIndustry(1)>
+        approved: true
     company_2 (extends company):
       owner: '@professional_user_2'
       primaryIndustry: <primaryIndustry(2)>
       secondaryIndustries: <secondaryIndustry(2)>
+      approved: true
     company_3 (extends company):
       owner: '@professional_user_3'
       primaryIndustry: <primaryIndustry(3)>

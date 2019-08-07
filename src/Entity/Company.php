@@ -133,13 +133,14 @@ class Company
     private $companyResources;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\JoinCompanyRequest", mappedBy="company", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\JoinCompanyRequest", mappedBy="company", cascade={"remove"})
      */
     private $joinCompanyRequests;
 
     /**
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
-     * @ORM\OneToOne(targetEntity="App\Entity\NewCompanyRequest", mappedBy="company", cascade={"persist", "remove"})
+     *
+     * @ORM\OneToOne(targetEntity="App\Entity\NewCompanyRequest", mappedBy="company", cascade={"remove"})
      */
     private $newCompanyRequest;
 
@@ -171,11 +172,6 @@ class Company
     private $isMine;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Experience", mappedBy="company", orphanRemoval=true)
-     */
-    private $experiences;
-
-    /**
      * @Groups({"RESULTS_PAGE"})
      * @Assert\Count(
      *      min = "1",
@@ -197,24 +193,27 @@ class Company
     private $schools;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyVideo", mappedBy="company")
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyVideo", mappedBy="company", orphanRemoval=true)
      */
     private $companyVideos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperience", mappedBy="company")
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperience", mappedBy="company", orphanRemoval=true)
      */
     private $companyExperiences;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $approved;
 
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
         $this->companyPhotos = new ArrayCollection();
-        $this->videos = new ArrayCollection();
         $this->companyResources = new ArrayCollection();
         $this->joinCompanyRequests = new ArrayCollection();
         $this->companyFavorites = new ArrayCollection();
-        $this->experiences = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
         $this->schools = new ArrayCollection();
         $this->companyVideos = new ArrayCollection();
@@ -631,37 +630,6 @@ class Company
     }
 
     /**
-     * @return Collection|Experience[]
-     */
-    public function getExperiences(): Collection
-    {
-        return $this->experiences;
-    }
-
-    public function addExperience(Experience $experience): self
-    {
-        if (!$this->experiences->contains($experience)) {
-            $this->experiences[] = $experience;
-            $experience->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeExperience(Experience $experience): self
-    {
-        if ($this->experiences->contains($experience)) {
-            $this->experiences->removeElement($experience);
-            // set the owning side to null (unless already changed)
-            if ($experience->getCompany() === $this) {
-                $experience->setCompany(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|SecondaryIndustry[]
      */
     public function getSecondaryIndustries(): Collection
@@ -771,6 +739,18 @@ class Company
                 $companyExperience->setCompany(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApproved(): ?bool
+    {
+        return $this->approved;
+    }
+
+    public function setApproved(bool $approved): self
+    {
+        $this->approved = $approved;
 
         return $this;
     }

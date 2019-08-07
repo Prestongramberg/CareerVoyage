@@ -154,7 +154,9 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $companies = $this->companyRepository->getApprovedCompanies();
+        $companies = $this->companyRepository->findBy([
+            'approved' => true
+        ]);
 
         foreach($companies as $company) {
 

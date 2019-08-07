@@ -18,7 +18,7 @@ class CompanyExperience extends Experience
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="companyExperiences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $employeeContact;
 
