@@ -89,3 +89,19 @@ App\Entity\ProfessionalUser:
         username: <username()>
         primaryIndustry: <primaryIndustry(10)>
         secondaryIndustries: <secondaryIndustry(10)>
+    professional_user_{11..20} (extends professional_user):
+      company: '@company_1'
+      email: <email()>
+      firstName: <firstName()>
+      lastName: <lastName()>
+      username: <username()>
+      primaryIndustry: <primaryIndustry(10)>
+      secondaryIndustries: <secondaryIndustry(10)>
+    professional_user_{21..30} (extends professional_user):
+      company: '@company_2'
+      email: <email()>
+      firstName: <firstName()>
+      lastName: <lastName()>
+      username: <username()>
+      primaryIndustry: <primaryIndustry(10)>
+      secondaryIndustries: <secondaryIndustry(10)>

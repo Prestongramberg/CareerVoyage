@@ -56,7 +56,7 @@ class ProfessionalUser extends User
 
     /**
      *
-     * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner")
      */
     private $ownedCompany;
 

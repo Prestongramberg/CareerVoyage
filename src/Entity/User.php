@@ -154,7 +154,7 @@ abstract class User implements UserInterface
     protected $requests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="needsApprovalBy")
+     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="needsApprovalBy", orphanRemoval=true)
      */
     protected $requestsThatNeedMyApproval;
 

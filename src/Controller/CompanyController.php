@@ -212,10 +212,7 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
 
-        if(!$user instanceof ProfessionalUser) {
-            throw new AccessDeniedException();
-        }
-
+        // if user already has company created then don't let them create another
         if($user->getCompany() && $user->getCompany()->getOwner() && $user->getCompany()->getOwner()->getId() === $user->getId()) {
             return $this->redirectToRoute('company_view', ['id' => $user->getCompany()->getId()]);
         }
@@ -293,13 +290,11 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_PROFESSIONAL_USER")
      * @Route("/companies/{id}/join", name="company_join", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
      */
     public function joinAction(Request $request, Company $company) {
 
@@ -400,46 +395,32 @@ class CompanyController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-        $isOwner = false;
-        if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
-            $isOwner = true;
-        }
 
         return $this->render('company/professionals.html.twig', [
             'user' => $user,
             'company' => $company,
             'professionals' => $professionals,
-            'isOwner' => $isOwner
         ]);
     }
 
     /**
-     * @Route("/companies/{companyID}/professionals/{professionalID}/remove", name="company_professional_remove", options = { "expose" = true }, methods={"POST"})
-     * @ParamConverter("company", options={"id" = "companyID"})
-     * @ParamConverter("professional", options={"id" = "professionalID"})
+     * @Route("/companies/professionals/{id}/remove", name="company_professional_remove", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
-     * @param Company $company
      * @param ProfessionalUser $professional
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function companyProfessionalRemoveAction(Request $request, Company $company, ProfessionalUser $professional) {
+    public function companyProfessionalRemoveAction(Request $request, ProfessionalUser $professional) {
 
-        if($professional->isOwner($company)) {
-            $this->addFlash('error', 'you do not have permission to do this');
+        $this->denyAccessUnlessGranted('edit', $professional->getCompany());
 
-            return $this->redirectToRoute('company_professionals', ['id' => $company->getId()]);
-        }
-
-        if($professional->getCompany()->getId() === $company->getId()) {
-            $professional->setCompany(null);
-            $this->entityManager->persist($professional);
-            $this->entityManager->flush();
-
-        }
+        $companyId = $professional->getCompany()->getId();
+        $professional->setCompany(null);
+        $this->entityManager->persist($professional);
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'professional removed from company');
 
-        return $this->redirectToRoute('company_professionals', ['id' => $company->getId()]);
+        return $this->redirectToRoute('company_professionals', ['id' => $companyId]);
     }
 
     /**
@@ -623,7 +604,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/videos/{id}/edit", name="company_video_add", options = { "expose" = true })
+     * @Route("/companies/videos/{id}/edit", name="company_video_edit", options = { "expose" = true })
      * @param Request $request
      * @param CompanyVideo $video
      * @return JsonResponse
@@ -721,11 +702,10 @@ class CompanyController extends AbstractController
     /**
      * @Route("/companies/resource/{id}/remove", name="company_resource_remove", options = { "expose" = true })
      * @param Request $request
-     * @param Company $company
      * @param CompanyResource $companyResource
      * @return JsonResponse
      */
-    public function companyRemoveResourceAction(Request $request, Company $company, CompanyResource $companyResource) {
+    public function companyRemoveResourceAction(Request $request, CompanyResource $companyResource) {
 
         $this->denyAccessUnlessGranted('edit', $companyResource->getCompany());
 
@@ -871,47 +851,6 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{companyID}/users/{userID}/remove", name="company_remove_user", options = { "expose" = true })
-     * @ParamConverter("company", options={"id" = "companyID"})
-     * @ParamConverter("user", options={"id" = "userID"})
-     *
-     * @param Request $request
-     * @param Company $company
-     * @param ProfessionalUser $professionalUser
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
-     */
-    public function removeUserFromCompanyAction(Request $request, Company $company, ProfessionalUser $professionalUser) {
-
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $canRemove = ($user->isAdmin() ||
-                $company->getOwner()->getId() === $user->getId() ||
-                $user->getId() === $professionalUser->getId())
-            && $professionalUser->getCompany()->getId() === $company->getId();
-
-        if($canRemove) {
-
-            // if the user we are removing is the owner of the company
-            if($company->getOwner()->getId() === $professionalUser->getId()) {
-                $company->setOwner(null);
-            }
-
-
-            $professionalUser->setCompany(null);
-            $this->entityManager->persist($professionalUser);
-            $this->entityManager->persist($company);
-            $this->entityManager->flush();
-            $this->addFlash('success', 'user removed from company');
-        } else {
-            $this->addFlash('error', 'user cannot be removed from company');
-        }
-
-        return $this->redirectToRoute('company_index');
-    }
-
-    /**
      * @Route("/companies/{id}/delete", name="company_delete", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
@@ -920,19 +859,15 @@ class CompanyController extends AbstractController
      */
     public function deleteCompanyAction(Company $company, Request $request) {
 
+        $this->denyAccessUnlessGranted('edit', $company);
+
         /** @var User $user */
         $user = $this->getUser();
 
-        $canDelete = $user->isAdmin() || $company->getOwner()->getId() === $user->getId();
+        $this->entityManager->remove($company);
+        $this->entityManager->flush();
 
-        if($canDelete) {
-            $this->entityManager->remove($company);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'company deleted');
-        } else {
-            $this->addFlash('error', 'company can not be deleted');
-        }
+        $this->addFlash('success', 'company deleted');
 
         return $this->redirectToRoute('company_index');
     }
@@ -1047,6 +982,51 @@ class CompanyController extends AbstractController
             $file->setFileName($newFilename);
             $file->setFile(null);
             $file->setExperience($experience);
+            $file->setDescription($description);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'id' => $file->getId()
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/companies/experiences/file/{id}/edit", name="company_experience_file_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param ExperienceFile $file
+     * @return JsonResponse
+     */
+    public function experienceEditFileAction(Request $request, ExperienceFile $file) {
+
+        $this->denyAccessUnlessGranted('edit', $file->getExperience()->getCompany());
+
+        /** @var UploadedFile $resource */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($resource && $title && $description) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
             $file->setDescription($description);
             $file->setTitle($title);
             $this->entityManager->persist($file);

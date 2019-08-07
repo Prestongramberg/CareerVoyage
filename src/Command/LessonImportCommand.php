@@ -4,6 +4,7 @@ namespace App\Command;
 
 
 use App\Entity\Lesson;
+use App\Entity\LessonTeachable;
 use App\Repository\CareerRepository;
 use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
@@ -210,7 +211,21 @@ class LessonImportCommand extends Command
                 $lessonObject->setPrimaryIndustry($primaryIndustry);
             }
 
+            // assign the lesson to some random users
+            $randomEmails = [
+                'josh+professional@pintex.com',
+                'travis+professional@pintex.com'
+            ];
+            $user = $this->userRepository->findOneBy([
+                'email' => $randomEmails[array_rand($randomEmails)]
+            ]);
+            $lessonObject->setUser($user);
+            $teachableLesson = new LessonTeachable();
+            $teachableLesson->setUser($user);
+            $teachableLesson->setLesson($lessonObject);
+
             $this->entityManager->persist($lessonObject);
+            $this->entityManager->persist($teachableLesson);
         }
 
         $this->entityManager->flush();

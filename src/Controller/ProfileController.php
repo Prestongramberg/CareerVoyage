@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Company;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
@@ -121,6 +122,19 @@ class ProfileController extends AbstractController
     }
 
     /**
+     * @Route("/test", name="profile_test", methods={"GET"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function testAction(Request $request) {
+
+        $user = $this->getUser();
+        return $this->render('profile/test.html.twig', [
+            'user' => $user
+        ]);
+    }
+
+    /**
      * @Route("/profiles/{id}/edit", name="profile_edit")
      * @param Request $request
      * @param User $user
@@ -226,8 +240,15 @@ class ProfileController extends AbstractController
      */
     public function deleteAction(Request $request, User $user) {
 
-        $user->setDeleted(true);
-        $this->entityManager->persist($user);
+        $this->denyAccessUnlessGranted('edit', $user);
+
+        /** @var Company $company */
+        $company = $user->getCompany();
+        $company->setOwner(null);
+        $this->entityManager->persist($company);
+        $this->entityManager->flush();
+
+        $this->entityManager->remove($user);
         $this->entityManager->flush();
 
         $this->get('security.token_storage')->setToken(null);

@@ -264,27 +264,9 @@ class LessonController extends AbstractController
 
         $form->handleRequest($request);
 
-
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Lesson $lesson */
             $lesson = $form->getData();
-
-            $uploadedFile = $form->get('thumbnailImage')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->upload($uploadedFile, UploaderHelper::LESSON_THUMBNAIL);
-                $lesson->setThumbnailImage($newFilename);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_THUMBNAIL) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            $uploadedFile = $form->get('featuredImage')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->upload($uploadedFile, UploaderHelper::LESSON_FEATURED);
-                $lesson->setFeaturedImage($newFilename);
-            }
 
             $this->entityManager->persist($lesson);
             $this->entityManager->flush();
@@ -511,8 +493,7 @@ class LessonController extends AbstractController
     }
 
     /**
-     * @Route("/lessons/resources/{id/remove", name="lesson_resource_remove", options = { "expose" = true })
-     * @ParamConverter("lessonResource", options={"id" = "resource_id"})
+     * @Route("/lessons/resources/{id}/remove", name="lesson_resource_remove", options = { "expose" = true })
      * @param Request $request
      * @param LessonResource $lessonResource
      * @return JsonResponse

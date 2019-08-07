@@ -53,10 +53,6 @@ class LessonVoter extends Voter
 
     private function canEdit(Lesson $lesson, User $user)
     {
-        if(!$lesson->getUser()) {
-            return true;
-        }
-
         if($user->isAdmin()) {
             return true;
         }

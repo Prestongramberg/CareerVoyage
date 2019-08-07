@@ -91,6 +91,7 @@ class Lesson
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="lessons")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $user;
 
