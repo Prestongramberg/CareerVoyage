@@ -206,7 +206,7 @@ class LessonController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Lesson successfully created');
-            return $this->redirectToRoute('lesson_index');
+            return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId() ]);
         }
 
         if($request->request->has('primary_industry_change')) {

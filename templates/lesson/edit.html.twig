@@ -19,6 +19,20 @@
 
     <div class="uk-container js-form" data-route="{{ path('lesson_edit', {'id': lesson.id}) }}">
 
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>Lesson successfully updated.  <a href="{{ path('lesson_view', {'id': lesson.id}) }}">View your Lesson</a></p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
+
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
         {% if form_errors(form) %}
@@ -65,24 +79,22 @@
                             {{ form_widget(form.grades, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.grades) }}
                         </div>
-
                         <div class="uk-margin uk-grid" uk-grid>
-                            {% if lesson.thumbnailImage %}
-                                <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-                                </div>
-                            {% endif %}
+                            <div class="uk-width-small">
+                                <img id="lessonThumbnailImage" src="{{ lesson.thumbnailImage ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
+                            </div>
                             <div class="uk-width-expand">
+                                <label>Lesson Thumbnail</label>
+                                <div data-upload-url="{{ path('lesson_thumbnail_add', { id: lesson.id }) }}" data-type="image:lessonThumbnailImage"></div>
                             </div>
                         </div>
                         <div class="uk-margin uk-grid" uk-grid>
-                            {% if lesson.featuredImage %}
-                                <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-                                </div>
-                            {% endif %}
+                            <div class="uk-width-small">
+                                <img id="lessonFeaturedImage" src="{{ lesson.featuredImage ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
+                            </div>
                             <div class="uk-width-expand">
-
+                                <label>Lesson Featured Image</label>
+                                <div data-upload-url="{{ path('lesson_featured_add', { id: lesson.id }) }}" data-type="image:lessonFeaturedImage"></div>
                             </div>
                         </div>
                     </fieldset>

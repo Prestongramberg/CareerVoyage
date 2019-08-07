@@ -108,7 +108,7 @@ jQuery(document).ready(function($) {
             $elem.empty();
 
             // Add a unique instance class
-           $elem.addClass('js-file-ajax-upload' + instance);
+           $elem.addClass('js-file-ajax-upload-' + instance);
 
             // Append the necessary elements
             if(type === "multiple") {
@@ -123,7 +123,7 @@ jQuery(document).ready(function($) {
             } else {
                 $elem.append('<div class="js-upload-' + instance +'" data-uk-form-custom>\n' +
                     '    <input type="file" multiple>\n' +
-                    '    <button class="uk-button uk-button-default" type="button" tabindex="-1">Change</button>\n' +
+                    '    <button class="uk-button uk-button-default" type="button" tabindex="-1">Upload</button>\n' +
                     '</div>');
             }
 
@@ -166,7 +166,7 @@ jQuery(document).ready(function($) {
                                 }
                                 break;
                             case 'image':
-                                $(`#${dataType.split(':')[1]}`).attr("src", window.SETTINGS.BASE_URL + response.url);
+                                $(`#${dataType.split(':')[1]}`).attr("src", response.url);
                                 break;
                         }
 

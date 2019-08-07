@@ -11,12 +11,11 @@
 
         <ul class="uk-nav uk-nav-default">
 
-            <li><a href="/">Home</a></li>
+            <li><a href="{{ path('dashboard') }}">Home</a></li>
             <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
 {#            <li><a href="#">Schools</a></li>#}
             <li><a href="{{ path('company_index') }}">Companies</a></li>
             <li><a href="{{ path('professional_index') }}">Professionals</a></li>
-{#            <li><a href="{{ path('library') }}">My Library</a></li>#}
             <li><a href="{{ path('requests') }}">Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
 
             <li class="uk-nav-divider"></li>

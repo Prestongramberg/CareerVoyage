@@ -144,7 +144,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/logged-in-user", name="loggd_in_user", methods={"GET"}, options = { "expose" = true })
+     * @Route("/logged-in-user", name="logged_in_user", methods={"GET"}, options = { "expose" = true })
      */
     public function getLoggedInUser() {
 
