@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { companyFavorite, companyUnfavorite, loadCompanies, loadIndustries, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { companyFavorite, companyUnfavorite, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import CompanyListing from "../../components/CompanyListing/CompanyListing";
 
@@ -22,7 +22,7 @@ class App extends React.Component {
                 <ul className="" data-uk-tab="{connect: '#tab-companies'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-companies">All Companies</a></li>
                     <li><a href="#favorite-companies">Favorites</a></li>
-                    {this.props.userRoles.indexOf("ROLE_ADMIN_USER") === -1 && <li><a href="#my-company">My Company</a></li> }
+                    {this.props.user && this.props.user.roles && this.props.user.roles.indexOf("ROLE_ADMIN_USER") === -1 && <li><a href="#my-company">My Company</a></li> }
                 </ul>
 
                 <div className="uk-switcher" id="tab-companies">
@@ -91,20 +91,20 @@ class App extends React.Component {
                             </div>
                         )}
                     </div>
-                    {this.props.userRoles.indexOf("ROLE_ADMIN_USER") === -1 && (
+                    {this.props.user && this.props.user.roles && this.props.user.roles.indexOf("ROLE_ADMIN_USER") === -1 && (
                         <div className="companies_mine">
-                            { this.props.userCompany.id && (
+                            { this.props.user.company && this.props.user.company && this.props.user.company.id && (
                                 <div>
                                     <div className="uk-card">
                                         <div className="uk-grid uk-flex-middle" data-uk-grid>
                                             <div className="uk-width-small">
-                                                <img src={this.props.userCompany.thumbnailImageURL} alt="" />
+                                                <img src={this.props.user.company.thumbnailImageURL} alt="" />
                                             </div>
                                             <div className="uk-width-expand">
-                                                <h3>{ this.props.userCompany.name }</h3>
+                                                <h3>{ this.props.user.company.name }</h3>
                                             </div>
                                             <div className="uk-width-auto">
-                                                <a href={window.Routing.generate('company_view', {'id': this.props.userCompany.id})}
+                                                <a href={window.Routing.generate('company_view', {'id': this.props.user.company.id})}
                                                    className="uk-button uk-button-default uk-button-small uk-margin-small-left">View</a>
                                                 <button data-uk-toggle="target: #remove-from-company" type="button"
                                                         className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove
@@ -116,10 +116,10 @@ class App extends React.Component {
                                                 <div id="remove-from-company" data-uk-modal>
                                                     <div className="uk-modal-dialog uk-modal-body">
                                                         <h2 className="uk-modal-title">Are you sure you want to remove yourself
-                                                            from "{ this.props.userCompany.name }"?</h2>
+                                                            from "{ this.props.user.company.name }"?</h2>
                                                         <div className="uk-margin">
                                                             <form className="uk-inline uk-margin-right" method="post"
-                                                                  action={window.Routing.generate('company_remove_user', { userID: this.props.userId, companyID: this.props.userCompany.id })}>
+                                                                  action={window.Routing.generate('company_remove_user', { userID: this.props.user.id, companyID: this.props.user.company.id })}>
                                                                 <button className="uk-button uk-button-danger" type="submit">Yes</button>
                                                             </form>
                                                             <button className="uk-button uk-button-default uk-modal-close">No,
@@ -130,8 +130,8 @@ class App extends React.Component {
                                                 </div>
                                                 <div id="remove-company" data-uk-modal>
                                                     <div className="uk-modal-dialog uk-modal-body">
-                                                        <h2 className="uk-modal-title">Are you sure you want to delete company "{ this.props.userCompany.name }"?</h2>
-                                                        <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: this.props.userCompany.id }) }>
+                                                        <h2 className="uk-modal-title">Are you sure you want to delete company "{ this.props.user.company.name }"?</h2>
+                                                        <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: this.props.user.company.id }) }>
                                                             <button className="uk-button uk-button-danger" type="submit">Yes</button>
                                                         </form>
                                                         <button className="uk-button uk-button-default uk-modal-close">No,
@@ -144,10 +144,9 @@ class App extends React.Component {
                                     </div>
                                 </div>
                             )}
-                            { !this.props.userCompany.id && (
+                            { this.props.user && !this.props.user.company && (
                                 <div className="uk-placeholder uk-text-center">
                                     <p>You aren't associated with a company yet.</p>
-                                    {/*<a href={ window.Routing.generate("company_join") } className="uk-button uk-button-primary uk-button-small">Join a Company</a>*/}
                                     <a href={ window.Routing.generate("company_new") } className="uk-button uk-button-primary uk-button-small">Create a Company</a>
                                 </div>
                             )}
@@ -203,38 +202,36 @@ class App extends React.Component {
 
     componentDidMount() {
         this.props.loadCompanies( window.Routing.generate('get_companies') );
-        this.props.loadIndustries( window.Routing.generate('get_industries') );
+        this.props.loadUser( window.Routing.generate('logged_in_user') );
     }
 }
 
 App.propTypes = {
-    search: PropTypes.object,
     companies: PropTypes.array,
-    userId: PropTypes.number,
-    userCompany: PropTypes.object,
-    userRoles: PropTypes.array
+    industries: PropTypes.array,
+    search: PropTypes.object,
+    user: PropTypes.object
 };
 
 App.defaultProps = {
     companies: [],
     industries: [],
     search: {},
-    userId: 0,
-    userRoles: [],
-    userCompany: {}
+    user: {}
 };
 
 export const mapStateToProps = (state = {}) => ({
     companies: state.companies,
     industries: state.industries,
-    search: state.search
+    search: state.search,
+    user: state.user
 });
 
 export const mapDispatchToProps = dispatch => ({
     companyFavorite: (companyId) => dispatch(companyFavorite(companyId)),
     companyUnfavorite: (companyId) => dispatch(companyUnfavorite(companyId)),
     loadCompanies: (url) => dispatch(loadCompanies(url)),
-    loadIndustries: (url) => dispatch(loadIndustries(url)),
+    loadUser: (url) => dispatch(loadUser(url)),
     updateIndustryQuery: (event) => dispatch(updateIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
 });

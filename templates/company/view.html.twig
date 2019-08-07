@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        <ul class="" data-uk-tab="{connect: '#tab-company-detail'}" uk-switcher>
+        <ul data-uk-tab="{connect: '#tab-company-detail'}" uk-switcher>
             <li class="uk-active"><a href="#company-summary">Summary</a></li>
             {% if company.companyPhotos|length %}
                 <li><a href="#company-photos">Photos</a></li>
@@ -52,7 +52,7 @@
             {% if company.companyVideos|length %}
                 <li><a href="#company-videos">Videos</a></li>
             {% endif %}
-            {% if company.experiences|length %}
+            {% if company.companyExperiences|length %}
                 <li><a href="#company-events">Events</a></li>
             {% endif %}
             {% if company.companyResources|length %}
@@ -109,10 +109,10 @@
                     </div>
                 </div>
             {% endif %}
-            {% if company.experiences|length %}
+            {% if company.companyExperiences|length %}
                 <div class="company__events">
                     <div class="uk-grid event-listing uk-child-width-1-2@m" uk-grid="masonry: true">
-                        {% for experience in company.experiences %}
+                        {% for experience in company.companyExperiences %}
                             <div>
                                 <div class="uk-card uk-card-default uk-card-body">
                                     <div class="uk-card-badge uk-label">{{ experience.type }}</div>

@@ -1,0 +1,9 @@
+<div class="uk-margin uk-grid" uk-grid>
+    <div class="uk-width-small">
+        <img id="userThumbnailImage" src="{{ user.photo ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
+    </div>
+    <div class="uk-width-expand">
+        <label>Profile Image</label>
+        <div data-upload-url="{{ path('profile_photo_add', { id: user.id }) }}" data-type="image:userThumbnailImage"></div>
+    </div>
+</div>

@@ -781,7 +781,7 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
-            $this->addFlash('successMessage', 'Company successfully updated');
+            $this->addFlash('success', 'Company successfully updated');
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }

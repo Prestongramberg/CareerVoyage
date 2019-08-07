@@ -38,23 +38,23 @@ export function loadCompanies(url) {
     }
 }
 
-export function loadIndustries(url) {
+export function loadUser(url) {
     return (dispatch, getState) => {
-        dispatch({type: actionTypes.INDUSTRIES_LOADING})
+        dispatch({type: actionTypes.USER_LOADING})
 
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    dispatch({type: actionTypes.INDUSTRIES_LOADING_SUCCESS, response: response.responseBody})
+                    dispatch({type: actionTypes.USER_LOADING_SUCCESS, response: response.responseBody})
                 }  else {
                     dispatch({
-                        type: actionTypes.INDUSTRIES_LOADING_FAILURE
+                        type: actionTypes.USER_LOADING_FAILURE
                     })
 
                 }
             })
             .catch(()=> dispatch({
-                type: actionTypes.INDUSTRIES_LOADING_FAILURE
+                type: actionTypes.USER_LOADING_SUCCESS
             }))
     }
 }

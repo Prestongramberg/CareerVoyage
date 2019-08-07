@@ -1,18 +1,6 @@
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
-    {% if successMessage %}
-        <div class="uk-alert-success uk-margin" uk-alert>
-            <a class="uk-alert-close" uk-close></a>
-            <p>Profile successfully updated.  <a href="{{ path('profile_index', {'id': user.id}) }}">View your Profile</a></p>
-        </div>
-    {% endif %}
-
-    {% if errorMessage %}
-        <div class="uk-alert-error uk-margin" uk-alert>
-            <a class="uk-alert-close" uk-close></a>
-            <p>{{ errorMessage }}</p>
-        </div>
-    {% endif %}
+    {% include 'profile/partials/shared/_flash_messages.html.twig' %}
 
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
@@ -43,16 +31,7 @@
                         {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.lastName) }}
                     </div>
-                    <div class="uk-margin uk-grid" uk-grid>
-                        {% if user.photo %}
-                            <div class="uk-width-small">
-                                <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" />
-                            </div>
-                        {% endif %}
-                        <div class="uk-width-expand">
-                           
-                        </div>
-                    </div>
+                    {% include 'profile/partials/_edit_profile_image.html.twig' %}
                     <div class="uk-margin">
                         {{ form_label(form.email, 'Email') }}
                         {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
@@ -68,7 +47,6 @@
                         <button class="uk-button uk-button-primary uk-button-small">Save</button>
                     </div>
                 </fieldset>
-                <input type="hidden" name="formType" value="professionalRegistrationForm">
 
                 {{ form_end(form) }}
             </div>

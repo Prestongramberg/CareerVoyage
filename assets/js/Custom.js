@@ -161,7 +161,7 @@ jQuery(document).ready(function($) {
                                 var uploadType = dataType.split(':')[1];
                                 if( uploadType === "image" ) {
                                     $(`#${dataType.split(':')[2]}`).append(
-                                        _template.replace(/UPLOAD_ID/g, 0).replace(/UPLOAD_URL/g, window.SETTINGS.BASE_URL + response.url)
+                                        _template.replace(/UPLOAD_ID/g, response.id).replace(/UPLOAD_URL/g, response.url)
                                     );
                                 }
                                 break;
@@ -245,6 +245,14 @@ jQuery(document).ready(function($) {
                 window.Pintex.notification("Unable to delete. Refresh the page and try again.", "warning");
             }
         });
-    })
+    });
+
+    /**
+     * Select All
+     */
+    $(document).on('click', '[data-select-all]', function() {
+       const nameOfTargets = $(this).attr('data-select-all');
+       $('[name="'+nameOfTargets+'"]').prop( "checked", true );
+    });
 
 });
