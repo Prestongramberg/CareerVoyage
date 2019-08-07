@@ -55,7 +55,6 @@ class ProfessionalUser extends User
     private $interests;
 
     /**
-     *
      * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner")
      */
     private $ownedCompany;
