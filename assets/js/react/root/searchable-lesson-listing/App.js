@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { lessonFavorited, lessonUnfavorited, lessonTeach, lessonUnteach, loadLessons, loadCourses, updateCourseQuery, updateSearchQuery } from './actions/actionCreators'
+import { lessonFavorited, lessonUnfavorited, lessonTeach, lessonUnteach, loadLessons, loadUser, updateCourseQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import LessonListing from "../../components/LessonListing/LessonListing";
 
@@ -8,15 +8,18 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["renderCourseDropdown", "getRelevantLessons"];
+        const methods = ["renderLesson", "renderCourseDropdown", "getRelevantLessons"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     render() {
 
+        const { favorites, teachables, user } = this.props;
+
         const relevantLessons = this.getRelevantLessons();
-        const favoriteLessons = this.props.lessons.filter(lesson => lesson.favorite === true);
-        const teachableLessons = this.props.lessons.filter(lesson => lesson.teachable === true);
+        const favoriteLessons = this.props.lessons.filter(lesson => favorites.indexOf(lesson.id) > -1 );
+        const teachableLessons = this.props.lessons.filter(lesson => teachables.indexOf(lesson.id) > -1 );
+        const ownerLessons = user.lessons || [];
 
         return (
             <div className="uk-container">
@@ -49,17 +52,7 @@ class App extends React.Component {
                                 )}
                                 { !this.props.search.loading && relevantLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
-                                        <LessonListing
-                                            description={lesson.shortDescription}
-                                            id={lesson.id}
-                                            image={lesson.thumbnailImageURL}
-                                            isFavorite={lesson.favorite}
-                                            isTeacher={lesson.teachable}
-                                            lessonFavorited={this.props.lessonFavorited}
-                                            lessonUnfavorited={this.props.lessonUnfavorited}
-                                            lessonTeach={this.props.lessonTeach}
-                                            lessonUnteach={this.props.lessonUnteach}
-                                            title={lesson.title} />
+                                        { this.renderLesson( lesson ) }
                                     </div>
                                 ))}
                                 { !this.props.search.loading && relevantLessons.length === 0 && (
@@ -77,17 +70,7 @@ class App extends React.Component {
                             <div className="lesson-listings" data-uk-grid="masonry: true">
                                 { favoriteLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
-                                        <LessonListing
-                                            description={lesson.shortDescription}
-                                            id={lesson.id}
-                                            image={lesson.thumbnailImageURL}
-                                            isFavorite={lesson.favorite}
-                                            isTeacher={lesson.teachable}
-                                            lessonFavorited={this.props.lessonFavorited}
-                                            lessonUnfavorited={this.props.lessonUnfavorited}
-                                            lessonTeach={this.props.lessonTeach}
-                                            lessonUnteach={this.props.lessonUnteach}
-                                            title={lesson.title} />
+                                        { this.renderLesson( lesson ) }
                                     </div>
                                 ))}
                             </div>
@@ -103,17 +86,7 @@ class App extends React.Component {
                             <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
                                 { teachableLessons.map(lesson => (
                                     <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
-                                        <LessonListing
-                                            description={lesson.shortDescription}
-                                            id={lesson.id}
-                                            image={lesson.thumbnailImageURL}
-                                            isFavorite={lesson.favorite}
-                                            isTeacher={lesson.teachable}
-                                            lessonFavorited={this.props.lessonFavorited}
-                                            lessonUnfavorited={this.props.lessonUnfavorited}
-                                            lessonTeach={this.props.lessonTeach}
-                                            lessonUnteach={this.props.lessonUnteach}
-                                            title={lesson.title} />
+                                        { this.renderLesson( lesson ) }
                                     </div>
                                 ))}
                             </div>
@@ -130,11 +103,20 @@ class App extends React.Component {
                                 <a href={ window.Routing.generate('lesson_new') } className="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
                             </div>
                         </div>
-                        <div className="uk-margin uk-width-1-1">
-                            <div className="uk-placeholder uk-text-center">
-                                You haven't created any lessons yet.
+                        { ownerLessons.length > 0 && (
+                            <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
+                                { ownerLessons.map(lesson => (
+                                    <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                                        { this.renderLesson( lesson ) }
+                                    </div>
+                                ))}
                             </div>
-                        </div>
+                        )}
+                        { ownerLessons.length === 0 && (
+                            <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
+                                <p>You haven't created any lessons yet!</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -160,6 +142,7 @@ class App extends React.Component {
         }
 
         return null;
+
     }
 
     getRelevantLessons () {
@@ -190,28 +173,55 @@ class App extends React.Component {
 
     }
 
+    renderLesson( lesson ) {
+
+        const isFavorited = this.props.favorites.indexOf(lesson.id) > -1;
+        const isTeachable = this.props.teachables.indexOf(lesson.id) > -1;
+
+        return <LessonListing
+            description={lesson.shortDescription}
+            id={lesson.id}
+            image={lesson.thumbnailImageURL}
+            isFavorite={isFavorited}
+            isTeacher={isTeachable}
+            lessonFavorited={this.props.lessonFavorited}
+            lessonUnfavorited={this.props.lessonUnfavorited}
+            lessonTeach={this.props.lessonTeach}
+            lessonUnteach={this.props.lessonUnteach}
+            title={lesson.title} />
+    }
+
     componentDidMount() {
         this.props.loadLessons( window.Routing.generate('get_lessons') );
-        this.props.loadCourses( window.Routing.generate('get_courses') );
+        this.props.loadUser( window.Routing.generate('logged_in_user') );
     }
 }
 
 App.propTypes = {
-    search: PropTypes.object,
     courses: PropTypes.array,
-    lessons: PropTypes.array
+    favorites: PropTypes.array,
+    lessons: PropTypes.array,
+    search: PropTypes.object,
+    teachables: PropTypes.array,
+    user: PropTypes.object
 };
 
 App.defaultProps = {
     courses: [],
+    favorites: [],
     lessons: [],
-    search: {}
+    search: {},
+    teachables: [],
+    user: {}
 };
 
 export const mapStateToProps = (state = {}) => ({
     courses: state.courses,
+    favorites: state.favorites,
     lessons: state.lessons,
-    search: state.search
+    search: state.search,
+    teachables: state.teachables,
+    user: state.user
 });
 
 export const mapDispatchToProps = dispatch => ({
@@ -220,7 +230,7 @@ export const mapDispatchToProps = dispatch => ({
     lessonTeach: (lessonId) => dispatch(lessonTeach(lessonId)),
     lessonUnteach: (lessonId) => dispatch(lessonUnteach(lessonId)),
     loadLessons: (url) => dispatch(loadLessons(url)),
-    loadCourses: (url) => dispatch(loadCourses(url)),
+    loadUser: (url) => dispatch(loadUser(url)),
     updateCourseQuery: (event) => dispatch(updateCourseQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
 });

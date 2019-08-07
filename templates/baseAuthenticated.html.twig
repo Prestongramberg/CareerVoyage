@@ -26,14 +26,14 @@
 
         {% include 'partials/help-center-logged-in.html.twig' %}
 
+        {% set successMessage = '' %}
         {% for flashMessage in app.session.flashbag.get('success') %}
             {% set successMessage = flashMessage %}
-            {{ flashMessage }}
         {% endfor %}
 
+        {% set errorMessage = '' %}
         {% for flashMessage in app.session.flashbag.get('error') %}
             {% set errorMessage = flashMessage %}
-            {{ flashMessage }}
         {% endfor %}
 
         <div class="main-content">
@@ -47,6 +47,28 @@
         <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
         {{ encore_entry_script_tags('app') }}
+
+        <script>
+            /**
+             * Global constants
+             *
+             * TODO: ideally these values would be filled in from the server side
+             *
+             * @class SETTINGS
+             * @static
+             */
+            window.SETTINGS = {};
+
+            /**
+             * Root path for all JavaScript files
+             *
+             * @property SCRIPT_PATH
+             * @type String
+             * @final
+             */
+            SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
+
+        </script>
 
     {% endblock %}
 </body>

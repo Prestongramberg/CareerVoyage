@@ -4,18 +4,10 @@
 
 {% block body %}
     {% if user.isAdmin %}
-
+        ADMIN PROFILE VIEW
     {% elseif user.isProfessional %}
-
+        PROFESSIONAL PROFILE VIEW
     {% elseif user.isEducator %}
-
-    {% elseif user.isStudent %}
-
-    {% elseif user.isStateCoordinator %}
-
-    {% elseif user.isRegionalCoordinator %}
-
     {% elseif user.isSchoolAdministrator %}
-
     {% endif %}
 {% endblock %}

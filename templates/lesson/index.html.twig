@@ -3,7 +3,25 @@
 {% block title %}Lessons{% endblock %}
 
 {% block body %}
-    <div id="searchable-lesson-listing"></div>
+
+    <div class="uk-container">
+
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>Lesson successfully removed.</p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
+
+        <div id="searchable-lesson-listing"></div>
+    </div>
 {% endblock %}
 
 {% block stylesheets %}

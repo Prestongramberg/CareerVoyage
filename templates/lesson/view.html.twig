@@ -42,7 +42,12 @@
                     {% if user.admin or (lesson.user and user.id == lesson.user.id) %}
                         <a href="{{ path('lesson_edit', {'id': lesson.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit this Lesson</a>
                     {% endif %}
-{#                    TODO: Add button for Professionals to "teach this lesson" #}
+
+                    {% if user.admin or (lesson.user and user.id == lesson.user.id) %}
+                        <form class="uk-inline" method="get" action="{{ path('lesson_delete', {'id' : lesson.id}) }}">
+                            <button class="uk-button uk-button-danger uk-button-small" type="submit">Delete</button>
+                        </form>
+                    {% endif %}
 
                 </div>
             </div>

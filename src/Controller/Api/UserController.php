@@ -144,11 +144,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/logged-in-user", name="loggd_in_user", methods={"GET"}, options = { "expose" = true })
+     * @Route("/logged-in-user", name="logged_in_user", methods={"GET"}, options = { "expose" = true })
      */
     public function getLoggedInUser() {
 
-        $json = $this->serializer->serialize($this->getUser(), 'json', ['groups' => ['ALL_USER_DATA', 'PROFESSIONAL_USER_DATA']]);
+        $json = $this->serializer->serialize($this->getUser(), 'json', ['groups' => ['ALL_USER_DATA', 'LESSON_DATA', 'PROFESSIONAL_USER_DATA']]);
 
         $payload = json_decode($json, true);
 

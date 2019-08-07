@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import FavoriteCompany from "../FavoriteCompany/FavoriteCompany";
 
 class CompanyListing extends Component {
 
     constructor() {
         super();
-        const methods = ["toggleFavorite"];
-        methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     render() {
@@ -16,12 +15,13 @@ class CompanyListing extends Component {
                     <div className="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                         style={{backgroundImage: `url(${this.props.image})`, minHeight: '150px'}}>
                         <div className="uk-inline uk-padding-small">
-                            { this.props.isFavorite && <span className="favorite-company" data-uk-tooltip="title: Remove from My Favorites" onClick={this.toggleFavorite}>
-                                <i className="fa fa-heart" aria-hidden="true"></i>
-                            </span> }
-                                { !this.props.isFavorite && <span className="favorite-company" data-uk-tooltip="title: Add to My Favorites" onClick={this.toggleFavorite}>
-                                <i style={{ opacity: 0.5 }} className="fa fa-heart" aria-hidden="true"></i>
-                            </span> }
+                            <FavoriteCompany
+                                boundByProps={true}
+                                id={this.props.id}
+                                isFavorited={this.props.isFavorite}
+                                companyFavorited={this.props.companyFavorited}
+                                companyUnfavorited={this.props.companyUnfavorited}
+                            />
                         </div>
                     </div>
                 </div>
@@ -54,16 +54,11 @@ class CompanyListing extends Component {
             </div>
         );
     }
-
-    toggleFavorite() {
-        const companyId = this.props.id;
-        this.props.isFavorite ? this.props.companyUnfavorite(companyId) : this.props.companyFavorite(companyId);
-    }
 }
 
 CompanyListing.propTypes = {
-    companyFavorite: PropTypes.func,
-    companyUnfavorite: PropTypes.func,
+    companyFavorited: PropTypes.func,
+    companyUnfavorited: PropTypes.func,
     description: PropTypes.string,
     email: PropTypes.string,
     id: PropTypes.number,
@@ -76,8 +71,8 @@ CompanyListing.propTypes = {
 };
 
 CompanyListing.defaultProps = {
-    companyFavorite: () => {},
-    companyUnfavorite: () => {},
+    companyFavorited: () => {},
+    companyUnfavorited: () => {},
     isFavorite: false
 };
 

@@ -23,7 +23,7 @@ window.Pintex = {
             message: message,
             pos: 'bottom-center',
             status: status,
-            timeout: 1500
+            timeout: 2500
         });
     }
 };
