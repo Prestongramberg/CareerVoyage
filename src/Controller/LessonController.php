@@ -427,7 +427,9 @@ class LessonController extends AbstractController
                 [
                     'success' => true,
                     'url' => 'uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename,
-                    'resourceId' => $lessonResource->getId()
+                    'id' => $lessonResource->getId(),
+                    'title' => $title,
+                    'description' => $description
 
                 ], Response::HTTP_OK
             );
@@ -472,7 +474,9 @@ class LessonController extends AbstractController
                 [
                     'success' => true,
                     'url' => 'uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename,
-                    'resourceId' => $lessonResource->getId()
+                    'id' => $lessonResource->getId(),
+                    'title' => $title,
+                    'description' => $description
 
                 ], Response::HTTP_OK
             );

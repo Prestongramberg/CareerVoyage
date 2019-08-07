@@ -141,6 +141,12 @@ class FixtureHelper
         ]);
     }
 
+    public function randomSchool() {
+        $schools = $this->entityManager->getRepository(School::class)->findAll();
+        $schoolId = $schools[rand(1, count($schools) - 1)]->getId();
+        return $this->entityManager->getRepository(School::class)->find($schoolId);
+    }
+
     public function randomExperienceType() {
         return Experience::$types[array_rand(Experience::$types)];
     }

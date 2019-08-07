@@ -85,9 +85,8 @@
         <input type="submit" value="submit">
     </form>#}
 
-     <form method="post" action="{{ path('school_video_remove', {'id' : 1}) }}">
-         <input type="text" name="name">
-         <input type="text" name="videoId">
+     <form method="post" action="{{ path('school_photos_add', {'id' : 32}) }}" enctype="multipart/form-data">
+         <input type="file" name="file">
          <input type="submit" value="submit">
      </form>
 

@@ -77,12 +77,12 @@ class School
     private $region;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolVideo", mappedBy="school")
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolVideo", mappedBy="school", orphanRemoval=true)
      */
     private $schoolVideos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="school")
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="school", orphanRemoval=true)
      */
     private $schoolExperiences;
 

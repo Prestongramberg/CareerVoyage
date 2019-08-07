@@ -14,15 +14,6 @@
     {{ form_row(form.email) }}
     {{ form_row(form.overviewAndBackground) }}
 
-
-    {{ form_label(form.videos.name, 'Name*') }}
-    {{ form_widget(form.videos.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.name) ? ' uk-form-danger' : '' ) }}) }}
-    {{ form_errors(form.videos.name) }}
-
-    {{ form_label(form.videos.videoId, 'Youtube Video ID*') }}
-    {{ form_widget(form.videos.videoId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.videoId) ? ' uk-form-danger' : '' ) }}) }}
-    {{ form_errors(form.videos.videoId) }}
-
     {% if school.schoolVideos|length > 0 %}
         <div class="uk-margin">
             <h4>Current Videos</h4>
@@ -38,6 +29,14 @@
         </div>
     {% endif %}
 
-    <input type="submit" value="Update School">
+    {% if school.schoolPhotos|length > 0 %}
+        <h4>School Photos</h4>
+        {% for schoolPhoto in school.schoolPhotos %}
+            <button class="js-removePhoto" type="button" data-remove="{{ url('school_photo_remove', {'id': schoolPhoto.id}) }}" uk-close></button>
+            <img src="{{ asset(uploaded_asset(schoolPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+        {% endfor %}
+    {% endif %}
+
+    <input type="submit" value="Save">
     {{ form_end(form) }}
 {% endblock %}

@@ -21,10 +21,7 @@ use App\Form\EditSchoolType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\NewSchoolType;
-use App\Form\ProfessionalDeactivateProfileFormType;
-use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
-use App\Form\ProfessionalReactivateProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\CompanyPhotoRepository;
@@ -246,6 +243,32 @@ class SchoolController extends AbstractController
             'user' => $user,
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("/schools/{id}/educators", name="school_educators")
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function educatorsAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        return new Response("educators");
+    }
+
+    /**
+     * @Route("/schools/{id}/students", name="school_students")
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function studentsAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        return new Response("students");
     }
 
     /**
