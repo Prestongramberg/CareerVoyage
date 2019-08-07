@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { companyFavorite, companyUnfavorite, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { companyFavorited, companyUnfavorited, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import CompanyListing from "../../components/CompanyListing/CompanyListing";
 
@@ -47,8 +47,8 @@ class App extends React.Component {
                                 )}
                                 { !this.props.search.loading && relevantCompanies.map(company => (
                                     <CompanyListing
-                                        companyFavorite={this.props.companyFavorite}
-                                        companyUnfavorite={this.props.companyUnfavorite}
+                                        companyFavorited={this.props.companyFavorited}
+                                        companyUnfavorited={this.props.companyUnfavorited}
                                         description={company.shortDescription}
                                         email={company.emailAddress}
                                         id={company.id}
@@ -71,8 +71,8 @@ class App extends React.Component {
                             <div className="uk-width-1-1 company-listings">
                                 { favoriteCompanies.map(company => (
                                     <CompanyListing
-                                        companyFavorite={this.props.companyFavorite}
-                                        companyUnfavorite={this.props.companyUnfavorite}
+                                        companyFavorited={this.props.companyFavorited}
+                                        companyUnfavorited={this.props.companyUnfavorited}
                                         description={company.shortDescription}
                                         email={company.emailAddress}
                                         id={company.id}
@@ -234,8 +234,8 @@ export const mapStateToProps = (state = {}) => ({
 });
 
 export const mapDispatchToProps = dispatch => ({
-    companyFavorite: (companyId) => dispatch(companyFavorite(companyId)),
-    companyUnfavorite: (companyId) => dispatch(companyUnfavorite(companyId)),
+    companyFavorited: (companyId) => dispatch(companyFavorited(companyId)),
+    companyUnfavorited: (companyId) => dispatch(companyUnfavorited(companyId)),
     loadCompanies: (url) => dispatch(loadCompanies(url)),
     loadUser: (url) => dispatch(loadUser(url)),
     updateIndustryQuery: (event) => dispatch(updateIndustryQuery(event.target.value)),

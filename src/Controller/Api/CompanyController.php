@@ -368,7 +368,7 @@ class CompanyController extends AbstractController
 
         return new JsonResponse(
             [
-                'success' => true,
+                'success' => false,
                 'message' => 'company cannot be removed from favorites cause it does not exist in favorites'
             ],
             Response::HTTP_OK
