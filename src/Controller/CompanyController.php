@@ -546,7 +546,9 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
-                    'id' => $companyResource->getId()
+                    'id' => $companyResource->getId(),
+                    'title' => $title,
+                    'description' => $description
 
                 ], Response::HTTP_OK
             );
@@ -591,7 +593,9 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
-                    'id' => $companyResource->getId()
+                    'id' => $companyResource->getId(),
+                    'title' => $title,
+                    'description' => $description
 
                 ], Response::HTTP_OK
             );
@@ -627,7 +631,9 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId()
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId
 
                 ], Response::HTTP_OK
             );
@@ -665,7 +671,9 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId()
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId
 
                 ], Response::HTTP_OK
             );
@@ -993,7 +1001,9 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
-                    'id' => $file->getId()
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description
 
                 ], Response::HTTP_OK
             );
@@ -1038,7 +1048,9 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
-                    'id' => $file->getId()
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description
 
                 ], Response::HTTP_OK
             );

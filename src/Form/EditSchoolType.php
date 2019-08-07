@@ -41,11 +41,7 @@ class EditSchoolType extends AbstractType
         $builder->add('name', TextType::class, [])
             ->add('address', TextType::class, [])
             ->add('email', EmailType::class, [])
-            ->add('overviewAndBackground', TextareaType::class, [])
-            ->add('videos', VideoType::class, array(
-                'label' => false,
-                'mapped' => false
-            ));
+            ->add('overviewAndBackground', TextareaType::class, []);
     }
 
     public function configureOptions(OptionsResolver $resolver)

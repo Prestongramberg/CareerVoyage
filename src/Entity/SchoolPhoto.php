@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,5 +26,10 @@ class SchoolPhoto extends Image
         $this->school = $school;
 
         return $this;
+    }
+
+    public function getPath()
+    {
+        return UploaderHelper::SCHOOL_PHOTO.'/'.$this->getFileName();
     }
 }

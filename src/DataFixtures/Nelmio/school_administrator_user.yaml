@@ -4,7 +4,7 @@ App\Entity\SchoolAdministrator:
     roles: [ "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_DASHBOARD_USER"]
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
-    schools: <schools()>
+    schools: [<randomSchool()>, <randomSchool()>]
   school_administrator_user_1 (extends school_administrator_user):
     firstName: Brian
     lastName: Jackson
