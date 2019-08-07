@@ -404,7 +404,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/professionals/{id}/remove", name="company_professional_remove", options = { "expose" = true }, methods={"POST"})
+     * @Route("/companies/professionals/{id}/remove", name="company_remove_user", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
      * @param ProfessionalUser $professional
      * @return \Symfony\Component\HttpFoundation\Response

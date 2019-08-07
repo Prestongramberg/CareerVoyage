@@ -205,7 +205,7 @@ class Company
     /**
      * @ORM\Column(type="boolean")
      */
-    private $approved;
+    private $approved = false;
 
     public function __construct()
     {
