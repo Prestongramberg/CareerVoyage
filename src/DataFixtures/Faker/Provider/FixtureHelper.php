@@ -5,8 +5,11 @@ namespace App\DataFixtures\Faker\Provider;
 
 use App\Entity\CompanyPhoto;
 use App\Entity\Industry;
+use App\Entity\Region;
+use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\State;
+use App\Repository\StateRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -35,21 +38,28 @@ class FixtureHelper
     private $entityManager;
 
     /**
-     * UploadProvider constructor.
+     * @var StateRepository
+     */
+    private $stateRepository;
+
+    /**
+     * FixtureHelper constructor.
      * @param UploaderHelper $uploaderHelper
      * @param ImageCacheGenerator $imageCacheGenerator
      * @param EntityManagerInterface $entityManager
+     * @param StateRepository $stateRepository
      */
     public function __construct(
         UploaderHelper $uploaderHelper,
         ImageCacheGenerator $imageCacheGenerator,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        StateRepository $stateRepository
     ) {
         $this->uploaderHelper = $uploaderHelper;
         $this->imageCacheGenerator = $imageCacheGenerator;
         $this->entityManager = $entityManager;
+        $this->stateRepository = $stateRepository;
     }
-
 
     public function upload($folder, $imageCategory, $width = '400', $height = '400')
     {
@@ -87,5 +97,34 @@ class FixtureHelper
         return $this->entityManager->getRepository(SecondaryIndustry::class)->findBy([
             'primaryIndustry' => $primaryIndustryId
         ], null, 5);
+    }
+
+    /**
+     * 24 maps to minnesota
+     * @param int $stateId
+     * @return State|object|null
+     */
+    public function state($stateId = 24) {
+        return $this->entityManager->getRepository(State::class)->find($stateId);
+    }
+
+    /**
+     * 1 maps to Southeast region
+     * @param int $regionId
+     * @return State|object|null
+     */
+    public function region($regionId = 1) {
+        return $this->entityManager->getRepository(Region::class)->find($regionId);
+    }
+
+    /**
+     * 1 maps to Southeast region
+     * @param int $regionId
+     * @return State|object|null
+     */
+    public function schools($regionId = 1) {
+        return $this->entityManager->getRepository(School::class)->findBy([
+            'region' => $regionId
+        ], null, 2);
     }
 }

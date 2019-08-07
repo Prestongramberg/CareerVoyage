@@ -19,11 +19,6 @@
             {{ form_errors(professionalRegistrationForm.lastName) }}
         </div>
         <div class="uk-margin">
-            {{ form_label(professionalRegistrationForm.username, 'Username*') }}
-            {{ form_widget(professionalRegistrationForm.username, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.username) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(professionalRegistrationForm.username) }}
-        </div>
-        <div class="uk-margin">
             {{ form_label(professionalRegistrationForm.email, 'Email*') }}
             {{ form_widget(professionalRegistrationForm.email, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.email) ? ' uk-form-danger' : '' ) }}) }}
             {{ form_errors(professionalRegistrationForm.email) }}

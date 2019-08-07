@@ -38,10 +38,16 @@ class Region
      */
     private $state;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\School", mappedBy="region")
+     */
+    private $schools;
+
     public function __construct()
     {
         $this->regionalCoordinators = new ArrayCollection();
         $this->regionalCoordinatorRequests = new ArrayCollection();
+        $this->schools = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,6 +137,37 @@ class Region
     public function setState(?State $state): self
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|School[]
+     */
+    public function getSchools(): Collection
+    {
+        return $this->schools;
+    }
+
+    public function addSchool(School $school): self
+    {
+        if (!$this->schools->contains($school)) {
+            $this->schools[] = $school;
+            $school->setRegion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchool(School $school): self
+    {
+        if ($this->schools->contains($school)) {
+            $this->schools->removeElement($school);
+            // set the owning side to null (unless already changed)
+            if ($school->getRegion() === $this) {
+                $school->setRegion(null);
+            }
+        }
 
         return $this;
     }

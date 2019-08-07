@@ -71,6 +71,16 @@ class School
      */
     private $schoolAdministrators;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Region", inversedBy="schools")
+     */
+    private $region;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolVideo", mappedBy="school")
+     */
+    private $schoolVideos;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -78,6 +88,7 @@ class School
         $this->educatorUsers = new ArrayCollection();
         $this->schoolAdministratorRequests = new ArrayCollection();
         $this->schoolAdministrators = new ArrayCollection();
+        $this->schoolVideos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -279,6 +290,49 @@ class School
     {
         if ($this->schoolAdministrators->contains($schoolAdministrator)) {
             $this->schoolAdministrators->removeElement($schoolAdministrator);
+        }
+
+        return $this;
+    }
+
+    public function getRegion(): ?Region
+    {
+        return $this->region;
+    }
+
+    public function setRegion(?Region $region): self
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SchoolVideo[]
+     */
+    public function getSchoolVideos(): Collection
+    {
+        return $this->schoolVideos;
+    }
+
+    public function addSchoolVideo(SchoolVideo $schoolVideo): self
+    {
+        if (!$this->schoolVideos->contains($schoolVideo)) {
+            $this->schoolVideos[] = $schoolVideo;
+            $schoolVideo->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolVideo(SchoolVideo $schoolVideo): self
+    {
+        if ($this->schoolVideos->contains($schoolVideo)) {
+            $this->schoolVideos->removeElement($schoolVideo);
+            // set the owning side to null (unless already changed)
+            if ($schoolVideo->getSchool() === $this) {
+                $schoolVideo->setSchool(null);
+            }
         }
 
         return $this;

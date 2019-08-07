@@ -1,0 +1,10 @@
+App\Entity\StateCoordinator:
+  state_coordinator_user_1:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_STATE_COORDINATOR_USER", "ROLE_DASHBOARD_USER"]
+    firstName: Tom
+    lastName: Swanson
+    email: "tom+state-coordinator@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    state: <state()>

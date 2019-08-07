@@ -1,0 +1,21 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    {% if user.isAdmin %}
+        {% include 'dashboard/partials/_admin_dashboard.html.twig' %}
+    {% elseif user.isProfessional %}
+        {% include 'dashboard/partials/_professional_dashboard.html.twig' %}
+    {% elseif user.isEducator %}
+
+    {% elseif user.isStudent %}
+
+    {% elseif user.isStateCoordinator %}
+
+    {% elseif user.isRegionalCoordinator %}
+
+    {% elseif user.isSchoolAdministrator %}
+
+    {% endif %}
+{% endblock %}

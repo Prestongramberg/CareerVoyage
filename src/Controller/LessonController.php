@@ -29,6 +29,7 @@ use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -103,6 +104,11 @@ class LessonController extends AbstractController
     private $lessonTeachableRepository;
 
     /**
+     * @var CacheManager
+     */
+    private $cacheManager;
+
+    /**
      * LessonController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -114,6 +120,7 @@ class LessonController extends AbstractController
      * @param CompanyPhotoRepository $companyPhotoRepository
      * @param LessonFavoriteRepository $lessonFavoriteRepository
      * @param LessonTeachableRepository $lessonTeachableRepository
+     * @param CacheManager $cacheManager
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -125,7 +132,8 @@ class LessonController extends AbstractController
         CompanyRepository $companyRepository,
         CompanyPhotoRepository $companyPhotoRepository,
         LessonFavoriteRepository $lessonFavoriteRepository,
-        LessonTeachableRepository $lessonTeachableRepository
+        LessonTeachableRepository $lessonTeachableRepository,
+        CacheManager $cacheManager
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -137,6 +145,7 @@ class LessonController extends AbstractController
         $this->companyPhotoRepository = $companyPhotoRepository;
         $this->lessonFavoriteRepository = $lessonFavoriteRepository;
         $this->lessonTeachableRepository = $lessonTeachableRepository;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -367,7 +376,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::LESSON_THUMBNAIL.'/'.$newFilename
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::LESSON_THUMBNAIL.'/'.$newFilename, 'squared_thumbnail_small')
                 ], Response::HTTP_OK
             );
         }
@@ -398,10 +407,13 @@ class LessonController extends AbstractController
             $this->entityManager->persist($lesson);
             $this->entityManager->flush();
 
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_FEATURED) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::LESSON_FEATURED.'/'.$newFilename
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::LESSON_FEATURED.'/'.$newFilename, 'squared_thumbnail_small')
                 ], Response::HTTP_OK
             );
         }
@@ -444,7 +456,8 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename
+                    'url' => 'uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename,
+                    'resourceId' => $lessonResource->getId()
 
                 ], Response::HTTP_OK
             );

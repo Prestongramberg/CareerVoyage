@@ -30,7 +30,6 @@ class ProfessionalRegistrationFormType extends AbstractType
             ->add('firstName', TextType::class)
             ->add('lastName', TextType::class)
             ->add('email')
-            ->add('username')
             ->add('plainPassword', PasswordType::class, [])
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,

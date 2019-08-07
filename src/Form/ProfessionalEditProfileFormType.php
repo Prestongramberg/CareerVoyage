@@ -33,12 +33,6 @@ class ProfessionalEditProfileFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-        $imageConstraints = [
-            new Image([
-                'maxSize' => '5M'
-            ])
-        ];
-
         /*if (!$professionalUser->getPhoto()) {
             $imageConstraints[] = new NotNull([
                 'message' => 'Please upload an image',

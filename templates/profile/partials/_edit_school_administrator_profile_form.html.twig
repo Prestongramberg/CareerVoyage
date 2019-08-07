@@ -1,0 +1,105 @@
+<div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
+    <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
+        <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
+        <li><a href="#account-settings">Settings</a></li>
+        <li><a href="#account-delete">Delete Account</a></li>
+    </ul>
+    <div class="uk-switcher" id="tab-account">
+        <div class="account_details">
+
+            {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+            {% if form_errors(form) %}
+                <div class="uk-alert-danger" uk-alert>
+                    <a class="uk-alert-close" uk-close></a>
+                    <div>{{ form_errors(form) }}</div>
+                </div>
+            {% endif %}
+
+            <div uk-grid>
+                <div class="uk-width-1-1 uk-width-small@m">
+                    <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                        <li><a href="#account-details-profile">Personal</a></li>
+                        <li><a href="#account-details-profile-account">Account</a></li>
+                    </ul>
+                </div>
+                <div class="uk-width-1-1 uk-width-expand@m">
+                    <ul id="tab-account-inner" class="uk-switcher">
+                        <div class="account_details_personal">
+                            <div class="uk-width-xlarge">
+                                <fieldset class="uk-fieldset">
+
+                                    <div class="uk-margin">
+                                        {{ form_label(form.firstName, 'First Name*') }}
+                                        {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.firstName) }}
+                                    </div>
+                                    <div class="uk-margin">
+                                        {{ form_label(form.lastName, 'Last Name*') }}
+                                        {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.lastName) }}
+                                    </div>
+                                    <div class="uk-margin uk-grid" uk-grid>
+                                        {% if user.photo %}
+                                            <div class="uk-width-small">
+                                                <img src="{{ asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') }}" />
+                                            </div>
+                                        {% endif %}
+                                        <div class="uk-width-expand">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="account_details_account">
+                            <div class="uk-width-xlarge">
+                                <fieldset class="uk-fieldset">
+                                    <div class="uk-margin">
+                                        {{ form_label(form.email, 'Email') }}
+                                        {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.email) }}
+                                    </div>
+                                    <div class="uk-margin">
+                                        {{ form_label(form.plainPassword, 'Change Password') }}
+                                        {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.plainPassword) }}
+                                    </div>
+                                    <div class="uk-margin">
+                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+
+            <input type="hidden" name="formType" value="professionalRegistrationForm">
+
+            {{ form_end(form) }}
+
+        </div>
+
+        <div class="account_settings">
+            <div class="uk-width-xlarge">
+                <h3>Profile Status: <span class="uk-label">{{ user.activated ? "Active" : "Deactivated" }}</span></h3>
+                <p>Your profile status determines whether you show up in search results on the Platform.  When "Deactivated", you will no longer appear in search results, but you will still be able to access your account.</p>
+                {% if user.activated %}
+                    {% include 'profile/partials/_deactivate_profile_form.html.twig' %}
+                {% else %}
+                    {% include 'profile/partials/_activate_profile_form.html.twig' %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="account_delete">
+            <div class="uk-width-xlarge">
+                <h3>Delete Account</h3>
+                <p>If you would no longer like to use the Pintex Platform, you can delete your account by using the button below.</p>
+                {% include 'profile/partials/_delete_profile_form.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>

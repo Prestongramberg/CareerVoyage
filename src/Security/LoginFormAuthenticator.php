@@ -102,7 +102,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             return new RedirectResponse($targetPath);
         }*/
 
-        $targetPath = $this->router->generate('profile_index', ['id' => $token->getUser()->getId()]);
+        $targetPath = $this->router->generate('dashboard');
         return new RedirectResponse($targetPath);
 
 

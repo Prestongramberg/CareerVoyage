@@ -1,4 +1,3 @@
-{#{{ successMessage }}#}
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
     {% if successMessage %}
@@ -181,25 +180,9 @@
                 <h3>Profile Status: <span class="uk-label">{{ user.deactivated ? "Deactivated" : "Active" }}</span></h3>
                 <p>Your profile status determines whether you show up in search results on the Platform.  When "Deactivated", you will no longer appear in search results, but you will still be able to access your account.</p>
                 {% if user.deactivated %}
-                    {{ form_start(reactivateForm, {attr: {'novalidate' : 'novalidate'}}) }}
-                    {% if form_errors(reactivateForm) %}
-                        <div class="uk-alert-danger" uk-alert>
-                            <a class="uk-alert-close" uk-close></a>
-                            <div>{{ form_errors(reactivateForm) }}</div>
-                        </div>
-                    {% endif %}
-                    {{ form_row(reactivateForm.reactivate, {'attr': {'class': 'uk-button uk-button-primary uk-button-small'} }) }}
-                    {{ form_end(reactivateForm) }}
+                    {% include 'profile/partials/_activate_profile_form.html.twig' %}
                 {% else %}
-                    {{ form_start(deactivateForm, {attr: {'novalidate' : 'novalidate'}}) }}
-                    {% if form_errors(deactivateForm) %}
-                        <div class="uk-alert-danger" uk-alert>
-                            <a class="uk-alert-close" uk-close></a>
-                            <div>{{ form_errors(deactivateForm) }}</div>
-                        </div>
-                    {% endif %}
-                    {{ form_row(deactivateForm.deactivate, {'attr': {'class': 'uk-button uk-button-secondary uk-button-small'} }) }}
-                    {{ form_end(deactivateForm) }}
+                    {% include 'profile/partials/_deactivate_profile_form.html.twig' %}
                 {% endif %}
             </div>
         </div>
@@ -207,15 +190,7 @@
             <div class="uk-width-xlarge">
                 <h3>Delete Account</h3>
                 <p>If you would no longer like to use the Pintex Platform, you can delete your account by using the button below.</p>
-                {{ form_start(deleteForm, {attr: {'novalidate' : 'novalidate'}}) }}
-                {% if form_errors(deleteForm) %}
-                    <div class="uk-alert-danger" uk-alert>
-                        <a class="uk-alert-close" uk-close></a>
-                        <div>{{ form_errors(deleteForm) }}</div>
-                    </div>
-                {% endif %}
-                {{ form_row(deleteForm.delete, {'attr': {'class': 'uk-button uk-button-danger uk-button-small'} }) }}
-                {{ form_end(deleteForm) }}
+                {% include 'profile/partials/_delete_profile_form.html.twig' %}
             </div>
         </div>
     </div>

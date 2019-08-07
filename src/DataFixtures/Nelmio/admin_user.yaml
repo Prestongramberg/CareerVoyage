@@ -5,6 +5,5 @@ App\Entity\AdminUser:
     firstName: "Chris"
     lastName: "Pears"
     email: "chris+admin@pintex.com"
-    username: "chris+admin"
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
