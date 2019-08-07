@@ -1,4 +1,5 @@
 import Quill from 'quill';
+import $ from "jquery";
 
 jQuery(document).ready(function($) {
 
@@ -253,6 +254,63 @@ jQuery(document).ready(function($) {
     $(document).on('click', '[data-select-all]', function() {
        const nameOfTargets = $(this).attr('data-select-all');
        $('[name="'+nameOfTargets+'"]').prop( "checked", true );
+    });
+
+    /**
+     * Form Modals
+     */
+    $(document).on('click', '[data-modal-form]', function(e) {
+        e.preventDefault();
+        const sourceHTML = $( $(this).attr('data-modal-form') ).html();
+        window.Pintex.modal.dynamic_open( sourceHTML );
+    });
+
+    /**
+     * Company Resource Forms
+     */
+    $(document).on('click', '#modal-add-company-video [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const name = $modalBody.find('[name="name"]').val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const videoId = $videoField.val();
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=AIzaSyCGilvitz5k3BVVa4tjpPMsoufRtDHj7E8` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                          name: name,
+                          videoId: videoId
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+                            if( serverResponse.responseJSON.success ) {
+                                // add to DOM
+                                // close the modal
+                                window.Pintex.notification("Video uploaded.", "success");
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
     });
 
 });

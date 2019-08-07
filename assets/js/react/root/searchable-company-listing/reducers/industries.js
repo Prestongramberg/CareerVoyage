@@ -19,14 +19,6 @@ function get_industries_from_request( companies ) {
             industry_ids.push(company.primaryIndustry.id);
             industries.push(company.primaryIndustry);
         }
-        if(company.secondaryIndustries) {
-            company.secondaryIndustries.forEach(secondary_industry => {
-                if ( industry_ids.indexOf(secondary_industry.id) === -1  ) {
-                    industry_ids.push(secondary_industry.id);
-                    industries.push(secondary_industry);
-                }
-            })
-        }
     });
 
     return industries;

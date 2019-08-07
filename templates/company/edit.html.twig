@@ -163,7 +163,7 @@
                     <h4>Add Additional Photos</h4>
                     <div data-upload-url="{{ path('company_photos_add', { id: company.id }) }}" data-type="multiple:image:companyPhotos">
                         <div class="page-company-edit__uploaded-photos">
-                            <button type="button" data-remove="{{ url('company_photo_remove', {company_id: company.id, image_id: 'UPLOAD_ID'}) }}" uk-close></button>
+                            <button type="button" data-remove="{{ url('company_photo_remove', {id: 'UPLOAD_ID'}) }}" uk-close></button>
                             <img src="UPLOAD_URL" />
                         </div>
                     </div>
@@ -171,40 +171,53 @@
 
                 <h4>Existing Photos</h4>
                 <div id="companyPhotos" class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid>
-                {% if company.companyPhotos|length > 0 %}
-                    <h4>Remove Existing Photos</h4>
-                    <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid>
+                    {% if company.companyPhotos|length > 0 %}
                         {% for companyPhoto in company.companyPhotos %}
                             <div class="page-company-edit__uploaded-photos">
-                                <button class="js-removePhoto" type="button" data-remove="{{ url('company_photo_remove', {'id': companyPhoto.id}) }}" uk-close></button>
+                                <button type="button" data-remove="{{ url('company_photo_remove', {'id': companyPhoto.id}) }}" uk-close></button>
                                 <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
                             </div>
                         {% endfor %}
-                    </div>
-                {% endif %}
+                    {% endif %}
                 </div>
             </div>
             <div class="page-company-edit__videos">
                 <div class="uk-width-xlarge">
                     <p>Videos can help showcase what a great place your establishment is to work for.  Upload your videos to Youtube and then attach them here.</p>
-                    <h4>Add New Video</h4>
+                    <div class="uk-margin uk-text-center uk-placeholder">
+                        <a class="uk-button uk-button-default uk-button-small" href="#modal-add-company-video" uk-toggle>Add a Video</a>
+                        <div id="modal-add-company-video" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Add a Video</h3>
 
-                  {#  <div class="uk-margin">
-                        {{ form_label(form.videos.name, 'Name*') }}
-                        {{ form_widget(form.videos.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.name) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.videos.name) }}
+                                <div class="uk-margin">
+                                    <label for="edit_company_add_video_name" class="required">Name*</label>
+                                    <input type="text" id="edit_company_add_video_name" name="name" required="required" class="uk-input" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_add_video_id" class="required">Youtube Video ID*</label>
+                                    <div class="uk-position-relative">
+                                        <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                        <input class="uk-input" id="edit_company_add_video_id" name="videoId" required="required" type="text">
+                                    </div>
+
+                                </div>
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('company_video_add', {'id' : company.id}) }}" />
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.videos.videoId, 'Youtube Video ID*') }}
-                        {{ form_widget(form.videos.videoId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.videos.videoId) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.videos.videoId) }}
-                    </div>#}
                 </div>
-
-                {% if company.companyVideos|length > 0 %}
-                    <div class="uk-margin">
+                <div class="uk-margin">
+                    {% if company.companyVideos|length %}
                         <h4>Current Videos</h4>
-                        <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                    {% endif %}
+                    <div id="companyVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                        {% if company.companyVideos|length %}
                             {% for video in company.companyVideos %}
                                 <div>
                                     <a class="uk-inline company-video" href="https://www.youtube.com/watch?v={{ video.videoId }}">
@@ -215,13 +228,12 @@
                                             </div>
                                         </div>
                                         <button type="button" data-remove="#" uk-close></button>
-{#                                        {{ url('company_video_remove', {company_id: company.id, video_id: 0}) }}#}
                                     </a>
                                 </div>
                             {% endfor %}
-                        </div>
+                        {% endif %}
                     </div>
-                {% endif %}
+                </div>
             </div>
             <div class="page-company-edit__resources">
                 <div class="uk-width-xlarge">
@@ -234,9 +246,9 @@
                     </div>
                 </div>
 
-                {% if company.companyResources|length > 0 %}
-                    <div class="uk-margin">
-                        <h4>Current Resources</h4>
+                <div class="uk-margin">
+                    <h4>Current Resources</h4>
+                    {% if company.companyResources|length > 0 %}
                         {% for companyResource in company.companyResources %}
                             <div class="uk-grid uk-flex-middle" uk-grid>
                                 <div class="uk-width-expand">
@@ -248,8 +260,8 @@
                                 </div>
                             </div>
                         {% endfor %}
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
 
