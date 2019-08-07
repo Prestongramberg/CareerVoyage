@@ -17,7 +17,7 @@
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
-                                <i class="fa fa-heart" aria-hidden="true"></i>
+                                <div class="react-favorite-company uk-inline" data-company-id="{{ company.id }}" data-company-favorited="{{ company.isFavoritedByUser( user ) }}"></div>
                             </div>
                         </div>
                     </div>
@@ -31,10 +31,11 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
-{#                    TODO: Add logic to determine if user already has joined this company #}
-                    <form method="post" action="{{ path('company_join', {'id': company.id}) }}">
-                        <button type="submit" class="uk-button uk-button-default uk-button-small">Join this Company</button>
-                    </form>
+                    {% if user.company is not defined and user.company.id != company.id %}
+                        <form class="uk-inline" method="post" action="{{ path('company_join', {'id': company.id}) }}">
+                            <button type="submit" class="uk-button uk-button-default uk-button-small">Join this Company</button>
+                        </form>
+                    {% endif %}
 
                     {% if user.admin or (company.owner and user.id == company.owner.id) %}
                         <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit</a>
@@ -43,7 +44,7 @@
             </div>
         </div>
 
-        <ul class="" data-uk-tab="{connect: '#tab-company-detail'}" uk-switcher>
+        <ul data-uk-tab="{connect: '#tab-company-detail'}" uk-switcher>
             <li class="uk-active"><a href="#company-summary">Summary</a></li>
             {% if company.companyPhotos|length %}
                 <li><a href="#company-photos">Photos</a></li>
@@ -51,15 +52,22 @@
             {% if company.companyVideos|length %}
                 <li><a href="#company-videos">Videos</a></li>
             {% endif %}
-            <li><a href="#company-events">Events</a></li>
-            <li><a href="#company-events">Resources</a></li>
+            {% if company.companyExperiences|length %}
+                <li><a href="#company-events">Events</a></li>
+            {% endif %}
+            {% if company.companyResources|length %}
+                <li><a href="#company-events">Resources</a></li>
+            {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-company-detail">
             <div class="company__summary">
                 <div class="uk-width-xlarge">
-                    {{ company.description|raw }}
-                    <div class="company-links">
+                    <div class="uk-margin">
+                        {{ company.description|raw }}
+                    </div>
+
+                    <div class="company-links uk-margin">
                         {% if company.website %}
                             <a href="{{ company.website }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
                         {% endif %}
@@ -101,55 +109,41 @@
                     </div>
                 </div>
             {% endif %}
-            <div class="company__events">
-                <div class="uk-grid event-listing uk-child-width-1-2@m" uk-grid="masonry: true">
-                    <div>
-                        <div class="uk-card uk-card-default uk-card-body">
-                            <div class="uk-card-badge uk-label">Site Host</div>
-                            <div class="uk-text-meta">October 4, 2019</div>
-                            <div class="uk-margin">
-                                <a href="#"><h3 class="uk-card-title">Code Hackathon at Best Buy HQ!</h3></a>
-                                <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            {% if company.companyExperiences|length %}
+                <div class="company__events">
+                    <div class="uk-grid event-listing uk-child-width-1-2@m" uk-grid="masonry: true">
+                        {% for experience in company.companyExperiences %}
+                            <div>
+                                <div class="uk-card uk-card-default uk-card-body">
+                                    <div class="uk-card-badge uk-label">{{ experience.type }}</div>
+                                    <div class="uk-text-meta">October 4, 2019</div>
+                                    <div class="uk-margin">
+                                        <a href="#"><h3 class="uk-card-title">Code Hackathon at Best Buy HQ!</h3></a>
+                                        <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="uk-card uk-card-default uk-card-body">
-                            <div class="uk-card-badge uk-label">Interview</div>
-                            <div class="uk-text-meta">October 8, 2019</div>
-                            <div class="uk-margin">
-                                <a href="#"><h3 class="uk-card-title">Mastering Interview Questions</h3></a>
-                                <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="uk-card uk-card-default uk-card-body">
-                            <div class="uk-card-badge uk-label">Job Shadow</div>
-                            <div class="uk-text-meta">October 15, 2019</div>
-                            <div class="uk-margin">
-                                <a href="#"><h3 class="uk-card-title">Learning React with our Senior Developers</h3></a>
-                                <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
-            <div class="company__resources">
-                <dl class="uk-description-list uk-description-list-divider">
-                    {% for companyResource in company.companyResources %}
-                        <div class="uk-grid uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <dt>{{ companyResource.title }}</dt>
-                                <dd>{{ companyResource.description }}</dd>
+            {% endif %}
+            {% if company.companyResources|length %}
+                <div class="company__resources">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for companyResource in company.companyResources %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ companyResource.title }}</dt>
+                                    <dd>{{ companyResource.description }}</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                </div>
                             </div>
-                            <div class="uk-width-auto">
-                                <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </dl>
-            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
         </div>
     </div>
 

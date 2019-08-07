@@ -269,7 +269,7 @@ class LessonController extends AbstractController
 
         return new JsonResponse(
             [
-                'success' => true,
+                'success' => false,
                 'message' => 'lesson cannot be removed from teachable lessons cause it does not exist in the teachable lessons for this user.',
             ],
             Response::HTTP_OK

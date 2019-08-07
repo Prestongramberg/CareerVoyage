@@ -207,7 +207,7 @@ class LessonController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Lesson successfully created');
-            return $this->redirectToRoute('lesson_index');
+            return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId() ]);
         }
 
         if($request->request->has('primary_industry_change')) {
@@ -349,7 +349,7 @@ class LessonController extends AbstractController
 
         return new JsonResponse(
             [
-                'success' => true,
+                'success' => false,
             ], Response::HTTP_BAD_REQUEST
         );
     }

@@ -12,20 +12,13 @@
                             <div class="uk-width-expand">
                                 <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    {% if user.isProfessional %}
-                                        Professional
-                                        {% if user.primaryIndustry %}
-                                            - {{ user.primaryIndustry.name }}
-                                        {% endif %}
-                                        {% if user.secondaryIndustries|length > 0 %}
-                                            - {{ user.secondaryIndustries[0].name }}
-                                        {% endif %}
+                                    Professional
+                                    {% if user.primaryIndustry %}
+                                        - {{ user.primaryIndustry.name }}
                                     {% endif %}
-
-                                    {% if user.isAdmin %}
-                                        Administrator
+                                    {% if user.secondaryIndustries|length > 0 %}
+                                        - {{ user.secondaryIndustries[0].name }}
                                     {% endif %}
-
                                 </p>
                             </div>
                             <div class="uk-width-auto">
@@ -38,24 +31,22 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.isProfessional %}
-                            {% if user.briefBio %}
-                                <div class="uk-margin">
-                                    {{ user.briefBio|raw }}
-                                </div>
-                            {% else %}
-                                <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
-                            {% endif %}
-                            <div class="professional-links">
-                                <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                {% if user.getPhone %}
-                                    <a href="tel:{{ user.getPhone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                                {% endif %}
-                                {% if user.getLinkedinProfile %}
-                                    <a href="{{ user.getLinkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
-                                {% endif %}
+                        {% if user.briefBio %}
+                            <div class="uk-margin">
+                                {{ user.briefBio|raw }}
                             </div>
+                        {% else %}
+                            <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
                         {% endif %}
+                        <div class="professional-links">
+                            <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            {% if user.getPhone %}
+                                <a href="tel:{{ user.phone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            {% endif %}
+                            {% if user.getLinkedinProfile %}
+                                <a href="{{ user.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

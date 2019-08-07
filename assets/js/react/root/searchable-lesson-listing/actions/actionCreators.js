@@ -66,23 +66,23 @@ export function loadLessons(url) {
     }
 }
 
-export function loadCourses(url) {
+export function loadUser(url) {
     return (dispatch, getState) => {
-        dispatch({type: actionTypes.COURSES_LOADING})
+        dispatch({type: actionTypes.USER_LOADING})
 
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    dispatch({type: actionTypes.COURSES_LOADING_SUCCESS, response: response.responseBody})
+                    dispatch({type: actionTypes.USER_LOADING_SUCCESS, response: response.responseBody})
                 }  else {
                     dispatch({
-                        type: actionTypes.COURSES_LOADING_FAILURE
+                        type: actionTypes.USER_LOADING_FAILURE
                     })
 
                 }
             })
             .catch(()=> dispatch({
-                type: actionTypes.COURSES_LOADING_FAILURE
+                type: actionTypes.USER_LOADING_FAILURE
             }))
     }
 }

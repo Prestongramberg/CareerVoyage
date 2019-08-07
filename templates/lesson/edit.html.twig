@@ -7,19 +7,6 @@
     {{ parent() }}
     <script src="{{ asset('build/lessons.js') }}"></script>
     <script src="{{ asset('build/companies.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js" integrity="sha256-cs4thShDfjkqFGk5s2Lxj35sgSRr4MRcyccmi0WKqCM=" crossorigin="anonymous"></script>
-
-    <script>
-        Dropzone.options.thumbnailDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-
-        Dropzone.options.featuredDropzone = {
-            paramName: "file",
-            maxFiles: 1
-        };
-    </script>
 {% endblock %}
 
  {% block stylesheets %}
@@ -31,6 +18,20 @@
 {% block body %}
 
     <div class="uk-container js-form" data-route="{{ path('lesson_edit', {'id': lesson.id}) }}">
+
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>Lesson successfully updated.  <a href="{{ path('lesson_view', {'id': lesson.id}) }}">View your Lesson</a></p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -78,24 +79,22 @@
                             {{ form_widget(form.grades, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.grades) }}
                         </div>
-
                         <div class="uk-margin uk-grid" uk-grid>
-                            {% if lesson.thumbnailImage %}
-                                <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-                                </div>
-                            {% endif %}
+                            <div class="uk-width-small">
+                                <img id="lessonThumbnailImage" src="{{ lesson.thumbnailImage ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
+                            </div>
                             <div class="uk-width-expand">
+                                <label>Lesson Thumbnail</label>
+                                <div data-upload-url="{{ path('lesson_thumbnail_add', { id: lesson.id }) }}" data-type="image:lessonThumbnailImage"></div>
                             </div>
                         </div>
                         <div class="uk-margin uk-grid" uk-grid>
-                            {% if lesson.featuredImage %}
-                                <div class="uk-width-small">
-                                    <img src="{{ asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
-                                </div>
-                            {% endif %}
+                            <div class="uk-width-small">
+                                <img id="lessonFeaturedImage" src="{{ lesson.featuredImage ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
+                            </div>
                             <div class="uk-width-expand">
-
+                                <label>Lesson Featured Image</label>
+                                <div data-upload-url="{{ path('lesson_featured_add', { id: lesson.id }) }}" data-type="image:lessonFeaturedImage"></div>
                             </div>
                         </div>
                     </fieldset>
@@ -228,19 +227,5 @@ After describing learning outcomes, feel free to share additional resources whic
         {{ form_end(form) }}
 
     </div>
-
-
-
-    <h1>Thumbnail Image</h1>
-    <form action="{{ path('lesson_thumbnail_add', {
-        id: lesson.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="thumbnail-dropzone">
-    </form>
-
-    <h1>Featured Image</h1>
-    <form action="{{ path('lesson_featured_add', {
-        id: lesson.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="featured-dropzone">
-    </form>
 
 {% endblock %}

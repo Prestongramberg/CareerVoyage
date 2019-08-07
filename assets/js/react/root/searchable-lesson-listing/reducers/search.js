@@ -12,18 +12,18 @@ export default (state = {}, action) => {
                 ...state,
                 course: action.course
             };
-        case actionTypes.COURSES_LOADING_SUCCESS:
-        case actionTypes.COURSES_LOADING_FAILURE:
+        case actionTypes.USER_LOADING_SUCCESS:
+        case actionTypes.USER_LOADING_FAILURE:
             return {
                 ...state,
                 loading: !!state.loadingLessons,
-                loadingIndustries: false
+                loadingUser: false
             };
         case actionTypes.LESSONS_LOADING_SUCCESS:
         case actionTypes.LESSONS_LOADING_FAILURE:
             return {
                 ...state,
-                loading: !!state.loadingIndustries,
+                loading: !!state.loadingUser,
                 loadingLessons: false
             };
         default:
