@@ -55,12 +55,6 @@ class ProfessionalUser extends User
     private $interests;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
-     * @ORM\Column(type="boolean")
-     */
-    private $deactivated = 0;
-
-    /**
      *
      * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner", cascade={"persist", "remove"})
      */
@@ -165,18 +159,6 @@ class ProfessionalUser extends User
     public function setInterests(?string $interests): self
     {
         $this->interests = $interests;
-
-        return $this;
-    }
-
-    public function getDeactivated(): ?bool
-    {
-        return $this->deactivated;
-    }
-
-    public function setDeactivated(bool $deactivated): self
-    {
-        $this->deactivated = $deactivated;
 
         return $this;
     }

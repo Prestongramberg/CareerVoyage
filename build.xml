@@ -27,12 +27,12 @@
                 database:drop,
                 database:update:schema,
                 import:industries,
-                database:nelmio:fixtures,
                 database:normal:fixtures,
-                import:lessons,
                 import:schools,
-                clean:cache:clear,
-                webpack
+                database:nelmio:fixtures,
+                import:lessons,
+                webpack,
+                clean:cache:clear
             "
             description="Vagrant Install Project">
     </target>
@@ -67,7 +67,7 @@
     </target>
 
     <target name="import:schools" description="Import Lessons">
-        <exec passthru="true" checkreturn="true" command="${dir.app}/console school:import ./southeast-school-list.csv"/>
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console school:import ./southeast-school-list.csv 1"/>
     </target>
 
     <target name="webpack" description="Run webpack">

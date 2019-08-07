@@ -268,7 +268,8 @@ class SchoolController extends AbstractController
 
         return $this->render('school/edit.html.twig', [
             'user' => $user,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'school' => $school
         ]);
     }
 }

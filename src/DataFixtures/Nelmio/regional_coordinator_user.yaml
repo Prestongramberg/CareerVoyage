@@ -1,0 +1,10 @@
+App\Entity\RegionalCoordinator:
+  regional_coordinator_user_1:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_DASHBOARD_USER"]
+    firstName: Jenny
+    lastName: Matterson
+    email: "jenny+regional-coordinator@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    region: <region()>

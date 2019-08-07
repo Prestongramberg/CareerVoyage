@@ -7,10 +7,8 @@ use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\User;
 use App\Form\AdminProfileFormType;
-use App\Form\ProfessionalDeactivateProfileFormType;
-use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
-use App\Form\ProfessionalReactivateProfileFormType;
+use App\Form\SchoolAdministratorEditProfileFormType;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
@@ -19,6 +17,7 @@ use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -72,6 +71,11 @@ class ProfileController extends AbstractController
     private $regionalCoordinatorRepository;
 
     /**
+     * @var CacheManager
+     */
+    private $cacheManager;
+
+    /**
      * ProfileController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -80,6 +84,7 @@ class ProfileController extends AbstractController
      * @param UploaderHelper $uploaderHelper
      * @param UserRepository $userRepository
      * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
+     * @param CacheManager $cacheManager
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -88,7 +93,8 @@ class ProfileController extends AbstractController
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
         UserRepository $userRepository,
-        RegionalCoordinatorRepository $regionalCoordinatorRepository
+        RegionalCoordinatorRepository $regionalCoordinatorRepository,
+        CacheManager $cacheManager
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -97,6 +103,7 @@ class ProfileController extends AbstractController
         $this->uploaderHelper = $uploaderHelper;
         $this->userRepository = $userRepository;
         $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -132,6 +139,9 @@ class ProfileController extends AbstractController
         } elseif (($user->isProfessional())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $form = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
+        } elseif (($user->isSchoolAdministrator())) {
+            $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $form = $this->createForm(SchoolAdministratorEditProfileFormType::class, $user, $options);
         }
 
         $form->handleRequest($request);
@@ -164,27 +174,9 @@ class ProfileController extends AbstractController
             );
         }
 
-        $deleteForm = $this->createForm(ProfessionalDeleteProfileFormType::class, null, [
-            'method' => 'POST',
-            'action' => $this->generateUrl('profile_delete', ['id' => $user->getId()])
-        ]);
-
-        $deactivateForm = $this->createForm(ProfessionalDeactivateProfileFormType::class, null, [
-            'method' => 'POST',
-            'action' => $this->generateUrl('profile_deactivate', ['id' => $user->getId()])
-        ]);
-
-        $reactivateForm = $this->createForm(ProfessionalReactivateProfileFormType::class, null, [
-            'method' => 'POST',
-            'action' => $this->generateUrl('profile_reactivate', ['id' => $user->getId()])
-        ]);
-
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,
-            'deleteForm' => $deleteForm->createView(),
-            'deactivateForm' => $deactivateForm->createView(),
-            'reactivateForm' => $reactivateForm->createView(),
         ]);
     }
 
@@ -197,6 +189,8 @@ class ProfileController extends AbstractController
     public function profileAddPhotoAction(Request $request, User $user) {
 
         $user = $this->getUser();
+
+        $this->denyAccessUnlessGranted('edit', $user);
 
         /** @var UploadedFile $uploadedFile */
         $profilePhoto = $request->files->get('file');
@@ -212,7 +206,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::PROFILE_PHOTO.'/'.$newFilename
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::PROFILE_PHOTO.'/'.$newFilename, 'squared_thumbnail_small')
                 ], Response::HTTP_OK
             );
         }
@@ -227,23 +221,14 @@ class ProfileController extends AbstractController
     /**
      * @Route("/profile/{id}/delete", name="profile_delete")
      * @param Request $request
-     * @param ProfessionalUser $professionalUser
+     * @param User $user
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteAction(Request $request, ProfessionalUser $professionalUser) {
+    public function deleteAction(Request $request, User $user) {
 
-        $form = $this->createForm(ProfessionalDeleteProfileFormType::class, $professionalUser, [
-            'method' => 'POST',
-        ]);
-
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-
-            $professionalUser->setDeleted(true);
-            $this->entityManager->persist($professionalUser);
-            $this->entityManager->flush();
-        }
+        $user->setDeleted(true);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
         $this->get('security.token_storage')->setToken(null);
         $request->getSession()->invalidate();
@@ -254,49 +239,31 @@ class ProfileController extends AbstractController
     /**
      * @Route("/profile/{id}/deactivate", name="profile_deactivate")
      * @param Request $request
-     * @param ProfessionalUser $professionalUser
+     * @param User $user
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deactivateAction(Request $request, ProfessionalUser $professionalUser) {
+    public function deactivateAction(Request $request, User $user) {
 
-        $form = $this->createForm(ProfessionalDeactivateProfileFormType::class, $professionalUser, [
-            'method' => 'POST',
-        ]);
+        $user->setActivated(false);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-
-            $professionalUser->setDeactivated(true);
-            $this->entityManager->persist($professionalUser);
-            $this->entityManager->flush();
-        }
-
-        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+        return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
     }
 
     /**
      * @Route("/profile/{id}/reactivate", name="profile_reactivate")
      * @param Request $request
-     * @param ProfessionalUser $professionalUser
+     * @param User $user
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function reactivateAction(Request $request, ProfessionalUser $professionalUser) {
+    public function reactivateAction(Request $request, User $user) {
 
-        $form = $this->createForm(ProfessionalReactivateProfileFormType::class, $professionalUser, [
-            'method' => 'POST',
-        ]);
+        $user->setActivated(true);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-
-            $professionalUser->setDeactivated(false);
-            $this->entityManager->persist($professionalUser);
-            $this->entityManager->flush();
-        }
-
-        return $this->redirectToRoute('profile_edit', ['id' => $professionalUser->getId()]);
+        return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
     }
 
 }

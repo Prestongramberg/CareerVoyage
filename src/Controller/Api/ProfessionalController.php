@@ -146,7 +146,9 @@ class ProfessionalController extends AbstractController
      */
     public function getProfessionals() {
 
-        $professionals = $this->professionalUserRepository->findAll();
+        $professionals = $this->professionalUserRepository->findBy([
+            'activated' => true
+        ]);
 
         $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
 

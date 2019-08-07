@@ -1,12 +1,12 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block body %}
     {% if user.isAdmin %}
-        {% include 'profile/partials/_edit_admin_profile_form.html.twig' %}
+        {% include 'dashboard/partials/_admin_dashboard.html.twig' %}
     {% elseif user.isProfessional %}
-        {% include 'profile/partials/_edit_professional_profile_form.html.twig' %}
+        {% include 'dashboard/partials/_professional_dashboard.html.twig' %}
     {% elseif user.isEducator %}
 
     {% elseif user.isStudent %}

@@ -63,7 +63,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST"})
-     * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a username for your user!")
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $username;
@@ -176,6 +176,7 @@ abstract class User implements UserInterface
     protected $photo;
 
     /**
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\Column(type="boolean")
      */
     protected $activated = false;
@@ -447,6 +448,36 @@ abstract class User implements UserInterface
         $roles = $this->getRoles();
 
         if (in_array(self::ROLE_STATE_COORDINATOR_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     * @return bool
+     */
+    public function isRegionalCoordinator()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_REGIONAL_COORDINATOR_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     * @return bool
+     */
+    public function isSchoolAdministrator()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_SCHOOL_ADMINISTRATOR_USER, $roles)) {
             return true;
         }
 

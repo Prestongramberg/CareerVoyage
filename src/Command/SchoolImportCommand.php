@@ -10,6 +10,7 @@ use App\Repository\CareerRepository;
 use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
 use App\Repository\IndustryRepository;
+use App\Repository\RegionRepository;
 use App\Repository\UserRepository;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -71,7 +72,12 @@ class SchoolImportCommand extends Command
     private $industryRepository;
 
     /**
-     * SecondaryIndustryImportCommand constructor.
+     * @var RegionRepository
+     */
+    private $regionRepository;
+
+    /**
+     * SchoolImportCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param CareerRepository $careerRepository
      * @param GradeRepository $gradeRepository
@@ -80,6 +86,7 @@ class SchoolImportCommand extends Command
      * @param UploaderHelper $uploaderHelper
      * @param UserRepository $userRepository
      * @param IndustryRepository $industryRepository
+     * @param RegionRepository $regionRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -89,7 +96,8 @@ class SchoolImportCommand extends Command
         ImageCacheGenerator $imageCacheGenerator,
         UploaderHelper $uploaderHelper,
         UserRepository $userRepository,
-        IndustryRepository $industryRepository
+        IndustryRepository $industryRepository,
+        RegionRepository $regionRepository
     ) {
         $this->entityManager = $entityManager;
         $this->careerRepository = $careerRepository;
@@ -99,6 +107,7 @@ class SchoolImportCommand extends Command
         $this->uploaderHelper = $uploaderHelper;
         $this->userRepository = $userRepository;
         $this->industryRepository = $industryRepository;
+        $this->regionRepository = $regionRepository;
 
         parent::__construct();
     }
@@ -110,7 +119,8 @@ class SchoolImportCommand extends Command
             ->setDescription(
                 self::DESCRIPTION
             )
-            ->addArgument('path', InputArgument::REQUIRED, 'The relative path to the csv file is required.');
+            ->addArgument('path', InputArgument::REQUIRED, 'The relative path to the csv file is required.')
+            ->addArgument('regionID', InputArgument::REQUIRED, 'The region id in the database of the region to add the states to.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
@@ -146,6 +156,7 @@ class SchoolImportCommand extends Command
         foreach($schools as $school) {
             $schoolObj = new School();
             $schoolObj->setName($school['School Districts']);
+            $schoolObj->setRegion($this->regionRepository->find($input->getArgument('regionID')));
             $this->entityManager->persist($schoolObj);
         }
 

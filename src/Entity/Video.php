@@ -6,8 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\VideoRepository")
+ *
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo"})
  */
-class Video
+abstract class Video
 {
     /**
      * @ORM\Id()
@@ -25,12 +29,6 @@ class Video
      * @ORM\Column(type="string", length=255)
      */
     private $videoId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="videos")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $company;
 
     public function getId(): ?int
     {
@@ -57,18 +55,6 @@ class Video
     public function setVideoId(string $videoId): self
     {
         $this->videoId = $videoId;
-
-        return $this;
-    }
-
-    public function getCompany(): ?Company
-    {
-        return $this->company;
-    }
-
-    public function setCompany(?Company $company): self
-    {
-        $this->company = $company;
 
         return $this;
     }

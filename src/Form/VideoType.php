@@ -14,14 +14,16 @@ class VideoType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', TextType::class, [])
-            ->add('videoId', TextType::class, []);
+        $builder->add('name', TextType::class, [
+            'mapped' => false
+        ])->add('videoId', TextType::class, [
+                'mapped' => false
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'  => Video::class,
             'attr'        => ['novalidate' => 'novalidate'],
         ]);
     }

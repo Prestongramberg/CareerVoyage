@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\CompanyVideo;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
@@ -16,10 +17,7 @@ use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewExperienceType;
-use App\Form\ProfessionalDeactivateProfileFormType;
-use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
-use App\Form\ProfessionalReactivateProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
@@ -34,6 +32,7 @@ use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -129,6 +128,11 @@ class CompanyController extends AbstractController
     private $userRepository;
 
     /**
+     * @var CacheManager
+     */
+    private $cacheManager;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -144,6 +148,7 @@ class CompanyController extends AbstractController
      * @param ProfessionalUserRepository $professionalUserRepository
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param UserRepository $userRepository
+     * @param CacheManager $cacheManager
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -159,7 +164,8 @@ class CompanyController extends AbstractController
         SecurityMailer $securityMailer,
         ProfessionalUserRepository $professionalUserRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        CacheManager $cacheManager
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -175,6 +181,7 @@ class CompanyController extends AbstractController
         $this->professionalUserRepository = $professionalUserRepository;
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->userRepository = $userRepository;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -463,7 +470,7 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::THUMBNAIL_IMAGE.'/'.$newFilename
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::THUMBNAIL_IMAGE.'/'.$newFilename, 'squared_thumbnail_small')
                 ], Response::HTTP_OK
             );
         }
@@ -497,13 +504,17 @@ class CompanyController extends AbstractController
             $image->setFileName($newFilename);
             $company->setFeaturedImage($image);
             $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::FEATURE_IMAGE) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::FEATURE_IMAGE.'/'.$newFilename
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::FEATURE_IMAGE.'/'.$newFilename, 'squared_thumbnail_small')
                 ], Response::HTTP_OK
             );
         }
@@ -545,7 +556,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename
+                    'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
+                    'resourceId' => $companyResource->getId()
 
                 ], Response::HTTP_OK
             );
@@ -581,13 +593,17 @@ class CompanyController extends AbstractController
             $image->setFileName($newFilename);
             $company->addCompanyPhoto($image);
             $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::COMPANY_PHOTO) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::COMPANY_PHOTO.'/'.$newFilename
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::COMPANY_PHOTO.'/'.$newFilename, 'squared_thumbnail_small')
                 ], Response::HTTP_OK
             );
         }
@@ -635,26 +651,16 @@ class CompanyController extends AbstractController
 
             $user->setCompany($company);
 
-            // resource
-            /** @var CompanyResource $resource */
-            $resource = $form->get('resources')->getData();
-            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
-                $file = $resource->getFile();
-                $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
-                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $resource->setMimeType($mimeType ?? 'application/octet-stream');
-                $resource->setFileName($newFilename);
-                $resource->setFile(null);
-                $resource->setCompany($company);
-                $this->entityManager->persist($resource);
-            }
-
             // video
-            $video = $form->get('videos')->getData();
-            if($video->getName() && $video->getVideoId()) {
-                $video->setCompany($company);
-                $this->entityManager->persist($video);
+            $videoName = $form->get('videos')->get('name')->getData();
+            $videoId = $form->get('videos')->get('videoId')->getData();
+
+            if($videoName && $videoId) {
+                $companyVideo = new CompanyVideo();
+                $companyVideo->setName($videoName);
+                $companyVideo->setVideoId($videoName);
+                $companyVideo->setCompany($company);
+                $this->entityManager->persist($companyVideo);
             }
 
             $this->entityManager->persist($company);
@@ -880,7 +886,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename
+                    'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'fileId' => $file->getId()
 
                 ], Response::HTTP_OK
             );
