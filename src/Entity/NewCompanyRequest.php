@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 class NewCompanyRequest extends Request
 {
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Company", inversedBy="newCompanyRequest", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Company", inversedBy="newCompanyRequest")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;

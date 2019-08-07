@@ -86,6 +86,11 @@ class School
      */
     private $schoolExperiences;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolPhoto", mappedBy="school", orphanRemoval=true)
+     */
+    private $schoolPhotos;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -95,6 +100,7 @@ class School
         $this->schoolAdministrators = new ArrayCollection();
         $this->schoolVideos = new ArrayCollection();
         $this->schoolExperiences = new ArrayCollection();
+        $this->schoolPhotos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -369,6 +375,37 @@ class School
             // set the owning side to null (unless already changed)
             if ($schoolExperience->getSchool() === $this) {
                 $schoolExperience->setSchool(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SchoolPhoto[]
+     */
+    public function getSchoolPhotos(): Collection
+    {
+        return $this->schoolPhotos;
+    }
+
+    public function addSchoolPhoto(SchoolPhoto $schoolPhoto): self
+    {
+        if (!$this->schoolPhotos->contains($schoolPhoto)) {
+            $this->schoolPhotos[] = $schoolPhoto;
+            $schoolPhoto->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolPhoto(SchoolPhoto $schoolPhoto): self
+    {
+        if ($this->schoolPhotos->contains($schoolPhoto)) {
+            $this->schoolPhotos->removeElement($schoolPhoto);
+            // set the owning side to null (unless already changed)
+            if ($schoolPhoto->getSchool() === $this) {
+                $schoolPhoto->setSchool(null);
             }
         }
 

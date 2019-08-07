@@ -52,15 +52,7 @@ class CompanyVoter extends Voter
 
     private function canEdit(Company $company, User $user)
     {
-        if(!$user instanceof ProfessionalUser) {
-            return false;
-        }
-
-        if(!$user->getCompany()) {
-            return false;
-        }
-
-        if($user->getCompany()->getId() !== $company->getId()) {
+        if($company->getOwner()->getId() !== $user->getId()) {
             return false;
         }
 

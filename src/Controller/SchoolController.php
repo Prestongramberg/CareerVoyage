@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\CompanyVideo;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -12,6 +13,8 @@ use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
+use App\Entity\SchoolPhoto;
+use App\Entity\SchoolVideo;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EditSchoolType;
@@ -35,6 +38,7 @@ use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -125,6 +129,11 @@ class SchoolController extends AbstractController
     private $securityMailer;
 
     /**
+     * @var CacheManager
+     */
+    private $cacheManager;
+
+    /**
      * SchoolController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -139,6 +148,7 @@ class SchoolController extends AbstractController
      * @param UserRepository $userRepository
      * @param RequestsMailer $requestsMailer
      * @param SecurityMailer $securityMailer
+     * @param CacheManager $cacheManager
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -153,7 +163,8 @@ class SchoolController extends AbstractController
         LessonTeachableRepository $lessonTeachableRepository,
         UserRepository $userRepository,
         RequestsMailer $requestsMailer,
-        SecurityMailer $securityMailer
+        SecurityMailer $securityMailer,
+        CacheManager $cacheManager
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -168,6 +179,7 @@ class SchoolController extends AbstractController
         $this->userRepository = $userRepository;
         $this->requestsMailer = $requestsMailer;
         $this->securityMailer = $securityMailer;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -245,9 +257,9 @@ class SchoolController extends AbstractController
      */
     public function editAction(Request $request, School $school) {
 
-        $user = $this->getUser();
-
         $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
 
         $form = $this->createForm(EditSchoolType::class, $school, [
             'method' => 'POST',
@@ -272,4 +284,167 @@ class SchoolController extends AbstractController
             'school' => $school
         ]);
     }
+
+    /**
+     * @Route("/schools/{id}/photos/add", name="school_photos_add", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return JsonResponse
+     */
+    public function schoolAddPhotosAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $photo = $request->files->get('file');
+
+        if($photo) {
+            $mimeType = $photo->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($photo, UploaderHelper::SCHOOL_PHOTO);
+            $image = new SchoolPhoto();
+            $image->setOriginalName($photo->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $image->setSchool($school);
+            $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::SCHOOL_PHOTO) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::SCHOOL_PHOTO.'/'.$newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId()
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/schools/photos/{id}/remove", name="school_photo_remove", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolPhoto $schoolPhoto
+     * @return JsonResponse
+     */
+    public function schoolRemovePhotoAction(Request $request, SchoolPhoto $schoolPhoto) {
+
+        $this->denyAccessUnlessGranted('edit', $schoolPhoto->getSchool());
+
+        $this->entityManager->remove($schoolPhoto);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/schools/videos/{id}/edit", name="school_video_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolVideo $video
+     * @return JsonResponse
+     */
+    public function schoolEditVideoAction(Request $request, SchoolVideo $video) {
+
+        $this->denyAccessUnlessGranted('edit', $video->getSchool());
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+
+        if($name && $videoId) {
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $video->getId()
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/schools/{id}/video/add", name="school_video_add", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return JsonResponse
+     */
+    public function schoolAddVideoAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+
+        if($name && $videoId) {
+            $video = new SchoolVideo();
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $video->setSchool($school);
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $video->getId()
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/schools/videos/{id}/remove", name="school_video_remove", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolVideo $schoolVideo
+     * @return JsonResponse
+     */
+    public function schoolRemoveVideoAction(Request $request, SchoolVideo $schoolVideo) {
+
+        $this->denyAccessUnlessGranted('edit', $schoolVideo->getSchool());
+
+        $this->entityManager->remove($schoolVideo);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
+    }
+
 }

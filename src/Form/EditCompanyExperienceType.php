@@ -55,14 +55,7 @@ class EditCompanyExperienceType extends AbstractType
             ->add('availableSpaces', NumberType::class, [])
             ->add('payment', TextType::class, [])
             ->add('paymentShownIsPer', ChoiceType::class, [
-                'choices'  => [
-                    'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
-                    'Hour' => 'HOUR',
-                    'Day' => 'DAY',
-                    'Week' => 'WEEK',
-                    'Month' => 'MONTH',
-                    'Year' => 'YEAR',
-                ],
+                'choices'  => Experience::$paymentTypes,
                 'expanded'  => false,
                 'multiple'  => false,
                 'required' => false

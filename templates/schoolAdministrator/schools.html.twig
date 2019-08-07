@@ -1,0 +1,23 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Company Professionals{% endblock %}
+
+{% block body %}
+
+    {% if user.id == schoolAdministrator.id %}
+        <h2>My Schools</h2>
+    {% else %}
+        <h2>{{ user.fullName }} Schools</h2>
+    {% endif %}
+
+    {% for school in schools %}
+        {{ school.name }} -
+        {% if school.isUserSchoolAdministrator(user) %}
+            <a href="{{ path('school_edit', {'id': school.id}) }}">Edit</a>
+        {% endif %}
+        <br>
+    {% endfor %}
+
+
+{% endblock %}
+

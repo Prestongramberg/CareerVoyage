@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\School;
+use App\Entity\SchoolAdministrator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,14 @@ class SchoolRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function getSchoolsThatBelongToSchoolAdministrator(SchoolAdministrator $schoolAdministrator) {
+
+        return $this->createQueryBuilder('school')
+            ->join('school.schoolAdministrators', 'school_administrators')
+            ->where('school_administrators.id = :schoolAdministratorId')
+            ->setParameter('schoolAdministratorId', $schoolAdministrator->getId())
+            ->getQuery()
+            ->getResult();
+    }
 }

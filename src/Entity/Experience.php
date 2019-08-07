@@ -26,6 +26,15 @@ abstract class Experience
         'Job' => 'JOB',
     ];
 
+    public static $paymentTypes = [
+        'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
+        'Hour' => 'HOUR',
+        'Day' => 'DAY',
+        'Week' => 'WEEK',
+        'Month' => 'MONTH',
+        'Year' => 'YEAR',
+    ];
+
     /**
      * @Assert\Callback(groups={"CREATE"})
      * @param ExecutionContextInterface $context
@@ -53,113 +62,111 @@ abstract class Experience
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $title;
+    protected $title;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $briefDescription;
+    protected $briefDescription;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
-    private $about;
+    protected $about;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $type;
+    protected $type;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="experiences")
      */
-    private $careers;
-
-    /**
-     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE", "EDIT"})
-     * @Assert\NotBlank(message="Don't forget to enter the total number of available spaces!", groups={"CREATE", "EDIT"})
-     *
-     * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="integer")
-     */
-    private $availableSpaces;
+    protected $careers;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $payment;
+    protected $availableSpaces;
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     */
+    protected $payment;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $paymentShownIsPer;
+    protected $paymentShownIsPer;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $phoneNumber;
+    protected $phoneNumber;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $website;
+    protected $website;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $street;
+    protected $street;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $city;
+    protected $city;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $zipcode;
+    protected $zipcode;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a start date!", groups={"CREATE", "EDIT"})
+     * @Groups({"EXPERIENCE_DATA"})
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $startDateAndTime;
-
-    /**
-     * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $endDateAndTime;
+    protected $endDateAndTime;
 
     /**
      * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE", "EDIT"})
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $length;
+    protected $length;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
@@ -170,20 +177,20 @@ abstract class Experience
      * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $email;
+    protected $email;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\OneToMany(targetEntity="App\Entity\ExperienceFile", mappedBy="experience", cascade={"remove"}, orphanRemoval=true)
      */
-    private $experienceFiles;
+    protected $experienceFiles;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
      */
-    private $state;
+    protected $state;
 
     public function __construct()
     {

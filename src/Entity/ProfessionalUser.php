@@ -56,7 +56,7 @@ class ProfessionalUser extends User
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
-     * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Company", mappedBy="owner")
      */
     private $ownedCompany;
 

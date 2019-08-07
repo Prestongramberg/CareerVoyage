@@ -10,28 +10,17 @@ use Doctrine\ORM\Mapping as ORM;
 class CompanyExperience extends Experience
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyExperiences")
      * @ORM\JoinColumn(nullable=false)
+     *
      */
     private $company;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="companyExperiences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $employeeContact;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getCompany(): ?Company
     {

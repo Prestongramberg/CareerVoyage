@@ -2,14 +2,12 @@
 
 namespace App\Security;
 
-use App\Entity\Company;
-use App\Entity\Lesson;
-use App\Entity\ProfessionalUser;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use App\Entity\Request;
 
-class LessonVoter extends Voter
+class RequestVoter extends Voter
 {
     // these strings are just invented: you can use anything
     const EDIT = 'edit';
@@ -21,8 +19,7 @@ class LessonVoter extends Voter
             return false;
         }
 
-        // only vote on Company objects inside this voter
-        if (!$subject instanceof Lesson) {
+        if (!$subject instanceof Request) {
             return false;
         }
 
@@ -38,29 +35,19 @@ class LessonVoter extends Voter
             return false;
         }
 
-        // you know $subject is a Post object, thanks to supports
-        /** @var Lesson $lesson
-         */
-        $lesson = $subject;
+        /** @var Request $request */
+        $request = $subject;
 
         switch ($attribute) {
             case self::EDIT:
-                return $this->canEdit($lesson, $user);
+                return $this->canEdit($request, $user);
         }
 
         throw new \LogicException('This code should not be reached!');
     }
 
-    private function canEdit(Lesson $lesson, User $user)
+    private function canEdit(Request $request, User $user)
     {
-        if($user->isAdmin()) {
-            return true;
-        }
-
-        if($lesson->getUser()->getId() === $user->getId()) {
-            return true;
-        }
-
-        return false;
+        return $request->getNeedsApprovalBy()->getId() === $user->getId();
     }
 }

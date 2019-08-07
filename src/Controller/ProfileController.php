@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Company;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
@@ -121,6 +122,19 @@ class ProfileController extends AbstractController
     }
 
     /**
+     * @Route("/test", name="profile_test", methods={"GET"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function testAction(Request $request) {
+
+        $user = $this->getUser();
+        return $this->render('profile/test.html.twig', [
+            'user' => $user
+        ]);
+    }
+
+    /**
      * @Route("/profiles/{id}/edit", name="profile_edit")
      * @param Request $request
      * @param User $user
@@ -188,9 +202,9 @@ class ProfileController extends AbstractController
      */
     public function profileAddPhotoAction(Request $request, User $user) {
 
-        $user = $this->getUser();
-
         $this->denyAccessUnlessGranted('edit', $user);
+
+        $user = $this->getUser();
 
         /** @var UploadedFile $uploadedFile */
         $profilePhoto = $request->files->get('file');
@@ -226,8 +240,9 @@ class ProfileController extends AbstractController
      */
     public function deleteAction(Request $request, User $user) {
 
-        $user->setDeleted(true);
-        $this->entityManager->persist($user);
+        $this->denyAccessUnlessGranted('edit', $user);
+
+        $this->entityManager->remove($user);
         $this->entityManager->flush();
 
         $this->get('security.token_storage')->setToken(null);
@@ -244,6 +259,8 @@ class ProfileController extends AbstractController
      */
     public function deactivateAction(Request $request, User $user) {
 
+        $this->denyAccessUnlessGranted('edit', $user);
+
         $user->setActivated(false);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -258,6 +275,8 @@ class ProfileController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function reactivateAction(Request $request, User $user) {
+
+        $this->denyAccessUnlessGranted('edit', $user);
 
         $user->setActivated(true);
         $this->entityManager->persist($user);

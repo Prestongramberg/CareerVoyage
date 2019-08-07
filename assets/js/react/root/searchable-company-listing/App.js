@@ -119,8 +119,7 @@ class App extends React.Component {
                                                         <h2 className="uk-modal-title">Are you sure you want to remove yourself
                                                             from "{ this.props.user.company.name }"?</h2>
                                                         <div className="uk-margin">
-                                                            <form className="uk-inline uk-margin-right" method="post"
-                                                                  action={window.Routing.generate('company_remove_user', { userID: this.props.user.id, companyID: this.props.user.company.id })}>
+                                                            <form className="uk-inline uk-margin-right" method="post" action={window.Routing.generate('company_remove_user', { id: this.props.userId })}>
                                                                 <button className="uk-button uk-button-danger" type="submit">Yes</button>
                                                             </form>
                                                             <button className="uk-button uk-button-default uk-modal-close">No,

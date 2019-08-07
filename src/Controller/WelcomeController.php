@@ -40,7 +40,7 @@ class WelcomeController extends AbstractController
 
         $securityContext = $this->container->get('security.authorization_checker');
         if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-            return $this->redirectToRoute('profile_index', ['id' => $this->getUser()->getId()]);
+            return $this->redirectToRoute('dashboard');
         }
 
 

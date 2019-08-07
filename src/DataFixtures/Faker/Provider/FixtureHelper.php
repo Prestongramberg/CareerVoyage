@@ -3,6 +3,7 @@
 namespace App\DataFixtures\Faker\Provider;
 
 
+use App\Entity\Career;
 use App\Entity\CompanyPhoto;
 use App\Entity\Experience;
 use App\Entity\Industry;
@@ -129,7 +130,32 @@ class FixtureHelper
         ], null, 2);
     }
 
+    /**
+     * 1 school result
+     * @param int $regionId
+     * @return State|object|null
+     */
+    public function school($regionId = 1) {
+        return $this->entityManager->getRepository(School::class)->findOneBy([
+            'region' => $regionId
+        ]);
+    }
+
     public function randomExperienceType() {
         return Experience::$types[array_rand(Experience::$types)];
+    }
+
+    public function randomPaymentType() {
+        return Experience::$paymentTypes[array_rand(Experience::$paymentTypes)];
+    }
+
+    /**
+     * an array of careers
+     */
+    public function career() {
+        return $this->entityManager->getRepository(Career::class)->findOneBy([
+                'title' => Career::$types[array_rand(Career::$types)]
+            ]
+        );
     }
 }

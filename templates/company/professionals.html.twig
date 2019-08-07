@@ -9,9 +9,9 @@
 
         {{ professional.firstName }} -
         {{ professional.lastName }}
-        {% if isOwner %}
+        {% if company.owner.id == user.id %}
             {% if user.id != professional.id %}
-                <form action="{{ path('company_professional_remove', {'companyID': professional.company.id, 'professionalID': professional.id}) }}" method="post">
+                <form action="{{ path('company_professional_remove', {'id': professional.id}) }}" method="post">
                     <input type="submit" value="Remove user from company">
                 </form>
             {% endif %}

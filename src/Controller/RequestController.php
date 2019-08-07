@@ -18,10 +18,7 @@ use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
-use App\Form\ProfessionalDeactivateProfileFormType;
-use App\Form\ProfessionalDeleteProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
-use App\Form\ProfessionalReactivateProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -200,6 +197,8 @@ class RequestController extends AbstractController
      */
     public function approveRequest(\App\Entity\Request $request) {
 
+        $this->denyAccessUnlessGranted('edit', $request);
+
         /** @var User $user */
         $user = $this->getUser();
 
@@ -207,6 +206,9 @@ class RequestController extends AbstractController
             case 'NewCompanyRequest':
                 /** @var NewCompanyRequest $request */
                 $request->setApproved(true);
+                $company = $request->getCompany();
+                $company->setApproved(true);
+                $this->entityManager->persist($company);
                 $this->addFlash('success', 'Company approved');
                 $this->requestsMailer->newCompanyRequestApproval($request);
                 break;
