@@ -4,6 +4,6 @@ export default function getInitialSearchState() {
         query: '',
         loading: true,
         loadingCompanies: true,
-        loadingIndustries: true
+        loadingUser: true
     }
 }

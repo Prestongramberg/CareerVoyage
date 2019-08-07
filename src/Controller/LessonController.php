@@ -269,23 +269,6 @@ class LessonController extends AbstractController
             /** @var Lesson $lesson */
             $lesson = $form->getData();
 
-            $uploadedFile = $form->get('thumbnailImage')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->upload($uploadedFile, UploaderHelper::LESSON_THUMBNAIL);
-                $lesson->setThumbnailImage($newFilename);
-
-                $path = $this->uploaderHelper->getPublicPath(UploaderHelper::LESSON_THUMBNAIL) .'/'. $newFilename;
-                $this->imageCacheGenerator->cacheImageForAllFilters($path);
-            }
-
-            $uploadedFile = $form->get('featuredImage')->getData();
-
-            if($uploadedFile) {
-                $newFilename = $this->uploaderHelper->upload($uploadedFile, UploaderHelper::LESSON_FEATURED);
-                $lesson->setFeaturedImage($newFilename);
-            }
-
             $this->entityManager->persist($lesson);
             $this->entityManager->flush();
 

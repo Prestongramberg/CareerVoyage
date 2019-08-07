@@ -11,8 +11,6 @@ export default (state = {}, action) => {
 
 function get_industries_from_request( companies ) {
 
-    debugger;
-
     const industry_ids = [];
     const industries = [];
 

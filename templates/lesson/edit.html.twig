@@ -228,18 +228,4 @@ After describing learning outcomes, feel free to share additional resources whic
 
     </div>
 
-
-
-    <h1>Thumbnail Image</h1>
-    <form action="{{ path('lesson_thumbnail_add', {
-        id: lesson.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="thumbnail-dropzone">
-    </form>
-
-    <h1>Featured Image</h1>
-    <form action="{{ path('lesson_featured_add', {
-        id: lesson.id
-    }) }}" method="POST" enctype="multipart/form-data" class="dropzone" id="featured-dropzone">
-    </form>
-
 {% endblock %}

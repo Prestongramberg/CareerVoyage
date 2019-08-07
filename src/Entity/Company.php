@@ -301,11 +301,19 @@ class Company
         return $this;
     }
 
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @return string
+     */
     public function getFeaturedImagePath()
     {
         return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
     }
 
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @return string
+     */
     public function getThumbnailImagePath()
     {
         return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
@@ -470,7 +478,7 @@ class Company
     }
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      */
     public function getThumbnailImageURL() {
         if($this->getThumbnailImage()) {
@@ -480,7 +488,7 @@ class Company
     }
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      */
     public function getFeaturedImageURL() {
         if($this->getFeaturedImage()) {

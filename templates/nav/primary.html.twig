@@ -34,7 +34,7 @@
             <div class="uk-width-1-1 uk-width-1-2@m">
                 <div class="nav-overlay uk-navbar-left">
                     <span uk-icon="icon: menu; ratio: 1.5" uk-toggle="target: #offcanvas-menu"></span>
-                    <a class="uk-navbar-item uk-logo" href="/">
+                    <a class="uk-navbar-item uk-logo" href="{{ path('dashboard') }}">
                         <img src="{{ asset('build/images/logo-future-forward.png') }}" alt="">
                     </a>
                 </div>
@@ -50,7 +50,7 @@
                         </a>
                         <span class="main-navigation__meta-profile">
                             <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                            <div uk-dropdown>
+                            <div uk-dropdown="pos: bottom-right">
                                 <ul class="uk-nav uk-dropdown-nav">
                                     <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>
                                     <li><a href="{{ path('app_logout') }}">Logout</a></li>
@@ -58,10 +58,10 @@
                             </div>
                         </span>
                     </div>
-                    <form class="main-navigation__search uk-search uk-search-default">
-                        <span uk-search-icon></span>
-                        <input class="uk-search-input" type="search" placeholder="Search...">
-                    </form>
+{#                    <form class="main-navigation__search uk-search uk-search-default">#}
+{#                        <span uk-search-icon></span>#}
+{#                        <input class="uk-search-input" type="search" placeholder="Search...">#}
+{#                    </form>#}
                 </div>
             </div>
         </nav>
