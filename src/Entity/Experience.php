@@ -28,6 +28,8 @@ abstract class Experience
 
     /**
      * @Assert\Callback(groups={"CREATE"})
+     * @param ExecutionContextInterface $context
+     * @param $payload
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
@@ -55,14 +57,14 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $briefDescription;
@@ -75,7 +77,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $type;
@@ -87,8 +89,8 @@ abstract class Experience
     private $careers;
 
     /**
-     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE"})
-     * @Assert\NotBlank(message="Don't forget to enter the total number of available spaces!", groups={"CREATE"})
+     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget to enter the total number of available spaces!", groups={"CREATE", "EDIT"})
      *
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
@@ -121,21 +123,21 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $street;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $city;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $zipcode;
@@ -146,13 +148,14 @@ abstract class Experience
      */
     private $startDateAndTime;
 
-    /**@Groups({"EXPERIENCE_DATA"})
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $endDateAndTime;
 
     /**
-     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE"})
+     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE", "EDIT"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
@@ -162,9 +165,9 @@ abstract class Experience
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"CREATE"}
+     *     groups={"CREATE", "EDIT"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $email;
@@ -177,7 +180,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
      */
     private $state;

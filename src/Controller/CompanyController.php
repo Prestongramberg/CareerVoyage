@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
@@ -16,7 +17,7 @@ use App\Entity\User;
 use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
-use App\Form\NewExperienceType;
+use App\Form\NewCompanyExperienceType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -880,8 +881,8 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
 
-        $experience = new Experience();
-        $form = $this->createForm(NewExperienceType::class, $experience, [
+        $experience = new CompanyExperience();
+        $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
             'method' => 'POST',
             'company' => $company
         ]);
@@ -924,7 +925,7 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
 
-        $form = $this->createForm(NewExperienceType::class, $experience, [
+        $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
             'method' => 'POST',
             'company' => $company
         ]);
@@ -932,26 +933,12 @@ class CompanyController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var Experience $experience */
+            /** @var CompanyExperience $experience */
             $experience = $form->getData();
 
             $this->entityManager->persist($experience);
 
-            /** @var ExperienceFile $resource */
-          /*  $resource = $form->get('resources')->getData();
-            if($resource->getFile() && $resource->getDescription() && $resource->getTitle()) {
-                $file = $resource->getFile();
-                $mimeType = $file->getMimeType();
-                $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::EXPERIENCE_FILE);
-                $resource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-                $resource->setMimeType($mimeType ?? 'application/octet-stream');
-                $resource->setFileName($newFilename);
-                $resource->setFile(null);
-                $resource->setExperience($experience);
-                $this->entityManager->persist($resource);
-            }
-
-            $experience->setCompany($company);*/
+            $experience->setCompany($company);
 
             $this->entityManager->flush();
 
