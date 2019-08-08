@@ -143,12 +143,14 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\NotBlank(message="Don't forget a start date", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\NotBlank(message="Don't forget an end date", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;

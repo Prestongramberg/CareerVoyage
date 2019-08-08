@@ -14,9 +14,11 @@ use App\Entity\ProfessionalUser;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\State;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -91,24 +93,34 @@ class NewCompanyExperienceType extends AbstractType
                 'multiple'  => false,
             ])
             ->add('zipcode', TextType::class, [])
-            ->add('startDateAndTime', DateType::class, [
-                'widget' => 'single_text',
+            ->add('startDateAndTime', TextType::class, [])
+            ->add('endDateAndTime', TextType::class, []);
 
-                // prevents rendering it as type="date", to avoid HTML5 date pickers
-                'html5' => false,
+        $builder->get('startDateAndTime')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($date) {
+                    if($date) {
+                        return $date->format('m/d/Y g:i A');
+                    }
+                    return '';
+                },
+                function ($date) {
+                    return DateTime::createFromFormat('m/d/Y g:i A', $date);
+                }
+            ));
 
-                // adds a class that can be selected in JavaScript
-                'attr' => ['class' => 'js-datepicker'],
-            ])
-            ->add('endDateAndTime', DateType::class, [
-                'widget' => 'single_text',
-
-                // prevents rendering it as type="date", to avoid HTML5 date pickers
-                'html5' => false,
-
-                // adds a class that can be selected in JavaScript
-                'attr' => ['class' => 'js-datepicker'],
-            ]);
+        $builder->get('endDateAndTime')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($date) {
+                    if($date) {
+                        return $date->format('m/d/Y g:i A');
+                    }
+                    return '';
+                },
+                function ($date) {
+                    return DateTime::createFromFormat('m/d/Y g:i A', $date);
+                }
+            ));
     }
 
     public function configureOptions(OptionsResolver $resolver)

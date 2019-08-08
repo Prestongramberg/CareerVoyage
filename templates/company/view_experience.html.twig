@@ -1,0 +1,50 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Vew Company Experience{% endblock %}
+{% block bodyClass %}page-company-experience-view{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/companies.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+
+
+    {{ experience.title }}
+    {{ experience.briefDescription }}
+    {{ experience.about }}
+    {{ experience.type.name }}
+    {{ experience.availableSpaces }}
+    {{ experience.payment }}
+    {{ experience.paymentShownIsPer }}
+    {{ experience.startDateAndTime|date("m/d/Y") }}
+    {{ experience.endDateAndTime|date("m/d/Y") }}
+    {% for career in experience.careers %}
+        {{ career.title }}
+    {% endfor %}
+
+    {{ experience.employeeContact.fullName }}
+    {{ experience.email }}
+    {{ experience.street }}
+    {{ experience.city }}
+    {{ experience.state.name }}
+    {{ experience.zipcode }}
+
+    {% if experience.experienceFiles|length > 0 %}
+        <h4>Current Resources</h4>
+        {% for experienceFile in experience.experienceFiles %}
+            <p>
+                {{ experienceFile.title }}
+            </p>
+            <p>
+                {{ experienceFile.description }}
+            </p>
+            <p>
+                <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" target="_blank">View</a>
+            </p>
+
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}
