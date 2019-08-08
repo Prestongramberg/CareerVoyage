@@ -847,6 +847,22 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @Route("/companies/experiences/{id}/view", name="company_experience_view", options = { "expose" = true })
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewExperienceAction(Request $request, CompanyExperience $experience) {
+
+        $user = $this->getUser();
+
+        return $this->render('company/view_experience.html.twig', [
+            'user' => $user,
+            'experience' => $experience
+        ]);
+    }
+
+    /**
      * @Route("/companies/experiences/{id}/file/add", name="company_experience_file_add", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience

@@ -65,10 +65,13 @@ Encore
     // enable post CSS loader
     .enablePostCssLoader()
 
-    .copyFiles({
+    .copyFiles([{
         from: './assets/images',
         to: 'images/[path][name].[hash:8].[ext]'
-    })
+    }, {
+        from: './assets/static',
+        to: 'static/[path][name].[hash:8].[ext]'
+    }])
 
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()

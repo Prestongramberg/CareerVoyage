@@ -1,0 +1,21 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% form_theme form _self %}
+
+{% block title %}Import Students{% endblock %}
+
+{% block body %}
+
+    <h1>Import Students</h1>
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {% if form_errors(form) %}
+        {{ form_errors(form) }}
+    {% endif %}
+    {{ form_row(form.file) }}
+    <input type="submit" value="Import">
+    {{ form_rest(form) }}
+    {{ form_end(form) }}
+
+    <a href="{{ asset('build/static/student-import-example.csv') }}" download="">Example CSV Template</a>
+
+{% endblock %}

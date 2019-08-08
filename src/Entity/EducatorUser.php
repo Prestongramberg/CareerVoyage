@@ -13,7 +13,7 @@ class EducatorUser extends User
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="educatorUsers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $school;
 
@@ -51,6 +51,11 @@ class EducatorUser extends User
      * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact")
      */
     private $schoolExperiences;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $educatorId;
 
     public function __construct()
     {
@@ -184,6 +189,18 @@ class EducatorUser extends User
                 $schoolExperience->setSchoolContact(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEducatorId(): ?int
+    {
+        return $this->educatorId;
+    }
+
+    public function setEducatorId(int $educatorId): self
+    {
+        $this->educatorId = $educatorId;
 
         return $this;
     }

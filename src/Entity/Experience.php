@@ -81,13 +81,6 @@ abstract class Experience
     protected $about;
 
     /**
-     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=255)
-     */
-    protected $type;
-
-    /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="experiences")
      */
@@ -145,24 +138,18 @@ abstract class Experience
     protected $zipcode;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a start date!", groups={"CREATE", "EDIT"})
      * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\NotBlank(message="Don't forget a start date", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\NotBlank(message="Don't forget an end date", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;
-
-    /**
-     * @Assert\Positive(message="You must enter a valid number!", groups={"CREATE", "EDIT"})
-     * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    protected $length;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
@@ -187,6 +174,15 @@ abstract class Experience
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
      */
     protected $state;
+
+    /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT"})
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="experiences")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    protected $type;
 
     public function __construct()
     {
@@ -234,19 +230,7 @@ abstract class Experience
 
         return $this;
     }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function setType($type)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
+    
     /**
      * @return Collection|Career[]
      */
@@ -393,18 +377,6 @@ abstract class Experience
         return $this;
     }
 
-    public function getLength()
-    {
-        return $this->length;
-    }
-
-    public function setLength($length)
-    {
-        $this->length = $length;
-
-        return $this;
-    }
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -456,6 +428,18 @@ abstract class Experience
     public function setState(?State $state): self
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    public function getType(): ?RolesWillingToFulfill
+    {
+        return $this->type;
+    }
+
+    public function setType(?RolesWillingToFulfill $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

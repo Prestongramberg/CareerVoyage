@@ -58,7 +58,7 @@ abstract class User implements UserInterface
      *     groups={"CREATE", "EDIT"}
      * )
      * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $email;
 

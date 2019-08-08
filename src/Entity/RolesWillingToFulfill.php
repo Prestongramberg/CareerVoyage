@@ -36,9 +36,25 @@ class RolesWillingToFulfill
      */
     private $description;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $eventName;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $inEventDropdown = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Experience", mappedBy="type")
+     */
+    private $experiences;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
+        $this->experiences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,6 +115,61 @@ class RolesWillingToFulfill
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getEventName(): ?string
+    {
+        return $this->eventName;
+    }
+
+    public function setEventName(string $eventName): self
+    {
+        $this->eventName = $eventName;
+
+        return $this;
+    }
+
+    public function getInEventDropdown(): ?bool
+    {
+        return $this->inEventDropdown;
+    }
+
+    public function setInEventDropdown(bool $inEventDropdown): self
+    {
+        $this->inEventDropdown = $inEventDropdown;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Experience[]
+     */
+    public function getExperiences(): Collection
+    {
+        return $this->experiences;
+    }
+
+    public function addExperience(Experience $experience): self
+    {
+        if (!$this->experiences->contains($experience)) {
+            $this->experiences[] = $experience;
+            $experience->setType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperience(Experience $experience): self
+    {
+        if ($this->experiences->contains($experience)) {
+            $this->experiences->removeElement($experience);
+            // set the owning side to null (unless already changed)
+            if ($experience->getType() === $this) {
+                $experience->setType(null);
+            }
+        }
 
         return $this;
     }

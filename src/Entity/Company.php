@@ -207,6 +207,11 @@ class Company
      */
     private $approved = false;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\StudentUser", mappedBy="companiesInterestedIn")
+     */
+    private $studentUsers;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -218,6 +223,7 @@ class Company
         $this->schools = new ArrayCollection();
         $this->companyVideos = new ArrayCollection();
         $this->companyExperiences = new ArrayCollection();
+        $this->studentUsers = new ArrayCollection();
     }
 
     public function getId()
@@ -768,6 +774,34 @@ class Company
     public function setApproved(bool $approved): self
     {
         $this->approved = $approved;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentUser[]
+     */
+    public function getStudentUsers(): Collection
+    {
+        return $this->studentUsers;
+    }
+
+    public function addStudentUser(StudentUser $studentUser): self
+    {
+        if (!$this->studentUsers->contains($studentUser)) {
+            $this->studentUsers[] = $studentUser;
+            $studentUser->addCompaniesInterestedIn($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentUser(StudentUser $studentUser): self
+    {
+        if ($this->studentUsers->contains($studentUser)) {
+            $this->studentUsers->removeElement($studentUser);
+            $studentUser->removeCompaniesInterestedIn($this);
+        }
 
         return $this;
     }

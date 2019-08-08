@@ -11,11 +11,14 @@ use App\Entity\Grade;
 use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
+use App\Entity\RolesWillingToFulfill;
 use App\Entity\State;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -43,8 +46,16 @@ class EditCompanyExperienceType extends AbstractType
             ->add('title', TextType::class, [])
             ->add('briefDescription', TextType::class, [])
             ->add('about', TextareaType::class, [])
-            ->add('type', ChoiceType::class, [
-                'choices'  => Experience::$types
+            ->add('type', EntityType::class, [
+                'class' => RolesWillingToFulfill::class,
+                'choice_label' => 'eventName',
+                'expanded'  => false,
+                'multiple'  => false,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('r')
+                        ->where('r.inEventDropdown = :inEventDropdown')
+                        ->setParameter('inEventDropdown', true);
+                },
             ])
             ->add('careers', EntityType::class, [
                 'class' => Career::class,
@@ -85,8 +96,33 @@ class EditCompanyExperienceType extends AbstractType
             ])
             ->add('zipcode', TextType::class, [])
             ->add('startDateAndTime', TextType::class, [])
-            ->add('endDateAndTime', TextType::class, [])
-            ->add('length', NumberType::class, []);
+            ->add('endDateAndTime', TextType::class, []);
+
+        $builder->get('startDateAndTime')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($date) {
+                    if($date) {
+                        return $date->format('m/d/Y g:i A');
+                    }
+                    return '';
+                },
+                function ($date) {
+                    return DateTime::createFromFormat('m/d/Y g:i A', $date);
+                }
+            ));
+
+        $builder->get('endDateAndTime')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($date) {
+                    if($date) {
+                        return $date->format('m/d/Y g:i A');
+                    }
+                    return '';
+                },
+                function ($date) {
+                    return DateTime::createFromFormat('m/d/Y g:i A', $date);
+                }
+            ));
 
     }
 
