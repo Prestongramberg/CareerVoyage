@@ -273,7 +273,8 @@ jQuery(document).ready(function($) {
 
         const url = $(this).attr('data-action');
         const $modalBody = $(this).closest('.uk-modal-body');
-        const name = $modalBody.find('[name="name"]').val();
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
         const $videoField = $modalBody.find('[name="videoId"]');
         const videoId = $videoField.val();
 
@@ -293,9 +294,18 @@ jQuery(document).ready(function($) {
                         },
                         method: "POST",
                         complete: function(serverResponse) {
-                            if( serverResponse.responseJSON.success ) {
-                                // add to DOM
-                                // close the modal
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                debugger;
+                                let _template = $('#companyVideosTemplate').html();
+                                $nameField.val('');
+                                $videoField.val('');
+                                $('#companyVideos').append(
+                                    _template.replace(/RESOURCE_ID/g, response.id).replace(/VIDEO_ID/g, response.videoId).replace(/VIDEO_NAME/g, response.name)
+                                );
+                                UIkit.modal( '#modal-add-company-video' ).hide();
                                 window.Pintex.notification("Video uploaded.", "success");
                             } else {
                                 window.Pintex.notification("Unable to upload video. Please try again.", "danger");
@@ -308,6 +318,47 @@ jQuery(document).ready(function($) {
                 }
             } else {
                 window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    $(document).on('click', '#modal-add-company-resource [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $titleField = $modalBody.find('[name="title"]');
+        const $descriptionField = $modalBody.find('[name="description"]');
+        const $fileField = $modalBody.find('[name="resource"]');
+
+        var formData = new FormData();
+        formData.append('title', $titleField.val() );
+        formData.append('description', $descriptionField.val() );
+        formData.append('resource', $fileField[0].files[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            complete: function (serverResponse) {
+
+                const response = serverResponse.responseJSON;
+
+                if (response.success) {
+                    let _template = $('#companyResourcesTemplate').html();
+                    $fields.val('');
+                    $('#companyResources').append(
+                        _template.replace(/RESOURCE_ID/g, response.id).replace(/RESOURCE_TITLE/g, response.title).replace(/RESOURCE_DESCRIPTION/g, response.description).replace(/RESOURCE_URL/g, response.url)
+                    );
+                    UIkit.modal('#modal-add-company-resource').hide();
+                    window.Pintex.notification("Resource uploaded.", "success");
+                } else {
+                    window.Pintex.notification("Unable to upload resource. Please try again.", "danger");
+                }
             }
         });
 

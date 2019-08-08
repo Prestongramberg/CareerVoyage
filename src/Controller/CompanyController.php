@@ -32,6 +32,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
@@ -51,6 +52,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
 /**
  * Class ProfileController
@@ -60,133 +62,7 @@ use Symfony\Component\Asset\Packages;
 class CompanyController extends AbstractController
 {
     use FileHelper;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileUploader $fileUploader
-     */
-    private $fileUploader;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    /**
-     * @var ImageCacheGenerator
-     */
-    private $imageCacheGenerator;
-
-    /**
-     * @var UploaderHelper
-     */
-    private $uploaderHelper;
-
-    /**
-     * @var Packages
-     */
-    private $assetsManager;
-
-    /**
-     * @var CompanyRepository
-     */
-    private $companyRepository;
-
-    /**
-     * @var CompanyPhotoRepository
-     */
-    private $companyPhotoRepository;
-
-    /**
-     * @var AdminUserRepository
-     */
-    private $adminUserRepository;
-
-    /**
-     * @var RequestsMailer
-     */
-    private $requestsMailer;
-
-    /**
-     * @var SecurityMailer
-     */
-    private $securityMailer;
-
-    /**
-     * @var ProfessionalUserRepository
-     */
-    private $professionalUserRepository;
-
-    /**
-     * @var JoinCompanyRequestRepository
-     */
-    private $joinCompanyRequestRepository;
-
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
-     * @var CacheManager
-     */
-    private $cacheManager;
-
-    /**
-     * CompanyController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param Packages $assetsManager
-     * @param CompanyRepository $companyRepository
-     * @param CompanyPhotoRepository $companyPhotoRepository
-     * @param AdminUserRepository $adminUserRepository
-     * @param RequestsMailer $requestsMailer
-     * @param SecurityMailer $securityMailer
-     * @param ProfessionalUserRepository $professionalUserRepository
-     * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
-     * @param UserRepository $userRepository
-     * @param CacheManager $cacheManager
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository,
-        AdminUserRepository $adminUserRepository,
-        RequestsMailer $requestsMailer,
-        SecurityMailer $securityMailer,
-        ProfessionalUserRepository $professionalUserRepository,
-        JoinCompanyRequestRepository $joinCompanyRequestRepository,
-        UserRepository $userRepository,
-        CacheManager $cacheManager
-    ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->assetsManager = $assetsManager;
-        $this->companyRepository = $companyRepository;
-        $this->companyPhotoRepository = $companyPhotoRepository;
-        $this->adminUserRepository = $adminUserRepository;
-        $this->requestsMailer = $requestsMailer;
-        $this->securityMailer = $securityMailer;
-        $this->professionalUserRepository = $professionalUserRepository;
-        $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
-        $this->userRepository = $userRepository;
-        $this->cacheManager = $cacheManager;
-    }
+    use ServiceHelper;
 
     /**
      * @Route("/companies", name="company_index", methods={"GET"}, options = { "expose" = true })
@@ -542,10 +418,12 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($companyResource);
             $this->entityManager->flush();
 
+            $h = $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename;
+
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
                     'id' => $companyResource->getId(),
                     'title' => $title,
                     'description' => $description
@@ -1086,5 +964,4 @@ class CompanyController extends AbstractController
             ], Response::HTTP_OK
         );
     }
-
 }
