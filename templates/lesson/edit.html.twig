@@ -33,6 +33,12 @@
             </div>
         {% endif %}
 
+        <div class="uk-margin">
+            <div class="uk-align-right@l">
+                <a href="{{ path('lesson_view', {id: lesson.id}) }}" class="uk-button uk-button-default uk-button-small">Back to Lesson</a>
+            </div>
+        </div>
+
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
         {% if form_errors(form) %}

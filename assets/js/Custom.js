@@ -273,6 +273,7 @@ jQuery(document).ready(function($) {
 
         const url = $(this).attr('data-action');
         const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
         const $nameField = $modalBody.find('[name="name"]');
         const name = $nameField.val();
         const $videoField = $modalBody.find('[name="videoId"]');
@@ -298,10 +299,8 @@ jQuery(document).ready(function($) {
                             const response = serverResponse.responseJSON;
 
                             if( response.success ) {
-                                debugger;
                                 let _template = $('#companyVideosTemplate').html();
-                                $nameField.val('');
-                                $videoField.val('');
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
                                 $('#companyVideos').append(
                                     _template.replace(/RESOURCE_ID/g, response.id).replace(/VIDEO_ID/g, response.videoId).replace(/VIDEO_NAME/g, response.name)
                                 );
@@ -364,6 +363,47 @@ jQuery(document).ready(function($) {
 
     });
 
+    $(document).on('click', '#modal-add-company-event-resource [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $titleField = $modalBody.find('[name="title"]');
+        const $descriptionField = $modalBody.find('[name="description"]');
+        const $fileField = $modalBody.find('[name="resource"]');
+
+        var formData = new FormData();
+        formData.append('title', $titleField.val() );
+        formData.append('description', $descriptionField.val() );
+        formData.append('resource', $fileField[0].files[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            complete: function (serverResponse) {
+
+                const response = serverResponse.responseJSON;
+
+                if (response.success) {
+                    let _template = $('#companyEventResourcesTemplate').html();
+                    $fields.val('');
+                    $('#companyEventResources').append(
+                        _template.replace(/RESOURCE_ID/g, response.id).replace(/RESOURCE_TITLE/g, response.title).replace(/RESOURCE_DESCRIPTION/g, response.description).replace(/RESOURCE_URL/g, response.url)
+                    );
+                    UIkit.modal('#modal-add-company-event-resource').hide();
+                    window.Pintex.notification("Resource uploaded.", "success");
+                } else {
+                    window.Pintex.notification("Unable to upload resource. Please try again.", "danger");
+                }
+            }
+        });
+
+    });
+
     $(document).on('click', '#modal-add-lesson-resource [data-action]', function(e) {
         e.preventDefault();
 
@@ -403,6 +443,22 @@ jQuery(document).ready(function($) {
             }
         });
 
+    });
+
+    /**
+     * Time Pickers
+     */
+    $('.uk-timepicker').daterangepicker({
+        singleDatePicker: true,
+        timePicker: true,
+        timePickerIncrement: 15,
+        linkedCalendars: false,
+        showCustomRangeLabel: false,
+        locale: {
+            format: 'MM/DD/YYYY h:mm A'
+        }
+    }, function(start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
     });
 
 });

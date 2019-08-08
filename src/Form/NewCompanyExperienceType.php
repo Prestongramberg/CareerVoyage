@@ -45,7 +45,7 @@ class NewCompanyExperienceType extends AbstractType
 
         $builder
             ->add('title', TextType::class, [])
-            ->add('briefDescription', TextType::class, [])
+            ->add('briefDescription', TextareaType::class, [])
             ->add('about', TextareaType::class, [])
             ->add('type', EntityType::class, [
                 'class' => RolesWillingToFulfill::class,
@@ -63,9 +63,14 @@ class NewCompanyExperienceType extends AbstractType
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                }
             ])
             ->add('availableSpaces', NumberType::class, [])
-            ->add('payment', TextType::class, [])
+            ->add('payment', NumberType::class, [
+                'required' => false,
+            ])
             ->add('paymentShownIsPer', ChoiceType::class, [
                 'choices'  => Experience::$paymentTypes,
                 'expanded'  => false,

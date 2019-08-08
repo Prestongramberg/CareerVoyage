@@ -6,7 +6,7 @@
     {% if user.isAdmin %}
         ADMIN PROFILE VIEW
     {% elseif user.isProfessional %}
-        PROFESSIONAL PROFILE VIEW
+        {% include 'profile/partials/_view_professional_profile.html.twig' %}
     {% elseif user.isEducator %}
     {% elseif user.isSchoolAdministrator %}
     {% endif %}

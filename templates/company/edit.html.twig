@@ -33,6 +33,12 @@
             </div>
         {% endif %}
 
+        <div class="uk-margin">
+            <div class="uk-align-right@l">
+                <a href="{{ path('company_view', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Back to Company</a>
+            </div>
+        </div>
+
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-edit-company" uk-tab>

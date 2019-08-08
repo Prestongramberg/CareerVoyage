@@ -1,12 +1,20 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Experiences{% endblock %}
-
-{% block body %}
-    Experiences
-{% endblock %}
+{% block title %}Events{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
 {% endblock %}
 
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-margin">
+            <ul class="uk-breadcrumb">
+                <li><a href="/">Dashboard</a></li>
+                <li><span>Experiences</span></li>
+            </ul>
+        </div>
+
+        <div id="react-events-calendar"></div>
+    </div>
+{% endblock %}

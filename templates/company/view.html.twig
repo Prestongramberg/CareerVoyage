@@ -28,6 +28,14 @@
 
     <div class="uk-container">
 
+        <div class="uk-margin">
+            <ul class="uk-breadcrumb">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="{{ path('company_index') }}">Companies</a></li>
+                <li><span>{{ company.name }}</span></li>
+            </ul>
+        </div>
+
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
@@ -38,7 +46,11 @@
                     {% endif %}
 
                     {% if user.admin or (company.owner and user.id == company.owner.id) %}
-                        <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit</a>
+                        <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Company</a>
+                    {% endif %}
+
+                    {% if user.admin or (company.owner and user.id == company.owner.id) %}
+                        <a href="{{ path('company_experience_create', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Create Event</a>
                     {% endif %}
                 </div>
             </div>
@@ -116,10 +128,10 @@
                             <div>
                                 <div class="uk-card uk-card-default uk-card-body">
                                     <div class="uk-card-badge uk-label">{{ experience.type }}</div>
-                                    <div class="uk-text-meta">October 4, 2019</div>
+                                    <div class="uk-text-meta">{{ experience.startDateAndTime|date("F jS, Y") }}</div>
                                     <div class="uk-margin">
-                                        <a href="#"><h3 class="uk-card-title">Code Hackathon at Best Buy HQ!</h3></a>
-                                        <p>Lorem ipsum color sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        <a href="{{ path('company_experience_view', {'id': experience.id}) }}"><h3 class="uk-card-title">{{ experience.title }}</h3></a>
+                                        <p>{{ experience.briefDescription }}</p>
                                     </div>
                                 </div>
                             </div>

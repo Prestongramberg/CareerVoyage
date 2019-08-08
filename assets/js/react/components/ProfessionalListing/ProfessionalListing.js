@@ -13,7 +13,9 @@ class ProfessionalListing extends Component {
                                 <img className="uk-border-circle" width="40" height="40" src={ this.props.image } />
                             </div>
                             <div className="uk-width-expand">
-                                <h3 className="uk-card-title uk-margin-remove-bottom">{ this.props.firstName } {this.props.lastName}</h3>
+                                <a href={window.Routing.generate('profile_index', {'id': this.props.id})}>
+                                    <h3 className="uk-card-title-small uk-margin-remove-bottom">{ this.props.firstName } {this.props.lastName}</h3>
+                                </a>
                                 <p className="uk-text-meta uk-margin-remove-top">
                                     { this.props.company && <span>{ this.props.company }</span> }
                                     { this.props.primaryIndustry && <span> - { this.props.primaryIndustry }</span> }
@@ -43,6 +45,7 @@ ProfessionalListing.propTypes = {
     company: PropTypes.string,
     email: PropTypes.string,
     firstName: PropTypes.string,
+    id: PropTypes.number,
     image: PropTypes.string,
     lastName: PropTypes.string,
     linkedIn: PropTypes.string,

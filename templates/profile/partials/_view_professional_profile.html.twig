@@ -7,44 +7,37 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-auto">
-                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(profileUser, 'photo') is defined and profileUser.photo ) ? asset(uploaded_asset(profileUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
+                                <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
                                 <p class="uk-text-meta uk-margin-remove-top">
                                     Professional
-                                    {% if user.primaryIndustry %}
-                                        - {{ user.primaryIndustry.name }}
+                                    {% if profileUser.primaryIndustry %}
+                                        - {{ profileUser.primaryIndustry.name }}
                                     {% endif %}
-                                    {% if user.secondaryIndustries|length > 0 %}
-                                        - {{ user.secondaryIndustries[0].name }}
+                                    {% if profileUser.secondaryIndustries|length > 0 %}
+                                        - {{ profileUser.secondaryIndustries[0].name }}
                                     {% endif %}
                                 </p>
-                            </div>
-                            <div class="uk-width-auto">
-                                <div class="uk-align-right">
-                                    <a href="{{ path('profile_edit', {'id': user.id}) }}">
-                                        <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
-                                    </a>
-                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.briefBio %}
+                        {% if profileUser.briefBio %}
                             <div class="uk-margin">
-                                {{ user.briefBio|raw }}
+                                {{ profileUser.briefBio|raw }}
                             </div>
                         {% else %}
-                            <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
+                            <p>This user has not added a bio yet.</p>
                         {% endif %}
                         <div class="professional-links">
-                            <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                            {% if user.getPhone %}
-                                <a href="tel:{{ user.phone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            {% if profileUser.getPhone %}
+                                <a href="tel:{{ profileUser.phone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                             {% endif %}
-                            {% if user.getLinkedinProfile %}
-                                <a href="{{ user.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
+                            {% if profileUser.getLinkedinProfile %}
+                                <a href="{{ profileUser.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
                             {% endif %}
                         </div>
                     </div>
@@ -63,24 +56,17 @@
                         <div class="uk-width-expand">
                             <h3 class="uk-card-title uk-margin-remove-bottom">Schools I Volunteer At</h3>
                         </div>
-                        <div class="uk-width-auto">
-                            <div class="uk-align-right">
-                                <a href="{{ path('profile_edit', {'id': user.id}) }}">
-                                    <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="uk-card-body">
-                    {% if user.schools is defined and user.schools|length > 0 %}
+                    {% if profileUser.schools is defined and profileUser.schools|length > 0 %}
                         <ul class="uk-list uk-list-divider">
-                            {% for school in user.schools %}
+                            {% for school in profileUser.schools %}
                                 <li>{{ school.name }}</li>
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p>You haven't added any schools yet.</p>
+                        <p>This user hasn't added any schools yet.</p>
                     {% endif %}
                 </div>
             </div>
@@ -97,24 +83,17 @@
                         <div class="uk-width-expand">
                             <h3 class="uk-card-title uk-margin-remove-bottom">Lessons I Can Teach</h3>
                         </div>
-                        <div class="uk-width-auto">
-                            <div class="uk-align-right">
-                                <a href="{{ path('lesson_index') }}">
-                                    <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="uk-card-body">
-                    {% if user.lessonTeachables|length > 0 %}
+                    {% if profileUser.lessonTeachables|length > 0 %}
                         <ul class="uk-list uk-list-divider">
-                            {% for teachable in user.lessonTeachables %}
+                            {% for teachable in profileUser.lessonTeachables %}
                                 <li><a class="uk-link-text" href="{{ path('lesson_view', {'id': teachable.lesson.id}) }}">{{ teachable.lesson.title }}</a></li>
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p>You haven't added any lessons yet.</p>
+                        <p>This user hasn't added any lessons yet.</p>
                     {% endif %}
                 </div>
             </div>
@@ -130,24 +109,17 @@
                             <div class="uk-width-expand">
                                 <h3 class="uk-card-title uk-margin-remove-bottom">My volunteer roles</h3>
                             </div>
-                            <div class="uk-width-auto">
-                                <div class="uk-align-right">
-                                    <a href="{{ path('profile_edit', {'id': user.id}) }}">
-                                        <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.rolesWillingToFulfill|length %}
+                        {% if profileUser.rolesWillingToFulfill|length %}
                             <ul class="uk-list uk-list-divider">
-                                {% for role in user.rolesWillingToFulfill %}
+                                {% for role in profileUser.rolesWillingToFulfill %}
                                     <li>{{ role.name }}</li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <p>You haven't added any roles yet.</p>
+                            <p>This user hasn't added any roles yet.</p>
                         {% endif %}
                     </div>
                 </div>
