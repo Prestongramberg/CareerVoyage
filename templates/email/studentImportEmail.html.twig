@@ -1,0 +1,6 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : user.firstName } %}
+
+<p>Students successfully imported</p>
+<p>Attached are the student username and passwords.</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

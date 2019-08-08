@@ -792,7 +792,7 @@ class CompanyController extends AbstractController
 
             $this->addFlash('success', 'Experience successfully created!');
 
-            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
 
         return $this->render('company/new_experience.html.twig', [

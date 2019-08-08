@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Util\FileHelper;
+use App\Util\RandomStringGenerator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,6 +14,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class StudentUser extends User
 {
+
+    use RandomStringGenerator;
+
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="studentUsers")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
@@ -49,6 +54,7 @@ class StudentUser extends User
      * @ORM\Column(type="string", length=255)
      */
     private $studentId;
+
 
     public function __construct()
     {
@@ -169,9 +175,27 @@ class StudentUser extends User
         return $this;
     }
 
+    /**
+     * first name - period - last name
+     * @return string
+     */
     public function getTempUsername() {
-        return strtoupper(
-            sprintf("%s_%s_%s", $this->firstName, $this->lastName, $this->getStudentId())
-        );
+        return strtolower(sprintf("%s.%s",
+                $this->firstName,
+                $this->lastName
+        ));
+    }
+
+    /**
+     * first 3 letters of last name followed by their unique student ID
+     * followed by an explanation point
+     *
+     * @return string
+     */
+    public function getTempPassword() {
+        return strtolower(sprintf("%s%s!",
+            substr($this->lastName, 0, 3),
+            $this->getStudentId()
+        ));
     }
 }

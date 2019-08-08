@@ -9,11 +9,25 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 /**
- * Class StudentImportFileValidator
+ * Class CSVColumnNamesMatchValidator
  * @package App\Validator\Constraints
  */
-class StudentImportFileValidator extends ConstraintValidator
+class CSVColumnNamesMatchValidator extends ConstraintValidator
 {
+    /**
+     * @var string
+     */
+    private $type;
+
+    /**
+     * CSVColumnNamesMatchValidator constructor.
+     * @param string $type
+     */
+    public function __construct(string $type)
+    {
+        $this->type = $type;
+    }
+
     /**
      * @param UploadedFile $file
      * @param Constraint $constraint

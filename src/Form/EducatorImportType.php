@@ -12,7 +12,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class StudentImportType extends AbstractType
+class EducatorImportType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -21,7 +21,7 @@ class StudentImportType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('file', FileType::class, [
-            'label' => 'Student (CSV file)',
+            'label' => 'Educator (CSV file)',
             'mapped' => false,
             'required' => true,
             'constraints' => [

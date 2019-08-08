@@ -4,6 +4,7 @@
 namespace App\Util;
 
 
+use App\Mailer\ImportMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
@@ -135,6 +136,11 @@ trait ServiceHelper
     private $serializer;
 
     /**
+     * @var ImportMailer
+     */
+    private $importMailer;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -157,6 +163,7 @@ trait ServiceHelper
      * @param StudentUserRepository $studentUserRepository
      * @param EducatorUserRepository $educatorUserRepository
      * @param SerializerInterface $serializer
+     * @param ImportMailer $importMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -179,7 +186,8 @@ trait ServiceHelper
         LessonTeachableRepository $lessonTeachableRepository,
         StudentUserRepository $studentUserRepository,
         EducatorUserRepository $educatorUserRepository,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ImportMailer $importMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -202,6 +210,7 @@ trait ServiceHelper
         $this->studentUserRepository = $studentUserRepository;
         $this->educatorUserRepository = $educatorUserRepository;
         $this->serializer = $serializer;
+        $this->importMailer = $importMailer;
     }
 
     public function getFullQualifiedBaseUrl() {

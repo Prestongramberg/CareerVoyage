@@ -229,12 +229,6 @@ class SchoolController extends AbstractController
                     while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
                         if($rowNo === 1) {
                             $keys = $row;
-
-                           /* if($keys != $studentCSVExpectedColumns) {
-                                $error = new FormError("The CSV column names must match the format from the sample csv below.");
-                                $form->addError($error);
-                            }*/
-
                             $rowNo++;
                             continue;
                         }
@@ -258,23 +252,26 @@ class SchoolController extends AbstractController
                 foreach($students as $student) {
 
                     $studentId = $student['Student Id'];
-                    /*$existingStudent = $this->studentUserRepository->findOneBy([
+                    $existingStudent = $this->studentUserRepository->findOneBy([
                         'studentId' => $studentId
-                    ]);*/
+                    ]);
 
                     // if the student already exists in the system then we skip creating it
-                   /* if($existingStudent) {
+                    if($existingStudent) {
                         continue;
-                    }*/
+                    }
 
                     $studentObj = new StudentUser();
                     $studentObj->setFirstName($student['First Name']);
                     $studentObj->setLastName($student['Last Name']);
                     $studentObj->setStudentId($student['Student Id']);
                     $studentObj->setSchool($school);
-                    $studentObj->setUsername($studentObj->getTempUsername());
                     $studentObj->setupAsStudent();
                     $studentObj->initializeNewUser();
+                    $studentObj->setActivated(true);
+                    $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
+                    $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
+                    $studentObj->setPassword($encodedPassword);
                     $this->entityManager->persist($studentObj);
                     $studentObjs[] = $studentObj;
                 }
@@ -284,10 +281,15 @@ class SchoolController extends AbstractController
 
             $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
             $data = json_decode($data, true);
-            $j = file_put_contents(
-                'data.csv',
+            $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
+            file_put_contents(
+                $attachmentFilePath,
                 $this->serializer->encode($data, 'csv')
             );
+
+            foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
+                $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
+            }
 
             $this->addFlash('success', sprintf('Students successfully imported.'));
             return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
@@ -298,14 +300,6 @@ class SchoolController extends AbstractController
             'form' => $form->createView(),
             'school' => $school
         ]);
-    }
-
-    public function fakeUploadImage($imageName, $folder): string
-    {
-        $fs = new Filesystem();
-        $targetPath = sys_get_temp_dir().'/'.$imageName;
-        $fs->copy(__DIR__.'/ImportedLessonImages/'.$imageName, $targetPath, true);
-        return $this->uploaderHelper->upload(new File($targetPath), $folder);
     }
 
     /**
@@ -321,24 +315,95 @@ class SchoolController extends AbstractController
 
         $user = $this->getUser();
 
-        $form = $this->createForm(EditSchoolType::class, $school, [
+        $form = $this->createForm(StudentImportType::class, null, [
             'method' => 'POST',
         ]);
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var School $school */
-            $school = $form->getData();
-            $this->entityManager->persist($school);
-            $this->entityManager->flush();
 
+            $studentCSVExpectedColumns = ['First Name', 'Last Name', 'Student Id'];
 
-            $this->addFlash('success', sprintf('School successfully updated.'));
-            return $this->redirectToRoute('school_edit');
+            /** @var UploadedFile $uploadedFile */
+            $file = $form->get('file')->getData();
+
+            if($file) {
+                $tempPathName = $file->getRealPath();
+                $rowNo = 1;
+                $students = [];
+                if (($fp = fopen($tempPathName, "r")) !== FALSE) {
+                    $keys = [];
+                    while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
+                        if($rowNo === 1) {
+                            $keys = $row;
+                            $rowNo++;
+                            continue;
+                        }
+
+                        if(trim(implode('', $row)) == '') {
+                            continue;
+                        }
+
+                        if(count($row) !== count($keys)) {
+                            $rowNo++;
+                            continue;
+                        }
+
+                        $students[] = array_combine($keys, $row);
+                        $rowNo++;
+                    }
+                    fclose($fp);
+                }
+
+                $studentObjs = [];
+                foreach($students as $student) {
+
+                    $studentId = $student['Student Id'];
+                    $existingStudent = $this->studentUserRepository->findOneBy([
+                        'studentId' => $studentId
+                    ]);
+
+                    // if the student already exists in the system then we skip creating it
+                    if($existingStudent) {
+                        continue;
+                    }
+
+                    $studentObj = new StudentUser();
+                    $studentObj->setFirstName($student['First Name']);
+                    $studentObj->setLastName($student['Last Name']);
+                    $studentObj->setStudentId($student['Student Id']);
+                    $studentObj->setSchool($school);
+                    $studentObj->setupAsStudent();
+                    $studentObj->initializeNewUser();
+                    $studentObj->setActivated(true);
+                    $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
+                    $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
+                    $studentObj->setPassword($encodedPassword);
+                    $this->entityManager->persist($studentObj);
+                    $studentObjs[] = $studentObj;
+                }
+
+                $this->entityManager->flush();
+            }
+
+            $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
+            $data = json_decode($data, true);
+            $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
+            file_put_contents(
+                $attachmentFilePath,
+                $this->serializer->encode($data, 'csv')
+            );
+
+            foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
+                $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
+            }
+
+            $this->addFlash('success', sprintf('Students successfully imported.'));
+            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
         }
 
-        return $this->render('school/edit.html.twig', [
+        return $this->render('school/student_import.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
             'school' => $school
@@ -505,6 +570,19 @@ class SchoolController extends AbstractController
 
             ], Response::HTTP_OK
         );
+    }
+
+    /**
+     * @param $tempUsername
+     * @param int $i
+     * @return mixed
+     */
+    private function determineUsername($tempUsername, $i = 0) {
+
+        if($this->userRepository->loadUserByUsername($tempUsername)) {
+            return $this->determineUsername(sprintf("%s%s", $tempUsername, ++$i));
+        }
+        return $tempUsername;
     }
 
 }
