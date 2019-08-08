@@ -785,6 +785,16 @@ abstract class User implements UserInterface
         return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
     }
 
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     */
+    public function getPhotoImageURL() {
+        if($this->getPhoto()) {
+            return '/media/cache/squared_thumbnail_small/uploads/' . $this->getPhotoPath();
+        }
+        return '';
+    }
+
     public function getActivated()
     {
         return $this->activated;

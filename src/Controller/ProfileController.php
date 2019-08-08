@@ -108,16 +108,17 @@ class ProfileController extends AbstractController
     }
 
     /**
-     * @Route("/profiles/{id}/view", name="profile_index", methods={"GET"})
+     * @Route("/profiles/{id}/view", name="profile_index", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
-     * @param User $user
+     * @param User $profileUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction(Request $request, User $user) {
+    public function indexAction(Request $request, User $profileUser) {
 
         $user = $this->getUser();
         return $this->render('profile/index.html.twig', [
-            'user' => $user
+            'user' => $user,
+            'profileUser' => $profileUser
         ]);
     }
 

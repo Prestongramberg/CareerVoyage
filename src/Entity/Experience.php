@@ -43,17 +43,13 @@ abstract class Experience
     public function validate(ExecutionContextInterface $context, $payload)
     {
         if(!$this->payment) {
-            $context->buildViolation('You must enter a payment!')
-                ->atPath('payment')
-                ->addViolation();
-            return;
+            if(!is_float($this->payment) && !is_numeric($this->payment)) {
+                $context->buildViolation('You must enter a valid number or decimal for the payment!')
+                    ->atPath('payment')
+                    ->addViolation();
+            }
         }
 
-        if(!is_float($this->payment) && !is_numeric($this->payment)) {
-            $context->buildViolation('You must enter a valid number or decimal for the payment!')
-                ->atPath('payment')
-                ->addViolation();
-        }
     }
 
     /**

@@ -56,7 +56,8 @@ class App extends React.Component {
                                         email={professional.email}
                                         firstName={professional.firstName}
                                         key={professional.id}
-                                        image={professional.profilePhotoImageURL}
+                                        id={professional.id}
+                                        image={professional.photoImageURL}
                                         lastName={professional.lastName}
                                         linkedIn={professional.linkedinProfile}
                                         phone={professional.phone}

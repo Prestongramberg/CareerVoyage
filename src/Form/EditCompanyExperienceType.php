@@ -84,8 +84,8 @@ class EditCompanyExperienceType extends AbstractType
                 'multiple'  => false,
             ])
             ->add('zipcode', TextType::class, [])
-            ->add('startDateAndTime', DateType::class, [])
-            ->add('endDateAndTime', DateType::class, [])
+            ->add('startDateAndTime', TextType::class, [])
+            ->add('endDateAndTime', TextType::class, [])
             ->add('length', NumberType::class, []);
 
     }

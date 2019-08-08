@@ -128,7 +128,7 @@
                             <div>
                                 <div class="uk-card uk-card-default uk-card-body">
                                     <div class="uk-card-badge uk-label">{{ experience.type }}</div>
-                                    <div class="uk-text-meta">October 4, 2019</div>
+                                    <div class="uk-text-meta">{{ experience.startDateAndTime|date("F jS, Y") }}</div>
                                     <div class="uk-margin">
                                         <a href="{{ path('company_experience_edit', {'id': experience.id}) }}"><h3 class="uk-card-title">{{ experience.title }}</h3></a>
                                         <p>{{ experience.briefDescription }}</p>
