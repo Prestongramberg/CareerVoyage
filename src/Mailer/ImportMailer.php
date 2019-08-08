@@ -16,7 +16,7 @@ class ImportMailer extends AbstractMailer
     public function studentImportMailer(SchoolAdministrator $schoolAdministrator, $attachmendFilePath) {
 
         $message = (new \Swift_Message('Students Imported'))
-            ->setFrom('info@pintex.test')
+            ->setFrom($this->siteFromEmail)
             ->setTo($schoolAdministrator->getEmail())
             ->setBody(
                 $this->templating->render(
@@ -36,7 +36,7 @@ class ImportMailer extends AbstractMailer
     public function educatorImportMailer(SchoolAdministrator $schoolAdministrator, $attachmendFilePath) {
 
         $message = (new \Swift_Message('Educators Imported'))
-            ->setFrom('info@pintex.test')
+            ->setFrom($this->siteFromEmail)
             ->setTo($schoolAdministrator->getEmail())
             ->setBody(
                 $this->templating->render(

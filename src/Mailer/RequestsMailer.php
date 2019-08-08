@@ -120,7 +120,7 @@ class RequestsMailer extends AbstractMailer
     public function regionalCoordinatorRequest(RegionalCoordinatorRequest $regionalCoordinatorRequest) {
 
         $message = (new \Swift_Message("Regional Coordinator Request."))
-            ->setFrom($regionalCoordinatorRequest->getCreatedBy()->getEmail())
+            ->setFrom($this->siteFromEmail)
             ->setTo($regionalCoordinatorRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
                 $this->templating->render(
@@ -145,7 +145,7 @@ class RequestsMailer extends AbstractMailer
     public function schoolAdministratorRequest(SchoolAdministratorRequest $schoolAdministratorRequest) {
 
         $message = (new \Swift_Message("School Administrator Request."))
-            ->setFrom($schoolAdministratorRequest->getCreatedBy()->getEmail())
+            ->setFrom($this->siteFromEmail)
             ->setTo($schoolAdministratorRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
                 $this->templating->render(

@@ -19,7 +19,7 @@ class SecurityMailer extends AbstractMailer
             );
 
         $message = (new \Swift_Message('Password Reset'))
-            ->setFrom('info@pintex.test')
+            ->setFrom($this->siteFromEmail)
             ->setTo($user->getEmail())
             ->setBody(
                 $this->templating->render(
@@ -40,8 +40,8 @@ class SecurityMailer extends AbstractMailer
             );
 
         $message = (new \Swift_Message('Activate Account'))
-            ->setFrom('noreply@travishoglund.com')
-            ->setTo('cultured44@gmail.com')
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/accountActivationEmail.html.twig',
@@ -49,9 +49,7 @@ class SecurityMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-
-        $test = $this->mailer->send($message);
-        $name = "josh";
+        $this->mailer->send($message);
     }
 
 }
