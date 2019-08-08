@@ -1,9 +1,8 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : user.firstName } %}
+{% include 'email/partial/emailHeader.html.twig' %}
 
+<p>{{ user.firstName }}, welcome to Future Forward!</p>
 <p>Account activation requested.</p>
 <p>Click link below to activate your account.</p>
-
 <p><a href="{{ accountActivationUrl }}"><strong>{{ accountActivationUrl }}</strong></a></p>
-
 
 {% include 'email/partial/emailFooter.html.twig' %}
