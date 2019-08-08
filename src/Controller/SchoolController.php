@@ -258,14 +258,14 @@ class SchoolController extends AbstractController
                 foreach($students as $student) {
 
                     $studentId = $student['Student Id'];
-                    $existingStudent = $this->studentUserRepository->findOneBy([
+                    /*$existingStudent = $this->studentUserRepository->findOneBy([
                         'studentId' => $studentId
-                    ]);
+                    ]);*/
 
                     // if the student already exists in the system then we skip creating it
-                    if($existingStudent) {
+                   /* if($existingStudent) {
                         continue;
-                    }
+                    }*/
 
                     $studentObj = new StudentUser();
                     $studentObj->setFirstName($student['First Name']);

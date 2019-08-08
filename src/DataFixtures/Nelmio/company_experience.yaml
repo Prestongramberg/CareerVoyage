@@ -15,50 +15,50 @@ App\Entity\CompanyExperience:
         state: <state()>
         email: <email()>
     experience_1 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 1
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+30 days', 'America/Chicago')>
         company: '@company_1'
         employeeContact: '@professional_user_1'
         type: '@role_2'
     experience_2 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 2
         company: '@company_1'
         employeeContact: '@professional_user_1'
         type: '@role_3'
+        startDateAndTime: <dateTimeBetween('now', '+10 days', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+11 days', '+30 days', 'America/Chicago')>
     experience_3 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 5
         company: '@company_1'
         employeeContact: '@professional_user_1'
         type: '@role_5'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
     experience_4 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 2
         company: '@company_1'
         employeeContact: '@professional_user_1'
         type: '@role_6'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
     experience_5 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 1
         company: '@company_2'
         employeeContact: '@professional_user_2'
         type: '@role_8'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
     experience_6 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 2
         company: '@company_2'
         employeeContact: '@professional_user_2'
         type: '@role_3'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
     experience_7 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 5
         company: '@company_2'
         employeeContact: '@professional_user_2'
         type: '@role_2'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
     experience_8 (extends experience):
-        startDateAndTime: <dateTimeBetween('now', '+1 years')>
-        length: 2
         company: '@company_2'
         employeeContact: '@professional_user_2'
         type: '@role_3'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
