@@ -18,8 +18,8 @@
     {{ experience.availableSpaces }}
     {{ experience.payment }}
     {{ experience.paymentShownIsPer }}
-    {{ experience.startDateAndTime|date("m/d/Y") }}
-    {{ experience.endDateAndTime|date("m/d/Y") }}
+    {{ experience.startDateAndTime|date("m/d/Y m:i:s") }}
+    {{ experience.endDateAndTime|date("m/d/Y m:i:s") }}
     {% for career in experience.careers %}
         {{ career.title }}
     {% endfor %}
