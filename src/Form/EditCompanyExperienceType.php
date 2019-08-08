@@ -51,6 +51,9 @@ class EditCompanyExperienceType extends AbstractType
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                }
             ])
             ->add('availableSpaces', NumberType::class, [])
             ->add('payment', TextType::class, [])
@@ -81,24 +84,8 @@ class EditCompanyExperienceType extends AbstractType
                 'multiple'  => false,
             ])
             ->add('zipcode', TextType::class, [])
-            ->add('startDateAndTime', DateType::class, [
-                'widget' => 'single_text',
-
-                // prevents rendering it as type="date", to avoid HTML5 date pickers
-                'html5' => false,
-
-                // adds a class that can be selected in JavaScript
-                'attr' => ['class' => 'js-datepicker'],
-            ])
-            ->add('endDateAndTime', DateType::class, [
-                'widget' => 'single_text',
-
-                // prevents rendering it as type="date", to avoid HTML5 date pickers
-                'html5' => false,
-
-                // adds a class that can be selected in JavaScript
-                'attr' => ['class' => 'js-datepicker'],
-            ])
+            ->add('startDateAndTime', DateType::class, [])
+            ->add('endDateAndTime', DateType::class, [])
             ->add('length', NumberType::class, []);
 
     }

@@ -107,7 +107,7 @@ abstract class Experience
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
      */
-    protected $payment;
+    protected $payment = 0;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})

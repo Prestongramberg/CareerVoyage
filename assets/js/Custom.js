@@ -273,6 +273,7 @@ jQuery(document).ready(function($) {
 
         const url = $(this).attr('data-action');
         const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
         const $nameField = $modalBody.find('[name="name"]');
         const name = $nameField.val();
         const $videoField = $modalBody.find('[name="videoId"]');
@@ -298,10 +299,8 @@ jQuery(document).ready(function($) {
                             const response = serverResponse.responseJSON;
 
                             if( response.success ) {
-                                debugger;
                                 let _template = $('#companyVideosTemplate').html();
-                                $nameField.val('');
-                                $videoField.val('');
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
                                 $('#companyVideos').append(
                                     _template.replace(/RESOURCE_ID/g, response.id).replace(/VIDEO_ID/g, response.videoId).replace(/VIDEO_NAME/g, response.name)
                                 );
@@ -403,6 +402,22 @@ jQuery(document).ready(function($) {
             }
         });
 
+    });
+
+    /**
+     * Time Pickers
+     */
+    $('.uk-timepicker').daterangepicker({
+        singleDatePicker: true,
+        timePicker: true,
+        timePickerIncrement: 15,
+        linkedCalendars: false,
+        showCustomRangeLabel: false,
+        locale: {
+            format: 'MM/DD/YYYY h:mm A'
+        }
+    }, function(start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
     });
 
 });
