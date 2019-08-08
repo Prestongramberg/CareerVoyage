@@ -19,6 +19,16 @@
             </div>
         </div>
 
+        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+            <div class="uk-width-expand">
+                <div class="uk-align-right@l">
+                    {% if 1 == 1 %}
+                        <a href="{{ path('company_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <ul class="uk-tab" uk-switcher="connect: #tab-experience" uk-tab>
             <li class="uk-active"><a href="#experience-details">Experience</a></li>
             {% if experience.payment > 0 %}
