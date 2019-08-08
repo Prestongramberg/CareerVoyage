@@ -32,4 +32,24 @@ class ImportMailer extends AbstractMailer
 
         $this->mailer->send($message);
     }
+
+    public function educatorImportMailer(SchoolAdministrator $schoolAdministrator, $attachmendFilePath) {
+
+        $message = (new \Swift_Message('Educators Imported'))
+            ->setFrom('info@pintex.test')
+            ->setTo($schoolAdministrator->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/educatorImportEmail.html.twig',
+                    ['user' => $schoolAdministrator]
+                ),
+                'text/html'
+            );
+
+        $message->attach(
+            Swift_Attachment::fromPath($attachmendFilePath)->setFilename('educators.csv')
+        );
+
+        $this->mailer->send($message);
+    }
 }

@@ -1,0 +1,6 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : user.firstName } %}
+
+<p>Educators successfully imported</p>
+<p>Attached are the usernames for each educator. Their password is the "first 3 letters" of their last name, followed by their "Educator Id", followed by an "!".</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

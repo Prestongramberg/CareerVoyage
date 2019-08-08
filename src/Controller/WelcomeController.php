@@ -10,6 +10,7 @@ use App\Form\EducatorRegistrationFormType;
 use App\Form\ProfessionalRegistrationFormType;
 use App\Form\StudentRegistrationFormType;
 use App\Security\LoginFormAuthenticator;
+use App\Util\ServiceHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  */
 class WelcomeController extends AbstractController
 {
+    use ServiceHelper;
+
     /**
      * @Route("/", name="welcome")
      * @param Request $request
@@ -98,6 +101,7 @@ class WelcomeController extends AbstractController
 
             if ($form->isSubmitted() && $form->isValid()) {
 
+                /** @var User $user */
                 $user = $form->getData();
 
                 switch ($formType) {
@@ -128,6 +132,10 @@ class WelcomeController extends AbstractController
                     $entityManager = $this->getDoctrine()->getManager();
                     $entityManager->persist($user);
                     $entityManager->flush();
+
+                    // send activation email
+                    $user->initializeNewUser();
+                    $this->securityMailer->sendAccountActivation($user);
 
                     // do anything else you need here, like send an email
                     return $guardHandler->authenticateUserAndHandleSuccess(
