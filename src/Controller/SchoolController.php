@@ -19,6 +19,7 @@ use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EditSchoolType;
+use App\Form\EducatorImportType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\NewSchoolType;
@@ -315,7 +316,7 @@ class SchoolController extends AbstractController
 
         $user = $this->getUser();
 
-        $form = $this->createForm(StudentImportType::class, null, [
+        $form = $this->createForm(EducatorImportType::class, null, [
             'method' => 'POST',
         ]);
 
