@@ -364,4 +364,45 @@ jQuery(document).ready(function($) {
 
     });
 
+    $(document).on('click', '#modal-add-lesson-resource [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $titleField = $modalBody.find('[name="title"]');
+        const $descriptionField = $modalBody.find('[name="description"]');
+        const $fileField = $modalBody.find('[name="resource"]');
+
+        var formData = new FormData();
+        formData.append('title', $titleField.val() );
+        formData.append('description', $descriptionField.val() );
+        formData.append('resource', $fileField[0].files[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            complete: function (serverResponse) {
+
+                const response = serverResponse.responseJSON;
+
+                if (response.success) {
+                    let _template = $('#lessonResourcesTemplate').html();
+                    $fields.val('');
+                    $('#lessonResources').append(
+                        _template.replace(/RESOURCE_ID/g, response.id).replace(/RESOURCE_TITLE/g, response.title).replace(/RESOURCE_DESCRIPTION/g, response.description).replace(/RESOURCE_URL/g, response.url)
+                    );
+                    UIkit.modal('#modal-add-lesson-resource').hide();
+                    window.Pintex.notification("Resource uploaded.", "success");
+                } else {
+                    window.Pintex.notification("Unable to upload resource. Please try again.", "danger");
+                }
+            }
+        });
+
+    });
+
 });

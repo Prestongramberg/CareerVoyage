@@ -10,6 +10,8 @@ use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\JoinCompanyRequestRepository;
+use App\Repository\LessonFavoriteRepository;
+use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
@@ -105,6 +107,16 @@ trait ServiceHelper
     private $router;
 
     /**
+     * @var LessonFavoriteRepository
+     */
+    private $lessonFavoriteRepository;
+
+    /**
+     * @var LessonTeachableRepository
+     */
+    private $lessonTeachableRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -122,8 +134,10 @@ trait ServiceHelper
      * @param UserRepository $userRepository
      * @param CacheManager $cacheManager
      * @param RouterInterface $router
+     * @param LessonFavoriteRepository $lessonFavoriteRepository
+     * @param LessonTeachableRepository $lessonTeachableRepository
      */
-    public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader, UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator, UploaderHelper $uploaderHelper, Packages $assetsManager, CompanyRepository $companyRepository, CompanyPhotoRepository $companyPhotoRepository, AdminUserRepository $adminUserRepository, RequestsMailer $requestsMailer, SecurityMailer $securityMailer, ProfessionalUserRepository $professionalUserRepository, JoinCompanyRequestRepository $joinCompanyRequestRepository, UserRepository $userRepository, CacheManager $cacheManager, RouterInterface $router)
+    public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader, UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator, UploaderHelper $uploaderHelper, Packages $assetsManager, CompanyRepository $companyRepository, CompanyPhotoRepository $companyPhotoRepository, AdminUserRepository $adminUserRepository, RequestsMailer $requestsMailer, SecurityMailer $securityMailer, ProfessionalUserRepository $professionalUserRepository, JoinCompanyRequestRepository $joinCompanyRequestRepository, UserRepository $userRepository, CacheManager $cacheManager, RouterInterface $router, LessonFavoriteRepository $lessonFavoriteRepository, LessonTeachableRepository $lessonTeachableRepository)
     {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -141,8 +155,9 @@ trait ServiceHelper
         $this->userRepository = $userRepository;
         $this->cacheManager = $cacheManager;
         $this->router = $router;
+        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
+        $this->lessonTeachableRepository = $lessonTeachableRepository;
     }
-
 
     public function getFullQualifiedBaseUrl() {
         $routerContext = $this->router->getContext();

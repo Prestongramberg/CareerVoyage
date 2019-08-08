@@ -171,51 +171,73 @@ After describing learning outcomes, feel free to share additional resources whic
             </div>
             <div class="page-lesson-edit__resources">
                 <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            <p>Resources are optional, but help provide more details about the lesson.  These can include PDFs, Powerpoints, etc.</p>
-                        </div>
-                        <h4>Add New Resource</h4>
-                 {#       <div class="uk-margin">
-                            <div class="uk-width-1-1">
-                                {{ form_label(form.resources.file, 'Resource File*') }}<br />
-                                <div uk-form-custom="target: true">
-                                    {{ form_widget(form.resources.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.resources.file) ? ' uk-form-danger' : '' ) }}) }}
-                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select Resource" disabled>
+                    <p>Resources are meant to provide help to understand more about the lesson</p>
+                </div>
+                <div class="uk-margin">
+                    <div class="uk-text-center uk-placeholder">
+                        <a class="uk-button uk-button-default uk-button-small" href="#modal-add-lesson-resource" uk-toggle>Add a Resource</a>
+                        <div id="modal-add-lesson-resource" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Add a Resource</h3>
+
+                                <div class="uk-margin">
+                                    <label for="edit_lesson_add_resource_title" class="required">Name*</label>
+                                    <input type="text" id="edit_lesson_add_resource_title" name="title" required="required" class="uk-input" />
                                 </div>
-                                {{ form_errors(form.resources.file) }}
+
+                                <div class="uk-margin">
+                                    <label for="edit_lesson_add_resource_description" class="required">Description*</label>
+                                    <input type="text" id="edit_lesson_add_resource_title" name="description" required="required" class="uk-textarea" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label>Resource File*</label><br />
+                                    <div uk-form-custom="target: true">
+                                        <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                    </div>
+                                </div>
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('lesson_resource_add', {'id' : lesson.id}) }}" />
+                                </p>
                             </div>
                         </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.resources.title, 'Resource Title*') }}
-                            {{ form_widget(form.resources.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.resources.title) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.resources.title) }}
+                    </div>
+                    <div id="lessonResourcesTemplate" style="display: none;">
+                        <div class="uk-grid uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <dt>RESOURCE_TITLE</dt>
+                                <dd>RESOURCE_DESCRIPTION</dd>
+                            </div>
+                            <div class="uk-width-auto">
+                                <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                            </div>
+                            <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
                         </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.resources.description, 'Resource Description*') }}
-                            {{ form_widget(form.resources.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.resources.description) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.resources.description) }}
-                        </div>
-#}
-                        {% if lesson.lessonResources|length > 0 %}
-                        <h4>Existing Resources</h4>
-                        <div class="uk-margin">
-                            <dl class="uk-description-list uk-description-list-divider">
-                                {% for lessonResource in lesson.lessonResources %}
-                                    <div class="uk-grid uk-flex-middle" uk-grid>
-                                        <div class="uk-width-expand">
-                                            <dt>{{ lessonResource.title }}</dt>
-                                            <dd>{{ lessonResource.description }}</dd>
-                                        </div>
-                                        <div class="uk-width-auto">
-                                            <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
-                                        </div>
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    {% if lesson.lessonResources|length %}
+                        <h4>Current Resources</h4>
+                    {% endif %}
+                    <div id="lessonResources">
+                        {% if lesson.lessonResources|length %}
+                            {% for lessonResource in lesson.lessonResources %}
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ lessonResource.title }}</dt>
+                                        <dd>{{ lessonResource.description }}</dd>
                                     </div>
-                                {% endfor %}
-                            </dl>
-                        </div>
+                                    <div class="uk-width-auto">
+                                        <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    </div>
+                                    <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : lessonResource.id }) }}" uk-close></button>
+                                </div>
+                            {% endfor %}
                         {% endif %}
-                    </fieldset>
+                    </div>
                 </div>
             </div>
         </div>
