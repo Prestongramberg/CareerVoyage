@@ -15,27 +15,11 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 class CSVColumnNamesMatchValidator extends ConstraintValidator
 {
     /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * CSVColumnNamesMatchValidator constructor.
-     * @param string $type
-     */
-    public function __construct(string $type)
-    {
-        $this->type = $type;
-    }
-
-    /**
      * @param UploadedFile $file
      * @param Constraint $constraint
      */
     public function validate($file, Constraint $constraint)
     {
-        $studentCSVExpectedColumns = ['First Name', 'Last Name', 'Student Id'];
-
         if($file) {
             $columns = [];
             $tempPathName = $file->getRealPath();
@@ -48,7 +32,7 @@ class CSVColumnNamesMatchValidator extends ConstraintValidator
                 fclose($fp);
             }
 
-            if($studentCSVExpectedColumns != $columns) {
+            if($constraint->types != $columns) {
                 $this->context->buildViolation($constraint->message)
                     ->addViolation();
             }
