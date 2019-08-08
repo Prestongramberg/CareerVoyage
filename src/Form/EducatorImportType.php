@@ -26,7 +26,7 @@ class EducatorImportType extends AbstractType
             'required' => true,
             'constraints' => [
                 new NotBlank(),
-                new CSVColumnNamesMatch()
+                new CSVColumnNamesMatch(['First Name', 'Last Name', 'Educator Id'], [])
             ],
         ]);
     }

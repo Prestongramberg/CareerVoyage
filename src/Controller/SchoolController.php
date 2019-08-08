@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -216,8 +217,6 @@ class SchoolController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
 
-            $studentCSVExpectedColumns = ['First Name', 'Last Name', 'Student Id'];
-
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
 
@@ -278,6 +277,11 @@ class SchoolController extends AbstractController
                 }
 
                 $this->entityManager->flush();
+            }
+
+            if(empty($studentObjs)) {
+                $this->addFlash('error', sprintf('None of the user data in your csv has changed! No students have been modified.'));
+                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
 
             $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
@@ -324,15 +328,13 @@ class SchoolController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
 
-            $studentCSVExpectedColumns = ['First Name', 'Last Name', 'Student Id'];
-
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
 
             if($file) {
                 $tempPathName = $file->getRealPath();
                 $rowNo = 1;
-                $students = [];
+                $educators = [];
                 if (($fp = fopen($tempPathName, "r")) !== FALSE) {
                     $keys = [];
                     while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
@@ -351,60 +353,65 @@ class SchoolController extends AbstractController
                             continue;
                         }
 
-                        $students[] = array_combine($keys, $row);
+                        $educators[] = array_combine($keys, $row);
                         $rowNo++;
                     }
                     fclose($fp);
                 }
 
-                $studentObjs = [];
-                foreach($students as $student) {
+                $educatorObjs = [];
+                foreach($educators as $educator) {
 
-                    $studentId = $student['Student Id'];
-                    $existingStudent = $this->studentUserRepository->findOneBy([
-                        'studentId' => $studentId
+                    $educatorId = $educator['Educator Id'];
+                    $existingEducator = $this->educatorUserRepository->findOneBy([
+                        'educatorId' => $educatorId
                     ]);
 
-                    // if the student already exists in the system then we skip creating it
-                    if($existingStudent) {
+                    // if the educator already exists in the system then we skip creating it
+                    if($existingEducator) {
                         continue;
                     }
 
-                    $studentObj = new StudentUser();
-                    $studentObj->setFirstName($student['First Name']);
-                    $studentObj->setLastName($student['Last Name']);
-                    $studentObj->setStudentId($student['Student Id']);
-                    $studentObj->setSchool($school);
-                    $studentObj->setupAsStudent();
-                    $studentObj->initializeNewUser();
-                    $studentObj->setActivated(true);
-                    $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
-                    $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
-                    $studentObj->setPassword($encodedPassword);
-                    $this->entityManager->persist($studentObj);
-                    $studentObjs[] = $studentObj;
+                    $educatorObj = new EducatorUser();
+                    $educatorObj->setFirstName($educator['First Name']);
+                    $educatorObj->setLastName($educator['Last Name']);
+                    $educatorObj->setEducatorId($educator['Educator Id']);
+                    $educatorObj->setSchool($school);
+                    $educatorObj->setupAsEducator();
+                    $educatorObj->initializeNewUser();
+                    $educatorObj->setActivated(true);
+                    $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
+                    $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $educatorObj->getTempPassword());
+                    $educatorObj->setPassword($encodedPassword);
+                    $this->entityManager->persist($educatorObj);
+                    $educatorObjs[] = $educatorObj;
                 }
 
                 $this->entityManager->flush();
             }
 
-            $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
+            if(empty($educatorObjs)) {
+                $this->addFlash('error', sprintf('None of the user data in your csv has changed! No educators have been modified.'));
+                return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+            }
+
+            $data = $this->serializer->serialize($educatorObjs, 'json', ['groups' => ['EDUCATOR_USER']]);
             $data = json_decode($data, true);
-            $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
+            $attachmentFilePath = sys_get_temp_dir() . '/educators.csv';
             file_put_contents(
                 $attachmentFilePath,
                 $this->serializer->encode($data, 'csv')
             );
 
             foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
-                $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
+                $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
             }
 
-            $this->addFlash('success', sprintf('Students successfully imported.'));
-            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+            $this->addFlash('success', sprintf('Educators successfully imported.'));
+            return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
         }
 
-        return $this->render('school/student_import.html.twig', [
+        return $this->render('school/educator_import.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
             'school' => $school

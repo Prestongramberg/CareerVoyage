@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EducatorUserRepository")
@@ -53,6 +54,7 @@ class EducatorUser extends User
     private $schoolExperiences;
 
     /**
+     * @Groups({"EDUCATOR_USER"})
      * @ORM\Column(type="integer")
      */
     private $educatorId;
@@ -193,15 +195,39 @@ class EducatorUser extends User
         return $this;
     }
 
-    public function getEducatorId(): ?int
+    public function getEducatorId()
     {
         return $this->educatorId;
     }
 
-    public function setEducatorId(int $educatorId): self
+    public function setEducatorId($educatorId): self
     {
         $this->educatorId = $educatorId;
 
         return $this;
+    }
+
+    /**
+     * first name - period - last name
+     * @return string
+     */
+    public function getTempUsername() {
+        return strtolower(sprintf("%s.%s",
+            $this->firstName,
+            $this->lastName
+        ));
+    }
+
+    /**
+     * first 3 letters of last name followed by their unique educator ID
+     * followed by an explanation point
+     *
+     * @return string
+     */
+    public function getTempPassword() {
+        return strtolower(sprintf("%s%s!",
+            substr($this->lastName, 0, 3),
+            $this->getEducatorId()
+        ));
     }
 }
