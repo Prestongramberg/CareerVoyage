@@ -10,41 +10,105 @@
 
 {% block body %}
 
+    <div class="uk-container">
 
-    {{ experience.title }}
-    {{ experience.briefDescription }}
-    {{ experience.about }}
-    {{ experience.type.name }}
-    {{ experience.availableSpaces }}
-    {{ experience.payment }}
-    {{ experience.paymentShownIsPer }}
-    {{ experience.startDateAndTime|date("m/d/Y m:i:s") }}
-    {{ experience.endDateAndTime|date("m/d/Y m:i:s") }}
-    {% for career in experience.careers %}
-        {{ career.title }}
-    {% endfor %}
+        <div class="uk-section uk-section-muted">
+            <div class="uk-padding">
+                <h3>{{ experience.title }}</h3>
+                {{ experience.about|raw }}
+            </div>
+        </div>
 
-    {{ experience.employeeContact.fullName }}
-    {{ experience.email }}
-    {{ experience.street }}
-    {{ experience.city }}
-    {{ experience.state.name }}
-    {{ experience.zipcode }}
-
-    {% if experience.experienceFiles|length > 0 %}
-        <h4>Current Resources</h4>
-        {% for experienceFile in experience.experienceFiles %}
-            <p>
-                {{ experienceFile.title }}
-            </p>
-            <p>
-                {{ experienceFile.description }}
-            </p>
-            <p>
-                <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" target="_blank">View</a>
-            </p>
-
-        {% endfor %}
-    {% endif %}
+        <ul class="uk-tab" uk-switcher="connect: #tab-experience" uk-tab>
+            <li class="uk-active"><a href="#experience-details">Experience</a></li>
+            {% if experience.payment > 0 %}
+                <li><a href="#experience-payment">Payment Info</a></li>
+            {% endif %}
+            {% if experience.experienceFiles|length %}
+                <li><a href="#experience-attachments">Event Documents</a></li>
+            {% endif %}
+            <li><a href="#experience-contact">Contact</a></li>
+        </ul>
+        <div class="uk-switcher" id="tab-experience">
+            <div class="experience_details">
+                <table class="uk-table uk-table-justify uk-table-divider">
+                    <tbody>
+                    <tr>
+                        <td>Title</td>
+                        <td>{{ experience.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ experience.briefDescription }}</td>
+                    </tr>
+                    <tr>
+                        <td>Available Spaces</td>
+                        <td>{{ experience.availableSpaces }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% if experience.payment > 0 %}
+                <div class="experience_payment">
+                    <table class="uk-table uk-table-justify uk-table-divider">
+                        <tbody>
+                        <tr>
+                            <td>Payment Amount</td>
+                            <td>{{ experience.payment }}</td>
+                        </tr>
+                        <tr>
+                            <td>Payment is Per</td>
+                            <td>{{ experience.paymentShownIsPer }}</td>
+                        </tr>
+                        <tr>
+                            <td>Available Spaces</td>
+                            <td>{{ experience.availableSpaces }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            {% if experience.experienceFiles|length %}
+                <div class="experience_attachments">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for experienceResource in experience.experienceFiles %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ experienceResource.title }}</dt>
+                                    <dd>{{ experienceResource.description }}</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ asset(uploaded_asset(experienceResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
+            <div class="experience_contact">
+                <table class="uk-table uk-table-justify uk-table-divider">
+                    <tbody>
+                    <tr>
+                        <td>Event Coordinator</td>
+                        <td>{{ experience.employeeContact.fullName }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td><a href="mailto:{{ experience.email }}">{{ experience.email }}</a></td>
+                    </tr>
+                    <tr>
+                        <td>Address</td>
+                        <td>
+                            <p>
+                                {{ experience.street }}<br />
+                                {{ experience.city }} {{ experience.state.name }}, {{ experience.zipcode }}
+                            </p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

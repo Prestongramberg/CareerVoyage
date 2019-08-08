@@ -9,25 +9,48 @@ class App extends React.Component {
 
     constructor() {
         super();
-        // const methods = ["renderCompanyDropdown", "renderIndustryDropdown", "renderRolesDropdown", "renderSecondaryIndustryDropdown", "getRelevantProfessionals"];
-        // methods.forEach(method => (this[method] = this[method].bind(this)));
+        const methods = ["renderCalendar", "getRelevantEvents"];
+        methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     render() {
+        return this.props.calendar.loading ? (
+            <div className="uk-width-1-1 uk-align-center">
+                <div data-uk-spinner></div>
+            </div>
+        ) : this.renderCalendar();
+    }
+
+    renderCalendar() {
+
+        const events = this.getRelevantEvents();
+        const calendarEvents = events.map(event => {
+            return {
+                title: event.title,
+                start: event.startDateAndTime,
+                end: event.endDateAndTime,
+                url: window.Routing.generate('company_experience_view', {'id': event.id})
+            }
+        });
 
         return (
-            <div className="uk-container">
+            <div className="pintex-calendar">
                 <FullCalendar
                     defaultView="dayGridMonth"
-                    plugins={dayGridPlugin}
-                    weekends={false}
-                    events={[
-                        { title: 'event 1', date: '2019-04-01' },
-                        { title: 'event 2', date: '2019-04-02' }
-                    ]}
-                />
+                    timeZone={'America/Chicago'}
+                    events={calendarEvents}
+                    header={{
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'dayGridDay,dayGridWeek,dayGridMonth'
+                    }}
+                    plugins={[dayGridPlugin]}/>
             </div>
         );
+    }
+
+    getRelevantEvents() {
+        return this.props.events;
     }
 
 
