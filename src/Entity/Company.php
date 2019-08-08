@@ -806,4 +806,11 @@ class Company
         return $this;
     }
 
+    public function isUserOwner(User $user) {
+        if($user->getId() === $this->getOwner()->getId()) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -44,7 +44,7 @@ abstract class User implements UserInterface
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -841,5 +841,26 @@ abstract class User implements UserInterface
         $this->activationCode = $activationCode;
 
         return $this;
+    }
+
+    public function canEditEvent(Experience $experience) {
+
+        if($this->isAdmin()) {
+            return true;
+        }
+
+        if($experience instanceof CompanyExperience) {
+            if($experience->getCompany()->isUserOwner($this)) {
+                return true;
+            }
+        }
+
+        if($experience instanceof SchoolExperience) {
+            if($experience->getSchool()->isUserSchoolAdministrator($this)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

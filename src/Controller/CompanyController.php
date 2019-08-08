@@ -418,8 +418,6 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($companyResource);
             $this->entityManager->flush();
 
-            $h = $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename;
-
             return new JsonResponse(
                 [
                     'success' => true,
@@ -792,7 +790,7 @@ class CompanyController extends AbstractController
 
             $this->addFlash('success', 'Experience successfully created!');
 
-            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
 
         return $this->render('company/new_experience.html.twig', [
@@ -894,7 +892,7 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
                     'id' => $file->getId(),
                     'title' => $title,
                     'description' => $description
