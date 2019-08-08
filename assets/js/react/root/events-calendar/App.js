@@ -2,6 +2,8 @@ import React from "react"
 import { connect } from "react-redux"
 import { loadEvents } from './actions/actionCreators'
 import PropTypes from "prop-types";
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
 
 class App extends React.Component {
 
@@ -15,7 +17,15 @@ class App extends React.Component {
 
         return (
             <div className="uk-container">
-                Calendar will go here
+                <FullCalendar
+                    defaultView="dayGridMonth"
+                    plugins={dayGridPlugin}
+                    weekends={false}
+                    events={[
+                        { title: 'event 1', date: '2019-04-01' },
+                        { title: 'event 2', date: '2019-04-02' }
+                    ]}
+                />
             </div>
         );
     }
