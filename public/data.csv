@@ -1,2 +1,4 @@
-foo,bar.0.id,bar.0.1,bar.1.lorem
-aaa,111,bbb,ipsum
+studentId,id,username,firstName,lastName
+user194443,47,RYAN_HANSEN_USER194443,Ryan,Hansen
+user198900,48,JOHN_POLLOCK_USER198900,John,Pollock
+user190345,49,TREVOR_SIST_USER190345,Trevor,Sist

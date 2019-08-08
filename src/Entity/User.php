@@ -44,7 +44,7 @@ abstract class User implements UserInterface
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -63,7 +63,7 @@ abstract class User implements UserInterface
     protected $email;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER"})
      * @Assert\NotBlank(message="Don't forget a username for your user!")
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
@@ -93,7 +93,7 @@ abstract class User implements UserInterface
     protected $invitationCode;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      *
      * @ORM\Column(type="string", length=24, nullable=true)
@@ -101,7 +101,7 @@ abstract class User implements UserInterface
     protected $firstName;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER"})
      *
      * @ORM\Column(type="string", length=24, nullable=true)
