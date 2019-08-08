@@ -25,6 +25,18 @@ window.Pintex = {
             status: status,
             timeout: 2500
         });
+    },
+    modal: {
+        dynamic_open: function(html) {
+            const $modal = $('#global-modal');
+            $modal.find('.uk-modal-body').html( html );
+            UIkit.modal( $modal ).show();
+        },
+        close: function() {
+            const $modal = $('#global-modal');
+            UIkit.modal( $modal ).hide();
+        },
+        target: "#global-modal"
     }
 };
 

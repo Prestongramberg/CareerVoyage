@@ -39,7 +39,11 @@
         <div class="main-content">
             {% block body %}{% endblock %}
         </div>
-    </div>
+        <div id="global-modal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <!-- dynamically populated by JS -->
+            </div>
+        </div>
 
     {% block javascripts %}
 
