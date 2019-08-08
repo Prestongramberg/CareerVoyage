@@ -39,7 +39,7 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
-                    {% if user.company is not defined and user.company.id != company.id %}
+                    {% if user.company is not defined or user.company.id != company.id %}
                         <form class="uk-inline" method="post" action="{{ path('company_join', {'id': company.id}) }}">
                             <button type="submit" class="uk-button uk-button-default uk-button-small">Join this Company</button>
                         </form>
