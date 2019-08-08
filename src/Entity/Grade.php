@@ -31,9 +31,15 @@ class Grade
      */
     private $lessons;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentUser", mappedBy="grade")
+     */
+    private $studentUsers;
+
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
+        $this->studentUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,6 +82,37 @@ class Grade
         if ($this->lessons->contains($lesson)) {
             $this->lessons->removeElement($lesson);
             $lesson->removeGrade($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentUser[]
+     */
+    public function getStudentUsers(): Collection
+    {
+        return $this->studentUsers;
+    }
+
+    public function addStudentUser(StudentUser $studentUser): self
+    {
+        if (!$this->studentUsers->contains($studentUser)) {
+            $this->studentUsers[] = $studentUser;
+            $studentUser->setGrade($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentUser(StudentUser $studentUser): self
+    {
+        if ($this->studentUsers->contains($studentUser)) {
+            $this->studentUsers->removeElement($studentUser);
+            // set the owning side to null (unless already changed)
+            if ($studentUser->getGrade() === $this) {
+                $studentUser->setGrade(null);
+            }
         }
 
         return $this;

@@ -13,7 +13,7 @@ class EducatorUser extends User
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="educatorUsers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $school;
 

@@ -14,6 +14,7 @@
     {{ form_row(form.email) }}
     {{ form_row(form.overviewAndBackground) }}
 
+    <h2>School Videos (Follow api video routes in SchoolController)</h2>
     {% if school.schoolVideos|length > 0 %}
         <div class="uk-margin">
             <h4>Current Videos</h4>
@@ -29,6 +30,7 @@
         </div>
     {% endif %}
 
+    <h2>School Photos (Follow api photos routes in SchoolController)</h2>
     {% if school.schoolPhotos|length > 0 %}
         <h4>School Photos</h4>
         {% for schoolPhoto in school.schoolPhotos %}

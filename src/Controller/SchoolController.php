@@ -15,6 +15,7 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
 use App\Entity\SchoolPhoto;
 use App\Entity\SchoolVideo;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EditSchoolType;
@@ -22,6 +23,7 @@ use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\NewSchoolType;
 use App\Form\ProfessionalEditProfileFormType;
+use App\Form\StudentImportType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\CompanyPhotoRepository;
@@ -279,6 +281,127 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function editAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        $form = $this->createForm(EditSchoolType::class, $school, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var School $school */
+            $school = $form->getData();
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+
+
+            $this->addFlash('success', sprintf('School successfully updated.'));
+            return $this->redirectToRoute('school_edit');
+        }
+
+        return $this->render('school/edit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'school' => $school
+        ]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
+     * @Route("/schools/{id}/students/import", name="school_student_import")
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function studentImportAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        $form = $this->createForm(StudentImportType::class, null, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+
+            /** @var UploadedFile $uploadedFile */
+            $file = $form->get('file')->getData();
+
+            if($file) {
+                $tempPathName = $file->getRealPath();
+                $rowNo = 1;
+                $students = [];
+                if (($fp = fopen($tempPathName, "r")) !== FALSE) {
+                    $keys = [];
+                    while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
+                        if($rowNo === 1) {
+                            $keys = $row;
+                            $rowNo++;
+                            continue;
+                        }
+
+                        if(trim(implode('', $row)) == '') {
+                            continue;
+                        }
+
+                        if(count($row) !== count($keys)) {
+                            $rowNo++;
+                            continue;
+                        }
+
+                        $students[] = array_combine($keys, $row);
+                        $rowNo++;
+                    }
+                    fclose($fp);
+                }
+
+                foreach($students as $student) {
+                    $studentObj = new StudentUser();
+                    $studentObj->setFirstName($student['First Name']);
+                    $studentObj->setLastName($student['Last Name']);
+                    /*$studentObj->setFirstName($student['First Name']);*/
+
+                    $this->entityManager->persist($studentObj);
+                }
+
+                $this->entityManager->flush();
+
+                return new JsonResponse(
+                    [
+                        'success' => true,
+                    ], Response::HTTP_OK
+                );
+            }
+
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', sprintf('Students successfully imported.'));
+            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+        }
+
+        return $this->render('school/student_import.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'school' => $school
+        ]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
+     * @Route("/schools/{id}/educators/import", name="school_educator_import")
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function educatorImportAction(Request $request, School $school) {
 
         $this->denyAccessUnlessGranted('edit', $school);
 

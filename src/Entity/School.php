@@ -91,6 +91,11 @@ class School
      */
     private $schoolPhotos;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentUser", mappedBy="school")
+     */
+    private $studentUsers;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -101,6 +106,7 @@ class School
         $this->schoolVideos = new ArrayCollection();
         $this->schoolExperiences = new ArrayCollection();
         $this->schoolPhotos = new ArrayCollection();
+        $this->studentUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -406,6 +412,37 @@ class School
             // set the owning side to null (unless already changed)
             if ($schoolPhoto->getSchool() === $this) {
                 $schoolPhoto->setSchool(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentUser[]
+     */
+    public function getStudentUsers(): Collection
+    {
+        return $this->studentUsers;
+    }
+
+    public function addStudentUser(StudentUser $studentUser): self
+    {
+        if (!$this->studentUsers->contains($studentUser)) {
+            $this->studentUsers[] = $studentUser;
+            $studentUser->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentUser(StudentUser $studentUser): self
+    {
+        if ($this->studentUsers->contains($studentUser)) {
+            $this->studentUsers->removeElement($studentUser);
+            // set the owning side to null (unless already changed)
+            if ($studentUser->getSchool() === $this) {
+                $studentUser->setSchool(null);
             }
         }
 

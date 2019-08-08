@@ -3,7 +3,6 @@ App\Entity\CompanyExperience:
         title: <catchPhrase()>
         briefDescription: <paragraph(2)>
         about: <paragraph(5)>
-        type: <randomExperienceType()>
         careers: [<career()>, <career()>]
         availableSpaces: <numberBetween(2, 100)>
         payment: <randomFloat(2, 10, 100)>
@@ -20,38 +19,46 @@ App\Entity\CompanyExperience:
         length: 1
         company: '@company_1'
         employeeContact: '@professional_user_1'
+        type: '@role_2'
     experience_2 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 2
-      company: '@company_1'
-      employeeContact: '@professional_user_1'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 2
+        company: '@company_1'
+        employeeContact: '@professional_user_1'
+        type: '@role_3'
     experience_3 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 5
-      company: '@company_1'
-      employeeContact: '@professional_user_1'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 5
+        company: '@company_1'
+        employeeContact: '@professional_user_1'
+        type: '@role_5'
     experience_4 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 2
-      company: '@company_1'
-      employeeContact: '@professional_user_1'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 2
+        company: '@company_1'
+        employeeContact: '@professional_user_1'
+        type: '@role_6'
     experience_5 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 1
-      company: '@company_2'
-      employeeContact: '@professional_user_2'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 1
+        company: '@company_2'
+        employeeContact: '@professional_user_2'
+        type: '@role_8'
     experience_6 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 2
-      company: '@company_2'
-      employeeContact: '@professional_user_2'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 2
+        company: '@company_2'
+        employeeContact: '@professional_user_2'
+        type: '@role_3'
     experience_7 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 5
-      company: '@company_2'
-      employeeContact: '@professional_user_2'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 5
+        company: '@company_2'
+        employeeContact: '@professional_user_2'
+        type: '@role_2'
     experience_8 (extends experience):
-      startDateAndTime: <dateTimeBetween('now', '+1 years')>
-      length: 2
-      company: '@company_2'
-      employeeContact: '@professional_user_2'
+        startDateAndTime: <dateTimeBetween('now', '+1 years')>
+        length: 2
+        company: '@company_2'
+        employeeContact: '@professional_user_2'
+        type: '@role_3'

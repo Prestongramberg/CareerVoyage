@@ -58,12 +58,18 @@ class SecondaryIndustry
      */
     private $educatorUsers;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\StudentUser", mappedBy="secondaryIndustries")
+     */
+    private $studentUsers;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
         $this->lessons = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
+        $this->studentUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -214,6 +220,34 @@ class SecondaryIndustry
         if ($this->educatorUsers->contains($educatorUser)) {
             $this->educatorUsers->removeElement($educatorUser);
             $educatorUser->removeSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentUser[]
+     */
+    public function getStudentUsers(): Collection
+    {
+        return $this->studentUsers;
+    }
+
+    public function addStudentUser(StudentUser $studentUser): self
+    {
+        if (!$this->studentUsers->contains($studentUser)) {
+            $this->studentUsers[] = $studentUser;
+            $studentUser->addSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentUser(StudentUser $studentUser): self
+    {
+        if ($this->studentUsers->contains($studentUser)) {
+            $this->studentUsers->removeElement($studentUser);
+            $studentUser->removeSecondaryIndustry($this);
         }
 
         return $this;

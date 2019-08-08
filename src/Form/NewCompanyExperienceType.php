@@ -11,6 +11,7 @@ use App\Entity\Grade;
 use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
+use App\Entity\RolesWillingToFulfill;
 use App\Entity\State;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
@@ -44,8 +45,16 @@ class NewCompanyExperienceType extends AbstractType
             ->add('title', TextType::class, [])
             ->add('briefDescription', TextType::class, [])
             ->add('about', TextareaType::class, [])
-            ->add('type', ChoiceType::class, [
-                'choices'  => Experience::$types
+            ->add('type', EntityType::class, [
+                'class' => RolesWillingToFulfill::class,
+                'choice_label' => 'eventName',
+                'expanded'  => false,
+                'multiple'  => false,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('r')
+                        ->where('r.inEventDropdown = :inEventDropdown')
+                        ->setParameter('inEventDropdown', true);
+                },
             ])
             ->add('careers', EntityType::class, [
                 'class' => Career::class,
