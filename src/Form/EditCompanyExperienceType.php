@@ -62,6 +62,9 @@ class EditCompanyExperienceType extends AbstractType
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                }
             ])
             ->add('availableSpaces', NumberType::class, [])
             ->add('payment', TextType::class, [])

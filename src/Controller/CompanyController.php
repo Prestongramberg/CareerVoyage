@@ -957,7 +957,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("companies/experiences/files/{id}/remove", name="company_experience_file_remove", options = { "expose" = true })
+     * @Route("/companies/experiences/files/{id}/remove", name="company_experience_file_remove", options = { "expose" = true })
      * @ParamConverter("company", options={"id" = "company_id"})
      * @ParamConverter("companyResource", options={"id" = "resource_id"})
      * @param Request $request
