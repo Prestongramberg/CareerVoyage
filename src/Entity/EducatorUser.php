@@ -52,6 +52,11 @@ class EducatorUser extends User
      */
     private $schoolExperiences;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $educatorId;
+
     public function __construct()
     {
         parent::__construct();
@@ -184,6 +189,18 @@ class EducatorUser extends User
                 $schoolExperience->setSchoolContact(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEducatorId(): ?int
+    {
+        return $this->educatorId;
+    }
+
+    public function setEducatorId(int $educatorId): self
+    {
+        $this->educatorId = $educatorId;
 
         return $this;
     }

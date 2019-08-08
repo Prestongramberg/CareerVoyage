@@ -2,6 +2,8 @@
 
 namespace App\Form;
 
+use App\Validator\Constraints\StudentImportFile;
+use App\Validator\Constraints\StudentCSVImportValidator;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -9,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class StudentImportType extends AbstractType
 {
@@ -20,12 +23,12 @@ class StudentImportType extends AbstractType
     {
         $builder->add('file', FileType::class, [
             'label' => 'Students(CSV file)',
-            'help' => 'Make sure to use a valid CSV file.',
-            'attr' => [
-                'class' => 'js-file'
-            ],
             'mapped' => false,
             'required' => true,
+            'constraints' => [
+                new NotBlank(),
+                new StudentImportFile()
+            ],
         ]);
     }
 

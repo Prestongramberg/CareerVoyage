@@ -43,6 +43,11 @@ class StudentUser extends User
      */
     private $companiesInterestedIn;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $studentId;
+
     public function __construct()
     {
         parent::__construct();
@@ -148,5 +153,23 @@ class StudentUser extends User
         }
 
         return $this;
+    }
+
+    public function getStudentId(): ?string
+    {
+        return $this->studentId;
+    }
+
+    public function setStudentId(string $studentId): self
+    {
+        $this->studentId = $studentId;
+
+        return $this;
+    }
+
+    public function getTempUsername() {
+        return strtoupper(
+            sprintf("%s_%s_%s", $this->firstName, $this->lastName, $this->getStudentId())
+        );
     }
 }

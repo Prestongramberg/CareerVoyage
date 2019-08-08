@@ -35,6 +35,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
@@ -43,6 +44,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,125 +63,7 @@ use Symfony\Component\Asset\Packages;
 class SchoolController extends AbstractController
 {
     use FileHelper;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileUploader $fileUploader
-     */
-    private $fileUploader;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    /**
-     * @var ImageCacheGenerator
-     */
-    private $imageCacheGenerator;
-
-    /**
-     * @var UploaderHelper
-     */
-    private $uploaderHelper;
-
-    /**
-     * @var Packages
-     */
-    private $assetsManager;
-
-    /**
-     * @var CompanyRepository
-     */
-    private $companyRepository;
-
-    /**
-     * @var CompanyPhotoRepository
-     */
-    private $companyPhotoRepository;
-
-    /**
-     * @var LessonFavoriteRepository
-     */
-    private $lessonFavoriteRepository;
-
-    /**
-     * @var LessonTeachableRepository
-     */
-    private $lessonTeachableRepository;
-
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
-     * @var RequestsMailer
-     */
-    private $requestsMailer;
-
-    /**
-     * @var SecurityMailer
-     */
-    private $securityMailer;
-
-    /**
-     * @var CacheManager
-     */
-    private $cacheManager;
-
-    /**
-     * SchoolController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param Packages $assetsManager
-     * @param CompanyRepository $companyRepository
-     * @param CompanyPhotoRepository $companyPhotoRepository
-     * @param LessonFavoriteRepository $lessonFavoriteRepository
-     * @param LessonTeachableRepository $lessonTeachableRepository
-     * @param UserRepository $userRepository
-     * @param RequestsMailer $requestsMailer
-     * @param SecurityMailer $securityMailer
-     * @param CacheManager $cacheManager
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository,
-        LessonFavoriteRepository $lessonFavoriteRepository,
-        LessonTeachableRepository $lessonTeachableRepository,
-        UserRepository $userRepository,
-        RequestsMailer $requestsMailer,
-        SecurityMailer $securityMailer,
-        CacheManager $cacheManager
-    ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->assetsManager = $assetsManager;
-        $this->companyRepository = $companyRepository;
-        $this->companyPhotoRepository = $companyPhotoRepository;
-        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
-        $this->lessonTeachableRepository = $lessonTeachableRepository;
-        $this->userRepository = $userRepository;
-        $this->requestsMailer = $requestsMailer;
-        $this->securityMailer = $securityMailer;
-        $this->cacheManager = $cacheManager;
-    }
+    use ServiceHelper;
 
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
@@ -331,6 +215,8 @@ class SchoolController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
 
+            $studentCSVExpectedColumns = ['First Name', 'Last Name', 'Student Id'];
+
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
 
@@ -343,6 +229,12 @@ class SchoolController extends AbstractController
                     while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
                         if($rowNo === 1) {
                             $keys = $row;
+
+                           /* if($keys != $studentCSVExpectedColumns) {
+                                $error = new FormError("The CSV column names must match the format from the sample csv below.");
+                                $form->addError($error);
+                            }*/
+
                             $rowNo++;
                             continue;
                         }
@@ -362,26 +254,40 @@ class SchoolController extends AbstractController
                     fclose($fp);
                 }
 
+                $studentObjs = [];
                 foreach($students as $student) {
+
+                    $studentId = $student['Student Id'];
+                    $existingStudent = $this->studentUserRepository->findOneBy([
+                        'studentId' => $studentId
+                    ]);
+
+                    // if the student already exists in the system then we skip creating it
+                    if($existingStudent) {
+                        continue;
+                    }
+
                     $studentObj = new StudentUser();
                     $studentObj->setFirstName($student['First Name']);
                     $studentObj->setLastName($student['Last Name']);
-                    /*$studentObj->setFirstName($student['First Name']);*/
-
+                    $studentObj->setStudentId($student['Student Id']);
+                    $studentObj->setSchool($school);
+                    $studentObj->setUsername($studentObj->getTempUsername());
+                    $studentObj->setupAsStudent();
+                    $studentObj->initializeNewUser();
                     $this->entityManager->persist($studentObj);
+                    $studentObjs[] = $studentObj;
                 }
 
                 $this->entityManager->flush();
-
-                return new JsonResponse(
-                    [
-                        'success' => true,
-                    ], Response::HTTP_OK
-                );
             }
 
-            $this->entityManager->persist($school);
-            $this->entityManager->flush();
+            $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
+            $data = json_decode($data, true);
+            $j = file_put_contents(
+                'data.csv',
+                $this->serializer->encode($data, 'csv')
+            );
 
             $this->addFlash('success', sprintf('Students successfully imported.'));
             return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
@@ -392,6 +298,14 @@ class SchoolController extends AbstractController
             'form' => $form->createView(),
             'school' => $school
         ]);
+    }
+
+    public function fakeUploadImage($imageName, $folder): string
+    {
+        $fs = new Filesystem();
+        $targetPath = sys_get_temp_dir().'/'.$imageName;
+        $fs->copy(__DIR__.'/ImportedLessonImages/'.$imageName, $targetPath, true);
+        return $this->uploaderHelper->upload(new File($targetPath), $folder);
     }
 
     /**

@@ -107,8 +107,7 @@ class EditCompanyExperienceType extends AbstractType
 
                 // adds a class that can be selected in JavaScript
                 'attr' => ['class' => 'js-datepicker'],
-            ])
-            ->add('length', NumberType::class, []);
+            ]);
 
     }
 

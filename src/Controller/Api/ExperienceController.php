@@ -83,7 +83,6 @@ class ExperienceController extends AbstractController
      */
     private $serializer;
 
-
     /**
      * @var CompanyRepository
      */
