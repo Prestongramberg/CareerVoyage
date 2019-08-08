@@ -128,22 +128,24 @@ class WelcomeController extends AbstractController
                 if (true === $form['agreeTerms']->getData()) {
 
                     $user->agreeToTerms();
+                    $user->initializeNewUser();
 
                     $entityManager = $this->getDoctrine()->getManager();
                     $entityManager->persist($user);
                     $entityManager->flush();
 
                     // send activation email
-                    $user->initializeNewUser();
                     $this->securityMailer->sendAccountActivation($user);
 
-                    // do anything else you need here, like send an email
+                    return $this->redirectToRoute('account_pending_approval');
+
+                   /* // do anything else you need here, like send an email
                     return $guardHandler->authenticateUserAndHandleSuccess(
                         $user,
                         $request,
                         $authenticator,
                         'main' // firewall name in security.yaml
-                    );
+                    );*/
                 }
             }
         }
@@ -166,6 +168,17 @@ class WelcomeController extends AbstractController
             'studentRegistrationForm' => $studentRegistrationForm->createView(),*/
             'formType' => $formType
         ]);
+    }
+
+    /**
+     * @Route("/account-pending-approval", name="account_pending_approval")
+     * @param Request $request
+     * @return JsonResponse|Response
+     * @throws \Exception
+     */
+    public function accountPendingApproval(Request $request)
+    {
+        return $this->render('welcome/account-pending-approval.html.twig', []);
     }
 
     /**

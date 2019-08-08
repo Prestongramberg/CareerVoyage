@@ -40,8 +40,8 @@ class SecurityMailer extends AbstractMailer
             );
 
         $message = (new \Swift_Message('Activate Account'))
-            ->setFrom('info@pintex.test')
-            ->setTo($user->getEmail())
+            ->setFrom('noreply@travishoglund.com')
+            ->setTo('cultured44@gmail.com')
             ->setBody(
                 $this->templating->render(
                     'email/accountActivationEmail.html.twig',
@@ -50,7 +50,8 @@ class SecurityMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $test = $this->mailer->send($message);
+        $name = "josh";
     }
 
 }
