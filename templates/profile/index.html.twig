@@ -4,7 +4,7 @@
 
 {% block body %}
     {% if user.isAdmin %}
-        ADMIN PROFILE VIEW
+        {% include 'profile/partials/_view_admin_profile.html.twig' %}
     {% elseif user.isProfessional %}
         {% include 'profile/partials/_view_professional_profile.html.twig' %}
     {% elseif user.isEducator %}

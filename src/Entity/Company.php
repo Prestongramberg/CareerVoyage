@@ -316,7 +316,10 @@ class Company
      */
     public function getFeaturedImagePath()
     {
-        return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
+        if($this->getFeaturedImage()) {
+            return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
+        }
+        return '';
     }
 
     /**
@@ -325,7 +328,10 @@ class Company
      */
     public function getThumbnailImagePath()
     {
-        return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
+        if($this->getThumbnailImage()) {
+            return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
+        }
+        return '';
     }
 
     /**

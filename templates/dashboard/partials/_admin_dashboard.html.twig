@@ -12,20 +12,7 @@
                             <div class="uk-width-expand">
                                 <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    {% if user.isProfessional %}
-                                        Professional
-                                        {% if user.primaryIndustry %}
-                                            - {{ user.primaryIndustry.name }}
-                                        {% endif %}
-                                        {% if user.secondaryIndustries|length > 0 %}
-                                            - {{ user.secondaryIndustries[0].name }}
-                                        {% endif %}
-                                    {% endif %}
-
-                                    {% if user.isAdmin %}
-                                        Administrator
-                                    {% endif %}
-
+                                    Administrator
                                 </p>
                             </div>
                             <div class="uk-width-auto">
@@ -38,24 +25,10 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.isProfessional %}
-                            {% if user.briefBio %}
-                                <div class="uk-margin">
-                                    {{ user.briefBio|raw }}
-                                </div>
-                            {% else %}
-                                <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
-                            {% endif %}
+                        <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
                             <div class="professional-links">
                                 <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                {% if user.getPhone %}
-                                    <a href="tel:{{ user.getPhone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                                {% endif %}
-                                {% if user.getLinkedinProfile %}
-                                    <a href="{{ user.getLinkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
-                                {% endif %}
                             </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -70,7 +43,7 @@
                             <i class="fa fa-graduation-cap" aria-hidden="true"></i>
                         </div>
                         <div class="uk-width-expand">
-                            <h3 class="uk-card-title uk-margin-remove-bottom">Schools I Volunteer At</h3>
+                            <h3 class="uk-card-title uk-margin-remove-bottom">...</h3>
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
@@ -82,7 +55,7 @@
                     </div>
                 </div>
                 <div class="uk-card-body">
-                    {% if user.schools is defined and user.schools|length > 0 %}
+                    {#{% if user.schools is defined and user.schools|length > 0 %}
                         <ul class="uk-list uk-list-divider">
                             {% for school in user.schools %}
                                 <li>{{ school.name }}</li>
@@ -90,7 +63,7 @@
                         </ul>
                     {% else %}
                         <p>You haven't added any schools yet.</p>
-                    {% endif %}
+                    {% endif %}#}
                 </div>
             </div>
 
@@ -104,7 +77,7 @@
                             <i class="fa fa-book" aria-hidden="true"></i>
                         </div>
                         <div class="uk-width-expand">
-                            <h3 class="uk-card-title uk-margin-remove-bottom">Lessons I Can Teach</h3>
+                            <h3 class="uk-card-title uk-margin-remove-bottom">...</h3>
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
@@ -116,15 +89,6 @@
                     </div>
                 </div>
                 <div class="uk-card-body">
-                    {% if user.lessonTeachables|length > 0 %}
-                        <ul class="uk-list uk-list-divider">
-                            {% for teachable in user.lessonTeachables %}
-                                <li>{{ teachable.lesson.title }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>You haven't added any lessons yet.</p>
-                    {% endif %}
                 </div>
             </div>
 
@@ -137,7 +101,7 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">My volunteer roles</h3>
+                                <h3 class="uk-card-title uk-margin-remove-bottom">...</h3>
                             </div>
                             <div class="uk-width-auto">
                                 <div class="uk-align-right">
@@ -148,17 +112,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="uk-card-body">
-                        {% if user.rolesWillingToFulfill|length %}
-                            <ul class="uk-list uk-list-divider">
-                                {% for role in user.rolesWillingToFulfill %}
-                                    <li>{{ role.name }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>You haven't added any roles yet.</p>
-                        {% endif %}
-                    </div>
+                    <div class="uk-card-body"></div>
                 </div>
             </div>
         </div>
