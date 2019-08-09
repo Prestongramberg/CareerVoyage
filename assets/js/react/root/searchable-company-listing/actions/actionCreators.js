@@ -68,7 +68,7 @@ export function loadUser(url) {
                 }
             })
             .catch(()=> dispatch({
-                type: actionTypes.USER_LOADING_SUCCESS
+                type: actionTypes.USER_LOADING_FAILURE
             }))
     }
 }

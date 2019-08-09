@@ -28,6 +28,20 @@
 
     <div class="uk-container">
 
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ successMessage }}</p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
+
         <div class="uk-margin">
             <ul class="uk-breadcrumb">
                 <li><a href="/">Dashboard</a></li>
@@ -39,7 +53,7 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
-                    {% if user.company is not defined and user.company.id != company.id %}
+                    {% if user.isProfessional and user.company is null %}
                         <form class="uk-inline" method="post" action="{{ path('company_join', {'id': company.id}) }}">
                             <button type="submit" class="uk-button uk-button-default uk-button-small">Join this Company</button>
                         </form>
