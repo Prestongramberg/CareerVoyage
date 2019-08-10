@@ -82,12 +82,6 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\ManyToMany(targetEntity="App\Entity\Career", inversedBy="experiences")
-     */
-    protected $careers;
-
-    /**
-     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer", nullable=true)
      */
     protected $availableSpaces;

@@ -924,35 +924,36 @@ class CompanyController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
-        if($resource && $title && $description) {
+        if($title) {
+            $file->setTitle($title);
+        }
+
+        if($description) {
+            $file->setDescription($description);
+        }
+
+        if($resource) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
             $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
             $file->setMimeType($mimeType ?? 'application/octet-stream');
             $file->setFileName($newFilename);
             $file->setFile(null);
-            $file->setDescription($description);
-            $file->setTitle($title);
-            $this->entityManager->persist($file);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
-                    'id' => $file->getId(),
-                    'title' => $title,
-                    'description' => $description
-
-                ], Response::HTTP_OK
-            );
         }
+
+        $this->entityManager->persist($file);
+        $this->entityManager->flush();
+
 
         return new JsonResponse(
             [
-                'success' => false,
+                'success' => true,
+                'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                'id' => $file->getId(),
+                'title' => $file->getTitle(),
+                'description' => $file->getDescription()
 
-            ], Response::HTTP_BAD_REQUEST
+            ], Response::HTTP_OK
         );
     }
 

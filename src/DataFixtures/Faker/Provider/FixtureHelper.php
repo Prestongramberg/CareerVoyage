@@ -6,6 +6,7 @@ namespace App\DataFixtures\Faker\Provider;
 use App\Entity\Career;
 use App\Entity\CompanyPhoto;
 use App\Entity\Experience;
+use App\Entity\Grade;
 use App\Entity\Industry;
 use App\Entity\Region;
 use App\Entity\School;
@@ -141,10 +142,23 @@ class FixtureHelper
         ]);
     }
 
+    /**
+     * 1 school result
+     * @param int $schoolId
+     * @return State|object|null
+     */
+    public function schoolById($schoolId = 1) {
+        return $this->entityManager->getRepository(School::class)->find($schoolId);
+    }
+
     public function randomSchool() {
         $schools = $this->entityManager->getRepository(School::class)->findAll();
         $schoolId = $schools[rand(1, count($schools) - 1)]->getId();
         return $this->entityManager->getRepository(School::class)->find($schoolId);
+    }
+
+    public function grade($gradeId) {
+        return $this->entityManager->getRepository(Grade::class)->find($gradeId);
     }
 
     public function randomExperienceType() {
