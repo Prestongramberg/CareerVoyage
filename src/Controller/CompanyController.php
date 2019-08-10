@@ -194,7 +194,7 @@ class CompanyController extends AbstractController
         $this->entityManager->persist($joinCompanyRequest);
         $this->entityManager->flush();
 
-        $this->requestsMailer->userToCompanyRequest($joinCompanyRequest);
+        $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
 
         $this->addFlash('success', 'Request successfully sent!');
         return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
@@ -289,16 +289,24 @@ class CompanyController extends AbstractController
      */
     public function companyProfessionalRemoveAction(Request $request, ProfessionalUser $professional) {
 
-        $this->denyAccessUnlessGranted('edit', $professional->getCompany());
+        $company = $professional->getCompany();
+        $this->denyAccessUnlessGranted('edit', $company);
+
+        if($company->isUserOwner($professional)) {
+            $this->addFlash('error', 'The owner of a company cannot be removed. Please transfer ownership first.');
+
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+        }
+
 
         $companyId = $professional->getCompany()->getId();
         $professional->setCompany(null);
         $this->entityManager->persist($professional);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'professional removed from company');
+        $this->addFlash('success', 'Professional removed from company');
 
-        return $this->redirectToRoute('company_professionals', ['id' => $companyId]);
+        return $this->redirectToRoute('company_view', ['id' => $companyId]);
     }
 
     /**

@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Lesson;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -53,7 +55,7 @@ class UserRepository extends ServiceEntityRepository
      *
      * @param string $emailAddress
      * @return mixed
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function getByEmailAddress($emailAddress) {
         return $this->createQueryBuilder('u')
@@ -68,7 +70,7 @@ class UserRepository extends ServiceEntityRepository
      *
      * @param $invitationCode
      * @return mixed
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function getByInvitationCode($invitationCode) {
 
@@ -84,7 +86,7 @@ class UserRepository extends ServiceEntityRepository
      *
      * @param $activationCode
      * @return mixed
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function getByActivationCode($activationCode) {
 
@@ -108,7 +110,7 @@ class UserRepository extends ServiceEntityRepository
     /**
      * @param $token
      * @return User|null
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      * @throws \Exception
      */
     public function getByPasswordResetToken($token) {
@@ -128,5 +130,19 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('roles', '%"'.$role.'"%');
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param Lesson $lesson
+     * @return mixed
+     */
+    public function getUsersWhoCanTeachLesson(Lesson $lesson) {
+        return $this->createQueryBuilder('u')
+            ->join('u.lessonTeachables', 'lt')
+            ->join('lt.lesson', 'lesson')
+            ->where('lesson.id = :id')
+            ->setParameter('id', $lesson->getId())
+            ->getQuery()
+            ->getResult();
     }
 }
