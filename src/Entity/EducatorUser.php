@@ -45,7 +45,7 @@ class EducatorUser extends User
     private $linkedinProfile;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="educatorUsers")
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="educatorUsers", cascade={"persist", "remove"})
      */
     private $secondaryIndustries;
 

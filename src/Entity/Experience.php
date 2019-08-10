@@ -184,10 +184,16 @@ abstract class Experience
      */
     protected $type;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
+     */
+    private $secondaryIndustries;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
         $this->experienceFiles = new ArrayCollection();
+        $this->secondaryIndustries = new ArrayCollection();
     }
 
     public function getId()
@@ -440,6 +446,32 @@ abstract class Experience
     public function setType(?RolesWillingToFulfill $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SecondaryIndustry[]
+     */
+    public function getSecondaryIndustries(): Collection
+    {
+        return $this->secondaryIndustries;
+    }
+
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries[] = $secondaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
+    {
+        if ($this->secondaryIndustries->contains($secondaryIndustry)) {
+            $this->secondaryIndustries->removeElement($secondaryIndustry);
+        }
 
         return $this;
     }

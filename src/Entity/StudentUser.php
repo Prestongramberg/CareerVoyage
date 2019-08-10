@@ -54,7 +54,7 @@ class StudentUser extends User
     private $displayName;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="studentUsers")
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="studentUsers", cascade={"persist", "remove"})
      */
     private $secondaryIndustries;
 

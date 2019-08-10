@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Company;
 use App\Entity\EducatorUser;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
@@ -61,6 +62,7 @@ class StudentEditProfileFormType extends AbstractType
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
             ]);
+
 
         $this->setupImmutableFields($builder, $options, [
             'firstName',

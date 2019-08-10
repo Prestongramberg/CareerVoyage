@@ -57,6 +57,11 @@
                         {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.plainPassword) }}
                     </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.interests, 'Interests') }}
+                        {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.interests) }}
+                    </div>
 
                     <div class="uk-margin">
                         <button class="uk-button uk-button-primary uk-button-small">Save</button>
