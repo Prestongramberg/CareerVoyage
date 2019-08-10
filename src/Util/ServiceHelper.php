@@ -11,6 +11,7 @@ use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
+use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
@@ -147,6 +148,11 @@ trait ServiceHelper
     private $validator;
 
     /**
+     * @var IndustryRepository
+     */
+    private $industryRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -171,6 +177,7 @@ trait ServiceHelper
      * @param SerializerInterface $serializer
      * @param ImportMailer $importMailer
      * @param ValidatorInterface $validator
+     * @param IndustryRepository $industryRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -195,7 +202,8 @@ trait ServiceHelper
         EducatorUserRepository $educatorUserRepository,
         SerializerInterface $serializer,
         ImportMailer $importMailer,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        IndustryRepository $industryRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -220,6 +228,7 @@ trait ServiceHelper
         $this->serializer = $serializer;
         $this->importMailer = $importMailer;
         $this->validator = $validator;
+        $this->industryRepository = $industryRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

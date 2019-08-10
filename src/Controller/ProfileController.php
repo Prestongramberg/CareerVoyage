@@ -173,7 +173,6 @@ class ProfileController extends AbstractController
         } elseif (($user->isEducator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $form = $this->createForm(EducatorEditProfileFormType::class, $user, $options);
-            $industryForm = $this->createForm(IndustryFormType::class);
             /** @var EducatorUser $user */
         } elseif (($user->isStudent())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
@@ -222,7 +221,6 @@ class ProfileController extends AbstractController
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
-            'industryForm' => isset($industryForm) ? $industryForm->createView() : null,
             'user' => $user,
         ]);
     }

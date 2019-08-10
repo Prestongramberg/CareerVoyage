@@ -67,32 +67,4 @@
             </div>
         </div>
     </div>
-
-
-
-
-    <div class="page-company-edit__industry">
-        <div class="uk-width-xlarge">
-            <fieldset class="uk-fieldset">
-                <div class="uk-margin">
-                    {{ form_label(industryForm.primaryIndustry, 'Primary Industry*') }}
-                    {{ form_widget(industryForm.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(industryForm.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                    {{ form_errors(industryForm.primaryIndustry) }}
-                </div>
-
-             {#   <div class="js-secondary-industry-container">
-                    {% if form.secondaryIndustries is defined %}
-                        <div class="uk-margin">
-                            {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                            {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                            <div class="clear"></div>
-                            {{ form_errors(form.secondaryIndustries) }}
-                        </div>
-                    {% endif %}
-                </div>#}
-            </fieldset>
-        </div>
-    </div>
-
-
 </div>

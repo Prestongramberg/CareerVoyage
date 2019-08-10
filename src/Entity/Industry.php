@@ -32,6 +32,7 @@ class Industry
     private $companies;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
      * @ORM\OneToMany(targetEntity="App\Entity\SecondaryIndustry", mappedBy="primaryIndustry")
      */
     private $secondaryIndustries;
