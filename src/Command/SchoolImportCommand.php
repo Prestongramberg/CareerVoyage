@@ -6,7 +6,6 @@ namespace App\Command;
 use App\Entity\Lesson;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
-use App\Repository\CareerRepository;
 use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
 use App\Repository\IndustryRepository;
@@ -35,11 +34,6 @@ class SchoolImportCommand extends Command
      * @var EntityManagerInterface
      */
     private $entityManager;
-
-    /**
-     * @var CareerRepository
-     */
-    private $careerRepository;
 
     /**
      * @var GradeRepository
@@ -79,7 +73,6 @@ class SchoolImportCommand extends Command
     /**
      * SchoolImportCommand constructor.
      * @param EntityManagerInterface $entityManager
-     * @param CareerRepository $careerRepository
      * @param GradeRepository $gradeRepository
      * @param CourseRepository $courseRepository
      * @param ImageCacheGenerator $imageCacheGenerator
@@ -90,7 +83,6 @@ class SchoolImportCommand extends Command
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        CareerRepository $careerRepository,
         GradeRepository $gradeRepository,
         CourseRepository $courseRepository,
         ImageCacheGenerator $imageCacheGenerator,
@@ -100,7 +92,6 @@ class SchoolImportCommand extends Command
         RegionRepository $regionRepository
     ) {
         $this->entityManager = $entityManager;
-        $this->careerRepository = $careerRepository;
         $this->gradeRepository = $gradeRepository;
         $this->courseRepository = $courseRepository;
         $this->imageCacheGenerator = $imageCacheGenerator;

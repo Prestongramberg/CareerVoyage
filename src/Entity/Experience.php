@@ -185,7 +185,6 @@ abstract class Experience
 
     public function __construct()
     {
-        $this->careers = new ArrayCollection();
         $this->experienceFiles = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
     }
@@ -227,32 +226,6 @@ abstract class Experience
     public function setAbout($about)
     {
         $this->about = $about;
-
-        return $this;
-    }
-    
-    /**
-     * @return Collection|Career[]
-     */
-    public function getCareers(): Collection
-    {
-        return $this->careers;
-    }
-
-    public function addCareer(Career $career)
-    {
-        if (!$this->careers->contains($career)) {
-            $this->careers[] = $career;
-        }
-
-        return $this;
-    }
-
-    public function removeCareer(Career $career)
-    {
-        if ($this->careers->contains($career)) {
-            $this->careers->removeElement($career);
-        }
 
         return $this;
     }

@@ -118,12 +118,6 @@
                              data-secondary-industries="{{ encode_secondary_industries(experience) }}"
                              data-remove-dom-id="edit_company_experience_secondaryIndustries"
                         ></div>
-                        <div class="uk-margin">
-                            {{ form_label(form.careers, 'Careers') }}
-                            {{ form_widget(form.careers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.careers) ? ' uk-form-danger' : '' ) }}) }}
-                            <div class="clear"></div>
-                            {{ form_errors(form.careers) }}
-                        </div>
                     </fieldset>
                 </div>
             </div>

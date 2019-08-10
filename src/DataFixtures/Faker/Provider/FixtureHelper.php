@@ -3,7 +3,6 @@
 namespace App\DataFixtures\Faker\Provider;
 
 
-use App\Entity\Career;
 use App\Entity\CompanyPhoto;
 use App\Entity\Experience;
 use App\Entity\Grade;
@@ -167,15 +166,5 @@ class FixtureHelper
 
     public function randomPaymentType() {
         return Experience::$paymentTypes[array_rand(Experience::$paymentTypes)];
-    }
-
-    /**
-     * an array of careers
-     */
-    public function career() {
-        return $this->entityManager->getRepository(Career::class)->findOneBy([
-                'title' => Career::$types[array_rand(Career::$types)]
-            ]
-        );
     }
 }

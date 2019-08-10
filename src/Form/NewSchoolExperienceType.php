@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Career;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\Course;
@@ -76,15 +75,6 @@ class NewSchoolExperienceType extends AbstractType
                         ->where('r.inEventDropdown = :inEventDropdown')
                         ->setParameter('inEventDropdown', true);
                 },
-            ])
-            ->add('careers', EntityType::class, [
-                'class' => Career::class,
-                'choice_label' => 'title',
-                'expanded'  => true,
-                'multiple'  => true,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
-                }
             ])
             ->add('availableSpaces', NumberType::class, [])
             ->add('payment', NumberType::class, [
