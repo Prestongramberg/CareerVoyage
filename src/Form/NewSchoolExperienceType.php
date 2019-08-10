@@ -17,7 +17,9 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\State;
 use App\Entity\User;
+use App\Repository\SecondaryIndustryRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -26,6 +28,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -40,6 +43,19 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 class NewSchoolExperienceType extends AbstractType
 {
+    /**
+     * @var SecondaryIndustryRepository
+     */
+    private $secondaryIndustryRepository;
+
+    /**
+     * EditCompanyExperienceType constructor.
+     * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     */
+    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository)
+    {
+        $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -104,6 +120,31 @@ class NewSchoolExperienceType extends AbstractType
             ->add('zipcode', TextType::class, [])
             ->add('startDateAndTime', TextType::class, [])
             ->add('endDateAndTime', TextType::class, []);
+
+        $builder->add('secondaryIndustries', CollectionType::class, [
+            'entry_type' => HiddenType::class,
+            'label' => false
+        ]);
+
+        $builder->get('secondaryIndustries')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($secondaryIndustries) {
+                    $ids = [];
+                    foreach($secondaryIndustries as $secondaryIndustry) {
+                        $ids[] = $secondaryIndustry->getId();
+                    }
+
+                    return $ids;
+                },
+                function ($ids) {
+
+                    $collection = new ArrayCollection();
+                    foreach($ids as $id) {
+                        $collection->add($this->secondaryIndustryRepository->find($id));
+                    }
+                    return $collection;
+                }
+            ));
 
         $builder->get('startDateAndTime')
             ->addModelTransformer(new CallbackTransformer(
