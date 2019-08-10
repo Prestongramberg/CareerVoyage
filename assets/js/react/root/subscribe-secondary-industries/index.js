@@ -12,10 +12,8 @@ const subscribeSecondaryIndustries = document.getElementById("subscribe-secondar
 if( subscribeSecondaryIndustries ) {
 
     const initialIndustrySubscriptions = JSON.parse( subscribeSecondaryIndustries.getAttribute("data-secondary-industries") );
-    const fieldName = subscribeSecondaryIndustries.getAttribute("data-field-name");
     const currentTitle = subscribeSecondaryIndustries.getAttribute("data-current-title");
     const existingTitle = subscribeSecondaryIndustries.getAttribute("data-existing-title");
-    const removeDomId = subscribeSecondaryIndustries.getAttribute("data-remove-dom-id");
 
     const store = createStore(
         reducers,
@@ -35,7 +33,7 @@ if( subscribeSecondaryIndustries ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App initialIndustrySubscriptions={initialIndustrySubscriptions} fieldName={fieldName} currentTitle={currentTitle} existingTitle={existingTitle} removeDomId={removeDomId} />
+                <App initialIndustrySubscriptions={initialIndustrySubscriptions} currentTitle={currentTitle} existingTitle={existingTitle} />
             </Provider>,
             document.getElementById("subscribe-secondary-industries")
         );

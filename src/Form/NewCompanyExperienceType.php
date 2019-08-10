@@ -119,7 +119,8 @@ class NewCompanyExperienceType extends AbstractType
 
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
-            'label' => false
+            'label' => false,
+            'allow_extra_fields' => true
         ]);
 
         $builder->get('secondaryIndustries')
