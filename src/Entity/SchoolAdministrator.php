@@ -16,10 +16,16 @@ class SchoolAdministrator extends User
      */
     private $schools;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
+     */
+    private $schoolExperiences;
+
     public function __construct()
     {
         parent::__construct();
         $this->schools = new ArrayCollection();
+        $this->schoolExperiences = new ArrayCollection();
     }
 
     /**
@@ -45,6 +51,37 @@ class SchoolAdministrator extends User
         if ($this->schools->contains($school)) {
             $this->schools->removeElement($school);
             $school->removeSchoolAdministrator($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SchoolExperience[]
+     */
+    public function getSchoolExperiences(): Collection
+    {
+        return $this->schoolExperiences;
+    }
+
+    public function addSchoolExperience(SchoolExperience $schoolExperience): self
+    {
+        if (!$this->schoolExperiences->contains($schoolExperience)) {
+            $this->schoolExperiences[] = $schoolExperience;
+            $schoolExperience->setSchoolContact($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolExperience(SchoolExperience $schoolExperience): self
+    {
+        if ($this->schoolExperiences->contains($schoolExperience)) {
+            $this->schoolExperiences->removeElement($schoolExperience);
+            // set the owning side to null (unless already changed)
+            if ($schoolExperience->getSchoolContact() === $this) {
+                $schoolExperience->setSchoolContact(null);
+            }
         }
 
         return $this;

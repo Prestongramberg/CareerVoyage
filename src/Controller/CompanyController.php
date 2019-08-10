@@ -769,8 +769,11 @@ class CompanyController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $company);
 
         $user = $this->getUser();
-
         $experience = new CompanyExperience();
+
+        $experience->addSecondaryIndustry($this->secondaryIndustryRepository->find(1));
+        $experience->addSecondaryIndustry($this->secondaryIndustryRepository->find(2));
+
         $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
             'method' => 'POST',
             'company' => $company

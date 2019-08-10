@@ -631,7 +631,7 @@ class SchoolController extends AbstractController
 
             $this->addFlash('success', 'Experience successfully created!');
 
-            return new Response("hi");
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
         return $this->render('school/new_experience.html.twig', [
@@ -672,17 +672,31 @@ class SchoolController extends AbstractController
 
             $this->addFlash('success', 'Experience successfully updated!');
 
-            return new Response("hi");
+            return $this->redirectToRoute('school_experience_edit', ['id' => $experience->getId()]);
         }
 
-        return $this->render('school/new_experience.html.twig', [
+        return $this->render('school/edit_experience.html.twig', [
             'school' => $school,
             'form' => $form->createView(),
             'user' => $user
         ]);
     }
 
+    /**
+     * @Route("/schools/experiences/{id}/view", name="school_experience_view", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewExperienceAction(Request $request, SchoolExperience $experience) {
 
+        $user = $this->getUser();
+
+        return $this->render('school/view_experience.html.twig', [
+            'user' => $user,
+            'experience' => $experience
+        ]);
+    }
 
 
 

@@ -119,12 +119,19 @@ class NewCompanyExperienceType extends AbstractType
 
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
-            'label' => false
+            'label' => false,
+            'mapped' => false,
+            'allow_add' => true,
         ]);
 
         $builder->get('secondaryIndustries')
             ->addModelTransformer(new CallbackTransformer(
                 function ($secondaryIndustries) {
+
+                    if(!$secondaryIndustries) {
+                        return [];
+                    }
+
                     $ids = [];
                     foreach($secondaryIndustries as $secondaryIndustry) {
                         $ids[] = $secondaryIndustry->getId();
@@ -133,7 +140,6 @@ class NewCompanyExperienceType extends AbstractType
                     return $ids;
                 },
                 function ($ids) {
-
                     $collection = new ArrayCollection();
                     foreach($ids as $id) {
                         $collection->add($this->secondaryIndustryRepository->find($id));
