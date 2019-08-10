@@ -187,7 +187,7 @@ abstract class Experience
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
      */
-    private $secondaryIndustries;
+    protected $secondaryIndustries;
 
     public function __construct()
     {
