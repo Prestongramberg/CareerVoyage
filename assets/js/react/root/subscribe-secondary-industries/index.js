@@ -11,9 +11,10 @@ const subscribeSecondaryIndustries = document.getElementById("subscribe-secondar
 
 if( subscribeSecondaryIndustries ) {
 
-    let initialIndustrySubscriptions = JSON.parse( subscribeSecondaryIndustries.getAttribute("data-secondary-industries") );
-    let subscribeEndpoint = JSON.parse( subscribeSecondaryIndustries.getAttribute("data-subscribe-endpoint") );
-    let unSubscribeEndpoint = JSON.parse( subscribeSecondaryIndustries.getAttribute("data-unsubscribe-endpoint") );
+    const initialIndustrySubscriptions = JSON.parse( subscribeSecondaryIndustries.getAttribute("data-secondary-industries") );
+    const fieldName = subscribeSecondaryIndustries.getAttribute("data-field-name");
+    const currentTitle = subscribeSecondaryIndustries.getAttribute("data-current-title");
+    const existingTitle = subscribeSecondaryIndustries.getAttribute("data-existing-title");
 
     const store = createStore(
         reducers,
@@ -33,7 +34,7 @@ if( subscribeSecondaryIndustries ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App initialIndustrySubscriptions={initialIndustrySubscriptions} subscribeEndpoint={subscribeEndpoint} unSubscribeEndpoint={unSubscribeEndpoint} />
+                <App initialIndustrySubscriptions={initialIndustrySubscriptions} fieldName={fieldName} currentTitle={currentTitle} existingTitle={existingTitle} />
             </Provider>,
             document.getElementById("subscribe-secondary-industries")
         );

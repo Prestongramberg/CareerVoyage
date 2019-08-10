@@ -980,7 +980,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/experiences/{id}/industries/add", name="company_experience_industry_add")
+     * @Route("/companies/experiences/{id}/industries/add", name="company_experience_industry_add", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $companyExperience
      * @return \Symfony\Component\HttpFoundation\Response
@@ -1016,7 +1016,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/experiences/{id}/industries/remove", name="company_experience_industry_remove")
+     * @Route("/companies/experiences/{id}/industries/remove", name="company_experience_industry_remove", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $companyExperience
      * @return \Symfony\Component\HttpFoundation\Response
@@ -1043,7 +1043,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/experiences/{id}/industries", name="company_experience_industries")
+     * @Route("/companies/experiences/{id}/industries", name="company_experience_industries", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $companyExperience
      * @return \Symfony\Component\HttpFoundation\Response

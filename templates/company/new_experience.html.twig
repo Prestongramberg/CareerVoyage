@@ -98,6 +98,12 @@
             <div class="page-company-experience-add__careers">
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
+                        <div id="subscribe-secondary-industries"
+                             data-current-title="Add Relevant Career Fields"
+                             data-existing-title="Current Event Career Fields"
+                             data-field-name="secondary_industries"
+                             data-secondary-industries='[{"id": 4},{"id": 6}]'
+                        ></div>
                         <div class="uk-margin">
                             {{ form_label(form.careers, 'Careers') }}
                             {{ form_widget(form.careers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.careers) ? ' uk-form-danger' : '' ) }}) }}

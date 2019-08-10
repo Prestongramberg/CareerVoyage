@@ -8,7 +8,7 @@ export default (state = {}, action) => {
                 ...state,
                 data: action.response.data
             };
-        case actionTypes.SUBSCRIBE_SUCCESS:
+        case actionTypes.SUBSCRIBE:
             let industryAlreadyExists = state.subscribed.indexOf(action.industryId) > -1;
             return {
                 ...state,
@@ -16,6 +16,11 @@ export default (state = {}, action) => {
                     ...state.subscribed,
                     action.industryId
                 ]
+            };
+        case actionTypes.UNSUBSCRIBE:
+            return {
+                ...state,
+                subscribed: state.subscribed.filter(industryId => industryId !== action.industryId)
             };
         default:
             return state;
