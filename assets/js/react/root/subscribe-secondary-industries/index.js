@@ -15,6 +15,7 @@ if( subscribeSecondaryIndustries ) {
     const fieldName = subscribeSecondaryIndustries.getAttribute("data-field-name");
     const currentTitle = subscribeSecondaryIndustries.getAttribute("data-current-title");
     const existingTitle = subscribeSecondaryIndustries.getAttribute("data-existing-title");
+    const removeDomId = subscribeSecondaryIndustries.getAttribute("data-remove-dom-id");
 
     const store = createStore(
         reducers,
@@ -34,7 +35,7 @@ if( subscribeSecondaryIndustries ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App initialIndustrySubscriptions={initialIndustrySubscriptions} fieldName={fieldName} currentTitle={currentTitle} existingTitle={existingTitle} />
+                <App initialIndustrySubscriptions={initialIndustrySubscriptions} fieldName={fieldName} currentTitle={currentTitle} existingTitle={existingTitle} removeDomId={removeDomId} />
             </Provider>,
             document.getElementById("subscribe-secondary-industries")
         );

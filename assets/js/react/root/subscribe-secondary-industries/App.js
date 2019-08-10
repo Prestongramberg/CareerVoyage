@@ -61,14 +61,14 @@ class App extends React.Component {
                     <div className="uk-margin">
                         <h4>{ this.props.existingTitle || "Currently Subscribed Career Fields:" }</h4>
                         <ul className="uk-list uk-list-divider">
-                            {this.props.subscriptions.subscribed.map(secondaryIndustryId => {
+                            {this.props.subscriptions.subscribed.map((secondaryIndustryId, index) => {
                                 const secondaryIndustry = getSecondaryIndustry(this.props.subscriptions.data, secondaryIndustryId);
                                 if ( secondaryIndustry !== null ) {
                                     return <li key={secondaryIndustry.id}>
                                         <div className="uk-grid uk-flex-middle uk-margin-remove-vertical" data-uk-grid>
                                             <div className="uk-width-expand">
                                                 <span>{ secondaryIndustry.name }</span>
-                                                <input type="hidden" name={this.props.fieldName} value={secondaryIndustry.id} />
+                                                <input type="hidden" id={`edit_company_experience_secondaryIndustries_${index}`} name={`edit_company_experience[secondaryIndustries][${index}]`} value={secondaryIndustry.id} />
                                             </div>
                                             <div className="uk-width-auto">
                                                 <button type="button"
@@ -102,7 +102,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.props.loadIndustries( window.Routing.generate('get_industries'), this.props.initialIndustrySubscriptions );
+        this.props.loadIndustries( window.Routing.generate('get_industries'), this.props.removeDomId );
     }
 }
 
@@ -111,12 +111,12 @@ App.propTypes = {
     existingTitle: PropTypes.string,
     fieldName: PropTypes.string,
     initialIndustrySubscriptions: PropTypes.array,
+    removeDomId: PropTypes.string,
     subscriptions: PropTypes.object,
     uiState: PropTypes.object,
 };
 
 App.defaultProps = {
-    initialIndustrySubscriptions: [],
     subscriptions: {},
     uiState: {},
 };
@@ -127,7 +127,7 @@ export const mapStateToProps = (state = {}) => ({
 });
 
 export const mapDispatchToProps = dispatch => ({
-    loadIndustries: (url, subscribed) => dispatch(loadIndustries(url, subscribed)),
+    loadIndustries: (url, removeDomId) => dispatch(loadIndustries(url, removeDomId)),
     primaryIndustryChanged: (event) => dispatch(primaryIndustryChanged(event.target.value)),
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
     removeIndustry: (industryId) => dispatch(unsubscribe(industryId))

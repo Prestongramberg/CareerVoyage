@@ -22,14 +22,16 @@ export function unsubscribe(industryId) {
     };
 }
 
-export function loadIndustries(url) {
+export function loadIndustries(url, removeDomId) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.LOAD_INDUSTRIES})
 
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    dispatch({type: actionTypes.LOAD_INDUSTRIES_SUCCESS, response: response.responseBody})
+                    dispatch({type: actionTypes.LOAD_INDUSTRIES_SUCCESS, response: response.responseBody});
+                    debugger;
+                    $(`#${removeDomId}`).remove();
                 }  else {
                     dispatch({
                         type: actionTypes.LOAD_INDUSTRIES_FAILURE,
