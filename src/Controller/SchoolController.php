@@ -14,6 +14,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
+use App\Entity\SchoolExperience;
 use App\Entity\SchoolPhoto;
 use App\Entity\SchoolVideo;
 use App\Entity\StudentUser;
@@ -23,6 +24,7 @@ use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
+use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\StudentImportType;
@@ -608,31 +610,31 @@ class SchoolController extends AbstractController
 
         $user = $this->getUser();
 
-        $experience = new CompanyExperience();
-        $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
+        $experience = new SchoolExperience();
+        $form = $this->createForm(NewSchoolExperienceType::class, $experience, [
             'method' => 'POST',
-            'company' => $company
+            'school' => $school
         ]);
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var CompanyExperience $experience */
+            /** @var SchoolExperience $experience */
             $experience = $form->getData();
 
             $this->entityManager->persist($experience);
 
-            $experience->setCompany($company);
+            $experience->setSchool($school);
 
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Experience successfully created!');
 
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+            return new Response("hi");
         }
 
-        return $this->render('company/new_experience.html.twig', [
-            'company' => $company,
+        return $this->render('school/new_experience.html.twig', [
+            'school' => $school,
             'form' => $form->createView(),
             'user' => $user
         ]);

@@ -12,6 +12,8 @@ use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\RolesWillingToFulfill;
+use App\Entity\School;
+use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\State;
 use App\Entity\User;
@@ -41,8 +43,8 @@ class NewSchoolExperienceType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var Company $company */
-        $company = $options['company'];
+        /** @var School $school */
+        $school = $options['school'];
 
         $builder
             ->add('title', TextType::class, [])
@@ -79,14 +81,15 @@ class NewSchoolExperienceType extends AbstractType
                 'required' => false
             ])
             ->add('schoolContact', EntityType::class, [
-                'class' => ProfessionalUser::class,
+                'class' => SchoolAdministrator::class,
                 'choice_label' => 'fullName',
                 'expanded'  => false,
                 'multiple'  => false,
-                'query_builder' => function (EntityRepository $er) use ($company) {
-                    return $er->createQueryBuilder('p')
-                        ->where('p.company = :company')
-                        ->setParameter('company', $company);
+                'query_builder' => function (EntityRepository $er) use ($school) {
+                    return $er->createQueryBuilder('sa')
+                        ->innerJoin('sa.schools', 'schools')
+                        ->where('schools.id = :id')
+                        ->setParameter('id', $school->getId());
                 },
             ])
             ->add('email', TextType::class, [])
@@ -136,7 +139,7 @@ class NewSchoolExperienceType extends AbstractType
             'validation_groups' => ['CREATE'],
         ]);
 
-        $resolver->setRequired(['company']);
+        $resolver->setRequired(['school']);
 
     }
 }
