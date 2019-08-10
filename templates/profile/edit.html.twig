@@ -22,13 +22,13 @@
     {% elseif user.isProfessional %}
         {% include 'profile/partials/_edit_professional_profile_form.html.twig' %}
     {% elseif user.isEducator %}
-
+        {% include 'profile/partials/_edit_educator_profile_form.html.twig' %}
     {% elseif user.isStudent %}
-
+        {% include 'profile/partials/_edit_student_profile_form.html.twig' %}
     {% elseif user.isStateCoordinator %}
-
+        {% include 'profile/partials/_edit_state_coordinator_profile_form.html.twig' %}
     {% elseif user.isRegionalCoordinator %}
-
+        {% include 'profile/partials/_edit_regional_coordinator_profile_form.html.twig' %}
     {% elseif user.isSchoolAdministrator %}
         {% include 'profile/partials/_edit_school_administrator_profile_form.html.twig' %}
     {% endif %}

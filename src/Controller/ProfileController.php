@@ -2,14 +2,23 @@
 
 namespace App\Controller;
 
+use App\Entity\AdminUser;
 use App\Entity\Company;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StateCoordinator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\AdminProfileFormType;
+use App\Form\EducatorEditProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
+use App\Form\RegionalCoordinatorEditProfileFormType;
 use App\Form\SchoolAdministratorEditProfileFormType;
+use App\Form\StateCoordinatorEditProfileFormType;
+use App\Form\StudentEditProfileFormType;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
@@ -151,12 +160,31 @@ class ProfileController extends AbstractController
 
         if($user->isAdmin()) {
             $form = $this->createForm(AdminProfileFormType::class, $user, $options);
+            /** @var AdminUser $user */
         } elseif (($user->isProfessional())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $form = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
+            /** @var ProfessionalUser $user */
         } elseif (($user->isSchoolAdministrator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $form = $this->createForm(SchoolAdministratorEditProfileFormType::class, $user, $options);
+            /** @var SchoolAdministrator $user */
+        } elseif (($user->isEducator())) {
+            $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $form = $this->createForm(EducatorEditProfileFormType::class, $user, $options);
+            /** @var EducatorUser $user */
+        } elseif (($user->isStudent())) {
+            $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $form = $this->createForm(StudentEditProfileFormType::class, $user, $options);
+            /** @var StudentUser $user */
+        } elseif (($user->isStateCoordinator())) {
+            $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $form = $this->createForm(StateCoordinatorEditProfileFormType::class, $user, $options);
+            /** @var StateCoordinator $user */
+        } elseif (($user->isRegionalCoordinator())) {
+            $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $form = $this->createForm(RegionalCoordinatorEditProfileFormType::class, $user, $options);
+            /** @var RegionalCoordinator $user */
         }
 
         $form->handleRequest($request);
@@ -175,7 +203,6 @@ class ProfileController extends AbstractController
 
             $this->addFlash('success', 'Profile successfully updated');
             return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
-
         }
 
         if($request->request->has('primary_industry_change')) {
@@ -188,6 +215,8 @@ class ProfileController extends AbstractController
                 ], Response::HTTP_BAD_REQUEST
             );
         }
+
+        $this->getDoctrine()->getManager()->refresh($user);
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),

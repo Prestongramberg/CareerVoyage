@@ -87,18 +87,18 @@
             <div class="uk-width-xlarge">
                 <h3>Profile Status: <span class="uk-label">{{ user.activated ? "Active" : "Deactivated" }}</span></h3>
                 <p>Your profile status determines whether you show up in search results on the Platform.  When "Deactivated", you will no longer appear in search results, but you will still be able to access your account.</p>
-                {% if user.activated %}
+                {#{% if user.activated %}
                     {% include 'profile/partials/_deactivate_profile_form.html.twig' %}
                 {% else %}
                     {% include 'profile/partials/_activate_profile_form.html.twig' %}
-                {% endif %}
+                {% endif %}#}
             </div>
         </div>
         <div class="account_delete">
             <div class="uk-width-xlarge">
                 <h3>Delete Account</h3>
                 <p>If you would no longer like to use the Pintex Platform, you can delete your account by using the button below.</p>
-                {% include 'profile/partials/_delete_profile_form.html.twig' %}
+                {#{% include 'profile/partials/_delete_profile_form.html.twig' %}#}
             </div>
         </div>
     </div>

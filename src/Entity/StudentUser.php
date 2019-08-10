@@ -7,10 +7,20 @@ use App\Util\RandomStringGenerator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StudentUserRepository")
+ * @UniqueEntity(
+ *     fields={"school", "studentId"},
+ *     errorPath="studentId",
+ *     message="This student Id already belongs to another user at this school",
+ *     groups={"STUDENT_USER"}
+ * )
+ *
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"STUDENT_USER"}, repositoryMethod="findByUniqueCriteria")
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"STUDENT_USER"}, repositoryMethod="findByUniqueCriteria")
  */
 class StudentUser extends User
 {
@@ -38,6 +48,10 @@ class StudentUser extends User
      */
     private $briefBio;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $displayName;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="studentUsers")
@@ -171,6 +185,18 @@ class StudentUser extends User
     public function setStudentId(string $studentId): self
     {
         $this->studentId = $studentId;
+
+        return $this;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(?string $displayName): self
+    {
+        $this->displayName = $displayName;
 
         return $this;
     }

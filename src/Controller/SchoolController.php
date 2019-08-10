@@ -37,6 +37,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -44,6 +45,7 @@ use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormError;
@@ -66,6 +68,7 @@ class SchoolController extends AbstractController
 {
     use FileHelper;
     use ServiceHelper;
+    use RandomStringGenerator;
 
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
@@ -252,36 +255,42 @@ class SchoolController extends AbstractController
                 foreach($students as $student) {
 
                     $studentId = $student['Student Id'];
-                    $existingStudent = $this->studentUserRepository->findOneBy([
+                    $studentObj = $this->studentUserRepository->findOneBy([
                         'studentId' => $studentId
                     ]);
 
-                    // if the student already exists in the system then we skip creating it
-                    if($existingStudent) {
+                    // only create the student if it doesn't exist
+                    if(!$studentObj) {
+                        $studentObj = new StudentUser();
+                        $studentObj->setStudentId($student['Student Id']);
+                        $studentObj->setSchool($school);
+                        $studentObj->setupAsStudent();
+                        $studentObj->initializeNewUser();
+                        $studentObj->setActivated(true);
+                        $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
+                        $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
+                        $studentObj->setPassword($encodedPassword);
+                    }
+
+                    // we only allow overriding first name and last name by imports
+                    $studentObj->setFirstName($student['First Name']);
+                    $studentObj->setLastName($student['Last Name']);
+
+                    // let's manually validate the object before importing
+                    $errors = $this->validator->validate($studentObj,
+                        null,
+                        ['STUDENT_USER']
+                    );
+
+                    if (count($errors) > 0) {
+                        $errorsString = (string) $errors;
                         continue;
                     }
 
-                    $studentObj = new StudentUser();
-                    $studentObj->setFirstName($student['First Name']);
-                    $studentObj->setLastName($student['Last Name']);
-                    $studentObj->setStudentId($student['Student Id']);
-                    $studentObj->setSchool($school);
-                    $studentObj->setupAsStudent();
-                    $studentObj->initializeNewUser();
-                    $studentObj->setActivated(true);
-                    $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
-                    $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
-                    $studentObj->setPassword($encodedPassword);
                     $this->entityManager->persist($studentObj);
                     $studentObjs[] = $studentObj;
                 }
-
                 $this->entityManager->flush();
-            }
-
-            if(empty($studentObjs)) {
-                $this->addFlash('error', sprintf('None of the user data in your csv has changed! No students have been modified.'));
-                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
 
             $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
@@ -363,36 +372,43 @@ class SchoolController extends AbstractController
                 foreach($educators as $educator) {
 
                     $educatorId = $educator['Educator Id'];
-                    $existingEducator = $this->educatorUserRepository->findOneBy([
+                    $educatorObj = $this->educatorUserRepository->findOneBy([
                         'educatorId' => $educatorId
                     ]);
 
-                    // if the educator already exists in the system then we skip creating it
-                    if($existingEducator) {
+                    // only create the educator if it doesn't exist
+                    if(!$educatorObj) {
+                        $educatorObj = new EducatorUser();
+                        $educatorObj->setEducatorId($educator['Educator Id']);
+                        $educatorObj->setSchool($school);
+                        $educatorObj->setupAsEducator();
+                        $educatorObj->initializeNewUser();
+                        $educatorObj->setActivated(true);
+                        $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
+                        $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $educatorObj->getTempPassword());
+                        $educatorObj->setPassword($encodedPassword);
+                    }
+
+                    // we only allow overriding first name and last name by imports
+                    $educatorObj->setFirstName($educator['First Name']);
+                    $educatorObj->setLastName($educator['Last Name']);
+
+                    // let's manually validate the object before importing
+                    $errors = $this->validator->validate($educatorObj,
+                        null,
+                        ['EDUCATOR_USER']
+                    );
+
+                    if (count($errors) > 0) {
+                        $errorsString = (string) $errors;
                         continue;
                     }
 
-                    $educatorObj = new EducatorUser();
-                    $educatorObj->setFirstName($educator['First Name']);
-                    $educatorObj->setLastName($educator['Last Name']);
-                    $educatorObj->setEducatorId($educator['Educator Id']);
-                    $educatorObj->setSchool($school);
-                    $educatorObj->setupAsEducator();
-                    $educatorObj->initializeNewUser();
-                    $educatorObj->setActivated(true);
-                    $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
-                    $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $educatorObj->getTempPassword());
-                    $educatorObj->setPassword($encodedPassword);
                     $this->entityManager->persist($educatorObj);
                     $educatorObjs[] = $educatorObj;
                 }
 
                 $this->entityManager->flush();
-            }
-
-            if(empty($educatorObjs)) {
-                $this->addFlash('error', sprintf('None of the user data in your csv has changed! No educators have been modified.'));
-                return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
             }
 
             $data = $this->serializer->serialize($educatorObjs, 'json', ['groups' => ['EDUCATOR_USER']]);
@@ -585,10 +601,10 @@ class SchoolController extends AbstractController
      * @param int $i
      * @return mixed
      */
-    private function determineUsername($tempUsername, $i = 0) {
+    private function determineUsername($tempUsername, $i = 1) {
 
         if($this->userRepository->loadUserByUsername($tempUsername)) {
-            return $this->determineUsername(sprintf("%s%s", $tempUsername, ++$i));
+            return $this->determineUsername(sprintf("%s%s", $tempUsername, $this->generateRandomNumber($i)), ++$i);
         }
         return $tempUsername;
     }

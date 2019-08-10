@@ -3,11 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RegionalCoordinatorRepository")
+ *
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"REGIONAL_COORDINATOR_EDIT"}, repositoryMethod="findByUniqueCriteria")
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"REGIONAL_COORDINATOR_EDIT"}, repositoryMethod="findByUniqueCriteria")
  */
 class RegionalCoordinator extends User
 {

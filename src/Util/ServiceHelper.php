@@ -27,6 +27,7 @@ use Symfony\Component\Asset\Packages;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait ServiceHelper
 {
@@ -141,6 +142,11 @@ trait ServiceHelper
     private $importMailer;
 
     /**
+     * @var ValidatorInterface $validator
+     */
+    private $validator;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -164,6 +170,7 @@ trait ServiceHelper
      * @param EducatorUserRepository $educatorUserRepository
      * @param SerializerInterface $serializer
      * @param ImportMailer $importMailer
+     * @param ValidatorInterface $validator
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -187,7 +194,8 @@ trait ServiceHelper
         StudentUserRepository $studentUserRepository,
         EducatorUserRepository $educatorUserRepository,
         SerializerInterface $serializer,
-        ImportMailer $importMailer
+        ImportMailer $importMailer,
+        ValidatorInterface $validator
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -211,6 +219,7 @@ trait ServiceHelper
         $this->educatorUserRepository = $educatorUserRepository;
         $this->serializer = $serializer;
         $this->importMailer = $importMailer;
+        $this->validator = $validator;
     }
 
     public function getFullQualifiedBaseUrl() {

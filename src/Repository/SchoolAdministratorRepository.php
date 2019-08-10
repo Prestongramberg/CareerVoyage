@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\SchoolAdministrator;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,13 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param string[] $criteria format: array('user' => <user_id>, 'name' => <name>)
+     * @return array|object[]
+     */
+    public function findByUniqueCriteria(array $criteria)
+    {
+        return $this->_em->getRepository(User::class)->findBy($criteria);
+    }
 }

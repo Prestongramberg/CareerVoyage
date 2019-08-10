@@ -8,6 +8,14 @@
     {% elseif user.isProfessional %}
         {% include 'profile/partials/_view_professional_profile.html.twig' %}
     {% elseif user.isEducator %}
+        {% include 'profile/partials/_view_educator_profile.html.twig' %}
+    {% elseif user.isStudent %}
+        {% include 'profile/partials/_view_student_profile.html.twig' %}
+    {% elseif user.isStateCoordinator %}
+        {% include 'profile/partials/_view_state_coordinator_profile.html.twig' %}
+    {% elseif user.isRegionalCoordinator %}
+        {% include 'profile/partials/_view_regional_coordinator_profile.html.twig' %}
     {% elseif user.isSchoolAdministrator %}
+        {% include 'profile/partials/_view_school_administrator_profile.html.twig' %}
     {% endif %}
 {% endblock %}

@@ -5,10 +5,21 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EducatorUserRepository")
+ *
+ * @UniqueEntity(
+ *     fields={"school", "educatorId"},
+ *     errorPath="educatorId",
+ *     message="This educator Id already belongs to another user at this school",
+ *     groups={"EDUCATOR_USER"}
+ * )
+ *
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"EDUCATOR_USER"}, repositoryMethod="findByUniqueCriteria")
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"EDUCATOR_USER"}, repositoryMethod="findByUniqueCriteria")
  */
 class EducatorUser extends User
 {
@@ -55,7 +66,7 @@ class EducatorUser extends User
 
     /**
      * @Groups({"EDUCATOR_USER"})
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educatorId;
 
