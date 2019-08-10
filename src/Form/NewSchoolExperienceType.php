@@ -123,7 +123,8 @@ class NewSchoolExperienceType extends AbstractType
 
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
-            'label' => false
+            'label' => false,
+            'allow_add' => true,
         ]);
 
         $builder->get('secondaryIndustries')

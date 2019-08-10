@@ -829,11 +829,8 @@ class CompanyController extends AbstractController
             $experience = $form->getData();
 
             $this->entityManager->persist($experience);
-
             $experience->setCompany($company);
-
             $this->entityManager->flush();
-
             $this->addFlash('success', 'Experience successfully updated!');
 
             return $this->redirectToRoute('company_experience_edit', ['id' => $experience->getId()]);
