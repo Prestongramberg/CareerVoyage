@@ -20,6 +20,7 @@ use App\Entity\SchoolVideo;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
+use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
 use App\Form\NewCompanyFormType;
@@ -604,7 +605,7 @@ class SchoolController extends AbstractController
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createExperienceAction(Request $request, School $school) {
+    public function createSchoolExperienceAction(Request $request, School $school) {
 
         $this->denyAccessUnlessGranted('edit', $school);
 
@@ -640,7 +641,46 @@ class SchoolController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/schools/experiences/{id}/edit", name="school_experience_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editSchoolExperienceAction(Request $request, SchoolExperience $experience) {
 
+        $school = $experience->getSchool();
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        $form = $this->createForm(EditSchoolExperienceType::class, $experience, [
+            'method' => 'POST',
+            'school' => $school
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var SchoolExperience $experience */
+            $experience = $form->getData();
+
+            $this->entityManager->persist($experience);
+            $experience->setSchool($school);
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Experience successfully updated!');
+
+            return new Response("hi");
+        }
+
+        return $this->render('school/new_experience.html.twig', [
+            'school' => $school,
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
+    }
 
 
 

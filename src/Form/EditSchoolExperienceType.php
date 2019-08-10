@@ -12,6 +12,9 @@ use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\RolesWillingToFulfill;
+use App\Entity\School;
+use App\Entity\SchoolAdministrator;
+use App\Entity\SchoolExperience;
 use App\Entity\State;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
@@ -38,7 +41,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
-class NewCompanyExperienceType extends AbstractType
+class EditSchoolExperienceType extends AbstractType
 {
     /**
      * @var SecondaryIndustryRepository
@@ -56,8 +59,8 @@ class NewCompanyExperienceType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var Company $company */
-        $company = $options['company'];
+        /** @var School $school */
+        $school = $options['school'];
 
         $builder
             ->add('title', TextType::class, [])
@@ -93,15 +96,16 @@ class NewCompanyExperienceType extends AbstractType
                 'multiple'  => false,
                 'required' => false
             ])
-            ->add('employeeContact', EntityType::class, [
-                'class' => ProfessionalUser::class,
+            ->add('schoolContact', EntityType::class, [
+                'class' => SchoolAdministrator::class,
                 'choice_label' => 'fullName',
                 'expanded'  => false,
                 'multiple'  => false,
-                'query_builder' => function (EntityRepository $er) use ($company) {
-                    return $er->createQueryBuilder('p')
-                        ->where('p.company = :company')
-                        ->setParameter('company', $company);
+                'query_builder' => function (EntityRepository $er) use ($school) {
+                    return $er->createQueryBuilder('sa')
+                        ->innerJoin('sa.schools', 'schools')
+                        ->where('schools.id = :id')
+                        ->setParameter('id', $school->getId());
                 },
             ])
             ->add('email', TextType::class, [])
@@ -172,11 +176,11 @@ class NewCompanyExperienceType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => CompanyExperience::class,
+            'data_class' => SchoolExperience::class,
             'validation_groups' => ['CREATE'],
         ]);
 
-        $resolver->setRequired(['company']);
+        $resolver->setRequired(['school']);
 
     }
 }
