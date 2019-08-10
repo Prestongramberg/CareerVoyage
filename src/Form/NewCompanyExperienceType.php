@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Career;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\Course;
@@ -74,15 +73,6 @@ class NewCompanyExperienceType extends AbstractType
                         ->setParameter('inEventDropdown', true);
                 },
             ])
-            ->add('careers', EntityType::class, [
-                'class' => Career::class,
-                'choice_label' => 'title',
-                'expanded'  => true,
-                'multiple'  => true,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
-                }
-            ])
             ->add('availableSpaces', NumberType::class, [])
             ->add('payment', NumberType::class, [
                 'required' => false,
@@ -120,12 +110,18 @@ class NewCompanyExperienceType extends AbstractType
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
             'label' => false,
-            'allow_extra_fields' => true
+            'mapped' => false,
+            'allow_add' => true,
         ]);
 
         $builder->get('secondaryIndustries')
             ->addModelTransformer(new CallbackTransformer(
                 function ($secondaryIndustries) {
+
+                    if(!$secondaryIndustries) {
+                        return [];
+                    }
+
                     $ids = [];
                     foreach($secondaryIndustries as $secondaryIndustry) {
                         $ids[] = $secondaryIndustry->getId();
@@ -134,7 +130,6 @@ class NewCompanyExperienceType extends AbstractType
                     return $ids;
                 },
                 function ($ids) {
-
                     $collection = new ArrayCollection();
                     foreach($ids as $id) {
                         $collection->add($this->secondaryIndustryRepository->find($id));

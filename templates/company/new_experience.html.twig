@@ -95,7 +95,8 @@
                     </fieldset>
                 </div>
             </div>
-            <div class="page-company-experience-add__careers">
+            <div class="page-company-experience-add__
+            careers">
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div id="subscribe-secondary-industries"
@@ -103,12 +104,6 @@
                              data-secondary-industries='[{"id": 4},{"id": 6}]'
                              data-remove-dom-id="new_company_experience_secondaryIndustries"
                         ></div>
-                        <div class="uk-margin">
-                            {{ form_label(form.careers, 'Careers') }}
-                            {{ form_widget(form.careers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.careers) ? ' uk-form-danger' : '' ) }}) }}
-                            <div class="clear"></div>
-                            {{ form_errors(form.careers) }}
-                        </div>
                     </fieldset>
                 </div>
             </div>

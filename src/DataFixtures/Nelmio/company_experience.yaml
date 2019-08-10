@@ -3,7 +3,6 @@ App\Entity\CompanyExperience:
         title: <catchPhrase()>
         briefDescription: <paragraph(2)>
         about: <paragraph(5)>
-        careers: [<career()>, <career()>]
         availableSpaces: <numberBetween(2, 100)>
         payment: <randomFloat(2, 10, 100)>
         paymentShownIsPer: <randomPaymentType()>

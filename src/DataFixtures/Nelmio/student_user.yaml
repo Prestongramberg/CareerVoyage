@@ -1,0 +1,37 @@
+App\Entity\StudentUser:
+  student_user (template):
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_STUDENT_USER", "ROLE_DASHBOARD_USER"]
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    displayName: <name()>
+    briefBio: <paragraph(2)>
+    studentId: <randomNumber(5)>
+    schoolEmail: <safeEmail()>
+    companiesInterestedIn: ['@company_1', '@company_2']
+  student_user_1 (extends student_user):
+    firstName: Willy
+    lastName: Johnson
+    username: "willy.student"
+    displayName: "Willy J'n"
+    school: <schoolById(1)>
+    secondaryIndustries: <secondaryIndustry(1)>
+  student_user_2 (extends student_user):
+    firstName: Brent
+    lastName: Wozniak
+    username: "brent.wozniak"
+    displayName: "BW"
+    school: <schoolById(2)>
+    secondaryIndustries: <secondaryIndustry(2)>
+  student_user_{3..10} (extends student_user):
+    firstName: <firstName()>
+    lastName: <lastName()>
+    username: <username()>
+    displayName: <name()>
+    school: <schoolById(1)>
+  student_user_{11..20} (extends student_user):
+    firstName: <firstName()>
+    lastName: <lastName()>
+    username: <username()>
+    displayName: <name()>
+    school: <schoolById(2)>

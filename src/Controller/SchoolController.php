@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
 use App\Entity\EducatorUser;
+use App\Entity\ExperienceFile;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -631,7 +632,7 @@ class SchoolController extends AbstractController
 
             $this->addFlash('success', 'Experience successfully created!');
 
-            return new Response("hi");
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
         return $this->render('school/new_experience.html.twig', [
@@ -672,20 +673,150 @@ class SchoolController extends AbstractController
 
             $this->addFlash('success', 'Experience successfully updated!');
 
-            return new Response("hi");
+            return $this->redirectToRoute('school_experience_edit', ['id' => $experience->getId()]);
         }
 
-        return $this->render('school/new_experience.html.twig', [
+        return $this->render('school/edit_experience.html.twig', [
             'school' => $school,
             'form' => $form->createView(),
             'user' => $user
         ]);
     }
 
+    /**
+     * @Route("/schools/experiences/{id}/view", name="school_experience_view", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewExperienceAction(Request $request, SchoolExperience $experience) {
 
+        $user = $this->getUser();
 
+        return $this->render('school/view_experience.html.twig', [
+            'user' => $user,
+            'experience' => $experience
+        ]);
+    }
 
+    /**
+     * @Route("/schools/experiences/{id}/file/add", name="school_experience_file_add", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return JsonResponse
+     */
+    public function schoolExperienceAddFileAction(Request $request, SchoolExperience $experience) {
 
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+
+        /** @var UploadedFile $resource */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($resource && $title && $description) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $file = new ExperienceFile();
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+            $file->setExperience($experience);
+            $file->setDescription($description);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/schools/experiences/file/{id}/edit", name="school_experience_file_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param ExperienceFile $file
+     * @return JsonResponse
+     */
+    public function schoolExperienceEditFileAction(Request $request, ExperienceFile $file) {
+
+        $this->denyAccessUnlessGranted('edit', $file->getExperience()->getSchool());
+
+        /** @var UploadedFile $resource */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($title) {
+            $file->setTitle($title);
+        }
+
+        if($description) {
+            $file->setDescription($description);
+        }
+
+        if($resource) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+        }
+
+        $this->entityManager->persist($file);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                'id' => $file->getId(),
+                'title' => $file->getTitle(),
+                'description' => $file->getDescription()
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/schools/experiences/files/{id}/remove", name="school_experience_file_remove", options = { "expose" = true })
+     * @ParamConverter("company", options={"id" = "company_id"})
+     * @ParamConverter("companyResource", options={"id" = "resource_id"})
+     * @param Request $request
+     * @param ExperienceFile $experienceFile
+     * @return JsonResponse
+     */
+    public function schoolExperienceRemoveFileAction(Request $request, ExperienceFile $experienceFile) {
+
+        $this->denyAccessUnlessGranted('edit', $experienceFile->getExperience()->getSchool());
+
+        $this->entityManager->remove($experienceFile);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
+    }
 
     /**
      * @param $tempUsername

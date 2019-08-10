@@ -15,6 +15,12 @@ class SchoolExperience extends Experience
      */
     private $school;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\SchoolAdministrator", inversedBy="schoolExperiences")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $schoolContact;
+
     public function getSchool(): ?School
     {
         return $this->school;
@@ -23,6 +29,18 @@ class SchoolExperience extends Experience
     public function setSchool(?School $school): self
     {
         $this->school = $school;
+
+        return $this;
+    }
+
+    public function getSchoolContact(): ?SchoolAdministrator
+    {
+        return $this->schoolContact;
+    }
+
+    public function setSchoolContact(?SchoolAdministrator $schoolContact): self
+    {
+        $this->schoolContact = $schoolContact;
 
         return $this;
     }

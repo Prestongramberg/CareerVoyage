@@ -2,8 +2,6 @@
 
 namespace App\DataFixtures;
 
-
-use App\Entity\Career;
 use App\Entity\Course;
 use App\Entity\Region;
 use App\Entity\State;
@@ -46,11 +44,5 @@ class AppFixtures extends Fixture
         $manager->persist($region);
         $manager->flush();
 
-        foreach(Career::$types as $careerTitle) {
-            $career = new Career();
-            $career->setTitle($careerTitle);
-            $manager->persist($career);
-        }
-        $manager->flush();
     }
 }

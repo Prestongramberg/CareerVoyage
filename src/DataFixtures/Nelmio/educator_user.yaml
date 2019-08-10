@@ -1,0 +1,38 @@
+App\Entity\EducatorUser:
+  educator_user (template):
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_EDUCATOR_USER", "ROLE_DASHBOARD_USER"]
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    displayName: <name()>
+    briefBio: <paragraph(2)>
+    educatorId: <randomNumber(5)>
+    linkedinProfile: <url()>
+    interests: <paragraph(1)>
+    phone: <phoneNumber()>
+  educator_user_1 (extends educator_user):
+    firstName: Kia
+    lastName: Maybury
+    username: "kia.maybury"
+    displayName: "Ms. Kia Maybury"
+    school: <schoolById(1)>
+    secondaryIndustries: <secondaryIndustry(1)>
+  educator_user_2 (extends educator_user):
+    firstName: Sara
+    lastName: Paylan
+    username: "sara.paylan"
+    displayName: "Mrs. Sara Paylan"
+    school: <schoolById(2)>
+    secondaryIndustries: <secondaryIndustry(2)>
+  educator_user_{3..10} (extends educator_user):
+    firstName: <firstName()>
+    lastName: <lastName()>
+    username: <username()>
+    displayName: <name()>
+    school: <schoolById(1)>
+  educator_user_{11..20} (extends educator_user):
+    firstName: <firstName()>
+    lastName: <lastName()>
+    username: <username()>
+    displayName: <name()>
+    school: <schoolById(2)>
