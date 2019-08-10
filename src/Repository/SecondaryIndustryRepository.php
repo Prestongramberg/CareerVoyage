@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\EducatorUser;
 use App\Entity\SecondaryIndustry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -47,4 +48,14 @@ class SecondaryIndustryRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findByEducatorUser(EducatorUser $educatorUser)
+    {
+        return $this->createQueryBuilder('s')
+            ->join('s.educatorUsers', 'educator_users')
+            ->where('educator_users.educatorId = :ids')
+            ->setParameter('ids', [$educatorUser->getId()])
+            ->getQuery()
+            ->getResult();
+    }
 }

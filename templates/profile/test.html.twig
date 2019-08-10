@@ -85,11 +85,19 @@
         <input type="submit" value="submit">
     </form>#}
 
-     <form method="post" action="{{ path('school_photos_add', {'id' : 32}) }}" enctype="multipart/form-data">
-         <input type="file" name="file">
+     <form method="post" action="{{ path('student_secondary_industry_add', {'id' : 110}) }}" enctype="multipart/form-data">
+         <input type="hidden" name="secondaryIndustry" value="2">
          <input type="submit" value="submit">
      </form>
 
+    <form method="post" action="{{ path('student_secondary_industry_remove', {'id' : 110}) }}" enctype="multipart/form-data">
+        <input type="hidden" name="secondaryIndustry" value="2">
+        <input type="submit" value="submit">
+    </form>
 
+
+    <form method="get" action="{{ path('student_secondary_industries', {'id' : 110}) }}" enctype="multipart/form-data">
+        <input type="submit" value="submit">
+    </form>
 
 {% endblock %}
