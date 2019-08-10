@@ -35,7 +35,7 @@ class App extends React.Component {
                 <div className="uk-section uk-section-muted uk-padding">
                     <div className="uk-grid" data-uk-grid>
                         <div className="uk-width-1-1">
-                            <h4>{ this.props.currentTitle || "Subscribe to Career Fields" }</h4>
+                            <h4>{ this.props.currentTitle || "Add Relevant Career Fields" }</h4>
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-2">
                                     <select className="uk-select" onChange={this.props.primaryIndustryChanged}>
@@ -59,7 +59,7 @@ class App extends React.Component {
 
                 {this.props.subscriptions.subscribed.length > 0 && (
                     <div className="uk-margin">
-                        <h4>{ this.props.existingTitle || "Currently Subscribed Career Fields:" }</h4>
+                        <h4>{ this.props.existingTitle || "Current Career Fields:" }</h4>
                         <ul className="uk-list uk-list-divider">
                             {this.props.subscriptions.subscribed.map((secondaryIndustryId, index) => {
                                 const secondaryIndustry = getSecondaryIndustry(this.props.subscriptions.data, secondaryIndustryId);
@@ -68,7 +68,7 @@ class App extends React.Component {
                                         <div className="uk-grid uk-flex-middle uk-margin-remove-vertical" data-uk-grid>
                                             <div className="uk-width-expand">
                                                 <span>{ secondaryIndustry.name }</span>
-                                                <input type="hidden" id={`secondaryIndustries_${index}`} name="secondaryIndustries[]" value={secondaryIndustry.id} />
+                                                <input type="hidden" name={`${this.props.fieldName}[${index}]`} value={secondaryIndustry.id} />
                                             </div>
                                             <div className="uk-width-auto">
                                                 <button type="button"
@@ -102,14 +102,16 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.props.loadIndustries( window.Routing.generate('get_industries') );
+        this.props.loadIndustries( window.Routing.generate('get_industries'), this.props.removeDomId );
     }
 }
 
 App.propTypes = {
     currentTitle: PropTypes.string,
     existingTitle: PropTypes.string,
+    fieldName: PropTypes.string,
     initialIndustrySubscriptions: PropTypes.array,
+    removeDomId: PropTypes.string,
     subscriptions: PropTypes.object,
     uiState: PropTypes.object,
 };
@@ -125,7 +127,7 @@ export const mapStateToProps = (state = {}) => ({
 });
 
 export const mapDispatchToProps = dispatch => ({
-    loadIndustries: (url) => dispatch(loadIndustries(url)),
+    loadIndustries: (url, removeDomId) => dispatch(loadIndustries(url, removeDomId)),
     primaryIndustryChanged: (event) => dispatch(primaryIndustryChanged(event.target.value)),
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
     removeIndustry: (industryId) => dispatch(unsubscribe(industryId))

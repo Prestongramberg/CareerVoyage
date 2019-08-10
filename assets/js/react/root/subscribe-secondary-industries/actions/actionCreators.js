@@ -30,6 +30,7 @@ export function loadIndustries(url, removeDomId) {
             .then((response) => {
                 if (response.statusCode < 300) {
                     dispatch({type: actionTypes.LOAD_INDUSTRIES_SUCCESS, response: response.responseBody});
+                    $(`#${removeDomId}`).remove();
                 }  else {
                     dispatch({
                         type: actionTypes.LOAD_INDUSTRIES_FAILURE,
