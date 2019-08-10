@@ -67,12 +67,12 @@ class EducatorUserController extends AbstractController
     use ServiceHelper;
 
     /**
-     * @Route("/{id}/secondary-industries/add", name="educator_secondary_industry_add")
+     * @Route("/{id}/industries/add", name="educator_industry_add")
      * @param Request $request
      * @param EducatorUser $educatorUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function secondaryIndustryAddAction(Request $request, EducatorUser $educatorUser) {
+    public function addIndustry(Request $request, EducatorUser $educatorUser) {
 
         $this->denyAccessUnlessGranted('edit', $educatorUser);
 
@@ -101,12 +101,12 @@ class EducatorUserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/secondary-industries/remove", name="educator_secondary_industry_remove")
+     * @Route("/{id}/industries/remove", name="educator_industry_remove")
      * @param Request $request
      * @param EducatorUser $educatorUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function secondaryIndustryRemoveAction(Request $request, EducatorUser $educatorUser) {
+    public function removeIndustry(Request $request, EducatorUser $educatorUser) {
 
         $this->denyAccessUnlessGranted('edit', $educatorUser);
 
@@ -126,12 +126,12 @@ class EducatorUserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/secondary-industries", name="educator_secondary_industries")
+     * @Route("/{id}/industries", name="educator_industries")
      * @param Request $request
      * @param EducatorUser $educatorUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function secondaryIndustriesAction(Request $request, EducatorUser $educatorUser) {
+    public function getIndustries(Request $request, EducatorUser $educatorUser) {
 
         $secondaryIndustries = $educatorUser->getSecondaryIndustries();
 
@@ -147,4 +147,5 @@ class EducatorUserController extends AbstractController
             Response::HTTP_OK
         );
     }
+
 }

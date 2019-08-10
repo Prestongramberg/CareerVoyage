@@ -68,12 +68,12 @@ class StudentUserController extends AbstractController
     use ServiceHelper;
 
     /**
-     * @Route("/{id}/secondary-industries/add", name="student_secondary_industry_add")
+     * @Route("/{id}/industries/add", name="student_industry_add")
      * @param Request $request
      * @param StudentUser $studentUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function secondaryIndustryAddAction(Request $request, StudentUser $studentUser) {
+    public function addIndustry(Request $request, StudentUser $studentUser) {
 
         $this->denyAccessUnlessGranted('edit', $studentUser);
 
@@ -102,12 +102,12 @@ class StudentUserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/secondary-industries/remove", name="student_secondary_industry_remove")
+     * @Route("/{id}/industries/remove", name="student_industry_remove")
      * @param Request $request
      * @param StudentUser $studentUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function secondaryIndustryRemoveAction(Request $request, StudentUser $studentUser) {
+    public function removeIndustry(Request $request, StudentUser $studentUser) {
 
         $this->denyAccessUnlessGranted('edit', $studentUser);
 
@@ -127,12 +127,12 @@ class StudentUserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/secondary-industries", name="student_secondary_industries")
+     * @Route("/{id}/industries", name="student_industries")
      * @param Request $request
      * @param StudentUser $studentUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function secondaryIndustriesAction(Request $request, StudentUser $studentUser) {
+    public function getIndustries(Request $request, StudentUser $studentUser) {
 
         $secondaryIndustries = $studentUser->getSecondaryIndustries();
 
@@ -148,4 +148,5 @@ class StudentUserController extends AbstractController
             Response::HTTP_OK
         );
     }
+
 }

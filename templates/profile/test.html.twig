@@ -85,18 +85,17 @@
         <input type="submit" value="submit">
     </form>#}
 
-     <form method="post" action="{{ path('student_secondary_industry_add', {'id' : 110}) }}" enctype="multipart/form-data">
+     <form method="post" action="{{ path('educator_industry_add', {'id' : 111}) }}" enctype="multipart/form-data">
          <input type="hidden" name="secondaryIndustry" value="2">
          <input type="submit" value="submit">
      </form>
 
-    <form method="post" action="{{ path('student_secondary_industry_remove', {'id' : 110}) }}" enctype="multipart/form-data">
+    <form method="post" action="{{ path('educator_industry_remove', {'id' : 111}) }}" enctype="multipart/form-data">
         <input type="hidden" name="secondaryIndustry" value="2">
         <input type="submit" value="submit">
     </form>
 
-
-    <form method="get" action="{{ path('student_secondary_industries', {'id' : 110}) }}" enctype="multipart/form-data">
+    <form method="get" action="{{ path('educator_industries', {'id' : 111}) }}" enctype="multipart/form-data">
         <input type="submit" value="submit">
     </form>
 

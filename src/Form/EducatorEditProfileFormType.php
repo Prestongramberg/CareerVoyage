@@ -59,7 +59,9 @@ class EducatorEditProfileFormType extends AbstractType
             ->add('email')
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
-            ]);
+            ])
+            ->add('interests', TextAreaType::class);
+
 
         $this->setupImmutableFields($builder, $options, [
             'firstName',

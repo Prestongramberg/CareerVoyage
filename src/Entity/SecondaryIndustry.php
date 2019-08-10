@@ -63,6 +63,11 @@ class SecondaryIndustry
      */
     private $studentUsers;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Experience", mappedBy="secondaryIndustries")
+     */
+    private $experiences;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -70,6 +75,7 @@ class SecondaryIndustry
         $this->professionalUsers = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
         $this->studentUsers = new ArrayCollection();
+        $this->experiences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -253,4 +259,31 @@ class SecondaryIndustry
         return $this;
     }
 
+    /**
+     * @return Collection|Experience[]
+     */
+    public function getExperiences(): Collection
+    {
+        return $this->experiences;
+    }
+
+    public function addExperience(Experience $experience): self
+    {
+        if (!$this->experiences->contains($experience)) {
+            $this->experiences[] = $experience;
+            $experience->addSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperience(Experience $experience): self
+    {
+        if ($this->experiences->contains($experience)) {
+            $this->experiences->removeElement($experience);
+            $experience->removeSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
 }

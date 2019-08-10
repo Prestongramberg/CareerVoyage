@@ -597,6 +597,55 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/{id}/experiences/create", name="school_experience_create", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createExperienceAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        $experience = new CompanyExperience();
+        $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
+            'method' => 'POST',
+            'company' => $company
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var CompanyExperience $experience */
+            $experience = $form->getData();
+
+            $this->entityManager->persist($experience);
+
+            $experience->setCompany($company);
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Experience successfully created!');
+
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
+
+        return $this->render('company/new_experience.html.twig', [
+            'company' => $company,
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
+    }
+
+
+
+
+
+
+
+
+    /**
      * @param $tempUsername
      * @param int $i
      * @return mixed
