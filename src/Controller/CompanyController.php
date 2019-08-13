@@ -779,9 +779,6 @@ class CompanyController extends AbstractController
         $user = $this->getUser();
         $experience = new CompanyExperience();
 
-        $experience->addSecondaryIndustry($this->secondaryIndustryRepository->find(1));
-        $experience->addSecondaryIndustry($this->secondaryIndustryRepository->find(2));
-
         $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
             'method' => 'POST',
             'company' => $company
@@ -866,6 +863,27 @@ class CompanyController extends AbstractController
             'user' => $user,
             'experience' => $experience
         ]);
+    }
+
+    /**
+     * @Route("/companies/experiences/{id}/remove", name="company_experience_remove", options = { "expose" = true })
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return JsonResponse
+     */
+    public function experienceRemoveAction(Request $request, CompanyExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getCompany());
+
+        $this->entityManager->remove($experience);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
     }
 
     /**
