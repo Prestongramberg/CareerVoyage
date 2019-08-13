@@ -53,14 +53,14 @@ class App extends React.Component {
                                     <ProfessionalListing
                                         briefBio={professional.briefBio}
                                         company={companyName}
-                                        email={professional.email}
+                                        email={professional.emailAfterPrivacySettingsApplied}
                                         firstName={professional.firstName}
                                         key={professional.id}
                                         id={professional.id}
                                         image={professional.photoImageURL}
                                         lastName={professional.lastName}
                                         linkedIn={professional.linkedinProfile}
-                                        phone={professional.phone}
+                                        phone={professional.phoneAfterPrivacySettingsApplied}
                                         primaryIndustry={primaryIndustry}
                                         secondaryIndustry={secondaryIndustry}
                                     />

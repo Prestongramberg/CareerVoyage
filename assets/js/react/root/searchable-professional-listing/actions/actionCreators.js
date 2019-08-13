@@ -38,6 +38,7 @@ export function updateSecondaryIndustryQuery(industry) {
 
 export function loadProfessionals(url) {
     return (dispatch, getState) => {
+
         dispatch({type: actionTypes.PROFESSIONALS_LOADING})
 
         return api.get(url)
