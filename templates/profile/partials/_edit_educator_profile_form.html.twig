@@ -63,6 +63,20 @@
                         {{ form_errors(form.interests) }}
                     </div>
 
+                    {% if user.secondaryIndustries is defined %}
+                        <div class="page-company-experience-edit__careers">
+                            <div class="uk-width-xlarge">
+                                <fieldset class="uk-fieldset">
+                                    <div id="subscribe-secondary-industries"
+                                         data-field-name="educator_edit_profile_form[secondaryIndustries]"
+                                         data-secondary-industries="{{ encode_secondary_industries(user.secondaryIndustries) }}"
+                                         data-remove-dom-id="educator_edit_profile_form_secondaryIndustries"
+                                    ></div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <div class="uk-margin">
                         <button class="uk-button uk-button-primary uk-button-small">Save</button>
                     </div>

@@ -84,9 +84,9 @@ class AppExtension extends AbstractExtension
         return $this->serializer->serialize($companyResources, 'json', ['groups' => ['COMPANY_RESOURCE']]);
     }
 
-    public function encodeSecondaryIndustries(Experience $experience): string
+    public function encodeSecondaryIndustries($secondaryIndustries): string
     {
-        return $this->serializer->serialize($experience->getSecondaryIndustries(), 'json', ['groups' => ['RESULTS_PAGE']]);
+        return $this->serializer->serialize($secondaryIndustries, 'json', ['groups' => ['RESULTS_PAGE']]);
     }
 
     public function validateUrl( $url ) : string
@@ -106,7 +106,6 @@ class AppExtension extends AbstractExtension
             return substr( $content, 0, $limit) . '...';
         }
     }
-
 
     public function pendingRequests(User $user) {
 
