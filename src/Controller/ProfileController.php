@@ -89,9 +89,6 @@ class ProfileController extends AbstractController
             'method' => 'POST',
         ];
 
-        $user->addSecondaryIndustry($this->secondaryIndustryRepository->find(1));
-
-
         if($user->isAdmin()) {
             $form = $this->createForm(AdminProfileFormType::class, $user, $options);
             /** @var AdminUser $user */
