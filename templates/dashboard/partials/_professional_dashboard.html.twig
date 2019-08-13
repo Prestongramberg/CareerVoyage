@@ -39,8 +39,10 @@
                             <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
                         {% endif %}
                         <div class="professional-links">
-                            <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                            {% if user.getPhone %}
+                            {% if user.isEmailHiddenFromProfile == false %}
+                                <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            {% endif %}
+                            {% if user.getPhone and user.isPhoneHiddenFromProfile == false %}
                                 <a href="tel:{{ user.phone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                             {% endif %}
                             {% if user.getLinkedinProfile %}

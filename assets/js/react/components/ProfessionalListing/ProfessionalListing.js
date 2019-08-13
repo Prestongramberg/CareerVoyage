@@ -30,7 +30,9 @@ class ProfessionalListing extends Component {
                             { truncate( this.props.briefBio ) || "This professional hasn't added a description yet." }
                         </div>
                         <div className="professional-links">
-                            <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                            {this.props.email && (
+                                <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                            )}
                             { this.props.phone && <a href={`tel:${this.props.phone}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a>}
                             { this.props.linkedIn && <a href={this.props.linkedIn} className="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"  target="_blank"></a>}
                         </div>

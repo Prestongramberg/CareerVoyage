@@ -40,8 +40,10 @@
                             <p>This user has not added a bio yet.</p>
                         {% endif %}
                         <div class="professional-links">
-                            <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                            {% if profileUser.getPhone %}
+                            {% if profileUser.isEmailHiddenFromProfile == false %}
+                                <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            {% endif %}
+                            {% if profileUser.getPhone and profileUser.isPhoneHiddenFromProfile == false %}
                                 <a href="tel:{{ profileUser.phone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                             {% endif %}
                             {% if profileUser.getLinkedinProfile %}

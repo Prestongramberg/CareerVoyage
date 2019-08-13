@@ -57,16 +57,6 @@
                                         {{ form_errors(form.interests) }}
                                     </div>
                                     <div class="uk-margin">
-                                        {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
-                                        {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
-                                        {{ form_errors(form.isEmailHiddenFromProfile) }}
-                                    </div>
-                                    <div class="uk-margin">
-                                        {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
-                                        {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
-                                        {{ form_errors(form.isPhoneHiddenFromProfile) }}
-                                    </div>
-                                    <div class="uk-margin">
                                         <button class="uk-button uk-button-primary uk-button-small">Save</button>
                                     </div>
                                 </fieldset>
@@ -148,6 +138,19 @@
                                         {{ form_label(form.phone, 'Phone') }}
                                         {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
                                         {{ form_errors(form.phone) }}
+                                    </div>
+                                    <div class="uk-margin">
+                                        <h4 class="uk-heading-divider">Contact Preferences</h4>
+                                    </div>
+                                    <div class="uk-margin">
+                                        {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
+                                        {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.isEmailHiddenFromProfile) }}
+                                    </div>
+                                    <div class="uk-margin">
+                                        {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
+                                        {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.isPhoneHiddenFromProfile) }}
                                     </div>
                                     <div class="uk-margin">
                                         <button class="uk-button uk-button-primary uk-button-small">Save</button>

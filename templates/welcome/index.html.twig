@@ -45,7 +45,7 @@
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                         </form>
 
-                        <p>Don't have an Account yet? <a href="#register" data-uk-switcher-item="1">Register</a></p>
+                        <p>Need to <a href="#register" data-uk-switcher-item="1">Register</a> for an Account? <a href="{{ path('forgot_password_form') }}">Forgot Password?</a></p>
                     </div>
                     <div class="login-box__register">
                         <p>Future Forward empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
