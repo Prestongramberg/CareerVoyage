@@ -1,0 +1,39 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Chats{% endblock %}
+{% block bodyClass %}chats-landing{% endblock %}
+
+
+{% block body %}
+    <h1>Chats</h1>
+    <div class="uk-child-width-expand@s" uk-grid>
+        <div>
+            {% for chattableUser in chattableUsers %}
+            <div class="uk-card uk-card-default uk-card-body">
+                {{ chattableUser.fullName }}
+                <form method="post" action="{{ path('create_single_chat') }}">
+                    <input type="hidden" name="userId" value="{{ chattableUser.id }}">
+                    <input type="submit" value="+" style="float:right">
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        <div>
+            <div class="uk-card uk-card-default uk-card-body">
+                <h3>Messages</h3>
+
+
+                <form method="post" action="{{ path('message_chat', {'id' : 1}) }}">
+                    <input type="text" name="body">
+                    <input type="submit" value="Send">
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+
