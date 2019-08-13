@@ -125,6 +125,9 @@ class EditCompanyExperienceType extends AbstractType
 
                     $collection = new ArrayCollection();
                     foreach($ids as $id) {
+                        if(!$id) {
+                            continue;
+                        }
                         $collection->add($this->secondaryIndustryRepository->find($id));
                     }
                     return $collection;

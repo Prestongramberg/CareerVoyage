@@ -442,4 +442,14 @@ abstract class Experience
 
         return $this;
     }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     * @return string
+     * @throws \ReflectionException
+     */
+    public function getClassName()
+    {
+        return (new \ReflectionClass($this))->getShortName();
+    }
 }
