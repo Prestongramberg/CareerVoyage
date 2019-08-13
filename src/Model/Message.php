@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use App\Entity\User;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -12,21 +13,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Message
 {
     /**
+     * @Groups({"MESSAGE"})
      * @var User $user
      */
     protected $from;
 
     /**
+     * @Groups({"MESSAGE"})
      * @var string $body
      */
     protected $body;
 
     /**
-     * @var string $attachment
-     */
-    protected $attachment;
-
-    /**
+     * @Groups({"MESSAGE"})
      * @var \DateTime $sentAt
      */
     protected $sentAt;
@@ -70,25 +69,6 @@ class Message
     }
 
     /**
-     * @return string
-     */
-    public function getAttachment()
-    {
-        return $this->attachment;
-    }
-
-    /**
-     * @param string $attachment
-     * @return Message
-     */
-    public function setAttachment($attachment)
-    {
-        $this->attachment = $attachment;
-
-        return $this;
-    }
-
-    /**
      * @return \DateTime
      */
     public function getSentAt()
@@ -105,5 +85,14 @@ class Message
         $this->sentAt = $sentAt;
 
         return $this;
+    }
+
+    /**
+     * @Groups({"MESSAGE"})
+     */
+    public function getFormattedSentDate() {
+
+        return $this->sentAt->format('Y-m-d H:i:s');
+
     }
 }

@@ -35,6 +35,7 @@ use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
+use Pusher\Pusher;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -87,6 +88,7 @@ class ChatController extends AbstractController
      * @Route("/chats/create/single", name="create_single_chat", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @return JsonResponse
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function createSingleChat(Request $request) {
 
@@ -96,10 +98,8 @@ class ChatController extends AbstractController
         $userId = $request->request->get('userId');
         $user = $this->userRepository->find($userId);
 
-        $singleChat = $this->singleChatRepository->findOneBy([
-            'initializedBy' => $loggedInUser,
-            'user' => $user,
-        ]);
+        // first check to see if you have initialized a chat with the user
+        $singleChat = $this->singleChatRepository->findByInitiatedByAndUser($loggedInUser, $user);
 
         // if a chat doesn't exist then let's create one!
         if(!$singleChat) {
@@ -111,7 +111,7 @@ class ChatController extends AbstractController
             $this->entityManager->flush();
         }
 
-        $json = $this->serializer->serialize($singleChat, 'json', ['groups' => ['CHAT']]);
+        $json = $this->serializer->serialize($singleChat, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
         $payload = json_decode($json, true);
 
         return new JsonResponse(
@@ -132,11 +132,11 @@ class ChatController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function message(Request $request, Chat $chat) {
+    public function message(Request $request, Chat $chat, $pusherAppId, $pusherAppKey, $pusherAppSecret) {
 
         $loggedInUser = $this->getUser();
 
-        $body = $request->request->get('body');
+        $body = $request->request->get('message');
         $message = new Message();
         $message->setBody($body);
         $message->setFrom($loggedInUser);
@@ -147,15 +147,28 @@ class ChatController extends AbstractController
         $this->entityManager->persist($chat);
         $this->entityManager->flush();
 
-        $name = "josh";
+        $options = array(
+            'cluster' => 'us2',
+            'useTLS' => true
+        );
+        $pusher = new Pusher(
+            $pusherAppKey,
+            $pusherAppSecret,
+            $pusherAppId,
+            $options
+        );
 
-     /*   $json = $this->serializer->serialize($singleChat, 'json', ['groups' => ['CHAT']]);
-        $payload = json_decode($json, true);*/
+        $json = $this->serializer->serialize($chat, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
+        $payload = json_decode($json, true);
+
+        $data = [];
+        $data['chat'] = $payload;
+        $pusher->trigger(sprintf('chat-%s', $chat->getUid()), 'send-message', $data);
 
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => 'yay',
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );
