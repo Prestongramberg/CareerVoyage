@@ -17,6 +17,7 @@ use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksP
 use App\Validator\Constraints as CustomAssert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
 
 
 /**
@@ -27,6 +28,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator"})
+ *
+ * @DiscriminatorMap(typeProperty="name", mapping={
+ *    "professional_user"="App\Entity\ProfessionalUser"
+ * })
  */
 abstract class User implements UserInterface
 {
@@ -44,7 +49,7 @@ abstract class User implements UserInterface
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -52,7 +57,7 @@ abstract class User implements UserInterface
     protected $id;
     
     /**
-     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT"}
@@ -93,7 +98,7 @@ abstract class User implements UserInterface
     protected $invitationCode;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      *
      * @ORM\Column(type="string", length=24, nullable=true)
@@ -101,7 +106,7 @@ abstract class User implements UserInterface
     protected $firstName;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      *
      * @ORM\Column(type="string", length=24, nullable=true)
@@ -172,7 +177,7 @@ abstract class User implements UserInterface
     protected $lessonTeachables;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "CHAT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $photo;
@@ -201,6 +206,16 @@ abstract class User implements UserInterface
      */
     protected $isPhoneHiddenFromProfile = false;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Chat", mappedBy="initializedBy")
+     */
+    protected $initializedChats;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SingleChat", mappedBy="user", orphanRemoval=true)
+     */
+    protected $singleChats;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -209,6 +224,8 @@ abstract class User implements UserInterface
         $this->requestsThatNeedMyApproval = new ArrayCollection();
         $this->companyFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
+        $this->initializedChats = new ArrayCollection();
+        $this->singleChats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -303,6 +320,10 @@ abstract class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @Groups({"CHAT", "MESSAGE"})
+     * @return string|null
+     */
     public function getFullName(): ?string
     {
         return $this->firstName . " " . $this->lastName;
@@ -899,5 +920,70 @@ abstract class User implements UserInterface
         $this->isPhoneHiddenFromProfile = $isPhoneHiddenFromProfile;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Chat[]
+     */
+    public function getInitializedChats(): Collection
+    {
+        return $this->initializedChats;
+    }
+
+    public function addInitializedChat(Chat $initializedChat): self
+    {
+        if (!$this->initializedChats->contains($initializedChat)) {
+            $this->initializedChats[] = $initializedChat;
+            $initializedChat->setInitializedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInitializedChat(Chat $initializedChat): self
+    {
+        if ($this->initializedChats->contains($initializedChat)) {
+            $this->initializedChats->removeElement($initializedChat);
+            // set the owning side to null (unless already changed)
+            if ($initializedChat->getInitializedBy()=== $this) {
+                $initializedChat->setInitializedBy(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection|SingleChat[]
+     */
+    public function getSingleChats(): Collection
+    {
+        return $this->singleChats;
+    }
+
+    public function addSingleChat(SingleChat $singleChat): self
+    {
+        if (!$this->singleChats->contains($singleChat)) {
+            $this->singleChats[] = $singleChat;
+            $singleChat->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSingleChat(SingleChat $singleChat): self
+    {
+        if ($this->singleChats->contains($singleChat)) {
+            $this->singleChats->removeElement($singleChat);
+            // set the owning side to null (unless already changed)
+            if ($singleChat->getUser() === $this) {
+                $singleChat->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
     }
 }

@@ -1,0 +1,38 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Chats{% endblock %}
+{% block bodyClass %}chats-landing js-chats-landing{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/chat.js') }}"></script>
+{% endblock %}
+
+
+
+{% block body %}
+    <h1>Chats</h1>
+    <div class="uk-child-width-expand@s" uk-grid>
+        <div>
+            {% for chattableUser in chattableUsers %}
+            <div class="uk-card uk-card-default uk-card-body">
+                {{ chattableUser.fullName }}
+                <button type="button" class="js-create-chat float-right" data-userId="{{ chattableUser.id }}">Start Chat</button>
+            </div>
+            {% endfor %}
+        </div>
+        <div>
+            <div class="uk-card uk-card-default uk-card-body">
+                <h3>Messages</h3>
+                <input type="text" name="message" class="js-message"><input type="button" value="send" class="js-send-message-button">
+                <div class="js-messages"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+

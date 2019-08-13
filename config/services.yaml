@@ -18,6 +18,9 @@ services:
         bind:
             $uploadsPath: '%kernel.project_dir%/public/uploads'
             $siteFromEmail: 'noreply@travishoglund.com'
+            $pusherAppId: '%env(PUSHER_APP_ID)%'
+            $pusherAppKey: '%env(PUSHER_APP_KEY)%'
+            $pusherAppSecret: '%env(PUSHER_APP_SECRET)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -33,6 +36,10 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\EntityListener\ChatListener:
+      tags:
+        - { name: doctrine.orm.entity_listener }
 
     App\Service\FileUploader:
         public: false

@@ -17,6 +17,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 class ProfessionalUser extends User
 {
     /**
+     * @Groups({"CHAT"})
+     * @var string
+     */
+    protected $name = 'professional_user';
+
+    /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
