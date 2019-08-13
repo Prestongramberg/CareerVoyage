@@ -49,7 +49,7 @@ abstract class Request
     /**
      * @ORM\Column(type="boolean")
      */
-    private $denied;
+    private $denied = false;
 
     public function getId(): ?int
     {

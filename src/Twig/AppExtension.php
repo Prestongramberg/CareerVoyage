@@ -98,8 +98,12 @@ class AppExtension extends AbstractExtension
         return $url;
     }
 
-    public function excerptLength( $content, $limit = 200 ) : string
+    public function excerptLength( $content, $limit = 200 )
     {
+        if(!$content) {
+            return '';
+        }
+
         if ( strlen( $content ) <= $limit) {
             return $content;
         } else {
