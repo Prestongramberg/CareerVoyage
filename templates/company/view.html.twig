@@ -59,11 +59,11 @@
                         </form>
                     {% endif %}
 
-                    {% if user.admin or (company.owner and user.id == company.owner.id) %}
+                    {% if company.owner and user.id == company.owner.id %}
                         <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Company</a>
                     {% endif %}
 
-                    {% if user.admin or (company.owner and user.id == company.owner.id) %}
+                    {% if company.owner and user.id == company.owner.id %}
                         <a href="{{ path('company_experience_create', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Create Event</a>
                     {% endif %}
                 </div>
@@ -183,7 +183,7 @@
                                 </div>
                                 <div class="uk-width-expand">
                                     <dt>{{ professionalUser.firstName }} {{ professionalUser.lastName }}</dt>
-                                    <dd>{{ professionalUser.briefBio }}</dd>
+                                    <dd>{{ excerpt_length( professionalUser.briefBio, 100 ) }}</dd>
                                 </div>
                                 <div class="uk-width-auto">
                                     <a href="{{ path('profile_index', { "id": professionalUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>

@@ -9,7 +9,7 @@
         {% if successMessage %}
             <div class="uk-alert-success uk-margin" uk-alert>
                 <a class="uk-alert-close" uk-close></a>
-                <p>Lesson successfully removed.</p>
+                <p>{{ successMessage }}</p>
             </div>
         {% endif %}
 
@@ -19,6 +19,12 @@
                 <p>{{ errorMessage }}</p>
             </div>
         {% endif %}
+
+        <div class="uk-margin uk-width-1-1">
+            <div class="uk-flex uk-flex-right@m">
+                <a href="{{ path('lesson_new') }}" class="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
+            </div>
+        </div>
 
         <div id="searchable-lesson-listing"></div>
     </div>

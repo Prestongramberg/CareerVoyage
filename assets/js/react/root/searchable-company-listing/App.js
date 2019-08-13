@@ -30,10 +30,10 @@ class App extends React.Component {
                     <div className="companies__all">
                         <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                             <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                                <form className="uk-search uk-search-default uk-width-1-1">
+                                <div className="uk-search uk-search-default uk-width-1-1">
                                     <span data-uk-search-icon></span>
                                     <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
-                                </form>
+                                </div>
                             </div>
                             { this.renderIndustryDropdown() }
                         </div>
@@ -112,22 +112,24 @@ class App extends React.Component {
                                                        className="uk-button uk-button-primary uk-button-small uk-margin-small-left">Edit</a>
                                                 )}
 
-                                                <button data-uk-toggle="target: #remove-from-company" type="button"
-                                                        className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove</button>
-                                                <div id="remove-from-company" data-uk-modal>
-                                                    <div className="uk-modal-dialog uk-modal-body">
-                                                        <h2 className="uk-modal-title">Are you sure you want to remove yourself
-                                                            from "{ this.props.user.company.name }"?</h2>
-                                                        <div className="uk-margin">
-                                                            <form className="uk-inline uk-margin-right" method="post" action={window.Routing.generate('company_remove_user', { id: this.props.userId })}>
-                                                                <button className="uk-button uk-button-danger" type="submit">Yes</button>
-                                                            </form>
-                                                            <button className="uk-button uk-button-default uk-modal-close">No,
-                                                                Cancel
-                                                            </button>
+                                                { !user.ownedCompany && ([
+                                                    <button data-uk-toggle="target: #remove-from-company" type="button"
+                                                            className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove</button>,
+                                                    <div id="remove-from-company" data-uk-modal>
+                                                        <div className="uk-modal-dialog uk-modal-body">
+                                                            <h2 className="uk-modal-title">Are you sure you want to remove yourself
+                                                                from "{ this.props.user.company.name }"?</h2>
+                                                            <div className="uk-margin">
+                                                                <form className="uk-inline uk-margin-right" method="post" action={window.Routing.generate('company_remove_user', { id: this.props.userId })}>
+                                                                    <button className="uk-button uk-button-danger" type="submit">Yes</button>
+                                                                </form>
+                                                                <button className="uk-button uk-button-default uk-modal-close">No,
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                ])}
 
                                                 { user.ownedCompany && user.ownedCompany.id === user.company.id && ([
                                                     <button data-uk-toggle="target: #remove-company" type="button"

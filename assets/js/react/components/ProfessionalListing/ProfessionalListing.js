@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { truncate } from "../../utilities/string-utils";
 
 class ProfessionalListing extends Component {
 
@@ -17,7 +18,7 @@ class ProfessionalListing extends Component {
                                     <h3 className="uk-card-title-small uk-margin-remove-bottom">{ this.props.firstName } {this.props.lastName}</h3>
                                 </a>
                                 <p className="uk-text-meta uk-margin-remove-top">
-                                    { this.props.company && <span>{ this.props.company }</span> }
+                                    { this.props.company ? <span>{ this.props.company }</span> : <span>Professional</span> }
                                     { this.props.primaryIndustry && <span> - { this.props.primaryIndustry }</span> }
                                     { this.props.secondaryIndustry && <span> - { this.props.secondaryIndustry }</span> }
                                 </p>
@@ -26,10 +27,12 @@ class ProfessionalListing extends Component {
                     </div>
                     <div className="uk-card-body">
                         <div className="uk-margin">
-                            { this.props.briefBio || "This professional hasn't added a description yet." }
+                            { truncate( this.props.briefBio ) || "This professional hasn't added a description yet." }
                         </div>
                         <div className="professional-links">
-                            <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                            {this.props.email && (
+                                <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                            )}
                             { this.props.phone && <a href={`tel:${this.props.phone}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a>}
                             { this.props.linkedIn && <a href={this.props.linkedIn} className="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"  target="_blank"></a>}
                         </div>

@@ -70,7 +70,7 @@ class ProfessionalUser extends User
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must specify at least one secondary industry",
+     *      minMessage = "You must select at least one career field",
      *     groups={"SECONDARY_INDUSTRY"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="professionalUsers")

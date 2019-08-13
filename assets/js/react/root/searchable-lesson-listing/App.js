@@ -36,10 +36,10 @@ class App extends React.Component {
                         <div>
                             <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                                 <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                                    <form className="uk-search uk-search-default uk-width-1-1">
+                                    <div className="uk-search uk-search-default uk-width-1-1">
                                         <span data-uk-search-icon></span>
                                         <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
-                                    </form>
+                                    </div>
                                 </div>
                                 { this.renderCourseDropdown() }
                             </div>
@@ -98,11 +98,6 @@ class App extends React.Component {
                         )}
                     </div>
                     <div className="lessons_mine">
-                        <div className="uk-margin">
-                            <div className="uk-flex uk-flex-right">
-                                <a href={ window.Routing.generate('lesson_new') } className="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
-                            </div>
-                        </div>
                         { ownerLessons.length > 0 && (
                             <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
                                 { ownerLessons.map(lesson => (
