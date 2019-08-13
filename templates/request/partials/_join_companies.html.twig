@@ -40,6 +40,10 @@
                                 <input class="uk-label uk-label-success" type="submit" value="Approve">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
+                            <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                                <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                <input type="hidden" name="request" value="{{ request.id }}">
+                            </form>
                         </td>
                     </tr>
                     </tbody>
@@ -85,6 +89,10 @@
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
                 <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
                     <input class="uk-label uk-label-success" type="submit" value="Approve">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
+                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
                     <input type="hidden" name="request" value="{{ request.id }}">
                 </form>
             </div>

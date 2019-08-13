@@ -46,6 +46,11 @@ abstract class Request
      */
     private $needsApprovalBy;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $denied;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -94,5 +99,17 @@ abstract class Request
 
     public function wasCreatedByUser(User $user) {
         return $user->getId() === $this->created_by->getId();
+    }
+
+    public function getDenied(): ?bool
+    {
+        return $this->denied;
+    }
+
+    public function setDenied(bool $denied): self
+    {
+        $this->denied = $denied;
+
+        return $this;
     }
 }

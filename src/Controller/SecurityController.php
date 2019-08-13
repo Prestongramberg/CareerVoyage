@@ -98,6 +98,14 @@ class SecurityController extends AbstractController
 
                 /** @var User $user */
                 $user = $this->userRepository->getByEmailAddress($emailAddress);
+                if(!$user) {
+                    $errorMessage = 'That email does not exist in the system!';
+                    $form->addError(new FormError($errorMessage));
+
+                    return $this->render('security/forgot_password.html.twig', [
+                        'form' => $form->createView()
+                    ]);
+                }
 
                 // If the forgot-email function was used within the last 24 hours for
                 // this user, render the form with an appropriate validation message.
