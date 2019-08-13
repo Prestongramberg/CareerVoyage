@@ -171,12 +171,14 @@ class RequestController extends AbstractController
 
         $requestsThatNeedMyApproval = $this->requestRepository->findBy([
             'approved' => false,
-            'needsApprovalBy' => $user
+            'needsApprovalBy' => $user,
+            'denied' => false
         ]);
 
         $myCreatedRequests = $this->requestRepository->findBy([
             'approved' => false,
-            'created_by' => $user
+            'created_by' => $user,
+            'denied' => false
         ]);
 
         // todo you could return a different view per user role as well
@@ -275,6 +277,22 @@ class RequestController extends AbstractController
 
         $this->entityManager->persist($request);
         $this->entityManager->flush();
+        return $this->redirectToRoute('requests');
+    }
+
+    /**
+     * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
+     * @param \App\Entity\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function denyRequest(\App\Entity\Request $request) {
+
+        $this->denyAccessUnlessGranted('edit', $request);
+
+        $request->setDenied(true);
+        $this->entityManager->persist($request);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'Request denied.');
         return $this->redirectToRoute('requests');
     }
 }

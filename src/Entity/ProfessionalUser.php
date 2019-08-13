@@ -67,6 +67,7 @@ class ProfessionalUser extends User
     private $primaryIndustry;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must specify at least one secondary industry",
