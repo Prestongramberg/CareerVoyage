@@ -188,6 +188,18 @@ abstract class User implements UserInterface
      */
     protected $activationCode;
 
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     * @ORM\Column(type="boolean")
+     */
+    protected $isEmailHiddenFromProfile = false;
+
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     * @ORM\Column(type="boolean")
+     */
+    protected $isPhoneHiddenFromProfile = false;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -862,5 +874,29 @@ abstract class User implements UserInterface
         }
 
         return false;
+    }
+
+    public function getIsEmailHiddenFromProfile(): ?bool
+    {
+        return $this->isEmailHiddenFromProfile;
+    }
+
+    public function setIsEmailHiddenFromProfile(bool $isEmailHiddenFromProfile): self
+    {
+        $this->isEmailHiddenFromProfile = $isEmailHiddenFromProfile;
+
+        return $this;
+    }
+
+    public function getIsPhoneHiddenFromProfile(): ?bool
+    {
+        return $this->isPhoneHiddenFromProfile;
+    }
+
+    public function setIsPhoneHiddenFromProfile(bool $isPhoneHiddenFromProfile): self
+    {
+        $this->isPhoneHiddenFromProfile = $isPhoneHiddenFromProfile;
+
+        return $this;
     }
 }

@@ -15,6 +15,7 @@ use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RadioType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -73,7 +74,19 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('interests', TextareaType::class)
             ->add('briefBio', TextareaType::class)
             ->add('linkedinProfile', TextType::class)
-            ->add('phone', TextType::class);
+            ->add('phone', TextType::class)
+            ->add('isEmailHiddenFromProfile', ChoiceType::class, [
+                'choices'  => [
+                    'Yes' => true,
+                    'No' => false,
+                ],
+            ])
+            ->add('isPhoneHiddenFromProfile', ChoiceType::class, [
+                'choices'  => [
+                    'Yes' => true,
+                    'No' => false,
+                ],
+            ]);
 
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
