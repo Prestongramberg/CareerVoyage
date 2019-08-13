@@ -3,7 +3,6 @@ import * as actionTypes from "../actions/actionTypes";
 export default (state = {}, action) => {
     switch (action.type) {
         case actionTypes.PROFESSIONALS_LOADING_SUCCESS:
-            debugger;
             return get_roles_from_request( action.response.data );
         default:
             return state;
