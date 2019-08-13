@@ -68,7 +68,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'expanded' => true,
                 'multiple' => true,
                 'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
+                    return ['class' => 'uk-checkbox', 'tooltip' => $choice->getDescription()];
                 },
             ])
             ->add('interests', TextareaType::class)
@@ -78,6 +78,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('isEmailHiddenFromProfile', ChoiceType::class, [
                 'choices'  => [
                     'Yes' => true,
+
                     'No' => false,
                 ],
             ])

@@ -869,21 +869,19 @@ class CompanyController extends AbstractController
      * @Route("/companies/experiences/{id}/remove", name="company_experience_remove", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience
-     * @return JsonResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function experienceRemoveAction(Request $request, CompanyExperience $experience) {
 
+        $company = $experience->getCompany();
         $this->denyAccessUnlessGranted('edit', $experience->getCompany());
 
         $this->entityManager->remove($experience);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
+        $this->addFlash('success', 'Experience successfully removed!');
 
-            ], Response::HTTP_OK
-        );
+        return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
     }
 
     /**
