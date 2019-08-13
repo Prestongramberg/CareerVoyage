@@ -17,7 +17,6 @@ use App\Form\EducatorEditProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\RegionalCoordinatorEditProfileFormType;
 use App\Form\SchoolAdministratorEditProfileFormType;
-use App\Form\IndustryFormType;
 use App\Form\StateCoordinatorEditProfileFormType;
 use App\Form\StudentEditProfileFormType;
 use App\Repository\RegionalCoordinatorRepository;
@@ -26,6 +25,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
@@ -45,77 +45,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class ProfileController extends AbstractController
 {
     use FileHelper;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileUploader $fileUploader
-     */
-    private $fileUploader;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    /**
-     * @var ImageCacheGenerator
-     */
-    private $imageCacheGenerator;
-
-    /**
-     * @var UploaderHelper
-     */
-    private $uploaderHelper;
-
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
-     * @var RegionalCoordinatorRepository
-     */
-    private $regionalCoordinatorRepository;
-
-    /**
-     * @var CacheManager
-     */
-    private $cacheManager;
-
-    /**
-     * ProfileController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param UserRepository $userRepository
-     * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
-     * @param CacheManager $cacheManager
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        UserRepository $userRepository,
-        RegionalCoordinatorRepository $regionalCoordinatorRepository,
-        CacheManager $cacheManager
-    ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->userRepository = $userRepository;
-        $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
-        $this->cacheManager = $cacheManager;
-    }
+    use ServiceHelper;
 
     /**
      * @Route("/profiles/{id}/view", name="profile_index", methods={"GET"}, options = { "expose" = true })
@@ -158,6 +88,9 @@ class ProfileController extends AbstractController
         $options = [
             'method' => 'POST',
         ];
+
+        $user->addSecondaryIndustry($this->secondaryIndustryRepository->find(1));
+
 
         if($user->isAdmin()) {
             $form = $this->createForm(AdminProfileFormType::class, $user, $options);

@@ -58,7 +58,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('encode_company', [$this, 'encodeCompany']),
             new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources']),
             new TwigFunction('pending_requests', [$this, 'pendingRequests']),
-            new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries'])
+            new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries']),
         ];
     }
 
@@ -82,11 +82,10 @@ class AppExtension extends AbstractExtension
         return $this->serializer->serialize($companyResources, 'json', ['groups' => ['COMPANY_RESOURCE']]);
     }
 
-    public function encodeSecondaryIndustries(Experience $experience): string
+    public function encodeSecondaryIndustries($secondaryIndustries): string
     {
-        return $this->serializer->serialize($experience->getSecondaryIndustries(), 'json', ['groups' => ['RESULTS_PAGE']]);
+        return $this->serializer->serialize($secondaryIndustries, 'json', ['groups' => ['RESULTS_PAGE']]);
     }
-
 
     public function pendingRequests(User $user) {
 

@@ -16,6 +16,7 @@ use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
+use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\UserRepository;
@@ -159,6 +160,11 @@ trait ServiceHelper
     private $secondaryIndustryRepository;
 
     /**
+     * @var RegionalCoordinatorRepository
+     */
+    private $regionalCoordinatorRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -185,6 +191,7 @@ trait ServiceHelper
      * @param ValidatorInterface $validator
      * @param IndustryRepository $industryRepository
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -211,7 +218,8 @@ trait ServiceHelper
         ImportMailer $importMailer,
         ValidatorInterface $validator,
         IndustryRepository $industryRepository,
-        SecondaryIndustryRepository $secondaryIndustryRepository
+        SecondaryIndustryRepository $secondaryIndustryRepository,
+        RegionalCoordinatorRepository $regionalCoordinatorRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -238,6 +246,7 @@ trait ServiceHelper
         $this->validator = $validator;
         $this->industryRepository = $industryRepository;
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+        $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
