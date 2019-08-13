@@ -67,7 +67,7 @@
                         <div class="uk-margin">
                             {{ form_label(form.about, 'About*') }}
                             <div class="uk-text-meta">Describe the event in detail</div>
-                            <div data-wysiwyg="[name='new_company_experience[about]']" class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
+                            <div data-wysiwyg="[name='edit_company_experience[about]']" class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
                                 {{ form_widget(form.about) }}
                             </div>
