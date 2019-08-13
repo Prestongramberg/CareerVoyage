@@ -99,8 +99,20 @@ class ChatController extends AbstractController
         $user = $this->userRepository->find($userId);
 
         // first check to see if you have initialized a chat with the user
-        $singleChat = $this->singleChatRepository->findByInitiatedByAndUser($loggedInUser, $user);
+        $singleChat = $this->singleChatRepository->findOneBy(
+            [
+               'initializedBy' => $loggedInUser,
+               'user' => $user
+            ]);
 
+        if(!$singleChat) {
+            $singleChat = $this->singleChatRepository->findOneBy(
+                [
+                    'initializedBy' => $user,
+                    'user' => $loggedInUser
+                ]);
+        }
+        
         // if a chat doesn't exist then let's create one!
         if(!$singleChat) {
             $singleChat = new SingleChat();
