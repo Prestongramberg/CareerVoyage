@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
@@ -681,6 +682,27 @@ class SchoolController extends AbstractController
             'form' => $form->createView(),
             'user' => $user
         ]);
+    }
+
+    /**
+     * @Route("/schools/experiences/{id}/remove", name="school_experience_remove", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return JsonResponse
+     */
+    public function experienceRemoveAction(Request $request, SchoolExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+
+        $this->entityManager->remove($experience);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
     }
 
     /**

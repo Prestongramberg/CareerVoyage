@@ -23,7 +23,6 @@ class ProfessionalUser extends User
     private $briefBio;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
@@ -68,7 +67,6 @@ class ProfessionalUser extends User
     private $primaryIndustry;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must select at least one career field",
@@ -304,5 +302,27 @@ class ProfessionalUser extends User
         }
 
         return $this;
+    }
+
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @return string
+     */
+    public function getPhoneAfterPrivacySettingsApplied() {
+        if(!$this->isPhoneHiddenFromProfile) {
+            return $this->phone;
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"PROFESSIONAL_USER_DATA"})
+     * @return string
+     */
+    public function getEmailAfterPrivacySettingsApplied() {
+        if(!$this->isEmailHiddenFromProfile) {
+            return $this->email;
+        }
+        return '';
     }
 }

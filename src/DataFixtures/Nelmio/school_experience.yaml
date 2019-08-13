@@ -1,0 +1,63 @@
+App\Entity\SchoolExperience:
+    school_experience (template):
+        title: <catchPhrase()>
+        briefDescription: <paragraph(2)>
+        about: <paragraph(5)>
+        availableSpaces: <numberBetween(2, 100)>
+        payment: <randomFloat(2, 10, 100)>
+        paymentShownIsPer: <randomPaymentType()>
+        phoneNumber: <phoneNumber()>
+        website: <safeEmailDomain()>
+        street: <streetName()>
+        city: <city()>
+        zipcode: <postcode()>
+        state: <state()>
+        email: <email()>
+    school_experience_1 (extends school_experience):
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+30 days', 'America/Chicago')>
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_2'
+    school_experience_2 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_3'
+        startDateAndTime: <dateTimeBetween('now', '+10 days', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+11 days', '+30 days', 'America/Chicago')>
+    school_experience_3 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_5'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
+    school_experience_4 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_6'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
+    school_experience_5 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_8'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
+    school_experience_6 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_3'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
+    school_experience_7 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_2'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
+    school_experience_8 (extends school_experience):
+        school: <schoolById(1)>
+        schoolContact: '@school_administrator_user_1'
+        type: '@role_3'
+        startDateAndTime: <dateTimeBetween('now', '+1 weeks', 'America/Chicago')>
+        endDateAndTime: <dateTimeBetween('+1 weeks', '+2 weeks', 'America/Chicago')>
