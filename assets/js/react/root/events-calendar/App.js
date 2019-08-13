@@ -25,11 +25,14 @@ class App extends React.Component {
 
         const events = this.getRelevantEvents();
         const calendarEvents = events.map(event => {
+
+            const routeName = event.className === 'SchoolExperience' ? 'school_experience_view' : 'company_experience_view';
+
             return {
                 title: event.title,
                 start: event.startDateAndTime,
                 end: event.endDateAndTime,
-                url: window.Routing.generate('company_experience_view', {'id': event.id})
+                url: window.Routing.generate(routeName, {'id': event.id})
             }
         });
 
