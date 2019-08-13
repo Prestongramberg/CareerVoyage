@@ -52,7 +52,7 @@ abstract class User implements UserInterface
     protected $id;
     
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT"}
@@ -185,6 +185,7 @@ abstract class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     *
      */
     protected $activationCode;
 
