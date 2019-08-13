@@ -2,6 +2,14 @@
 
 {% form_theme form _self %}
 
+{% block _professional_edit_profile_form_rolesWillingToFulfill_entry_label %}
+    {% set tooltip = '' %}
+    {% if form.vars.attr["tooltip"] is defined %}
+        {% set tooltip = form.vars.attr["tooltip"] %}
+    {% endif %}
+    <label for="{{ form.vars.id }}" uk-tooltip="{{ tooltip }}" title="" aria-expanded="false">{{ form.vars.label }}</label>
+{% endblock %}
+
 {% block title %}Edit Profile{% endblock %}
 
 {% block javascripts %}
