@@ -84,6 +84,9 @@
             {% if company.companyResources|length %}
                 <li><a href="#company-events">Resources</a></li>
             {% endif %}
+            {% if company.professionalUsers|length %}
+                <li><a href="#company-employees">Employees</a></li>
+            {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-company-detail">
@@ -164,6 +167,31 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
+            {% if company.professionalUsers|length %}
+                <div class="company__employees">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for professionalUser in company.professionalUsers %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-auto">
+                                    <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(professionalUser, 'photo') is defined and professionalUser.photo ) ? asset(uploaded_asset(professionalUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                </div>
+                                <div class="uk-width-expand">
+                                    <dt>{{ professionalUser.firstName }} {{ professionalUser.lastName }}</dt>
+                                    <dd>{{ professionalUser.briefBio }}</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ path('profile_index', { "id": professionalUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                    {% if user.admin or (company.owner and user.id == company.owner.id) %}
+                                        <form class="uk-inline" action="{{ path('company_remove_user', { "id": professionalUser.id }) }}" method="POST">
+                                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                        </form>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}

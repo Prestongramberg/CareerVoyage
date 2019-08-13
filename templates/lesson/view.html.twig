@@ -64,6 +64,9 @@
             {% if lesson.lessonResources|length > 0 %}
                 <li><a href="#lesson-resources">Resources</a></li>
             {% endif %}
+            {% if lesson.lessonTeachables|length > 0 %}
+                <li><a href="#lesson-instructors">Instructors</a></li>
+            {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-lesson-detail">
@@ -156,6 +159,24 @@
                         {% endfor %}
                     </dl>
                 </div>
+            {% endif %}
+            {% if lesson.lessonTeachables|length > 0 %}
+                <dl class="uk-description-list uk-description-list-divider">
+                    {% for lessonTeachable in lesson.lessonTeachables %}
+                        <div class="uk-grid uk-flex-middle" uk-grid>
+                            <div class="uk-width-auto">
+                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                            </div>
+                            <div class="uk-width-expand">
+                                <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
+                                <dd>{{ lessonTeachable.user.briefBio }}</dd>
+                            </div>
+                            <div class="uk-width-auto">
+                                <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </dl>
             {% endif %}
         </div>
     </div>
