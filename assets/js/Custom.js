@@ -277,7 +277,10 @@ jQuery(document).ready(function($) {
         const $nameField = $modalBody.find('[name="name"]');
         const name = $nameField.val();
         const $videoField = $modalBody.find('[name="videoId"]');
-        const videoId = $videoField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
 
         $videoField.removeClass('uk-form-success uk-form-error');
 
@@ -460,5 +463,14 @@ jQuery(document).ready(function($) {
     }, function(start, end, label) {
         console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
     });
+
+    /**
+     * Parse Youtube Urls to get Video IDs
+     */
+    function youtube_parser(url){
+        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+        var match = url.match(regExp);
+        return (match&&match[7].length==11)? match[7] : false;
+    }
 
 });

@@ -26,10 +26,10 @@ class App extends React.Component {
                     <div className="professionals__all">
                         <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                             <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                                <form className="uk-search uk-search-default uk-width-1-1">
+                                <div className="uk-search uk-search-default uk-width-1-1">
                                     <span data-uk-search-icon></span>
                                     <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
-                                </form>
+                                </div>
                             </div>
                             { this.renderCompanyDropdown() }
                             { this.renderRolesDropdown() }
@@ -53,14 +53,14 @@ class App extends React.Component {
                                     <ProfessionalListing
                                         briefBio={professional.briefBio}
                                         company={companyName}
-                                        email={professional.email}
+                                        email={professional.emailAfterPrivacySettingsApplied}
                                         firstName={professional.firstName}
                                         key={professional.id}
                                         id={professional.id}
                                         image={professional.photoImageURL}
                                         lastName={professional.lastName}
                                         linkedIn={professional.linkedinProfile}
-                                        phone={professional.phone}
+                                        phone={professional.phoneAfterPrivacySettingsApplied}
                                         primaryIndustry={primaryIndustry}
                                         secondaryIndustry={secondaryIndustry}
                                     />

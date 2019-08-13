@@ -1,7 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Account Activated</h1>
-    <p>Your account has been successfully activated.</p>
-    <a href="{{ path('welcome') }}">Continue</a>
+    <div class="uk-flex uk-flex-center uk-height-viewport">
+        <div class="uk-container uk-padding">
+            <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-xlarge@m">
+                <h1 class="uk-card-title">Future Forward<sup>(BETA)</sup></h1>
+                <p>Account Activated. <a href="{{ path('welcome') }}">Continue</a></p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

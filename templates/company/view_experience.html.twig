@@ -22,8 +22,11 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
-                    {% if 1 == 1 %}
+                    {% if user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id %}
                         <a href="{{ path('company_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
+                        <form class="uk-inline" method="get" action="{{ path('company_experience_remove', {'id' : experience.id}) }}">
+                            <button class="uk-button uk-button-danger uk-button-small" type="submit">Delete</button>
+                        </form>
                     {% endif %}
                 </div>
             </div>

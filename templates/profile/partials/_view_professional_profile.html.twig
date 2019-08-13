@@ -1,4 +1,12 @@
 <div class="uk-container">
+
+    {% if user.id == profileUser.id %}
+        <div class="uk-alert uk-margin" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>You are viewing your own profile as others see you.  <a href="{{ path('profile_edit', {'id': user.id}) }}">Edit your profile</a></p>
+        </div>
+    {% endif %}
+
     <div class="uk-grid" uk-grid>
         <div class="uk-width-2-3@m uk-width-1-1">
             <!-- PROFILE -->
@@ -12,12 +20,12 @@
                             <div class="uk-width-expand">
                                 <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    Professional
+                                    <span>{{ profileUser.company is defined ? profileUser.company.name : "Professional" }}</span>
                                     {% if profileUser.primaryIndustry %}
-                                        - {{ profileUser.primaryIndustry.name }}
+                                        <span>- {{ profileUser.primaryIndustry.name }}</span>
                                     {% endif %}
                                     {% if profileUser.secondaryIndustries|length > 0 %}
-                                        - {{ profileUser.secondaryIndustries[0].name }}
+                                        <span>- {{ profileUser.secondaryIndustries[0].name }}</span>
                                     {% endif %}
                                 </p>
                             </div>
@@ -32,9 +40,11 @@
                             <p>This user has not added a bio yet.</p>
                         {% endif %}
                         <div class="professional-links">
-                            <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                            {% if profileUser.getPhone %}
-                                <a href="tel:{{ profileUser.phone }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            {% if profileUser.emailAfterPrivacySettingsApplied %}
+                                <a href="mailto:{{ profileUser.emailAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            {% endif %}
+                            {% if profileUser.phoneAfterPrivacySettingsApplied %}
+                                <a href="tel:{{ profileUser.phoneAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                             {% endif %}
                             {% if profileUser.getLinkedinProfile %}
                                 <a href="{{ profileUser.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>

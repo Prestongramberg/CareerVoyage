@@ -8,11 +8,21 @@
 
 {% block body %}
     <div class="uk-container">
-        <div class="uk-margin">
-            <ul class="uk-breadcrumb">
-                <li><a href="/">Dashboard</a></li>
-                <li><span>Experiences</span></li>
-            </ul>
+
+        <div class="uk-grid uk-margin" uk-grid>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+                <ul class="uk-breadcrumb">
+                    <li><a href="/">Dashboard</a></li>
+                    <li><span>Experiences</span></li>
+                </ul>
+            </div>
+            <div class="uk-width-1-2 uk-width-1-2@m">
+                {% if user.company is defined and user.company.owner.id == user.id %}
+                    <div class="uk-flex uk-flex-right@m">
+                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary uk-button-small">Create an Event</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
         <div id="react-events-calendar"></div>

@@ -83,12 +83,12 @@
                             {{ form_errors(form.availableSpaces) }}
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.payment, 'Payment') }}
+                            {{ form_label(form.payment, 'Cost') }}
                             {{ form_widget(form.payment, {'attr': {'class': 'uk-input' ~ ( form_errors(form.payment) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.payment) }}
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.paymentShownIsPer, 'Payment Per') }}
+                            {{ form_label(form.paymentShownIsPer, 'Cost Per') }}
                             {{ form_widget(form.paymentShownIsPer, {'attr': {'class': 'uk-select' ~ ( form_errors(form.paymentShownIsPer) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.paymentShownIsPer) }}
                         </div>
