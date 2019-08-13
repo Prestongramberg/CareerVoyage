@@ -58,7 +58,9 @@ class AppExtension extends AbstractExtension
             new TwigFunction('encode_company', [$this, 'encodeCompany']),
             new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources']),
             new TwigFunction('pending_requests', [$this, 'pendingRequests']),
-            new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries'])
+            new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries']),
+            new TwigFunction('validate_url', [$this, 'validateUrl']),
+            new TwigFunction('excerpt_length', [$this, 'excerptLength'])
         ];
     }
 
@@ -85,6 +87,24 @@ class AppExtension extends AbstractExtension
     public function encodeSecondaryIndustries(Experience $experience): string
     {
         return $this->serializer->serialize($experience->getSecondaryIndustries(), 'json', ['groups' => ['RESULTS_PAGE']]);
+    }
+
+    public function validateUrl( $url ) : string
+    {
+        $parsed = parse_url($url);
+        if (empty($parsed['scheme'])) {
+            $url = 'http://' . ltrim($url, '/');
+        }
+        return $url;
+    }
+
+    public function excerptLength( $content, $limit = 200 ) : string
+    {
+        if ( strlen( $content ) <= $limit) {
+            return $content;
+        } else {
+            return substr( $content, 0, $limit) . '...';
+        }
     }
 
 
