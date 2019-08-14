@@ -92,7 +92,7 @@ class ChatController extends AbstractController
      */
     public function createSingleChat(Request $request) {
 
-        
+
         $loggedInUser = $this->getUser();
 
         // the user id whom you want to message
