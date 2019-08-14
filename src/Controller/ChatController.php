@@ -88,7 +88,6 @@ class ChatController extends AbstractController
      * @Route("/chats/create/single", name="create_single_chat", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @return JsonResponse
-     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function createSingleChat(Request $request) {
 
@@ -111,6 +110,7 @@ class ChatController extends AbstractController
                 [
                     'initializedBy' => $user,
                     'user' => $loggedInUser
+
                 ]);
         }
 

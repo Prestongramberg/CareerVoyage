@@ -68,7 +68,7 @@ class ChatWidget {
            this.chat = data.data;
 
            for(let message of this.chat.messages) {
-               this.render(message, this.chat.initializedBy);
+               this.render(message);
            }
 
            this._startListening();
@@ -88,7 +88,7 @@ class ChatWidget {
 
        channel.bind('send-message', (data) => {
            this.chat = data.chat;
-           this.render(this.chat.messages.slice(-1)[0], this.chat.initializedBy);
+           this.render(this.chat.messages.slice(-1)[0]);
        });
    }
 
@@ -143,13 +143,13 @@ class ChatWidget {
         });
     }
 
-    render(message, initializedBy) {
-        let html = messageTemplate(message, initializedBy);
+    render(message) {
+        let html = messageTemplate(message);
         this.$wrapper.find(ChatWidget._selectors.messages).append(html);
     }
 }
 
-const messageTemplate = ({body, formattedSentDate}, {fullName}) => `
+const messageTemplate = ({body, formattedSentDate, from: {fullName}}) => `
     <div><strong>${fullName}</strong><small>${formattedSentDate}</small></div>
     <div>${body}</div>
 `;

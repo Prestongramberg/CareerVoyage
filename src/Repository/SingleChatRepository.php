@@ -49,23 +49,6 @@ class SingleChatRepository extends ServiceEntityRepository
     }
     */
 
-    /**
-     * @param User $initiatedBy
-     * @param User $user
-     * @return mixed
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function findByInitiatedByAndUser(User $initiatedBy, User $user)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('(s.initializedBy = :initializedBy AND s.user = :user) OR (s.initializedBy = :user2 AND s.user = :initializedBy2)')
-            ->setParameter('initializedBy', $initiatedBy->getId())
-            ->setParameter('user', $user->getId())
-            ->setParameter('initializedBy2', $user->getId())
-            ->setParameter('user2', $initiatedBy->getId())
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
 
 
 
