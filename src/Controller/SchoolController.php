@@ -194,7 +194,7 @@ class SchoolController extends AbstractController
 
 
             $this->addFlash('success', sprintf('School successfully updated.'));
-            return $this->redirectToRoute('school_edit');
+            return $this->redirectToRoute('school_edit', ['id' => $school->getId()]);
         }
 
         return $this->render('school/edit.html.twig', [

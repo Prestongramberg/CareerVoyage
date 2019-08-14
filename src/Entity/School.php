@@ -49,12 +49,6 @@ class School
     private $schoolAdministratorRequests;
 
     /**
-     * @Assert\NotBlank(message="Don't forget an address!", groups={"EDIT"})
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $address;
-
-    /**
      * @Assert\NotBlank(message="Don't forget a school email!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -95,6 +89,26 @@ class School
      * @ORM\OneToMany(targetEntity="App\Entity\StudentUser", mappedBy="school")
      */
     private $studentUsers;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $street;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $city;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $zipcode;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="schools")
+     */
+    private $state;
 
     public function __construct()
     {
@@ -240,18 +254,6 @@ class School
                 $schoolAdministratorRequest->setSchool(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getAddress(): ?string
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?string $address): self
-    {
-        $this->address = $address;
 
         return $this;
     }
@@ -445,6 +447,54 @@ class School
                 $studentUser->setSchool(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(?string $street): self
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getZipcode(): ?string
+    {
+        return $this->zipcode;
+    }
+
+    public function setZipcode(?string $zipcode): self
+    {
+        $this->zipcode = $zipcode;
+
+        return $this;
+    }
+
+    public function getState(): ?State
+    {
+        return $this->state;
+    }
+
+    public function setState(?State $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

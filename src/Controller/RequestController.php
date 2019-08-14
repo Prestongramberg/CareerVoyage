@@ -11,10 +11,13 @@ use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\RegionalCoordinatorRequest;
+use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
+use App\Entity\TeachLessonExperience;
+use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -29,6 +32,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -192,12 +196,13 @@ class RequestController extends AbstractController
     /**
      * @Route("/requests/{id}/approve", name="approve_request", methods={"POST"}, options = { "expose" = true })
      * @param \App\Entity\Request $request
+     * @param Request $httpRequest
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function approveRequest(\App\Entity\Request $request) {
+    public function approveRequest(\App\Entity\Request $request, Request $httpRequest) {
 
         $this->denyAccessUnlessGranted('edit', $request);
 
@@ -260,7 +265,6 @@ class RequestController extends AbstractController
                 $this->entityManager->persist($needsApprovalBy);
                 $this->requestsMailer->regionalCoordinatorRequestApproval($request);
                 break;
-
             case 'SchoolAdministratorRequest':
                 /** @var SchoolAdministratorRequest $request */
                 $request->setApproved(true);
@@ -272,6 +276,36 @@ class RequestController extends AbstractController
                 $needsApprovalBy->agreeToTerms();
                 $this->entityManager->persist($needsApprovalBy);
                 $this->requestsMailer->schoolAdministratorRequestApproval($request);
+                break;
+            case 'TeachLessonRequest':
+                /** @var TeachLessonRequest $request */
+                $request->setApproved(true);
+                /** @var ProfessionalUser $needsApprovalBy */
+                $needsApprovalBy = $request->getNeedsApprovalBy();
+
+                $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
+                $teachLessonExperience = new TeachLessonExperience();
+                $teachLessonExperience->setStartDateAndTime($date);
+                $teachLessonExperience->setTitle('Lesson Teaching');
+                $teachLessonExperience->setBriefDescription(sprintf("
+                You are teaching lesson %s at school %s
+                ", $request->getLesson()->getTitle(), $request->getCreatedBy()->getSchool()->getName()));
+
+                /** @var School $school */
+                $school = $request->getCreatedBy()->getSchool();
+                $teachLessonExperience->setEmail($school->getEmail());
+                $teachLessonExperience->setStreet($school->getStreet());
+                $teachLessonExperience->setCity($school->getCity());
+                $teachLessonExperience->setState($school->getState());
+                $teachLessonExperience->setZipcode($school->getZipcode());
+
+                $this->entityManager->persist($teachLessonExperience);
+                $this->addFlash('success', 'You have accepted the invite to teach!');
+
+                // not all educators have an email address.
+                if($request->getCreatedBy()->getEmail()) {
+                    $this->requestsMailer->teachLessonRequestApproval($request);
+                }
                 break;
         }
 

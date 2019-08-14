@@ -8,6 +8,7 @@ use App\Entity\NewCompanyRequest;
 use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\SchoolAdministratorRequest;
 use App\Entity\StateCoordinatorRequest;
+use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Mailer\AbstractMailer;
 use App\Repository\AdminUserRepository;
@@ -249,5 +250,54 @@ class RequestsMailer extends AbstractMailer
             );
 
         $this->mailer->send($message);
+    }
+
+    /**
+     * Teach Lesson Request
+     *
+     * @param TeachLessonRequest $teachLessonRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function teachLessonRequest(TeachLessonRequest $teachLessonRequest) {
+
+        $message = (new \Swift_Message("Teach Lesson Request."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($teachLessonRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/teachLessonRequest.html.twig',
+                    ['request' => $teachLessonRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     * Teach Lesson Request Approval
+     *
+     * @param TeachLessonRequest $teachLessonRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function teachLessonRequestApproval(TeachLessonRequest $teachLessonRequest) {
+
+        $message = (new \Swift_Message("Teach Lesson Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($teachLessonRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/teachLessonRequestApproval.html.twig',
+                    ['request' => $teachLessonRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
     }
 }

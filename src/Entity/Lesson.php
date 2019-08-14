@@ -140,6 +140,11 @@ class Lesson
      */
     private $secondaryIndustries;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonRequest", mappedBy="lesson", orphanRemoval=true)
+     */
+    private $teachLessonRequests;
+
 
     public function __construct()
     {
@@ -149,6 +154,7 @@ class Lesson
         $this->lessonTeachables = new ArrayCollection();
         $this->lessonResources = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
+        $this->teachLessonRequests = new ArrayCollection();
     }
 
     public function getId()
@@ -527,6 +533,37 @@ class Lesson
                     return $lessonFavorite->getUser()->getId() === $user->getId();
                 }
             )->count() > 0);
+    }
+
+    /**
+     * @return Collection|TeachLessonRequest[]
+     */
+    public function getTeachLessonRequests(): Collection
+    {
+        return $this->teachLessonRequests;
+    }
+
+    public function addTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
+    {
+        if (!$this->teachLessonRequests->contains($teachLessonRequest)) {
+            $this->teachLessonRequests[] = $teachLessonRequest;
+            $teachLessonRequest->setLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
+    {
+        if ($this->teachLessonRequests->contains($teachLessonRequest)) {
+            $this->teachLessonRequests->removeElement($teachLessonRequest);
+            // set the owning side to null (unless already changed)
+            if ($teachLessonRequest->getLesson() === $this) {
+                $teachLessonRequest->setLesson(null);
+            }
+        }
+
+        return $this;
     }
 
 }

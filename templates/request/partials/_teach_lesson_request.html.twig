@@ -1,0 +1,67 @@
+<li>
+    {% if request.isFromProfessional == true %}
+    {% if request.wasCreatedByUser(user) %}
+        {% else %}
+    {% endif %}
+
+    {% elseif request.isFromProfessional == false %}
+
+    {% if request.wasCreatedByUser(user) %}
+        <a class="uk-accordion-title" href="#">Request to teach a lesson</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Teach lesson</td>
+                </tr>
+                <tr>
+                    <td>Lesson title</td>
+                    <td>{{ request.lesson.title }}</td>
+                </tr>
+                <tr>
+                    <td>School name</td>
+                    <td>{{ request.createdBy.school.name }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Request to teach a lesson</a>
+            <div class="uk-accordion-content">
+                <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested you to teach lesson
+                    {{ request.lesson.title }} at their school {{ request.createdBy.school.name }}. Select from one of the three dates below to teach.</p>
+
+                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
+                    <input type="hidden" name="date" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
+                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
+                    <input type="hidden" name="date" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
+                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
+                    <input type="hidden" name="date" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
+
+                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
+            </div>
+    {% endif %}
+
+
+    {% endif %}
+
+</li>

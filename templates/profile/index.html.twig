@@ -3,19 +3,19 @@
 {% block title %}Profile{% endblock %}
 
 {% block body %}
-    {% if user.isAdmin %}
+    {% if profileUser.isAdmin %}
         {% include 'profile/partials/_view_admin_profile.html.twig' %}
-    {% elseif user.isProfessional %}
+    {% elseif profileUser.isProfessional %}
         {% include 'profile/partials/_view_professional_profile.html.twig' %}
-    {% elseif user.isEducator %}
+    {% elseif profileUser.isEducator %}
         {% include 'profile/partials/_view_educator_profile.html.twig' %}
-    {% elseif user.isStudent %}
+    {% elseif profileUser.isStudent %}
         {% include 'profile/partials/_view_student_profile.html.twig' %}
-    {% elseif user.isStateCoordinator %}
+    {% elseif profileUser.isStateCoordinator %}
         {% include 'profile/partials/_view_state_coordinator_profile.html.twig' %}
-    {% elseif user.isRegionalCoordinator %}
+    {% elseif profileUser.isRegionalCoordinator %}
         {% include 'profile/partials/_view_regional_coordinator_profile.html.twig' %}
-    {% elseif user.isSchoolAdministrator %}
+    {% elseif profileUser.isSchoolAdministrator %}
         {% include 'profile/partials/_view_school_administrator_profile.html.twig' %}
     {% endif %}
 {% endblock %}

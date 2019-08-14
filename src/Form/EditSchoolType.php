@@ -10,6 +10,7 @@ use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
+use App\Entity\State;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -38,9 +39,18 @@ class EditSchoolType extends AbstractType
     {
 
         $builder->add('name', TextType::class, [])
-            ->add('address', TextType::class, [])
             ->add('email', EmailType::class, [])
-            ->add('overviewAndBackground', TextareaType::class, []);
+            ->add('overviewAndBackground', TextareaType::class, [])
+            ->add('street', TextType::class, [])
+            ->add('city', TextType::class, [])
+            ->add('state', EntityType::class, [
+                'class' => State::class,
+                'choice_label' => 'name',
+                'expanded'  => false,
+                'multiple'  => false,
+            ])
+            ->add('zipcode', TextType::class, []);
+
     }
 
     public function configureOptions(OptionsResolver $resolver)

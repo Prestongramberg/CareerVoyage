@@ -20,6 +20,7 @@ use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SingleChatRepository;
 use App\Repository\StudentUserRepository;
+use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -171,6 +172,11 @@ trait ServiceHelper
     private $singleChatRepository;
 
     /**
+     * @var TeachLessonRequestRepository
+     */
+    private $teachLessonRequestRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -199,6 +205,7 @@ trait ServiceHelper
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
      * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
      * @param SingleChatRepository $singleChatRepository
+     * @param TeachLessonRequestRepository $teachLessonRequestRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -227,7 +234,8 @@ trait ServiceHelper
         IndustryRepository $industryRepository,
         SecondaryIndustryRepository $secondaryIndustryRepository,
         RegionalCoordinatorRepository $regionalCoordinatorRepository,
-        SingleChatRepository $singleChatRepository
+        SingleChatRepository $singleChatRepository,
+        TeachLessonRequestRepository $teachLessonRequestRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -256,6 +264,7 @@ trait ServiceHelper
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
         $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
         $this->singleChatRepository = $singleChatRepository;
+        $this->teachLessonRequestRepository = $teachLessonRequestRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

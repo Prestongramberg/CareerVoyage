@@ -1,0 +1,12 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.needsApprovalBy.firstName } %}
+
+
+{% if request.isFromProfessional %}
+    <p>You have a new request from <strong>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</strong> wishing to teach lesson <strong>{{ request.lesson.title }}</strong> at your school.</p>
+    <p>Please login to the dashboard to approve request.</p>
+    {% else %}
+        <p>You have a request from <strong>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</strong> asking if you would teach lesson <strong>{{ request.lesson.title }}</strong> at the following school: <strong>{{ request.createdBy.school.name }}</strong>.</p>
+        <p>Login to the dashboard to accept</p>
+{% endif %}
+
+{% include 'email/partial/emailFooter.html.twig' %}

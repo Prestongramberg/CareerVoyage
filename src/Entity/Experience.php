@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience"})
+ * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience"})
  */
 abstract class Experience
 {
@@ -113,21 +113,21 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $street;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $city;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $zipcode;
 
@@ -152,7 +152,7 @@ abstract class Experience
      *     groups={"CREATE", "EDIT"}
      * )
      * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $email;
 
@@ -174,7 +174,7 @@ abstract class Experience
      * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="experiences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     protected $type;
 

@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest", "joinCompanyRequest" = "JoinCompanyRequest", "stateCoordinatorRequest" = "StateCoordinatorRequest", "regionalCoordinatorRequest" = "RegionalCoordinatorRequest", "schoolAdministratorRequest" = "SchoolAdministratorRequest"})
+ * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest", "joinCompanyRequest" = "JoinCompanyRequest", "stateCoordinatorRequest" = "StateCoordinatorRequest", "regionalCoordinatorRequest" = "RegionalCoordinatorRequest", "schoolAdministratorRequest" = "SchoolAdministratorRequest", "teachLessonRequest" = "TeachLessonRequest"})
  */
 abstract class Request
 {

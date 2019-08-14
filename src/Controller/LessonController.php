@@ -10,6 +10,7 @@ use App\Entity\Lesson;
 use App\Entity\LessonResource;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EditLessonType;
@@ -25,6 +26,7 @@ use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
@@ -145,6 +147,60 @@ class LessonController extends AbstractController
             'user' => $user,
             'lesson' => $lesson
         ]);
+    }
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/lessons/{lesson_id}/users/{professional_id}/requests/teach", name="lesson_request_to_teach", options = { "expose" = true }, methods={"POST"})
+     * @ParamConverter("lesson", options={"id" = "lesson_id"})
+     * @ParamConverter("professionalUser", options={"id" = "professional_id"})
+     * @param Request $request
+     * @param Lesson $lesson
+     * @param ProfessionalUser $professionalUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function requestToTeachAction(Request $request, Lesson $lesson, ProfessionalUser $professionalUser) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionOne'));
+        $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionTwo'));
+        $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionThree'));
+        $redirectUrl = $request->request->get('redirectUrl', null);
+
+        $requests = $this->teachLessonRequestRepository->getByEducatorAndProfessional($user, $professionalUser);
+
+        if(count($requests) > 0) {
+            $this->addFlash('error', 'You have already made a request to this professional to teach this lesson.');
+            if($redirectUrl) {
+                return $this->redirect($redirectUrl);
+            }
+            return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
+        }
+
+        $teachLessonRequest = new TeachLessonRequest();
+        $teachLessonRequest->setDateOptionOne($dateOptionOne);
+        $teachLessonRequest->setDateOptionTwo($dateOptionTwo);
+        $teachLessonRequest->setDateOptionThree($dateOptionThree);
+        $teachLessonRequest->setLesson($lesson);
+        $teachLessonRequest->setCreatedBy($user);
+        $teachLessonRequest->setNeedsApprovalBy($professionalUser);
+        $this->entityManager->persist($teachLessonRequest);
+        $this->entityManager->flush();
+
+        $this->requestsMailer->teachLessonRequest($teachLessonRequest);
+
+        $this->addFlash('success', 'Request successfully sent!');
+
+        if($redirectUrl) {
+            return $this->redirect($redirectUrl);
+        }
+
+        return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
     }
 
     /**

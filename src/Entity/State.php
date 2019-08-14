@@ -99,10 +99,16 @@ class State
      */
     private $experiences;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\School", mappedBy="state")
+     */
+    private $schools;
+
     public function __construct()
     {
         $this->regions = new ArrayCollection();
         $this->experiences = new ArrayCollection();
+        $this->schools = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -190,6 +196,37 @@ class State
             // set the owning side to null (unless already changed)
             if ($experience->getState() === $this) {
                 $experience->setState(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|School[]
+     */
+    public function getSchools(): Collection
+    {
+        return $this->schools;
+    }
+
+    public function addSchool(School $school): self
+    {
+        if (!$this->schools->contains($school)) {
+            $this->schools[] = $school;
+            $school->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchool(School $school): self
+    {
+        if ($this->schools->contains($school)) {
+            $this->schools->removeElement($school);
+            // set the owning side to null (unless already changed)
+            if ($school->getState() === $this) {
+                $school->setState(null);
             }
         }
 

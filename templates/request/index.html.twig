@@ -43,6 +43,10 @@
                                     {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
+                                {% if request.className == 'TeachLessonRequest' %}
+                                    {% include 'request/partials/_teach_lesson_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
                             {% endfor %}
                         </ul>
                     {% else %}
@@ -77,6 +81,10 @@
 
                                 {% if request.className == 'SchoolAdministratorRequest' %}
                                     {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
+                                {% if request.className == 'TeachLessonRequest' %}
+                                    {% include 'request/partials/_teach_lesson_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
                             {% endfor %}

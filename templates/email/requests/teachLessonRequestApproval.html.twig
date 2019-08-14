@@ -1,0 +1,9 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
+
+{% if request.isFromProfessional %}
+    <p>Your request to teach lesson has been approved</p>
+{% else %}
+    <p>Your request for <strong>{{ request.needsApprovalBy.fullName }}</strong> to teach lesson has been accepted.</p>
+{% endif %}
+
+{% include 'email/partial/emailFooter.html.twig' %}
