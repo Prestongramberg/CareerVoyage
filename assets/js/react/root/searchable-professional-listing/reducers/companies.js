@@ -16,7 +16,7 @@ function get_companies_from_request( professionals ) {
     debugger;
 
     professionals.forEach(professional => {
-        if ( professional.company && professional.company.id && professional.company.newCompanyRequest.approved && company_ids.indexOf(professional.company.id) === -1 ) {
+        if ( professional.company && professional.company.id && professional.company.newCompanyRequest && professional.company.newCompanyRequest.approved && company_ids.indexOf(professional.company.id) === -1 ) {
             company_ids.push(professional.company.id);
             companies.push(professional.company);
         }
