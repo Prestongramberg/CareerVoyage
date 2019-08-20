@@ -14,6 +14,8 @@ function get_industries_from_request( professionals ) {
     const secondary_industry_ids = [];
     const industries = [];
 
+    debugger;
+
     professionals.forEach(professional => {
         if ( professional.primaryIndustry && professional.primaryIndustry.id) {
 
