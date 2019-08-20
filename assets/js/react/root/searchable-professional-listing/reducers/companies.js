@@ -13,8 +13,6 @@ function get_companies_from_request( professionals ) {
     const company_ids = [];
     const companies = [];
 
-    debugger;
-
     professionals.forEach(professional => {
         if ( professional.company && professional.company.id && professional.company.newCompanyRequest && professional.company.newCompanyRequest.approved && company_ids.indexOf(professional.company.id) === -1 ) {
             company_ids.push(professional.company.id);
