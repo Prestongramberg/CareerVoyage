@@ -169,7 +169,7 @@ class SchoolController extends AbstractController
 
     /**
      * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
-     * @Route("/schools/{id}/edit", name="school_edit")
+     * @Route("/schools/{id}/edit", name="school_edit", options = { "expose" = true })
      * @param Request $request
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response

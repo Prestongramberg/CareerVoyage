@@ -1,23 +1,69 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Company Professionals{% endblock %}
+{% block title %}My Schools{% endblock %}
 
 {% block body %}
 
-    {% if user.id == schoolAdministrator.id %}
-        <h2>My Schools</h2>
-    {% else %}
-        <h2>{{ user.fullName }}'s Schools</h2>
-    {% endif %}
+    <div class="uk-container">
 
-    {% for school in schools %}
-        {{ school.name }}
-        {% if school.isUserSchoolAdministrator(user) %}
-            - <a href="{{ path('school_edit', {'id': school.id}) }}">Edit</a>
-        {% endif %}
-        <br>
-    {% endfor %}
-
+        <ul class="uk-tab" uk-switcher="connect: #tab-schools" uk-tab>
+            {% for school in schools %}
+                <li {{ loop.index == 0 ? 'class="uk-active"' : '' }}><a href="#school-{{ school.id }}">{{ school.name }}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="uk-switcher" id="tab-schools">
+            {% for school in schools %}
+                <div class="school_{{ school.id }}">
+                    <div class="uk-panel">
+                        <div class="school_description">
+                            {% if school.overviewAndBackground %}
+                                <div class="uk-section uk-section-muted uk-padding-large">
+                                    <div class="uk-container">
+                                        {{ school.overviewAndBackground }}
+                                        {% if school.isUserSchoolAdministrator(user) %}
+                                            <br />
+                                            <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="uk-placeholder uk-text-center">
+                                    This school does not have an overview added yet.<br />
+                                    {% if school.isUserSchoolAdministrator(user) %}
+                                        <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_edit', {'id': school.id}) }}">Add one now</a></p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if school.isUserSchoolAdministrator(user) %}
+                        <div class="uk-margin">
+                            <ul class="uk-tab" uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
+                                <li class="uk-active"><a href="#school-{{ school.id }}-tools-calendar">Calendar</a></li>
+                                <li><a href="#school-{{ school.id }}-tools-educators">Educators</a></li>
+                                <li><a href="#school-{{ school.id }}-tools-students">Students</a></li>
+                                <li><a href="#school-{{ school.id }}-tools-experiences">Experiences</a></li>
+                            </ul>
+                            <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
+                                <div class="school_{{ school.id }}_tools_calendar">
+                                    <div class="react-school-calendar" data-school-id="{{ school.id }}"></div>
+                                </div>
+                                <div class="school_{{ school.id }}_tools_educators">
+                                    EDUCATORS
+                                </div>
+                                <div class="school_{{ school.id }}_tools_students">
+                                    STUDENTS
+                                </div>
+                                <div class="school_{{ school.id }}_tools_students">
+                                    EXPERIENCES
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock %}
 
