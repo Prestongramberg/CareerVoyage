@@ -17,6 +17,7 @@ use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
+use App\Repository\SchoolExperienceRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SingleChatRepository;
 use App\Repository\StudentUserRepository;
@@ -177,6 +178,11 @@ trait ServiceHelper
     private $teachLessonRequestRepository;
 
     /**
+     * @var SchoolExperienceRepository
+     */
+    private $schoolExperienceRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -206,6 +212,7 @@ trait ServiceHelper
      * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
      * @param SingleChatRepository $singleChatRepository
      * @param TeachLessonRequestRepository $teachLessonRequestRepository
+     * @param SchoolExperienceRepository $schoolExperienceRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -235,7 +242,8 @@ trait ServiceHelper
         SecondaryIndustryRepository $secondaryIndustryRepository,
         RegionalCoordinatorRepository $regionalCoordinatorRepository,
         SingleChatRepository $singleChatRepository,
-        TeachLessonRequestRepository $teachLessonRequestRepository
+        TeachLessonRequestRepository $teachLessonRequestRepository,
+        SchoolExperienceRepository $schoolExperienceRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -265,6 +273,7 @@ trait ServiceHelper
         $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
         $this->singleChatRepository = $singleChatRepository;
         $this->teachLessonRequestRepository = $teachLessonRequestRepository;
+        $this->schoolExperienceRepository = $schoolExperienceRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

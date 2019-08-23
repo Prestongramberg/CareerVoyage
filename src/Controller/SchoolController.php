@@ -602,6 +602,32 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/{id}/experiences", name="school_experiences", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function schoolExperiencesAction(Request $request, School $school) {
+
+        /*$user = $this->getUser();*/
+
+        $experiences = $this->schoolExperienceRepository->findBy([
+            'school' => $school->getId()
+        ]);
+
+        $data = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA']]);
+        $data = json_decode($data, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $data
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/schools/{id}/experiences/create", name="school_experience_create", options = { "expose" = true })
      * @param Request $request
      * @param School $school
