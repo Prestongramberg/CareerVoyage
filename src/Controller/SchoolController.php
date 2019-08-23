@@ -313,6 +313,8 @@ class SchoolController extends AbstractController
                     // only create the student if it doesn't exist
                     if(!$studentObj) {
                         $studentObj = new StudentUser();
+                        $studentObj->setFirstName($student['First Name']);
+                        $studentObj->setLastName($student['Last Name']);
                         $studentObj->setStudentId($student['Student Id']);
                         $studentObj->setSchool($school);
                         $studentObj->setupAsStudent();
@@ -321,11 +323,11 @@ class SchoolController extends AbstractController
                         $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
                         $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
                         $studentObj->setPassword($encodedPassword);
+                    } else {
+                        // we only allow overriding first name and last name by imports
+                        $studentObj->setFirstName($student['First Name']);
+                        $studentObj->setLastName($student['Last Name']);
                     }
-
-                    // we only allow overriding first name and last name by imports
-                    $studentObj->setFirstName($student['First Name']);
-                    $studentObj->setLastName($student['Last Name']);
 
                     // let's manually validate the object before importing
                     $errors = $this->validator->validate($studentObj,
@@ -427,9 +429,12 @@ class SchoolController extends AbstractController
                         'educatorId' => $educatorId
                     ]);
 
+
                     // only create the educator if it doesn't exist
                     if(!$educatorObj) {
                         $educatorObj = new EducatorUser();
+                        $educatorObj->setFirstName($educator['First Name']);
+                        $educatorObj->setLastName($educator['Last Name']);
                         $educatorObj->setEducatorId($educator['Educator Id']);
                         $educatorObj->setSchool($school);
                         $educatorObj->setupAsEducator();
@@ -438,11 +443,11 @@ class SchoolController extends AbstractController
                         $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
                         $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $educatorObj->getTempPassword());
                         $educatorObj->setPassword($encodedPassword);
+                    } else {
+                        // we only allow overriding first name and last name by imports
+                        $educatorObj->setFirstName($educator['First Name']);
+                        $educatorObj->setLastName($educator['Last Name']);
                     }
-
-                    // we only allow overriding first name and last name by imports
-                    $educatorObj->setFirstName($educator['First Name']);
-                    $educatorObj->setLastName($educator['Last Name']);
 
                     // let's manually validate the object before importing
                     $errors = $this->validator->validate($educatorObj,
