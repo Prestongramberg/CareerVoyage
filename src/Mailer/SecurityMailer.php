@@ -52,4 +52,24 @@ class SecurityMailer extends AbstractMailer
         $this->mailer->send($message);
     }
 
+    public function sendPasswordSetupEmail(User $user) {
+
+        $accountActivationUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
+                'account_activation',
+                array('activationCode' => $user->getActivationCode())
+            );
+
+        $message = (new \Swift_Message('Activate Account'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/accountActivationEmail.html.twig',
+                    ['user' => $user, 'accountActivationUrl' => $accountActivationUrl]
+                ),
+                'text/html'
+            );
+        $this->mailer->send($message);
+    }
+
 }
