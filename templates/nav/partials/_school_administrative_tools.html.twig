@@ -1,0 +1,8 @@
+<li class="uk-nav-divider"></li>
+
+<li class="uk-nav-header">Management</li>
+{% if user.schools|length %}
+    <li><a href="{{ path('school_administrator_schools', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: users"></span> Manage my Schools</a></li>
+{% else %}
+    <li><a href="{{ path('requests') }}">! Pending Request</a></li>
+{% endif %}

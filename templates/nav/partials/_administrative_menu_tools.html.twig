@@ -1,0 +1,7 @@
+{% if user.isAdmin %}
+{% elseif user.isEducator %}
+{% elseif user.isStateCoordinator %}
+{% elseif user.isRegionalCoordinator %}
+{% elseif user.isSchoolAdministrator %}
+    {% include 'nav/partials/_school_administrative_tools.html.twig' %}
+{% endif %}
