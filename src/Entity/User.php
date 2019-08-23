@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-
 use App\Service\UploaderHelper;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -19,7 +18,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
 
-
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
@@ -27,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser"})
  *
  * @DiscriminatorMap(typeProperty="name", mapping={
  *    "professional_user"="App\Entity\ProfessionalUser"
@@ -35,7 +33,6 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  */
 abstract class User implements UserInterface
 {
-
     use TimestampableEntity;
 
     const ROLE_USER = 'ROLE_USER';
@@ -47,6 +44,7 @@ abstract class User implements UserInterface
     const ROLE_STATE_COORDINATOR_USER = 'ROLE_STATE_COORDINATOR_USER';
     const ROLE_REGIONAL_COORDINATOR_USER = 'ROLE_REGIONAL_COORDINATOR_USER';
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
+    const ROLE_SITE_ADMIN_USER = 'ROLE_SITE_ADMIN_USER';
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE"})
@@ -190,7 +188,6 @@ abstract class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     *
      */
     protected $activationCode;
 
@@ -509,6 +506,21 @@ abstract class User implements UserInterface
      * @Groups({"ALL_USER_DATA"})
      * @return bool
      */
+    public function isSiteAdmin()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_SITE_ADMIN_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     * @return bool
+     */
     public function isSchoolAdministrator()
     {
         $roles = $this->getRoles();
@@ -566,6 +578,13 @@ abstract class User implements UserInterface
 
         if (!in_array(self::ROLE_STUDENT_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STUDENT_USER;
+        }
+    }
+
+    public function setupAsSiteAdminUser() {
+
+        if (!in_array(self::ROLE_SITE_ADMIN_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_SITE_ADMIN_USER;
         }
     }
 

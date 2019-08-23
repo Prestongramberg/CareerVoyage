@@ -17,6 +17,7 @@ use App\Form\EducatorEditProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\RegionalCoordinatorEditProfileFormType;
 use App\Form\SchoolAdministratorEditProfileFormType;
+use App\Form\SiteAdminProfileFormType;
 use App\Form\StateCoordinatorEditProfileFormType;
 use App\Form\StudentEditProfileFormType;
 use App\Repository\RegionalCoordinatorRepository;
@@ -92,6 +93,9 @@ class ProfileController extends AbstractController
         if($user->isAdmin()) {
             $form = $this->createForm(AdminProfileFormType::class, $user, $options);
             /** @var AdminUser $user */
+        } elseif (($user->isSiteAdmin())) {
+            $form = $this->createForm(SiteAdminProfileFormType::class, $user, $options);
+            /** @var ProfessionalUser $user */
         } elseif (($user->isProfessional())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $form = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);

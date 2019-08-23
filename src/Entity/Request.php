@@ -11,12 +11,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest", "joinCompanyRequest" = "JoinCompanyRequest", "stateCoordinatorRequest" = "StateCoordinatorRequest", "regionalCoordinatorRequest" = "RegionalCoordinatorRequest", "schoolAdministratorRequest" = "SchoolAdministratorRequest", "teachLessonRequest" = "TeachLessonRequest"})
+ * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest", "joinCompanyRequest" = "JoinCompanyRequest", "stateCoordinatorRequest" = "StateCoordinatorRequest", "regionalCoordinatorRequest" = "RegionalCoordinatorRequest", "schoolAdministratorRequest" = "SchoolAdministratorRequest", "teachLessonRequest" = "TeachLessonRequest", "siteAdminRequest" = "SiteAdminRequest"})
  */
 abstract class Request
 {
-    use TimestampableEntity;
-
     const BECOME_STATE_COORDINATOR = 'BECOME_STATE_COORDINATOR';
 
     /**
@@ -50,6 +48,16 @@ abstract class Request
      * @ORM\Column(type="boolean")
      */
     private $denied = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $activationCode;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $allowApprovalByActivationCode = false;
 
     public function getId(): ?int
     {
@@ -112,4 +120,35 @@ abstract class Request
 
         return $this;
     }
+
+    public function getActivationCode(): ?string
+    {
+        return $this->activationCode;
+    }
+
+    public function setActivationCode(?string $activationCode): self
+    {
+        $this->activationCode = $activationCode;
+
+        return $this;
+    }
+
+    public function getAllowApprovalByActivationCode(): ?bool
+    {
+        return $this->allowApprovalByActivationCode;
+    }
+
+    public function setAllowApprovalByActivationCode(bool $allowApprovalByActivationCode): self
+    {
+        $this->allowApprovalByActivationCode = $allowApprovalByActivationCode;
+
+        return $this;
+    }
+
+    public function initializeRequest()
+    {
+        $activationCode = bin2hex(random_bytes(32));
+        $this->setActivationCode($activationCode);
+    }
+
 }

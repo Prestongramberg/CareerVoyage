@@ -1,0 +1,28 @@
+App\Entity\SiteAdminUser:
+  site_admin_user_1:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_SITE_ADMIN_USER", "ROLE_DASHBOARD_USER"]
+    firstName: "Becky"
+    lastName: "Springsteen"
+    email: "becky+site-admin@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    site: '@site_1'
+  site_admin_user_2:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_SITE_ADMIN_USER", "ROLE_DASHBOARD_USER"]
+    firstName: "Jill"
+    lastName: "Larson"
+    email: "jill+site-admin@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    site: '@site_2'
+  site_admin_user_3:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_SITE_ADMIN_USER", "ROLE_DASHBOARD_USER"]
+    firstName: "Ryan"
+    lastName: "Holman"
+    email: "ryan+site-admin@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    site: '@site_3'

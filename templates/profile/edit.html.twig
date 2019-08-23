@@ -27,6 +27,8 @@
 
     {% if user.isAdmin %}
         {% include 'profile/partials/_edit_admin_profile_form.html.twig' %}
+    {% elseif user.isSiteAdmin %}
+        {% include 'profile/partials/_edit_site_admin_profile_form.html.twig' %}
     {% elseif user.isProfessional %}
         {% include 'profile/partials/_edit_professional_profile_form.html.twig' %}
     {% elseif user.isEducator %}

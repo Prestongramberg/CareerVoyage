@@ -1,0 +1,10 @@
+App\Entity\Site:
+    site_1:
+      name: 'maranatha'
+      baseUrl: 'maranatha.org'
+    site_2:
+      name: 'future forward'
+      baseUrl: 'my.futureforward.org'
+    site_3:
+      name: 'pintex'
+      baseUrl: 'pintex.org'

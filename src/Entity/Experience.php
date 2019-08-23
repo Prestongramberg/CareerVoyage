@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 abstract class Experience
 {
+
     public static $types = [
         'Site Visit' => 'SITE_VISIT',
         'Event' => 'EVENT',
