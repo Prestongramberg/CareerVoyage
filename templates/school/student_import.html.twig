@@ -6,16 +6,50 @@
 
 {% block body %}
 
-    <h1>Import Students</h1>
-    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-    {% if form_errors(form) %}
-        {{ form_errors(form) }}
-    {% endif %}
-    {{ form_row(form.file) }}
-    <input type="submit" value="Import">
-    {{ form_rest(form) }}
-    {{ form_end(form) }}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+                <!-- PROFILE -->
+                <div class="profile-card-wrapper">
+                    <div class="uk-card uk-card-default">
+                        <div class="uk-card-header">
+                            <h3 class="uk-card-title uk-margin-remove-bottom">Import Students</h3>
+                            <p class="uk-margin-remove-top">
+                                Students are imported from a CSV file, download our <a class="uk-link" href="{{ asset('build/static/student-import-example.csv') }}" download="">sample one</a> to get started.
+                            </p>
+                        </div>
+                        <div class="uk-card-body">
 
-    <a href="{{ asset('build/static/student-import-example.csv') }}" download="">Example CSV Template</a>
+                            {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+                            {% if form_errors(form) %}
+                                <div class="uk-alert-danger" uk-alert>
+                                    <a class="uk-alert-close" uk-close></a>
+                                    <div>{{ form_errors(form) }}</div>
+                                </div>
+                            {% endif %}
+
+                            <div class="uk-margin">
+                                {{ form_label(form.file, 'CSV File*') }}<br />
+                                <div uk-form-custom="target: true">
+                                    {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
+                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                </div>
+                                {{ form_errors(form.file) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Import</button>
+                            </div>
+
+
+                            {{ form_rest(form) }}
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

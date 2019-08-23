@@ -6,6 +6,20 @@
 
     <div class="uk-container">
 
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ successMessage }}</p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
+
         <ul class="uk-tab" uk-switcher="connect: #tab-schools" uk-tab>
             {% for school in schools %}
                 <li {{ loop.index == 0 ? 'class="uk-active"' : '' }}><a href="#school-{{ school.id }}">{{ school.name }}</a></li>
@@ -19,9 +33,8 @@
                             {% if school.overviewAndBackground %}
                                 <div class="uk-section uk-section-muted uk-padding-large">
                                     <div class="uk-container">
-                                        {{ school.overviewAndBackground }}
+                                        {{ school.overviewAndBackground|raw }}
                                         {% if school.isUserSchoolAdministrator(user) %}
-                                            <br />
                                             <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
                                         {% endif %}
                                     </div>
@@ -70,11 +83,10 @@
                                                         </div>
                                                         <div class="uk-width-auto">
                                                             <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-{#                                                            {% if user.admin or (company.owner and user.id == company.owner.id) %}#}
-{#                                                                <form class="uk-inline" action="{{ path('company_remove_user', { "id": professionalUser.id }) }}" method="POST">#}
-{#                                                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>#}
-{#                                                                </form>#}
-{#                                                            {% endif %}#}
+                                                            <form class="uk-inline" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST">
+                                                                <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+                                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                                            </form>
                                                         </div>
                                                     </div>
                                                 {% endfor %}
@@ -83,10 +95,43 @@
                                     {% endif %}
                                 </div>
                                 <div class="school_{{ school.id }}_tools_students">
-                                    STUDENTS
+
+                                    <div class="uk-margin uk-width-1-1">
+                                        <div class="uk-flex uk-flex-right@m">
+                                            <a href="{{ path('school_student_import', { "id": school.id }) }}" class="uk-button uk-button-primary uk-button-small">Add Students</a>
+                                        </div>
+                                    </div>
+
+                                    {% if school.studentUsers|length %}
+                                        <div class="school__educators">
+                                            <dl class="uk-description-list uk-description-list-divider">
+                                                {% for studentUser in school.studentUsers %}
+                                                    <div class="uk-grid uk-flex-middle" uk-grid>
+                                                        <div class="uk-width-auto">
+                                                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                                        </div>
+                                                        <div class="uk-width-expand">
+                                                            <dt>{{ studentUser.firstName }} {{ studentUser.lastName }}</dt>
+                                                            <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
+                                                        </div>
+                                                        <div class="uk-width-auto">
+                                                            <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                                            <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
+                                                                <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+                                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </dl>
+                                        </div>
+                                    {% endif %}
+
                                 </div>
-                                <div class="school_{{ school.id }}_tools_students">
-                                    EXPERIENCES
+                                <div class="school_{{ school.id }}_tools_experiences">
+                                    <div class="uk-placeholder uk-text-center">
+                                        <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_experience_create', {'id': school.id}) }}">Create an Event</a></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -4,21 +4,23 @@
 
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
+        <li><a href="#account-career-fields">Career Fields of Interest</a></li>
+        <li><a href="#account-account">Account</a></li>
     </ul>
+
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+    {% if form_errors(form) %}
+        <div class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <div>{{ form_errors(form) }}</div>
+        </div>
+    {% endif %}
+
     <div class="uk-switcher" id="tab-account">
+
         <div class="account_details">
             <div class="uk-width-xlarge">
-
-                <h3>Edit Profile</h3>
-
-                {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-
-                {% if form_errors(form) %}
-                    <div class="uk-alert-danger" uk-alert>
-                        <a class="uk-alert-close" uk-close></a>
-                        <div>{{ form_errors(form) }}</div>
-                    </div>
-                {% endif %}
 
                 <fieldset class="uk-fieldset">
                     <div class="uk-margin">
@@ -36,33 +38,18 @@
                         {{ form_widget(form.displayName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.displayName) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.displayName) }}
                     </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.educatorId, 'Educator Id*') }}
-                        {{ form_widget(form.educatorId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.educatorId) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.educatorId) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.username, 'Username*') }}
-                        {{ form_widget(form.username, {'attr': {'class': 'uk-input' ~ ( form_errors(form.username) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.username) }}
-                    </div>
                     {% include 'profile/partials/shared/_edit_profile_image.html.twig' %}
-                    <div class="uk-margin">
-                        {{ form_label(form.email, 'Email') }}
-                        {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.email) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.plainPassword, 'Change Password') }}
-                        {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.plainPassword) }}
-                    </div>
                     <div class="uk-margin">
                         {{ form_label(form.interests, 'Interests') }}
                         {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.interests) }}
                     </div>
-
+                </fieldset>
+            </div>
+        </div>
+        <div class="account_career_fields">
+            <div class="uk-width-xlarge">
+                <fieldset class="uk-fieldset">
                     {% if user.secondaryIndustries is defined %}
                         <div class="page-company-experience-edit__careers">
                             <div class="uk-width-xlarge">
@@ -76,14 +63,40 @@
                             </div>
                         </div>
                     {% endif %}
-
+                </fieldset>
+            </div>
+        </div>
+        <div class="account_account">
+            <div class="uk-width-xlarge">
+                <fieldset class="uk-fieldset">
                     <div class="uk-margin">
-                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                        {{ form_label(form.educatorId, 'Educator Id*') }}
+                        {{ form_widget(form.educatorId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.educatorId) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.educatorId) }}
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.username, 'Username*') }}
+                        {{ form_widget(form.username, {'attr': {'class': 'uk-input' ~ ( form_errors(form.username) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.username) }}
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.email, 'Email') }}
+                        {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.email) }}
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.plainPassword, 'Change Password') }}
+                        {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.plainPassword) }}
                     </div>
                 </fieldset>
-
-                {{ form_end(form) }}
             </div>
         </div>
     </div>
+
+    <div class="uk-margin">
+        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+    </div>
+
+    {{ form_end(form) }}
 </div>

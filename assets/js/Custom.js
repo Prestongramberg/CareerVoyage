@@ -449,6 +449,66 @@ jQuery(document).ready(function($) {
     });
 
     /**
+     * School Resource Forms
+     */
+    $(document).on('click', '#modal-add-school-video [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=AIzaSyCGilvitz5k3BVVa4tjpPMsoufRtDHj7E8` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                let _template = $('#schoolVideosTemplate').html();
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                $('#schoolVideos').append(
+                                    _template.replace(/RESOURCE_ID/g, response.id).replace(/VIDEO_ID/g, response.videoId).replace(/VIDEO_NAME/g, response.name)
+                                );
+                                UIkit.modal( '#modal-add-school-video' ).hide();
+                                window.Pintex.notification("Video uploaded.", "success");
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    /**
      * Time Pickers
      */
     $('.uk-timepicker').daterangepicker({
