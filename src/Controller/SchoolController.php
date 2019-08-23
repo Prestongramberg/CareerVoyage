@@ -602,7 +602,7 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @Route("/schools/{id}/experiences", name="school_experiences", options = { "expose" = true })
+     * @Route("/schools/{id}/experiences", name="get_school_experiences", options = { "expose" = true })
      * @param Request $request
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response

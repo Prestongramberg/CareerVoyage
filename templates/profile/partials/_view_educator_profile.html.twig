@@ -10,19 +10,28 @@
                                 <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(profileUser, 'photo') is defined and profileUser.photo ) ? asset(uploaded_asset(profileUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
-                                <h1>Educator User</h1>
                                 <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
+                                <p class="uk-text-meta uk-margin-remove-top">
+                                    <span>{{ profileUser.school is defined ? profileUser.school.name ~ " - " : "" }}</span>
+                                    <span>Educator</span>
+                                </p>
                             </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
+                        {% if profileUser.briefBio %}
+                            <div class="uk-margin">
+                                {{ profileUser.briefBio|raw }}
+                            </div>
+                        {% else %}
+                            <p>This user has not added a bio yet.</p>
+                        {% endif %}
                         <div class="professional-links">
                             <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                         </div>
                     </div>
                 </div>
             </div>
-            <br /><br />
         </div>
     </div>
 </div>

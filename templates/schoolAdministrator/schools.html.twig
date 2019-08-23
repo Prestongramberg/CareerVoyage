@@ -49,7 +49,38 @@
                                     <div class="react-school-calendar" data-school-id="{{ school.id }}"></div>
                                 </div>
                                 <div class="school_{{ school.id }}_tools_educators">
-                                    EDUCATORS
+
+                                    <div class="uk-margin uk-width-1-1">
+                                        <div class="uk-flex uk-flex-right@m">
+                                            <a href="{{ path('school_educator_import', { "id": school.id }) }}" class="uk-button uk-button-primary uk-button-small">Add Educators</a>
+                                        </div>
+                                    </div>
+
+                                    {% if school.educatorUsers|length %}
+                                        <div class="school__educators">
+                                            <dl class="uk-description-list uk-description-list-divider">
+                                                {% for educatorUser in school.educatorUsers %}
+                                                    <div class="uk-grid uk-flex-middle" uk-grid>
+                                                        <div class="uk-width-auto">
+                                                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                                        </div>
+                                                        <div class="uk-width-expand">
+                                                            <dt>{{ educatorUser.firstName }} {{ educatorUser.lastName }}</dt>
+                                                            <dd>{{ excerpt_length( educatorUser.briefBio, 100 ) }}</dd>
+                                                        </div>
+                                                        <div class="uk-width-auto">
+                                                            <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+{#                                                            {% if user.admin or (company.owner and user.id == company.owner.id) %}#}
+{#                                                                <form class="uk-inline" action="{{ path('company_remove_user', { "id": professionalUser.id }) }}" method="POST">#}
+{#                                                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>#}
+{#                                                                </form>#}
+{#                                                            {% endif %}#}
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </dl>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="school_{{ school.id }}_tools_students">
                                     STUDENTS

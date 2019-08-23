@@ -5,4 +5,5 @@ require('./searchable-professional-listing');
 require('./subscribe-secondary-industries');
 require('./favorite-company');
 require('./favorite-lesson');
+require('./school-calendar');
 require('./teach-lesson');
