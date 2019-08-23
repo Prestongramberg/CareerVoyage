@@ -91,7 +91,7 @@ abstract class User implements UserInterface
      *
      * @var string
      *
-     * @ORM\Column(name="invitation_code", type="string", length=16, nullable=true)
+     * @ORM\Column(name="invitation_code", type="string", length=255, nullable=true)
      */
     protected $invitationCode;
 
@@ -410,6 +410,28 @@ abstract class User implements UserInterface
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function friendlyRoleName() {
+        if($this->isProfessional()) {
+            return 'professional';
+        } elseif ($this->isEducator()) {
+            return 'educator';
+        } elseif ($this->isStudent()) {
+            return 'student';
+        } elseif ($this->isAdmin()) {
+            return 'admin';
+        } elseif ($this->isStateCoordinator()) {
+            return 'state coordinator';
+        } elseif ($this->isRegionalCoordinator()) {
+            return 'regional coordinator';
+        } elseif ($this->isSiteAdmin()) {
+            return 'side admin';
+        } elseif ($this->isSchoolAdministrator()) {
+            return 'school administrator';
+        } else {
+            return 'user';
+        }
     }
 
     /**
@@ -876,10 +898,18 @@ abstract class User implements UserInterface
         $this->invitationCode = $invitationCode;
     }
 
-    public function initializeNewUser()
+    public function initializeNewUser($activationCode = true, $invitationCode = false)
     {
-        $activationCode = bin2hex(random_bytes(32));
-        $this->setActivationCode($activationCode);
+        if($activationCode) {
+            $activationCode = bin2hex(random_bytes(32));
+            $this->setActivationCode($activationCode);
+        }
+
+        if($invitationCode) {
+            $invitationCode = bin2hex(random_bytes(32));
+            $this->setInvitationCode($invitationCode);
+        }
+
         $roles = $this->getRoles();
         $this->roles[] = self::ROLE_DASHBOARD_USER;
     }

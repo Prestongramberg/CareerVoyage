@@ -70,7 +70,7 @@ class SiteController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      */
-    public function newAdmin(Request $request) {
+    public function newAdminUser(Request $request) {
 
         $user = $this->getUser();
         $siteAdmin = new SiteAdminUser();
@@ -91,8 +91,9 @@ class SiteController extends AbstractController
                 $this->addFlash('error', 'This user already exists in the system');
                 return $this->redirectToRoute('sites_admin_new');
             } else {
-                $siteAdmin->initializeNewUser();
+                $siteAdmin->initializeNewUser(false, true);
                 $siteAdmin->setPasswordResetToken();
+                $siteAdmin->setupAsSiteAdminUser();
                 $this->entityManager->persist($siteAdmin);
             }
 
@@ -106,7 +107,7 @@ class SiteController extends AbstractController
             $this->entityManager->persist($siteAdminRequest);
             $this->entityManager->flush();
 
-            $this->securityMailer->sendAccountActivation($siteAdmin);
+            $this->securityMailer->sendPasswordSetupForSiteAdmin($siteAdmin);
             $this->requestsMailer->siteAdminRequest($siteAdminRequest);
 
             $this->addFlash('success', 'Site admin invite sent.');

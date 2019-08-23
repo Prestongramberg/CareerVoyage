@@ -221,6 +221,7 @@ class RegionalCoordinatorController extends AbstractController
             } else {
                 $regionalCoordinator->initializeNewUser();
                 $regionalCoordinator->setPasswordResetToken();
+                $regionalCoordinator->setupAsRegionalCoordinator();
                 $this->entityManager->persist($regionalCoordinator);
             }
 

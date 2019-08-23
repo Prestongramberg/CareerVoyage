@@ -116,8 +116,9 @@ class SchoolController extends AbstractController
                 $schoolAdministrator->setFirstName($firstName);
                 $schoolAdministrator->setLastName($lastName);
                 $schoolAdministrator->setEmail($email);
-                $schoolAdministrator->initializeNewUser();
+                $schoolAdministrator->initializeNewUser(false, true);
                 $schoolAdministrator->setPasswordResetToken();
+                $schoolAdministrator->setupAsSchoolAdministrator();
                 $this->entityManager->persist($schoolAdministrator);
             }
 

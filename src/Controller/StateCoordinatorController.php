@@ -215,6 +215,7 @@ class StateCoordinatorController extends AbstractController
             } else {
                 $stateCoordinator->initializeNewUser();
                 $stateCoordinator->setPasswordResetToken();
+                $stateCoordinator->setupAsStateCoordinator();
                 $this->entityManager->persist($stateCoordinator);
             }
 

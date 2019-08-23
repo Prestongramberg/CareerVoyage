@@ -217,34 +217,6 @@ class RequestController extends AbstractController
     }
 
     /**
-     * @Route("/request/{token}/activate", name="request_activate", requirements={"token" = "^[a-f0-9]{64}$"})
-     *
-     * @param Request $httpRequest
-     * @param string $token
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function requestActivate(Request $httpRequest, $token)
-    {
-        $request = $this->requestRepository->findOneBy([
-            'activationCode' => $token,
-            'approved' => false,
-            'denied' => false,
-        ]);
-
-        if(!$request || !$request->getAllowApprovalByActivationCode()) {
-            // todo render a twig template here instead
-            throw new \Exception("Activation code invalid");
-        }
-
-        $this->handleRequestApproval($request, $httpRequest);
-
-        return $this->redirectToRoute('requests');
-    }
-
-    /**
      * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
      * @param \App\Entity\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -306,7 +278,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var StateCoordinator $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsStateCoordinator();
                 $this->addFlash('success', 'You have accepted a state coordinator position!');
                 $needsApprovalBy->setState($request->getState());
                 $needsApprovalBy->agreeToTerms();
@@ -318,7 +289,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var RegionalCoordinator $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsRegionalCoordinator();
                 $this->addFlash('success', 'You have accepted a regional coordinator position!');
                 $needsApprovalBy->setRegion($request->getRegion());
                 $needsApprovalBy->agreeToTerms();
@@ -330,7 +300,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var SchoolAdministrator $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsSchoolAdministrator();
                 $this->addFlash('success', 'You have accepted a school administrator position!');
                 $needsApprovalBy->addSchool($request->getSchool());
                 $needsApprovalBy->agreeToTerms();
@@ -388,7 +357,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var SiteAdminUser $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsSiteAdminUser();
                 $this->addFlash('success', 'You have accepted a site administrator position!');
                 $needsApprovalBy->setSite($request->getSite());
                 $needsApprovalBy->agreeToTerms();
