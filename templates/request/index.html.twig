@@ -10,9 +10,9 @@
     <div class="uk-container">
 
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
-            <li class="uk-active"><a href="#requests-mine">My Requests ({{ myCreatedRequests|length }})</a></li>
+            <li class="uk-active"><a href="#requests-mine">Outgoing Requests ({{ myCreatedRequests|length }})</a></li>
             {% if requestsThatNeedMyApproval|length > 0 %}
-                <li><a href="#requests-approvals">Pending Approvals ({{ requestsThatNeedMyApproval|length }})</a></li>
+                <li><a href="#requests-approvals">Incoming Requests ({{ requestsThatNeedMyApproval|length }})</a></li>
             {% endif %}
         </ul>
 
@@ -51,7 +51,7 @@
                         </ul>
                     {% else %}
                         <div class="uk-placeholder">
-                            You have no pending requests currently.
+                            You have not sent any requests that are pending.
                         </div>
                     {% endif %}
                 </div>

@@ -164,17 +164,15 @@ class SchoolController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $educatorUser->getSchool());
 
-        $id = $educatorUser->getId();
+        $schoolAdminId = $request->request->get('schoolAdminId');
 
         $this->entityManager->remove($educatorUser);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
-                'id' => $id
-            ], Response::HTTP_OK
-        );
+        $this->addFlash('success', 'Educator removed from school');
+
+        return $this->redirectToRoute('school_administrator_schools', ['id' => $schoolAdminId]);
+
     }
 
     /**
@@ -200,22 +198,17 @@ class SchoolController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $studentUser->getSchool());
 
-        $id = $studentUser->getId();
+        $schoolAdminId = $request->request->get('schoolAdminId');
 
         $this->entityManager->remove($studentUser);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
-                'id' => $id
-            ], Response::HTTP_OK
-        );
+        return $this->redirectToRoute('school_administrator_schools', ['id' => $schoolAdminId]);
     }
 
     /**
      * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
-     * @Route("/schools/{id}/edit", name="school_edit")
+     * @Route("/schools/{id}/edit", name="school_edit", options = { "expose" = true })
      * @param Request $request
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response
@@ -579,7 +572,9 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId()
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId
 
                 ], Response::HTTP_OK
             );
@@ -617,7 +612,9 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId()
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId
 
                 ], Response::HTTP_OK
             );
@@ -653,7 +650,7 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @Route("/schools/{id}/experiences", name="school_experiences", options = { "expose" = true })
+     * @Route("/schools/{id}/experiences", name="get_school_experiences", options = { "expose" = true })
      * @param Request $request
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response

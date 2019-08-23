@@ -7,9 +7,11 @@ import reducers from "./reducers";
 import { getInitialCalendarState } from "./init";
 import App from "./App";
 
-const eventsCalendar = document.getElementById("react-events-calendar");
+const school_calendars = document.getElementsByClassName("react-school-calendar");
 
-if( eventsCalendar ) {
+for( let i = 0; i < school_calendars.length; i++) {
+
+    const schoolId = parseInt(school_calendars[i].getAttribute("data-school-id"));
 
     const store = createStore(
         reducers,
@@ -26,9 +28,9 @@ if( eventsCalendar ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App />
+                <App schoolId={ schoolId } />
             </Provider>,
-            eventsCalendar
+            school_calendars[i]
         );
     };
     render();

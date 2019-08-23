@@ -25,6 +25,9 @@
             <li><a href="{{ path('profile_edit', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: user"></span> My Account</a></li>
             <li><a href="{{ path('app_logout') }}"><span class="uk-margin-small-right" uk-icon="icon: forward"></span> Logout</a></li>
             <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help"><span class="uk-margin-small-right" uk-icon="icon: question"></span> Need Help?</a></li>
+
+            {% include 'nav/partials/_administrative_menu_tools.html.twig' %}
+
         </ul>
     </div>
 </div>
