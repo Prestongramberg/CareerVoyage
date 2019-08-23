@@ -155,6 +155,29 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/educators/{id}/remove", name="remove_educator", methods={"POST"})
+     * @param Request $request
+     * @param EducatorUser $educatorUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function removeEducatorAction(Request $request, EducatorUser $educatorUser) {
+
+        $this->denyAccessUnlessGranted('edit', $educatorUser->getSchool());
+
+        $id = $educatorUser->getId();
+
+        $this->entityManager->remove($educatorUser);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'id' => $id
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/schools/{id}/students", name="school_students")
      * @param Request $request
      * @param School $school
@@ -165,6 +188,29 @@ class SchoolController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $school);
 
         return new Response("students");
+    }
+
+    /**
+     * @Route("/schools/students/{id}/remove", name="remove_student", methods={"POST"})
+     * @param Request $request
+     * @param StudentUser $studentUser
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function removeStudentAction(Request $request, StudentUser $studentUser) {
+
+        $this->denyAccessUnlessGranted('edit', $studentUser->getSchool());
+
+        $id = $studentUser->getId();
+
+        $this->entityManager->remove($studentUser);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'id' => $id
+            ], Response::HTTP_OK
+        );
     }
 
     /**
