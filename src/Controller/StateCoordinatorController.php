@@ -186,7 +186,7 @@ class StateCoordinatorController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ADMIN_USER")
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/new", name="state_coordinator_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response

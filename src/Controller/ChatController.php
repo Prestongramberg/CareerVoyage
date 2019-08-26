@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Chat;
+use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
@@ -28,6 +29,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\NewCompanyRequestRepository;
 use App\Repository\RequestRepository;
+use App\Repository\SingleChatRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -146,6 +148,61 @@ class ChatController extends AbstractController
      * @throws \Exception
      */
     public function message(Request $request, Chat $chat, $pusherAppId, $pusherAppKey, $pusherAppSecret) {
+
+        $loggedInUser = $this->getUser();
+
+        $body = $request->request->get('message');
+        $message = new ChatMessage();
+        $message->setBody($body);
+        $message->setSentFrom($loggedInUser);
+        $message->setSentAt(new \DateTime());
+        $message->setChat($chat);
+
+        $this->entityManager->persist($message);
+        $this->entityManager->flush();
+
+   /*     if($chat instanceof SingleChat) {
+            $chat->getUser();
+            $chat->getInitializedBy();
+        }*/
+
+        $options = array(
+            'cluster' => 'us2',
+            'useTLS' => true
+        );
+        $pusher = new Pusher(
+            $pusherAppKey,
+            $pusherAppSecret,
+            $pusherAppId,
+            $options
+        );
+
+        $json = $this->serializer->serialize($chat, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
+        $payload = json_decode($json, true);
+
+        $data = [];
+        $data['chat'] = $payload;
+        $pusher->trigger(sprintf('chat-%s', $chat->getUid()), 'send-message', $data);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload,
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * sends a single message to a chat
+     *
+     * @Route("/chats/{id}/messages/unread", name="unread_messages_chat", methods={"POST"}, options = { "expose" = true })
+     * @param Request $request
+     * @param Chat $chat
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function unreadMessages(Request $request, Chat $chat) {
 
         $loggedInUser = $this->getUser();
 

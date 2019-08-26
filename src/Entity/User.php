@@ -213,6 +213,11 @@ abstract class User implements UserInterface
      */
     protected $singleChats;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\MessageReadStatus", mappedBy="user", orphanRemoval=true)
+     */
+    private $messageReadStatuses;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -223,6 +228,7 @@ abstract class User implements UserInterface
         $this->lessonTeachables = new ArrayCollection();
         $this->initializedChats = new ArrayCollection();
         $this->singleChats = new ArrayCollection();
+        $this->messageReadStatuses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1034,5 +1040,36 @@ abstract class User implements UserInterface
 
     public function setId($id) {
         $this->id = $id;
+    }
+
+    /**
+     * @return Collection|MessageReadStatus[]
+     */
+    public function getMessageReadStatuses(): Collection
+    {
+        return $this->messageReadStatuses;
+    }
+
+    public function addMessageReadStatus(MessageReadStatus $messageReadStatus): self
+    {
+        if (!$this->messageReadStatuses->contains($messageReadStatus)) {
+            $this->messageReadStatuses[] = $messageReadStatus;
+            $messageReadStatus->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessageReadStatus(MessageReadStatus $messageReadStatus): self
+    {
+        if ($this->messageReadStatuses->contains($messageReadStatus)) {
+            $this->messageReadStatuses->removeElement($messageReadStatus);
+            // set the owning side to null (unless already changed)
+            if ($messageReadStatus->getUser() === $this) {
+                $messageReadStatus->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
