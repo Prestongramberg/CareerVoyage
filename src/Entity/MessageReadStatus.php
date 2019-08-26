@@ -31,7 +31,7 @@ class MessageReadStatus
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isRead;
+    private $isRead = false;
 
     public function getId(): ?int
     {

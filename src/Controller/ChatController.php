@@ -9,6 +9,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
+use App\Entity\MessageReadStatus;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
@@ -80,8 +81,31 @@ class ChatController extends AbstractController
 
         return $this->render('chat/index.html.twig', [
             'user' => $user,
-            'chattableUsers' => $chattableUsers
+            'chattableUsers' => $chattableUsers,
         ]);
+    }
+
+    /**
+     * @Route("/chats/users/{id}", name="user_chats", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @param User $user
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getUserChats(Request $request, User $user) {
+
+        $chats = $this->chatRepository->findByUser($user);
+
+        $json = $this->serializer->serialize($chats, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
+        $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload,
+            ],
+            Response::HTTP_OK
+        );
+
     }
 
     /**
@@ -93,36 +117,33 @@ class ChatController extends AbstractController
      */
     public function createSingleChat(Request $request) {
 
-
         $loggedInUser = $this->getUser();
 
         // the user id whom you want to message
         $userId = $request->request->get('userId');
         $user = $this->userRepository->find($userId);
 
-        // first check to see if you have initialized a chat with the user
-        $singleChat = $this->singleChatRepository->findOneBy(
-            [
-               'initializedBy' => $loggedInUser,
-               'user' => $user
-            ]);
+        $possibleUsers[] =  $loggedInUser->getId();
+        $possibleUsers[] =  $user->getId();
 
-        if(!$singleChat) {
-            $singleChat = $this->singleChatRepository->findOneBy(
-                [
-                    'initializedBy' => $user,
-                    'user' => $loggedInUser
-
-                ]);
-        }
+        $singleChat = $this->singleChatRepository->findByUsers($possibleUsers);
 
         // if a chat doesn't exist then let's create one!
         if(!$singleChat) {
             $singleChat = new SingleChat();
-            $singleChat->setUser($user);
+            $singleChat->addUser($user);
+            $singleChat->addUser($loggedInUser);
             $singleChat->setInitializedBy($loggedInUser);
 
             $this->entityManager->persist($singleChat);
+            $this->entityManager->flush();
+        } else {
+            // if a chat does exist, let's mark all the messages as read for the logged in user
+            $messageStatuses = $this->messageReadStatusRepository->getUnreadyMessagesByChatAndUser($singleChat, $loggedInUser);
+            /** @var MessageReadStatus $messageStatus */
+            foreach($messageStatuses as $messageStatus) {
+                $messageStatus->setIsRead(true);
+            }
             $this->entityManager->flush();
         }
 
@@ -161,14 +182,24 @@ class ChatController extends AbstractController
         $this->entityManager->persist($message);
         $this->entityManager->flush();
 
-   /*     if($chat instanceof SingleChat) {
-            $chat->getUser();
-            $chat->getInitializedBy();
-        }*/
+        // setup the users to send the message to
+        $possibleUsers = [];
+        $possibleUsers = array_filter($chat->getUsers()->toArray(), function(User $user) use ($loggedInUser) {
+            return $user->getId() !== $loggedInUser->getId();
+        });
+
+        foreach($possibleUsers as $possibleUser) {
+            $messageReadStatus = new MessageReadStatus();
+            $messageReadStatus->setChatMessage($message);
+            $messageReadStatus->setUser($possibleUser);
+            $this->entityManager->persist($messageReadStatus);
+        }
+
+        $this->entityManager->flush();
 
         $options = array(
             'cluster' => 'us2',
-            'useTLS' => true
+            'useTLS' => true,
         );
         $pusher = new Pusher(
             $pusherAppKey,
@@ -219,7 +250,7 @@ class ChatController extends AbstractController
 
         $options = array(
             'cluster' => 'us2',
-            'useTLS' => true
+            'useTLS' => true,
         );
         $pusher = new Pusher(
             $pusherAppKey,
@@ -252,7 +283,7 @@ class ChatController extends AbstractController
         return new JsonResponse(
             [
                 'success' => false,
-                'message' => 'logic for this route not built yet'
+                'message' => 'logic for this route not built yet',
 
             ], Response::HTTP_OK
         );

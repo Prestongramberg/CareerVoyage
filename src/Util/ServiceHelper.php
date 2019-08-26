@@ -8,6 +8,7 @@ use App\Mailer\ImportMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
+use App\Repository\ChatRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
@@ -15,6 +16,7 @@ use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
+use App\Repository\MessageReadStatusRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RequestRepository;
@@ -183,6 +185,16 @@ trait ServiceHelper
     private $requestRepository;
 
     /**
+     * @var MessageReadStatusRepository
+     */
+    private $messageReadStatusRepository;
+
+    /**
+     * @var ChatRepository;
+     */
+    private $chatRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -213,6 +225,8 @@ trait ServiceHelper
      * @param SingleChatRepository $singleChatRepository
      * @param TeachLessonRequestRepository $teachLessonRequestRepository
      * @param RequestRepository $requestRepository
+     * @param MessageReadStatusRepository $messageReadStatusRepository
+     * @param ChatRepository $chatRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -243,7 +257,9 @@ trait ServiceHelper
         RegionalCoordinatorRepository $regionalCoordinatorRepository,
         SingleChatRepository $singleChatRepository,
         TeachLessonRequestRepository $teachLessonRequestRepository,
-        RequestRepository $requestRepository
+        RequestRepository $requestRepository,
+        MessageReadStatusRepository $messageReadStatusRepository,
+        ChatRepository $chatRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -274,6 +290,8 @@ trait ServiceHelper
         $this->singleChatRepository = $singleChatRepository;
         $this->teachLessonRequestRepository = $teachLessonRequestRepository;
         $this->requestRepository = $requestRepository;
+        $this->messageReadStatusRepository = $messageReadStatusRepository;
+        $this->chatRepository = $chatRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

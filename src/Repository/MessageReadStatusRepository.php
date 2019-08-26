@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Chat;
 use App\Entity\MessageReadStatus;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +49,19 @@ class MessageReadStatusRepository extends ServiceEntityRepository
         ;
     }
     */
+
+
+    public function getUnreadyMessagesByChatAndUser(Chat $chat, User $user)
+    {
+        return $this->createQueryBuilder('m')
+            ->innerJoin('m.chatMessage', 'chatMessage')
+            ->innerJoin('chatMessage.chat', 'chat')
+            ->andWhere('chat.id = :chatId')
+            ->andWhere('m.user = :user')
+            ->setParameter('chatId', $chat->getId())
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
+
 }
