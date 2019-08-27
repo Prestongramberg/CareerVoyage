@@ -416,6 +416,7 @@ class SchoolController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $school);
 
+        /** @var SchoolAdministrator $user */
         $user = $this->getUser();
 
         $form = $this->createForm(EducatorImportType::class, null, [
@@ -474,6 +475,7 @@ class SchoolController extends AbstractController
                         $educatorObj->setEducatorId($educator['Educator Id']);
                         $educatorObj->setSchool($school);
                         $educatorObj->setupAsEducator();
+                        $educatorObj->setSite($user->getSite());
                         $educatorObj->initializeNewUser();
                         $educatorObj->setActivated(true);
                         $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));

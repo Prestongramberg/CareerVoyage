@@ -27,9 +27,6 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser"})
  *
- * @DiscriminatorMap(typeProperty="name", mapping={
- *    "professional_user"="App\Entity\ProfessionalUser"
- * })
  */
 abstract class User implements UserInterface
 {

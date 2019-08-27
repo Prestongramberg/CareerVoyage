@@ -24,8 +24,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class StudentUser extends User
 {
-
-
     use RandomStringGenerator;
 
     /**
