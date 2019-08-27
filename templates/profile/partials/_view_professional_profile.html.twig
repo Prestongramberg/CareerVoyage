@@ -1,5 +1,19 @@
 <div class="uk-container">
 
+    {% if successMessage %}
+        <div class="uk-alert-success uk-margin" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>{{ successMessage }}</p>
+        </div>
+    {% endif %}
+
+    {% if errorMessage %}
+        <div class="uk-alert-danger uk-margin" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>{{ errorMessage }}</p>
+        </div>
+    {% endif %}
+
     {% if user.id == profileUser.id %}
         <div class="uk-alert uk-margin" uk-alert>
             <a class="uk-alert-close" uk-close></a>
@@ -106,13 +120,35 @@
                                         </div>
                                         <div class="uk-width-auto">
                                             {% if user.isEducator %}
-                                                <form class="uk-inline" method="post" action="{{ path('lesson_request_to_teach', {'lesson_id' : teachable.lesson.id, 'professional_id': teachable.user.id}) }}">
-                                                    <input type="hidden" name="dateOptionOne" value="08/08/2019 8:00 AM">
-                                                    <input type="hidden" name="dateOptionTwo" value="08/09/2019 8:00 AM">
-                                                    <input type="hidden" name="dateOptionThree" value="08/10/2019 8:00 AM">
-                                                    <input type="hidden" name="redirectUrl" value="{{ path('profile_index', {id: teachable.user.id}) }}">
-                                                    <button class="uk-button uk-button-default uk-button-small">Request</button>
-                                                </form>
+                                                <button data-uk-toggle="target: #request-lesson-{{ teachable.lesson.id }}" type="button"
+                                                        class="uk-button uk-button-default uk-button-small uk-margin-small-left">Request
+                                                </button>
+                                                <div id="request-lesson-{{ teachable.lesson.id }}" data-uk-modal>
+                                                    <div class="uk-modal-dialog uk-modal-body">
+                                                        <h2 class="uk-modal-title">Request "{{ teachable.user.fullName }}" to Guest Instruct?</h2>
+                                                        <p>Lesson: {{ teachable.lesson.title }}</p>
+                                                        <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
+                                                        <form method="post" action="{{ path('lesson_request_to_teach', {'lesson_id' : teachable.lesson.id, 'professional_id': teachable.user.id}) }}">
+                                                            <div class="uk-margin">
+                                                                <label for="dateOptionOne" class="required">Date 1*</label>
+                                                                <input type="text" name="dateOptionOne" required="required" class="uk-timepicker uk-input" />
+                                                            </div>
+                                                            <div class="uk-margin">
+                                                                <label for="dateOptionTwo" class="required">Date 2*</label>
+                                                                <input type="text" name="dateOptionTwo" required="required" class="uk-timepicker uk-input" />
+                                                            </div>
+                                                            <div class="uk-margin">
+                                                                <label for="dateOptionThree" class="required">Date 3*</label>
+                                                                <input type="text" name="dateOptionThree" required="required" class="uk-timepicker uk-input" />
+                                                            </div>
+                                                            <div class="uk-margin">
+                                                                <button class="uk-button uk-button-primary uk-inline">Yes, Send</button>
+                                                                <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                                                            </div>
+                                                            <input type="hidden" name="redirectUrl" value="{{ path('profile_index', {id: teachable.user.id}) }}">
+                                                        </form>
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
