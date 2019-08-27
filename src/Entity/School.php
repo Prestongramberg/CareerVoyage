@@ -111,6 +111,11 @@ class School
      */
     private $site;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="schools")
+     */
+    private $state;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -496,6 +501,18 @@ class School
     public function setSite(?Site $site): self
     {
         $this->site = $site;
+
+        return $this;
+    }
+
+    public function getState(): ?State
+    {
+        return $this->state;
+    }
+
+    public function setState(?State $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }
