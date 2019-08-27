@@ -97,18 +97,17 @@ class SiteController extends AbstractController
                 $this->entityManager->persist($siteAdmin);
             }
 
-            $siteAdminRequest = new SiteAdminRequest();
+       /*     $siteAdminRequest = new SiteAdminRequest();
             $siteAdminRequest->setSite($siteAdmin->getSite());
             $siteAdminRequest->setNeedsApprovalBy($siteAdmin);
             $siteAdminRequest->setCreatedBy($user);
             $siteAdminRequest->initializeRequest();
-            $siteAdminRequest->setAllowApprovalByActivationCode(true);
 
-            $this->entityManager->persist($siteAdminRequest);
+            $this->entityManager->persist($siteAdminRequest);*/
             $this->entityManager->flush();
 
             $this->securityMailer->sendPasswordSetupForSiteAdmin($siteAdmin);
-            $this->requestsMailer->siteAdminRequest($siteAdminRequest);
+            /*$this->requestsMailer->siteAdminRequest($siteAdminRequest);*/
 
             $this->addFlash('success', 'Site admin invite sent.');
             return $this->redirectToRoute('sites_admin_new');

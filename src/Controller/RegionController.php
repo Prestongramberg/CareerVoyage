@@ -36,6 +36,7 @@ use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
+use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -63,136 +64,10 @@ class RegionController extends AbstractController
 {
     use FileHelper;
     use RandomStringGenerator;
+    use ServiceHelper;
 
     /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileUploader $fileUploader
-     */
-    private $fileUploader;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    /**
-     * @var ImageCacheGenerator
-     */
-    private $imageCacheGenerator;
-
-    /**
-     * @var UploaderHelper
-     */
-    private $uploaderHelper;
-
-    /**
-     * @var Packages
-     */
-    private $assetsManager;
-
-    /**
-     * @var CompanyRepository
-     */
-    private $companyRepository;
-
-    /**
-     * @var CompanyPhotoRepository
-     */
-    private $companyPhotoRepository;
-
-    /**
-     * @var LessonFavoriteRepository
-     */
-    private $lessonFavoriteRepository;
-
-    /**
-     * @var LessonTeachableRepository
-     */
-    private $lessonTeachableRepository;
-
-    /**
-     * @var SecurityMailer
-     */
-    private $securityMailer;
-
-    /**
-     * @var RequestsMailer
-     */
-    private $requestsMailer;
-
-    /**
-     * @var StateCoordinatorRequestRepository
-     */
-    private $stateCoordinatorRequestRepository;
-
-    /**
-     * @var StateCoordinatorRepository
-     */
-    private $stateCoordinatorRepository;
-
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
-     * StateCoordinatorController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param Packages $assetsManager
-     * @param CompanyRepository $companyRepository
-     * @param CompanyPhotoRepository $companyPhotoRepository
-     * @param LessonFavoriteRepository $lessonFavoriteRepository
-     * @param LessonTeachableRepository $lessonTeachableRepository
-     * @param SecurityMailer $securityMailer
-     * @param RequestsMailer $requestsMailer
-     * @param StateCoordinatorRequestRepository $stateCoordinatorRequestRepository
-     * @param StateCoordinatorRepository $stateCoordinatorRepository
-     * @param UserRepository $userRepository
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository,
-        LessonFavoriteRepository $lessonFavoriteRepository,
-        LessonTeachableRepository $lessonTeachableRepository,
-        SecurityMailer $securityMailer,
-        RequestsMailer $requestsMailer,
-        StateCoordinatorRequestRepository $stateCoordinatorRequestRepository,
-        StateCoordinatorRepository $stateCoordinatorRepository,
-        UserRepository $userRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->assetsManager = $assetsManager;
-        $this->companyRepository = $companyRepository;
-        $this->companyPhotoRepository = $companyPhotoRepository;
-        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
-        $this->lessonTeachableRepository = $lessonTeachableRepository;
-        $this->securityMailer = $securityMailer;
-        $this->requestsMailer = $requestsMailer;
-        $this->stateCoordinatorRequestRepository = $stateCoordinatorRequestRepository;
-        $this->stateCoordinatorRepository = $stateCoordinatorRepository;
-        $this->userRepository = $userRepository;
-    }
-
-    /**
-     * @Security("is_granted('ROLE_STATE_COORDINATOR_USER')")
+     * @IsGranted({"ROLE_STATE_COORDINATOR_USER"})
      * @Route("/new", name="region_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -205,7 +80,8 @@ class RegionController extends AbstractController
         $region = new Region();
 
         $form = $this->createForm(CreateRegionFormType::class, $region, [
-            'method' => 'POST'
+            'method' => 'POST',
+            'loggedInUser' => $user
         ]);
 
         $form->handleRequest($request);
@@ -213,6 +89,7 @@ class RegionController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Region $region */
             $region = $form->getData();
+            $region->setSite($user->getSite());
 
             $this->entityManager->persist($region);
             $this->entityManager->flush();
@@ -222,6 +99,63 @@ class RegionController extends AbstractController
         }
 
         return $this->render('region/new.html.twig', [
+            'user' => $user,
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_STATE_COORDINATOR_USER')")
+     * @Route("/coordinator/new", name="regional_coordinator_new")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function newCoordinatorAction(Request $request) {
+
+        /** @var StateCoordinator $user */
+        $user = $this->getUser();
+        $regionalCoordinator = new RegionalCoordinator();
+
+        $form = $this->createForm(RegionalCoordinatorFormType::class, $regionalCoordinator, [
+            'method' => 'POST',
+            'site' => $user->getSite()
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var RegionalCoordinator $regionalCoordinator */
+            $regionalCoordinator = $form->getData();
+
+            $existingUser = $this->userRepository->findOneBy(['email' => $regionalCoordinator->getEmail()]);
+            // for now just skip users that are already in the system
+            if($existingUser) {
+                $this->addFlash('error', 'This user already exists in the system');
+                return $this->redirectToRoute('regional_coordinator_new');
+            } else {
+                $regionalCoordinator->initializeNewUser(false, true);
+                $regionalCoordinator->setPasswordResetToken();
+                $regionalCoordinator->setupAsRegionalCoordinator();
+                $regionalCoordinator->setSite($user->getSite());
+                $this->entityManager->persist($regionalCoordinator);
+            }
+/*
+            $regionalCoordinatorRequest = new RegionalCoordinatorRequest();
+            $regionalCoordinatorRequest->setRegion($regionalCoordinator->getRegion());
+            $regionalCoordinatorRequest->setNeedsApprovalBy($regionalCoordinator);
+            $regionalCoordinatorRequest->setCreatedBy($user);
+            $this->entityManager->persist($regionalCoordinatorRequest);*/
+            $this->entityManager->flush();
+
+            $this->securityMailer->sendPasswordSetupForRegionalCoordinator($regionalCoordinator);
+            /*$this->requestsMailer->regionalCoordinatorRequest($regionalCoordinatorRequest);*/
+
+            $this->addFlash('success', 'Regional coordinator invite sent.');
+            return $this->redirectToRoute('regional_coordinator_new');
+        }
+
+        return $this->render('regionalCoordinator/new.html.twig', [
             'user' => $user,
             'form' => $form->createView()
         ]);

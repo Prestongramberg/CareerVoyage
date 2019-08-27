@@ -1,0 +1,43 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Users{% endblock %}
+
+{% block body %}
+
+
+    {% if user.isAdmin %}
+        <div>
+            <a href="{{ path('manage_professionals') }}">Professionals</a>
+        </div>
+    {% elseif user.isSiteAdmin %}
+        <div>
+        </div>
+    {%  else %}
+    {%  endif %}
+
+    <div>
+        <a href="{{ path('manage_site_admins') }}">Site Admins</a>
+    </div>
+
+    <div>
+        <a href="{{ path('manage_state_coordinators') }}">State Coordinators</a>
+    </div>
+
+    <div>
+        <a href="{{ path('manage_regional_coordinators') }}">Regional Coordinator</a>
+    </div>
+
+    <div>
+        <a href="{{ path('manage_school_administrators') }}">School Administrators</a>
+    </div>
+
+    <div>
+        <a href="{{ path('manage_students') }}">Students</a>
+    </div>
+
+    <div>
+        <a href="{{ path('manage_educators') }}">Educators</a>
+    </div>
+
+
+{% endblock %}

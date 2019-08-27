@@ -40,7 +40,7 @@ class RegionalCoordinatorFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $state = $options['state'];
+        $site = $options['site'];
 
         $builder->add('firstName', TextType::class)
             ->add('lastName', TextType::class)
@@ -50,10 +50,10 @@ class RegionalCoordinatorFormType extends AbstractType
                 'choice_label' => 'name',
                 'expanded'  => false,
                 'multiple'  => false,
-                'query_builder' => function (EntityRepository $er) use ($state) {
+                'query_builder' => function (EntityRepository $er) use ($site) {
                     return $er->createQueryBuilder('r')
-                        ->where('r.state = :state')
-                        ->setParameter('state', $state);
+                        ->where('r.site = :site')
+                        ->setParameter('site', $site);
                 },
             ])
             ->add('submit', SubmitType::class);
@@ -66,6 +66,6 @@ class RegionalCoordinatorFormType extends AbstractType
             'validation_groups' => ["INCOMPLETE_USER", "REGIONAL_COORDINATOR"]
         ]);
 
-        $resolver->setRequired('state');
+        $resolver->setRequired('site');
     }
 }

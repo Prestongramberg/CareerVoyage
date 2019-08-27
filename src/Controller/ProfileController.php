@@ -210,10 +210,16 @@ class ProfileController extends AbstractController
         $this->entityManager->remove($user);
         $this->entityManager->flush();
 
-        $this->get('security.token_storage')->setToken(null);
-        $request->getSession()->invalidate();
+        // if the user being deleted is you then log the user out
+        if($this->getUser()->getId() === $user->getId()) {
+            $this->get('security.token_storage')->setToken(null);
+            $request->getSession()->invalidate();
+            return $this->redirectToRoute('welcome');
+        }
 
-        return $this->redirectToRoute('welcome');
+        $this->addFlash('success', 'User successfully removed');
+
+        return $this->redirectToRoute('manage_users');
     }
 
     /**

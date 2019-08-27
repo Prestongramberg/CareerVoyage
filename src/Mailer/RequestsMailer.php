@@ -96,13 +96,18 @@ class RequestsMailer extends AbstractMailer
      */
     public function stateCoordinatorRequest(StateCoordinatorRequest $stateCoordinatorRequest) {
 
+        $activateUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
+                'request_activate',
+                array('token' => $stateCoordinatorRequest->getActivationCode())
+            );
+
         $message = (new \Swift_Message("State Coordinator Request."))
             ->setFrom($this->siteFromEmail)
             ->setTo($stateCoordinatorRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/stateCoordinatorRequest.html.twig',
-                    ['request' => $stateCoordinatorRequest]
+                    ['request' => $stateCoordinatorRequest, 'activateUrl' => $activateUrl]
                 ),
                 'text/html'
             );

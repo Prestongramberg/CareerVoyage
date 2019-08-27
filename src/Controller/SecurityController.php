@@ -370,6 +370,7 @@ class SecurityController extends AbstractController
                 $this->addFlash('success', 'You have accepted a state coordinator position!');
                 $needsApprovalBy->setState($request->getState());
                 $needsApprovalBy->agreeToTerms();
+                $needsApprovalBy->setupAsStateCoordinator();
                 $this->entityManager->persist($needsApprovalBy);
                 $this->requestsMailer->stateCoordinatorRequestApproval($request);
                 break;
@@ -449,6 +450,7 @@ class SecurityController extends AbstractController
                 $this->addFlash('success', 'You have accepted a site administrator position!');
                 $needsApprovalBy->setSite($request->getSite());
                 $needsApprovalBy->agreeToTerms();
+                $needsApprovalBy->setupAsSiteAdminUser();
                 $this->entityManager->persist($needsApprovalBy);
                 $this->requestsMailer->siteAdminRequestApproval($request);
                 break;

@@ -47,6 +47,11 @@ class Region
      */
     private $schools;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="regions")
+     */
+    private $site;
+
     public function __construct()
     {
         $this->regionalCoordinators = new ArrayCollection();
@@ -172,6 +177,18 @@ class Region
                 $school->setRegion(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSite(): ?Site
+    {
+        return $this->site;
+    }
+
+    public function setSite(?Site $site): self
+    {
+        $this->site = $site;
 
         return $this;
     }

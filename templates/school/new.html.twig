@@ -1,18 +1,11 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% form_theme form _self %}
-
 {% block title %}New School{% endblock %}
+{% block bodyClass %}page-create-school{% endblock %}
 
 {% block body %}
-    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-    {% if form_errors(form) %}
-        {{ form_errors(form) }}
-    {% endif %}
-    {{ form_row(form.name) }}
-    {{ form_row(form.schoolAdministratorEmail) }}
-    {{ form_row(form.schoolAdministratorFirstName) }}
-    {{ form_row(form.schoolAdministratorLastName) }}
-    <input type="submit" value="Add School">
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.submit) }}
     {{ form_end(form) }}
 {% endblock %}

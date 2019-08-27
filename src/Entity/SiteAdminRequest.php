@@ -15,6 +15,8 @@ class SiteAdminRequest extends Request
      */
     private $site;
 
+    protected $allowApprovalByActivationCode = true;
+
     public function getSite(): ?Site
     {
         return $this->site;

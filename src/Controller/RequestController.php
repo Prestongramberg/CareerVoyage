@@ -178,13 +178,15 @@ class RequestController extends AbstractController
         $requestsThatNeedMyApproval = $this->requestRepository->findBy([
             'approved' => false,
             'needsApprovalBy' => $user,
-            'denied' => false
+            'denied' => false,
+            'allowApprovalByActivationCode' => false
         ]);
 
         $myCreatedRequests = $this->requestRepository->findBy([
             'approved' => false,
             'created_by' => $user,
-            'denied' => false
+            'denied' => false,
+            'allowApprovalByActivationCode' => false
         ]);
 
         // todo you could return a different view per user role as well
@@ -359,6 +361,7 @@ class RequestController extends AbstractController
                 $needsApprovalBy = $request->getNeedsApprovalBy();
                 $this->addFlash('success', 'You have accepted a site administrator position!');
                 $needsApprovalBy->setSite($request->getSite());
+                $needsApprovalBy->setupAsSiteAdminUser();
                 $needsApprovalBy->agreeToTerms();
                 $this->entityManager->persist($needsApprovalBy);
                 $this->requestsMailer->siteAdminRequestApproval($request);

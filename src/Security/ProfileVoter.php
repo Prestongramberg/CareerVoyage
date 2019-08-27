@@ -49,6 +49,16 @@ class ProfileVoter extends Voter
 
     private function canEdit(User $userToVoteOn, User $user)
     {
+        if($user->isAdmin()) {
+            return true;
+        }
+
+        if($user->isSiteAdmin() && $userToVoteOn->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId()) {
+            return true;
+        }
+
+        $name = "Josh";
+
         return $user->getId() === $userToVoteOn->getId();
     }
 }

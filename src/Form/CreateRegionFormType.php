@@ -11,6 +11,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\Region;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SecondaryIndustry;
+use App\Entity\Site;
 use App\Entity\State;
 use App\Entity\StateCoordinator;
 use App\Entity\User;
@@ -40,6 +41,9 @@ class CreateRegionFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        /** @var User $loggedInUser */
+        $loggedInUser = $options['loggedInUser'];
+
         $builder->add('name', TextType::class)
             ->add('state', EntityType::class, [
                 'class' => State::class,
@@ -51,6 +55,19 @@ class CreateRegionFormType extends AbstractType
                 },
             ])
             ->add('submit', SubmitType::class);
+
+
+        if($loggedInUser->isAdmin()) {
+            $builder->add('site', EntityType::class, [
+                'class' => Site::class,
+                'choice_label' => 'name',
+                'expanded'  => false,
+                'multiple'  => false,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('s');
+                }
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -58,5 +75,7 @@ class CreateRegionFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Region::class,
         ]);
+
+        $resolver->setRequired('loggedInUser');
     }
 }

@@ -42,22 +42,22 @@ abstract class Request
      * @Groups({"REQUEST"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requestsThatNeedMyApproval")
      */
-    private $needsApprovalBy;
+    protected $needsApprovalBy;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $denied = false;
+    protected $denied = false;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $activationCode;
+    protected $activationCode;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $allowApprovalByActivationCode = false;
+    protected $allowApprovalByActivationCode = false;
 
     public function getId(): ?int
     {

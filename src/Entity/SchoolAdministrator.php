@@ -21,6 +21,11 @@ class SchoolAdministrator extends User
      */
     private $schoolExperiences;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="schoolAdministrators")
+     */
+    private $site;
+
     public function __construct()
     {
         parent::__construct();
@@ -83,6 +88,18 @@ class SchoolAdministrator extends User
                 $schoolExperience->setSchoolContact(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSite(): ?Site
+    {
+        return $this->site;
+    }
+
+    public function setSite(?Site $site): self
+    {
+        $this->site = $site;
 
         return $this;
     }

@@ -22,6 +22,11 @@ class StateCoordinator extends User
      */
     private $state;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="stateCoordinators")
+     */
+    private $site;
+
     public function getState(): ?State
     {
         return $this->state;
@@ -30,6 +35,18 @@ class StateCoordinator extends User
     public function setState(?State $state): self
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    public function getSite(): ?Site
+    {
+        return $this->site;
+    }
+
+    public function setSite(?Site $site): self
+    {
+        $this->site = $site;
 
         return $this;
     }
