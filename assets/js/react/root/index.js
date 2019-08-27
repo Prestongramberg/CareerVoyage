@@ -1,9 +1,12 @@
+require('./bar-chart');
 require('./events-calendar');
+require('./horizontal-bar-chart');
 require('./searchable-company-listing');
 require('./searchable-lesson-listing');
 require('./searchable-professional-listing');
 require('./subscribe-secondary-industries');
 require('./favorite-company');
 require('./favorite-lesson');
+require('./pie-chart');
 require('./school-calendar');
 require('./teach-lesson');

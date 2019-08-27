@@ -50,15 +50,14 @@ class SchoolAdminFormType extends AbstractType
             ->add('schools', EntityType::class, [
                 'class' => School::class,
                 'choice_label' => 'name',
-                'expanded'  => false,
+                'expanded'  => true,
                 'multiple'  => true,
                 'query_builder' => function (EntityRepository $er) use ($site) {
                     return $er->createQueryBuilder('s')
                         ->where('s.site = :site')
                         ->setParameter('site', $site);
                 },
-            ])
-            ->add('submit', SubmitType::class);
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

@@ -2,6 +2,7 @@
 {% elseif user.isEducator %}
 {% elseif user.isStateCoordinator %}
 {% elseif user.isRegionalCoordinator %}
+    {% include 'nav/partials/_regional_administrative_tools.html.twig' %}
 {% elseif user.isSchoolAdministrator %}
     {% include 'nav/partials/_school_administrative_tools.html.twig' %}
 {% endif %}

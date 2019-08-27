@@ -37,8 +37,7 @@ class NewSchoolType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', TextType::class, [])
-            ->add('submit', SubmitType::class, []);
+        $builder->add('name', TextType::class, []);
     }
 
     public function configureOptions(OptionsResolver $resolver)
