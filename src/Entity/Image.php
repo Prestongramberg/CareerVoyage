@@ -18,6 +18,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Image
 {
+    use Timestampable;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

@@ -15,6 +15,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 abstract class Request
 {
+    use Timestampable;
+
     const BECOME_STATE_COORDINATOR = 'BECOME_STATE_COORDINATOR';
 
     /**

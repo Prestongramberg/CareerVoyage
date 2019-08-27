@@ -18,6 +18,7 @@ use App\Validator\Constraints as CustomAssert;
  */
 class Company
 {
+    use Timestampable;
     /**
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Id()

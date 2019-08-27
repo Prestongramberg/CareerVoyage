@@ -11,6 +11,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class LessonFavorite
 {
+    use Timestampable;
+
     /**
      * @Groups({"ALL_USER_DATA"})
      * @ORM\Id()

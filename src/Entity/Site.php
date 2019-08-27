@@ -12,6 +12,8 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class Site
 {
+    use Timestampable;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

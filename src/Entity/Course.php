@@ -14,6 +14,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Course
 {
 
+    use Timestampable;
+
     /**
      * @Groups({"LESSON_DATA"})
      * @ORM\Id()

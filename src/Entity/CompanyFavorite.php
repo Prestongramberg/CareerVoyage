@@ -11,6 +11,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class CompanyFavorite
 {
+    use Timestampable;
+    
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Id()

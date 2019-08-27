@@ -12,6 +12,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class ChatMessage
 {
+    use Timestampable;
+
     /**
      * @Groups({"MESSAGE"})
      * @ORM\Id()

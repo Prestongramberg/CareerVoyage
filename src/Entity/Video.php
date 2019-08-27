@@ -14,6 +14,8 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 abstract class Video
 {
+    use Timestampable;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

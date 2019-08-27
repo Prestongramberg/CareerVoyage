@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Grade
 {
+    use Timestampable;
+
     /**
      * @Groups({"LESSON_DATA"})
      * @ORM\Id()

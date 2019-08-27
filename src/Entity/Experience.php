@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 abstract class Experience
 {
+    use Timestampable;
 
     public static $types = [
         'Site Visit' => 'SITE_VISIT',

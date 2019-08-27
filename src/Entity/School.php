@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class School
 {
+    use Timestampable;
+
     /**
      * @Groups({"ALL_USER_DATA"})
      * @ORM\Id()
