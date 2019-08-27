@@ -7,11 +7,11 @@ use App\Util\RandomStringGenerator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ChatRepository")
- * @ORM\EntityListeners({"App\EntityListener\ChatListener"})
  * @ORM\HasLifecycleCallbacks()
  *
  * @ORM\InheritanceType("JOINED")
@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 abstract class Chat
 {
     use RandomStringGenerator;
+    use Timestampable;
 
     /**
      * @Groups({"CHAT"})
@@ -36,19 +37,29 @@ abstract class Chat
      * @ORM\JoinColumn(nullable=false)
      */
     protected $initializedBy;
-
-    /**
-     * @Groups({"CHAT"})
-     * @var Message|[]
-     * @ORM\Column(type="json_array", nullable=true)
-     */
-    protected $messages = [];
-
+    
     /**
      * @Groups({"CHAT"})
      * @ORM\Column(type="string", length=255)
      */
     private $uid;
+
+    /**
+     * @Groups({"CHAT"})
+     * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="chat")
+     */
+    private $messages;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="chats")
+     */
+    private $users;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+        $this->users = new ArrayCollection();
+    }
 
     /**
      * @ORM\PrePersist
@@ -75,26 +86,6 @@ abstract class Chat
         return $this;
     }
 
-    public function getMessages()
-    {
-        return $this->messages;
-    }
-
-    public function setMessages($messages)
-    {
-        $this->messages = $messages;
-    }
-
-    /**
-     * @param Message $message
-     * @return $this
-     */
-    public function addMessage(Message $message)
-    {
-        $this->messages[] = $message;
-        return $this;
-    }
-
     public function getUid(): ?string
     {
         return $this->uid;
@@ -103,6 +94,63 @@ abstract class Chat
     public function setUid(string $uid): self
     {
         $this->uid = $uid;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ChatMessage[]
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(ChatMessage $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages[] = $message;
+            $message->setChat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(ChatMessage $message): self
+    {
+        if ($this->messages->contains($message)) {
+            $this->messages->removeElement($message);
+            // set the owning side to null (unless already changed)
+            if ($message->getChat() === $this) {
+                $message->setChat(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+        }
 
         return $this;
     }

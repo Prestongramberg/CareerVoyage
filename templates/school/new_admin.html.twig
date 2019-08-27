@@ -1,0 +1,18 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% form_theme form _self %}
+
+{% block title %}New School{% endblock %}
+
+{% block body %}
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {% if form_errors(form) %}
+        {{ form_errors(form) }}
+    {% endif %}
+    {{ form_row(form.firstName) }}
+    {{ form_row(form.lastName) }}
+    {{ form_row(form.email) }}
+    {{ form_row(form.schools) }}
+    {{ form_row(form.submit) }}
+    {{ form_end(form) }}
+{% endblock %}

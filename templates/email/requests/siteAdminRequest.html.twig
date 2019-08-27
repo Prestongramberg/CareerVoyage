@@ -1,0 +1,12 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.needsApprovalBy.firstName } %}
+
+<p>You have a request to be a site admin for the site {{ request.site.name }}.</p>
+{#<p>If you already have an account, just sign in and head over to the requests page to accept. If you don't
+ have an account, you will receive an email shortly with a link to activate your new account.</p>#}
+
+{% if request.allowApprovalByActivationCode %}
+    <p>Click link below to accept request as site administrator.</p>
+    <p><a href="{{ activateUrl }}"><strong>{{ activateUrl }}</strong></a></p>
+{% endif %}
+
+{% include 'email/partial/emailFooter.html.twig' %}

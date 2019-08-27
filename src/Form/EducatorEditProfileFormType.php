@@ -110,7 +110,8 @@ class EducatorEditProfileFormType extends AbstractType
                 }
             ));
 
-        $this->setupImmutableFields($builder, $options, [
+        $this->
+        setupImmutableFields($builder, $options, [
             'firstName',
             'lastName',
             'educatorId'

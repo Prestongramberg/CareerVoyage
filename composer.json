@@ -16,6 +16,7 @@
         "ext-mysql_xdevapi": "*",
         "api-platform/api-pack": "^1.2",
         "friendsofsymfony/jsrouting-bundle": "^2.3",
+        "knplabs/knp-paginator-bundle": "^4.0",
         "lexik/form-filter-bundle": "dev-master",
         "liip/imagine-bundle": "^2.1",
         "phing/phing": "^2.16",

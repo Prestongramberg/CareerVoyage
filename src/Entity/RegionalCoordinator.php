@@ -22,6 +22,11 @@ class RegionalCoordinator extends User
      */
     private $region;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="regionalCoordinators")
+     */
+    private $site;
+
     public function getRegion(): ?Region
     {
         return $this->region;
@@ -30,6 +35,18 @@ class RegionalCoordinator extends User
     public function setRegion(?Region $region): self
     {
         $this->region = $region;
+
+        return $this;
+    }
+
+    public function getSite(): ?Site
+    {
+        return $this->site;
+    }
+
+    public function setSite(?Site $site): self
+    {
+        $this->site = $site;
 
         return $this;
     }

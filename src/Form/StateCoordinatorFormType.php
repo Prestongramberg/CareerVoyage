@@ -9,6 +9,7 @@ use App\Entity\Industry;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\SecondaryIndustry;
+use App\Entity\Site;
 use App\Entity\State;
 use App\Entity\StateCoordinator;
 use App\Entity\User;
@@ -38,6 +39,7 @@ class StateCoordinatorFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
         $builder->add('firstName', TextType::class)
             ->add('lastName', TextType::class)
             ->add('email', EmailType::class)
@@ -48,6 +50,7 @@ class StateCoordinatorFormType extends AbstractType
                 'multiple'  => false,
             ])
             ->add('submit', SubmitType::class);
+
     }
 
     public function configureOptions(OptionsResolver $resolver)

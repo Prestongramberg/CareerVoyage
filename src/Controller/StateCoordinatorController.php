@@ -9,6 +9,7 @@ use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
@@ -186,7 +187,7 @@ class StateCoordinatorController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ADMIN_USER")
+     * @IsGranted({"ROLE_SITE_ADMIN_USER"})
      * @Route("/new", name="state_coordinator_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -194,11 +195,12 @@ class StateCoordinatorController extends AbstractController
      */
     public function newAction(Request $request) {
 
+        /** @var SiteAdminUser $user */
         $user = $this->getUser();
         $stateCoordinator = new StateCoordinator();
 
         $form = $this->createForm(StateCoordinatorFormType::class, $stateCoordinator, [
-            'method' => 'POST'
+            'method' => 'POST',
         ]);
 
         $form->handleRequest($request);
@@ -213,20 +215,23 @@ class StateCoordinatorController extends AbstractController
                 $this->addFlash('error', 'This user already exists in the system');
                 return $this->redirectToRoute('state_coordinator_new');
             } else {
-                $stateCoordinator->initializeNewUser();
+                $stateCoordinator->initializeNewUser(false, true);
                 $stateCoordinator->setPasswordResetToken();
+                $stateCoordinator->setupAsStateCoordinator();
+                $stateCoordinator->setSite($user->getSite());
                 $this->entityManager->persist($stateCoordinator);
             }
 
-            $stateCoordinatorRequest = new StateCoordinatorRequest();
+       /*     $stateCoordinatorRequest = new StateCoordinatorRequest();
             $stateCoordinatorRequest->setState($stateCoordinator->getState());
             $stateCoordinatorRequest->setNeedsApprovalBy($stateCoordinator);
             $stateCoordinatorRequest->setCreatedBy($user);
-            $this->entityManager->persist($stateCoordinatorRequest);
+            $stateCoordinatorRequest->initializeRequest();
+            $this->entityManager->persist($stateCoordinatorRequest);*/
             $this->entityManager->flush();
 
-            $this->securityMailer->sendAccountActivation($stateCoordinator);
-            $this->requestsMailer->stateCoordinatorRequest($stateCoordinatorRequest);
+            $this->securityMailer->sendPasswordSetupForStateCoordinator($stateCoordinator);
+            /*$this->requestsMailer->stateCoordinatorRequest($stateCoordinatorRequest);*/
 
             $this->addFlash('success', 'State coordinator invite sent.');
             return $this->redirectToRoute('state_coordinator_new');

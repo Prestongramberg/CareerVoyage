@@ -1,0 +1,14 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Site Admin{% endblock %}
+{% block bodyClass %}page-site-admin{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_row(form.firstName) }}
+        {{ form_row(form.lastName) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.site) }}
+        {{ form_row(form.submit) }}
+    {{ form_end(form) }}
+{% endblock %}

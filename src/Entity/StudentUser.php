@@ -70,6 +70,11 @@ class StudentUser extends User
      */
     private $studentId;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="studentUsers")
+     */
+    private $site;
+
 
     public function __construct()
     {
@@ -224,5 +229,17 @@ class StudentUser extends User
             substr($this->lastName, 0, 3),
             $this->getStudentId()
         ));
+    }
+
+    public function getSite(): ?Site
+    {
+        return $this->site;
+    }
+
+    public function setSite(?Site $site): self
+    {
+        $this->site = $site;
+
+        return $this;
     }
 }
