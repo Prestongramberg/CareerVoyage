@@ -5,6 +5,8 @@
 {% block body %}
     {% if user.isAdmin %}
         {% include 'dashboard/partials/_admin_dashboard.html.twig' %}
+    {% elseif user.isSiteAdmin %}
+        {% include 'dashboard/partials/_site_admin_dashboard.html.twig' %}
     {% elseif user.isProfessional %}
         {% include 'dashboard/partials/_professional_dashboard.html.twig' %}
     {% elseif user.isEducator %}

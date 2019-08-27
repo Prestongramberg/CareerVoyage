@@ -48,10 +48,13 @@ class SingleChatRepository extends ServiceEntityRepository
         ;
     }
     */
-
-
-
-
-
-
+    
+    public function findByUsers($userIds) {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.users','u')
+            ->where("u.id IN(:userIds)")
+            ->setParameter('userIds', array_values($userIds))
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

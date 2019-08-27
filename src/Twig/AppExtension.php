@@ -60,7 +60,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('pending_requests', [$this, 'pendingRequests']),
             new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries']),
             new TwigFunction('validate_url', [$this, 'validateUrl']),
-            new TwigFunction('excerpt_length', [$this, 'excerptLength'])
+            new TwigFunction('excerpt_length', [$this, 'excerptLength']),
+            new TwigFunction('ucwords', [$this, 'ucwords'])
         ];
     }
 
@@ -119,5 +120,9 @@ class AppExtension extends AbstractExtension
         ]);
 
         return count($requests);
+    }
+
+    public function ucwords($text) {
+        return $this->ucwords($text);
     }
 }

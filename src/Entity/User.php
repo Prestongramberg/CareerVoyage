@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-
 use App\Service\UploaderHelper;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -19,7 +18,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
 
-
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
@@ -27,15 +25,11 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser"})
  *
- * @DiscriminatorMap(typeProperty="name", mapping={
- *    "professional_user"="App\Entity\ProfessionalUser"
- * })
  */
 abstract class User implements UserInterface
 {
-
     use TimestampableEntity;
 
     const ROLE_USER = 'ROLE_USER';
@@ -47,6 +41,7 @@ abstract class User implements UserInterface
     const ROLE_STATE_COORDINATOR_USER = 'ROLE_STATE_COORDINATOR_USER';
     const ROLE_REGIONAL_COORDINATOR_USER = 'ROLE_REGIONAL_COORDINATOR_USER';
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
+    const ROLE_SITE_ADMIN_USER = 'ROLE_SITE_ADMIN_USER';
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE"})
@@ -93,7 +88,7 @@ abstract class User implements UserInterface
      *
      * @var string
      *
-     * @ORM\Column(name="invitation_code", type="string", length=16, nullable=true)
+     * @ORM\Column(name="invitation_code", type="string", length=255, nullable=true)
      */
     protected $invitationCode;
 
@@ -190,7 +185,6 @@ abstract class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     *
      */
     protected $activationCode;
 
@@ -212,9 +206,14 @@ abstract class User implements UserInterface
     protected $initializedChats;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SingleChat", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\MessageReadStatus", mappedBy="user", orphanRemoval=true)
      */
-    protected $singleChats;
+    protected $messageReadStatuses;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Chat", mappedBy="users")
+     */
+    protected $chats;
 
     public function __construct()
     {
@@ -225,7 +224,8 @@ abstract class User implements UserInterface
         $this->companyFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
         $this->initializedChats = new ArrayCollection();
-        $this->singleChats = new ArrayCollection();
+        $this->messageReadStatuses = new ArrayCollection();
+        $this->chats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -415,6 +415,28 @@ abstract class User implements UserInterface
         return $this;
     }
 
+    public function friendlyRoleName() {
+        if($this->isProfessional()) {
+            return 'professional';
+        } elseif ($this->isEducator()) {
+            return 'educator';
+        } elseif ($this->isStudent()) {
+            return 'student';
+        } elseif ($this->isAdmin()) {
+            return 'admin';
+        } elseif ($this->isStateCoordinator()) {
+            return 'state coordinator';
+        } elseif ($this->isRegionalCoordinator()) {
+            return 'regional coordinator';
+        } elseif ($this->isSiteAdmin()) {
+            return 'side admin';
+        } elseif ($this->isSchoolAdministrator()) {
+            return 'school administrator';
+        } else {
+            return 'user';
+        }
+    }
+
     /**
      * @Groups({"ALL_USER_DATA"})
      * @return bool
@@ -509,6 +531,21 @@ abstract class User implements UserInterface
      * @Groups({"ALL_USER_DATA"})
      * @return bool
      */
+    public function isSiteAdmin()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_SITE_ADMIN_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     * @return bool
+     */
     public function isSchoolAdministrator()
     {
         $roles = $this->getRoles();
@@ -566,6 +603,13 @@ abstract class User implements UserInterface
 
         if (!in_array(self::ROLE_STUDENT_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STUDENT_USER;
+        }
+    }
+
+    public function setupAsSiteAdminUser() {
+
+        if (!in_array(self::ROLE_SITE_ADMIN_USER, $this->roles)) {
+            $this->roles[] = self::ROLE_SITE_ADMIN_USER;
         }
     }
 
@@ -857,10 +901,18 @@ abstract class User implements UserInterface
         $this->invitationCode = $invitationCode;
     }
 
-    public function initializeNewUser()
+    public function initializeNewUser($activationCode = true, $invitationCode = false)
     {
-        $activationCode = bin2hex(random_bytes(32));
-        $this->setActivationCode($activationCode);
+        if($activationCode) {
+            $activationCode = bin2hex(random_bytes(32));
+            $this->setActivationCode($activationCode);
+        }
+
+        if($invitationCode) {
+            $invitationCode = bin2hex(random_bytes(32));
+            $this->setInvitationCode($invitationCode);
+        }
+
         $roles = $this->getRoles();
         $this->roles[] = self::ROLE_DASHBOARD_USER;
     }
@@ -952,38 +1004,66 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|SingleChat[]
-     */
-    public function getSingleChats(): Collection
-    {
-        return $this->singleChats;
+    public function setId($id) {
+        $this->id = $id;
     }
 
-    public function addSingleChat(SingleChat $singleChat): self
+    /**
+     * @return Collection|MessageReadStatus[]
+     */
+    public function getMessageReadStatuses(): Collection
     {
-        if (!$this->singleChats->contains($singleChat)) {
-            $this->singleChats[] = $singleChat;
-            $singleChat->setUser($this);
+        return $this->messageReadStatuses;
+    }
+
+    public function addMessageReadStatus(MessageReadStatus $messageReadStatus): self
+    {
+        if (!$this->messageReadStatuses->contains($messageReadStatus)) {
+            $this->messageReadStatuses[] = $messageReadStatus;
+            $messageReadStatus->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeSingleChat(SingleChat $singleChat): self
+    public function removeMessageReadStatus(MessageReadStatus $messageReadStatus): self
     {
-        if ($this->singleChats->contains($singleChat)) {
-            $this->singleChats->removeElement($singleChat);
+        if ($this->messageReadStatuses->contains($messageReadStatus)) {
+            $this->messageReadStatuses->removeElement($messageReadStatus);
             // set the owning side to null (unless already changed)
-            if ($singleChat->getUser() === $this) {
-                $singleChat->setUser(null);
+            if ($messageReadStatus->getUser() === $this) {
+                $messageReadStatus->setUser(null);
             }
         }
 
         return $this;
     }
 
-    public function setId($id) {
-        $this->id = $id;
+    /**
+     * @return Collection|Chat[]
+     */
+    public function getChats(): Collection
+    {
+        return $this->chats;
+    }
+
+    public function addChat(Chat $chat): self
+    {
+        if (!$this->chats->contains($chat)) {
+            $this->chats[] = $chat;
+            $chat->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChat(Chat $chat): self
+    {
+        if ($this->chats->contains($chat)) {
+            $this->chats->removeElement($chat);
+            $chat->removeUser($this);
+        }
+
+        return $this;
     }
 }

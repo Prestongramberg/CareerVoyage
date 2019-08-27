@@ -7,6 +7,7 @@ use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\SchoolAdministratorRequest;
+use App\Entity\SiteAdminRequest;
 use App\Entity\StateCoordinatorRequest;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
@@ -95,13 +96,48 @@ class RequestsMailer extends AbstractMailer
      */
     public function stateCoordinatorRequest(StateCoordinatorRequest $stateCoordinatorRequest) {
 
+        $activateUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
+                'request_activate',
+                array('token' => $stateCoordinatorRequest->getActivationCode())
+            );
+
         $message = (new \Swift_Message("State Coordinator Request."))
             ->setFrom($this->siteFromEmail)
             ->setTo($stateCoordinatorRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/stateCoordinatorRequest.html.twig',
-                    ['request' => $stateCoordinatorRequest]
+                    ['request' => $stateCoordinatorRequest, 'activateUrl' => $activateUrl]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    /**
+     * Request from super admin to user to become a site admin
+     *
+     * @param SiteAdminRequest $siteAdminRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function siteAdminRequest(SiteAdminRequest $siteAdminRequest) {
+
+        $activateUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
+                'request_activate',
+                array('token' => $siteAdminRequest->getActivationCode())
+            );
+
+        $message = (new \Swift_Message("Site Admin Request."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($siteAdminRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/siteAdminRequest.html.twig',
+                    ['request' => $siteAdminRequest, 'activateUrl' => $activateUrl]
                 ),
                 'text/html'
             );
@@ -221,6 +257,29 @@ class RequestsMailer extends AbstractMailer
                 $this->templating->render(
                     'email/requests/schoolAdministratorRequestApproval.html.twig',
                     ['request' => $schoolAdministratorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     * School administrator request approval
+     * @param SiteAdminRequest $siteAdminRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function siteAdminRequestApproval(SiteAdminRequest $siteAdminRequest) {
+
+        $message = (new \Swift_Message("Site Admin Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($siteAdminRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/siteAdminRequestApproval.html.twig',
+                    ['request' => $siteAdminRequest]
                 ),
                 'text/html'
             );

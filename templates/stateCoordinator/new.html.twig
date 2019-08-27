@@ -9,6 +9,11 @@
         {{ form_row(form.lastName) }}
         {{ form_row(form.email) }}
         {{ form_row(form.state) }}
+
+    {% if form.site is defined %}
+        {{ form_row(form.site) }}
+    {% endif %}
+
         {{ form_row(form.submit) }}
     {{ form_end(form) }}
 {% endblock %}

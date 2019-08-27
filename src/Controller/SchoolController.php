@@ -13,6 +13,7 @@ use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
@@ -30,6 +31,7 @@ use App\Form\NewLessonType;
 use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
 use App\Form\ProfessionalEditProfileFormType;
+use App\Form\SchoolAdminFormType;
 use App\Form\StudentImportType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -77,7 +79,7 @@ class SchoolController extends AbstractController
 
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
-     * @Route("/schools/new", name="school_new")
+     * @Route("/schools/admin/new", name="school_admin_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NonUniqueResultException
@@ -85,8 +87,73 @@ class SchoolController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function newAction(Request $request) {
+    public function newAdminAction(Request $request) {
 
+        /** @var RegionalCoordinator $user */
+        $user = $this->getUser();
+        $schoolAdmin = new SchoolAdministrator();
+
+        $form = $this->createForm(SchoolAdminFormType::class, $schoolAdmin, [
+            'method' => 'POST',
+            'site' => $user->getSite()
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var SchoolAdministrator $schoolAdmin */
+            $schoolAdmin = $form->getData();
+            $existingUser = $this->userRepository->getByEmailAddress($schoolAdmin->getEmail());
+
+            if($existingUser) {
+                $this->addFlash('error', 'That user already exists in the system.');
+                return $this->redirectToRoute('school_new');
+            } else {
+                $schoolAdministrator = new SchoolAdministrator();
+                $schoolAdministrator->setEmail($schoolAdmin->getEmail());
+                $schoolAdministrator->setFirstName($schoolAdmin->getFirstName());
+                $schoolAdministrator->setLastName($schoolAdmin->getLastName());
+                $schoolAdministrator->initializeNewUser(false, true);
+                $schoolAdministrator->setupAsSchoolAdministrator();
+                $schoolAdministrator->setSite($user->getSite());
+
+                foreach($schoolAdmin->getSchools() as $school) {
+                    $schoolAdministrator->addSchool($school);
+                }
+
+                $this->entityManager->persist($schoolAdministrator);
+            }
+
+      /*      $schoolAdministratorRequest = new SchoolAdministratorRequest();
+            $schoolAdministratorRequest->setSchool($school);
+            $schoolAdministratorRequest->setCreatedBy($this->getUser());
+            $schoolAdministratorRequest->setNeedsApprovalBy($schoolAdministrator);
+            $this->entityManager->persist($schoolAdministratorRequest);*/
+
+            $this->entityManager->flush();
+            $this->securityMailer->sendPasswordSetupForSchoolAdministrator($schoolAdministrator);
+            /*$this->requestsMailer->schoolAdministratorRequest($schoolAdministratorRequest);*/
+
+            $this->addFlash('success', sprintf('School administrator invite sent to %s', $schoolAdmin->getEmail()));
+            return $this->redirectToRoute('school_admin_new');
+        }
+
+        return $this->render('school/new_admin.html.twig', [
+            'user' => $user,
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
+     * @Route("/schools/new", name="school_new")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function newSchool(Request $request) {
+
+        /** @var RegionalCoordinator $user */
         $user = $this->getUser();
         $school = new School();
 
@@ -99,39 +166,13 @@ class SchoolController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var School $school */
             $school = $form->getData();
+            $school->setRegion($user->getRegion());
+            $school->setSite($user->getSite());
+
             $this->entityManager->persist($school);
-
-            $email = $form->get('schoolAdministratorEmail')->getData();
-            $firstName = $form->get('schoolAdministratorFirstName')->getData();
-            $lastName = $form->get('schoolAdministratorLastName')->getData();
-
-            $existingUser = $this->userRepository->getByEmailAddress($email);
-
-            if($existingUser) {
-                $this->addFlash('error', 'That user already exists in the system.');
-                return $this->redirectToRoute('school_new');
-            } else {
-                $schoolAdministrator = new SchoolAdministrator();
-                $schoolAdministrator->setEmail($email);
-                $schoolAdministrator->setFirstName($firstName);
-                $schoolAdministrator->setLastName($lastName);
-                $schoolAdministrator->setEmail($email);
-                $schoolAdministrator->initializeNewUser();
-                $schoolAdministrator->setPasswordResetToken();
-                $this->entityManager->persist($schoolAdministrator);
-            }
-
-            $schoolAdministratorRequest = new SchoolAdministratorRequest();
-            $schoolAdministratorRequest->setSchool($school);
-            $schoolAdministratorRequest->setCreatedBy($this->getUser());
-            $schoolAdministratorRequest->setNeedsApprovalBy($schoolAdministrator);
-            $this->entityManager->persist($schoolAdministratorRequest);
-
             $this->entityManager->flush();
-            $this->securityMailer->sendAccountActivation($schoolAdministrator);
-            $this->requestsMailer->schoolAdministratorRequest($schoolAdministratorRequest);
 
-            $this->addFlash('success', sprintf('School successfully created. Invite sent to %s', $email));
+            $this->addFlash('success', 'School successfully created.');
             return $this->redirectToRoute('school_new');
         }
 
@@ -254,6 +295,7 @@ class SchoolController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $school);
 
+        /** @var SchoolAdministrator $user */
         $user = $this->getUser();
 
         $form = $this->createForm(StudentImportType::class, null, [
@@ -310,6 +352,7 @@ class SchoolController extends AbstractController
                         $studentObj->setLastName($student['Last Name']);
                         $studentObj->setStudentId($student['Student Id']);
                         $studentObj->setSchool($school);
+                        $studentObj->setSite($user->getSite());
                         $studentObj->setupAsStudent();
                         $studentObj->initializeNewUser();
                         $studentObj->setActivated(true);
@@ -373,6 +416,7 @@ class SchoolController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $school);
 
+        /** @var SchoolAdministrator $user */
         $user = $this->getUser();
 
         $form = $this->createForm(EducatorImportType::class, null, [
@@ -431,6 +475,7 @@ class SchoolController extends AbstractController
                         $educatorObj->setEducatorId($educator['Educator Id']);
                         $educatorObj->setSchool($school);
                         $educatorObj->setupAsEducator();
+                        $educatorObj->setSite($user->getSite());
                         $educatorObj->initializeNewUser();
                         $educatorObj->setActivated(true);
                         $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));

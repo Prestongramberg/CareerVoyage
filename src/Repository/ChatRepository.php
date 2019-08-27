@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Chat;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,17 @@ class ChatRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    public function findByUser(User $user) {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.users','u')
+            ->where("u.id = :userId")
+            ->setParameter('userId', $user->getId())
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -15,6 +15,8 @@ class StateCoordinatorRequest extends Request
      */
     private $state;
 
+    protected $allowApprovalByActivationCode = true;
+
     public function getState(): ?State
     {
         return $this->state;

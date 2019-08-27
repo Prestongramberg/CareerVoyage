@@ -14,6 +14,8 @@ use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
+use App\Entity\SiteAdminRequest;
+use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
 use App\Entity\TeachLessonExperience;
@@ -176,13 +178,15 @@ class RequestController extends AbstractController
         $requestsThatNeedMyApproval = $this->requestRepository->findBy([
             'approved' => false,
             'needsApprovalBy' => $user,
-            'denied' => false
+            'denied' => false,
+            'allowApprovalByActivationCode' => false
         ]);
 
         $myCreatedRequests = $this->requestRepository->findBy([
             'approved' => false,
             'created_by' => $user,
-            'denied' => false
+            'denied' => false,
+            'allowApprovalByActivationCode' => false
         ]);
 
         // todo you could return a different view per user role as well
@@ -208,6 +212,36 @@ class RequestController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $this->handleRequestApproval($request, $httpRequest);
+
+        return $this->redirectToRoute('requests');
+    }
+
+    /**
+     * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
+     * @param \App\Entity\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function denyRequest(\App\Entity\Request $request) {
+
+        $this->denyAccessUnlessGranted('edit', $request);
+
+        $request->setDenied(true);
+        $this->entityManager->persist($request);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'Request denied.');
+        return $this->redirectToRoute('requests');
+    }
+
+    /**
+     * @param \App\Entity\Request $request
+     * @param Request $httpRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    private function handleRequestApproval(\App\Entity\Request $request, Request $httpRequest) {
 
         switch($request->getClassName()) {
             case 'NewCompanyRequest':
@@ -246,7 +280,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var StateCoordinator $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsStateCoordinator();
                 $this->addFlash('success', 'You have accepted a state coordinator position!');
                 $needsApprovalBy->setState($request->getState());
                 $needsApprovalBy->agreeToTerms();
@@ -258,7 +291,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var RegionalCoordinator $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsRegionalCoordinator();
                 $this->addFlash('success', 'You have accepted a regional coordinator position!');
                 $needsApprovalBy->setRegion($request->getRegion());
                 $needsApprovalBy->agreeToTerms();
@@ -270,7 +302,6 @@ class RequestController extends AbstractController
                 $request->setApproved(true);
                 /** @var SchoolAdministrator $needsApprovalBy */
                 $needsApprovalBy = $request->getNeedsApprovalBy();
-                $needsApprovalBy->setupAsSchoolAdministrator();
                 $this->addFlash('success', 'You have accepted a school administrator position!');
                 $needsApprovalBy->addSchool($request->getSchool());
                 $needsApprovalBy->agreeToTerms();
@@ -293,11 +324,27 @@ class RequestController extends AbstractController
 
                 /** @var School $school */
                 $school = $request->getCreatedBy()->getSchool();
-                $teachLessonExperience->setEmail($school->getEmail());
-                $teachLessonExperience->setStreet($school->getStreet());
-                $teachLessonExperience->setCity($school->getCity());
-                $teachLessonExperience->setState($school->getState());
-                $teachLessonExperience->setZipcode($school->getZipcode());
+
+                // the CSV school import fixtures did not have emails so we need to check for them!
+                if($school->getEmail()) {
+                    $teachLessonExperience->setEmail($school->getEmail());
+                }
+
+                if($school->getStreet()) {
+                    $teachLessonExperience->setStreet($school->getStreet());
+                }
+
+                if($school->getCity()) {
+                    $teachLessonExperience->setCity($school->getCity());
+                }
+
+                if($school->getState()) {
+                    $teachLessonExperience->setState($school->getState());
+                }
+
+                if($school->getZipcode()) {
+                    $teachLessonExperience->setZipcode($school->getZipcode());
+                }
 
                 $this->entityManager->persist($teachLessonExperience);
                 $this->addFlash('success', 'You have accepted the invite to teach!');
@@ -307,26 +354,20 @@ class RequestController extends AbstractController
                     $this->requestsMailer->teachLessonRequestApproval($request);
                 }
                 break;
+            case 'SiteAdminRequest':
+                /** @var SiteAdminRequest $request */
+                $request->setApproved(true);
+                /** @var SiteAdminUser $needsApprovalBy */
+                $needsApprovalBy = $request->getNeedsApprovalBy();
+                $this->addFlash('success', 'You have accepted a site administrator position!');
+                $needsApprovalBy->setSite($request->getSite());
+                $needsApprovalBy->setupAsSiteAdminUser();
+                $needsApprovalBy->agreeToTerms();
+                $this->entityManager->persist($needsApprovalBy);
+                $this->requestsMailer->siteAdminRequestApproval($request);
+                break;
         }
-
         $this->entityManager->persist($request);
         $this->entityManager->flush();
-        return $this->redirectToRoute('requests');
-    }
-
-    /**
-     * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
-     * @param \App\Entity\Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function denyRequest(\App\Entity\Request $request) {
-
-        $this->denyAccessUnlessGranted('edit', $request);
-
-        $request->setDenied(true);
-        $this->entityManager->persist($request);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'Request denied.');
-        return $this->redirectToRoute('requests');
     }
 }

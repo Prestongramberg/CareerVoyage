@@ -1,0 +1,12 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Region{% endblock %}
+{% block bodyClass %}page-create-region{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.state) }}
+        {{ form_row(form.submit) }}
+    {{ form_end(form) }}
+{% endblock %}

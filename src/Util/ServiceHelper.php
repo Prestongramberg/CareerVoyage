@@ -8,6 +8,7 @@ use App\Mailer\ImportMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
+use App\Repository\ChatRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
@@ -15,11 +16,16 @@ use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
+use App\Repository\MessageReadStatusRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\SchoolExperienceRepository;
+use App\Repository\RequestRepository;
+use App\Repository\SchoolAdministratorRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SingleChatRepository;
+use App\Repository\SiteAdminUserRepository;
+use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRepository;
@@ -27,6 +33,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\Asset\Packages;
@@ -34,6 +41,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+
+use Knp\Component\Pager\Paginator;
 
 trait ServiceHelper
 {
@@ -183,6 +193,41 @@ trait ServiceHelper
     private $schoolExperienceRepository;
 
     /**
+     * @var RequestRepository
+     */
+    private $requestRepository;
+
+    /**
+     * @var MessageReadStatusRepository
+     */
+    private $messageReadStatusRepository;
+
+    /**
+     * @var ChatRepository;
+     */
+    private $chatRepository;
+
+    /**
+     * @var PaginatorInterface
+     */
+    private $paginator;
+
+    /**
+     * @var SiteAdminUserRepository
+     */
+    private $siteAdminRepository;
+
+    /**
+     * @var SchoolAdministratorRepository
+     */
+    private $schoolAdministratorRepository;
+
+    /**
+     * @var StateCoordinatorRepository
+     */
+    private $stateCoordinatorRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -213,6 +258,13 @@ trait ServiceHelper
      * @param SingleChatRepository $singleChatRepository
      * @param TeachLessonRequestRepository $teachLessonRequestRepository
      * @param SchoolExperienceRepository $schoolExperienceRepository
+     * @param RequestRepository $requestRepository
+     * @param MessageReadStatusRepository $messageReadStatusRepository
+     * @param ChatRepository $chatRepository
+     * @param PaginatorInterface $paginator
+     * @param SiteAdminUserRepository $siteAdminRepository
+     * @param SchoolAdministratorRepository $schoolAdministratorRepository
+     * @param StateCoordinatorRepository $stateCoordinatorRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -243,7 +295,14 @@ trait ServiceHelper
         RegionalCoordinatorRepository $regionalCoordinatorRepository,
         SingleChatRepository $singleChatRepository,
         TeachLessonRequestRepository $teachLessonRequestRepository,
-        SchoolExperienceRepository $schoolExperienceRepository
+        SchoolExperienceRepository $schoolExperienceRepository,
+        RequestRepository $requestRepository,
+        MessageReadStatusRepository $messageReadStatusRepository,
+        ChatRepository $chatRepository,
+        PaginatorInterface $paginator,
+        SiteAdminUserRepository $siteAdminRepository,
+        SchoolAdministratorRepository $schoolAdministratorRepository,
+        StateCoordinatorRepository $stateCoordinatorRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -274,6 +333,13 @@ trait ServiceHelper
         $this->singleChatRepository = $singleChatRepository;
         $this->teachLessonRequestRepository = $teachLessonRequestRepository;
         $this->schoolExperienceRepository = $schoolExperienceRepository;
+        $this->requestRepository = $requestRepository;
+        $this->messageReadStatusRepository = $messageReadStatusRepository;
+        $this->chatRepository = $chatRepository;
+        $this->paginator = $paginator;
+        $this->siteAdminRepository = $siteAdminRepository;
+        $this->schoolAdministratorRepository = $schoolAdministratorRepository;
+        $this->stateCoordinatorRepository = $stateCoordinatorRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
@@ -286,4 +352,7 @@ trait ServiceHelper
             $routerContext->getBaseUrl()
         );
     }
+
+
+
 }

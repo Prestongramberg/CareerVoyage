@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -106,9 +107,9 @@ class School
     private $zipcode;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="schools")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="schools")
      */
-    private $state;
+    private $site;
 
     public function __construct()
     {
@@ -487,14 +488,14 @@ class School
         return $this;
     }
 
-    public function getState(): ?State
+    public function getSite(): ?Site
     {
-        return $this->state;
+        return $this->site;
     }
 
-    public function setState(?State $state): self
+    public function setSite(?Site $site): self
     {
-        $this->state = $state;
+        $this->site = $site;
 
         return $this;
     }
