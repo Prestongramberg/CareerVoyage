@@ -2,17 +2,56 @@
 
 {% form_theme form _self %}
 
-{% block title %}New School{% endblock %}
+{% block title %}New School Administrator{% endblock %}
 
 {% block body %}
-    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
-    {% if form_errors(form) %}
-        {{ form_errors(form) }}
-    {% endif %}
-    {{ form_row(form.firstName) }}
-    {{ form_row(form.lastName) }}
-    {{ form_row(form.email) }}
-    {{ form_row(form.schools) }}
-    {{ form_row(form.submit) }}
-    {{ form_end(form) }}
+
+    <div class="uk-container js-form" data-route="{{ path('company_new') }}">
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+        <div class="uk-width-xlarge">
+
+            {% if form_errors(form) %}
+                <div class="uk-alert-danger" uk-alert>
+                    <a class="uk-alert-close" uk-close></a>
+                    <div>{{ form_errors(form) }}</div>
+                </div>
+            {% endif %}
+
+            <fieldset class="uk-fieldset">
+                <div class="uk-margin">
+                    <h3>Create a New School Administrator</h3>
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.firstName, 'First Name*') }}
+                    {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.firstName) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.lastName, 'Last Name*') }}
+                    {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.lastName) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.email, 'Email*') }}
+                    {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.schools, 'Schools*') }}
+                    {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                    <div class="clear"></div>
+                    {{ form_errors(form.schools) }}
+                </div>
+                <div class="uk-margin">
+                    <button class="uk-button uk-button-primary uk-button-small" type="submit">Create School Administrator</button>
+                </div>
+            </fieldset>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
 {% endblock %}
