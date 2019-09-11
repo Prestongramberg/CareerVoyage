@@ -73,12 +73,28 @@ class EducatorEditProfileFormType extends AbstractType
                     'disabled' => true
                 ]
             ])
+            ->add('briefBio', TextareaType::class)
+            ->add('linkedinProfile', TextType::class)
+            ->add('phone', TextType::class)
             ->add('username')
             ->add('email')
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
             ])
-            ->add('interests', TextAreaType::class);
+            ->add('interests', TextAreaType::class)
+            ->add('isEmailHiddenFromProfile', ChoiceType::class, [
+                'choices'  => [
+                    'Yes' => true,
+
+                    'No' => false,
+                ],
+            ])
+            ->add('isPhoneHiddenFromProfile', ChoiceType::class, [
+                'choices'  => [
+                    'Yes' => true,
+                    'No' => false,
+                ],
+            ]);
 
 
         $builder->add('secondaryIndustries', CollectionType::class, [
@@ -86,6 +102,17 @@ class EducatorEditProfileFormType extends AbstractType
             'label' => false,
             'allow_add' => true,
         ]);
+
+
+
+        $builder->get('phone')->addModelTransformer(new CallbackTransformer(
+            function ($phone) {
+                return str_replace('-', '', $phone);
+            },
+            function ($phone) {
+                return $this->localize_us_number($phone);
+            }
+        ));
 
         $builder->get('secondaryIndustries')
             ->addModelTransformer(new CallbackTransformer(
@@ -130,5 +157,10 @@ class EducatorEditProfileFormType extends AbstractType
         $resolver->setRequired([
             'skip_validation'
         ]);
+    }
+
+    private function localize_us_number($phone) {
+        $numbers_only = preg_replace("/[^\d]/", "", $phone);
+        return preg_replace("/^1?(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $numbers_only);
     }
 }

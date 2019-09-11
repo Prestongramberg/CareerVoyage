@@ -66,6 +66,10 @@ class ChatController extends AbstractController
     use ServiceHelper;
 
     /**
+     * 1. Get all the possible users that the logged in user is able to message
+     * 2.
+     *
+     *
      * @Route("/chats", name="chats", methods={"GET", "POST"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -109,7 +113,8 @@ class ChatController extends AbstractController
     }
 
     /**
-     * Creates a chat with a user if it doesn't exist or returns the existing chat if it does exist
+     * 1. Creates a chat with a user if it doesn't exist or returns the existing chat if it does exist
+     * 2. Also marks the messages as read for the logged in user for that given chat
      *
      * @Route("/chats/create/single", name="create_single_chat", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
@@ -182,12 +187,13 @@ class ChatController extends AbstractController
         $this->entityManager->persist($message);
         $this->entityManager->flush();
 
-        // setup the users to send the message to
+        // setup the users to send the message to while excluding yourself as you don't want to send a message to yourself
         $possibleUsers = [];
         $possibleUsers = array_filter($chat->getUsers()->toArray(), function(User $user) use ($loggedInUser) {
             return $user->getId() !== $loggedInUser->getId();
         });
 
+        // We need to set an initial read status for the message for each possible user
         foreach($possibleUsers as $possibleUser) {
             $messageReadStatus = new MessageReadStatus();
             $messageReadStatus->setChatMessage($message);
@@ -208,12 +214,22 @@ class ChatController extends AbstractController
             $options
         );
 
-        $json = $this->serializer->serialize($chat, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
-        $payload = json_decode($json, true);
+        // Let's go ahead and actually send the message to each possible user
+        /** @var User $possibleUser */
+        foreach($possibleUsers as $possibleUser) {
+            $json = $this->serializer->serialize($chat, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
+            $payload = json_decode($json, true);
+            $data = [];
+            $data['chat'] = $payload;
 
-        $data = [];
-        $data['chat'] = $payload;
-        $pusher->trigger(sprintf('chat-%s', $chat->getUid()), 'send-message', $data);
+            // if the chat type is to a single user then we will just use the user id
+            if($chat instanceof SingleChat) {
+                $pusher->trigger(sprintf('chat-user-%s', $possibleUser->getId()), 'send-message', $data);
+            } else {
+                // todo down the road maybe they want group chat
+                /*$pusher->trigger(sprintf('chat-%s', $chat->getId()), 'send-message', $data);*/
+            }
+        }
 
         return new JsonResponse(
             [

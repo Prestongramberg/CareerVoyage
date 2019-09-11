@@ -9,6 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ChatMessageRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class ChatMessage
 {
@@ -35,11 +36,13 @@ class ChatMessage
     private $body;
 
     /**
+     * @Groups({"MESSAGE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $sentAt;
 
     /**
+     * @Groups({"MESSAGE"})
      * @ORM\OneToMany(targetEntity="App\Entity\MessageReadStatus", mappedBy="chatMessage", orphanRemoval=true)
      */
     private $messageReadStatuses;

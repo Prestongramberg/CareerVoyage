@@ -4,6 +4,7 @@
 namespace App\Util;
 
 
+use App\Mailer\FeedbackMailer;
 use App\Mailer\ImportMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -228,6 +229,11 @@ trait ServiceHelper
     private $stateCoordinatorRepository;
 
     /**
+     * @var FeedbackMailer
+     */
+    private $feedbackMailer;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -265,6 +271,7 @@ trait ServiceHelper
      * @param SiteAdminUserRepository $siteAdminRepository
      * @param SchoolAdministratorRepository $schoolAdministratorRepository
      * @param StateCoordinatorRepository $stateCoordinatorRepository
+     * @param FeedbackMailer $feedbackMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -302,7 +309,8 @@ trait ServiceHelper
         PaginatorInterface $paginator,
         SiteAdminUserRepository $siteAdminRepository,
         SchoolAdministratorRepository $schoolAdministratorRepository,
-        StateCoordinatorRepository $stateCoordinatorRepository
+        StateCoordinatorRepository $stateCoordinatorRepository,
+        FeedbackMailer $feedbackMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -340,6 +348,7 @@ trait ServiceHelper
         $this->siteAdminRepository = $siteAdminRepository;
         $this->schoolAdministratorRepository = $schoolAdministratorRepository;
         $this->stateCoordinatorRepository = $stateCoordinatorRepository;
+        $this->feedbackMailer = $feedbackMailer;
     }
 
     public function getFullQualifiedBaseUrl() {

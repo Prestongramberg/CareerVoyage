@@ -8,3 +8,4 @@ App\Entity\RegionalCoordinator:
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
     region: <region()>
+    site: '@site_1'

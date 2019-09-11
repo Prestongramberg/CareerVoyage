@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MessageReadStatusRepository")
@@ -10,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class MessageReadStatus
 {
     /**
+     * @Groups({"MESSAGE"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -23,12 +25,14 @@ class MessageReadStatus
     private $chatMessage;
 
     /**
+     * @Groups({"MESSAGE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="messageReadStatuses")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
     /**
+     * @Groups({"MESSAGE"})
      * @ORM\Column(type="boolean")
      */
     private $isRead = false;
