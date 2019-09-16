@@ -13,8 +13,8 @@
                             <div class="uk-width-expand">
                                 <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    <span>{{ user.company is defined ? user.company.name : "Professional" }}</span>
-                                    {% if user.primaryIndustry %}
+                                    <span>{{ user.company ? user.company.name : "Professional" }}</span>
+                                    {% if user.primaryIndustry is defined %}
                                         <span>- {{ user.primaryIndustry.name }}</span>
                                     {% endif %}
                                     {% if user.secondaryIndustries|length > 0 %}
