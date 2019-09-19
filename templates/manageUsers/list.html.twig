@@ -4,34 +4,48 @@
 
 {% block body %}
 
-    <div class="count">
-        Total Users: {{ pagination.getTotalItemCount }}
-    </div>
-    <table>
-        <tr>
-            <th></th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Edit/Delete</th>
-        </tr>
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
 
-        {# table body #}
-        {% for user in pagination %}
-            <tr {% if loop.index is odd %}class="color"{% endif %}>
-                <td>{{ user.id }}</td>
-                <td>{{ user.firstName }}</td>
-                <td>{{ user.lastName }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.username }}</td>
-                <td><a href="{{ path('profile_edit', {'id': user.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': user.id}) }}">Delete</a></td>
-            </tr>
-        {% endfor %}
-    </table>
-    {# display navigation #}
-    <div class="navigation">
-        {{ knp_pagination_render(pagination) }}
+                {% include 'flash/messages.html.twig' %}
+
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('manage_users') }}">Manage Users</a></li>
+                    <li><span>Editing</span></li>
+                </ul>
+
+                <div class="count">
+                    Total Users: {{ pagination.getTotalItemCount }}
+                </div>
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Edit/Delete</th>
+                    </tr>
+
+                    {# table body #}
+                    {% for user in pagination %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.firstName }}</td>
+                            <td>{{ user.lastName }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.username }}</td>
+                            <td><a href="{{ path('profile_edit', {'id': user.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': user.id}) }}">Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                {# display navigation #}
+                <div class="navigation">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+            </div>
+        </div>
     </div>
 
 

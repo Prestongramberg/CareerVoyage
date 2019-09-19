@@ -77,7 +77,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->professionalUserRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         $filterQuery = $filterBuilder->getQuery();
 
@@ -105,7 +105,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->siteAdminRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
@@ -138,7 +138,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->stateCoordinatorRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
@@ -171,7 +171,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->regionalCoordinatorRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
@@ -204,7 +204,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->schoolAdministratorRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
@@ -237,7 +237,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
@@ -270,7 +270,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.email', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')

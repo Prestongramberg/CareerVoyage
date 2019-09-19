@@ -6,19 +6,7 @@
 
     <div class="uk-container">
 
-        {% if successMessage %}
-            <div class="uk-alert-success uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>{{ successMessage }}</p>
-            </div>
-        {% endif %}
-
-        {% if errorMessage %}
-            <div class="uk-alert-error uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>{{ errorMessage }}</p>
-            </div>
-        {% endif %}
+        {% include 'flash/messages.html.twig' %}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-schools" uk-tab>
             {% for school in schools %}

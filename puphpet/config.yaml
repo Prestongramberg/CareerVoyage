@@ -45,7 +45,7 @@ vagrantfile:
                 group: vagrant
                 source: ./
                 target: /var/www
-                sync_type: nfs
+                sync_type: rsync
                 smb:
                     smb_host: ''
                     smb_username: ''
