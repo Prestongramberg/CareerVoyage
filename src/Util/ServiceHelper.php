@@ -4,6 +4,7 @@
 namespace App\Util;
 
 
+use App\Mailer\FeedbackMailer;
 use App\Mailer\ImportMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -16,14 +17,12 @@ use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
-use App\Repository\MessageReadStatusRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
 use App\Repository\SchoolAdministratorRepository;
 use App\Repository\SecondaryIndustryRepository;
-use App\Repository\SingleChatRepository;
 use App\Repository\SiteAdminUserRepository;
 use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentUserRepository;
@@ -178,11 +177,6 @@ trait ServiceHelper
     private $regionalCoordinatorRepository;
 
     /**
-     * @var SingleChatRepository $singleChatRepository
-     */
-    private $singleChatRepository;
-
-    /**
      * @var TeachLessonRequestRepository
      */
     private $teachLessonRequestRepository;
@@ -196,11 +190,6 @@ trait ServiceHelper
      * @var RequestRepository
      */
     private $requestRepository;
-
-    /**
-     * @var MessageReadStatusRepository
-     */
-    private $messageReadStatusRepository;
 
     /**
      * @var ChatRepository;
@@ -226,6 +215,11 @@ trait ServiceHelper
      * @var StateCoordinatorRepository
      */
     private $stateCoordinatorRepository;
+
+    /**
+     * @var FeedbackMailer
+     */
+    private $feedbackMailer;
 
     /**
      * ServiceHelper constructor.
@@ -255,16 +249,15 @@ trait ServiceHelper
      * @param IndustryRepository $industryRepository
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
      * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
-     * @param SingleChatRepository $singleChatRepository
      * @param TeachLessonRequestRepository $teachLessonRequestRepository
      * @param SchoolExperienceRepository $schoolExperienceRepository
      * @param RequestRepository $requestRepository
-     * @param MessageReadStatusRepository $messageReadStatusRepository
      * @param ChatRepository $chatRepository
      * @param PaginatorInterface $paginator
      * @param SiteAdminUserRepository $siteAdminRepository
      * @param SchoolAdministratorRepository $schoolAdministratorRepository
      * @param StateCoordinatorRepository $stateCoordinatorRepository
+     * @param FeedbackMailer $feedbackMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -293,16 +286,15 @@ trait ServiceHelper
         IndustryRepository $industryRepository,
         SecondaryIndustryRepository $secondaryIndustryRepository,
         RegionalCoordinatorRepository $regionalCoordinatorRepository,
-        SingleChatRepository $singleChatRepository,
         TeachLessonRequestRepository $teachLessonRequestRepository,
         SchoolExperienceRepository $schoolExperienceRepository,
         RequestRepository $requestRepository,
-        MessageReadStatusRepository $messageReadStatusRepository,
         ChatRepository $chatRepository,
         PaginatorInterface $paginator,
         SiteAdminUserRepository $siteAdminRepository,
         SchoolAdministratorRepository $schoolAdministratorRepository,
-        StateCoordinatorRepository $stateCoordinatorRepository
+        StateCoordinatorRepository $stateCoordinatorRepository,
+        FeedbackMailer $feedbackMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -330,16 +322,15 @@ trait ServiceHelper
         $this->industryRepository = $industryRepository;
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
         $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
-        $this->singleChatRepository = $singleChatRepository;
         $this->teachLessonRequestRepository = $teachLessonRequestRepository;
         $this->schoolExperienceRepository = $schoolExperienceRepository;
         $this->requestRepository = $requestRepository;
-        $this->messageReadStatusRepository = $messageReadStatusRepository;
         $this->chatRepository = $chatRepository;
         $this->paginator = $paginator;
         $this->siteAdminRepository = $siteAdminRepository;
         $this->schoolAdministratorRepository = $schoolAdministratorRepository;
         $this->stateCoordinatorRepository = $stateCoordinatorRepository;
+        $this->feedbackMailer = $feedbackMailer;
     }
 
     public function getFullQualifiedBaseUrl() {

@@ -206,14 +206,14 @@ abstract class User implements UserInterface
     protected $initializedChats;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\MessageReadStatus", mappedBy="user", orphanRemoval=true)
-     */
-    protected $messageReadStatuses;
-
-    /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Chat", mappedBy="users")
      */
     protected $chats;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="sentTo")
+     */
+    protected $chatMessages;
 
     public function __construct()
     {
@@ -224,8 +224,8 @@ abstract class User implements UserInterface
         $this->companyFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
         $this->initializedChats = new ArrayCollection();
-        $this->messageReadStatuses = new ArrayCollection();
         $this->chats = new ArrayCollection();
+        $this->chatMessages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1009,37 +1009,6 @@ abstract class User implements UserInterface
     }
 
     /**
-     * @return Collection|MessageReadStatus[]
-     */
-    public function getMessageReadStatuses(): Collection
-    {
-        return $this->messageReadStatuses;
-    }
-
-    public function addMessageReadStatus(MessageReadStatus $messageReadStatus): self
-    {
-        if (!$this->messageReadStatuses->contains($messageReadStatus)) {
-            $this->messageReadStatuses[] = $messageReadStatus;
-            $messageReadStatus->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMessageReadStatus(MessageReadStatus $messageReadStatus): self
-    {
-        if ($this->messageReadStatuses->contains($messageReadStatus)) {
-            $this->messageReadStatuses->removeElement($messageReadStatus);
-            // set the owning side to null (unless already changed)
-            if ($messageReadStatus->getUser() === $this) {
-                $messageReadStatus->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|Chat[]
      */
     public function getChats(): Collection
@@ -1062,6 +1031,37 @@ abstract class User implements UserInterface
         if ($this->chats->contains($chat)) {
             $this->chats->removeElement($chat);
             $chat->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ChatMessage[]
+     */
+    public function getChatMessages(): Collection
+    {
+        return $this->chatMessages;
+    }
+
+    public function addChatMessage(ChatMessage $chatMessage): self
+    {
+        if (!$this->chatMessages->contains($chatMessage)) {
+            $this->chatMessages[] = $chatMessage;
+            $chatMessage->setSentTo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatMessage(ChatMessage $chatMessage): self
+    {
+        if ($this->chatMessages->contains($chatMessage)) {
+            $this->chatMessages->removeElement($chatMessage);
+            // set the owning side to null (unless already changed)
+            if ($chatMessage->getSentTo() === $this) {
+                $chatMessage->setSentTo(null);
+            }
         }
 
         return $this;

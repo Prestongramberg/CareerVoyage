@@ -8,3 +8,4 @@ App\Entity\StateCoordinator:
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
     state: <state()>
+    site: '@site_1'

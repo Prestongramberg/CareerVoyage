@@ -13,12 +13,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ChatRepository")
  * @ORM\HasLifecycleCallbacks()
- *
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"singleChat" = "SingleChat"})
  */
-abstract class Chat
+class Chat
 {
     use RandomStringGenerator;
     use Timestampable;
@@ -33,32 +29,31 @@ abstract class Chat
 
     /**
      * @Groups({"CHAT"})
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="initializedChats")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    protected $initializedBy;
-    
-    /**
-     * @Groups({"CHAT"})
      * @ORM\Column(type="string", length=255)
      */
-    private $uid;
+    protected $uid;
 
     /**
      * @Groups({"CHAT"})
      * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="chat")
      */
-    private $messages;
+    protected $messages;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="chats")
+     * @Groups({"CHAT"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      */
-    private $users;
+    private $userOne;
+
+    /**
+     * @Groups({"CHAT"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     */
+    private $userTwo;
 
     public function __construct()
     {
         $this->messages = new ArrayCollection();
-        $this->users = new ArrayCollection();
     }
 
     /**
@@ -129,28 +124,26 @@ abstract class Chat
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
+    public function getUserOne(): ?User
     {
-        return $this->users;
+        return $this->userOne;
     }
 
-    public function addUser(User $user): self
+    public function setUserOne(?User $userOne): self
     {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-        }
+        $this->userOne = $userOne;
 
         return $this;
     }
 
-    public function removeUser(User $user): self
+    public function getUserTwo(): ?User
     {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-        }
+        return $this->userTwo;
+    }
+
+    public function setUserTwo(?User $userTwo): self
+    {
+        $this->userTwo = $userTwo;
 
         return $this;
     }

@@ -15,6 +15,7 @@ use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -59,95 +60,55 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class EducatorUserController
+ * Class FeedbackController
  * @package App\Controller
- * @Route("/dashboard/educators")
+ * @Route("/dashboard/feedback")
  */
-class EducatorUserController extends AbstractController
+class FeedbackController extends AbstractController
 {
     use FileHelper;
     use RandomStringGenerator;
     use ServiceHelper;
 
     /**
-     * @Route("/{id}/industries/add", name="educator_industry_add")
+     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER"})
+     * @Route("/request-lesson-experience-or-site-visit", name="request_lesson_experience_or_site_visit", options = { "expose" = true })
      * @param Request $request
-     * @param EducatorUser $educatorUser
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function addIndustry(Request $request, EducatorUser $educatorUser) {
+    public function requestIdeaAction(Request $request) {
 
-        $this->denyAccessUnlessGranted('edit', $educatorUser);
+        /** @var EducatorUser|StudentUser $user */
+        $user = $this->getUser();
 
-        $secondaryIndustryId = $request->request->get('secondaryIndustry');
-        $secondaryIndustry = $this->secondaryIndustryRepository->find($secondaryIndustryId);
+        $form = $this->createFormBuilder()
+            ->add('message', TextareaType::class, ['label' => 'Request a lesson, experience, or site visit.',
+                'constraints' => [
+                    new NotBlank(),
+                ]
+            ])
+            ->getForm();
 
-        if($secondaryIndustry) {
-            $educatorUser->addSecondaryIndustry($secondaryIndustry);
-            $this->entityManager->persist($educatorUser);
-            $this->entityManager->flush();
+        $form->handleRequest($request);
 
-            return new JsonResponse(
-                [
-                    'success' => true,
+        if($form->isSubmitted() && $form->isValid()) {
+            $message = $form->get('message')->getData();
 
-                ], Response::HTTP_OK
-            );
+            // I don't know any case where an educator user or a student user wouldn't have a site. Better safe than sorry
+            if($user->getSite()) {
+                foreach($user->getSite()->getSiteAdminUsers() as $siteAdminUser) {
+                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($siteAdminUser, $message);
+                }
+            }
+
+            $this->addFlash('success', 'Feedback successfully submitted.');
+            return $this->redirectToRoute('request_lesson_experience_or_site_visit');
         }
 
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_OK
-        );
+        return $this->render('feedback/request_lesson_experience_or_site_visit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
     }
 
-    /**
-     * @Route("/{id}/industries/remove", name="educator_industry_remove")
-     * @param Request $request
-     * @param EducatorUser $educatorUser
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function removeIndustry(Request $request, EducatorUser $educatorUser) {
-
-        $this->denyAccessUnlessGranted('edit', $educatorUser);
-
-        $secondaryIndustryId = $request->request->get('secondaryIndustry');
-        $secondaryIndustry = $this->secondaryIndustryRepository->find($secondaryIndustryId);
-
-        $educatorUser->removeSecondaryIndustry($secondaryIndustry);
-        $this->entityManager->persist($educatorUser);
-        $this->entityManager->flush();
-
-        return new JsonResponse(
-            [
-                'success' => true,
-
-            ], Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/{id}/industries", name="educator_industries")
-     * @param Request $request
-     * @param EducatorUser $educatorUser
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function getIndustries(Request $request, EducatorUser $educatorUser) {
-
-        $secondaryIndustries = $educatorUser->getSecondaryIndustries();
-
-        $json = $this->serializer->serialize($secondaryIndustries, 'json', ['groups' => ['RESULTS_PAGE']]);
-
-        $payload = json_decode($json, true);
-
-        return new JsonResponse(
-            [
-                'success' => true,
-                'data' => $payload,
-            ],
-            Response::HTTP_OK
-        );
-    }
 }

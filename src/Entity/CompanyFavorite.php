@@ -8,11 +8,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CompanyFavoriteRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class CompanyFavorite
 {
     use Timestampable;
-    
+
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Id()

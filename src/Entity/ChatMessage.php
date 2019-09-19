@@ -9,6 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ChatMessageRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class ChatMessage
 {
@@ -35,24 +36,27 @@ class ChatMessage
     private $body;
 
     /**
+     * @Groups({"MESSAGE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $sentAt;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\MessageReadStatus", mappedBy="chatMessage", orphanRemoval=true)
-     */
-    private $messageReadStatuses;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Chat", inversedBy="messages")
      */
     private $chat;
 
-    public function __construct()
-    {
-        $this->messageReadStatuses = new ArrayCollection();
-    }
+    /**
+     * @Groups({"MESSAGE"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="chatMessages")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $sentTo;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasBeenRead = false;
 
     public function getId(): ?int
     {
@@ -95,37 +99,6 @@ class ChatMessage
         return $this;
     }
 
-    /**
-     * @return Collection|MessageReadStatus[]
-     */
-    public function getMessageReadStatuses(): Collection
-    {
-        return $this->messageReadStatuses;
-    }
-
-    public function addMessageReadStatus(MessageReadStatus $messageReadStatus): self
-    {
-        if (!$this->messageReadStatuses->contains($messageReadStatus)) {
-            $this->messageReadStatuses[] = $messageReadStatus;
-            $messageReadStatus->setChatMessage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMessageReadStatus(MessageReadStatus $messageReadStatus): self
-    {
-        if ($this->messageReadStatuses->contains($messageReadStatus)) {
-            $this->messageReadStatuses->removeElement($messageReadStatus);
-            // set the owning side to null (unless already changed)
-            if ($messageReadStatus->getChatMessage() === $this) {
-                $messageReadStatus->setChatMessage(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getChat(): ?Chat
     {
         return $this->chat;
@@ -149,5 +122,29 @@ class ChatMessage
         }
 
         return '';
+    }
+
+    public function getSentTo(): ?User
+    {
+        return $this->sentTo;
+    }
+
+    public function setSentTo(?User $sentTo): self
+    {
+        $this->sentTo = $sentTo;
+
+        return $this;
+    }
+
+    public function getHasBeenRead(): ?bool
+    {
+        return $this->hasBeenRead;
+    }
+
+    public function setHasBeenRead(bool $hasBeenRead): self
+    {
+        $this->hasBeenRead = $hasBeenRead;
+
+        return $this;
     }
 }

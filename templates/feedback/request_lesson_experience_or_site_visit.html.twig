@@ -1,0 +1,46 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Request lesson, experience, or site visit.{% endblock %}
+{% block bodyClass %}page-lesson-edit{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container js-form">
+
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>Feedback successfully submitted.</p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        <div class="uk-margin">
+            {{ form_label(form.message, 'Request a lesson, experience, or site visit*') }}
+            {{ form_widget(form.message, {'attr': {'class': 'uk-input' ~ ( form_errors(form.message) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(form.message) }}
+        </div>
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+{% endblock %}

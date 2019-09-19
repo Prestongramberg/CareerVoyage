@@ -8,6 +8,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LessonTeachableRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class LessonTeachable
 {

@@ -10,12 +10,17 @@ class ChatWidget {
     /**
      * @param $wrapper
      * @param globalEventDispatcher
+     * @param loggedInUserId
      */
-    constructor($wrapper, globalEventDispatcher) {
+    constructor($wrapper, globalEventDispatcher, loggedInUserId) {
+
+        debugger;
 
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.chat = {};
+        this.loggedInUserId = loggedInUserId;
+        this.userIdToMessage = null;
 
         this.unbindEvents();
         this.bindEvents();
@@ -23,6 +28,7 @@ class ChatWidget {
 
     unbindEvents() {
         this.$wrapper.off('click', ChatWidget._selectors.createChatButton);
+        this.$wrapper.off('click', ChatWidget._selectors.sendMessageButton);
     }
 
     /**
@@ -61,9 +67,9 @@ class ChatWidget {
         }
 
         let data = {};
-        data.userId = $(e.target).attr('data-userId');
+        this.userIdToMessage = data.userId = $(e.target).attr('data-userId');
 
-        this._createChat(data).then((data) => {
+        this._createOrGetChat(data).then((data) => {
             debugger;
            this.chat = data.data;
 
@@ -77,6 +83,7 @@ class ChatWidget {
 
    _startListening() {
 
+        debugger;
        Pusher.logToConsole = true;
 
        const socket = new Pusher('3b8e318e4abe6c429446', {
@@ -84,7 +91,7 @@ class ChatWidget {
            forceTLS: true
        });
 
-       let channel = socket.subscribe('chat-' + this.chat.uid);
+       let channel = socket.subscribe('chat-' + this.loggedInUserId);
 
        channel.bind('send-message', (data) => {
            this.chat = data.chat;
@@ -101,12 +108,38 @@ class ChatWidget {
         let message = this.$wrapper.find(ChatWidget._selectors.message).val();
         let data = {};
         data.message = message;
-        this._messageChat(data).then((data) => {});
+        this._messageChat(data).then((data) => {
+
+            // we need to refresh the messages after you've sent this
+            // There are plenty of dif ways to do this. This requires another api call
+            // which def isn't necessary as you can just use JS to append the most recently sent message
+            // once the call returns success
+
+            data = {};
+            data.userId = this.userIdToMessage;
+
+            this._createOrGetChat(data).then((data) => {
+                debugger;
+                this.chat = data.data;
+                this._renderMessages(this.chat.messages);
+
+                //this._startListening();
+            });
+        });
     }
 
-    _createChat(data) {
+    _renderMessages(messages) {
+
+        this.$wrapper.find(ChatWidget._selectors.messages).html("");
+
+        for(let message of messages) {
+            this.render(message);
+        }
+    }
+
+    _createOrGetChat(data) {
         return new Promise((resolve, reject) => {
-            const url = Routing.generate('create_single_chat');
+            const url = Routing.generate('create_or_get_chat');
             $.ajax({
                 url,
                 method: 'POST',
@@ -149,7 +182,7 @@ class ChatWidget {
     }
 }
 
-const messageTemplate = ({body, formattedSentDate, from: {fullName}}) => `
+const messageTemplate = ({body, formattedSentDate, sentFrom: {fullName}}) => `
     <div><strong>${fullName}</strong><small>${formattedSentDate}</small></div>
     <div>${body}</div>
 `;
