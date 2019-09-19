@@ -4,16 +4,61 @@
 {% block bodyClass %}page-state-coordinator{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
-        {{ form_row(form.firstName) }}
-        {{ form_row(form.lastName) }}
-        {{ form_row(form.email) }}
-        {{ form_row(form.state) }}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
 
-    {% if form.site is defined %}
-        {{ form_row(form.site) }}
-    {% endif %}
+                <div class="uk-width-xlarge">
 
-        {{ form_row(form.submit) }}
-    {{ form_end(form) }}
+                    {% include 'flash/messages.html.twig' %}
+
+                    <h3>Create a new Statewide Coordinator</h3>
+
+                    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+                    {% if form_errors(form) %}
+                        <div class="uk-alert-danger" uk-alert>
+                            <a class="uk-alert-close" uk-close></a>
+                            <div>{{ form_errors(form) }}</div>
+                        </div>
+                    {% endif %}
+
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.firstName, 'First Name*') }}
+                            {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.lastName, 'Last Name*') }}
+                            {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.email, 'Email*') }}
+                            {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.state, 'State*') }}
+                            {{ form_widget(form.state, {'attr': {'class': 'uk-select' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.state) }}
+                        </div>
+                        {% if form.site is defined %}
+                            <div class="uk-margin">
+                                {{ form_label(form.site, 'Site*') }}
+                                {{ form_widget(form.site, {'attr': {'class': 'uk-select' ~ ( form_errors(form.site) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.site) }}
+                            </div>
+                        {% endif %}
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Create new State Coordinator</button>
+                        </div>
+                    </fieldset>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
