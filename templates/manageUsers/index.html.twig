@@ -4,40 +4,56 @@
 
 {% block body %}
 
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
 
-    {% if user.isAdmin %}
-        <div>
-            <a href="{{ path('manage_professionals') }}">Professionals</a>
+                {% include 'flash/messages.html.twig' %}
+
+                <h3>Manage Users</h3>
+                <p>This page allows you to manage users in your application.<br />
+                    Click on the user type, and then find the user you are trying to help.</p>
+
+                <ul class="uk-list uk-list-divider">
+
+                    {% if user.isAdmin %}
+                        <li>
+                            <a href="{{ path('manage_professionals') }}">Professionals</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('manage_site_admins') }}">Site Admins</a>
+                        </li>
+                    {%  endif %}
+
+                    {% if user.isAdmin or user.isSiteAdmin %}
+                        <li>
+                            <a href="{{ path('manage_state_coordinators') }}">State Coordinators</a>
+                        </li>
+                    {%  endif %}
+
+                    {% if user.isAdmin or user.isSiteAdmin or user.isStateCoordinator %}
+                        <li>
+                            <a href="{{ path('manage_regional_coordinators') }}">Regional Coordinator</a>
+                        </li>
+                    {%  endif %}
+
+                    {% if user.isAdmin or user.isSiteAdmin or user.isStateCoordinator or user.isRegionalCoordinator %}
+                        <li>
+                            <a href="{{ path('manage_school_administrators') }}">School Administrators</a>
+                        </li>
+                    {%  endif %}
+
+                    {% if user.isAdmin or user.isSiteAdmin or user.isStateCoordinator or user.isRegionalCoordinator or user.isSchoolAdministrator %}
+                        <li>
+                            <a href="{{ path('manage_students') }}">Students</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('manage_educators') }}">Educators</a>
+                        </li>
+                    {%  endif %}
+                </ul>
+            </div>
         </div>
-    {% elseif user.isSiteAdmin %}
-        <div>
-        </div>
-    {%  else %}
-    {%  endif %}
-
-    <div>
-        <a href="{{ path('manage_site_admins') }}">Site Admins</a>
     </div>
-
-    <div>
-        <a href="{{ path('manage_state_coordinators') }}">State Coordinators</a>
-    </div>
-
-    <div>
-        <a href="{{ path('manage_regional_coordinators') }}">Regional Coordinator</a>
-    </div>
-
-    <div>
-        <a href="{{ path('manage_school_administrators') }}">School Administrators</a>
-    </div>
-
-    <div>
-        <a href="{{ path('manage_students') }}">Students</a>
-    </div>
-
-    <div>
-        <a href="{{ path('manage_educators') }}">Educators</a>
-    </div>
-
 
 {% endblock %}

@@ -10,19 +10,7 @@
 
     <div class="uk-container">
 
-        {% if successMessage %}
-            <div class="uk-alert-success uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                {{ successMessage }}
-            </div>
-        {% endif %}
-
-        {% if errorMessage %}
-            <div class="uk-alert-error uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>{{ errorMessage }}</p>
-            </div>
-        {% endif %}
+        {% include 'flash/messages.html.twig' %}
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 

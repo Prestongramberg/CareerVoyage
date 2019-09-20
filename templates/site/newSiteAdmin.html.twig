@@ -4,11 +4,52 @@
 {% block bodyClass %}page-site-admin{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
-        {{ form_row(form.firstName) }}
-        {{ form_row(form.lastName) }}
-        {{ form_row(form.email) }}
-        {{ form_row(form.site) }}
-        {{ form_row(form.submit) }}
-    {{ form_end(form) }}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    <h3>Create a new Site Admin</h3>
+
+                    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+                    {% if form_errors(form) %}
+                        <div class="uk-alert-danger" uk-alert>
+                            <a class="uk-alert-close" uk-close></a>
+                            <div>{{ form_errors(form) }}</div>
+                        </div>
+                    {% endif %}
+
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.firstName, 'First Name*') }}
+                            {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.lastName, 'Last Name*') }}
+                            {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.email, 'Email*') }}
+                            {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.site, 'Site*') }}
+                            {{ form_widget(form.site, {'attr': {'class': 'uk-select' ~ ( form_errors(form.site) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.site) }}
+                        </div>
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Create new Site Admin</button>
+                        </div>
+                    </fieldset>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
