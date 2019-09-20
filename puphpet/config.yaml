@@ -45,7 +45,7 @@ vagrantfile:
                 group: vagrant
                 source: ./
                 target: /var/www
-                sync_type: nfs
+                sync_type: rsync
                 smb:
                     smb_host: ''
                     smb_username: ''
@@ -61,6 +61,9 @@ vagrantfile:
                     exclude:
                         - .vagrant/
                         - .git/
+                        - node_modules/
+                        - vendor/
+                        - public/
                     auto: 'true'
         usable_port_range:
             start: 10200
