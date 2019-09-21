@@ -90,6 +90,7 @@ class RegionController extends AbstractController
             /** @var Region $region */
             $region = $form->getData();
             $region->setSite($user->getSite());
+            $region->setState($user->getState());
 
             $this->entityManager->persist($region);
             $this->entityManager->flush();
