@@ -48,8 +48,7 @@ class StateCoordinatorFormType extends AbstractType
                 'choice_label' => 'name',
                 'expanded'  => false,
                 'multiple'  => false,
-            ])
-            ->add('submit', SubmitType::class);
+            ]);
 
     }
 

@@ -205,7 +205,7 @@ class ProfileController extends AbstractController
      */
     public function deleteAction(Request $request, User $user) {
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        //$this->denyAccessUnlessGranted('edit', $user);
 
         $this->entityManager->remove($user);
         $this->entityManager->flush();

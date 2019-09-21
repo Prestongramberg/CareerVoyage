@@ -166,6 +166,7 @@ class SchoolController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var School $school */
             $school = $form->getData();
+            $school->setState($user->getRegion()->getState());
             $school->setRegion($user->getRegion());
             $school->setSite($user->getSite());
 

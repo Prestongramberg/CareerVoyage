@@ -50,7 +50,7 @@ abstract class User implements UserInterface
      * @ORM\Column(type="integer")
      */
     protected $id;
-    
+
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE"})
      * @Assert\Email(
@@ -201,16 +201,6 @@ abstract class User implements UserInterface
     protected $isPhoneHiddenFromProfile = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Chat", mappedBy="initializedBy")
-     */
-    protected $initializedChats;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Chat", mappedBy="users")
-     */
-    protected $chats;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="sentTo")
      */
     protected $chatMessages;
@@ -223,8 +213,6 @@ abstract class User implements UserInterface
         $this->requestsThatNeedMyApproval = new ArrayCollection();
         $this->companyFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
-        $this->initializedChats = new ArrayCollection();
-        $this->chats = new ArrayCollection();
         $this->chatMessages = new ArrayCollection();
     }
 
@@ -974,66 +962,8 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Chat[]
-     */
-    public function getInitializedChats(): Collection
-    {
-        return $this->initializedChats;
-    }
-
-    public function addInitializedChat(Chat $initializedChat): self
-    {
-        if (!$this->initializedChats->contains($initializedChat)) {
-            $this->initializedChats[] = $initializedChat;
-            $initializedChat->setInitializedBy($this);
-        }
-
-        return $this;
-    }
-
-    public function removeInitializedChat(Chat $initializedChat): self
-    {
-        if ($this->initializedChats->contains($initializedChat)) {
-            $this->initializedChats->removeElement($initializedChat);
-            // set the owning side to null (unless already changed)
-            if ($initializedChat->getInitializedBy()=== $this) {
-                $initializedChat->setInitializedBy(null);
-            }
-        }
-        return $this;
-    }
-
     public function setId($id) {
         $this->id = $id;
-    }
-
-    /**
-     * @return Collection|Chat[]
-     */
-    public function getChats(): Collection
-    {
-        return $this->chats;
-    }
-
-    public function addChat(Chat $chat): self
-    {
-        if (!$this->chats->contains($chat)) {
-            $this->chats[] = $chat;
-            $chat->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeChat(Chat $chat): self
-    {
-        if ($this->chats->contains($chat)) {
-            $this->chats->removeElement($chat);
-            $chat->removeUser($this);
-        }
-
-        return $this;
     }
 
     /**

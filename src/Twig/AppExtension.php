@@ -10,6 +10,7 @@ use App\Entity\Experience;
 use App\Entity\Lesson;
 use App\Entity\User;
 use App\Repository\RequestRepository;
+use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
@@ -61,7 +62,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries']),
             new TwigFunction('validate_url', [$this, 'validateUrl']),
             new TwigFunction('excerpt_length', [$this, 'excerptLength']),
-            new TwigFunction('ucwords', [$this, 'ucwords'])
+            new TwigFunction('ucwords', [$this, 'ucwords']),
+            new TwigFunction('user_can_edit_user', [$this, 'userCanEditUser'])
         ];
     }
 
@@ -124,5 +126,9 @@ class AppExtension extends AbstractExtension
 
     public function ucwords($text) {
         return $this->ucwords($text);
+    }
+
+    public function userCanEditUser( User $user, User $userToVoteOn ) {
+        return ProfileVoter::canEdit( $userToVoteOn, $user );
     }
 }

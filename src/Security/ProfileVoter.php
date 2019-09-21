@@ -2,7 +2,13 @@
 
 namespace App\Security;
 
+use App\Entity\EducatorUser;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
+use App\Entity\SiteAdminUser;
+use App\Entity\StateCoordinator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -47,17 +53,64 @@ class ProfileVoter extends Voter
         throw new \LogicException('This code should not be reached!');
     }
 
-    private function canEdit(User $userToVoteOn, User $user)
+    public static function canEdit(User $userToVoteOn, User $user)
     {
         if($user->isAdmin()) {
             return true;
         }
 
-        if($user->isSiteAdmin() && $userToVoteOn->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId()) {
-            return true;
+        /** @var StateCoordinator $userToVoteOn */
+        if ( $userToVoteOn->isStateCoordinator() ) {
+            return $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId();
         }
 
-        $name = "Josh";
+        /** @var RegionalCoordinator $userToVoteOn */
+        if ( $userToVoteOn->isRegionalCoordinator() ) {
+            return (
+                ( $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() ) ||
+                ( $user->isStateCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getState()->getId() === $userToVoteOn->getRegion()->getState()->getId() )
+            );
+        }
+
+        /** @var SchoolAdministrator $userToVoteOn */
+        if ( $userToVoteOn->isSchoolAdministrator() ) {
+
+            $possibleStateIds = [];
+            foreach($userToVoteOn->getSchools() as $school) {
+                if( !$school->getState() ) { continue; }
+                $possibleStateIds[] = $school->getState()->getId();
+            }
+
+            $possibleRegionIds = [];
+            foreach($userToVoteOn->getSchools() as $school) {
+                if( !$school->getRegion() ) { continue; }
+                $possibleRegionIds[] = $school->getRegion()->getId();
+            }
+
+            return (
+                ( $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() ) ||
+                ( $user->isStateCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && in_array($user->getState()->getId(), $possibleStateIds ) ) ||
+                ( $user->isRegionalCoordinator() && $user->getSite() && $userToVoteOn->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && in_array($user->getRegion()->getId(), $possibleRegionIds ) )
+            );
+        }
+
+        /** @var EducatorUser $userToVoteOn */
+        if ( $userToVoteOn->isEducator() || $userToVoteOn->isStudent() ) {
+
+            $possibleSchoolIds = [];
+            if($user->isSchoolAdministrator()) {
+                foreach($user->getSchools() as $school) {
+                    $possibleSchoolIds[] = $school->getId();
+                }
+            }
+
+            return (
+                ( $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() ) ||
+                ( $user->isStateCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getState()->getId() === $userToVoteOn->getSchool()->getState()->getId() ) ||
+                ( $user->isRegionalCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getRegion()->getId() === $userToVoteOn->getSchool()->getRegion()->getId() ) ||
+                ( $user->isSchoolAdministrator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && in_array($userToVoteOn->getSchool()->getId(), $possibleSchoolIds) )
+            );
+        }
 
         return $user->getId() === $userToVoteOn->getId();
     }

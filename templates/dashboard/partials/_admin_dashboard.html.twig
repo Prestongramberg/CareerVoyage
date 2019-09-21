@@ -24,11 +24,50 @@
                             </div>
                         </div>
                     </div>
-                    <div class="uk-card-body">
-                        <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
-                            <div class="professional-links">
-                                <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                </div>
+            </div>
+
+            <br /><br />
+
+            <!-- Manage Users -->
+            <div class="quick-links-wrapper">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">Manage Users</h3>
                             </div>
+                            <div class="uk-width-auto">
+                                <div class="uk-align-right">
+                                    <a href="{{ path('sites_admin_new') }}" class="uk-button uk-button-primary uk-button-small">Create a Site Admin</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        <ul class="uk-list uk-list-divider">
+                            <li>
+                                <a href="{{ path('manage_professionals') }}">Professionals</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('manage_site_admins') }}">Site Admins</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('manage_state_coordinators') }}">State Coordinators</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('manage_regional_coordinators') }}">Regional Coordinator</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('manage_school_administrators') }}">School Administrators</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('manage_students') }}">Students</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('manage_educators') }}">Educators</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -39,12 +78,19 @@
             <div class="quick-links-wrapper">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
-                        <h3 class="uk-card-title uk-margin-remove-bottom">Current Sites</h3>
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">Domains</h3>
+                            </div>
+                            <div class="uk-width-auto">
+                                <span class="uk-icon-link" uk-icon="info" uk-tooltip="Contact Chris Pears to add additional domains"></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="uk-card-body">
                         <ul class="uk-list uk-list-divider">
-                            <li><a href="https://my.pintexsolutions.com">my.pintexsolutions.com</a></li>
-                            <li><a href="https://my.futureforward.org">my.futureforward.org</a></li>
+                            <li><a href="https://my.pintexsolutions.com" target="_blank">my.pintexsolutions.com</a></li>
+                            <li><a href="https://my.futureforward.org" target="_blank">my.futureforward.org</a></li>
                         </ul>
                     </div>
                 </div>
