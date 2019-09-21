@@ -123,17 +123,8 @@ class SchoolController extends AbstractController
 
                 $this->entityManager->persist($schoolAdministrator);
             }
-
-      /*      $schoolAdministratorRequest = new SchoolAdministratorRequest();
-            $schoolAdministratorRequest->setSchool($school);
-            $schoolAdministratorRequest->setCreatedBy($this->getUser());
-            $schoolAdministratorRequest->setNeedsApprovalBy($schoolAdministrator);
-            $this->entityManager->persist($schoolAdministratorRequest);*/
-
             $this->entityManager->flush();
             $this->securityMailer->sendPasswordSetupForSchoolAdministrator($schoolAdministrator);
-            /*$this->requestsMailer->schoolAdministratorRequest($schoolAdministratorRequest);*/
-
             $this->addFlash('success', sprintf('School administrator invite sent to %s', $schoolAdmin->getEmail()));
             return $this->redirectToRoute('school_admin_new');
         }
@@ -249,7 +240,7 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/schools/{id}/edit", name="school_edit", options = { "expose" = true })
      * @param Request $request
      * @param School $school

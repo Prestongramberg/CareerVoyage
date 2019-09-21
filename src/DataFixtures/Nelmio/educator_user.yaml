@@ -10,7 +10,7 @@ App\Entity\EducatorUser:
     linkedinProfile: <url()>
     interests: <paragraph(1)>
     phone: <phoneNumber()>
-    site: '@site_1'
+    site: <site()>
   educator_user_1 (extends educator_user):
     firstName: Kia
     lastName: Maybury
@@ -31,9 +31,11 @@ App\Entity\EducatorUser:
     username: <username()>
     displayName: <name()>
     school: <schoolById(1)>
+    secondaryIndustries: <secondaryIndustry(3)>
   educator_user_{11..20} (extends educator_user):
     firstName: <firstName()>
     lastName: <lastName()>
     username: <username()>
     displayName: <name()>
     school: <schoolById(2)>
+    secondaryIndustries: <secondaryIndustry(4)>

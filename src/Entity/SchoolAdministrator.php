@@ -103,4 +103,16 @@ class SchoolAdministrator extends User
 
         return $this;
     }
+
+    /**
+     * @param string $delimiter
+     * @return string
+     */
+    public function getSchoolsAsString($delimiter = ',') {
+        $schools = [];
+        foreach($this->getSchools() as $school) {
+            $schools[] = $school->getName();
+        }
+        return implode($delimiter, $schools);
+    }
 }

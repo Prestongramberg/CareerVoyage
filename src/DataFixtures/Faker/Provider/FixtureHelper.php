@@ -10,7 +10,9 @@ use App\Entity\Industry;
 use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
+use App\Entity\Site;
 use App\Entity\State;
+use App\Repository\SiteRepository;
 use App\Repository\StateRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -45,22 +47,30 @@ class FixtureHelper
     private $stateRepository;
 
     /**
+     * @var SiteRepository
+     */
+    private $siteRepository;
+
+    /**
      * FixtureHelper constructor.
      * @param UploaderHelper $uploaderHelper
      * @param ImageCacheGenerator $imageCacheGenerator
      * @param EntityManagerInterface $entityManager
      * @param StateRepository $stateRepository
+     * @param SiteRepository $siteRepository
      */
     public function __construct(
         UploaderHelper $uploaderHelper,
         ImageCacheGenerator $imageCacheGenerator,
         EntityManagerInterface $entityManager,
-        StateRepository $stateRepository
+        StateRepository $stateRepository,
+        SiteRepository $siteRepository
     ) {
         $this->uploaderHelper = $uploaderHelper;
         $this->imageCacheGenerator = $imageCacheGenerator;
         $this->entityManager = $entityManager;
         $this->stateRepository = $stateRepository;
+        $this->siteRepository = $siteRepository;
     }
 
     public function upload($folder, $imageCategory, $width = '400', $height = '400')
@@ -108,6 +118,14 @@ class FixtureHelper
      */
     public function state($stateId = 24) {
         return $this->entityManager->getRepository(State::class)->find($stateId);
+    }
+
+    /**
+     * @param int $siteId
+     * @return State|object|null
+     */
+    public function site($siteId = 2) {
+        return $this->entityManager->getRepository(Site::class)->find($siteId);
     }
 
     /**

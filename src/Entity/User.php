@@ -996,4 +996,8 @@ abstract class User implements UserInterface
 
         return $this;
     }
+
+    public function canLoginAsAnotherUser() {
+        return $this->isAdmin() || $this->isSiteAdmin();
+    }
 }

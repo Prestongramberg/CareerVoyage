@@ -33,6 +33,7 @@ use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRepository;
+use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -44,6 +45,7 @@ use Symfony\Component\Asset\Packages;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\Paginator;
@@ -251,6 +253,16 @@ trait ServiceHelper
     private $companyExperienceRepository;
 
     /**
+     * @var GuardAuthenticatorHandler $guardHandler,
+     */
+    private $guardHandler;
+
+    /**
+     * @var LoginFormAuthenticator $authenticator
+     */
+    private $authenticator;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -292,6 +304,8 @@ trait ServiceHelper
      * @param RecapMailer $recapMailer
      * @param ExperienceRepository $experienceRepository
      * @param CompanyExperienceRepository $companyExperienceRepository
+     * @param GuardAuthenticatorHandler $guardHandler
+     * @param LoginFormAuthenticator $authenticator
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -333,7 +347,9 @@ trait ServiceHelper
         LessonRepository $lessonRepository,
         RecapMailer $recapMailer,
         ExperienceRepository $experienceRepository,
-        CompanyExperienceRepository $companyExperienceRepository
+        CompanyExperienceRepository $companyExperienceRepository,
+        GuardAuthenticatorHandler $guardHandler,
+        LoginFormAuthenticator $authenticator
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -375,6 +391,8 @@ trait ServiceHelper
         $this->recapMailer = $recapMailer;
         $this->experienceRepository = $experienceRepository;
         $this->companyExperienceRepository = $companyExperienceRepository;
+        $this->guardHandler = $guardHandler;
+        $this->authenticator = $authenticator;
     }
 
     public function getFullQualifiedBaseUrl() {

@@ -8,4 +8,24 @@ App\Entity\RegionalCoordinator:
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
     region: <region()>
-    site: '@site_1'
+    site: <site()>
+  regional_coordinator_user_2:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_DASHBOARD_USER"]
+    firstName: Haley
+    lastName: Richardson
+    email: "haley-richardson+regional-coordinator@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    region: <region()>
+    site: <site()>
+  regional_coordinator_user_3:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_DASHBOARD_USER"]
+    firstName: Tim
+    lastName: Lock
+    email: "tim-lock+regional-coordinator@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    region: <region()>
+    site: <site()>

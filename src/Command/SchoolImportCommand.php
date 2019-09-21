@@ -10,6 +10,8 @@ use App\Repository\CourseRepository;
 use App\Repository\GradeRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\RegionRepository;
+use App\Repository\SiteRepository;
+use App\Repository\StateRepository;
 use App\Repository\UserRepository;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -71,6 +73,16 @@ class SchoolImportCommand extends Command
     private $regionRepository;
 
     /**
+     * @var SiteRepository
+     */
+    private $siteRepository;
+
+    /**
+     * @var StateRepository
+     */
+    private $stateRepository;
+
+    /**
      * SchoolImportCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param GradeRepository $gradeRepository
@@ -80,6 +92,8 @@ class SchoolImportCommand extends Command
      * @param UserRepository $userRepository
      * @param IndustryRepository $industryRepository
      * @param RegionRepository $regionRepository
+     * @param SiteRepository $siteRepository
+     * @param StateRepository $stateRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -89,7 +103,9 @@ class SchoolImportCommand extends Command
         UploaderHelper $uploaderHelper,
         UserRepository $userRepository,
         IndustryRepository $industryRepository,
-        RegionRepository $regionRepository
+        RegionRepository $regionRepository,
+        SiteRepository $siteRepository,
+        StateRepository $stateRepository
     ) {
         $this->entityManager = $entityManager;
         $this->gradeRepository = $gradeRepository;
@@ -99,10 +115,11 @@ class SchoolImportCommand extends Command
         $this->userRepository = $userRepository;
         $this->industryRepository = $industryRepository;
         $this->regionRepository = $regionRepository;
+        $this->siteRepository = $siteRepository;
+        $this->stateRepository = $stateRepository;
 
         parent::__construct();
     }
-
 
     protected function configure()
     {
@@ -147,7 +164,9 @@ class SchoolImportCommand extends Command
         foreach($schools as $school) {
             $schoolObj = new School();
             $schoolObj->setName($school['School Districts']);
-            $schoolObj->setRegion($this->regionRepository->find($input->getArgument('regionID')));
+            $schoolObj->setRegion($this->regionRepository->find(1));
+            $schoolObj->setSite($this->siteRepository->find(2));
+            $schoolObj->setState($this->stateRepository->find(24));
             $this->entityManager->persist($schoolObj);
         }
 

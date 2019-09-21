@@ -222,17 +222,8 @@ class StateCoordinatorController extends AbstractController
                 $this->entityManager->persist($stateCoordinator);
             }
 
-       /*     $stateCoordinatorRequest = new StateCoordinatorRequest();
-            $stateCoordinatorRequest->setState($stateCoordinator->getState());
-            $stateCoordinatorRequest->setNeedsApprovalBy($stateCoordinator);
-            $stateCoordinatorRequest->setCreatedBy($user);
-            $stateCoordinatorRequest->initializeRequest();
-            $this->entityManager->persist($stateCoordinatorRequest);*/
             $this->entityManager->flush();
-
             $this->securityMailer->sendPasswordSetupForStateCoordinator($stateCoordinator);
-            /*$this->requestsMailer->stateCoordinatorRequest($stateCoordinatorRequest);*/
-
             $this->addFlash('success', 'State coordinator invite sent.');
             return $this->redirectToRoute('state_coordinator_new');
         }

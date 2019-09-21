@@ -87,7 +87,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/professionals.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
@@ -120,7 +120,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/site_admins.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
@@ -153,7 +153,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/state_coordinators.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
@@ -192,7 +192,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/regional_coordinators.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
@@ -237,7 +237,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/school_administrators.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
@@ -287,7 +287,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/students.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
@@ -337,7 +337,7 @@ class ManageUsersController extends AbstractController
             10 /*limit per page*/
         );
 
-        return $this->render('manageUsers/list.html.twig', [
+        return $this->render('manageUsers/educators.html.twig', [
             'user' => $user,
             'pagination' => $pagination
         ]);
