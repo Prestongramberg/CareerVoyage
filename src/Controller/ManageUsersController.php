@@ -294,7 +294,7 @@ class ManageUsersController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/educators", name="manage_educators", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -310,6 +310,23 @@ class ManageUsersController extends AbstractController
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
                 ->setParameter('site', $user->getSite());
+        } elseif ($user->isStateCoordinator()) {
+            $filterBuilder->innerJoin('u.school', 's')
+                ->where('u.site = :site')
+                ->andWhere('s.state = :state')
+                ->setParameter('site', $user->getSite())
+                ->setParameter('state', $user->getState());
+        } elseif ($user->isRegionalCoordinator()) {
+            $filterBuilder->innerJoin('u.school', 's')
+                ->where('u.site = :site')
+                ->andWhere('s.region = :region')
+                ->setParameter('site', $user->getSite())
+                ->setParameter('region', $user->getRegion());
+        } elseif ($user->isSchoolAdministrator()) {
+            $filterBuilder->where('u.site = :site')
+                ->andWhere('u.school = :school')
+                ->setParameter('site', $user->getSite())
+                ->setParameter('school', $user->getSchool());
         }
 
         $filterQuery = $filterBuilder->getQuery();

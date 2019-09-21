@@ -343,7 +343,8 @@ class SchoolController extends AbstractController
 
                     $studentId = $student['Student Id'];
                     $studentObj = $this->studentUserRepository->findOneBy([
-                        'studentId' => $studentId
+                        'studentId' => $studentId,
+                        'school' => $school->getId()
                     ]);
 
                     // only create the student if it doesn't exist
@@ -464,9 +465,9 @@ class SchoolController extends AbstractController
 
                     $educatorId = $educator['Educator Id'];
                     $educatorObj = $this->educatorUserRepository->findOneBy([
-                        'educatorId' => $educatorId
+                        'educatorId' => $educatorId,
+                        'school' => $school->getId()
                     ]);
-
 
                     // only create the educator if it doesn't exist
                     if(!$educatorObj) {
