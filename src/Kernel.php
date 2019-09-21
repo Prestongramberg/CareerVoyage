@@ -26,7 +26,10 @@ class Kernel extends BaseKernel
         //
         //   export VAGRANT=true
         //
-        if (getenv('VAGRANT')) {
+
+        // return '/dev/shm/cache/' . $this->getEnvironment();
+
+        if (file_exists('../.env.local')) {
             return '/dev/shm/cache/' . $this->getEnvironment();
         }
 

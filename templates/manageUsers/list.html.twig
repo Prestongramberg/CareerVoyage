@@ -29,14 +29,14 @@
                     </tr>
 
                     {# table body #}
-                    {% for user in pagination %}
+                    {% for paginatedUser in pagination %}
                         <tr>
-                            <td>{{ user.id }}</td>
-                            <td>{{ user.firstName }}</td>
-                            <td>{{ user.lastName }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.username }}</td>
-                            <td><a href="{{ path('profile_edit', {'id': user.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': user.id}) }}">Delete</a></td>
+                            <td>{{ paginatedUser.id }}</td>
+                            <td>{{ paginatedUser.firstName }}</td>
+                            <td>{{ paginatedUser.lastName }}</td>
+                            <td>{{ paginatedUser.email }}</td>
+                            <td>{{ paginatedUser.username }}</td>
+                            <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>
                         </tr>
                     {% endfor %}
                 </table>

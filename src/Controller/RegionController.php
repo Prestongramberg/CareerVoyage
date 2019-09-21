@@ -95,7 +95,7 @@ class RegionController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Region successfully created.');
-            return $this->redirectToRoute('region_new');
+            return $this->redirectToRoute('dashboard');
         }
 
         return $this->render('region/new.html.twig', [
@@ -140,19 +140,12 @@ class RegionController extends AbstractController
                 $regionalCoordinator->setSite($user->getSite());
                 $this->entityManager->persist($regionalCoordinator);
             }
-/*
-            $regionalCoordinatorRequest = new RegionalCoordinatorRequest();
-            $regionalCoordinatorRequest->setRegion($regionalCoordinator->getRegion());
-            $regionalCoordinatorRequest->setNeedsApprovalBy($regionalCoordinator);
-            $regionalCoordinatorRequest->setCreatedBy($user);
-            $this->entityManager->persist($regionalCoordinatorRequest);*/
-            $this->entityManager->flush();
 
+            $this->entityManager->flush();
             $this->securityMailer->sendPasswordSetupForRegionalCoordinator($regionalCoordinator);
-            /*$this->requestsMailer->regionalCoordinatorRequest($regionalCoordinatorRequest);*/
 
             $this->addFlash('success', 'Regional coordinator invite sent.');
-            return $this->redirectToRoute('regional_coordinator_new');
+            return $this->redirectToRoute('dashboard');
         }
 
         return $this->render('regionalCoordinator/new.html.twig', [

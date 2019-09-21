@@ -24,12 +24,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="uk-card-body">
-                        <p>Welcome to Future Forward! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> to let everyone know your strengths!</p>
-                            <div class="professional-links">
-                                <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                            </div>
-                    </div>
                 </div>
             </div>
 
@@ -39,7 +33,16 @@
             <div class="quick-links-wrapper">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
-                        <h3 class="uk-card-title uk-margin-remove-bottom">Manage Users</h3>
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">Manage Users</h3>
+                            </div>
+                            <div class="uk-width-auto">
+                                <div class="uk-align-right">
+                                    <a href="{{ path('state_coordinator_new') }}" class="uk-button uk-button-primary uk-button-small">Create State Coordinator</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="uk-card-body">
                         <ul class="uk-list uk-list-divider">
@@ -72,11 +75,6 @@
                         <p class="uk-text-meta uk-margin-remove-top">
                             my.futureforward.org
                         </p>
-                    </div>
-                    <div class="uk-card-body">
-                        <ul class="uk-list uk-list-divider">
-                            <li><a href="{{ path('state_coordinator_new') }}" target="_blank">Create new Statewide Coordinator</a></li>
-                        </ul>
                     </div>
                 </div>
             </div>
