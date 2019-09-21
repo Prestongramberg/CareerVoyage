@@ -11,6 +11,7 @@ use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
+use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyPhotoRepository;
@@ -263,6 +264,11 @@ trait ServiceHelper
     private $authenticator;
 
     /**
+     * @var ChatMessageRepository $chatMessageRepository
+     */
+    private $chatMessageRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -306,6 +312,7 @@ trait ServiceHelper
      * @param CompanyExperienceRepository $companyExperienceRepository
      * @param GuardAuthenticatorHandler $guardHandler
      * @param LoginFormAuthenticator $authenticator
+     * @param ChatMessageRepository $chatMessageRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -349,7 +356,8 @@ trait ServiceHelper
         ExperienceRepository $experienceRepository,
         CompanyExperienceRepository $companyExperienceRepository,
         GuardAuthenticatorHandler $guardHandler,
-        LoginFormAuthenticator $authenticator
+        LoginFormAuthenticator $authenticator,
+        ChatMessageRepository $chatMessageRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -393,6 +401,7 @@ trait ServiceHelper
         $this->companyExperienceRepository = $companyExperienceRepository;
         $this->guardHandler = $guardHandler;
         $this->authenticator = $authenticator;
+        $this->chatMessageRepository = $chatMessageRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

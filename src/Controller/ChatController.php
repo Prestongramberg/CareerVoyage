@@ -88,18 +88,32 @@ class ChatController extends AbstractController
     }
 
     /**
-     * @Route("/chats/users/{id}", name="user_chats", methods={"GET"}, options = { "expose" = true })
+     * @Route("/chats/users/{id}/history", name="get_chat_history", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @param User $user
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse
      */
-    public function getUserChats(Request $request, User $user) {
+    public function getChatHistory(Request $request, User $user) {
 
+        /** @var Chat[] $chats */
         $chats = $this->chatRepository->findByUser($user);
 
-        $json = $this->serializer->serialize($chats, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
-        $payload = json_decode($json, true);
+        $payload = [];
+        foreach($chats as $chat) {
+            $data = [];
+            $chatUser = $chat->getUserOne()->getId() === $user->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+            $chatUser = json_decode($this->serializer->serialize($chatUser, 'json', ['groups' => ['CHAT']]), true);
+            $data['user'] = $chatUser;
 
+            $unreadMessages = $this->chatMessageRepository->findBy([
+                'sentTo' => $user,
+                'hasBeenRead' => false
+            ]);
+
+            $data['unread_messages'] = count($unreadMessages);
+            $payload[] = $data;
+        }
+        
         return new JsonResponse(
             [
                 'success' => true,
@@ -107,7 +121,6 @@ class ChatController extends AbstractController
             ],
             Response::HTTP_OK
         );
-
     }
 
     /**
