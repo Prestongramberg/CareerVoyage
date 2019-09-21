@@ -696,14 +696,6 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
 
-        if(!$user instanceof ProfessionalUser) {
-            throw new AccessDeniedException();
-        }
-
-        if(!$user->getCompany()) {
-            return $this->redirectToRoute('company_new');
-        }
-
         $options = [
             'method' => 'POST',
             'company' => $company,
@@ -717,7 +709,6 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Company $company */
             $company = $form->getData();
-            $user->setCompany($company);
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 

@@ -1,0 +1,69 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}School Administrators{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                {% include 'flash/messages.html.twig' %}
+
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('manage_users') }}">Manage Users</a></li>
+                    <li><span>Professionals</span></li>
+                </ul>
+
+                <div class="count">
+                    Total Users: {{ pagination.getTotalItemCount }}
+                </div>
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Company</th>
+                        {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
+                        <th>Edit/Delete</th>
+                    </tr>
+
+                    {# table body #}
+                    {% for paginatedUser in pagination %}
+                        <tr>
+                            <td>{{ paginatedUser.id }}</td>
+                            <td>{{ paginatedUser.firstName }}</td>
+                            <td>{{ paginatedUser.lastName }}</td>
+                            <td>{{ paginatedUser.email }}</td>
+                            <td>{{ paginatedUser.username }}</td>
+                            <td>
+                                {% if paginatedUser.company is defined and paginatedUser.company is not null %}
+                                <a href="{{ path('company_edit', {id: paginatedUser.company.id}) }}">{{ paginatedUser.company.name }}</a>
+                                    {% else %}
+                                    User does not belong to company
+                                {% endif %}
+                            </td>
+                            {% if user.canLoginAsAnotherUser %}
+                                <th>
+                                <form method="post" action="{{ path('login_as_user') }}">
+                                    <input type="hidden" name="userId" value="{{ paginatedUser.id }}">
+                                    <button type="submit">Login</button>
+                                </form>
+                                </th>
+                            {% endif %}
+                            <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                {# display navigation #}
+                <div class="navigation">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

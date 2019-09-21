@@ -55,7 +55,13 @@ class ProfileVoter extends Voter
 
     public static function canEdit(User $userToVoteOn, User $user)
     {
+        // admins can edit everyone!
         if($user->isAdmin()) {
+            return true;
+        }
+
+        // you can always edit your own user account. duhhhhhh
+        if($user->getId() === $userToVoteOn->getId()) {
             return true;
         }
 
@@ -112,6 +118,6 @@ class ProfileVoter extends Voter
             );
         }
 
-        return $user->getId() === $userToVoteOn->getId();
+        return false;
     }
 }

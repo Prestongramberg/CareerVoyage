@@ -8,4 +8,24 @@ App\Entity\StateCoordinator:
     agreed_to_terms_at: <(new DateTime("2018-01-01"))>
     activated: true
     state: <state()>
-    site: '@site_1'
+    site: <site()>
+  state_coordinator_user_2:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_STATE_COORDINATOR_USER", "ROLE_DASHBOARD_USER"]
+    firstName: John
+    lastName: Kytt
+    email: "john-kytt+state-coordinator@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    state: <state()>
+    site: <site()>
+  state_coordinator_user_3:
+    password: <{app.alice.parameters.password}>
+    roles: [ "ROLE_STATE_COORDINATOR_USER", "ROLE_DASHBOARD_USER"]
+    firstName: Tara
+    lastName: Ware
+    email: "tara-ware+state-coordinator@pintex.com"
+    agreed_to_terms_at: <(new DateTime("2018-01-01"))>
+    activated: true
+    state: <state()>
+    site: <site()>

@@ -4,18 +4,23 @@
 namespace App\Util;
 
 
+use App\Entity\CompanyExperience;
 use App\Mailer\FeedbackMailer;
 use App\Mailer\ImportMailer;
+use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\ChatRepository;
+use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
+use App\Repository\ExperienceRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
+use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
@@ -28,6 +33,7 @@ use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRepository;
+use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -36,12 +42,12 @@ use Knp\Component\Pager\PaginatorInterface;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\Asset\Packages;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-
 use Knp\Component\Pager\Paginator;
 
 trait ServiceHelper
@@ -222,6 +228,41 @@ trait ServiceHelper
     private $feedbackMailer;
 
     /**
+     * @var MessageBusInterface $bus
+     */
+    private $bus;
+
+    /**
+     * @var LessonRepository
+     */
+    private $lessonRepository;
+
+    /**
+     * @var RecapMailer
+     */
+    private $recapMailer;
+
+    /**
+     * @var ExperienceRepository
+     */
+    private $experienceRepository;
+
+    /**
+     * @var CompanyExperienceRepository
+     */
+    private $companyExperienceRepository;
+
+    /**
+     * @var GuardAuthenticatorHandler $guardHandler,
+     */
+    private $guardHandler;
+
+    /**
+     * @var LoginFormAuthenticator $authenticator
+     */
+    private $authenticator;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -258,6 +299,13 @@ trait ServiceHelper
      * @param SchoolAdministratorRepository $schoolAdministratorRepository
      * @param StateCoordinatorRepository $stateCoordinatorRepository
      * @param FeedbackMailer $feedbackMailer
+     * @param MessageBusInterface $bus
+     * @param LessonRepository $lessonRepository
+     * @param RecapMailer $recapMailer
+     * @param ExperienceRepository $experienceRepository
+     * @param CompanyExperienceRepository $companyExperienceRepository
+     * @param GuardAuthenticatorHandler $guardHandler
+     * @param LoginFormAuthenticator $authenticator
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -294,7 +342,14 @@ trait ServiceHelper
         SiteAdminUserRepository $siteAdminRepository,
         SchoolAdministratorRepository $schoolAdministratorRepository,
         StateCoordinatorRepository $stateCoordinatorRepository,
-        FeedbackMailer $feedbackMailer
+        FeedbackMailer $feedbackMailer,
+        MessageBusInterface $bus,
+        LessonRepository $lessonRepository,
+        RecapMailer $recapMailer,
+        ExperienceRepository $experienceRepository,
+        CompanyExperienceRepository $companyExperienceRepository,
+        GuardAuthenticatorHandler $guardHandler,
+        LoginFormAuthenticator $authenticator
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -331,6 +386,13 @@ trait ServiceHelper
         $this->schoolAdministratorRepository = $schoolAdministratorRepository;
         $this->stateCoordinatorRepository = $stateCoordinatorRepository;
         $this->feedbackMailer = $feedbackMailer;
+        $this->bus = $bus;
+        $this->lessonRepository = $lessonRepository;
+        $this->recapMailer = $recapMailer;
+        $this->experienceRepository = $experienceRepository;
+        $this->companyExperienceRepository = $companyExperienceRepository;
+        $this->guardHandler = $guardHandler;
+        $this->authenticator = $authenticator;
     }
 
     public function getFullQualifiedBaseUrl() {
@@ -343,7 +405,4 @@ trait ServiceHelper
             $routerContext->getBaseUrl()
         );
     }
-
-
-
 }

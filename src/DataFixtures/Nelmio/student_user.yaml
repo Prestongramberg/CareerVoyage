@@ -9,7 +9,7 @@ App\Entity\StudentUser:
     studentId: <randomNumber(5)>
     schoolEmail: <safeEmail()>
     companiesInterestedIn: ['@company_1', '@company_2']
-    site: '@site_1'
+    site: <site()>
   student_user_1 (extends student_user):
     firstName: Willy
     lastName: Johnson
@@ -30,9 +30,11 @@ App\Entity\StudentUser:
     username: <username()>
     displayName: <name()>
     school: <schoolById(1)>
+    secondaryIndustries: <secondaryIndustry(3)>
   student_user_{11..20} (extends student_user):
     firstName: <firstName()>
     lastName: <lastName()>
     username: <username()>
     displayName: <name()>
     school: <schoolById(2)>
+    secondaryIndustries: <secondaryIndustry(4)>

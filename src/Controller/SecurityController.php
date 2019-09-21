@@ -32,6 +32,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -457,5 +458,59 @@ class SecurityController extends AbstractController
         }
         $this->entityManager->persist($request);
         $this->entityManager->flush();
+    }
+
+    /**
+     * @Route("/login-as-user", name="login_as_user", methods={"POST"})
+     *
+     * @param Request $request
+     * @param SessionInterface $session
+     * @return Response
+     * @throws \Exception
+     */
+    public function loginAsUser(Request $request, SessionInterface $session)
+    {
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
+        $userId = $request->request->get('userId');
+        $user = $this->userRepository->find($userId);
+
+        if(!$user) {
+            throw new \Exception("User not found");
+        }
+
+        if($previouslyLoggedInAs = $session->get('previouslyLoggedInAs', null)) {
+
+            if($previouslyLoggedInAs['userId'] != $userId) {
+                throw new \Exception("Error processing request.");
+            }
+
+            /** @var User $user */
+            $user = $this->userRepository->find($userId);
+            if(!$user->canLoginAsAnotherUser()) {
+                throw new \Exception("You are not allowed to login as another user.");
+            }
+
+            $session->remove('previouslyLoggedInAs');
+        } else {
+            if(!$loggedInUser->canLoginAsAnotherUser()) {
+                throw new \Exception("You are not allowed to login as another user.");
+            }
+
+            // double check permissions to make sure the logged in user can switch to that user's account
+            $this->denyAccessUnlessGranted('edit', $user);
+
+            $session->set('previouslyLoggedInAs', [
+                'userId' => $loggedInUser->getId(),
+                'fullName' => $loggedInUser->getFullName()
+            ]);
+        }
+
+        return $this->guardHandler->authenticateUserAndHandleSuccess(
+            $user,
+            $request,
+            $this->authenticator,
+            'main' // firewall name in security.yaml
+        );
     }
 }

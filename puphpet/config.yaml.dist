@@ -45,7 +45,7 @@ vagrantfile:
                 group: vagrant
                 source: ./
                 target: /var/www
-                sync_type: rsync
+                sync_type: nfs
                 smb:
                     smb_host: ''
                     smb_username: ''
@@ -241,6 +241,7 @@ php:
             - sqlite
             - soap
             - zip
+            - amqp
         pear: {  }
         pecl: {  }
     ini:

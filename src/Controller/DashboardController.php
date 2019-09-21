@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -99,9 +100,10 @@ class DashboardController extends AbstractController
     /**
      * @Route("/", name="dashboard", methods={"GET"})
      * @param Request $request
+     * @param SessionInterface $session
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction(Request $request) {
+    public function indexAction(Request $request, SessionInterface $session) {
 
         $user = $this->getUser();
 

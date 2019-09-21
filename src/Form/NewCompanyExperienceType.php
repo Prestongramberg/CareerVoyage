@@ -110,7 +110,6 @@ class NewCompanyExperienceType extends AbstractType
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
             'label' => false,
-            'mapped' => false,
             'allow_add' => true,
         ]);
 
