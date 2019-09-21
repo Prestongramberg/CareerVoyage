@@ -44,17 +44,7 @@ class CreateRegionFormType extends AbstractType
         /** @var User $loggedInUser */
         $loggedInUser = $options['loggedInUser'];
 
-        $builder->add('name', TextType::class)
-            ->add('state', EntityType::class, [
-                'class' => State::class,
-                'choice_label' => 'name',
-                'expanded'  => false,
-                'multiple'  => false,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('s');
-                },
-            ])
-            ->add('submit', SubmitType::class);
+        $builder->add('name', TextType::class);
 
 
         if($loggedInUser->isAdmin()) {

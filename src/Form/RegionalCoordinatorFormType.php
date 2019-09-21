@@ -55,8 +55,7 @@ class RegionalCoordinatorFormType extends AbstractType
                         ->where('r.site = :site')
                         ->setParameter('site', $site);
                 },
-            ])
-            ->add('submit', SubmitType::class);
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

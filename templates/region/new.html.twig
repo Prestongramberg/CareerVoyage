@@ -1,12 +1,42 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}New Region{% endblock %}
-{% block bodyClass %}page-create-region{% endblock %}
+{% block title %}New State Coordinator{% endblock %}
+{% block bodyClass %}page-state-coordinator{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
-        {{ form_row(form.name) }}
-        {{ form_row(form.state) }}
-        {{ form_row(form.submit) }}
-    {{ form_end(form) }}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    {% include 'flash/messages.html.twig' %}
+
+                    <h3>Create a new Region</h3>
+
+                    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+                    {% if form_errors(form) %}
+                        <div class="uk-alert-danger" uk-alert>
+                            <a class="uk-alert-close" uk-close></a>
+                            <div>{{ form_errors(form) }}</div>
+                        </div>
+                    {% endif %}
+
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.name, 'Name*') }}
+                            {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Create new Region</button>
+                        </div>
+                    </fieldset>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
