@@ -1,0 +1,17 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+{# Relevant Lessons #}
+<h2>New Lessons</h2>
+{% for lesson in lessons %}
+    <p>Title: <strong>{{ lesson.title }}</strong></p>
+    <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
+{% endfor %}
+
+{# Relevant Events #}
+<h2>New Events</h2>
+{% for experience in experiences %}
+    <p>Title: <strong>{{ experience.title }}</strong></p>
+    <p>Brief Description: <strong>{{ experience.brief_description }}</strong></p>
+{% endfor %}
+
+{% include 'email/partial/emailFooter.html.twig' %}

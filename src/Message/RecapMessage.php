@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Message;
+
+
+class RecapMessage
+{
+    private $userId;
+
+    public function __construct(int $userId)
+    {
+        $this->userId = $userId;
+    }
+
+    public function getUserId(): int
+    {
+        return $this->userId;
+    }
+}

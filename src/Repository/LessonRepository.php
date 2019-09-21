@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lesson;
+use App\Entity\SecondaryIndustry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,28 @@ class LessonRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param SecondaryIndustry $secondaryIndustries []
+     * @param int $limit
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySecondaryIndustries($secondaryIndustries, $limit = 6) {
+
+        $whereClause = [];
+        foreach($secondaryIndustries as $secondaryIndustry) {
+            $whereClause[] = sprintf("secondary_industry_id = %s", $secondaryIndustry->getId());
+        }
+
+        $whereClause = !empty($whereClause) ? sprintf('WHERE %s', implode(" OR ", $whereClause)) : '';
+
+        $query = sprintf("select l.id, l.title, l.short_description from lesson l inner join lesson_secondary_industry lsi on l.id = lsi.lesson_id %s GROUP BY l.id order by l.created_at DESC LIMIT %s", $whereClause, $limit);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
 }

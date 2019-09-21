@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\EducatorUser;
+use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -56,5 +57,25 @@ class EducatorUserRepository extends ServiceEntityRepository
     public function findByUniqueCriteria(array $criteria)
     {
         return $this->_em->getRepository(User::class)->findBy($criteria);
+    }
+
+    /**
+     * @param SecondaryIndustry $secondaryIndustries[]
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySecondaryIndustries($secondaryIndustries) {
+
+        $whereClause = [];
+        foreach($secondaryIndustries as $secondaryIndustry) {
+            $whereClause[] = sprintf("secondary_industry_id = %s", $secondaryIndustry->getId());
+        }
+
+        $query = sprintf("select eu.id, u.first_name, u.last_name, u.email from educator_user eu inner join educator_user_secondary_industry si on eu.id = si.educator_user_id inner join user u on eu.id = u.id WHERE %s GROUP BY eu.id", implode(" OR ", $whereClause));
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 }
