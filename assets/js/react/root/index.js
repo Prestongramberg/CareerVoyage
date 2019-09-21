@@ -1,4 +1,5 @@
 require('./bar-chart');
+require('./chat');
 require('./events-calendar');
 require('./horizontal-bar-chart');
 require('./searchable-company-listing');

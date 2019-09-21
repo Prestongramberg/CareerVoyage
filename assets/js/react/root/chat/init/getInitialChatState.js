@@ -1,5 +1,7 @@
 export default function getInitialChatState() {
     return {
-        loading: true
+        endpoints: {
+            "getChatHistory": window.Routing.generate("getChatHistory")
+        }
     }
 }

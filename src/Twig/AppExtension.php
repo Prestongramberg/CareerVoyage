@@ -63,7 +63,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('validate_url', [$this, 'validateUrl']),
             new TwigFunction('excerpt_length', [$this, 'excerptLength']),
             new TwigFunction('ucwords', [$this, 'ucwords']),
-            new TwigFunction('user_can_edit_user', [$this, 'userCanEditUser'])
+            new TwigFunction('user_can_edit_user', [$this, 'userCanEditUser']),
+            new TwigFunction('get_env', [$this, 'getEnv'])
         ];
     }
 
@@ -130,5 +131,9 @@ class AppExtension extends AbstractExtension
 
     public function userCanEditUser( User $user, User $userToVoteOn ) {
         return ProfileVoter::canEdit( $userToVoteOn, $user );
+    }
+
+    public function getEnv( $variable ) {
+        return $_ENV[ $variable ];
     }
 }

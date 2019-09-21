@@ -4,20 +4,20 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialChatState } from "./init";
+import { getInitialChatState, getInitialUiState } from "./init";
 import App from "./App";
 
 const chat = document.getElementById("react-chat");
 
 if( chat ) {
 
-    const unseenMessages = parseInt(chat.getAttribute("data-unseen-messages"));
+    const unreadMessages = parseInt(chat.getAttribute("data-unread-messages"));
 
     const store = createStore(
         reducers,
         {
             chat: getInitialChatState(),
-            events: []
+            ui: getInitialUiState( unreadMessages )
         },
         compose(
             applyMiddleware(thunk),
@@ -28,7 +28,7 @@ if( chat ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App unseenMessages={ unseenMessages } />
+                <App />
             </Provider>,
             chat
         );

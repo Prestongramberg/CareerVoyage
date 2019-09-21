@@ -19,7 +19,7 @@
     {% endblock %}
 
 </head>
-<body class="authenticated {% block bodyClass %}{% endblock %}">
+<body class="authenticated {% block bodyClass %}{% endblock %} {% if get_env('APP_ENV') == "dev" %}development{% endif %}">
 
     <div class="wrapper">
         {% include 'nav/primary.html.twig' %}
@@ -44,6 +44,10 @@
                 <!-- dynamically populated by JS -->
             </div>
         </div>
+
+        <div id="react-chat" data-unread-messages="8"></div>
+
+    </div>
 
     {% block javascripts %}
 
