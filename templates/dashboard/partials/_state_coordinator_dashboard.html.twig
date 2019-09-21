@@ -73,6 +73,30 @@
                             {{ user.state.name|capitalize }}
                         </p>
                     </div>
+                    <div class="uk-card-body">
+                        <ul class="uk-list uk-list-divider">
+                            <li>
+                                <a href="{{ path('region_new') }}">Create a Region</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('regional_coordinator_new') }}">Create a Regional Coordinator</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="uk-card uk-card-default uk-margin">
+                    <div class="uk-card-header">
+                        <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.state.name }} Regions</h3>
+                    </div>
+                    <div class="uk-card-body">
+                        <ul class="uk-list">
+                            {% for region in user.site.regions %}
+                                {% if region.state.name == user.state.name %}
+                                    <li>{{ region.name|capitalize }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
