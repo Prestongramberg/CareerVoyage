@@ -1,4 +1,5 @@
 clone this repo
+$ cp ./puphpet/config.yaml.dist /puphpet/config.yaml
 vagrant up
 vagrant ssh
 You will need to install a php extension Mysql_xdevapi https://www.php.net/manual/en/mysql-xdevapi.installation.php
