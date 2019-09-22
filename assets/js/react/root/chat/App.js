@@ -129,7 +129,7 @@ class App extends React.Component {
                             </div>
                         ))
                     ) : (
-                        <div>No results found.</div>
+                        <div>No users found. Please modify your search below.</div>
                     )}
                 </div>
                 <div className={`${cb}__window-chat-search-bar`}>
