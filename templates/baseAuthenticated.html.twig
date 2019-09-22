@@ -54,8 +54,6 @@
         <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
         <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
-        {{ encore_entry_script_tags('app') }}
-
         <script>
             /**
              * Global constants
@@ -76,7 +74,14 @@
              */
             SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
 
+            /**
+             * LOGGED in User
+             */
+            SETTINGS.LOGGED_IN_USER_ID = {{ user.id }};
+
         </script>
+
+        {{ encore_entry_script_tags('app') }}
 
     {% endblock %}
 </body>

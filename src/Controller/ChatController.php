@@ -113,7 +113,7 @@ class ChatController extends AbstractController
             $data['unread_messages'] = count($unreadMessages);
             $payload[] = $data;
         }
-        
+
         return new JsonResponse(
             [
                 'success' => true,

@@ -9,7 +9,17 @@
   z-index: 10000000;
 
   &__window {
+    background: #FFF;
     height: 0;
+    transition: none;
+  }
+
+  &__window--active {
+    box-sizing: border-box;
+    height: 350px;
+    overflow: auto;
+    padding: 15px;
+    transition: height 0.5s ease;
   }
 
   &__bar {
@@ -39,6 +49,26 @@
     flex: 1;
     font-size: 15px;
     padding-left: 12px;
+  }
+
+  &__nav {
+    display: flex;
+  }
+
+  &__nav-history {
+
+  }
+
+  &__nav-search {
+
+  }
+
+  &__window-chat {
+    font-size: 12px;
+  }
+
+  &__window-thread {
+    font-size: 12px;
   }
 
 }
