@@ -1,5 +1,12 @@
-export default function getInitialChatState() {
+export default function getInitialChatState( unreadMessages ) {
     return {
-        loading: true
+        currentMessage: "",
+        chatId: 0,
+        foundUsersInSearch: [],
+        messages: [],
+        searchTerm: "",
+        unreadMessages: unreadMessages,
+        usersHistory: [],
+        userEngagedWith: {},
     }
 }

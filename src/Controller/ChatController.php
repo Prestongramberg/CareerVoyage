@@ -104,12 +104,18 @@ class ChatController extends AbstractController
         foreach($chats as $chat) {
             $data = [];
             $chatUser = $chat->getUserOne()->getId() === $user->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+
+            if( $chatUser->getId() === $this->getUser()->getId() ) {
+                continue;
+            }
+
             $chatUser = json_decode($this->serializer->serialize($chatUser, 'json', ['groups' => ['CHAT']]), true);
             $data['user'] = $chatUser;
 
             $unreadMessages = $this->chatMessageRepository->findBy([
                 'sentTo' => $user,
-                'hasBeenRead' => false
+                'hasBeenRead' => false,
+                'chat' => $chat
             ]);
 
             $data['unread_messages'] = count($unreadMessages);
@@ -202,10 +208,12 @@ class ChatController extends AbstractController
      */
     public function createOrGetChat(Request $request) {
 
+        /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
         // the user id whom you want to message
-        $userId = $request->request->get('userId');
+        $data = json_decode($request->getContent(), true);
+        $userId = $data["userId"];
         $user = $this->userRepository->find($userId);
 
         $chat = $this->chatRepository->findOneBy([
@@ -227,6 +235,15 @@ class ChatController extends AbstractController
             $chat->setUserTwo($loggedInUser);
             $this->entityManager->persist($chat);
             $this->entityManager->flush();
+        }
+
+        // let's go ahead and mark any messages in the chat that have been sent to you as read
+        foreach($chat->getMessages() as $message) {
+            if($message->getSentTo()->getId() === $loggedInUser->getId()) {
+                $message->setHasBeenRead(true);
+                $this->entityManager->persist($message);
+                $this->entityManager->flush();
+            }
         }
 
         $json = $this->serializer->serialize($chat, 'json', ['groups' => ['CHAT', 'MESSAGE']]);
@@ -320,7 +337,8 @@ class ChatController extends AbstractController
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
-        $body = $request->request->get('message');
+        $data = json_decode($request->getContent(), true);
+        $body = $data["message"];
         $message = new ChatMessage();
         $message->setBody($body);
         $message->setSentFrom($loggedInUser);

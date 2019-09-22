@@ -19,7 +19,7 @@
     {% endblock %}
 
 </head>
-<body class="authenticated {% block bodyClass %}{% endblock %}">
+<body class="authenticated {% block bodyClass %}{% endblock %} {% if get_env('APP_ENV') == "dev" %}development{% endif %}">
 
     <div class="wrapper">
         {% include 'nav/primary.html.twig' %}
@@ -45,12 +45,14 @@
             </div>
         </div>
 
+        <div id="react-chat" data-unread-messages="{{ unread_messages( user.id ) }}" data-user-id="{{ user.id }}"></div>
+
+    </div>
+
     {% block javascripts %}
 
         <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
         <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
-
-        {{ encore_entry_script_tags('app') }}
 
         <script>
             /**
@@ -72,7 +74,19 @@
              */
             SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
 
+            /**
+             * LOGGED in User
+             */
+            SETTINGS.LOGGED_IN_USER_ID = {{ user.id }};
+
+            /**
+             * Photo of User
+             */
+            SETTINGS.LOGGED_IN_USER_PHOTO = "{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}";
+
         </script>
+
+        {{ encore_entry_script_tags('app') }}
 
     {% endblock %}
 </body>
