@@ -6,6 +6,7 @@ export function baseFetch(url, options = {}) {
             "Content-Type": "application/json"
         }
     }
+
     if (options.body) {
         options.body = JSON.stringify(options.body)
     }

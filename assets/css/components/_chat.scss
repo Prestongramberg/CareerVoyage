@@ -11,13 +11,14 @@
   &__window {
     background: #FFF;
     height: 0;
+    position: relative;
     transition: none;
   }
 
   &__window--active {
     box-sizing: border-box;
     height: 350px;
-    overflow: auto;
+    overflow: hidden;
     padding: 15px;
     transition: height 0.5s ease;
   }
@@ -65,10 +66,153 @@
 
   &__window-chat {
     font-size: 12px;
+
+    .uk-tab {
+      margin-bottom: 10px;
+    }
+  }
+
+  &__window-chat-history {
+    height: calc(350px - 30px - 32px - 10px);
+    overflow: auto;
+  }
+
+  &__window-chat-thread {
+    align-items: center;
+    cursor: pointer;
+    cursor: hand;
+    display: flex;
+    padding: 5px 0;
+  }
+
+  &__window-chat-thread-image {
+    width: 30px;
+  }
+
+  &__window-chat-thread-name {
+    padding: 0 8px 0 15px;
+  }
+
+  &__window-chat-thread-unread {
+    background: red;
+    border-radius: 8px;
+    color: #FFF;
+    font-size: 10px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    width: 16px;
   }
 
   &__window-thread {
     font-size: 12px;
+    height: calc( 350px - 30px);
+    margin: 0 -15px;
+    overflow: auto;
+  }
+
+  &__window-thread-nav {
+    align-items: center;
+    background: #FFF;
+    box-sizing: border-box;
+    cursor: pointer;
+    cursor: hand;
+    display: flex;
+    height: 47px;
+    padding: 15px 15px 8px 15px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  &__window-thread-chatting-with {
+    background: #dddddd;
+    color: #000;
+    height: 28px;
+    left: 0;
+    line-height: 28px;
+    padding: 0 15px;
+    position: absolute;
+    right: 0;
+    top: calc(32px + 15px); // for padding
+    width: 100%;
+  }
+
+  &__window-thread-messages {
+    overflow: auto;
+    padding: 75px 15px 46px 15px;
+  }
+
+  &__window-thread-message {
+    display: flex;
+    justify-content: flex-end;
+
+    &--from {
+      justify-content: flex-start;
+    }
+  }
+
+  &__window-thread-message-text {
+    background: #1e87f0;
+    border-radius: 8px;
+    color: #FFF;
+    margin-bottom: 4px;
+    padding: 3px 8px;
+
+    &--from {
+      background: #e5e5e5;
+      color: #777;
+    }
+  }
+
+  &__window-thread-form {
+    align-items: center;
+    background: #FFF;
+    bottom: 0;
+    display: flex;
+    left: 0;
+    padding: 0 15px 6px 15px;
+    position: absolute;
+    right: 0;
+  }
+
+  &__window-thread-form-send {
+    text-align: center;
+    width: 25%;
+  }
+
+  &__window-thread-form-input {
+    flex: 1;
+  }
+
+  &__window-chat-search {
+    height: calc(350px - 30px - 32px - 46px);
+    overflow: auto;
+  }
+
+  &__window-chat-search-users {
+    overflow: auto;
+    padding: 75px 15px 46px 15px;
+  }
+
+  &__window-chat-search-bar {
+    align-items: center;
+    background: #FFF;
+    bottom: 0;
+    display: flex;
+    left: 0;
+    padding: 0 15px 6px 15px;
+    position: absolute;
+    right: 0;
+  }
+
+  &__window-chat-search-send {
+    text-align: center;
+    width: 25%;
+  }
+
+  &__window-chat-search-send {
+    flex: 1;
   }
 
 }

@@ -66,14 +66,16 @@ class Loader extends Component {
         };
 
         return (
-            <div className={`${cb}`} style={ style }>
+            <div className={`${cb} ${cb}--${this.props.size}`} style={ style }>
                 Loading...
             </div>
         );
     }
 }
 
-Loader.propTypes = {};
+Loader.propTypes = {
+    size: PropTypes.string
+};
 Loader.defaultProps = {};
 
 export default Loader;

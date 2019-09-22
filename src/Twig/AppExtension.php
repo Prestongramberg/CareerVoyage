@@ -9,7 +9,10 @@ use App\Entity\Company;
 use App\Entity\Experience;
 use App\Entity\Lesson;
 use App\Entity\User;
+use App\Repository\ChatMessageRepository;
+use App\Repository\ChatRepository;
 use App\Repository\RequestRepository;
+use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -36,19 +39,37 @@ class AppExtension extends AbstractExtension
     private $requestRepository;
 
     /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
+     * @var ChatRepository
+     */
+    private $chatRepository;
+
+    /**
+     * @var ChatMessageRepository
+     */
+    private $chatMessageRepository;
+
+    /**
      * AppExtension constructor.
      * @param UploaderHelper $uploadHelper
      * @param SerializerInterface $serializer
      * @param RequestRepository $requestRepository
+     * @param UserRepository $userRepository
+     * @param ChatRepository $chatRepository
+     * @param ChatMessageRepository $chatMessageRepository
      */
-    public function __construct(
-        UploaderHelper $uploadHelper,
-        SerializerInterface $serializer,
-        RequestRepository $requestRepository
-    ) {
+    public function __construct(UploaderHelper $uploadHelper, SerializerInterface $serializer, RequestRepository $requestRepository, UserRepository $userRepository, ChatRepository $chatRepository, ChatMessageRepository $chatMessageRepository)
+    {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
         $this->requestRepository = $requestRepository;
+        $this->userRepository = $userRepository;
+        $this->chatRepository = $chatRepository;
+        $this->chatMessageRepository = $chatMessageRepository;
     }
 
     public function getFunctions(): array
@@ -64,7 +85,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('excerpt_length', [$this, 'excerptLength']),
             new TwigFunction('ucwords', [$this, 'ucwords']),
             new TwigFunction('user_can_edit_user', [$this, 'userCanEditUser']),
-            new TwigFunction('get_env', [$this, 'getEnv'])
+            new TwigFunction('get_env', [$this, 'getEnv']),
+            new TwigFunction('unread_messages', [$this, 'unreadMessages'])
         ];
     }
 
@@ -135,5 +157,11 @@ class AppExtension extends AbstractExtension
 
     public function getEnv( $variable ) {
         return $_ENV[ $variable ];
+    }
+
+    public function unreadMessages( $userId ) {
+        $user = $this->userRepository->find($userId);
+        $unreadMessages = $this->chatMessageRepository->findBy(['sentTo' => $user,'hasBeenRead' => false]);
+        return count($unreadMessages);
     }
 }

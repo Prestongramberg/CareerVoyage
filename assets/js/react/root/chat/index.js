@@ -12,12 +12,13 @@ const chat = document.getElementById("react-chat");
 if( chat ) {
 
     const unreadMessages = parseInt(chat.getAttribute("data-unread-messages"));
+    const userId = parseInt(chat.getAttribute("data-user-id"));
 
     const store = createStore(
         reducers,
         {
-            chat: getInitialChatState(),
-            ui: getInitialUiState( unreadMessages )
+            chat: getInitialChatState( unreadMessages ),
+            ui: getInitialUiState()
         },
         compose(
             applyMiddleware(thunk),
@@ -28,7 +29,7 @@ if( chat ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App />
+                <App userId={userId} />
             </Provider>,
             chat
         );
