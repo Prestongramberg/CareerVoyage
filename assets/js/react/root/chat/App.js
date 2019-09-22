@@ -16,7 +16,8 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        Pusher.logToConsole = true;
+
+        // Pusher.logToConsole = true;
 
         const socket = new Pusher('3b8e318e4abe6c429446', {
             cluster: 'us2',
@@ -116,7 +117,20 @@ class App extends React.Component {
         return (
             <div className={`${cb}__window-chat-search`}>
                 <div className={`${cb}__window-chat-search-users`}>
-                    Users...
+                    {this.props.chat.foundUsersInSearch.length ? (
+                        this.props.chat.foundUsersInSearch.map((user) => (
+                            <div key={ user.id } className={`${cb}__window-chat-thread`} onClick={ () => { this.showUserThread( user.id ) } } >
+                                <div className={`${cb}__window-chat-thread-image`}>
+                                    <img src={ window.SETTINGS.LOGGED_IN_USER_PHOTO } />
+                                </div>
+                                <div className={`${cb}__window-chat-thread-name`}>
+                                    { user.first_name } { user.last_name }
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div>No results found.</div>
+                    )}
                 </div>
                 <div className={`${cb}__window-chat-search-bar`}>
                     <div className={`${cb}__window-chat-search-bar-input`}>

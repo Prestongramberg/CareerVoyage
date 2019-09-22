@@ -64,7 +64,10 @@ export default (state = {}, action) => {
             }
 
         case actionTypes.SEARCH_SUCCESS:
-            return state
+            return {
+                ...state,
+                foundUsersInSearch: action.users
+            }
 
         default:
             return state;

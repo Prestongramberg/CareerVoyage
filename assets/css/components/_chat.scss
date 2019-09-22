@@ -6,7 +6,7 @@
   position: fixed;
   right: 70px;
   width: 260px;
-  z-index: 10000000;
+  z-index: 999;
 
   &__window {
     background: #FFF;
@@ -87,6 +87,10 @@
 
   &__window-chat-thread-image {
     width: 30px;
+
+    img {
+      border-radius: 15px;
+    }
   }
 
   &__window-chat-thread-name {
@@ -178,7 +182,6 @@
 
   &__window-thread-form-send {
     text-align: center;
-    width: 25%;
   }
 
   &__window-thread-form-input {
@@ -192,7 +195,7 @@
 
   &__window-chat-search-users {
     overflow: auto;
-    padding: 75px 15px 46px 15px;
+    padding: 0;
   }
 
   &__window-chat-search-bar {
@@ -206,12 +209,11 @@
     right: 0;
   }
 
-  &__window-chat-search-send {
+  &__window-chat-search-bar-send {
     text-align: center;
-    width: 25%;
   }
 
-  &__window-chat-search-send {
+  &__window-chat-search-bar-input {
     flex: 1;
   }
 

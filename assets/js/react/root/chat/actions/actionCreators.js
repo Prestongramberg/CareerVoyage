@@ -100,6 +100,7 @@ export function loadChatHistory() {
 }
 
 export function loadThread( userId, refresh = false ) {
+
     return (dispatch, getState) => {
 
         const url = window.Routing.generate("create_or_get_chat")
@@ -110,7 +111,7 @@ export function loadThread( userId, refresh = false ) {
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {
                     const data = response.responseBody.data;
-                    const engagedUser = data.userOne.id === userId ? data.userOne : data.userTwo;
+                    const engagedUser = parseInt(data.userOne.id ) === parseInt( userId ) ? data.userOne : data.userTwo;
                     dispatch({type: actionTypes.LOADING_THREAD_SUCCESS, messages: data.messages, chatId: data.id, userEngagedWith: engagedUser })
                 }  else {
                     dispatch({
@@ -159,19 +160,17 @@ export function sendMessage( message, chatId ) {
     }
 }
 
-export function search( searchTerm ) {
+export function search( search ) {
     return (dispatch, getState) => {
 
-        const url = window.Routing.generate("search_chat_users" )
-
-        debugger;
+        const url = window.Routing.generate("search_chat_users", { search: search } )
 
         dispatch({type: actionTypes.SEARCH})
 
-        return api.get(url, { search: searchTerm })
+        return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.SEARCH_SUCCESS, users: response.responseBody })
+                    dispatch({type: actionTypes.SEARCH_SUCCESS, users: response.responseBody.data })
                 }  else {
                     dispatch({
                         type: actionTypes.SEARCH_FAILURE
@@ -179,7 +178,7 @@ export function search( searchTerm ) {
                     window.Pintex.notification("Something went wrong, please try again.");
                 }
             })
-            .catch(()=> {
+            .catch((e)=> {
                 dispatch({
                     type: actionTypes.SEARCH_FAILURE
                 })
