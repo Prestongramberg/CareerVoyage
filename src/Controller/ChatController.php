@@ -7,6 +7,7 @@ use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
@@ -17,6 +18,7 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
 use App\Entity\StateCoordinator;
 use App\Entity\StateCoordinatorRequest;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -113,7 +115,50 @@ class ChatController extends AbstractController
             $data['unread_messages'] = count($unreadMessages);
             $payload[] = $data;
         }
-        
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload,
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/chats/search-users", name="search_chat_users", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function searchChatUsers(Request $request, User $user) {
+
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
+
+
+        /** @var StudentUser|EducatorUser $loggedInUser */
+    /*    if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+            $educatorUsers = $this->educatorUserRepository->findBy(['school' => $loggedInUser->getSchool()]);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBy(['schools' => $loggedInUser->getSchool()]);
+            $studentUsers = $this->studentUserRepository->findBy(['school' => $loggedInUser->getSchool()]);
+        }
+
+        if($loggedInUser->isProfessional()) {
+
+        }
+
+        */
+        $users = $this->userRepository->findAll();
+        $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA"']]), true);
+
+
+        /*$search = $request->query->get('search');
+        $users = $this->userRepository->searchChatUsers($search, $user);
+        $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA"']]), true);
+
+        */
+
         return new JsonResponse(
             [
                 'success' => true,

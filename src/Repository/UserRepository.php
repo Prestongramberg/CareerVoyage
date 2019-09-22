@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lesson;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -144,5 +145,28 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('id', $lesson->getId())
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param $search
+     * @param User $user
+     * @return mixed
+     */
+    public function searchChatUsers($search, User $user) {
+
+        $query = $this->createQueryBuilder('u');
+
+        /** @var StudentUser $user */
+        if($user->isStudent()) {
+            $query->where('u.roles LIKE :roles')
+                ->andWhere('u.')
+                ->setParameter('roles', '%"'.User::ROLE_EDUCATOR_USER.'"%');
+        }
+
+
+           /* ->where('u.firstName LIKE :searchTerm OR u.lastName LIKE :searchTerm')
+            ->setParameter('searchTerm', '%'.$search.'%')
+            ->getQuery()
+            ->getResult();*/
     }
 }
