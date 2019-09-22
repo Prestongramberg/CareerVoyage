@@ -9,6 +9,7 @@ use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SecondaryIndustry;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
 use App\Util\FormHelper;
@@ -55,6 +56,8 @@ class EducatorEditProfileFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        /** @var EducatorUser $educator */
+        $educator = $options['educator'];
 
         $builder
             ->add('firstName', TextType::class, [
@@ -114,6 +117,21 @@ class EducatorEditProfileFormType extends AbstractType
             }
         ));
 
+        $builder->add('studentUsers', EntityType::class, [
+            'class' => StudentUser::class,
+            'multiple' => true,
+            'expanded' => true,
+            'choice_label' => function (StudentUser $student) {
+                return $student->getFullName();
+            },
+            'query_builder' => function (EntityRepository $er) use ($educator) {
+                return $er->createQueryBuilder('s')
+                    ->where('s.school = :school')
+                    ->setParameter('school', $educator->getSchool())
+                    ->orderBy('s.firstName', 'ASC');
+            }
+            ]);
+
         $builder->get('secondaryIndustries')
             ->addModelTransformer(new CallbackTransformer(
                 function ($secondaryIndustries) {
@@ -155,7 +173,8 @@ class EducatorEditProfileFormType extends AbstractType
         ]);
 
         $resolver->setRequired([
-            'skip_validation'
+            'skip_validation',
+            'educator'
         ]);
     }
 

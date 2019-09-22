@@ -73,12 +73,17 @@ class StudentUser extends User
      */
     private $site;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\EducatorUser", mappedBy="studentUsers")
+     */
+    private $educatorUsers;
 
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
         $this->companiesInterestedIn = new ArrayCollection();
+        $this->educatorUsers = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -237,6 +242,34 @@ class StudentUser extends User
     public function setSite(?Site $site): self
     {
         $this->site = $site;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorUser[]
+     */
+    public function getEducatorUsers(): Collection
+    {
+        return $this->educatorUsers;
+    }
+
+    public function addEducatorUser(EducatorUser $educatorUser): self
+    {
+        if (!$this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers[] = $educatorUser;
+            $educatorUser->addStudentUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorUser(EducatorUser $educatorUser): self
+    {
+        if ($this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers->removeElement($educatorUser);
+            $educatorUser->removeStudentUser($this);
+        }
 
         return $this;
     }
