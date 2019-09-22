@@ -128,36 +128,61 @@ class ChatController extends AbstractController
     /**
      * @Route("/chats/search-users", name="search_chat_users", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
-     * @param User $user
      * @return JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function searchChatUsers(Request $request, User $user) {
+    public function searchChatUsers(Request $request) {
 
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
+        $users = [];
+        $search = $request->query->get('search');
 
-
-        /** @var StudentUser|EducatorUser $loggedInUser */
-    /*    if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
-            $educatorUsers = $this->educatorUserRepository->findBy(['school' => $loggedInUser->getSchool()]);
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBy(['schools' => $loggedInUser->getSchool()]);
-            $studentUsers = $this->studentUserRepository->findBy(['school' => $loggedInUser->getSchool()]);
+        /**
+         * Students can message
+         * 1. Educators that are part of the same school
+         * 2. School administrators that are part of the same school
+         * 3. Students that are part of the same school
+         * @var StudentUser $loggedInUser
+         */
+        if($loggedInUser->isStudent()) {
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers);
         }
 
+        /**
+         * Educators can message
+         * 1. Educators that are part of the same school
+         * 2. School administrators that are part of the same school
+         * 3. Students that are part of the same school
+         * 4. All Professional Users
+         * @var EducatorUser $loggedInUser
+         */
+        if($loggedInUser->isEducator()) {
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
+        }
+
+        /**
+         * Professionals can message
+         * 1. All educators on the platform
+         * 2. All school administrators
+         * 4. All Professional Users
+         * @var ProfessionalUser $loggedInUser
+         */
         if($loggedInUser->isProfessional()) {
-
+            $educatorUsers = $this->educatorUserRepository->findBySearchTerm($search);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
+            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+            $users = array_merge($educatorUsers, $schoolAdministrators, $professionalUsers);
         }
 
-        */
-        $users = $this->userRepository->findAll();
         $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA"']]), true);
-
-
-        /*$search = $request->query->get('search');
-        $users = $this->userRepository->searchChatUsers($search, $user);
-        $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA"']]), true);
-
-        */
 
         return new JsonResponse(
             [

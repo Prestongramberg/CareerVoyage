@@ -47,4 +47,19 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param $search
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTerm($search) {
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_PROFESSIONAL_USER" as role from user u inner join professional_user pu on u.id = pu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

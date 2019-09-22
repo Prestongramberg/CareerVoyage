@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\EducatorUser;
+use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -72,6 +73,39 @@ class EducatorUserRepository extends ServiceEntityRepository
         }
 
         $query = sprintf("select eu.id, u.first_name, u.last_name, u.email from educator_user eu inner join educator_user_secondary_industry si on eu.id = si.educator_user_id inner join user u on eu.id = u.id WHERE %s GROUP BY eu.id", implode(" OR ", $whereClause));
+
+        $em = $this->getEntityManager();
+        $stmt = $em->
+        getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * @param $search
+     * @param School $school
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTermAndSchool($search, School $school) {
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role from user u inner join educator_user eu on u.id = eu.id where eu.school_id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
+            $school->getId(), $search);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * @param $search
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTerm($search) {
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role from user u inner join educator_user eu on u.id = eu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
