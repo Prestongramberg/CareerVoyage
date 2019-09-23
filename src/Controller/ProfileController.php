@@ -106,6 +106,7 @@ class ProfileController extends AbstractController
             /** @var SchoolAdministrator $user */
         } elseif (($user->isEducator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $options['educator'] = $user;
             $form = $this->createForm(EducatorEditProfileFormType::class, $user, $options);
             /** @var EducatorUser $user */
         } elseif (($user->isStudent())) {

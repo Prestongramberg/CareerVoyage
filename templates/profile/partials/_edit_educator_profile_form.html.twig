@@ -123,6 +123,20 @@
         </div>
     </div>
 
+
+    <div class="page-company-edit__schools">
+        <div class="uk-width-xlarge">
+            <fieldset class="uk-fieldset">
+                <div class="uk-margin">
+                    {{ form_label(form.studentUsers, 'Students*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[studentUsers][]">Select All</a>
+                    {{ form_widget(form.studentUsers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
+                    <div class="clear"></div>
+                    {{ form_errors(form.studentUsers) }}
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
     <div class="uk-margin">
         <button class="uk-button uk-button-primary uk-button-small">Save</button>
     </div>

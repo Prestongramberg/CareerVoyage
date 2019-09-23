@@ -27,6 +27,7 @@
                         <th>Username</th>
                         <th>Company</th>
                         {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
+                        <th>Is Owner</th>
                         <th>Edit/Delete</th>
                     </tr>
 
@@ -53,6 +54,15 @@
                                 </form>
                                 </th>
                             {% endif %}
+
+                            <td>
+                                {% if paginatedUser.company is defined and paginatedUser.company is not null and paginatedUser.company.owner.id == paginatedUser.id %}
+                                    Yes
+                                {% else %}
+                                    No
+                                {% endif %}
+                            </td>
+
                             <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>
                         </tr>
                     {% endfor %}

@@ -7,6 +7,7 @@ use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
+use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
@@ -17,6 +18,7 @@ use App\Entity\User;
 use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
+use App\Form\EducatorRegisterStudentsForExperienceFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -840,6 +842,7 @@ class CompanyController extends AbstractController
         ]);
     }
 
+
     /**
      * @Route("/companies/experiences/{id}/view", name="company_experience_view", options = { "expose" = true })
      * @param Request $request
@@ -848,12 +851,80 @@ class CompanyController extends AbstractController
      */
     public function viewExperienceAction(Request $request, CompanyExperience $experience) {
 
+        /** @var User $user */
         $user = $this->getUser();
+
+        $educatorRegisterStudentForExperienceForm = null;
+        if($user->isEducator()) {
+            $educatorRegisterStudentForExperienceForm = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class,null, [
+                'method' => 'POST',
+                'educator' => $user,
+                'action' => $this->generateUrl('company_experience_student_register', ['id' => $experience->getId()]),
+            ]);
+        }
 
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
-            'experience' => $experience
+            'experience' => $experience,
+            'educatorRegisterStudentForExperienceForm' => $educatorRegisterStudentForExperienceForm !== null ? $educatorRegisterStudentForExperienceForm->createView() : null
         ]);
+    }
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/companies/experiences/{id}/students/register", name="company_experience_student_register", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $form = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class,null, [
+            'method' => 'POST',
+            'educator' => $user
+        ]);
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()) {
+
+            $studentsToRegister = $form->get('studentUsers')->getData();
+            $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
+            $registerRequest->setCreatedBy($user);
+            $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
+            $registerRequest->setCompanyExperience($experience);
+            foreach($studentsToRegister as $student) {
+
+                $previousStudentRegistration = $this->educatorRegisterStudentForExperienceRequestRepository->createQueryBuilder('e')
+                    ->innerJoin('e.studentUsers', 'su')
+                    ->where('su.id = :student_id')
+                    ->andWhere('e.companyExperience = :companyExperience')
+                    ->setParameter('student_id', $student->getId())
+                    ->setParameter('companyExperience', $experience->getId())
+                    ->getQuery()
+                    ->getOneOrNullResult();
+
+                // if the student is already registered for this event then don't add them again
+                if($previousStudentRegistration) {
+                    continue;
+                }
+
+
+                $registerRequest->addStudentUser($student);
+            }
+            $this->entityManager->persist($registerRequest);
+            $this->entityManager->flush();
+
+           /* $this->securityMailer->sendAccountActivation($professionalUser);
+            $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);*/
+
+            $this->addFlash('success', 'Student registration request sent successfully to company owner.');
+        } else {
+            $this->addFlash('error', 'There was an error processing your student registration request.');
+        }
+
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
 
     /**

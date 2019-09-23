@@ -16,6 +16,7 @@ use App\Repository\ChatRepository;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\EducatorUserRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\IndustryRepository;
@@ -269,6 +270,11 @@ trait ServiceHelper
     private $chatMessageRepository;
 
     /**
+     * @var EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+     */
+    private $educatorRegisterStudentForExperienceRequestRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -313,6 +319,7 @@ trait ServiceHelper
      * @param GuardAuthenticatorHandler $guardHandler
      * @param LoginFormAuthenticator $authenticator
      * @param ChatMessageRepository $chatMessageRepository
+     * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -357,7 +364,8 @@ trait ServiceHelper
         CompanyExperienceRepository $companyExperienceRepository,
         GuardAuthenticatorHandler $guardHandler,
         LoginFormAuthenticator $authenticator,
-        ChatMessageRepository $chatMessageRepository
+        ChatMessageRepository $chatMessageRepository,
+        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -402,6 +410,7 @@ trait ServiceHelper
         $this->guardHandler = $guardHandler;
         $this->authenticator = $authenticator;
         $this->chatMessageRepository = $chatMessageRepository;
+        $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
