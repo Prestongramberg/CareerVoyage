@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\RegionalCoordinatorRequest;
+use App\Entity\Registration;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolAdministratorRequest;
@@ -27,8 +29,10 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\NewCompanyRequestRepository;
+use App\Repository\RegistrationRepository;
 use App\Repository\RequestRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -123,6 +127,16 @@ class RequestController extends AbstractController
     private $requestsMailer;
 
     /**
+     * @var RegistrationRepository
+     */
+    private $registrationRepository;
+
+    /**
+     * @var EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+     */
+    private $educatorRegisterStudentForExperienceRequestRepository;
+
+    /**
      * RequestController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -136,6 +150,8 @@ class RequestController extends AbstractController
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param RequestRepository $requestRepository
      * @param RequestsMailer $requestsMailer
+     * @param RegistrationRepository $registrationRepository
+     * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -149,7 +165,9 @@ class RequestController extends AbstractController
         NewCompanyRequestRepository $newCompanyRequestRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
         RequestRepository $requestRepository,
-        RequestsMailer $requestsMailer
+        RequestsMailer $requestsMailer,
+        RegistrationRepository $registrationRepository,
+        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -163,7 +181,10 @@ class RequestController extends AbstractController
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->requestRepository = $requestRepository;
         $this->requestsMailer = $requestsMailer;
+        $this->registrationRepository = $registrationRepository;
+        $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
     }
+
 
     /**
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
@@ -365,6 +386,28 @@ class RequestController extends AbstractController
                 $needsApprovalBy->agreeToTerms();
                 $this->entityManager->persist($needsApprovalBy);
                 $this->requestsMailer->siteAdminRequestApproval($request);
+                break;
+            case 'EducatorRegisterStudentForCompanyExperienceRequest':
+                /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
+                $request->setApproved(true);
+                $this->entityManager->persist($request);
+
+                $studentUsers = $request->getStudentUsers();
+                foreach($studentUsers as $studentUser) {
+
+                    // remove any previous registrations if someone is getting registered twice
+                    $previousRegistration = $this->registrationRepository->getByUserAndExperience($studentUser, $request->getCompanyExperience());
+                    if($previousRegistration) {
+                        continue;
+                    }
+
+                    $registration = new Registration();
+                    $registration->setUser($studentUser);
+                    $registration->setExperience($request->getCompanyExperience());
+                    $this->entityManager->persist($registration);
+                }
+                $this->addFlash('success', 'Students have been registered in event!');
+                $this->entityManager->flush();
                 break;
         }
         $this->entityManager->persist($request);

@@ -894,25 +894,16 @@ class CompanyController extends AbstractController
             $registerRequest->setCreatedBy($user);
             $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
             $registerRequest->setCompanyExperience($experience);
+
             foreach($studentsToRegister as $student) {
-
-                $previousStudentRegistration = $this->educatorRegisterStudentForExperienceRequestRepository->createQueryBuilder('e')
-                    ->innerJoin('e.studentUsers', 'su')
-                    ->where('su.id = :student_id')
-                    ->andWhere('e.companyExperience = :companyExperience')
-                    ->setParameter('student_id', $student->getId())
-                    ->setParameter('companyExperience', $experience->getId())
-                    ->getQuery()
-                    ->getOneOrNullResult();
-
+                $previousStudentRegistration = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($student, $experience);
                 // if the student is already registered for this event then don't add them again
                 if($previousStudentRegistration) {
                     continue;
                 }
-
-
                 $registerRequest->addStudentUser($student);
             }
+
             $this->entityManager->persist($registerRequest);
             $this->entityManager->flush();
 

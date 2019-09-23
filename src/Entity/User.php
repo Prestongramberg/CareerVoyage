@@ -205,6 +205,11 @@ abstract class User implements UserInterface
      */
     protected $chatMessages;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Registration", mappedBy="user", orphanRemoval=true)
+     */
+    private $registrations;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -214,6 +219,7 @@ abstract class User implements UserInterface
         $this->companyFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
         $this->chatMessages = new ArrayCollection();
+        $this->registrations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -999,5 +1005,36 @@ abstract class User implements UserInterface
 
     public function canLoginAsAnotherUser() {
         return $this->isAdmin() || $this->isSiteAdmin();
+    }
+
+    /**
+     * @return Collection|Registration[]
+     */
+    public function getRegistrations(): Collection
+    {
+        return $this->registrations;
+    }
+
+    public function addRegistration(Registration $registration): self
+    {
+        if (!$this->registrations->contains($registration)) {
+            $this->registrations[] = $registration;
+            $registration->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegistration(Registration $registration): self
+    {
+        if ($this->registrations->contains($registration)) {
+            $this->registrations->removeElement($registration);
+            // set the owning side to null (unless already changed)
+            if ($registration->getUser() === $this) {
+                $registration->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
