@@ -78,12 +78,23 @@ class StudentUser extends User
      */
     private $educatorUsers;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", inversedBy="studentUsers")
+     */
+    private $educatorRegisterStudentForCompanyExperienceRequest;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUsers")
+     */
+    private $educatorRegisterStudentForCompanyExperienceRequests;
+
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
         $this->companiesInterestedIn = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
+        $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -269,6 +280,34 @@ class StudentUser extends User
         if ($this->educatorUsers->contains($educatorUser)) {
             $this->educatorUsers->removeElement($educatorUser);
             $educatorUser->removeStudentUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorRegisterStudentForCompanyExperienceRequest[]
+     */
+    public function getEducatorRegisterStudentForCompanyExperienceRequests(): Collection
+    {
+        return $this->educatorRegisterStudentForCompanyExperienceRequests;
+    }
+
+    public function addEducatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest): self
+    {
+        if (!$this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
+            $this->educatorRegisterStudentForCompanyExperienceRequests[] = $educatorRegisterStudentForCompanyExperienceRequest;
+            $educatorRegisterStudentForCompanyExperienceRequest->addStudentUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest): self
+    {
+        if ($this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
+            $this->educatorRegisterStudentForCompanyExperienceRequests->removeElement($educatorRegisterStudentForCompanyExperienceRequest);
+            $educatorRegisterStudentForCompanyExperienceRequest->removeStudentUser($this);
         }
 
         return $this;

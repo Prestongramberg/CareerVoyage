@@ -86,6 +86,7 @@ class EditCompanyExperienceType extends AbstractType
                 'choice_label' => 'fullName',
                 'expanded'  => false,
                 'multiple'  => false,
+                'required' => true,
                 'query_builder' => function (EntityRepository $er) use ($company) {
                     return $er->createQueryBuilder('p')
                         ->where('p.company = :company')
