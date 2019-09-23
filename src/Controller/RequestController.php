@@ -175,6 +175,8 @@ class RequestController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $requestsByType = [];
+
         $requestsThatNeedMyApproval = $this->requestRepository->findBy([
             'approved' => false,
             'needsApprovalBy' => $user,
