@@ -187,10 +187,16 @@ abstract class Experience
      */
     protected $secondaryIndustries;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Registration", mappedBy="experience")
+     */
+    private $registrations;
+
     public function __construct()
     {
         $this->experienceFiles = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
+        $this->registrations = new ArrayCollection();
     }
 
     public function getId()
@@ -455,5 +461,36 @@ abstract class Experience
     public function getClassName()
     {
         return (new \ReflectionClass($this))->getShortName();
+    }
+
+    /**
+     * @return Collection|Registration[]
+     */
+    public function getRegistrations(): Collection
+    {
+        return $this->registrations;
+    }
+
+    public function addRegistration(Registration $registration): self
+    {
+        if (!$this->registrations->contains($registration)) {
+            $this->registrations[] = $registration;
+            $registration->setExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegistration(Registration $registration): self
+    {
+        if ($this->registrations->contains($registration)) {
+            $this->registrations->removeElement($registration);
+            // set the owning side to null (unless already changed)
+            if ($registration->getExperience() === $this) {
+                $registration->setExperience(null);
+            }
+        }
+
+        return $this;
     }
 }

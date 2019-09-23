@@ -34,4 +34,9 @@ to compile your assets
 
 vagrant ssh and cd into /var/www and run ./node_modules/.bin/encore dev
 
+You also need to install php-amqp
 
+You need to install Rabbit MQ: 
+https://tecadmin.net/install-rabbitmq-server-on-ubuntu/
+
+sudo service rabbitmq-server reload

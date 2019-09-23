@@ -47,6 +47,10 @@
                                     {% include 'request/partials/_teach_lesson_request.html.twig' with {'request': request, 'user': user} %}
                                 {% endif %}
 
+                                {% if request.className == 'EducatorRegisterStudentForCompanyExperienceRequest' %}
+                                    {% include 'request/partials/_educator_register_student_for_company_experience_request.html.twig' with {'request': request, 'user': user} %}
+                                {% endif %}
+
                             {% endfor %}
                         </ul>
                     {% else %}

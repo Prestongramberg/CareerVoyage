@@ -11,7 +11,8 @@ use Doctrine\ORM\Mapping\JoinTable;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EducatorRegisterStudentForExperienceRequestRepository")
  */
-class EducatorRegisterStudentForCompanyExperienceRequest extends Request
+class
+EducatorRegisterStudentForCompanyExperienceRequest extends Request
 {
     /**
      * @JoinTable(name="student_company_experience_request_registrations",

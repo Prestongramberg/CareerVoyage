@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\CompanyExperience;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\Experience;
+use App\Entity\StudentUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +50,22 @@ class EducatorRegisterStudentForExperienceRequestRepository extends ServiceEntit
         ;
     }
     */
+
+    /**
+     * @param StudentUser $student
+     * @param CompanyExperience $experience
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByStudentAndExperience(StudentUser $student, CompanyExperience $experience) {
+        return $this->createQueryBuilder('e')
+            ->innerJoin('e.studentUsers', 'su')
+            ->where('su.id = :student_id')
+            ->andWhere('e.companyExperience = :companyExperience')
+            ->setParameter('student_id', $student->getId())
+            ->setParameter('companyExperience', $experience->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 }

@@ -13,8 +13,8 @@
                     <td>{{ request.companyExperience.title }}</td>
                 </tr>
                 <tr>
-                    <td>School name</td>
-                    <td>{{ request.createdBy.fullName }}</td>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }}</td>
                 </tr>
                 <tr>
                     <td>Status</td>
@@ -30,7 +30,15 @@
             <div class="uk-accordion-content">
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested that you register the following students
                     to the event: {{ request.companyExperience.title }}</p>
-
+                <ul>
+                    {% for student in request.studentUsers %}
+                        <li>{{ student.fullName }}</li>
+                    {% endfor %}
+                </ul>
+                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-success" type="submit" value="Approve">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
                 <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
                     <input class="uk-label uk-label-danger" type="submit" value="Deny">
                     <input type="hidden" name="request" value="{{ request.id }}">
