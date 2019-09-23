@@ -49,6 +49,9 @@ class EducatorRegisterStudentsForExperienceFormType extends AbstractType
             'multiple' => true,
             'expanded' => true,
             'mapped' => false,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-checkbox'];
+            },
             'choice_label' => function (StudentUser $student) {
                 return $student->getFullName();
             },
