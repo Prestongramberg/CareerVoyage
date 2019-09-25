@@ -43,6 +43,7 @@
                     <input class="uk-label uk-label-danger" type="submit" value="Deny">
                     <input type="hidden" name="request" value="{{ request.id }}">
                 </form>
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
             </div>
     {% endif %}
 
