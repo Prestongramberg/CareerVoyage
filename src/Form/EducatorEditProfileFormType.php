@@ -121,6 +121,9 @@ class EducatorEditProfileFormType extends AbstractType
             'class' => StudentUser::class,
             'multiple' => true,
             'expanded' => true,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-checkbox'];
+            },
             'choice_label' => function (StudentUser $student) {
                 return $student->getFullName();
             },

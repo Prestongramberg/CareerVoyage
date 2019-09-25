@@ -5,6 +5,7 @@
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         <li><a href="#account-career-fields">Career Fields of Interest</a></li>
+        <li><a href="#account-students">Students</a></li>
         <li><a href="#account-account">Account</a></li>
     </ul>
 
@@ -72,6 +73,18 @@
                 </fieldset>
             </div>
         </div>
+        <div class="account_students">
+            <div class="uk-width-xlarge">
+                <fieldset class="uk-fieldset">
+                    <div class="uk-margin">
+                        {{ form_label(form.studentUsers, 'Students*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[studentUsers][]">Select All</a>
+                        {{ form_widget(form.studentUsers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
+                        <div class="clear"></div>
+                        {{ form_errors(form.studentUsers) }}
+                    </div>
+                </fieldset>
+            </div>
+        </div>
         <div class="account_account">
             <div class="uk-width-xlarge">
                 <fieldset class="uk-fieldset">
@@ -120,20 +133,6 @@
                     </div>
                 </fieldset>
             </div>
-        </div>
-    </div>
-
-
-    <div class="page-company-edit__schools">
-        <div class="uk-width-xlarge">
-            <fieldset class="uk-fieldset">
-                <div class="uk-margin">
-                    {{ form_label(form.studentUsers, 'Students*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[studentUsers][]">Select All</a>
-                    {{ form_widget(form.studentUsers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
-                    <div class="clear"></div>
-                    {{ form_errors(form.studentUsers) }}
-                </div>
-            </fieldset>
         </div>
     </div>
 

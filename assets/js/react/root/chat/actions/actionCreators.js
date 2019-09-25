@@ -186,3 +186,11 @@ export function search( search ) {
             })
     }
 }
+
+export function initiateChatWithUserId( userId ) {
+    return (dispatch, getState) => {
+        dispatch({type: actionTypes.OPEN_CHAT})
+        dispatch({type: actionTypes.OPEN_THREAD})
+        dispatch(loadThread(userId))
+    }
+}
