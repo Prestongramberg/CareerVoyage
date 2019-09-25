@@ -197,14 +197,12 @@ class RequestController extends AbstractController
         $user = $this->getUser();
 
         $requestsThatNeedMyApproval = $this->requestRepository->findBy([
-            'approved' => false,
             'needsApprovalBy' => $user,
             'denied' => false,
             'allowApprovalByActivationCode' => false
         ]);
 
         $myCreatedRequests = $this->requestRepository->findBy([
-            'approved' => false,
             'created_by' => $user,
             'denied' => false,
             'allowApprovalByActivationCode' => false

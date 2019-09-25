@@ -129,6 +129,7 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
 
             $this->requestsMailer->newCompanyRequest($newCompanyRequest);
+            $this->requestsMailer->companyAwaitingApproval($newCompanyRequest);
 
             $this->addFlash('success', 'Company successfully created');
 
@@ -339,7 +340,7 @@ class CompanyController extends AbstractController
 
             $this->entityManager->persist($company);
             $this->entityManager->flush();
-
+            
             return new JsonResponse(
                 [
                     'success' => true,

@@ -66,24 +66,36 @@ class RequestsMailer extends AbstractMailer
         }
     }
 
+    public function companyAwaitingApproval(NewCompanyRequest $newCompanyRequest) {
+
+        $message = (new \Swift_Message('Your company is waiting approval!'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($newCompanyRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/newCompanyAwaitingApproval.html.twig',
+                    ['request' => $newCompanyRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
     public function newCompanyRequestApproval(NewCompanyRequest $newCompanyRequest) {
 
-        $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
+        $message = (new \Swift_Message('Your company has been approved!'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($newCompanyRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/newCompanyRequestApproval.html.twig',
+                    ['request' => $newCompanyRequest]
+                ),
+                'text/html'
+            );
 
-        foreach($adminUsers as $adminUser) {
-            $message = (new \Swift_Message('Your company has been approved!'))
-                ->setFrom($this->siteFromEmail)
-                ->setTo($newCompanyRequest->getCreatedBy()->getEmail())
-                ->setBody(
-                    $this->templating->render(
-                        'email/requests/newCompanyRequestApproval.html.twig',
-                        ['request' => $newCompanyRequest]
-                    ),
-                    'text/html'
-                );
-
-            $this->mailer->send($message);
-        }
+        $this->mailer->send($message);
     }
 
     /**

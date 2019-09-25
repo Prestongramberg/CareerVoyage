@@ -14,12 +14,14 @@ use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalEditProfileFormType;
+use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
+use App\Repository\SchoolExperienceRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -114,6 +116,16 @@ class ExperienceController extends AbstractController
     private $experienceRepository;
 
     /**
+     * @var SchoolExperienceRepository
+     */
+    private $schoolExperienceRepository;
+
+    /**
+     * @var CompanyExperienceRepository
+     */
+    private $companyExperienceRepository;
+
+    /**
      * ExperienceController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -128,6 +140,8 @@ class ExperienceController extends AbstractController
      * @param LessonFavoriteRepository $lessonFavoriteRepository
      * @param LessonTeachableRepository $lessonTeachableRepository
      * @param ExperienceRepository $experienceRepository
+     * @param SchoolExperienceRepository $schoolExperienceRepository
+     * @param CompanyExperienceRepository $companyExperienceRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -142,7 +156,9 @@ class ExperienceController extends AbstractController
         LessonRepository $lessonRepository,
         LessonFavoriteRepository $lessonFavoriteRepository,
         LessonTeachableRepository $lessonTeachableRepository,
-        ExperienceRepository $experienceRepository
+        ExperienceRepository $experienceRepository,
+        SchoolExperienceRepository $schoolExperienceRepository,
+        CompanyExperienceRepository $companyExperienceRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -157,6 +173,8 @@ class ExperienceController extends AbstractController
         $this->lessonFavoriteRepository = $lessonFavoriteRepository;
         $this->lessonTeachableRepository = $lessonTeachableRepository;
         $this->experienceRepository = $experienceRepository;
+        $this->schoolExperienceRepository = $schoolExperienceRepository;
+        $this->companyExperienceRepository = $companyExperienceRepository;
     }
 
     /**
@@ -164,7 +182,10 @@ class ExperienceController extends AbstractController
      */
     public function getExperiences() {
 
-        $experiences = $this->experienceRepository->findAll();
+        $experiences = [];
+        $companyExperiences = $this->companyExperienceRepository->findAll();
+        $schoolExperiences = $this->schoolExperienceRepository->findAll();
+        $experiences = array_merge($companyExperiences, $schoolExperiences);
 
         $user = $this->getUser();
 
