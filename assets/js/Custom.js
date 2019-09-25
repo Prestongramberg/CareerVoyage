@@ -511,17 +511,25 @@ jQuery(document).ready(function($) {
     /**
      * Time Pickers
      */
-    $('.uk-timepicker').daterangepicker({
-        singleDatePicker: true,
-        timePicker: true,
-        timePickerIncrement: 15,
-        linkedCalendars: false,
-        showCustomRangeLabel: false,
-        locale: {
-            format: 'MM/DD/YYYY h:mm A'
-        }
-    }, function(start, end, label) {
-        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    $('.uk-timepicker').each(function( index ) {
+        var $elem = $(this);
+        var dropDirection = $elem.hasClass('uk-timepicker-up') ? "up" : "down";
+        console.log( dropDirection );
+
+        $elem.daterangepicker({
+            drops: dropDirection,
+            singleDatePicker: true,
+            timePicker: true,
+            timePickerIncrement: 15,
+            linkedCalendars: false,
+            showCustomRangeLabel: false,
+            locale: {
+                format: 'MM/DD/YYYY h:mm A'
+            }
+        }, function(start, end, label) {
+            console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+        });
+
     });
 
     /**
@@ -532,5 +540,13 @@ jQuery(document).ready(function($) {
         var match = url.match(regExp);
         return (match&&match[7].length==11)? match[7] : false;
     }
+
+    /**
+     * Live Chat Users from Link/Button
+     */
+    $(document).on("click", "[data-message-user-id]", function() {
+        var userId = $(this).attr('data-message-user-id');
+        window.dispatchEvent(new CustomEvent("live-chat-user", { "detail": { "userId": userId } } ))
+    })
 
 });

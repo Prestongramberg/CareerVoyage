@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { closeChat, closeThread, handlePusherEvent, loadChatHistory, loadThread, openChat, openThread, search, sendMessage, showHistory, showSearch, updateMessage, updateSearch } from './actions/actionCreators'
+import { closeChat, closeThread, handlePusherEvent, initiateChatWithUserId, loadChatHistory, loadThread, openChat, openThread, search, sendMessage, showHistory, showSearch, updateMessage, updateSearch } from './actions/actionCreators'
 import Loader from '../../components/Loader/Loader'
 import PropTypes from "prop-types";
 import Pusher from 'pusher-js';
@@ -11,7 +11,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["renderChatHistory", "renderChatSearch", "renderChatWindow", "renderThread", "showHistory", "showUserThread", "toggleChatWindow"];
+        const methods = ["handleDirectChat", "renderChatHistory", "renderChatSearch", "renderChatWindow", "renderThread", "showHistory", "showUserThread", "toggleChatWindow"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -29,12 +29,18 @@ class App extends React.Component {
         channel.bind('send-message', (data) => {
             this.props.handlePusherEvent(data)
         });
+
+        window.addEventListener('live-chat-user', this.handleDirectChat )
     }
 
     componentDidUpdate() {
         if( this.messagesEnd ) {
             this.messagesEnd.scrollIntoView({ behavior: "smooth" });
         }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('live-chat-user', this.handleDirectChat )
     }
 
     render() {
@@ -222,6 +228,10 @@ class App extends React.Component {
         )
     }
 
+    handleDirectChat(e) {
+        this.props.initiateChatWithUserId( e.detail.userId );
+    }
+
     showHistory() {
         this.props.closeThread()
         this.props.loadChatHistory()
@@ -270,6 +280,7 @@ export const mapDispatchToProps = dispatch => ({
     openThread: () => dispatch(openThread()),
     closeThread: () => dispatch(closeThread()),
     handlePusherEvent: (data) => dispatch(handlePusherEvent(data)),
+    initiateChatWithUserId: (userId) => dispatch(initiateChatWithUserId(userId)),
     search: (searchTerm) => dispatch(search(searchTerm)),
     sendMessage: (message, chatId) => dispatch(sendMessage(message, chatId)),
     showHistory: () => dispatch(showHistory()),
