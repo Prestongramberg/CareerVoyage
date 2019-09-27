@@ -460,6 +460,10 @@ class RequestController extends AbstractController
                     $this->entityManager->persist($registration);
                 }
 
+                // an educator who created the request might not have an email
+                if($request->getCreatedBy()->getEmail()) {
+                    $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApproval($request);
+                }
 
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Region;
 use App\Entity\SchoolExperience;
 use App\Entity\SecondaryIndustry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -79,4 +80,29 @@ HERE;
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+
+    public function getEventsByRegionGroupedBySchool(Region $region) {
+
+        $query = <<<HERE
+    select count(se.id) as num_of_school_events, school.name as school_name
+    from school_experience se 
+    inner join school on school.id = se.school_id 
+    inner join region on school.region_id = region.id
+    inner join experience e on e.id = se.id
+    where region.id = %s and
+    MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
+    AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
+    group by school_name
+HERE;
+
+        $query = sprintf($query, $region->getId());
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
+
 }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
+use App\Entity\CompanyExperienceStudentExpressInterestRequest;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
@@ -14,6 +15,7 @@ use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
@@ -916,13 +918,48 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($registerRequest);
             $this->entityManager->flush();
 
-           /* $this->securityMailer->sendAccountActivation($professionalUser);
-            $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);*/
+            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
 
             $this->addFlash('success', 'Student registration request sent successfully to company owner.');
         } else {
             $this->addFlash('error', 'There was an error processing your student registration request.');
         }
+
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
+     * @IsGranted("ROLE_STUDENT_USER")
+     * @Route("/companies/experiences/{id}/students/express-interest", name="company_experience_student_express_interest", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceStudentExpressInterestAction(Request $request, CompanyExperience $experience) {
+
+        /** @var StudentUser $user */
+        $user = $this->getUser();
+
+        if(count($user->getEducatorUsers()) === 0) {
+            $this->addFlash('error', 'A teacher must add you as a student before this action can be performed.');
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
+
+        foreach($user->getEducatorUsers() as $educatorUser) {
+            $interestRequest = new CompanyExperienceStudentExpressInterestRequest();
+            $interestRequest->setCreatedBy($user);
+            $interestRequest->setNeedsApprovalBy($educatorUser);
+            $interestRequest->setCompanyExperience($experience);
+            $interestRequest->setStudentUser($user);
+            $this->entityManager->persist($interestRequest);
+            $this->entityManager->flush();
+
+            if($interestRequest->getNeedsApprovalBy()->getEmail()) {
+                $this->requestsMailer->companyExperienceStudentExpressInterestRequest($interestRequest);
+            }
+        }
+
+        $this->addFlash('success', 'Your teacher(s) have been notified that you are interested in this event.');
 
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }

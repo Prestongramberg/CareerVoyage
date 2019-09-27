@@ -1,6 +1,5 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-
 {% if educatorRegisterStudentForExperienceForm %}
     {% form_theme educatorRegisterStudentForExperienceForm with ['form/fields.html.twig'] %}
 {% endif %}
@@ -38,6 +37,14 @@
                 </div>
             </div>
         </div>
+
+        {% if user.isStudent%}
+            <form method="post" action="{{ path('company_experience_student_express_interest', {'id' : experience.id }) }}">
+                <div class="uk-margin">
+                    <button class="uk-button uk-button-primary uk-inline">Express Interest</button>
+                </div>
+            </form>
+        {% endif %}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-experience" uk-tab>
             <li class="uk-active"><a href="#experience-details">Experience</a></li>

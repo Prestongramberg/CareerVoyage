@@ -3,6 +3,8 @@
 namespace App\Mailer;
 
 use App\Entity\Company;
+use App\Entity\CompanyExperienceStudentExpressInterestRequest;
+use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\RegionalCoordinatorRequest;
@@ -200,6 +202,61 @@ class RequestsMailer extends AbstractMailer
                 $this->templating->render(
                     'email/requests/schoolAdministratorRequest.html.twig',
                     ['request' => $schoolAdministratorRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
+
+        $numOfStudentsToRegister = count($educatorRegisterStudentForCompanyExperienceRequest->getStudentUsers());
+
+        $message = (new \Swift_Message("Register Students Request."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/educatorRegisterStudentForCompanyExperienceRequest.html.twig',
+                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest, 'numOfStudentsToRegister' => $numOfStudentsToRegister]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    public function educatorRegisterStudentForCompanyExperienceRequestApproval(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
+
+        $numOfStudentsRegistered = count($educatorRegisterStudentForCompanyExperienceRequest->getStudentUsers());
+
+        $message = (new \Swift_Message("Register Students Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/educatorRegisterStudentForCompanyExperienceRequestApproval.html.twig',
+                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest, 'numOfStudentsToRegistered' => $numOfStudentsRegistered]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    public function companyExperienceStudentExpressInterestRequest(CompanyExperienceStudentExpressInterestRequest $companyExperienceStudentExpressInterestRequest) {
+
+        $message = (new \Swift_Message("Company Event Student Interest."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($companyExperienceStudentExpressInterestRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/companyExperienceStudentExpressInterestRequest.html.twig',
+                    ['request' => $companyExperienceStudentExpressInterestRequest]
                 ),
                 'text/html'
             );

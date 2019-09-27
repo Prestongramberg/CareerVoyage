@@ -277,6 +277,22 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/{id}/view", name="school_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewAction(Request $request, School $school) {
+
+        $user = $this->getUser();
+
+        return $this->render('school/view.html.twig', [
+            'user' => $user,
+            'school' => $school
+        ]);
+    }
+
+    /**
      * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
      * @Route("/schools/{id}/students/import", name="school_student_import")
      * @param Request $request
