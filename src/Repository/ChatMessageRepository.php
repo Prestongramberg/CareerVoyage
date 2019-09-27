@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ChatMessage;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,45 @@ class ChatMessageRepository extends ServiceEntityRepository
         ;
     }
     */
+
+
+
+    public function findUnreadMessagesByUser(User $user)
+    {
+        $qb = $this->createQueryBuilder('cm')
+            ->select('DISTINCT sentFrom.id as sent_from, sentFrom.firstName as first_name, sentFrom.lastName as last_name, COUNT(cm.id) as unread_messages' )
+            ->join('cm.sentTo', 'sentTo')
+            ->join('cm.sentFrom', 'sentFrom')
+            ->andWhere('cm.sentTo = :sentTo')
+            ->groupBy('cm.sentFrom')
+            ->setParameters(['sentTo' => $user]);
+
+        $query = $qb->getQuery();
+        $results = $query->getArrayResult();
+
+        foreach($results as &$result) {
+
+            $result['chat_messages'] = [];
+
+            $chatMessages = $this->createQueryBuilder('cm')
+                ->select('cm.sentAt, cm.body')
+                ->andWhere('cm.sentFrom = :sentFrom')
+                ->andWhere('cm.sentTo = :sentTo')
+                ->setParameters([
+                    'sentTo' => $user,
+                    'sentFrom' => $result['sent_from']
+                ])
+                ->getQuery()
+                ->getArrayResult();
+
+            foreach($chatMessages as $chatMessage) {
+                $result['chat_messages'][] = [
+                  'body' => $chatMessage['body'],
+                  'sent_at' => $chatMessage['sentAt']->format('Y-m-d g:i A')
+                ];
+            }
+        }
+
+        return $results;
+    }
 }

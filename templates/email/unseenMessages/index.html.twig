@@ -1,0 +1,9 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<h2>Unread Messages</h2>
+{% for chatMessage in chatMessages %}
+    <p>Title: <strong>{{ lesson.title }}</strong></p>
+    <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
+{% endfor %}
+
+{% include 'email/partial/emailFooter.html.twig' %
