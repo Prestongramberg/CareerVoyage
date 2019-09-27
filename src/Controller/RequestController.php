@@ -201,20 +201,47 @@ class RequestController extends AbstractController
         $requestsThatNeedMyApproval = $this->requestRepository->findBy([
             'needsApprovalBy' => $user,
             'denied' => false,
+            'approved' => false,
             'allowApprovalByActivationCode' => false
         ]);
 
         $myCreatedRequests = $this->requestRepository->findBy([
             'created_by' => $user,
             'denied' => false,
+            'approved' => false,
             'allowApprovalByActivationCode' => false
         ]);
+
+        $deniedByMeRequests = $this->requestRepository->findBy([
+            'needsApprovalBy' => $user,
+            'denied' => true,
+        ]);
+
+        $myDeniedAccessRequests = $this->requestRepository->findBy([
+            'created_by' => $user,
+            'denied' => true,
+        ]);
+
+        $approvedByMeRequests = $this->requestRepository->findBy([
+            'needsApprovalBy' => $user,
+            'approved' => true,
+        ]);
+
+        $myApprovedAccessRequests = $this->requestRepository->findBy([
+            'created_by' => $user,
+            'approved' => true,
+        ]);
+
 
         // todo you could return a different view per user role as well
         return $this->render('request/index.html.twig', [
             'user' => $user,
             'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
-            'myCreatedRequests' => $myCreatedRequests
+            'myCreatedRequests' => $myCreatedRequests,
+            'deniedByMeRequests' => $deniedByMeRequests,
+            'myDeniedAccessRequests' => $myDeniedAccessRequests,
+            'approvedByMeRequests' => $approvedByMeRequests,
+            'myApprovedAccessRequests' => $myApprovedAccessRequests,
         ]);
     }
 

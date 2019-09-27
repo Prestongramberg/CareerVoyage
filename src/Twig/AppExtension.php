@@ -3,7 +3,6 @@
 
 namespace App\Twig;
 
-
 use App\Entity\CompanyResource;
 use App\Entity\Company;
 use App\Entity\Experience;
@@ -19,6 +18,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Twig\Environment;
 
 class AppExtension extends AbstractExtension
 {
@@ -54,6 +54,11 @@ class AppExtension extends AbstractExtension
     private $chatMessageRepository;
 
     /**
+     * @var Environment
+     */
+    private $twig;
+
+    /**
      * AppExtension constructor.
      * @param UploaderHelper $uploadHelper
      * @param SerializerInterface $serializer
@@ -61,8 +66,9 @@ class AppExtension extends AbstractExtension
      * @param UserRepository $userRepository
      * @param ChatRepository $chatRepository
      * @param ChatMessageRepository $chatMessageRepository
+     * @param Environment $twig
      */
-    public function __construct(UploaderHelper $uploadHelper, SerializerInterface $serializer, RequestRepository $requestRepository, UserRepository $userRepository, ChatRepository $chatRepository, ChatMessageRepository $chatMessageRepository)
+    public function __construct(UploaderHelper $uploadHelper, SerializerInterface $serializer, RequestRepository $requestRepository, UserRepository $userRepository, ChatRepository $chatRepository, ChatMessageRepository $chatMessageRepository, Environment $twig)
     {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
@@ -70,7 +76,9 @@ class AppExtension extends AbstractExtension
         $this->userRepository = $userRepository;
         $this->chatRepository = $chatRepository;
         $this->chatMessageRepository = $chatMessageRepository;
+        $this->twig = $twig;
     }
+
 
     public function getFunctions(): array
     {
@@ -86,7 +94,9 @@ class AppExtension extends AbstractExtension
             new TwigFunction('ucwords', [$this, 'ucwords']),
             new TwigFunction('user_can_edit_user', [$this, 'userCanEditUser']),
             new TwigFunction('get_env', [$this, 'getEnv']),
-            new TwigFunction('unread_messages', [$this, 'unreadMessages'])
+            new TwigFunction('unread_messages', [$this, 'unreadMessages']),
+            new TwigFunction('render_request', [$this, 'renderRequest']),
+            new TwigFunction('render_request_status_text', [$this, 'renderRequestStatusText']),
         ];
     }
 
@@ -163,5 +173,69 @@ class AppExtension extends AbstractExtension
         $user = $this->userRepository->find($userId);
         $unreadMessages = $this->chatMessageRepository->findBy(['sentTo' => $user,'hasBeenRead' => false]);
         return count($unreadMessages);
+    }
+
+    public function renderRequest( $request, $user ) {
+
+        switch ($request->getClassName()) {
+            case "JoinCompanyRequest":
+                return $this->twig->render('request/partials/_join_companies.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            case "NewCompanyRequest":
+                return $this->twig->render('request/partials/_new_companies.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            case "StateCoordinatorRequest":
+                return $this->twig->render('request/partials/_state_coordinator_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            case "RegionalCoordinatorRequest":
+                return $this->twig->render('request/partials/_regional_coordinator_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            case "SchoolAdministratorRequest":
+                return $this->twig->render('request/partials/_school_administrator_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            case "TeachLessonRequest":
+                return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            case "EducatorRegisterStudentForCompanyExperienceRequest":
+                return $this->twig->render('request/partials/_educator_register_student_for_company_experience_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
+            default:
+                return null;
+        }
+
+    }
+
+    public function renderRequestStatusText( $request ) {
+
+        if ( $request->getApproved() === true ) {
+            return "Approved";
+        }
+
+        if ( $request->getDenied() === true ) {
+            return "Denied";
+        }
+
+        return "Pending";
     }
 }

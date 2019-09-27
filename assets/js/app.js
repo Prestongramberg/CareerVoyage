@@ -91,7 +91,7 @@ window.Pintex = {
         location = encodeURI( location );
 
         // HHMM format for Yahoo Duration
-        const yahooDuration = secondsToHHMM( epochEndTime - epochStartTime );
+        const yahooDuration = secondsToHHMM( Math.min(epochEndTime - epochStartTime, 356459 ) );
 
         return `<div class="atc-wrapper">
             <label for="atc-checkbox" class="atc-checkbox-label">Add to Calendar</label>

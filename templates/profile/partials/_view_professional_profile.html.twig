@@ -58,6 +58,10 @@
                             {% if profileUser.getLinkedinProfile %}
                                 <a href="{{ profileUser.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
                             {% endif %}
+
+                            {% if profileUser.id != user.id %}
+                                <a href="javascript:void(0)" class="uk-icon-button uk-margin-small-right" uk-icon="comments" data-message-user-id="{{ profileUser.id }}"></a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -180,6 +184,7 @@
                         {% else %}
                             <p>This user hasn't added any roles yet.</p>
                         {% endif %}
+                        <p><button class="uk-button uk-button-primary uk-button-small" data-message-user-id="{{ profileUser.id }}">Chat with {{ profileUser.firstName }}</button></p>
                     </div>
                 </div>
             </div>

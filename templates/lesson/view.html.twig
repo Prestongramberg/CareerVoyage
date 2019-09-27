@@ -166,48 +166,50 @@
                 <div class="page-lesson-view__instructors">
                     <dl class="uk-description-list uk-description-list-divider">
                         {% for lessonTeachable in lesson.lessonTeachables %}
-                            <div class="uk-grid uk-flex-middle" uk-grid>
-                                <div class="uk-width-auto">
-                                    <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                                </div>
-                                <div class="uk-width-expand">
-                                    <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
-                                    <dd>{{ lessonTeachable.user.briefBio }}</dd>
-                                </div>
-                                <div class="uk-width-auto">
-                                    {% if user.isEducator %}
-                                    <button data-uk-toggle="target: #request-lesson-from-{{ lessonTeachable.user.id }}" type="button"
-                                            class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Request
-                                    </button>
-                                    <div id="request-lesson-from-{{ lessonTeachable.user.id }}" data-uk-modal>
-                                        <div class="uk-modal-dialog uk-modal-body">
-                                            <h2 class="uk-modal-title">Request "{{ lessonTeachable.user.fullName }}" to Guest Instruct?</h2>
-                                            <p>Lesson: {{ lesson.title }}</p>
-                                            <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
-                                            <form method="post" action="{{ path('lesson_request_to_teach', {'lesson_id' : lesson.id, 'professional_id': lessonTeachable.user.id}) }}">
-                                                <div class="uk-margin">
-                                                    <label for="dateOptionOne" class="required">Date 1*</label>
-                                                    <input type="text" name="dateOptionOne" required="required" class="uk-timepicker uk-input" />
-                                                </div>
-                                                <div class="uk-margin">
-                                                    <label for="dateOptionTwo" class="required">Date 2*</label>
-                                                    <input type="text" name="dateOptionTwo" required="required" class="uk-timepicker uk-input" />
-                                                </div>
-                                                <div class="uk-margin">
-                                                    <label for="dateOptionThree" class="required">Date 3*</label>
-                                                    <input type="text" name="dateOptionThree" required="required" class="uk-timepicker uk-timepicker-up uk-input" />
-                                                </div>
-                                                <div class="uk-margin">
-                                                    <button class="uk-button uk-button-primary uk-inline">Yes, Send</button>
-                                                    <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
-                                                </div>
-                                            </form>
-                                        </div>
+                            {% if user.isProfessional %}
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-auto">
+                                        <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                     </div>
-                                    {% endif %}
-                                    <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
+                                        <dd>{{ lesssonTeachable.user.briefBio }}</dd>
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        {% if user.isEducator %}
+                                        <button data-uk-toggle="target: #request-lesson-from-{{ lessonTeachable.user.id }}" type="button"
+                                                class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Request
+                                        </button>
+                                        <div id="request-lesson-from-{{ lessonTeachable.user.id }}" data-uk-modal>
+                                            <div class="uk-modal-dialog uk-modal-body">
+                                                <h2 class="uk-modal-title">Request "{{ lessonTeachable.user.fullName }}" to Guest Instruct?</h2>
+                                                <p>Lesson: {{ lesson.title }}</p>
+                                                <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
+                                                <form method="post" action="{{ path('lesson_request_to_teach', {'lesson_id' : lesson.id, 'professional_id': lessonTeachable.user.id}) }}">
+                                                    <div class="uk-margin">
+                                                        <label for="dateOptionOne" class="required">Date 1*</label>
+                                                        <input type="text" name="dateOptionOne" required="required" class="uk-timepicker uk-input" />
+                                                    </div>
+                                                    <div class="uk-margin">
+                                                        <label for="dateOptionTwo" class="required">Date 2*</label>
+                                                        <input type="text" name="dateOptionTwo" required="required" class="uk-timepicker uk-input" />
+                                                    </div>
+                                                    <div class="uk-margin">
+                                                        <label for="dateOptionThree" class="required">Date 3*</label>
+                                                        <input type="text" name="dateOptionThree" required="required" class="uk-timepicker uk-timepicker-up uk-input" />
+                                                    </div>
+                                                    <div class="uk-margin">
+                                                        <button class="uk-button uk-button-primary uk-inline">Yes, Send</button>
+                                                        <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                    </div>
                                 </div>
-                            </div>
+                            {% endif %}
                         {% endfor %}
                     </dl>
                 </div>

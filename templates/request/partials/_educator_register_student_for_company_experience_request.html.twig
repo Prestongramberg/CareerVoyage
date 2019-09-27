@@ -19,7 +19,9 @@
                 <tr>
                     <td>Status</td>
                     <td>
-                        <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
                     </td>
                 </tr>
                 </tbody>
@@ -35,14 +37,16 @@
                         <li>{{ student.fullName }}</li>
                     {% endfor %}
                 </ul>
-                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
-                    <input class="uk-label uk-label-success" type="submit" value="Approve">
-                    <input type="hidden" name="request" value="{{ request.id }}">
-                </form>
-                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
-                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
-                    <input type="hidden" name="request" value="{{ request.id }}">
-                </form>
+                {% if render_request_status_text( request ) == "Pending" %}
+                    <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                        <input class="uk-label uk-label-success" type="submit" value="Approve">
+                        <input type="hidden" name="request" value="{{ request.id }}">
+                    </form>
+                    <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                        <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                        <input type="hidden" name="request" value="{{ request.id }}">
+                    </form>
+                {% endif %}
                 <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
             </div>
     {% endif %}

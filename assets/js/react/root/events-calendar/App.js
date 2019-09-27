@@ -9,7 +9,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["getEventObjectByType", "getRelevantEvents", "renderCalendar", "renderIndustryDropdown"];
+        const methods = ["getEventObjectByType", "getRelevantEvents", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -37,6 +37,7 @@ class App extends React.Component {
                     </div>
                     { this.renderIndustryDropdown() }
                     { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
+                    { this.renderEventTypes() }
                 </div>
                 <div className="uk-margin">
                     <FullCalendar
@@ -107,6 +108,44 @@ class App extends React.Component {
         return null;
     }
 
+    renderEventTypes() {
+
+        const eventTypes = this.props.events.map(event => {
+
+            // Set Searchable Fields
+            const searchableFields = ["title"];
+
+            // Filter By Industry
+            if (
+                ( !!this.props.search.industry && !event.secondaryIndustries ) ||
+                ( !!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 )
+            ) {
+                return false;
+            }
+
+            // Filter By Sub Industry
+            if ( !!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
+                return false;
+            }
+
+            // Filter By Search Term
+            if( this.props.search.query ) {
+                return searchableFields.some((field) => event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
+            }
+
+            return true;
+        });
+
+        if ( 1 === 1 ) {
+            return <div className="uk-width-1-1">
+
+            </div>
+        }
+
+        return null;
+
+    }
+
     getRelevantEvents() {
         return this.props.events.filter(event => {
 
@@ -115,8 +154,8 @@ class App extends React.Component {
 
             // Filter By Industry
             if (
-                ( !!this.props.search.industry && !event.primaryIndustry ) ||
-                ( !!this.props.search.industry && parseInt(event.primaryIndustry.id ) !== parseInt( this.props.search.industry ) )
+                ( !!this.props.search.industry && !event.secondaryIndustries ) ||
+                ( !!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 )
             ) {
                 return false;
             }
