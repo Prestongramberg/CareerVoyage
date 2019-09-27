@@ -73,8 +73,8 @@
             <div class="quick-links-wrapper uk-margin">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-body">
-                        <h3>My Region</h3>
-                        <div class="react-pie-chart" data-set="[5,85,357]" data-labels='["School Administrators", "Educators", "Students"]'></div>
+                        <h3>{{ user.region.name }} Region</h3>
+                        <div class="react-pie-chart" data-set="[{{ dashboards.numberOfSchoolAdminsInRegion }},{{ dashboards.numberOfEducatorsInRegion }},{{ dashboards.numberOfStudentsInRegion }}]" data-labels='["School Administrators", "Educators", "Students"]'></div>
                     </div>
                 </div>
             </div>

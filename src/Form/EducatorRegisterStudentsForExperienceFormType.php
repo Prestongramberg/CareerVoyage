@@ -71,8 +71,9 @@ class EducatorRegisterStudentsForExperienceFormType extends AbstractType
             },
             'query_builder' => function (EntityRepository $er) use ($educator) {
                 return $er->createQueryBuilder('s')
-                    ->where('s.school = :school')
-                    ->setParameter('school', $educator->getSchool())
+                    ->innerJoin('s.educatorUsers','eu')
+                    ->where('eu.id = :educatorUser')
+                    ->setParameter('educatorUser', $educator->getId())
                     ->orderBy('s.firstName', 'ASC');
             }
             ]);

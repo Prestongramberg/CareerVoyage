@@ -43,17 +43,29 @@
     <div class="uk-switcher" id="tab-schools">
         {% for school in user.schools %}
             <div class="school_{{ school.id }}">
-                <div class="uk-panel">
-                    <div class="school_description">
-                        <div class="uk-section uk-section-muted uk-padding-large">
-                            <div class="uk-container">
-                                <h2>School Overview</h2>
-                                {% if school.overviewAndBackground %}
-                                    {{ school.overviewAndBackground|raw }}
-                                {% else %}
-                                    <p>This school does not have an overview added yet.</p>
-                                {% endif %}
-                                <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
+                <div class="uk-grid" uk-grid>
+                    <div class="uk-width-1-1 uk-width-2-3@l">
+                        <div class="uk-panel">
+                            <div class="school_description">
+                                <div class="uk-section uk-section-muted uk-padding-large">
+                                    <div class="uk-container">
+                                        <h2>School Overview</h2>
+                                        {% if school.overviewAndBackground %}
+                                            {{ school.overviewAndBackground|raw }}
+                                        {% else %}
+                                            <p>This school does not have an overview added yet.</p>
+                                        {% endif %}
+                                        <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1 uk-width-1-3@l">
+                        <div class="uk-card uk-card-default">
+                            <div class="uk-card-body">
+                                <h3>School Breakdown</h3>
+                                <div class="react-pie-chart" data-set="[{{ 18 }},{{ 120 }}]" data-labels='["Educators", "Students"]'></div>
                             </div>
                         </div>
                     </div>
@@ -62,6 +74,7 @@
                     <div class="uk-margin">
                         <ul class="uk-tab" uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
                             <li class="uk-active"><a href="#school-{{ school.id }}-tools-calendar">Calendar</a></li>
+                            <li><a href="#school-{{ school.id }}-tools-participation">Participation</a></li>
                             <li><a href="#school-{{ school.id }}-tools-educators">Educators</a></li>
                             <li><a href="#school-{{ school.id }}-tools-students">Students</a></li>
                             <li><a href="#school-{{ school.id }}-tools-experiences">Experiences</a></li>
@@ -69,6 +82,14 @@
                         <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
                             <div class="school_{{ school.id }}_tools_calendar">
                                 <div class="react-events-calendar" data-school-id="{{ school.id }}"></div>
+                            </div>
+                            <div class="school_{{ school.id }}_tools_participation">
+                                <div class="uk-card uk-card-default">
+                                    <div class="uk-card-body">
+                                        <h3>Company Events in {{ "now"|date("F, Y") }} by Industry</h3>
+                                        <div class="react-horizontal-bar-chart" data-sets='[{"label": "Company Events", "data": [5,8,3,7,12,9,11,9,3,5,8,5,6,9,11,9]},{"label": "Educator Sign Ups", "data": [2,12,4,9,6,4,11,3,6,7,9,2,1,8,4,6]}]' data-labels='["Agriculture, Food &amp; Natural Resources", "Architecture &amp; Construction", "Arts, A/V Technology &amp; Communications", "Business Management &amp; Administration", "Education &amp; Training", "Finance", "Government &amp; Public Administration", "Health Science", "Hospitality &amp; Tourism", "Human Services", "Information Technology", "Law, Public Safety, Corrections &amp; Security", "Manufacturing", "Marketing", "Science, Technology, Engineering &amp; Mathematics", "Transportation, Distribution &amp; Logistics"]'></div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="school_{{ school.id }}_tools_educators">
 
