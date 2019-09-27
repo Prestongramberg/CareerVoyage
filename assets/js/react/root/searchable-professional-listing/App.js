@@ -47,12 +47,12 @@ class App extends React.Component {
 
                                 const primaryIndustry = professional.primaryIndustry !== null ? professional.primaryIndustry.name : null;
                                 const secondaryIndustry = professional.secondaryIndustries.length > 0 ? professional.secondaryIndustries[0].name : null;
-                                const companyName = professional.company ? professional.company.name : '';
+                                const professionalCompany = professional.company ? professional.company : {};
 
                                 return <div className="uk-width-1-1 uk-width-1-2@l" key={professional.id}>
                                     <ProfessionalListing
                                         briefBio={professional.briefBio}
-                                        company={companyName}
+                                        company={professionalCompany}
                                         email={professional.emailAfterPrivacySettingsApplied}
                                         firstName={professional.firstName}
                                         key={professional.id}

@@ -1,3 +1,5 @@
 import getInitialCalendarState from "./getInitialCalendarState";
+import getInitialSearchState from "./getInitialSearchState";
 
-export { getInitialCalendarState };
+
+export { getInitialCalendarState, getInitialSearchState };

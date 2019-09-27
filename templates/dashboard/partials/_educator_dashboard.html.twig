@@ -10,9 +10,12 @@
                                 <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
+                                <a href="{{ path('profile_index', {'id': user.id}) }}">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
+                                </a>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    Educator - {{ user.school.name }}
+                                    {# TODO: Add link to school view #}
+                                    <a href="#">{{ user.school.name }}</a> - Educator
                                 </p>
                             </div>
                             <div class="uk-width-auto">

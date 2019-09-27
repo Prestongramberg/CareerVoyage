@@ -20,9 +20,16 @@
                                 <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(profileUser, 'photo') is defined and profileUser.photo ) ? asset(uploaded_asset(profileUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
+                                <a href="{{ path('profile_index', {'id': user.id}) }}">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
+                                </a>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    <span>{{ profileUser.company is defined ? profileUser.company.name : "Professional" }}</span>
+                                    {% if profileUser.company is defined and profileUser.company is not null %}
+                                        <span><a href="{{ path('company_view', {'id': profileUser.company.id}) }}">{{ profileUser.company.name }}</a></span>
+                                    {% else %}
+                                        <span>Professional</span>
+                                    {% endif %}
+
                                     {% if profileUser.primaryIndustry %}
                                         <span>- {{ profileUser.primaryIndustry.name }}</span>
                                     {% endif %}

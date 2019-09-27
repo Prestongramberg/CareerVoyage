@@ -45,7 +45,11 @@
             </div>
         </div>
 
-        <div id="react-chat" data-unread-messages="{{ unread_messages( user.id ) }}" data-user-id="{{ user.id }}"></div>
+        {% set liveChatRoles = ["ROLE_PROFESSIONAL_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_STUDENT_USER"] %}
+
+        {% if liveChatRoles | filter((role) => role in user.roles) | length > 0 %}
+            <div id="react-chat" data-unread-messages="{{ unread_messages( user.id ) }}" data-user-id="{{ user.id }}"></div>
+        {% endif %}
 
     </div>
 

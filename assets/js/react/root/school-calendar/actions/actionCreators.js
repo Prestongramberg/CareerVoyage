@@ -13,7 +13,6 @@ export function loadEvents(url) {
                     dispatch({
                         type: actionTypes.EVENTS_LOADING_FAILURE
                     })
-
                 }
             })
             .catch(()=> dispatch({

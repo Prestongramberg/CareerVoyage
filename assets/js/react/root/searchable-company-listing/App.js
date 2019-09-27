@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { companyFavorited, companyUnfavorited, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import CompanyListing from "../../components/CompanyListing/CompanyListing";
+import {shuffle} from "../../utilities/array-utils";
 
 class App extends React.Component {
 
@@ -187,7 +188,7 @@ class App extends React.Component {
 
     getRelevantCompanies () {
 
-        return this.props.companies.filter(company => {
+        return shuffle(this.props.companies.filter(company => {
 
             // Set Searchable Fields
             const searchableFields = ["name", "shortDescription"];
@@ -203,7 +204,7 @@ class App extends React.Component {
             }
 
             return true;
-        })
+        }))
 
     }
 

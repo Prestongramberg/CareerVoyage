@@ -15,7 +15,8 @@ if( eventsCalendar ) {
         reducers,
         {
             calendar: getInitialCalendarState(),
-            events: []
+            events: [],
+            industries: []
         },
         compose(
             applyMiddleware(thunk),

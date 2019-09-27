@@ -13,8 +13,6 @@ function get_roles_from_request( professionals ) {
     const role_ids = [];
     const roles = [];
 
-    debugger;
-
     professionals.forEach(professional => {
         professional.rolesWillingToFulfill.forEach(role => {
             if ( role_ids.indexOf( role.id ) === -1 ) {

@@ -1,6 +1,34 @@
 import * as actionTypes from "./actionTypes";
 import * as api  from '../../../utilities/api/api'
 
+export function updateSearchQuery(query) {
+    return {
+        type: actionTypes.SEARCH_QUERY_CHANGED,
+        query: query
+    };
+}
+
+export function updateCompanyQuery(company) {
+    return {
+        type: actionTypes.COMPANY_QUERY_CHANGED,
+        company: company
+    };
+}
+
+export function updatePrimaryIndustryQuery(industry) {
+    return {
+        type: actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED,
+        industry: industry
+    };
+}
+
+export function updateSecondaryIndustryQuery(industry) {
+    return {
+        type: actionTypes.SECONDARY_INDUSTRY_QUERY_CHANGED,
+        industry: industry
+    };
+}
+
 export function loadEvents(url) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.EVENTS_LOADING})

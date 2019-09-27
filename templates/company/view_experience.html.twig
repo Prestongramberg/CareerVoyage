@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Vew Company Experience{% endblock %}
+{% block title %}View Company Experience{% endblock %}
 {% block bodyClass %}page-company-experience-view{% endblock %}
 
 {% block javascripts %}
@@ -14,7 +14,9 @@
 
         <div class="uk-section uk-section-muted">
             <div class="uk-padding">
-                <h3>{{ experience.title }}</h3>
+                <h2 class="uk-margin-remove-bottom">{{ experience.company.name }}</h2>
+                <h3 class="uk-margin-remove-top">{{ experience.title }}</h3>
+                <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
             </div>
         </div>
@@ -50,18 +52,30 @@
             <div class="experience_details">
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
-                    <tr>
-                        <td>Title</td>
-                        <td>{{ experience.title }}</td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>{{ experience.briefDescription }}</td>
-                    </tr>
-                    <tr>
-                        <td>Available Spaces</td>
-                        <td>{{ experience.availableSpaces }}</td>
-                    </tr>
+                        <tr>
+                            <td>Title</td>
+                            <td>{{ experience.title }}</td>
+                        </tr>
+                        <tr>
+                            <td>Company</td>
+                            <td>{{ experience.company.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td>{{ experience.briefDescription }}</td>
+                        </tr>
+                        <tr>
+                            <td>Available Spaces</td>
+                            <td>{{ experience.availableSpaces }}</td>
+                        </tr>
+                        <tr>
+                            <td>Start Time</td>
+                            <td>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }}</td>
+                        </tr>
+                        <tr>
+                            <td>End Time</td>
+                            <td>{{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
