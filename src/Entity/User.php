@@ -172,7 +172,7 @@ abstract class User implements UserInterface
     protected $lessonTeachables;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "CHAT"})
+     * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $photo;
@@ -858,7 +858,7 @@ abstract class User implements UserInterface
     }
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "CHAT"})
      */
     public function getPhotoImageURL() {
         if($this->getPhoto()) {

@@ -35,6 +35,7 @@ use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
@@ -855,9 +856,16 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $data = [];
+        $data['studentUsers'] = new ArrayCollection();
+        $registrations = $experience->getRegistrations();
+        foreach($registrations as $registration) {
+            $data['studentUsers']->add($registration->getUser());
+        }
+
         $educatorRegisterStudentForExperienceForm = null;
         if($user->isEducator()) {
-            $educatorRegisterStudentForExperienceForm = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class,null, [
+            $educatorRegisterStudentForExperienceForm = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class, $data, [
                 'method' => 'POST',
                 'educator' => $user,
                 'action' => $this->generateUrl('company_experience_student_register', ['id' => $experience->getId()]),

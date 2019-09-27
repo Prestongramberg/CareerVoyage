@@ -12,6 +12,7 @@ use App\Entity\SecondaryIndustry;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
+use App\Repository\StudentUserRepository;
 use App\Util\FormHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
@@ -40,6 +41,20 @@ class EducatorRegisterStudentsForExperienceFormType extends AbstractType
 {
     use FormHelper;
 
+    /**
+     * @var StudentUserRepository
+     */
+    private $studentUserRepository;
+
+    /**
+     * EducatorRegisterStudentsForExperienceFormType constructor.
+     * @param StudentUserRepository $studentUserRepository
+     */
+    public function __construct(StudentUserRepository $studentUserRepository)
+    {
+        $this->studentUserRepository = $studentUserRepository;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         /** @var EducatorUser $educator */
@@ -48,7 +63,6 @@ class EducatorRegisterStudentsForExperienceFormType extends AbstractType
             'class' => StudentUser::class,
             'multiple' => true,
             'expanded' => true,
-            'mapped' => false,
             'choice_attr' => function($choice, $key, $value) {
                 return ['class' => 'uk-checkbox'];
             },

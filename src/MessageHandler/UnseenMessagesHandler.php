@@ -23,13 +23,9 @@ class UnseenMessagesHandler implements MessageHandlerInterface
     {
         $userId = $message->getUserId();
         $user = $this->userRepository->find($userId);
+        $chatMessages = $this->chatMessageRepository->findUnreadMessagesByUser($user);
 
-        $chatMessages = $this->chatMessageRepository->findBy([
-            'sentTo' => $user,
-            'hasBeenRead' => false
-        ]);
-
-        $this->recapMailer->send($user, $chatMessages);
+        $this->unseenMessagesMailer->send($user, $chatMessages);
 
         echo 'completed...';
     }

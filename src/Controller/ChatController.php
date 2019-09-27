@@ -188,7 +188,7 @@ class ChatController extends AbstractController
             $users = array_merge($educatorUsers, $schoolAdministrators, $professionalUsers);
         }
 
-        $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA"']]), true);
+        $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA']]), true);
 
         return new JsonResponse(
             [

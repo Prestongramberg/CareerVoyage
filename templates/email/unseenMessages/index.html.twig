@@ -2,8 +2,12 @@
 
 <h2>Unread Messages</h2>
 {% for chatMessage in chatMessages %}
-    <p>Title: <strong>{{ lesson.title }}</strong></p>
-    <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
+    <h4>Total unread messages from: {{ chatMessage.first_name }} {{ chatMessage.last_name }}: {{ chatMessage.unread_messages }}</h4>
+    {% for message in chatMessage.chat_messages %}
+        <p>{{ message.sent_at }}</p>
+        <p>{{ message.body }}</p>
+    {% endfor %}
+<hr>
 {% endfor %}
 
-{% include 'email/partial/emailFooter.html.twig' %
+{% include 'email/partial/emailFooter.html.twig' %}
