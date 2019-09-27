@@ -8,3 +8,7 @@ body.ready .wrapper {
   opacity: 1;
   transition: opacity 0.5s ease-in;
 }
+
+.repaint {
+  transform: translate3d(0, 0, 0);
+}

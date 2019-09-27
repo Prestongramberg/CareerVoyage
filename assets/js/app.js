@@ -26,6 +26,7 @@ const ics = require('./vendor/ics.js');
 window.globalEventDispatcher = new EventDispatcher();
 window.UIkit = UIkit;
 window.Pintex = {
+    jQuery: $,
     notification: function(message, status = null) {
         UIkit.notification({
             message: message,

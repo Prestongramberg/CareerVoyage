@@ -37,7 +37,7 @@
 
     <ul class="uk-tab" uk-switcher="connect: #tab-schools" uk-tab>
         {% for school in user.schools %}
-            <li {{ loop.index == 0 ? 'class="uk-active"' : '' }}><a href="#school-{{ school.id }}">{{ school.name }}</a></li>
+            <li {{ loop.index == 1 ? 'class="uk-active"' : '' }}><a href="#school-{{ school.id }}">{{ school.name }}</a></li>
         {% endfor %}
     </ul>
     <div class="uk-switcher" id="tab-schools">
@@ -45,23 +45,17 @@
             <div class="school_{{ school.id }}">
                 <div class="uk-panel">
                     <div class="school_description">
-                        {% if school.overviewAndBackground %}
-                            <div class="uk-section uk-section-muted uk-padding-large">
-                                <div class="uk-container">
+                        <div class="uk-section uk-section-muted uk-padding-large">
+                            <div class="uk-container">
+                                <h2>School Overview</h2>
+                                {% if school.overviewAndBackground %}
                                     {{ school.overviewAndBackground|raw }}
-                                    {% if school.isUserSchoolAdministrator(user) %}
-                                        <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="uk-placeholder uk-text-center">
-                                This school does not have an overview added yet.<br />
-                                {% if school.isUserSchoolAdministrator(user) %}
-                                    <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_edit', {'id': school.id}) }}">Add one now</a></p>
+                                {% else %}
+                                    <p>This school does not have an overview added yet.</p>
                                 {% endif %}
+                                <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
                             </div>
-                        {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% if school.isUserSchoolAdministrator(user) %}
@@ -74,7 +68,7 @@
                         </ul>
                         <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
                             <div class="school_{{ school.id }}_tools_calendar">
-                                <div class="react-school-calendar" data-school-id="{{ school.id }}"></div>
+                                <div class="react-events-calendar" data-school-id="{{ school.id }}"></div>
                             </div>
                             <div class="school_{{ school.id }}_tools_educators">
 

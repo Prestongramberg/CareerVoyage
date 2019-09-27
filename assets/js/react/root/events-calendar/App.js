@@ -110,38 +110,6 @@ class App extends React.Component {
 
     renderEventTypes() {
 
-        const eventTypes = this.props.events.map(event => {
-
-            // Set Searchable Fields
-            const searchableFields = ["title"];
-
-            // Filter By Industry
-            if (
-                ( !!this.props.search.industry && !event.secondaryIndustries ) ||
-                ( !!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 )
-            ) {
-                return false;
-            }
-
-            // Filter By Sub Industry
-            if ( !!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
-                return false;
-            }
-
-            // Filter By Search Term
-            if( this.props.search.query ) {
-                return searchableFields.some((field) => event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
-            }
-
-            return true;
-        });
-
-        if ( 1 === 1 ) {
-            return <div className="uk-width-1-1">
-
-            </div>
-        }
-
         return null;
 
     }
@@ -203,14 +171,16 @@ class App extends React.Component {
 
 
     componentDidMount() {
-        this.props.loadEvents( window.Routing.generate('get_experiences') );
+        this.props.loadEvents( window.Routing.generate('get_experiences', { 'userId': this.props.userId, 'schoolId': this.props.schoolId }) );
     }
 }
 
 App.propTypes = {
     calendar: PropTypes.object,
     events: PropTypes.array,
-    industries: PropTypes.array
+    industries: PropTypes.array,
+    schoolId: PropTypes.number,
+    userId: PropTypes.number
 };
 
 App.defaultProps = {
