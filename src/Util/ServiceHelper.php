@@ -10,6 +10,7 @@ use App\Mailer\ImportMailer;
 use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Mailer\UnseenMessagesMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
@@ -287,6 +288,11 @@ trait ServiceHelper
     private $teachLessonExperienceRepository;
 
     /**
+     * @var UnseenMessagesMailer
+     */
+    private $unseenMessagesMailer;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -334,6 +340,7 @@ trait ServiceHelper
      * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
      * @param SchoolRepository $schoolRepository
      * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
+     * @param UnseenMessagesMailer $unseenMessagesMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -381,7 +388,8 @@ trait ServiceHelper
         ChatMessageRepository $chatMessageRepository,
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
         SchoolRepository $schoolRepository,
-        TeachLessonExperienceRepository $teachLessonExperienceRepository
+        TeachLessonExperienceRepository $teachLessonExperienceRepository,
+        UnseenMessagesMailer $unseenMessagesMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -429,6 +437,7 @@ trait ServiceHelper
         $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
         $this->schoolRepository = $schoolRepository;
         $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
+        $this->unseenMessagesMailer = $unseenMessagesMailer;
     }
 
     public function getFullQualifiedBaseUrl() {

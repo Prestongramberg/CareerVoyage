@@ -175,11 +175,14 @@ class UnseenMessagesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output) {
 
-        $users = $this->userRepository->findAll();
+        $users = $this->userRepository->findBy([
+            'id' => 62
+        ]);
 
         // let's go ahead and push each user onto the queue so it's picked up by it's own worker
         /** @var User $user */
         foreach($users as $user) {
+            $output->writeln('test');
             $this->bus->dispatch(new UnseenMessagesMessage($user->getId()));
         }
 

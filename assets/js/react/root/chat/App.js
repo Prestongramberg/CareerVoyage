@@ -99,7 +99,7 @@ class App extends React.Component {
                     this.props.chat.usersHistory.map((history) => (
                         <div key={ history.user.id } className={`${cb}__window-chat-thread`} onClick={ () => { this.showUserThread( history.user.id ) } } >
                             <div className={`${cb}__window-chat-thread-image`}>
-                                <img src={ window.SETTINGS.LOGGED_IN_USER_PHOTO } />
+                                <img src={ history.photoImageURL || window.SETTINGS.DEFAULT_USER_PHOTO } />
                             </div>
                             <div className={`${cb}__window-chat-thread-name`}>
                                 { history.user.fullName }
@@ -127,7 +127,7 @@ class App extends React.Component {
                         this.props.chat.foundUsersInSearch.map((user) => (
                             <div key={ user.id } className={`${cb}__window-chat-thread`} onClick={ () => { this.showUserThread( user.id ) } } >
                                 <div className={`${cb}__window-chat-thread-image`}>
-                                    <img src={ window.SETTINGS.LOGGED_IN_USER_PHOTO } />
+                                    <img src={ user.photoImageURL || window.SETTINGS.DEFAULT_USER_PHOTO } />
                                 </div>
                                 <div className={`${cb}__window-chat-thread-name`}>
                                     { user.first_name } { user.last_name }
@@ -178,7 +178,7 @@ class App extends React.Component {
                 <div className={`${cb}__window-thread-nav`} onClick={ this.showHistory }>
                     <span className="uk-margin-small-right" uk-icon="chevron-left"></span> Back to History
                 </div>
-                <div className={`${cb}__window-thread-chatting-with`}>Chatting with: { chat.userEngagedWith.fullName }</div>
+                <div className={`${cb}__window-thread-chatting-with`}>Chatting with: <a href={ window.Routing.generate("profile_index", { id: chat.userEngagedWith.id }) }>{ chat.userEngagedWith.fullName }</a></div>
                 {chat.messages.length ? (
                     <div className={`${cb}__window-thread-messages`}>
                         { chat.messages.map( (message) => {

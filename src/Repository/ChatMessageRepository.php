@@ -75,7 +75,7 @@ class ChatMessageRepository extends ServiceEntityRepository
                 ->setParameters([
                     'sentTo' => $user,
                     'sentFrom' => $result['sent_from']
-                ])
+                ])->orderBy('cm.sentAt', 'DESC')
                 ->getQuery()
                 ->getArrayResult();
 

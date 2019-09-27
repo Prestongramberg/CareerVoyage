@@ -31,35 +31,19 @@
             </div>
 
             <div class="uk-grid uk-margin" uk-grid>
-                <div class="uk-width-1-2@m uk-width-1-1">
+                <div class="uk-width-1-1">
                     <div class="uk-card uk-card-default">
                         <div class="uk-card-body">
-                            <h3>My Network</h3>
-                            <div class="react-pie-chart" data-set="[5,85,357]" data-labels='["School Administrators", "Educators", "Students"]'></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="uk-width-1-2@m uk-width-1-1">
-                    <div class="uk-card uk-card-default">
-                        <div class="uk-card-body">
-                            <h3>School Events</h3>
-                            <div class="react-pie-chart" data-set="[15,9,6]" data-labels='["Albert Lea", "Austin", "Grand Meadow"]'></div>
+                            <h3>{{ user.region.name }} School Events in {{ "now"|date("F, Y") }}</h3>
+                            <div class="react-bar-chart" data-set="[34,48,18]" data-labels='["Albert Lea", "Austin", "Grand Meadow"]' data-label="School Events"></div>
                         </div>
                     </div>
                 </div>
                 <div class="uk-width-1-1">
                     <div class="uk-card uk-card-default">
                         <div class="uk-card-body">
-                            <h3>School Engagement</h3>
-                            <div class="react-bar-chart" data-set="[34,48,18]" data-labels='["Albert Lea", "Austin", "Grand Meadow"]' data-label="Schools in {{ user.region.name }}"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="uk-width-1-1">
-                    <div class="uk-card uk-card-default">
-                        <div class="uk-card-body">
-                            <h3>Company Events by Industry</h3>
-                            <div class="react-horizontal-bar-chart" data-sets='[{"label": "Company Events", "data": [5,8,3,7,12,9,11,9,3,5,8,5,6,9,11,9]},{"label": "Student Interest", "data": [2,12,4,9,6,4,11,3,6,7,9,2,1,8,4,6]}]' data-labels='["Agriculture, Food &amp; Natural Resources", "Architecture &amp; Construction", "Arts, A/V Technology &amp; Communications", "Business Management &amp; Administration", "Education &amp; Training", "Finance", "Government &amp; Public Administration", "Health Science", "Hospitality &amp; Tourism", "Human Services", "Information Technology", "Law, Public Safety, Corrections &amp; Security", "Manufacturing", "Marketing", "Science, Technology, Engineering &amp; Mathematics", "Transportation, Distribution &amp; Logistics"]'></div>
+                            <h3>Company Events in {{ "now"|date("F, Y") }} by Industry</h3>
+                            <div class="react-horizontal-bar-chart" data-sets='[{"label": "Company Events", "data": [5,8,3,7,12,9,11,9,3,5,8,5,6,9,11,9]},{"label": "Educator Sign Ups", "data": [2,12,4,9,6,4,11,3,6,7,9,2,1,8,4,6]}]' data-labels='["Agriculture, Food &amp; Natural Resources", "Architecture &amp; Construction", "Arts, A/V Technology &amp; Communications", "Business Management &amp; Administration", "Education &amp; Training", "Finance", "Government &amp; Public Administration", "Health Science", "Hospitality &amp; Tourism", "Human Services", "Information Technology", "Law, Public Safety, Corrections &amp; Security", "Manufacturing", "Marketing", "Science, Technology, Engineering &amp; Mathematics", "Transportation, Distribution &amp; Logistics"]'></div>
                         </div>
                     </div>
                 </div>
@@ -85,6 +69,16 @@
                 </div>
             </div>
 
+            <!-- My Region -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-body">
+                        <h3>My Region</h3>
+                        <div class="react-pie-chart" data-set="[5,85,357]" data-labels='["School Administrators", "Educators", "Students"]'></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- My Schools -->
             <div class="quick-links-wrapper uk-margin">
                 <div class="uk-card uk-card-default">
@@ -97,9 +91,18 @@
                     </div>
                     <div class="uk-card-body">
                         {% if user.region.schools|length %}
-                            {% for school in user.region.schools %}
-                                <li>{{ school.name }}</li>
-                            {% endfor %}
+                            <ul uk-accordion>
+                                <li>
+                                    <a class="uk-accordion-title" href="#">Show my schools</a>
+                                    <div class="uk-accordion-content">
+                                        <ul>
+                                            {% for school in user.region.schools %}
+                                                <li>{{ school.name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
                         {% else %}
                             <p>You have not added any schools yet.</p>
                         {% endif %}

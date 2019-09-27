@@ -87,7 +87,7 @@
              * Photo of User
              */
             SETTINGS.LOGGED_IN_USER_PHOTO = "{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}";
-
+            SETTINGS.DEFAULT_USER_PHOTO = "{{ asset('build/images/avatar.png') }}"
         </script>
 
         {{ encore_entry_script_tags('app') }}

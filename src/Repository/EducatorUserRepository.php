@@ -89,7 +89,7 @@ class EducatorUserRepository extends ServiceEntityRepository
      */
     public function findBySearchTermAndSchool($search, School $school) {
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role from user u inner join educator_user eu on u.id = eu.id where eu.school_id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join educator_user eu on u.id = eu.id where eu.school_id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
             $school->getId(), $search);
 
         $em = $this->getEntityManager();
@@ -105,7 +105,7 @@ class EducatorUserRepository extends ServiceEntityRepository
      */
     public function findBySearchTerm($search) {
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role from user u inner join educator_user eu on u.id = eu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join educator_user eu on u.id = eu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

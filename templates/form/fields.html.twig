@@ -1,0 +1,23 @@
+{#
+Abstract: '_' + $ID_OF_FIELD + '_entry_' + $FIELD_NAME + '_row'
+Concrete: '_' + 'property_field_options' + '_entry_' + 'label' + '_row'
+
+When in doubt, inspect the page and look at the ID of the form field
+
+@see http://symfony.com/doc/current/cookbook/form/form_customization.html#how-to-customize-an-individual-field
+#}
+
+{% block _educator_register_students_for_experience_form_studentUsers_widget %}
+    <div {{ block('widget_container_attributes') }}>
+        {%- for child in form %}
+
+            {% if child.vars.checked == true %}
+                    {{- form_widget(child, { 'attr': {'disabled': 'disabled'} }) -}}
+                {% else %}
+                    {{- form_widget(child) -}}
+            {% endif %}
+
+            {{- form_label(child, null, {translation_domain: choice_translation_domain}) -}}
+        {% endfor -%}
+    </div>
+{% endblock %}

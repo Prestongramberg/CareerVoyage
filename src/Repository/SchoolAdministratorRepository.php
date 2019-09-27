@@ -67,7 +67,7 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
      */
     public function findBySearchTermAndSchool($search, School $school) {
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_SCHOOL_ADMINISTRATOR_USER" as role from user u inner join school_administrator sa on u.id = sa.id inner join school_school_administrator ssa on ssa.school_administrator_id = sa.id inner join school s on ssa.school_id = s.id where s.id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_SCHOOL_ADMINISTRATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join school_administrator sa on u.id = sa.id inner join school_school_administrator ssa on ssa.school_administrator_id = sa.id inner join school s on ssa.school_id = s.id where s.id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
             $school->getId(), $search);
 
         $em = $this->getEntityManager();
@@ -83,7 +83,7 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
      */
     public function findBySearchTerm($search) {
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_SCHOOL_ADMINISTRATOR_USER" as role from user u inner join school_administrator sa on u.id = sa.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_SCHOOL_ADMINISTRATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join school_administrator sa on u.id = sa.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
