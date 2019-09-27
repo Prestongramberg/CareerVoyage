@@ -340,7 +340,7 @@ class CompanyController extends AbstractController
 
             $this->entityManager->persist($company);
             $this->entityManager->flush();
-            
+
             return new JsonResponse(
                 [
                     'success' => true,

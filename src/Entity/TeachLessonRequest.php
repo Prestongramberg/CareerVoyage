@@ -35,6 +35,16 @@ class TeachLessonRequest extends Request
      */
     private $dateOptionThree;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\TeachLessonExperience", mappedBy="originalRequest", cascade={"persist", "remove"})
+     */
+    private $teachLessonExperience;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="teachLessonRequests")
+     */
+    private $school;
+
     public function getIsFromProfessional(): ?bool
     {
         return $this->isFromProfessional;
@@ -91,6 +101,36 @@ class TeachLessonRequest extends Request
     public function setDateOptionThree(?\DateTimeInterface $dateOptionThree): self
     {
         $this->dateOptionThree = $dateOptionThree;
+
+        return $this;
+    }
+
+    public function getTeachLessonExperience(): ?TeachLessonExperience
+    {
+        return $this->teachLessonExperience;
+    }
+
+    public function setTeachLessonExperience(?TeachLessonExperience $teachLessonExperience): self
+    {
+        $this->teachLessonExperience = $teachLessonExperience;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newOriginalRequest = $teachLessonExperience === null ? null : $this;
+        if ($newOriginalRequest !== $teachLessonExperience->getOriginalRequest()) {
+            $teachLessonExperience->setOriginalRequest($newOriginalRequest);
+        }
+
+        return $this;
+    }
+
+    public function getSchool(): ?School
+    {
+        return $this->school;
+    }
+
+    public function setSchool(?School $school): self
+    {
+        $this->school = $school;
 
         return $this;
     }

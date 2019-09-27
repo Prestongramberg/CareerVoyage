@@ -94,6 +94,11 @@ class ProfessionalUser extends User
      */
     private $companyExperiences;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonExperience", mappedBy="teacher")
+     */
+    private $teachLessonExperiences;
+
     public function __construct()
     {
         parent::__construct();
@@ -101,6 +106,7 @@ class ProfessionalUser extends User
         $this->schools = new ArrayCollection();
         $this->rolesWillingToFulfill = new ArrayCollection();
         $this->companyExperiences = new ArrayCollection();
+        $this->teachLessonExperiences = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -326,5 +332,36 @@ class ProfessionalUser extends User
             return $this->email;
         }
         return '';
+    }
+
+    /**
+     * @return Collection|TeachLessonExperience[]
+     */
+    public function getTeachLessonExperiences(): Collection
+    {
+        return $this->teachLessonExperiences;
+    }
+
+    public function addTeachLessonExperience(TeachLessonExperience $teachLessonExperience): self
+    {
+        if (!$this->teachLessonExperiences->contains($teachLessonExperience)) {
+            $this->teachLessonExperiences[] = $teachLessonExperience;
+            $teachLessonExperience->setTeacher($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeachLessonExperience(TeachLessonExperience $teachLessonExperience): self
+    {
+        if ($this->teachLessonExperiences->contains($teachLessonExperience)) {
+            $this->teachLessonExperiences->removeElement($teachLessonExperience);
+            // set the owning side to null (unless already changed)
+            if ($teachLessonExperience->getTeacher() === $this) {
+                $teachLessonExperience->setTeacher(null);
+            }
+        }
+
+        return $this;
     }
 }

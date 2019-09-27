@@ -190,6 +190,7 @@ class LessonController extends AbstractController
         $teachLessonRequest->setLesson($lesson);
         $teachLessonRequest->setCreatedBy($user);
         $teachLessonRequest->setNeedsApprovalBy($professionalUser);
+        $teachLessonRequest->setSchool($user->getSchool());
         $this->entityManager->persist($teachLessonRequest);
         $this->entityManager->flush();
 

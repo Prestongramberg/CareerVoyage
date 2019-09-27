@@ -4,12 +4,15 @@ namespace App\Controller\Api;
 
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonFavorite;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -26,6 +29,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -49,148 +53,53 @@ use Symfony\Component\Asset\Packages;
 class ExperienceController extends AbstractController
 {
     use FileHelper;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileUploader $fileUploader
-     */
-    private $fileUploader;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    /**
-     * @var ImageCacheGenerator
-     */
-    private $imageCacheGenerator;
-
-    /**
-     * @var UploaderHelper
-     */
-    private $uploaderHelper;
-
-    /**
-     * @var Packages
-     */
-    private $assetsManager;
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    /**
-     * @var CompanyRepository
-     */
-    private $companyRepository;
-
-    /**
-     * @var IndustryRepository
-     */
-    private $industryRepository;
-
-    /**
-     * @var LessonRepository
-     */
-    private $lessonRepository;
-
-    /**
-     * @var LessonFavoriteRepository
-     */
-    private $lessonFavoriteRepository;
-
-    /**
-     * @var LessonTeachableRepository
-     */
-    private $lessonTeachableRepository;
-
-    /**
-     * @var ExperienceRepository
-     */
-    private $experienceRepository;
-
-    /**
-     * @var SchoolExperienceRepository
-     */
-    private $schoolExperienceRepository;
-
-    /**
-     * @var CompanyExperienceRepository
-     */
-    private $companyExperienceRepository;
-
-    /**
-     * ExperienceController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param Packages $assetsManager
-     * @param SerializerInterface $serializer
-     * @param CompanyRepository $companyRepository
-     * @param IndustryRepository $industryRepository
-     * @param LessonRepository $lessonRepository
-     * @param LessonFavoriteRepository $lessonFavoriteRepository
-     * @param LessonTeachableRepository $lessonTeachableRepository
-     * @param ExperienceRepository $experienceRepository
-     * @param SchoolExperienceRepository $schoolExperienceRepository
-     * @param CompanyExperienceRepository $companyExperienceRepository
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        SerializerInterface $serializer,
-        CompanyRepository $companyRepository,
-        IndustryRepository $industryRepository,
-        LessonRepository $lessonRepository,
-        LessonFavoriteRepository $lessonFavoriteRepository,
-        LessonTeachableRepository $lessonTeachableRepository,
-        ExperienceRepository $experienceRepository,
-        SchoolExperienceRepository $schoolExperienceRepository,
-        CompanyExperienceRepository $companyExperienceRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->assetsManager = $assetsManager;
-        $this->serializer = $serializer;
-        $this->companyRepository = $companyRepository;
-        $this->industryRepository = $industryRepository;
-        $this->lessonRepository = $lessonRepository;
-        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
-        $this->lessonTeachableRepository = $lessonTeachableRepository;
-        $this->experienceRepository = $experienceRepository;
-        $this->schoolExperienceRepository = $schoolExperienceRepository;
-        $this->companyExperienceRepository = $companyExperienceRepository;
-    }
+    use ServiceHelper;
 
     /**
      * @Route("/experiences", name="get_experiences", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function getExperiences() {
+    public function getExperiences(Request $request) {
 
-        $experiences = [];
+        $loggedInUser = $this->getUser();
+
+        $schoolExperiences = [];
         $companyExperiences = $this->companyExperienceRepository->findAll();
-        $schoolExperiences = $this->schoolExperienceRepository->findAll();
-        $experiences = array_merge($companyExperiences, $schoolExperiences);
+        $teachLessonExperiences = [];
 
-        $user = $this->getUser();
+        $userId = $request->query->get('userId', null);
+        $schoolId = $request->query->get('schoolId', null);
+        /** @var User $user */
+        if($userId && $user = $this->userRepository->find($userId)) {
+            if($user->isSchoolAdministrator()) {
+                /** @var SchoolAdministrator $user */
+                foreach($user->getSchools() as $school) {
+                    $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $school]));
+                }
+            } elseif ($user->isEducator()) {
+                /** @var EducatorUser $user */
+                $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $user->getSchool()]));
+            } elseif ($user->isStudent()) {
+                /** @var StudentUser $user */
+                $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $user->getSchool()]));
+            } elseif ($user->isProfessional()) {
+                /** @var ProfessionalUser $user */
+
+                $teachLessonExperiences = $this->teachLessonExperienceRepository->createQueryBuilder('tle')
+                    ->andWhere('tle.teacher = :user')
+                    ->setParameter('user', $user)
+                    ->getQuery()
+                    ->getResult();
+
+            }
+        } elseif ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
+            $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $school]));
+        }
+
+        $experiences = array_merge($schoolExperiences, $companyExperiences, $teachLessonExperiences);
 
         $json = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA']]);
-
         $payload = json_decode($json, true);
 
         return new JsonResponse(

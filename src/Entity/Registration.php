@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\HasLifecycleCallbacks()
@@ -13,6 +14,7 @@ class Registration
     use Timestampable;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -20,6 +22,7 @@ class Registration
     private $id;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="registrations")
      * @ORM\JoinColumn(nullable=false)
      */

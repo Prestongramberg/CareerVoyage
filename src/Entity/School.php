@@ -18,7 +18,7 @@ class School
     use Timestampable;
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -26,7 +26,7 @@ class School
     private $id;
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -53,6 +53,7 @@ class School
     private $schoolAdministratorRequests;
 
     /**
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a school email!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -95,16 +96,19 @@ class School
     private $studentUsers;
 
     /**
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $street;
 
     /**
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $city;
 
     /**
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
@@ -115,9 +119,20 @@ class School
     private $site;
 
     /**
+     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="schools")
      */
     private $state;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonRequest", mappedBy="school")
+     */
+    private $teachLessonRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonExperience", mappedBy="school")
+     */
+    private $teachLessonExperiences;
 
     public function __construct()
     {
@@ -130,6 +145,8 @@ class School
         $this->schoolExperiences = new ArrayCollection();
         $this->schoolPhotos = new ArrayCollection();
         $this->studentUsers = new ArrayCollection();
+        $this->teachLessonRequests = new ArrayCollection();
+        $this->teachLessonExperiences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -516,6 +533,68 @@ class School
     public function setState(?State $state): self
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TeachLessonRequest[]
+     */
+    public function getTeachLessonRequests(): Collection
+    {
+        return $this->teachLessonRequests;
+    }
+
+    public function addTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
+    {
+        if (!$this->teachLessonRequests->contains($teachLessonRequest)) {
+            $this->teachLessonRequests[] = $teachLessonRequest;
+            $teachLessonRequest->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
+    {
+        if ($this->teachLessonRequests->contains($teachLessonRequest)) {
+            $this->teachLessonRequests->removeElement($teachLessonRequest);
+            // set the owning side to null (unless already changed)
+            if ($teachLessonRequest->getSchool() === $this) {
+                $teachLessonRequest->setSchool(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TeachLessonExperience[]
+     */
+    public function getTeachLessonExperiences(): Collection
+    {
+        return $this->teachLessonExperiences;
+    }
+
+    public function addTeachLessonExperience(TeachLessonExperience $teachLessonExperience): self
+    {
+        if (!$this->teachLessonExperiences->contains($teachLessonExperience)) {
+            $this->teachLessonExperiences[] = $teachLessonExperience;
+            $teachLessonExperience->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeachLessonExperience(TeachLessonExperience $teachLessonExperience): self
+    {
+        if ($this->teachLessonExperiences->contains($teachLessonExperience)) {
+            $this->teachLessonExperiences->removeElement($teachLessonExperience);
+            // set the owning side to null (unless already changed)
+            if ($teachLessonExperience->getSchool() === $this) {
+                $teachLessonExperience->setSchool(null);
+            }
+        }
 
         return $this;
     }

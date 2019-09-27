@@ -340,8 +340,25 @@ class RequestController extends AbstractController
                 $teachLessonExperience->setStartDateAndTime($date);
                 $teachLessonExperience->setTitle('Lesson Teaching');
                 $teachLessonExperience->setBriefDescription(sprintf("
-                You are teaching lesson %s at school %s
+                Lesson: %s for school %s
                 ", $request->getLesson()->getTitle(), $request->getCreatedBy()->getSchool()->getName()));
+                $teachLessonExperience->setOriginalRequest($request);
+
+
+                // let's go ahead and add the professional as a registration on this event
+                $registration = new Registration();
+                if($request->getIsFromProfessional()) {
+                    $registration->setUser($request->getCreatedBy());
+                    $teachLessonExperience->setTeacher($request->getCreatedBy());
+                    $teachLessonExperience->setSchool($request->getNeedsApprovalBy()->getSchool());
+                } else {
+                    $registration->setUser($request->getNeedsApprovalBy());
+                    $teachLessonExperience->setTeacher($request->getNeedsApprovalBy());
+                    $teachLessonExperience->setSchool($request->getCreatedBy()->getSchool());
+                }
+
+                $registration->setExperience($teachLessonExperience);
+                $this->entityManager->persist($registration);
 
                 /** @var School $school */
                 $school = $request->getCreatedBy()->getSchool();
@@ -406,6 +423,17 @@ class RequestController extends AbstractController
                     $registration->setExperience($request->getCompanyExperience());
                     $this->entityManager->persist($registration);
                 }
+
+                // make sure the teacher has a registration as well
+                $previousTeacherRegistration = $this->registrationRepository->getByUserAndExperience($request->getCreatedBy(), $request->getCompanyExperience());
+                if(!$previousTeacherRegistration) {
+                    $registration = new Registration();
+                    $registration->setUser($request->getCreatedBy());
+                    $registration->setExperience($request->getCompanyExperience());
+                    $this->entityManager->persist($registration);
+                }
+
+
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();
                 break;

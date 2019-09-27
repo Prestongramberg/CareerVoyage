@@ -29,10 +29,12 @@ use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
 use App\Repository\SchoolAdministratorRepository;
+use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SiteAdminUserRepository;
 use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentUserRepository;
+use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRepository;
 use App\Security\LoginFormAuthenticator;
@@ -275,6 +277,16 @@ trait ServiceHelper
     private $educatorRegisterStudentForExperienceRequestRepository;
 
     /**
+     * @var SchoolRepository
+     */
+    private $schoolRepository;
+
+    /**
+     * @var TeachLessonExperienceRepository
+     */
+    private $teachLessonExperienceRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -320,6 +332,8 @@ trait ServiceHelper
      * @param LoginFormAuthenticator $authenticator
      * @param ChatMessageRepository $chatMessageRepository
      * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+     * @param SchoolRepository $schoolRepository
+     * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -365,7 +379,9 @@ trait ServiceHelper
         GuardAuthenticatorHandler $guardHandler,
         LoginFormAuthenticator $authenticator,
         ChatMessageRepository $chatMessageRepository,
-        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
+        SchoolRepository $schoolRepository,
+        TeachLessonExperienceRepository $teachLessonExperienceRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -411,6 +427,8 @@ trait ServiceHelper
         $this->authenticator = $authenticator;
         $this->chatMessageRepository = $chatMessageRepository;
         $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
+        $this->schoolRepository = $schoolRepository;
+        $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
