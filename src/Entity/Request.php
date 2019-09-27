@@ -19,7 +19,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     "schoolAdministratorRequest" = "SchoolAdministratorRequest",
  *     "teachLessonRequest" = "TeachLessonRequest",
  *     "siteAdminRequest" = "SiteAdminRequest",
- *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest"
+ *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
+ *     "companyExperienceStudentExpressInterestRequest" = "CompanyExperienceStudentExpressInterestRequest"
  * })
  */
 abstract class Request
