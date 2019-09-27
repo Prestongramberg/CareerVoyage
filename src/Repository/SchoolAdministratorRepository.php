@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
@@ -89,5 +90,15 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function getSchoolAdminsForRegion(Region $region) {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.site', 'site')
+            ->innerJoin('site.regions', 'regions')
+            ->andWhere('regions = :region')
+            ->setParameter('region', $region)
+            ->getQuery()
+            ->getResult();
     }
 }

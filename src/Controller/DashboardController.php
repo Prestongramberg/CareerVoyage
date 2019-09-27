@@ -44,10 +44,33 @@ class DashboardController extends AbstractController
      */
     public function indexAction(Request $request, SessionInterface $session) {
 
+        /** @var User $user */
         $user = $this->getUser();
 
+        $dashboards = [];
+
+        if($user->isRegionalCoordinator()) {
+            /** @var RegionalCoordinator $user */
+            $numberOfStudentsInRegion = count($this->studentUserRepository->getStudentsForRegion($user->getRegion()));
+            $numberOfEducatorsInRegion = count($this->educatorUserRepository->getEducatorsForRegion($user->getRegion()));
+            $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
+            $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getEventsByRegionGroupedBySchool($user->getRegion());
+            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
+
+
+            $dashboards = [
+                'numberOfStudentsInRegion' => $numberOfStudentsInRegion,
+                'numberOfEducatorsInRegion' => $numberOfEducatorsInRegion,
+                'numberOfSchoolAdminsInRegion' => $numberOfSchoolAdminsInRegion,
+                'schoolEventsByRegionGroupedBySchool' => $schoolEventsByRegionGroupedBySchool,
+                'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry
+            ];
+
+        }
+
         return $this->render('dashboard/index.html.twig', [
-            'user' => $user
+            'user' => $user,
+            'dashboards' => $dashboards
         ]);
     }
 }

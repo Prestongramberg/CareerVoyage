@@ -191,7 +191,7 @@ abstract class Experience
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\OneToMany(targetEntity="App\Entity\Registration", mappedBy="experience")
      */
-    private $registrations;
+    protected $registrations;
 
     public function __construct()
     {
