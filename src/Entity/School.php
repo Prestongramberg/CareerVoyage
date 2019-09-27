@@ -18,7 +18,7 @@ class School
     use Timestampable;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
+     * @Groups({"ALL_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -26,7 +26,7 @@ class School
     private $id;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
+     * @Groups({"ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -53,7 +53,6 @@ class School
     private $schoolAdministratorRequests;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @Assert\NotBlank(message="Don't forget a school email!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -96,19 +95,16 @@ class School
     private $studentUsers;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $street;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $city;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
@@ -119,7 +115,6 @@ class School
     private $site;
 
     /**
-     * @Groups({"ALL_USER_DATA", "EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="schools")
      */
     private $state;
