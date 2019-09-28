@@ -56,16 +56,16 @@ class DashboardController extends AbstractController
             $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
             $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getEventsByRegionGroupedBySchool($user->getRegion());
             $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
-
+            $numberOfRegistrationsGroupedByPrimaryIndustry = $$this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustry();
 
             $dashboards = [
                 'numberOfStudentsInRegion' => $numberOfStudentsInRegion,
                 'numberOfEducatorsInRegion' => $numberOfEducatorsInRegion,
                 'numberOfSchoolAdminsInRegion' => $numberOfSchoolAdminsInRegion,
                 'schoolEventsByRegionGroupedBySchool' => $schoolEventsByRegionGroupedBySchool,
-                'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry
+                'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
+                'numberOfRegistrationsGroupedByPrimaryIndustry' => $numberOfRegistrationsGroupedByPrimaryIndustry
             ];
-
         }
 
         return $this->render('dashboard/index.html.twig', [

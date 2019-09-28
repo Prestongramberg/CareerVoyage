@@ -98,4 +98,21 @@ HERE;
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getNumberOfRegistrationsGroupedByPrimaryIndustry() {
+        $query = <<<HERE
+    select DISTINCT i.id, e.id, e.title as company_experience_title
+    from company_experience ce 
+    inner join experience e on e.id = ce.id
+    inner join experience_secondary_industry esi on esi.experience_id = e.id
+    inner join secondary_industry si on esi.secondary_industry_id = si.id
+    inner join industry i on i.id = si.primary_industry_id
+    where MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
+    AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
+HERE;
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
