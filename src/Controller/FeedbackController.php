@@ -111,4 +111,43 @@ class FeedbackController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/events/{id}", name="event_feedback", options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function eventFeedbackAction(Request $request) {
+
+        /** @var EducatorUser|StudentUser $user */
+        $user = $this->getUser();
+
+        $form = $this->createFormBuilder()
+            ->add('message', TextareaType::class, ['label' => 'Request a lesson, experience, or site visit.',
+                'constraints' => [
+                    new NotBlank(),
+                ]
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $message = $form->get('message')->getData();
+
+            // I don't know any case where an educator user or a student user wouldn't have a site. Better safe than sorry
+            if($user->getSite()) {
+                foreach($user->getSite()->getSiteAdminUsers() as $siteAdminUser) {
+                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($siteAdminUser, $message);
+                }
+            }
+
+            $this->addFlash('success', 'Feedback successfully submitted.');
+            return $this->redirectToRoute('request_lesson_experience_or_site_visit');
+        }
+
+        return $this->render('feedback/request_lesson_experience_or_site_visit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
+    }
 }

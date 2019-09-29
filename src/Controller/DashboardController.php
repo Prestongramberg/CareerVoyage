@@ -102,12 +102,18 @@ class DashboardController extends AbstractController
             $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
             $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
 
+            $guestLectures = $this->teachLessonExperienceRepository->findBy([
+                'school' => $user->getSchool()
+            ]);
+
             $dashboards = [
                 'companyFavorites' => $companyFavorites,
                 'lessonFavorites' => $lessonFavorites,
                 'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
-                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser
+                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
+                'guestLectures' => $guestLectures
             ];
+
         } elseif ($user->isProfessional()) {
             /** @var ProfessionalUser $user */
             $dashboards = [
