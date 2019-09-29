@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
 use App\Entity\User;
 use App\Form\AdminProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -56,7 +57,7 @@ class DashboardController extends AbstractController
             $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
             $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getEventsByRegionGroupedBySchool($user->getRegion());
             $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
-            $numberOfRegistrationsGroupedByPrimaryIndustry = $$this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustry();
+            $numberOfRegistrationsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustry();
 
             $dashboards = [
                 'numberOfStudentsInRegion' => $numberOfStudentsInRegion,
@@ -65,6 +66,28 @@ class DashboardController extends AbstractController
                 'schoolEventsByRegionGroupedBySchool' => $schoolEventsByRegionGroupedBySchool,
                 'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
                 'numberOfRegistrationsGroupedByPrimaryIndustry' => $numberOfRegistrationsGroupedByPrimaryIndustry
+            ];
+        } elseif ($user->isSchoolAdministrator()) {
+            /** @var SchoolAdministrator $user */
+            $numberOfStudentsInSchoolNetwork = 0;
+            $numberOfEducatorsInSchoolNetwork = 0;
+            $dashboards['registrationsGroupedByPrimaryIndustryInSchool'] = [];
+            foreach($user->getSchools() as $school) {
+                $numberOfStudentsInSchoolNetwork += count($this->studentUserRepository->findBy(['school' => $school]));
+                $numberOfEducatorsInSchoolNetwork+= count($this->educatorUserRepository->findBy(['school' => $school]));
+
+                $registrationsGroupedByPrimaryIndustryInSchool = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryInSchool($school);
+
+                $dashboards['registrationsGroupedByPrimaryIndustryInSchool'][$school->getId()] = [
+                    'schoolName' => $school->getName(),
+                    'school_id' => $school->getId(),
+                    'registrationsGroupedByPrimaryIndustryInSchool' => $registrationsGroupedByPrimaryIndustryInSchool
+                ];
+            }
+
+            $dashboards = [
+                'numberOfStudentsInSchoolNetwork' => $numberOfStudentsInSchoolNetwork,
+                'numberOfEducatorsInSchoolNetwork' => $numberOfEducatorsInSchoolNetwork
             ];
         }
 

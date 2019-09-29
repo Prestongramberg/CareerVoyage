@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CompanyExperience;
+use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -101,7 +102,9 @@ HERE;
 
     public function getNumberOfRegistrationsGroupedByPrimaryIndustry() {
         $query = <<<HERE
-    select DISTINCT i.id, e.id, e.title as company_experience_title
+    select DISTINCT i.id as primary_industry_id, i.name as primary_industry_name,  e.id as company_experience_id, 
+    (Select count(r.id) from registration r where r.experience_id = e.id) as number_of_registrations, 
+    e.title as company_experience_title
     from company_experience ce 
     inner join experience e on e.id = ce.id
     inner join experience_secondary_industry esi on esi.experience_id = e.id
@@ -112,6 +115,47 @@ HERE;
 HERE;
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
+    public function getNumberOfRegistrationsGroupedByPrimaryIndustryInSchool(School $school) {
+        $query = <<<HERE
+    select DISTINCT i.id as primary_industry_id, i.name as primary_industry_name,  e.id as company_experience_id, 
+    (
+    Select count(r.id) from registration r 
+    inner join user u on u.id = r.user_id
+    left join student_user su on su.id = u.id
+    left join educator_user eu on eu.id = u.id
+    where r.experience_id = e.id
+    and (eu.school_id = %s or su.school_id = %s)
+    ) as number_of_registrations, 
+    e.title as company_experience_title
+    from company_experience ce 
+    inner join experience e on e.id = ce.id
+    inner join registration r on r.experience_id = e.id
+    
+    inner join user as registered_user on r.user_id = registered_user.id
+    left join student_user as registered_student_user on registered_student_user.id = registered_user.id
+    left join educator_user as registered_educator_user on registered_educator_user.id = registered_user.id
+    
+    inner join experience_secondary_industry esi on esi.experience_id = e.id
+    inner join secondary_industry si on esi.secondary_industry_id = si.id
+    inner join industry i on i.id = si.primary_industry_id
+    where MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
+    AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
+    AND registered_educator_user.school_id = %s or registered_student_user.school_id = %s
+HERE;
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare(
+            sprintf($query,
+                $school->getId(),
+                $school->getId(),
+                $school->getId(), 
+                $school->getId())
+        );
+
         $stmt->execute();
         return $stmt->fetchAll();
     }
