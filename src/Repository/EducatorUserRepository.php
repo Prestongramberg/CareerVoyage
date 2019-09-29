@@ -123,4 +123,13 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findByFavoriteLessonIds($lessonIds) {
+        return $this->createQueryBuilder('eu')
+            ->innerJoin('eu.lessonFavorites','lf')
+            ->where("lf.lesson IN(:lessonIds)")
+            ->setParameter('lessonIds', $lessonIds)
+            ->getQuery()
+            ->getResult();
+    }
 }

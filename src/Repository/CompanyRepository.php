@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Company;
+use App\Entity\SecondaryIndustry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,28 @@ class CompanyRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param SecondaryIndustry $secondaryIndustries []
+     * @param int $limit
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySecondaryIndustries($secondaryIndustries, $limit = 6) {
+
+        $whereClause = [];
+        foreach($secondaryIndustries as $secondaryIndustry) {
+            $whereClause[] = sprintf("secondary_industry_id = %s", $secondaryIndustry->getId());
+        }
+
+        $whereClause = !empty($whereClause) ? sprintf('WHERE %s', implode(" OR ", $whereClause)) : '';
+
+        $query = sprintf("select c.id, c.name, c.short_description from company c inner join company_secondary_industry csi on c.id = csi.company_id %s GROUP BY c.id order by c.created_at DESC LIMIT %s", $whereClause, $limit);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
 }

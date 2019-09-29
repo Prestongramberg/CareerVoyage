@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\AdminProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -42,6 +44,7 @@ class DashboardController extends AbstractController
      * @param Request $request
      * @param SessionInterface $session
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function indexAction(Request $request, SessionInterface $session) {
 
@@ -57,7 +60,7 @@ class DashboardController extends AbstractController
             $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
             $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getEventsByRegionGroupedBySchool($user->getRegion());
             $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
-            $numberOfRegistrationsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustry();
+            $numberOfRegistrationsGroupedByPrimaryIndustryForRegion = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForRegion($user->getRegion());
 
             $dashboards = [
                 'numberOfStudentsInRegion' => $numberOfStudentsInRegion,
@@ -65,7 +68,7 @@ class DashboardController extends AbstractController
                 'numberOfSchoolAdminsInRegion' => $numberOfSchoolAdminsInRegion,
                 'schoolEventsByRegionGroupedBySchool' => $schoolEventsByRegionGroupedBySchool,
                 'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
-                'numberOfRegistrationsGroupedByPrimaryIndustry' => $numberOfRegistrationsGroupedByPrimaryIndustry
+                'numberOfRegistrationsGroupedByPrimaryIndustryForRegion' => $numberOfRegistrationsGroupedByPrimaryIndustryForRegion
             ];
         } elseif ($user->isSchoolAdministrator()) {
             /** @var SchoolAdministrator $user */
@@ -85,10 +88,43 @@ class DashboardController extends AbstractController
                 ];
             }
 
+            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
+
             $dashboards = [
                 'numberOfStudentsInSchoolNetwork' => $numberOfStudentsInSchoolNetwork,
-                'numberOfEducatorsInSchoolNetwork' => $numberOfEducatorsInSchoolNetwork
+                'numberOfEducatorsInSchoolNetwork' => $numberOfEducatorsInSchoolNetwork,
+                'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry
             ];
+        } elseif ($user->isStudent() || $user->isEducator()) {
+            /** @var StudentUser|EducatorUser $user */
+            $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+            $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
+            $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
+
+            $dashboards = [
+                'companyFavorites' => $companyFavorites,
+                'lessonFavorites' => $lessonFavorites,
+                'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
+                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser
+            ];
+        } elseif ($user->isProfessional()) {
+            /** @var ProfessionalUser $user */
+            $dashboards = [
+                'myCompany' => $user->getCompany(),
+            ];
+
+            $teachableLessonIds = [];
+            foreach($user->getLessonTeachables() as $lessonTeachable) {
+                $teachableLessonIds[] = $lessonTeachable->getLesson()->getId();
+            }
+            $educatorsWhoFavoritedMyLessons = $this->educatorUserRepository->findByFavoriteLessonIds($teachableLessonIds);
+            $dashboards['educatorsWhoFavoritedMyLessons'] = $educatorsWhoFavoritedMyLessons;
+
+            $userSecondaryIndustries = $user->getSecondaryIndustries();
+            // Get relevant lessons for the user's secondary industry preferences
+            $companiesWithOverlappingSecondaryIndustries = $this->companyRepository->findBySecondaryIndustries($userSecondaryIndustries);
+            $dashboards['companiesWithOverlappingSecondaryIndustries'] = $companiesWithOverlappingSecondaryIndustries;
         }
 
         return $this->render('dashboard/index.html.twig', [

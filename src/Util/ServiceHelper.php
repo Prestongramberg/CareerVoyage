@@ -15,6 +15,7 @@ use App\Repository\AdminUserRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\CompanyExperienceRepository;
+use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
@@ -27,6 +28,7 @@ use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
+use App\Repository\RegistrationRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
 use App\Repository\SchoolAdministratorRepository;
@@ -293,6 +295,17 @@ trait ServiceHelper
     private $unseenMessagesMailer;
 
     /**
+     * @var CompanyFavoriteRepository
+     */
+    private $companyFavoriteRepository;
+
+    /**
+     * @var RegistrationRepository
+     */
+    private $registrationRepository;
+
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -341,6 +354,8 @@ trait ServiceHelper
      * @param SchoolRepository $schoolRepository
      * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
      * @param UnseenMessagesMailer $unseenMessagesMailer
+     * @param CompanyFavoriteRepository $companyFavoriteRepository
+     * @param RegistrationRepository $registrationRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -389,7 +404,9 @@ trait ServiceHelper
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
         SchoolRepository $schoolRepository,
         TeachLessonExperienceRepository $teachLessonExperienceRepository,
-        UnseenMessagesMailer $unseenMessagesMailer
+        UnseenMessagesMailer $unseenMessagesMailer,
+        CompanyFavoriteRepository $companyFavoriteRepository,
+        RegistrationRepository $registrationRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -438,6 +455,8 @@ trait ServiceHelper
         $this->schoolRepository = $schoolRepository;
         $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
         $this->unseenMessagesMailer = $unseenMessagesMailer;
+        $this->companyFavoriteRepository = $companyFavoriteRepository;
+        $this->registrationRepository = $registrationRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
