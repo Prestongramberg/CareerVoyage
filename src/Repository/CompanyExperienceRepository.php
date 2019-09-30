@@ -3,9 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\CompanyExperience;
+use App\Entity\EducatorUser;
 use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
+use App\Entity\StudentUser;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

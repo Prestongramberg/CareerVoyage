@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\CompanyExperience;
 use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
+use App\Entity\TeachLessonExperience;
 use App\Entity\User;
 use App\Form\AdminProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -111,9 +113,65 @@ class DashboardController extends AbstractController
                 'lessonFavorites' => $lessonFavorites,
                 'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
                 'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
-                'guestLectures' => $guestLectures
+                'guestLectures' => $guestLectures,
+                'eventsWithFeedback' => [],
+                'eventsMissingFeedback' => [],
             ];
 
+            // let's see which events have feedback from the user and which don't
+            foreach($completedEventsRegisteredForByUser as $event) {
+                if($event instanceof CompanyExperience) {
+                    if($user->isStudent()) {
+                        $feedback = $this->studentReviewCompanyExperienceFeedbackRepository->findOneBy([
+                            'student' => $user,
+                            'companyExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+
+                    } elseif ($user->isEducator()) {
+                        $feedback = $this->educatorReviewCompanyExperienceFeedbackRepository->findOneBy([
+                            'educator' => $user,
+                            'companyExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+                    }
+                } elseif ($event instanceof TeachLessonExperience) {
+                    if($user->isStudent()) {
+                        $feedback = $this->studentReviewTeachLessonExperienceFeedbackRepository->findOneBy([
+                            'student' => $user,
+                            'teachLessonExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+
+                    } elseif ($user->isEducator()) {
+                        $feedback = $this->educatorReviewTeachLessonExperienceFeedbackRepository->findOneBy([
+                            'educator' => $user,
+                            'teachLessonExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+                    }
+                }
+            }
         } elseif ($user->isProfessional()) {
             /** @var ProfessionalUser $user */
             $dashboards = [
