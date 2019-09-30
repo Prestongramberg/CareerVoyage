@@ -1,0 +1,69 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Feedback{% endblock %}
+{% block bodyClass %}page-feedback{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container js-form">
+
+        {% if successMessage %}
+            <div class="uk-alert-success uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>Feedback successfully submitted.</p>
+            </div>
+        {% endif %}
+
+        {% if errorMessage %}
+            <div class="uk-alert-error uk-margin" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <p>{{ errorMessage }}</p>
+            </div>
+        {% endif %}
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
+        {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.rating) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.feedback.rating) }}
+
+        {{ form_label(form.feedback.providedCareerInsight, 'Did the experience provide career insights*') }}
+        {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.providedCareerInsight) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.feedback.providedCareerInsight) }}
+
+        {{ form_label(form.feedback.wasEnjoyableAndEngaging, 'Was the experience enjoyable and engaging*') }}
+        {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.wasEnjoyableAndEngaging) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.feedback.wasEnjoyableAndEngaging) }}
+
+        {{ form_label(form.feedback.learnSomethingNew, 'Did you learn something new*') }}
+        {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.learnSomethingNew) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.feedback.learnSomethingNew) }}
+
+        {{ form_label(form.interestInWorkingForCompany, 'After this experience, my interest in working for this company or industry is*') }}
+        {{ form_widget(form.interestInWorkingForCompany, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interestInWorkingForCompany) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.interestInWorkingForCompany) }}
+
+        {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a friend*') }}
+        {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
+
+        {{ form_label(form.feedback.additionalFeedback, 'Additional Feedback (Optional)') }}
+        {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.feedback.additionalFeedback) }}
+
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+{% endblock %}

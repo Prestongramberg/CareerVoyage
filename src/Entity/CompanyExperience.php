@@ -36,11 +36,23 @@ class CompanyExperience extends Experience
      */
     private $companyExperienceStudentExpressInterestRequests;
 
+    /**
+     * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
+     */
+    private $studentReviewExperienceFeedback;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
+     */
+    private $educatorReviewCompanyExperienceFeedback;
+
     public function __construct()
     {
         parent::__construct();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
         $this->companyExperienceStudentExpressInterestRequests = new ArrayCollection();
+        $this->studentReviewExperienceFeedback = new ArrayCollection();
+        $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
     }
 
     public function getCompany(): ?Company
@@ -123,6 +135,68 @@ class CompanyExperience extends Experience
             // set the owning side to null (unless already changed)
             if ($companyExperienceStudentExpressInterestRequest->getCompanyExperience() === $this) {
                 $companyExperienceStudentExpressInterestRequest->setCompanyExperience(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentReviewCompanyExperienceFeedback[]
+     */
+    public function getStudentReviewExperienceFeedback(): Collection
+    {
+        return $this->studentReviewExperienceFeedback;
+    }
+
+    public function addStudentReviewExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewExperienceFeedback): self
+    {
+        if (!$this->studentReviewExperienceFeedback->contains($studentReviewExperienceFeedback)) {
+            $this->studentReviewExperienceFeedback[] = $studentReviewExperienceFeedback;
+            $studentReviewExperienceFeedback->setCompanyExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentReviewExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewExperienceFeedback): self
+    {
+        if ($this->studentReviewExperienceFeedback->contains($studentReviewExperienceFeedback)) {
+            $this->studentReviewExperienceFeedback->removeElement($studentReviewExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($studentReviewExperienceFeedback->getCompanyExperience() === $this) {
+                $studentReviewExperienceFeedback->setCompanyExperience(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorReviewCompanyExperienceFeedback[]
+     */
+    public function getEducatorReviewCompanyExperienceFeedback(): Collection
+    {
+        return $this->educatorReviewCompanyExperienceFeedback;
+    }
+
+    public function addEducatorReviewCompanyExperienceFeedback(EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback): self
+    {
+        if (!$this->educatorReviewCompanyExperienceFeedback->contains($educatorReviewCompanyExperienceFeedback)) {
+            $this->educatorReviewCompanyExperienceFeedback[] = $educatorReviewCompanyExperienceFeedback;
+            $educatorReviewCompanyExperienceFeedback->setCompanyExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorReviewCompanyExperienceFeedback(EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback): self
+    {
+        if ($this->educatorReviewCompanyExperienceFeedback->contains($educatorReviewCompanyExperienceFeedback)) {
+            $this->educatorReviewCompanyExperienceFeedback->removeElement($educatorReviewCompanyExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($educatorReviewCompanyExperienceFeedback->getCompanyExperience() === $this) {
+                $educatorReviewCompanyExperienceFeedback->setCompanyExperience(null);
             }
         }
 
