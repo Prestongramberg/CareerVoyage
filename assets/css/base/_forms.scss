@@ -61,3 +61,8 @@ form fieldset ul.uk-list,
 form .uk-text-meta {
   margin-bottom: 8px;
 }
+
+input[type=radio]+label {
+  padding-left: 2px;
+  margin-right: 7px;
+}

@@ -3,7 +3,14 @@
 {% block title %}Primary Industry{% endblock %}
 
 {% block body %}
-    <iframe src="{{ secondaryIndustry.url }}"></iframe>
+    <div class="uk-container">
+        <h3>Viewing MN CAREERwise data on {{ secondaryIndustry.name }}</h3>
+        <p><a href="{{ path('salary_exploration_secondary_industry', { 'id': secondaryIndustry.primaryIndustry.id }) }}">Back to {{ secondaryIndustry.primaryIndustry.name }} exploration</a></p>
+        <div class="iframe-container uk-margin">
+            <iframe src="{{ secondaryIndustry.url }}"></iframe>
+        </div>
+        <p>To visit the Minnesota CAREERwise website directly, click <a href="{{ secondaryIndustry.url }}" target="_blank">here</a>.</p>
+    </div>
 {% endblock %}
 
 {% block stylesheets %}

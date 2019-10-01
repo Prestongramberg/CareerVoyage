@@ -97,6 +97,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('unread_messages', [$this, 'unreadMessages']),
             new TwigFunction('render_request', [$this, 'renderRequest']),
             new TwigFunction('render_request_status_text', [$this, 'renderRequestStatusText']),
+            new TwigFunction('list_pluck', [$this, 'listPluck']),
+            new TwigFunction('quote_array_elements_for_react', [$this, 'quoteArrayElementsForReact']),
         ];
     }
 
@@ -237,5 +239,51 @@ class AppExtension extends AbstractExtension
         }
 
         return "Pending";
+    }
+
+    public function listPluck ( $list, $field, $index_key = null ) {
+        if ( ! $index_key ) {
+            /*
+             * This is simple. Could at some point wrap array_column()
+             * if we knew we had an array of arrays.
+             */
+            foreach ( $list as $key => $value ) {
+                if ( is_object( $value ) ) {
+                    $list[ $key ] = $value->$field;
+                } else {
+                    $list[ $key ] = $value[ $field ];
+                }
+            }
+            return $list;
+        }
+
+        /*
+         * When index_key is not set for a particular item, push the value
+         * to the end of the stack. This is how array_column() behaves.
+         */
+        $newlist = array();
+        foreach ( $list as $value ) {
+            if ( is_object( $value ) ) {
+                if ( isset( $value->$index_key ) ) {
+                    $newlist[ $value->$index_key ] = $value->$field;
+                } else {
+                    $newlist[] = $value->$field;
+                }
+            } else {
+                if ( isset( $value[ $index_key ] ) ) {
+                    $newlist[ $value[ $index_key ] ] = $value[ $field ];
+                } else {
+                    $newlist[] = $value[ $field ];
+                }
+            }
+        }
+
+        return $newlist;
+    }
+
+    public function quoteArrayElementsForReact( $array ) {
+        return array_map( function( $value ) {
+            return '"' . $value . '"';
+        }, $array );
     }
 }

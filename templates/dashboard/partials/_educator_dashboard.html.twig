@@ -39,7 +39,7 @@
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">Calendar</a></li>
-                    <li><a href="#user-participation">Participation</a></li>
+{#                    <li><a href="#user-participation">Participation</a></li>#}
                     <li><a href="#user-favorites">Favorites</a></li>
                     <li><a href="#user-events">Events</a></li>
                 </ul>
@@ -47,14 +47,14 @@
                     <div class="user_preferences_calendar">
                         <div class="react-events-calendar" data-user-id="{{ user.id }}"></div>
                     </div>
-                    <div class="user_preferences_participation">
-                        <div class="uk-card uk-card-default">
-                            <div class="uk-card-body">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">My Student's Participation</h3>
-                                <div class="react-horizontal-bar-chart" data-sets='[{"label": "Student Participation", "data": [4,8,12,6,10,2,0,7]}]' data-labels='["Rick", "Ralph", "Sarah", "Joe", "Brittney", "Josh", "Chelsea", "Alexis"]'></div>
-                            </div>
-                        </div>
-                    </div>
+{#                    <div class="user_preferences_participation">#}
+{#                        <div class="uk-card uk-card-default">#}
+{#                            <div class="uk-card-body">#}
+{#                                <h3 class="uk-card-title uk-margin-remove-bottom">My Student's Participation</h3>#}
+{#                                <div class="react-horizontal-bar-chart" data-sets='[{"label": "Student Participation", "data": [4,8,12,6,10,2,0,7]}]' data-labels='["Rick", "Ralph", "Sarah", "Joe", "Brittney", "Josh", "Chelsea", "Alexis"]'></div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
                     <div class="user_preferences_favorites">
                         <div class="uk-card uk-card-default">
                             <div class="uk-card-body">
@@ -105,10 +105,34 @@
                                     </ul>
                                     <div class="uk-switcher" id="tab-events">
                                         <div class="tab-events__upcoming">
-                                            Upcoming Events...
+                                            {% if dashboards.upcomingEventsRegisteredForByUser|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for event in dashboards.upcomingEventsRegisteredForByUser %}
+                                                        {% if event.company is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('company_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% elseif event.school is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('school_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No upcoming events.</p>
+                                            {% endif %}
                                         </div>
                                         <div class="tab-events__completed">
-                                            Completed Events...
+                                            {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for event in dashboards.completedEventsRegisteredForByUser %}
+                                                        {% if event.company is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('company_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% elseif event.school is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('school_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No completed events.</p>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -126,16 +150,28 @@
                                     <div class="uk-switcher" id="tab-reviews">
                                         <div class="tab-reviews__todo">
                                             <ul class="uk-list uk-list-divider">
-                                                <li>
-                                                    <a class="uk-link-text" href="#">3M Site Visit</a>
-                                                </li>
+                                                {% if dashboards.eventsMissingFeedback|length > 0 %}
+                                                    <ul class="uk-list uk-list-divider">
+                                                        {% for event in dashboards.eventsMissingFeedback %}
+                                                            <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    <p>All reviews are up to date!</p>
+                                                {% endif %}
                                             </ul>
                                         </div>
                                         <div class="tab-reviews__submitted">
                                             <ul class="uk-list uk-list-divider">
-                                                <li>
-                                                    Best Buy Site Visit
-                                                </li>
+                                                {% if dashboards.eventsWithFeedback|length > 0 %}
+                                                    <ul class="uk-list uk-list-divider">
+                                                        {% for event in dashboards.eventsWithFeedback %}
+                                                            <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    <p>No events reviews have been submitted.</p>
+                                                {% endif %}
                                             </ul>
                                         </div>
                                     </div>
@@ -162,6 +198,22 @@
                             <li><a href="{{ path('lesson_index') }}">Find a Lesson</a></li>
                             <li><a href="{{ path('professional_index') }}">Search for Professionals</a></li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salary Exploration -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">Salary Exploration</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Explore Salaries by Industry</a>
                     </div>
                 </div>
             </div>

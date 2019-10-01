@@ -4,11 +4,17 @@
 
 {% block body %}
 
-    {% for secondaryIndustry in secondaryIndustries %}
-        <div>
-            <a href="{{ path('salary_exploration_details', {'id' : secondaryIndustry.id }) }}">{{ secondaryIndustry.name }}</a>
+    <div class="uk-container">
+        <div class="uk-section uk-section-muted uk-padding">
+            <h3>Select a Targeted Career Field</h3>
+            <p><a href="{{ path('salary_exploration_primary_industry') }}">Back to primary exploration</a></p>
+            {% for secondaryIndustry in secondaryIndustries %}
+                <div>
+                    <a href="{{ path('salary_exploration_details', {'id' : secondaryIndustry.id }) }}">{{ secondaryIndustry.name }}</a>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
 
 
 {% endblock %}
