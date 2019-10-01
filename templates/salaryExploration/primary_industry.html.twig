@@ -1,14 +1,19 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Primary Industry{% endblock %}
+{% block title %}Salary Exploration - Primary Industry{% endblock %}
 
 {% block body %}
 
-    {% for primaryIndustry in primaryIndustries %}
-        <div>
-            <a href="{{ path('salary_exploration_secondary_industry', {'id' : primaryIndustry.id }) }}">{{ primaryIndustry.name }}</a>
+    <div class="uk-container">
+        <div class="uk-section uk-section-muted uk-padding">
+            <h3>Select a Primary Industry Career Field</h3>
+            {% for primaryIndustry in primaryIndustries %}
+                <div>
+                    <a href="{{ path('salary_exploration_secondary_industry', {'id' : primaryIndustry.id }) }}">{{ primaryIndustry.name }}</a>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
 
 
 {% endblock %}

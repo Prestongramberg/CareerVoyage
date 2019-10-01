@@ -32,7 +32,7 @@
 
         <div class="uk-margin">
             {{ form_label(form.message, 'Request a lesson, experience, or site visit*') }}
-            {{ form_widget(form.message, {'attr': {'class': 'uk-input' ~ ( form_errors(form.message) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_widget(form.message, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.message) ? ' uk-form-danger' : '' ) }}) }}
             {{ form_errors(form.message) }}
         </div>
         <div class="uk-margin">

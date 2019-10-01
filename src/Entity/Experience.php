@@ -183,6 +183,7 @@ abstract class Experience
     protected $type;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
      */
     protected $secondaryIndustries;
@@ -324,7 +325,7 @@ abstract class Experience
 
         return $this;
     }
-    
+
     public function getZipcode()
     {
         return $this->zipcode;

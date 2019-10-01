@@ -44,22 +44,40 @@ class FeedbackFormType extends AbstractType
                 '5' => 5
             ],
             'expanded' => true,
-            'multiple' => false
+            'multiple' => false,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-radio'];
+            },
         ])->add('providedCareerInsight', ChoiceType::class, [
             'choices'  => [
                 'Yes' => true,
                 'No' => false,
             ],
+            'expanded' => true,
+            'multiple' => false,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-radio'];
+            },
         ])->add('wasEnjoyableAndEngaging', ChoiceType::class, [
             'choices'  => [
                 'Yes' => true,
                 'No' => false,
             ],
+            'expanded' => true,
+            'multiple' => false,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-radio'];
+            },
         ])->add('learnSomethingNew', ChoiceType::class, [
             'choices'  => [
                 'Yes' => true,
                 'No' => false,
             ],
+            'expanded' => true,
+            'multiple' => false,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-radio'];
+            },
         ])->add('likelihoodToRecommendToFriend', ChoiceType::class, [
             'choices'  => [
                 '1' => 1,
@@ -69,7 +87,10 @@ class FeedbackFormType extends AbstractType
                 '5' => 5
             ],
             'expanded' => true,
-            'multiple' => false
+            'multiple' => false,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-radio'];
+            },
         ])->add('additionalFeedback', TextareaType::class, []);
     }
 

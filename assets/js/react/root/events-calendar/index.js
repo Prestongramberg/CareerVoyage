@@ -7,30 +7,34 @@ import reducers from "./reducers";
 import { getInitialCalendarState } from "./init";
 import App from "./App";
 
-const eventsCalendar = document.getElementById("react-events-calendar");
+const event_calendars = document.getElementsByClassName("react-events-calendar");
+for( let i = 0; i < event_calendars.length; i++) {
+    (function(i){
+        const userId = parseInt(event_calendars[i].getAttribute("data-user-id"));
+        const schoolId = parseInt(event_calendars[i].getAttribute("data-school-id"));
 
-if( eventsCalendar ) {
-
-    const store = createStore(
-        reducers,
-        {
-            calendar: getInitialCalendarState(),
-            events: []
-        },
-        compose(
-            applyMiddleware(thunk),
-            window.devToolsExtension ? window.devToolsExtension() : f => f
-        )
-    );
-
-    const render = () => {
-        ReactDOM.render(
-            <Provider store={store}>
-                <App />
-            </Provider>,
-            eventsCalendar
+        const store = createStore(
+            reducers,
+            {
+                calendar: getInitialCalendarState(),
+                events: [],
+                industries: []
+            },
+            compose(
+                applyMiddleware(thunk),
+                window.devToolsExtension ? window.devToolsExtension() : f => f
+            )
         );
-    };
-    render();
-    store.subscribe(render);
+
+        const render = () => {
+            ReactDOM.render(
+                <Provider store={store}>
+                    <App userId={userId} schoolId={schoolId} />
+                </Provider>,
+                event_calendars[i]
+            );
+        };
+        render();
+        store.subscribe(render)
+    })(i);
 }

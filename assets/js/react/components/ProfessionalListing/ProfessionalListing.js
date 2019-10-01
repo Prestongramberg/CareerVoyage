@@ -18,7 +18,7 @@ class ProfessionalListing extends Component {
                                     <h3 className="uk-card-title-small uk-margin-remove-bottom">{ this.props.firstName } {this.props.lastName}</h3>
                                 </a>
                                 <p className="uk-text-meta uk-margin-remove-top">
-                                    { this.props.company ? <span>{ this.props.company }</span> : <span>Professional</span> }
+                                    { this.props.company.id ? <span><a href={ window.Routing.generate('company_view', { 'id': this.props.company.id }) }>{ this.props.company.name }</a></span> : <span>Professional</span> }
                                     { this.props.primaryIndustry && <span> - { this.props.primaryIndustry }</span> }
                                     { this.props.secondaryIndustry && <span> - { this.props.secondaryIndustry }</span> }
                                 </p>
@@ -45,7 +45,7 @@ class ProfessionalListing extends Component {
 
 ProfessionalListing.propTypes = {
     briefBio: PropTypes.string,
-    company: PropTypes.string,
+    company: PropTypes.object,
     email: PropTypes.string,
     firstName: PropTypes.string,
     id: PropTypes.number,
@@ -58,6 +58,7 @@ ProfessionalListing.propTypes = {
 };
 
 ProfessionalListing.defaultProps = {
+    company: {}
 };
 
 export default ProfessionalListing;

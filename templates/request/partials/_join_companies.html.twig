@@ -1,20 +1,70 @@
 <li>
     {% if request.isFromCompany == true%}
 
-    {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to join your company</a>
-        <div class="uk-accordion-content">
-            <p>You have requested that {{ request.needsApprovalBy.fullName}} join your company.</p>
-            <p>Status: <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span></p>
-        </div>
-        {% else %}
-            <a class="uk-accordion-title" href="#">You've been invited to join a company</a>
+        {% if request.wasCreatedByUser(user) %}
+            <a class="uk-accordion-title" href="#">Request to join your company</a>
+            <div class="uk-accordion-content">
+                <p>You have requested that {{ request.needsApprovalBy.fullName}} join your company.</p>
+                <p>Status: <span class="uk-label">{{ render_request_status_text( request ) }}</span></p>
+            </div>
+            {% else %}
+                <a class="uk-accordion-title" href="#">You've been invited to join a company</a>
+                <div class="uk-accordion-content">
+                    <table class="uk-table uk-table-small uk-table-divider">
+                        <tbody>
+                        <tr>
+                            <td>Request Type</td>
+                            <td>INVITED BY COMPANY</td>
+                        </tr>
+                        <tr>
+                            <td>Company Name</td>
+                            <td>{{ request.company.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Website</td>
+                            <td>{{ request.company.website }}</td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td>{{ request.company.emailAddress }}</td>
+                        </tr>
+                        <tr>
+                            <td>Phone</td>
+                            <td>{{ request.company.phone }}</td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>
+                                <span class="uk-label">
+                                    {{ render_request_status_text( request ) }}
+                                </span>
+                                {% if render_request_status_text( request ) == "Pending" %}
+                                    <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                                        <input class="uk-label uk-label-success" type="submit" value="Approve">
+                                        <input type="hidden" name="request" value="{{ request.id }}">
+                                    </form>
+                                    <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                                        <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                        <input type="hidden" name="request" value="{{ request.id }}">
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+        {% endif %}
+
+    {% elseif request.isFromCompany == false %}
+
+        {% if request.wasCreatedByUser(user) %}
+            <a class="uk-accordion-title" href="#">Request to join another company</a>
             <div class="uk-accordion-content">
                 <table class="uk-table uk-table-small uk-table-divider">
                     <tbody>
                     <tr>
                         <td>Request Type</td>
-                        <td>INVITED BY COMPANY</td>
+                        <td>JOIN COMPANY</td>
                     </tr>
                     <tr>
                         <td>Company Name</td>
@@ -25,79 +75,36 @@
                         <td>{{ request.company.website }}</td>
                     </tr>
                     <tr>
-                        <td>Email</td>
-                        <td>{{ request.company.emailAddress }}</td>
-                    </tr>
-                    <tr>
                         <td>Phone</td>
                         <td>{{ request.company.phone }}</td>
                     </tr>
                     <tr>
                         <td>Status</td>
                         <td>
-                            <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
-                                <input class="uk-label uk-label-success" type="submit" value="Approve">
-                                <input type="hidden" name="request" value="{{ request.id }}">
-                            </form>
-                            <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
-                                <input class="uk-label uk-label-danger" type="submit" value="Deny">
-                                <input type="hidden" name="request" value="{{ request.id }}">
-                            </form>
+                            <span class="uk-label">
+                                {{ render_request_status_text( request ) }}
+                            </span>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-    {% endif %}
-
-    {% elseif request.isFromCompany == false %}
-
-    {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to join another company</a>
-        <div class="uk-accordion-content">
-            <table class="uk-table uk-table-small uk-table-divider">
-                <tbody>
-                <tr>
-                    <td>Request Type</td>
-                    <td>JOIN COMPANY</td>
-                </tr>
-                <tr>
-                    <td>Company Name</td>
-                    <td>{{ request.company.name }}</td>
-                </tr>
-                <tr>
-                    <td>Website</td>
-                    <td>{{ request.company.website }}</td>
-                </tr>
-                <tr>
-                    <td>Phone</td>
-                    <td>{{ request.company.phone }}</td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <span class="uk-label">{% if request.approved %}Approved{% else %}Pending Approval{% endif %}</span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-            <a class="uk-accordion-title" href="#">Request to join another company</a>
-            <div class="uk-accordion-content">
-                <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
-                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
-                    <input class="uk-label uk-label-success" type="submit" value="Approve">
-                    <input type="hidden" name="request" value="{{ request.id }}">
-                </form>
-                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
-                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
-                    <input type="hidden" name="request" value="{{ request.id }}">
-                </form>
-            </div>
-    {% endif %}
-
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to join another company</a>
+                <div class="uk-accordion-content">
+                    <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
+                    {% if render_request_status_text( request ) == "Pending" %}
+                        <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <input class="uk-label uk-label-success" type="submit" value="Approve">
+                            <input type="hidden" name="request" value="{{ request.id }}">
+                        </form>
+                        <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                            <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                            <input type="hidden" name="request" value="{{ request.id }}">
+                        </form>
+                    {% endif %}
+                </div>
+        {% endif %}
 
     {% endif %}
 

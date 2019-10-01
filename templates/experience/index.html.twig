@@ -10,21 +10,24 @@
     <div class="uk-container">
 
         <div class="uk-grid uk-margin" uk-grid>
-            <div class="uk-width-1-1 uk-width-1-2@m">
+            <div class="uk-margin uk-width-1-1 uk-width-1-2@m">
                 <ul class="uk-breadcrumb">
                     <li><a href="/">Dashboard</a></li>
-                    <li><span>Experiences</span></li>
+                    <li><span>Company Experiences</span></li>
                 </ul>
             </div>
             <div class="uk-width-1-2 uk-width-1-2@m">
-                {% if user.company is defined and user.company.owner.id == user.id %}
-                    <div class="uk-flex uk-flex-right@m">
-                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary uk-button-small">Create an Event</a>
-                    </div>
-                {% endif %}
+                <div class="uk-flex uk-flex-right@m">
+                    {% if user.isEducator or user.isStudent %}
+                        <a href="{{ path('request_lesson_experience_or_site_visit') }}" class="uk-button uk-button-default uk-button-small">Suggest an Experience</a>
+                    {% endif %}
+                    {% if user.company is defined and user.company.owner.id == user.id %}
+                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Create an Event</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <div id="react-events-calendar"></div>
+        <div class="react-events-calendar"></div>
     </div>
 {% endblock %}

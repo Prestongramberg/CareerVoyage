@@ -3,102 +3,115 @@
 {% block title %}New Requests{% endblock %}
 {% block bodyClass %}requests-landing{% endblock %}
 
-
-
 {% block body %}
 
     <div class="uk-container">
 
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
-            <li class="uk-active"><a href="#requests-mine">Outgoing Requests ({{ myCreatedRequests|length }})</a></li>
+            <li class="uk-active"><a href="#requests-mine">My Requests ({{ myCreatedRequests|length }})</a></li>
             {% if requestsThatNeedMyApproval|length > 0 %}
-                <li><a href="#requests-approvals">Incoming Requests ({{ requestsThatNeedMyApproval|length }})</a></li>
+                <li><a href="#requests-approvals">My Approvals ({{ requestsThatNeedMyApproval|length }})</a></li>
+            {% endif %}
+            {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
+                <li><a href="#requests-completed">History</a></li>
             {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-requests">
             <div class="requests-landing__my-requests">
-                <div class="uk-width-xlarge">
-                    {% if myCreatedRequests|length > 0 %}
-                        <ul uk-accordion>
-                            {% for request in myCreatedRequests %}
-
-                                {% if request.className == 'JoinCompanyRequest' %}
-                                    {% include 'request/partials/_join_companies.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'NewCompanyRequest' %}
-                                    {% include 'request/partials/_new_companies.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'StateCoordinatorRequest' %}
-                                    {% include 'request/partials/_state_coordinator_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'RegionalCoordinatorRequest' %}
-                                    {% include 'request/partials/_regional_coordinator_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'SchoolAdministratorRequest' %}
-                                    {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'TeachLessonRequest' %}
-                                    {% include 'request/partials/_teach_lesson_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'EducatorRegisterStudentForCompanyExperienceRequest' %}
-                                    {% include 'request/partials/_educator_register_student_for_company_experience_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <div class="uk-placeholder">
-                            You have not sent any requests that are pending.
-                        </div>
-                    {% endif %}
-                </div>
+                {% if myCreatedRequests|length > 0 %}
+                    <ul class="uk-width-xlarge" uk-accordion>
+                        {% for request in myCreatedRequests %}
+                            {{ render_request( request, user )|raw  }}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="uk-placeholder">
+                        You have not sent any requests that are pending.
+                    </div>
+                {% endif %}
             </div>
             {% if requestsThatNeedMyApproval|length > 0 %}
                 <div class="requests-landing__my-approvals">
-                    <div class="uk-width-xlarge">
-                        <ul uk-accordion>
+                        <ul class="uk-width-xlarge" uk-accordion>
                             {% for request in requestsThatNeedMyApproval %}
-
-                                {% if request.className == 'JoinCompanyRequest' %}
-                                    {#todo This needs to be figured out cause there can be requests to join a company from both sides. A Company to a user and a user to a company #}
-                                    {% include 'request/partials/_join_companies.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'NewCompanyRequest' %}
-                                    {% include 'request/partials/_new_companies.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'StateCoordinatorRequest' %}
-                                    {% include 'request/partials/_state_coordinator_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'RegionalCoordinatorRequest' %}
-                                    {% include 'request/partials/_regional_coordinator_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'SchoolAdministratorRequest' %}
-                                    {% include 'request/partials/_school_administrator_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'TeachLessonRequest' %}
-                                    {% include 'request/partials/_teach_lesson_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
-                                {% if request.className == 'EducatorRegisterStudentForCompanyExperienceRequest' %}
-                                    {% include 'request/partials/_educator_register_student_for_company_experience_request.html.twig' with {'request': request, 'user': user} %}
-                                {% endif %}
-
+                                {{ render_request( request, user )|raw }}
                             {% endfor %}
                         </ul>
-                    </div>
                 </div>
+            {% endif %}
+            {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
+                <div class="requests-landing__my-completed-approvals">
+
+                    {% if deniedByMeRequests|length > 0 or approvedByMeRequests|length > 0  %}
+                        <div class="uk-section uk-section-muted uk-padding">
+                            <h3>Approval Needed By Me</h3>
+                            <div class="uk-width-xlarge">
+                                <ul class="" data-uk-tab="{connect: '#tab-requests-by-me'}" uk-switcher>
+                                    <li class="uk-active"><a href="#requests-by-me-approved">Approved</a></li>
+                                    <li><a href="#requests-by-me-denied">Denied</a></li>
+                                </ul>
+                                <div class="uk-switcher" id="tab-requests-by-me">
+                                    <div class="requests-landing__requests-by-me-approved">
+                                        <ul class="uk-width-xlarge" uk-accordion>
+                                            {% for request in approvedByMeRequests %}
+                                                {{ render_request( request, user )|raw }}
+                                            {% endfor %}
+                                            {% if approvedByMeRequests|length == 0 %}
+                                                <p>No requests found.</p>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    <div class="requests-landing__requests-by-me-denied">
+                                        <ul class="uk-width-xlarge" uk-accordion>
+                                            {% for request in deniedByMeRequests %}
+                                                {{ render_request( request, user )|raw }}
+                                            {% endfor %}
+                                            {% if deniedByMeRequests|length == 0 %}
+                                                <p>No requests found.</p>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if myDeniedAccessRequests|length > 0 or myApprovedAccessRequests|length > 0 %}
+                        <div class="uk-section uk-section-muted uk-padding uk-margin">
+                            <h3>Approvals I Requested</h3>
+                            <div class="uk-width-xlarge">
+                                <ul data-uk-tab="{connect: '#tab-requests-for-me'}" uk-switcher>
+                                    <li class="uk-active"><a href="#requests-for-me-approved">Approved</a></li>
+                                    <li><a href="#requests-for-me-denied">Denied</a></li>
+                                </ul>
+                                <div class="uk-switcher" id="tab-requests-for-me">
+                                    <div class="requests-landing__requests-for-me-approved">
+                                        <ul class="uk-width-xlarge" uk-accordion>
+                                            {% for request in myApprovedAccessRequests %}
+                                                {{ render_request( request, user )|raw }}
+                                            {% endfor %}
+                                            {% if myApprovedAccessRequests|length == 0 %}
+                                                <p>No requests found.</p>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    <div class="requests-landing__requests-for-me-denied">
+                                        <ul class="uk-width-xlarge" uk-accordion>
+                                            {% for request in myDeniedAccessRequests %}
+                                                {{ render_request( request, user )|raw }}
+                                            {% endfor %}
+                                            {% if myDeniedAccessRequests|length == 0 %}
+                                                <p>No requests found.</p>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
             {% endif %}
         </div>
     </div>

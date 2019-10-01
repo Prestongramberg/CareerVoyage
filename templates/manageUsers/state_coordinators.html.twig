@@ -25,6 +25,7 @@
                         <th>Last Name</th>
                         <th>Email</th>
                         <th>Username</th>
+                        <th>Site</th>
                         <th>State</th>
                         {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
                         <th>Edit/Delete</th>
@@ -39,8 +40,13 @@
                             <td>{{ paginatedUser.email }}</td>
                             <td>{{ paginatedUser.username }}</td>
                             <td>
+                                {% if paginatedUser.site is defined and paginatedUser.site is not null %}
+                                    {{ paginatedUser.site.name }}
+                                {% endif %}
+                            </td>
+                            <td>
                                 {% if paginatedUser.state is defined and paginatedUser.state is not null %}
-                                {{ paginatedUser.state.name }}
+                                    {{ paginatedUser.state.name }}
                                 {% endif %}
                             </td>
                             {% if user.canLoginAsAnotherUser %}

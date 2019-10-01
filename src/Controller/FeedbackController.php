@@ -107,11 +107,8 @@ class FeedbackController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             $message = $form->get('message')->getData();
 
-            // I don't know any case where an educator user or a student user wouldn't have a site. Better safe than sorry
-            if($user->getSite()) {
-                foreach($user->getSite()->getSiteAdminUsers() as $siteAdminUser) {
-                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($siteAdminUser, $message);
-                }
+            foreach($user->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
+                $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($schoolAdministrator, $message);
             }
 
             $this->addFlash('success', 'Feedback successfully submitted.');
