@@ -1,0 +1,19 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Primary Industry{% endblock %}
+
+{% block body %}
+
+    {% for secondaryIndustry in secondaryIndustries %}
+        <div>
+            <a href="{{ path('salary_exploration_details', {'id' : secondaryIndustry.id }) }}">{{ secondaryIndustry.name }}</a>
+        </div>
+    {% endfor %}
+
+
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+

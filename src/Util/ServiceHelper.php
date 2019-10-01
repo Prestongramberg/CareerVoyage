@@ -15,9 +15,12 @@ use App\Repository\AdminUserRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\CompanyExperienceRepository;
+use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
+use App\Repository\EducatorReviewCompanyExperienceFeedbackRepository;
+use App\Repository\EducatorReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\EducatorUserRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\IndustryRepository;
@@ -27,6 +30,7 @@ use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegionalCoordinatorRepository;
+use App\Repository\RegistrationRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
 use App\Repository\SchoolAdministratorRepository;
@@ -34,6 +38,8 @@ use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SiteAdminUserRepository;
 use App\Repository\StateCoordinatorRepository;
+use App\Repository\StudentReviewCompanyExperienceFeedbackRepository;
+use App\Repository\StudentReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\TeachLessonRequestRepository;
@@ -293,6 +299,36 @@ trait ServiceHelper
     private $unseenMessagesMailer;
 
     /**
+     * @var CompanyFavoriteRepository
+     */
+    private $companyFavoriteRepository;
+
+    /**
+     * @var RegistrationRepository
+     */
+    private $registrationRepository;
+
+    /**
+     * @var EducatorReviewCompanyExperienceFeedbackRepository
+     */
+    private $educatorReviewCompanyExperienceFeedbackRepository;
+
+    /**
+     * @var EducatorReviewTeachLessonExperienceFeedbackRepository
+     */
+    private $educatorReviewTeachLessonExperienceFeedbackRepository;
+
+    /**
+     * @var StudentReviewCompanyExperienceFeedbackRepository
+     */
+    private $studentReviewCompanyExperienceFeedbackRepository;
+
+    /**
+     * @var StudentReviewTeachLessonExperienceFeedbackRepository
+     */
+    private $studentReviewTeachLessonExperienceFeedbackRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -341,6 +377,12 @@ trait ServiceHelper
      * @param SchoolRepository $schoolRepository
      * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
      * @param UnseenMessagesMailer $unseenMessagesMailer
+     * @param CompanyFavoriteRepository $companyFavoriteRepository
+     * @param RegistrationRepository $registrationRepository
+     * @param EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository
+     * @param EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository
+     * @param StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository
+     * @param StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -389,7 +431,13 @@ trait ServiceHelper
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
         SchoolRepository $schoolRepository,
         TeachLessonExperienceRepository $teachLessonExperienceRepository,
-        UnseenMessagesMailer $unseenMessagesMailer
+        UnseenMessagesMailer $unseenMessagesMailer,
+        CompanyFavoriteRepository $companyFavoriteRepository,
+        RegistrationRepository $registrationRepository,
+        EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
+        EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository,
+        StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository,
+        StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -438,6 +486,12 @@ trait ServiceHelper
         $this->schoolRepository = $schoolRepository;
         $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
         $this->unseenMessagesMailer = $unseenMessagesMailer;
+        $this->companyFavoriteRepository = $companyFavoriteRepository;
+        $this->registrationRepository = $registrationRepository;
+        $this->educatorReviewCompanyExperienceFeedbackRepository = $educatorReviewCompanyExperienceFeedbackRepository;
+        $this->educatorReviewTeachLessonExperienceFeedbackRepository = $educatorReviewTeachLessonExperienceFeedbackRepository;
+        $this->studentReviewCompanyExperienceFeedbackRepository = $studentReviewCompanyExperienceFeedbackRepository;
+        $this->studentReviewTeachLessonExperienceFeedbackRepository = $studentReviewTeachLessonExperienceFeedbackRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

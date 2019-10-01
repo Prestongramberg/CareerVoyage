@@ -93,6 +93,16 @@ class StudentUser extends User
      */
     private $companyExperienceStudentExpressInterestRequests;
 
+    /**
+     * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="student", orphanRemoval=true)
+     */
+    private $studentReviewExperienceFeedback;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="student", orphanRemoval=true)
+     */
+    private $studentReviewTeachLessonExperienceFeedback;
+
     public function __construct()
     {
         parent::__construct();
@@ -101,6 +111,8 @@ class StudentUser extends User
         $this->educatorUsers = new ArrayCollection();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
         $this->companyExperienceStudentExpressInterestRequests = new ArrayCollection();
+        $this->studentReviewExperienceFeedback = new ArrayCollection();
+        $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -344,6 +356,68 @@ class StudentUser extends User
             // set the owning side to null (unless already changed)
             if ($companyExperienceStudentExpressInterestRequest->getStudentUser() === $this) {
                 $companyExperienceStudentExpressInterestRequest->setStudentUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentReviewCompanyExperienceFeedback[]
+     */
+    public function getStudentReviewExperienceFeedback(): Collection
+    {
+        return $this->studentReviewExperienceFeedback;
+    }
+
+    public function addStudentReviewExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewExperienceFeedback): self
+    {
+        if (!$this->studentReviewExperienceFeedback->contains($studentReviewExperienceFeedback)) {
+            $this->studentReviewExperienceFeedback[] = $studentReviewExperienceFeedback;
+            $studentReviewExperienceFeedback->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentReviewExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewExperienceFeedback): self
+    {
+        if ($this->studentReviewExperienceFeedback->contains($studentReviewExperienceFeedback)) {
+            $this->studentReviewExperienceFeedback->removeElement($studentReviewExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($studentReviewExperienceFeedback->getStudent() === $this) {
+                $studentReviewExperienceFeedback->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentReviewTeachLessonExperienceFeedback[]
+     */
+    public function getStudentReviewTeachLessonExperienceFeedback(): Collection
+    {
+        return $this->studentReviewTeachLessonExperienceFeedback;
+    }
+
+    public function addStudentReviewTeachLessonExperienceFeedback(StudentReviewTeachLessonExperienceFeedback $studentReviewTeachLessonExperienceFeedback): self
+    {
+        if (!$this->studentReviewTeachLessonExperienceFeedback->contains($studentReviewTeachLessonExperienceFeedback)) {
+            $this->studentReviewTeachLessonExperienceFeedback[] = $studentReviewTeachLessonExperienceFeedback;
+            $studentReviewTeachLessonExperienceFeedback->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentReviewTeachLessonExperienceFeedback(StudentReviewTeachLessonExperienceFeedback $studentReviewTeachLessonExperienceFeedback): self
+    {
+        if ($this->studentReviewTeachLessonExperienceFeedback->contains($studentReviewTeachLessonExperienceFeedback)) {
+            $this->studentReviewTeachLessonExperienceFeedback->removeElement($studentReviewTeachLessonExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($studentReviewTeachLessonExperienceFeedback->getStudent() === $this) {
+                $studentReviewTeachLessonExperienceFeedback->setStudent(null);
             }
         }
 

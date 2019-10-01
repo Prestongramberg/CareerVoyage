@@ -94,6 +94,12 @@ class ExperienceController extends AbstractController
 
             }
         } elseif ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
+
+            // show the events where a professional is coming in to teach
+            $teachLessonExperiences = $this->teachLessonExperienceRepository->findBy([
+                'school' => $school
+            ]);
+
             $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $school]));
         }
 

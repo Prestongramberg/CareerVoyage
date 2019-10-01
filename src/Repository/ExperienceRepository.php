@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Experience;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,26 @@ class ExperienceRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function getUpcomingEventsRegisteredForByUser(User $user) {
+        return $this->createQueryBuilder('e')
+            ->innerJoin('e.registrations', 'r')
+            ->where('r.user = :user')
+            ->andWhere('e.startDateAndTime >= :startDateAndTime')
+            ->setParameter('user', $user)
+            ->setParameter('startDateAndTime' , new \DateTime())
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getCompletedEventsRegisteredForByUser(User $user) {
+        return $this->createQueryBuilder('e')
+            ->innerJoin('e.registrations', 'r')
+            ->where('r.user = :user')
+            ->andWhere('e.startDateAndTime <= :startDateAndTime')
+            ->setParameter('user', $user)
+            ->setParameter('startDateAndTime' , new \DateTime())
+            ->getQuery()
+            ->getResult();
+    }
 }

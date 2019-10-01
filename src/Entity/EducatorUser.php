@@ -75,11 +75,23 @@ class EducatorUser extends User
      */
     private $studentUsers;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewCompanyExperienceFeedback", mappedBy="educator", orphanRemoval=true)
+     */
+    private $educatorReviewCompanyExperienceFeedback;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="educator", orphanRemoval=true)
+     */
+    private $educatorReviewTeachLessonExperienceFeedback;
+
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
         $this->studentUsers = new ArrayCollection();
+        $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
+        $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -249,6 +261,68 @@ class EducatorUser extends User
     {
         if ($this->studentUsers->contains($studentUser)) {
             $this->studentUsers->removeElement($studentUser);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorReviewCompanyExperienceFeedback[]
+     */
+    public function getEducatorReviewCompanyExperienceFeedback(): Collection
+    {
+        return $this->educatorReviewCompanyExperienceFeedback;
+    }
+
+    public function addEducatorReviewCompanyExperienceFeedback(EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback): self
+    {
+        if (!$this->educatorReviewCompanyExperienceFeedback->contains($educatorReviewCompanyExperienceFeedback)) {
+            $this->educatorReviewCompanyExperienceFeedback[] = $educatorReviewCompanyExperienceFeedback;
+            $educatorReviewCompanyExperienceFeedback->setEducator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorReviewCompanyExperienceFeedback(EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback): self
+    {
+        if ($this->educatorReviewCompanyExperienceFeedback->contains($educatorReviewCompanyExperienceFeedback)) {
+            $this->educatorReviewCompanyExperienceFeedback->removeElement($educatorReviewCompanyExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($educatorReviewCompanyExperienceFeedback->getEducator() === $this) {
+                $educatorReviewCompanyExperienceFeedback->setEducator(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorReviewTeachLessonExperienceFeedback[]
+     */
+    public function getEducatorReviewTeachLessonExperienceFeedback(): Collection
+    {
+        return $this->educatorReviewTeachLessonExperienceFeedback;
+    }
+
+    public function addEducatorReviewTeachLessonExperienceFeedback(EducatorReviewTeachLessonExperienceFeedback $educatorReviewTeachLessonExperienceFeedback): self
+    {
+        if (!$this->educatorReviewTeachLessonExperienceFeedback->contains($educatorReviewTeachLessonExperienceFeedback)) {
+            $this->educatorReviewTeachLessonExperienceFeedback[] = $educatorReviewTeachLessonExperienceFeedback;
+            $educatorReviewTeachLessonExperienceFeedback->setEducator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorReviewTeachLessonExperienceFeedback(EducatorReviewTeachLessonExperienceFeedback $educatorReviewTeachLessonExperienceFeedback): self
+    {
+        if ($this->educatorReviewTeachLessonExperienceFeedback->contains($educatorReviewTeachLessonExperienceFeedback)) {
+            $this->educatorReviewTeachLessonExperienceFeedback->removeElement($educatorReviewTeachLessonExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($educatorReviewTeachLessonExperienceFeedback->getEducator() === $this) {
+                $educatorReviewTeachLessonExperienceFeedback->setEducator(null);
+            }
         }
 
         return $this;

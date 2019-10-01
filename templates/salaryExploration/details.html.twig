@@ -1,0 +1,12 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Primary Industry{% endblock %}
+
+{% block body %}
+    <iframe src="{{ secondaryIndustry.url }}"></iframe>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+

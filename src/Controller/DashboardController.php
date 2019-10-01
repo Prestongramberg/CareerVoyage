@@ -2,9 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\CompanyExperience;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
+use App\Entity\TeachLessonExperience;
 use App\Entity\User;
 use App\Form\AdminProfileFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -41,6 +46,7 @@ class DashboardController extends AbstractController
      * @param Request $request
      * @param SessionInterface $session
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function indexAction(Request $request, SessionInterface $session) {
 
@@ -56,16 +62,133 @@ class DashboardController extends AbstractController
             $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
             $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getEventsByRegionGroupedBySchool($user->getRegion());
             $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
-
+            $numberOfRegistrationsGroupedByPrimaryIndustryForRegion = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForRegion($user->getRegion());
 
             $dashboards = [
                 'numberOfStudentsInRegion' => $numberOfStudentsInRegion,
                 'numberOfEducatorsInRegion' => $numberOfEducatorsInRegion,
                 'numberOfSchoolAdminsInRegion' => $numberOfSchoolAdminsInRegion,
                 'schoolEventsByRegionGroupedBySchool' => $schoolEventsByRegionGroupedBySchool,
+                'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
+                'numberOfRegistrationsGroupedByPrimaryIndustryForRegion' => $numberOfRegistrationsGroupedByPrimaryIndustryForRegion
+            ];
+        } elseif ($user->isSchoolAdministrator()) {
+            /** @var SchoolAdministrator $user */
+            $numberOfStudentsInSchoolNetwork = 0;
+            $numberOfEducatorsInSchoolNetwork = 0;
+            $dashboards['registrationsGroupedByPrimaryIndustryInSchool'] = [];
+            foreach($user->getSchools() as $school) {
+                $numberOfStudentsInSchoolNetwork += count($this->studentUserRepository->findBy(['school' => $school]));
+                $numberOfEducatorsInSchoolNetwork+= count($this->educatorUserRepository->findBy(['school' => $school]));
+
+                $registrationsGroupedByPrimaryIndustryInSchool = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryInSchool($school);
+
+                $dashboards['registrationsGroupedByPrimaryIndustryInSchool'][$school->getId()] = [
+                    'schoolName' => $school->getName(),
+                    'school_id' => $school->getId(),
+                    'registrationsGroupedByPrimaryIndustryInSchool' => $registrationsGroupedByPrimaryIndustryInSchool
+                ];
+            }
+
+            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
+
+            $dashboards = [
+                'numberOfStudentsInSchoolNetwork' => $numberOfStudentsInSchoolNetwork,
+                'numberOfEducatorsInSchoolNetwork' => $numberOfEducatorsInSchoolNetwork,
                 'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry
             ];
+        } elseif ($user->isStudent() || $user->isEducator()) {
+            /** @var StudentUser|EducatorUser $user */
+            $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+            $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
+            $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
 
+            $guestLectures = $this->teachLessonExperienceRepository->findBy([
+                'school' => $user->getSchool()
+            ]);
+
+            $dashboards = [
+                'companyFavorites' => $companyFavorites,
+                'lessonFavorites' => $lessonFavorites,
+                'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
+                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
+                'guestLectures' => $guestLectures,
+                'eventsWithFeedback' => [],
+                'eventsMissingFeedback' => [],
+            ];
+
+            // let's see which events have feedback from the user and which don't
+            foreach($completedEventsRegisteredForByUser as $event) {
+                if($event instanceof CompanyExperience) {
+                    if($user->isStudent()) {
+                        $feedback = $this->studentReviewCompanyExperienceFeedbackRepository->findOneBy([
+                            'student' => $user,
+                            'companyExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+
+                    } elseif ($user->isEducator()) {
+                        $feedback = $this->educatorReviewCompanyExperienceFeedbackRepository->findOneBy([
+                            'educator' => $user,
+                            'companyExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+                    }
+                } elseif ($event instanceof TeachLessonExperience) {
+                    if($user->isStudent()) {
+                        $feedback = $this->studentReviewTeachLessonExperienceFeedbackRepository->findOneBy([
+                            'student' => $user,
+                            'teachLessonExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+
+                    } elseif ($user->isEducator()) {
+                        $feedback = $this->educatorReviewTeachLessonExperienceFeedbackRepository->findOneBy([
+                            'educator' => $user,
+                            'teachLessonExperience' => $event
+                        ]);
+
+                        if(!$feedback) {
+                            $dashboards['eventsMissingFeedback'][] = $event;
+                        } else {
+                            $dashboards['eventsWithFeedback'][] = $event;
+                        }
+                    }
+                }
+            }
+        } elseif ($user->isProfessional()) {
+            /** @var ProfessionalUser $user */
+            $dashboards = [
+                'myCompany' => $user->getCompany(),
+            ];
+
+            $teachableLessonIds = [];
+            foreach($user->getLessonTeachables() as $lessonTeachable) {
+                $teachableLessonIds[] = $lessonTeachable->getLesson()->getId();
+            }
+            $educatorsWhoFavoritedMyLessons = $this->educatorUserRepository->findByFavoriteLessonIds($teachableLessonIds);
+            $dashboards['educatorsWhoFavoritedMyLessons'] = $educatorsWhoFavoritedMyLessons;
+
+            $userSecondaryIndustries = $user->getSecondaryIndustries();
+            // Get relevant lessons for the user's secondary industry preferences
+            $companiesWithOverlappingSecondaryIndustries = $this->companyRepository->findBySecondaryIndustries($userSecondaryIndustries);
+            $dashboards['companiesWithOverlappingSecondaryIndustries'] = $companiesWithOverlappingSecondaryIndustries;
         }
 
         return $this->render('dashboard/index.html.twig', [
