@@ -77,6 +77,16 @@ class Site
      */
     private $schools;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $logo;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $logoEmail;
+
     public function __construct()
     {
         $this->siteAdminUsers = new ArrayCollection();
@@ -394,6 +404,30 @@ class Site
                 $school->setSite(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(string $logo): self
+    {
+        $this->logo = $logo;
+
+        return $this;
+    }
+
+    public function getLogoEmail(): ?string
+    {
+        return $this->logoEmail;
+    }
+
+    public function setLogoEmail(?string $logoEmail): self
+    {
+        $this->logoEmail = $logoEmail;
 
         return $this;
     }
