@@ -10,8 +10,8 @@ import App from "./App";
 const event_calendars = document.getElementsByClassName("react-events-calendar");
 for( let i = 0; i < event_calendars.length; i++) {
     (function(i){
-        const userId = parseInt(event_calendars[i].getAttribute("data-user-id"));
-        const schoolId = parseInt(event_calendars[i].getAttribute("data-school-id"));
+        const userId = parseInt(event_calendars[i].getAttribute("data-user-id") || 0);
+        const schoolId = parseInt(event_calendars[i].getAttribute("data-school-id") || 0);
 
         const store = createStore(
             reducers,

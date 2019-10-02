@@ -229,7 +229,7 @@ class App extends React.Component {
     }
 
     handleDirectChat(e) {
-        this.props.initiateChatWithUserId( e.detail.userId );
+        this.props.initiateChatWithUserId( e.detail.userId, e.detail.message );
     }
 
     showHistory() {
@@ -280,7 +280,7 @@ export const mapDispatchToProps = dispatch => ({
     openThread: () => dispatch(openThread()),
     closeThread: () => dispatch(closeThread()),
     handlePusherEvent: (data) => dispatch(handlePusherEvent(data)),
-    initiateChatWithUserId: (userId) => dispatch(initiateChatWithUserId(userId)),
+    initiateChatWithUserId: (userId, message) => dispatch(initiateChatWithUserId(userId, message)),
     search: (searchTerm) => dispatch(search(searchTerm)),
     sendMessage: (message, chatId) => dispatch(sendMessage(message, chatId)),
     showHistory: () => dispatch(showHistory()),

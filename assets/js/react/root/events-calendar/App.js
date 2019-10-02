@@ -187,7 +187,9 @@ App.defaultProps = {
     calendar: {},
     events: [],
     industries: [],
-    search: {}
+    search: {},
+    schoolId: 0,
+    userId: 0
 };
 
 export const mapStateToProps = (state = {}) => ({

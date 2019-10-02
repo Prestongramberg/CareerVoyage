@@ -64,46 +64,26 @@ class ExperienceController extends AbstractController
 
         $loggedInUser = $this->getUser();
 
+        $companyExperiences = [];
         $schoolExperiences = [];
-        $companyExperiences = $this->companyExperienceRepository->findAll();
-        $teachLessonExperiences = [];
+        $userExperiences = [];
 
         $userId = $request->query->get('userId', null);
         $schoolId = $request->query->get('schoolId', null);
         /** @var User $user */
-        if($userId && $user = $this->userRepository->find($userId)) {
-            if($user->isSchoolAdministrator()) {
-                /** @var SchoolAdministrator $user */
-                foreach($user->getSchools() as $school) {
-                    $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $school]));
-                }
-            } elseif ($user->isEducator()) {
-                /** @var EducatorUser $user */
-                $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $user->getSchool()]));
-            } elseif ($user->isStudent()) {
-                /** @var StudentUser $user */
-                $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $user->getSchool()]));
-            } elseif ($user->isProfessional()) {
-                /** @var ProfessionalUser $user */
+        if($schoolId && $school = $this->schoolRepository->find($schoolId)) {
 
-                $teachLessonExperiences = $this->teachLessonExperienceRepository->createQueryBuilder('tle')
-                    ->andWhere('tle.teacher = :user')
-                    ->setParameter('user', $user)
-                    ->getQuery()
-                    ->getResult();
-
-            }
-        } elseif ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-
-            // show the events where a professional is coming in to teach
-            $teachLessonExperiences = $this->teachLessonExperienceRepository->findBy([
+            $schoolExperiences = $this->schoolExperienceRepository->findBy([
                 'school' => $school
             ]);
 
-            $schoolExperiences = array_merge($schoolExperiences, $this->schoolExperienceRepository->findBy(['school' => $school]));
+            $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
+        } else {
+            $user = $userId ? $this->userRepository->find($userId) : $this->getUser();
+            $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
         }
 
-        $experiences = array_merge($schoolExperiences, $companyExperiences, $teachLessonExperiences);
+        $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
 
         $json = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA']]);
         $payload = json_decode($json, true);

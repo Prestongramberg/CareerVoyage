@@ -38,14 +38,6 @@
             </div>
         </div>
 
-        {% if user.isStudent%}
-            <form method="post" action="{{ path('company_experience_student_express_interest', {'id' : experience.id }) }}">
-                <div class="uk-margin">
-                    <button class="uk-button uk-button-primary uk-inline">Express Interest</button>
-                </div>
-            </form>
-        {% endif %}
-
         <ul class="uk-tab" uk-switcher="connect: #tab-experience" uk-tab>
             <li class="uk-active"><a href="#experience-details">Experience</a></li>
             {% if experience.payment > 0 %}
@@ -55,7 +47,7 @@
                 <li><a href="#experience-attachments">Event Documents</a></li>
             {% endif %}
                 <li><a href="#experience-contact">Contact</a></li>
-            {% if user.isEducator %}
+            {% if user.isEducator or user.isStudent %}
                 <li><a href="#experience-registration">Registration</a></li>
             {% endif %}
 
@@ -133,7 +125,7 @@
                     <tbody>
                     <tr>
                         <td>Event Coordinator</td>
-                        <td>{{ experience.employeeContact.fullName }}</td>
+                        <td>{{ experience.employeeContact.fullName }} <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button></td>
                     </tr>
                     <tr>
                         <td>Email</td>
@@ -151,36 +143,49 @@
                     </tbody>
                 </table>
             </div>
-            {% if user.isEducator %}
+            {% if user.isEducator or user.isStudent %}
                 <div class="experience_registration">
-                    {% if user.studentUsers|length > 0 %}
-                        {{ form_start(educatorRegisterStudentForExperienceForm, {attr: {'novalidate' : 'novalidate'}}) }}
-                        {% if form_errors(educatorRegisterStudentForExperienceForm) %}
-                            <div class="uk-alert-danger" uk-alert>
-                                <a class="uk-alert-close" uk-close></a>
-                                <div>{{ form_errors(educatorRegisterStudentForExperienceForm) }}</div>
+                    {% if user.isEducator %}
+                        {% if user.studentUsers|length > 0 %}
+                            {{ form_start(educatorRegisterStudentForExperienceForm, {attr: {'novalidate' : 'novalidate'}}) }}
+                            {% if form_errors(educatorRegisterStudentForExperienceForm) %}
+                                <div class="uk-alert-danger" uk-alert>
+                                    <a class="uk-alert-close" uk-close></a>
+                                    <div>{{ form_errors(educatorRegisterStudentForExperienceForm) }}</div>
+                                </div>
+                            {% endif %}
+
+                            <div class="page-company-edit__schools">
+                                <div class="uk-width-xlarge">
+                                    <fieldset class="uk-fieldset">
+                                        <div class="uk-margin">
+                                            {{ form_label(educatorRegisterStudentForExperienceForm.studentUsers, 'Students*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_register_students_for_experience_form[studentUsers][]">Select All</a>
+                                            {{ form_widget(educatorRegisterStudentForExperienceForm.studentUsers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(educatorRegisterStudentForExperienceForm.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
+                                            <div class="clear"></div>
+                                            {{ form_errors(educatorRegisterStudentForExperienceForm.studentUsers) }}
+                                        </div>
+                                    </fieldset>
+                                </div>
                             </div>
+
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary uk-button-small">Register Students</button>
+                            </div>
+                            {{ form_end(educatorRegisterStudentForExperienceForm) }}
+                        {% else %}
+                            <p>You have not added your students in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a> yet.</p>
                         {% endif %}
+                    {% endif %}
 
-                        <div class="page-company-edit__schools">
-                            <div class="uk-width-xlarge">
-                                <fieldset class="uk-fieldset">
-                                    <div class="uk-margin">
-                                        {{ form_label(educatorRegisterStudentForExperienceForm.studentUsers, 'Students*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_register_students_for_experience_form[studentUsers][]">Select All</a>
-                                        {{ form_widget(educatorRegisterStudentForExperienceForm.studentUsers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(educatorRegisterStudentForExperienceForm.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
-                                        <div class="clear"></div>
-                                        {{ form_errors(educatorRegisterStudentForExperienceForm.studentUsers) }}
-                                    </div>
-                                </fieldset>
-                            </div>
-                        </div>
-
-                        <div class="uk-margin">
-                            <button class="uk-button uk-button-primary uk-button-small">Register Students</button>
-                        </div>
-                        {{ form_end(educatorRegisterStudentForExperienceForm) }}
-                    {% else %}
-                        <p>You have not added your students in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a> yet.</p>
+                    {% if user.isStudent %}
+                        {% if user.educatorUsers|length > 0 %}
+                            <p>Click below to tell your teacher about your interest in this event:</p>
+                            {% for educator in user.educatorUsers %}
+                                <button class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-message-user-id="{{ educator.id }}" data-message="I am interested in {{ experience.title }} on {{ experience.startDateAndTime|date("F jS") }}">Chat with {{ educator.fullName }}</button>
+                            {% endfor %}
+                        {% else %}
+                            <p>No educators are linked to you yet.  Please speak directly with them about interest in this event.</p>
+                        {% endif %}
                     {% endif %}
                 </div>
             {% endif %}

@@ -37,6 +37,11 @@
         {% endfor %}
 
         <div class="main-content">
+            {% block flashMessage %}
+                <div class="uk-container uk-margin-bottom">
+                    {% include 'flash/messages.html.twig' %}
+                </div>
+            {% endblock %}
             {% block body %}{% endblock %}
         </div>
         <div id="global-modal" uk-modal>

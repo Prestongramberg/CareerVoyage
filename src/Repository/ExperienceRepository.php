@@ -60,6 +60,15 @@ class ExperienceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getAllEventsRegisteredForByUser(User $user) {
+        return $this->createQueryBuilder('e')
+            ->innerJoin('e.registrations', 'r')
+            ->where('r.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function getCompletedEventsRegisteredForByUser(User $user) {
         return $this->createQueryBuilder('e')
             ->innerJoin('e.registrations', 'r')
