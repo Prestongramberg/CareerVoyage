@@ -56,7 +56,14 @@ class DashboardController extends AbstractController
 
         $dashboards = [];
 
-        if($user->isRegionalCoordinator()) {
+
+        if($user->isAdmin()) {
+
+            $dashboards = [
+              'sites' => $this->siteRepository->findAll()
+            ];
+
+        } elseif($user->isRegionalCoordinator()) {
             /** @var RegionalCoordinator $user */
             $numberOfStudentsInRegion = count($this->studentUserRepository->getStudentsForRegion($user->getRegion()));
             $numberOfEducatorsInRegion = count($this->educatorUserRepository->getEducatorsForRegion($user->getRegion()));

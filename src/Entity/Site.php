@@ -92,6 +92,11 @@ class Site
      */
     private $fullyQualifiedBaseUrl;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $signature;
+
     public function __construct()
     {
         $this->siteAdminUsers = new ArrayCollection();
@@ -445,6 +450,18 @@ class Site
     public function setFullyQualifiedBaseUrl(?string $fullyQualifiedBaseUrl): self
     {
         $this->fullyQualifiedBaseUrl = $fullyQualifiedBaseUrl;
+
+        return $this;
+    }
+
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+
+    public function setSignature(?string $signature): self
+    {
+        $this->signature = $signature;
 
         return $this;
     }
