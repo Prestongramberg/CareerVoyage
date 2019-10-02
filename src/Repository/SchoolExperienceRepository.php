@@ -94,7 +94,7 @@ HERE;
             and s.region_id = 1
             and MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
             AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
-            ) as num_of_company_events
+            ) as num_of_school_events
             from school
 HERE;
 

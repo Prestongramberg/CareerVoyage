@@ -35,7 +35,7 @@
                     <div class="uk-card uk-card-default">
                         <div class="uk-card-body">
                             <h3>{{ user.region.name }} School Events in {{ "now"|date("F, Y") }}</h3>
-                            <div class="react-bar-chart" data-set="[{{ list_pluck( dashboards.schoolEventsByRegionGroupedBySchoolIncludingZero, 'num_of_school_events' )|join(',') }}]" data-labels='[{{ quote_array_elements_for_react( list_pluck( dashboards.schoolEventsByRegionGroupedBySchoolIncludingZero, 'school_name' ))|join(',') }}]' data-label="School Events"></div>
+                            <div class="react-bar-chart" data-set="[{{ list_pluck( dashboards.schoolEventsByRegionGroupedBySchool, 'num_of_school_events' )|join(',') }}]" data-labels='[{{ quote_array_elements_for_react( list_pluck( dashboards.schoolEventsByRegionGroupedBySchool, 'school_name' ))|join(',') }}]' data-label="School Events"></div>
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                         <div class="uk-card-body">
                             <h3>Company Events in {{ "now"|date("F, Y") }} by Industry</h3>
                             <div class="react-horizontal-bar-chart"
-                                 data-sets='[{"label": "Company Events", "data": [{{ list_pluck( dashboards.companyEventsGroupedByPrimaryIndustryIncludingZero, 'num_of_company_events' )|join(',') }}]},{"label": "Educator Sign Ups", "data": [{{ list_pluck( dashboards.numberOfRegistrationsGroupedByPrimaryIndustryForRegionIncludingZero, 'number_of_registrations' )|join(',') }}]}]' data-labels='[{{ quote_array_elements_for_react( list_pluck( dashboards.companyEventsGroupedByPrimaryIndustryIncludingZero, 'primary_industry_name' ))|join(',') }}]'></div>
+                                 data-sets='[{"label": "Company Events", "data": [{{ list_pluck( dashboards.companyEventsGroupedByPrimaryIndustry, 'num_of_company_events' )|join(',') }}]},{"label": "Educator Sign Ups", "data": [{{ list_pluck( dashboards.numberOfRegistrationsGroupedByPrimaryIndustryForRegion, 'number_of_registrations' )|join(',') }}]}]' data-labels='[{{ quote_array_elements_for_react( list_pluck( dashboards.companyEventsGroupedByPrimaryIndustry, 'primary_industry_name' ))|join(',') }}]'></div>
                         </div>
                     </div>
                 </div>

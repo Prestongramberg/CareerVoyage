@@ -156,11 +156,29 @@ class ExperienceController extends AbstractController
      * @Route("/experiences/{id}/view", name="experience_view", methods={"GET"})
      * @param Request $request
      * @param Experience $experience
+     * @return Response
+     * @throws \ReflectionException
      */
     public function experienceAction(Request $request, Experience $experience) {
 
-        return new Response("experience hub");
+        $user = $this->getUser();
+        switch ($experience->getClassName()) {
+            case 'CompanyExperience':
+                return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+                break;
+            case 'TeachLessonExperience':
+                return $this->render('experience/view_teach_lesson_experience.html.twig', [
+                    'user' => $user,
+                    'experience' => $experience
+                ]);
+                break;
+            case 'SchoolExperience':
+                return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+                break;
+        }
 
+        // If for some reason a normal experience is not found then just redirect to the dashboard
+        return $this->redirectToRoute('dashboard');
     }
 
 }
