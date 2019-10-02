@@ -141,7 +141,7 @@ class FeedbackController extends AbstractController
            'user' => $user,
            'experience' => $experience
         ]) ? true : false;
-        
+
         // look at the experience object and see which form you should load in
         switch ($experience->getClassName()) {
             case 'CompanyExperience':
@@ -182,6 +182,7 @@ class FeedbackController extends AbstractController
             /** @var Feedback $feedback */
             $feedback = $form->getData();
 
+            //todo we might not need the user and experience on each subclass of the feedback object
             $feedback->setUser($user);
             $feedback->setExperience($experience);
 
