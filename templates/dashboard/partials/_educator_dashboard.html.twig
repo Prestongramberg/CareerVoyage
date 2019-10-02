@@ -165,8 +165,8 @@
                                             <ul class="uk-list uk-list-divider">
                                                 {% if dashboards.eventsWithFeedback|length > 0 %}
                                                     <ul class="uk-list uk-list-divider">
-                                                        {% for event in dashboards.eventsWithFeedback %}
-                                                            <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% for eventProps in dashboards.eventsWithFeedback %}
+                                                            <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
                                                         {% endfor %}
                                                     </ul>
                                                 {% else %}

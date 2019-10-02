@@ -80,7 +80,7 @@ class ExperienceController extends AbstractController
             $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
         } else {
             $user = $userId ? $this->userRepository->find($userId) : $this->getUser();
-            $userExperiences = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
+            $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
         }
 
         $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);

@@ -19,20 +19,6 @@
 
     <div class="uk-container js-form" data-route="{{ path('company_edit', {'id' : company.id}) }}">
 
-        {% if successMessage %}
-            <div class="uk-alert-success uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>Company successfully updated.  <a href="{{ path('company_view', {'id': company.id}) }}">View your Company</a></p>
-            </div>
-        {% endif %}
-
-        {% if errorMessage %}
-            <div class="uk-alert-error uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>{{ errorMessage }}</p>
-            </div>
-        {% endif %}
-
         <div class="uk-margin">
             <div class="uk-align-right@l">
                 <a href="{{ path('company_view', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Back to Company</a>

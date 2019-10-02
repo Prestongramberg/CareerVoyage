@@ -132,9 +132,15 @@ class DashboardController extends AbstractController
                         ]);
 
                         if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = $event;
+                            $dashboards['eventsMissingFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         } else {
-                            $dashboards['eventsWithFeedback'][] = $event;
+                            $dashboards['eventsWithFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         }
 
                     } elseif ($user->isEducator()) {
@@ -144,9 +150,15 @@ class DashboardController extends AbstractController
                         ]);
 
                         if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = $event;
+                            $dashboards['eventsMissingFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         } else {
-                            $dashboards['eventsWithFeedback'][] = $event;
+                            $dashboards['eventsWithFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         }
                     }
                 } elseif ($event instanceof TeachLessonExperience) {
@@ -157,9 +169,15 @@ class DashboardController extends AbstractController
                         ]);
 
                         if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = $event;
+                            $dashboards['eventsMissingFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         } else {
-                            $dashboards['eventsWithFeedback'][] = $event;
+                            $dashboards['eventsWithFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         }
 
                     } elseif ($user->isEducator()) {
@@ -169,9 +187,15 @@ class DashboardController extends AbstractController
                         ]);
 
                         if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = $event;
+                            $dashboards['eventsMissingFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         } else {
-                            $dashboards['eventsWithFeedback'][] = $event;
+                            $dashboards['eventsWithFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
                         }
                     }
                 }

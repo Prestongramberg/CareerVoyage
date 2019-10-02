@@ -7,20 +7,6 @@
 
     <div class="uk-container js-form">
 
-        {% if successMessage %}
-            <div class="uk-alert-success uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>Feedback successfully submitted.</p>
-            </div>
-        {% endif %}
-
-        {% if errorMessage %}
-            <div class="uk-alert-error uk-margin" uk-alert>
-                <a class="uk-alert-close" uk-close></a>
-                <p>{{ errorMessage }}</p>
-            </div>
-        {% endif %}
-
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
         {% if form_errors(form) %}
@@ -29,6 +15,8 @@
                 <div>{{ form_errors(form) }}</div>
             </div>
         {% endif %}
+
+        <fieldset disabled="disabled">
 
         {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
         {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.rating) ? ' uk-form-danger' : '' ) }}) }}
@@ -61,6 +49,8 @@
         <div class="uk-margin">
             <button class="uk-button uk-button-primary uk-button-small">Submit</button>
         </div>
+
+        </fieldset>
 
         {{ form_end(form) }}
 
