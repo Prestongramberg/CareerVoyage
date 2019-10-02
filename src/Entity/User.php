@@ -210,6 +210,11 @@ abstract class User implements UserInterface
      */
     protected $registrations;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="user")
+     */
+    protected $feedback;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -220,6 +225,7 @@ abstract class User implements UserInterface
         $this->lessonTeachables = new ArrayCollection();
         $this->chatMessages = new ArrayCollection();
         $this->registrations = new ArrayCollection();
+        $this->feedback = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1032,6 +1038,37 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($registration->getUser() === $this) {
                 $registration->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Feedback[]
+     */
+    public function getFeedback(): Collection
+    {
+        return $this->feedback;
+    }
+
+    public function addFeedback(Feedback $feedback): self
+    {
+        if (!$this->feedback->contains($feedback)) {
+            $this->feedback[] = $feedback;
+            $feedback->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedback(Feedback $feedback): self
+    {
+        if ($this->feedback->contains($feedback)) {
+            $this->feedback->removeElement($feedback);
+            // set the owning side to null (unless already changed)
+            if ($feedback->getUser() === $this) {
+                $feedback->setUser(null);
             }
         }
 

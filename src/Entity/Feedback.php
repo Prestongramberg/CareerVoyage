@@ -61,6 +61,16 @@ abstract class Feedback
      */
     protected $additionalFeedback;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="feedback")
+     */
+    protected $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Experience", inversedBy="feedback")
+     */
+    protected $experience;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -141,5 +151,29 @@ abstract class Feedback
     public function getClassName()
     {
         return (new \ReflectionClass($this))->getShortName();
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getExperience(): ?Experience
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(?Experience $experience): self
+    {
+        $this->experience = $experience;
+
+        return $this;
     }
 }

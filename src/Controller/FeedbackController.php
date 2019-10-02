@@ -136,6 +136,12 @@ class FeedbackController extends AbstractController
         $feedback = null;
         $formType = null;
         $template = null;
+
+        $experienceHasFeedback = $this->feedbackRepository->findOneBy([
+           'user' => $user,
+           'experience' => $experience
+        ]) ? true : false;
+        
         // look at the experience object and see which form you should load in
         switch ($experience->getClassName()) {
             case 'CompanyExperience':
@@ -175,6 +181,9 @@ class FeedbackController extends AbstractController
 
             /** @var Feedback $feedback */
             $feedback = $form->getData();
+
+            $feedback->setUser($user);
+            $feedback->setExperience($experience);
 
             switch ($feedback->getClassName()) {
                 case 'EducatorReviewCompanyExperienceFeedback':
@@ -217,6 +226,7 @@ class FeedbackController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
             'feedback' => $feedback,
+            'experienceHasFeedback' => $experienceHasFeedback
         ]);
     }
 
