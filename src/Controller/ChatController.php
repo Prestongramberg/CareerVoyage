@@ -141,53 +141,7 @@ class ChatController extends AbstractController
 
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
-        $users = [];
-        $search = $request->query->get('search');
-
-        /**
-         * Students can message
-         * 1. Educators that are part of the same school
-         * 2. School administrators that are part of the same school
-         * 3. Students that are part of the same school
-         * @var StudentUser $loggedInUser
-         */
-        if($loggedInUser->isStudent()) {
-            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers);
-        }
-
-        /**
-         * Educators can message
-         * 1. Educators that are part of the same school
-         * 2. School administrators that are part of the same school
-         * 3. Students that are part of the same school
-         * 4. All Professional Users
-         * @var EducatorUser $loggedInUser
-         */
-        if($loggedInUser->isEducator()) {
-            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
-            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
-        }
-
-        /**
-         * Professionals can message
-         * 1. All educators on the platform
-         * 2. All school administrators
-         * 4. All Professional Users
-         * @var ProfessionalUser $loggedInUser
-         */
-        if($loggedInUser->isProfessional()) {
-            $educatorUsers = $this->educatorUserRepository->findBySearchTerm($search);
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
-            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
-            $users = array_merge($educatorUsers, $schoolAdministrators, $professionalUsers);
-        }
-
+        $users = $this->getChattableUsers($loggedInUser, $request->query->get('search', ''));
         $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA']]), true);
 
         return new JsonResponse(
@@ -205,6 +159,7 @@ class ChatController extends AbstractController
      * @Route("/chats/create", name="create_or_get_chat", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @return JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function createOrGetChat(Request $request) {
 
@@ -215,6 +170,22 @@ class ChatController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $userId = $data["userId"];
         $user = $this->userRepository->find($userId);
+
+        $chattableUsers = $this->getChattableUsers($loggedInUser);
+
+        $userWishingToChatWith = array_filter($chattableUsers, function($chattableUser) use($user) {
+            return $user->getId() == $chattableUser['id'];
+        });
+
+        if(empty($userWishingToChatWith)) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'message' => 'You do not have permission to talk with that user'
+                ],
+                Response::HTTP_OK
+            );
+        }
 
         $chat = $this->chatRepository->findOneBy([
             'userOne' => $loggedInUser,
@@ -377,5 +348,62 @@ class ChatController extends AbstractController
             ],
             Response::HTTP_OK
         );
+    }
+
+    /**
+     * @param User $loggedInUser
+     * @param string $search
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function getChattableUsers(User $loggedInUser, $search = '') {
+
+        $users = [];
+
+        /**
+         * Students can message
+         * 1. Educators that are part of the same school
+         * 2. School administrators that are part of the same school
+         * 3. Students that are part of the same school
+         * @var StudentUser $loggedInUser
+         */
+        if($loggedInUser->isStudent()) {
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers);
+        }
+
+        /**
+         * Educators can message
+         * 1. Educators that are part of the same school
+         * 2. School administrators that are part of the same school
+         * 3. Students that are part of the same school
+         * 4. All Professional Users
+         * @var EducatorUser $loggedInUser
+         */
+        if($loggedInUser->isEducator()) {
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
+        }
+
+        /**
+         * Professionals can message
+         * 1. All educators on the platform
+         * 2. All school administrators
+         * 4. All Professional Users
+         * @var ProfessionalUser $loggedInUser
+         */
+        if($loggedInUser->isProfessional()) {
+            $educatorUsers = $this->educatorUserRepository->findBySearchTerm($search);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
+            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+            $users = array_merge($educatorUsers, $schoolAdministrators, $professionalUsers);
+        }
+
+        return $users;
     }
 }

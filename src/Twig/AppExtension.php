@@ -23,6 +23,8 @@ use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -78,6 +80,11 @@ class AppExtension extends AbstractExtension
     protected $router;
 
     /**
+     * @var Security
+     */
+    private $security;
+
+    /**
      * AppExtension constructor.
      * @param UploaderHelper $uploadHelper
      * @param SerializerInterface $serializer
@@ -88,6 +95,7 @@ class AppExtension extends AbstractExtension
      * @param Environment $twig
      * @param SiteRepository $siteRepository
      * @param RouterInterface $router
+     * @param Security $security
      */
     public function __construct(
         UploaderHelper $uploadHelper,
@@ -98,7 +106,8 @@ class AppExtension extends AbstractExtension
         ChatMessageRepository $chatMessageRepository,
         Environment $twig,
         SiteRepository $siteRepository,
-        RouterInterface $router
+        RouterInterface $router,
+        Security $security
     ) {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
@@ -109,6 +118,7 @@ class AppExtension extends AbstractExtension
         $this->twig = $twig;
         $this->siteRepository = $siteRepository;
         $this->router = $router;
+        $this->security = $security;
     }
 
     public function getFunctions(): array
@@ -320,26 +330,34 @@ class AppExtension extends AbstractExtension
     }
 
     /**
-     * @param User|null $user
+     * We are attempting to grab the site object from the user.
+     *
+     * Here's what's going on:
+     * 1. We go ahead and try to get the site object from the logged in user depending on the user type.
+     * 2. Admins, professionals, and non logged in users don't have a site object attached so in this case we look to the site url as the source of truth
+     * 3. For some reason if we still aren't getting a site we don't want to break anything so just return an empty site object
      * @return Site|null
      */
-    public function getSite(User $user = null) {
+    public function getSite() {
 
-        $site = null;
+        $user = $this->security->getUser();
 
-        if($user instanceof SiteAdminUser ||
+        if($user && ($user instanceof SiteAdminUser ||
             $user instanceof RegionalCoordinator ||
             $user instanceof StateCoordinator ||
             $user instanceof SchoolAdministrator ||
             $user instanceof EducatorUser ||
-            $user instanceof StudentUser ) {
+            $user instanceof StudentUser) ) {
             $site = $user->getSite();
         } else {
             $site = $this->siteRepository->findOneBy([
                 'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl()
             ]);
-        }
 
+            if(!$site) {
+                $site = new Site();
+            }
+        }
         return $site;
     }
 
