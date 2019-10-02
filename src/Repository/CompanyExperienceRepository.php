@@ -186,4 +186,15 @@ HERE;
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getForSchool(School $school) {
+
+        return $this->createQueryBuilder('ce')
+            ->innerJoin('ce.company', 'c')
+            ->innerJoin('c.schools', 's')
+            ->where('s = :school')
+            ->setParameter('school', $school)
+            ->getQuery()
+            ->getResult();
+    }
 }

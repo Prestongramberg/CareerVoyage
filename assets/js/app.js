@@ -54,15 +54,18 @@ window.Pintex = {
         const eventStartDate = moment( eventPayload.startDateAndTime , moment.ISO_8601 ).add(5, 'hours').unix(); // CST Timezone Offset
         const eventEndDate = moment( eventPayload.endDateAndTime , moment.ISO_8601 ).add(5, 'hours').unix();  // CST Timezone Offset
         const eventTitle = eventPayload.title;
+        const eventAbout = eventPayload.about;
         const eventDescription = eventPayload.briefDescription;
         const eventState = eventPayload.state || {};
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
+
+        console.log( eventPayload );
 
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
                 <p>
                     <strong>About the Event</strong><br />
-                    ${eventPayload.about}
+                    ${eventAbout || eventDescription}
                 </p>
             `;
 
@@ -87,8 +90,8 @@ window.Pintex = {
         const endISOtoSeconds = moment.unix(epochEndTime).utc().format("YYYYMMDDTHHmmss");
 
         // Encode all our user inputs
-        title = encodeURI( title );
-        description = encodeURI( description );
+        title = encodeURI( title.trim() );
+        description = encodeURI( description.trim() );
         location = encodeURI( location );
 
         // HHMM format for Yahoo Duration
@@ -107,7 +110,13 @@ window.Pintex = {
     },
     downloadICSCalendarEvent: function( title, description, location, begin, end ) {
         const cal = ics();
-        cal.addEvent(title, description, location, begin, end);
+        cal.addEvent(
+            decodeURI(title).trim(),
+            decodeURI(description).trim(),
+            decodeURI(location),
+            begin,
+            end
+        );
         cal.download("addToCalendar", undefined );
     }
 };

@@ -14,7 +14,6 @@
                                     <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
                                 </a>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    {# TODO: Add link to school view #}
                                     <a href="#">{{ profileUser.school.name }}</a> - Educator
                                 </p>
                             </div>
@@ -30,6 +29,7 @@
                         {% endif %}
                         <div class="professional-links">
                             <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            <a href="javascript:void(0)" class="uk-icon-button uk-margin-small-right" uk-icon="comments" data-message-user-id="{{ profileUser.id }}"></a>
                         </div>
                     </div>
                 </div>

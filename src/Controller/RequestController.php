@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
@@ -38,6 +39,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -363,29 +365,53 @@ class RequestController extends AbstractController
                 $needsApprovalBy = $request->getNeedsApprovalBy();
 
                 $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
+                // we must have an end date so let's just set it for 2 hours from the start
+                $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
+                $endDate->add(new DateInterval('PT2H'));
                 $teachLessonExperience = new TeachLessonExperience();
                 $teachLessonExperience->setStartDateAndTime($date);
-                $teachLessonExperience->setTitle('Lesson Teaching');
-                $teachLessonExperience->setBriefDescription(sprintf("
-                Lesson: %s for school %s
-                ", $request->getLesson()->getTitle(), $request->getCreatedBy()->getSchool()->getName()));
+                $teachLessonExperience->setEndDateAndTime($endDate);
+                $teachLessonExperience->setTitle(sprintf("
+                Lesson: %s for %s Class
+                ", $request->getLesson()->getTitle(), $request->getCreatedBy()->getFullName()));
+                $teachLessonExperience->setBriefDescription(sprintf("%s", $request->getLesson()->getShortDescription()));
                 $teachLessonExperience->setOriginalRequest($request);
 
 
                 // let's go ahead and add the professional as a registration on this event
-                $registration = new Registration();
+                $professionalRegistration = new Registration();
+                $educatorRegistration = new Registration();
                 if($request->getIsFromProfessional()) {
-                    $registration->setUser($request->getCreatedBy());
+                    $professionalRegistration->setUser($request->getCreatedBy());
+                    $educatorRegistration->setUser($request->getNeedsApprovalBy());
                     $teachLessonExperience->setTeacher($request->getCreatedBy());
                     $teachLessonExperience->setSchool($request->getNeedsApprovalBy()->getSchool());
                 } else {
-                    $registration->setUser($request->getNeedsApprovalBy());
+                    $professionalRegistration->setUser($request->getNeedsApprovalBy());
+                    $educatorRegistration->setUser($request->getCreatedBy());
                     $teachLessonExperience->setTeacher($request->getNeedsApprovalBy());
                     $teachLessonExperience->setSchool($request->getCreatedBy()->getSchool());
                 }
 
-                $registration->setExperience($teachLessonExperience);
-                $this->entityManager->persist($registration);
+                $professionalRegistration->setExperience($teachLessonExperience);
+                $educatorRegistration->setExperience($teachLessonExperience);
+                $this->entityManager->persist($professionalRegistration);
+                $this->entityManager->persist($educatorRegistration);
+
+                // let's go ahead and add the students as registrations to the event
+                if($request->getIsFromProfessional()) {
+                    /** @var EducatorUser $educator */
+                    $educator = $request->getNeedsApprovalBy();
+                } else {
+                    /** @var EducatorUser $educator */
+                    $educator = $request->getCreatedBy();
+                }
+                foreach($educator->getStudentUsers() as $studentUser) {
+                    $studentRegistration = new Registration();
+                    $studentRegistration->setExperience($teachLessonExperience);
+                    $studentRegistration->setUser($studentUser);
+                    $this->entityManager->persist($studentRegistration);
+                }
 
                 /** @var School $school */
                 $school = $request->getCreatedBy()->getSchool();

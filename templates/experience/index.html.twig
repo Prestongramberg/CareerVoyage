@@ -13,7 +13,7 @@
             <div class="uk-margin uk-width-1-1 uk-width-1-2@m">
                 <ul class="uk-breadcrumb">
                     <li><a href="/">Dashboard</a></li>
-                    <li><span>Company Experiences</span></li>
+                    <li><span>Experiences</span></li>
                 </ul>
             </div>
             <div class="uk-width-1-2 uk-width-1-2@m">
@@ -28,6 +28,6 @@
             </div>
         </div>
 
-        <div class="react-events-calendar"></div>
+        <div class="react-events-calendar" data-school-id="{{ user.school is defined ? user.school.id : null }}"></div>
     </div>
 {% endblock %}
