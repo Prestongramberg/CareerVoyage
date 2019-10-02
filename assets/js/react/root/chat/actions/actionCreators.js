@@ -187,10 +187,11 @@ export function search( search ) {
     }
 }
 
-export function initiateChatWithUserId( userId ) {
+export function initiateChatWithUserId( userId, message ) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.OPEN_CHAT})
         dispatch({type: actionTypes.OPEN_THREAD})
         dispatch(loadThread(userId))
+        message && dispatch({type: actionTypes.POPULATE_MESSAGE, message: message})
     }
 }

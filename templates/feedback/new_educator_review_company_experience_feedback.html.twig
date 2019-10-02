@@ -29,7 +29,6 @@
                 <div>{{ form_errors(form) }}</div>
             </div>
         {% endif %}
-        rewlkhfewe
 
         {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
         {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.rating) ? ' uk-form-danger' : '' ) }}) }}

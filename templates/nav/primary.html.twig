@@ -12,7 +12,9 @@
         <ul class="uk-nav uk-nav-default">
 
             <li><a href="{{ path('dashboard') }}">Home</a></li>
-            <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
+            {% if user.isStudent == false %}
+                <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
+            {% endif %}
 {#            <li><a href="#">Schools</a></li>#}
             <li><a href="{{ path('experience_index') }}">Experiences</a></li>
             <li><a href="{{ path('company_index') }}">Companies</a></li>

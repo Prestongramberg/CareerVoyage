@@ -68,9 +68,8 @@
             {% if lesson.lessonResources|length > 0 %}
                 <li><a href="#lesson-resources">Resources</a></li>
             {% endif %}
-            {% if lesson.lessonTeachables|length > 0 %}
-                <li><a href="#lesson-instructors">Instructors</a></li>
-            {% endif %}
+            <li><a href="#lesson-professionals">Professionals</a></li>
+            <li><a href="#lesson-educators">Educators</a></li>
         </ul>
 
         <div class="uk-switcher" id="tab-lesson-detail">
@@ -164,18 +163,18 @@
                     </dl>
                 </div>
             {% endif %}
-            {% if lesson.lessonTeachables|length > 0 %}
-                <div class="page-lesson-view__instructors">
+            <div class="page-lesson-view__professionals">
+                {% if lesson.lessonTeachables|length > 0 %}
                     <dl class="uk-description-list uk-description-list-divider">
                         {% for lessonTeachable in lesson.lessonTeachables %}
-                            {% if user.isProfessional %}
+                            {% if lessonTeachable.user.isProfessional %}
                                 <div class="uk-grid uk-flex-middle" uk-grid>
                                     <div class="uk-width-auto">
                                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                     </div>
                                     <div class="uk-width-expand">
                                         <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
-                                        <dd>{{ lesssonTeachable.user.briefBio }}</dd>
+                                        <dd>{{ lessonTeachable.user.briefBio }}</dd>
                                     </div>
                                     <div class="uk-width-auto">
                                         {% if user.isEducator %}
@@ -208,14 +207,42 @@
                                             </div>
                                         </div>
                                         {% endif %}
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
                                         <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                     </div>
                                 </div>
                             {% endif %}
                         {% endfor %}
                     </dl>
-                </div>
-            {% endif %}
+                {% else %}
+                    <p>No professionals currently teach this lesson</p>
+                {% endif %}
+            </div>
+            <div class="page-lesson-view__educators">
+                {% if lesson.lessonTeachables|length > 0 %}
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for lessonTeachable in lesson.lessonTeachables %}
+                            {% if lessonTeachable.user.isEducator %}
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-auto">
+                                        <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
+                                        <dd>{{ lessonTeachable.user.briefBio }}</dd>
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
+                                        <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </dl>
+                {% else %}
+                    <p>No educators are currently looking for this lesson</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 

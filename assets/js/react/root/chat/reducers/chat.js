@@ -69,6 +69,12 @@ export default (state = {}, action) => {
                 foundUsersInSearch: action.users
             }
 
+        case actionTypes.POPULATE_MESSAGE:
+            return {
+                ...state,
+                currentMessage: action.message
+            }
+
         default:
             return state;
     }

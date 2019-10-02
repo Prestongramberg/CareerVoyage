@@ -546,7 +546,8 @@ jQuery(document).ready(function($) {
      */
     $(document).on("click", "[data-message-user-id]", function() {
         var userId = $(this).attr('data-message-user-id');
-        window.dispatchEvent(new CustomEvent("live-chat-user", { "detail": { "userId": userId } } ))
+        var message = $(this).attr('data-message');
+        window.dispatchEvent(new CustomEvent("live-chat-user", { "detail": { "userId": userId, "message": message } } ))
     })
 
 });

@@ -14,6 +14,7 @@ use App\Repository\RequestRepository;
 use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
+use mysql_xdevapi\Exception;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
