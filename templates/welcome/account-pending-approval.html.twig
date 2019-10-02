@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Future Forward - Account pending approval.{% endblock %}
+{% block title %}{{ get_site().name }} - Account pending approval.{% endblock %}
 {% block bodyClass %}page-pending-approval{% endblock %}
 
 {% block body %}
@@ -8,7 +8,7 @@
         <div class="uk-container uk-padding">
             <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-xlarge@m">
 
-                <h1 class="uk-card-title">Future Forward<sup>(BETA)</sup></h1>
+                <h1 class="uk-card-title">{{ get_site().name }}<sup>(BETA)</sup></h1>
 
                 <p>Account pending approval. Please check your email and click the verification link we sent you to login to the platform.</p>
                 <a href="{{ path('welcome') }}">Back to homepage</a>

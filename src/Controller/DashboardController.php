@@ -56,7 +56,14 @@ class DashboardController extends AbstractController
 
         $dashboards = [];
 
-        if($user->isRegionalCoordinator()) {
+
+        if($user->isAdmin()) {
+
+            $dashboards = [
+              'sites' => $this->siteRepository->findAll()
+            ];
+
+        } elseif($user->isRegionalCoordinator()) {
             /** @var RegionalCoordinator $user */
             $numberOfStudentsInRegion = count($this->studentUserRepository->getStudentsForRegion($user->getRegion()));
             $numberOfEducatorsInRegion = count($this->educatorUserRepository->getEducatorsForRegion($user->getRegion()));
@@ -124,80 +131,21 @@ class DashboardController extends AbstractController
 
             // let's see which events have feedback from the user and which don't
             foreach($completedEventsRegisteredForByUser as $event) {
-                if($event instanceof CompanyExperience) {
-                    if($user->isStudent()) {
-                        $feedback = $this->studentReviewCompanyExperienceFeedbackRepository->findOneBy([
-                            'student' => $user,
-                            'companyExperience' => $event
-                        ]);
+                $feedback = $this->feedbackRepository->findOneBy([
+                    'user' => $user,
+                    'experience' => $event
+                ]);
 
-                        if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        } else {
-                            $dashboards['eventsWithFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        }
-
-                    } elseif ($user->isEducator()) {
-                        $feedback = $this->educatorReviewCompanyExperienceFeedbackRepository->findOneBy([
-                            'educator' => $user,
-                            'companyExperience' => $event
-                        ]);
-
-                        if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        } else {
-                            $dashboards['eventsWithFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        }
-                    }
-                } elseif ($event instanceof TeachLessonExperience) {
-                    if($user->isStudent()) {
-                        $feedback = $this->studentReviewTeachLessonExperienceFeedbackRepository->findOneBy([
-                            'student' => $user,
-                            'teachLessonExperience' => $event
-                        ]);
-
-                        if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        } else {
-                            $dashboards['eventsWithFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        }
-
-                    } elseif ($user->isEducator()) {
-                        $feedback = $this->educatorReviewTeachLessonExperienceFeedbackRepository->findOneBy([
-                            'educator' => $user,
-                            'teachLessonExperience' => $event
-                        ]);
-
-                        if(!$feedback) {
-                            $dashboards['eventsMissingFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        } else {
-                            $dashboards['eventsWithFeedback'][] = [
-                                'event' => $event,
-                                'feedback' => $feedback
-                            ];
-                        }
-                    }
+                if(!$feedback) {
+                    $dashboards['eventsMissingFeedback'][] = [
+                        'event' => $event,
+                        'feedback' => $feedback
+                    ];
+                } else {
+                    $dashboards['eventsWithFeedback'][] = [
+                        'event' => $event,
+                        'feedback' => $feedback
+                    ];
                 }
             }
         } elseif ($user->isProfessional()) {
@@ -217,6 +165,8 @@ class DashboardController extends AbstractController
             // Get relevant lessons for the user's secondary industry preferences
             $companiesWithOverlappingSecondaryIndustries = $this->companyRepository->findBySecondaryIndustries($userSecondaryIndustries);
             $dashboards['companiesWithOverlappingSecondaryIndustries'] = $companiesWithOverlappingSecondaryIndustries;
+
+            $dashboards['completedTeachLessonExperiences'] = $this->teachLessonExperienceRepository->getCompletedByUser($user);
         }
 
         return $this->render('dashboard/index.html.twig', [

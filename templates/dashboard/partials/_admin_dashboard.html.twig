@@ -89,8 +89,9 @@
                     </div>
                     <div class="uk-card-body">
                         <ul class="uk-list uk-list-divider">
-                            <li><a href="https://my.pintexsolutions.com" target="_blank">my.pintexsolutions.com</a></li>
-                            <li><a href="https://my.futureforward.org" target="_blank">my.futureforward.org</a></li>
+                            {% for site in dashboards.sites %}
+                                <li><a href="{{ site.fullyQualifiedBaseUrl }}" target="_blank">{{ site.baseUrl }}</a></li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>

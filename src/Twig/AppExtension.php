@@ -5,16 +5,26 @@ namespace App\Twig;
 
 use App\Entity\CompanyResource;
 use App\Entity\Company;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Lesson;
+use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
+use App\Entity\Site;
+use App\Entity\SiteAdminUser;
+use App\Entity\StateCoordinator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\RequestRepository;
+use App\Repository\SiteRepository;
 use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
-use mysql_xdevapi\Exception;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -60,6 +70,21 @@ class AppExtension extends AbstractExtension
     private $twig;
 
     /**
+     * @var SiteRepository
+     */
+    private $siteRepository;
+
+    /**
+     * @var RouterInterface
+     */
+    protected $router;
+
+    /**
+     * @var Security
+     */
+    private $security;
+
+    /**
      * AppExtension constructor.
      * @param UploaderHelper $uploadHelper
      * @param SerializerInterface $serializer
@@ -68,9 +93,22 @@ class AppExtension extends AbstractExtension
      * @param ChatRepository $chatRepository
      * @param ChatMessageRepository $chatMessageRepository
      * @param Environment $twig
+     * @param SiteRepository $siteRepository
+     * @param RouterInterface $router
+     * @param Security $security
      */
-    public function __construct(UploaderHelper $uploadHelper, SerializerInterface $serializer, RequestRepository $requestRepository, UserRepository $userRepository, ChatRepository $chatRepository, ChatMessageRepository $chatMessageRepository, Environment $twig)
-    {
+    public function __construct(
+        UploaderHelper $uploadHelper,
+        SerializerInterface $serializer,
+        RequestRepository $requestRepository,
+        UserRepository $userRepository,
+        ChatRepository $chatRepository,
+        ChatMessageRepository $chatMessageRepository,
+        Environment $twig,
+        SiteRepository $siteRepository,
+        RouterInterface $router,
+        Security $security
+    ) {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
         $this->requestRepository = $requestRepository;
@@ -78,8 +116,10 @@ class AppExtension extends AbstractExtension
         $this->chatRepository = $chatRepository;
         $this->chatMessageRepository = $chatMessageRepository;
         $this->twig = $twig;
+        $this->siteRepository = $siteRepository;
+        $this->router = $router;
+        $this->security = $security;
     }
-
 
     public function getFunctions(): array
     {
@@ -100,6 +140,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('render_request_status_text', [$this, 'renderRequestStatusText']),
             new TwigFunction('list_pluck', [$this, 'listPluck']),
             new TwigFunction('quote_array_elements_for_react', [$this, 'quoteArrayElementsForReact']),
+            new TwigFunction('get_site', [$this, 'getSite']),
         ];
     }
 
@@ -286,5 +327,56 @@ class AppExtension extends AbstractExtension
         return array_map( function( $value ) {
             return '"' . $value . '"';
         }, $array );
+    }
+
+    /**
+     * We are attempting to grab the site object from the user.
+     *
+     * Here's what's going on:
+     * 1. We go ahead and try to get the site object from the logged in user depending on the user type.
+     * 2. Admins, professionals, and non logged in users don't have a site object attached so in this case we look to the site url as the source of truth
+     * 3. For some reason if we still aren't getting a site we don't want to break anything so just return an empty site object
+     * @return Site|null
+     */
+    public function getSite() {
+
+        $user = $this->security->getUser();
+
+        if($user && ($user instanceof SiteAdminUser ||
+            $user instanceof RegionalCoordinator ||
+            $user instanceof StateCoordinator ||
+            $user instanceof SchoolAdministrator ||
+            $user instanceof EducatorUser ||
+            $user instanceof StudentUser) ) {
+            $site = $user->getSite();
+        } else {
+            $site = $this->siteRepository->findOneBy([
+                'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl()
+            ]);
+
+            if(!$site) {
+                $site = new Site();
+            }
+        }
+        return $site;
+    }
+
+    /**
+     * Generate the fully qualified base URL (scheme + host + port, if not default + app base path)
+     *
+     * @return string
+     */
+    protected function getFullyQualifiedBaseUrl()
+    {
+        $routerContext = $this->router->getContext();
+        $port = $routerContext->getHttpPort();
+
+        return sprintf(
+            '%s://%s%s%s',
+            $routerContext->getScheme(),
+            $routerContext->getHost(),
+            ($port !== 80 ? ':'.$port : ''),
+            $routerContext->getBaseUrl()
+        );
     }
 }

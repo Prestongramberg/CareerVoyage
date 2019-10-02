@@ -1,7 +1,7 @@
 <div id="offcanvas-menu" uk-offcanvas>
     <div class="uk-offcanvas-bar ">
         <button class="uk-offcanvas-close" type="button" uk-close></button>
-        <h3>Future Forward <sup>(BETA)</sup></h3>
+        <h3>{{ get_site().name }} <sup>(BETA)</sup></h3>
 {#        <form class="uk-search uk-search-default" method="GET" action="/search.php">#}
 {#            <span uk-search-icon></span>#}
 {#            <input class="uk-search-input" name="s" type="search" placeholder="Search...">#}
@@ -43,7 +43,8 @@
                 <div class="nav-overlay uk-navbar-left">
                     <span uk-icon="icon: menu; ratio: 1.5" uk-toggle="target: #offcanvas-menu"></span>
                     <a class="uk-navbar-item uk-logo" href="{{ path('dashboard') }}">
-                        <img src="{{ asset('build/images/logo-future-forward.png') }}" alt="">
+                        {% set url = 'build/images/' ~ get_site().logo %}
+                        <img src="{{ asset(url) }}" alt="">
                     </a>
                 </div>
             </div>

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TeachLessonExperience;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,14 @@ class TeachLessonExperienceRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function getCompletedByUser(User $user) {
+        return $this->createQueryBuilder('e')
+            ->where('e.teacher = :teacher')
+            ->andWhere('e.startDateAndTime <= :startDateAndTime')
+            ->setParameter('teacher', $user)
+            ->setParameter('startDateAndTime' , new \DateTime())
+            ->getQuery()
+            ->getResult();
+    }
 }
