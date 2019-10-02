@@ -82,18 +82,20 @@ HERE;
     }
 
 
-    public function getEventsByRegionGroupedBySchool(Region $region) {
+    public function getNumberOfEventsGroupedBySchoolForRegion(Region $region) {
 
         $query = <<<HERE
-    select count(se.id) as num_of_school_events, school.name as school_name
-    from school_experience se 
-    inner join school on school.id = se.school_id 
-    inner join region on school.region_id = region.id
-    inner join experience e on e.id = se.id
-    where region.id = %s and
-    MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
-    AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
-    group by school_name
+            Select school.id as school_id, school.name as school_name,
+            (
+            Select count(e.id) from experience e 
+            left join school_experience se on se.id = e.id
+            left join school s on se.school_id = s.id
+            where se.school_id = school.id
+            and s.region_id = 1
+            and MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
+            AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
+            ) as num_of_company_events
+            from school
 HERE;
 
         $query = sprintf($query, $region->getId());
