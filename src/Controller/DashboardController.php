@@ -61,64 +61,17 @@ class DashboardController extends AbstractController
             $numberOfStudentsInRegion = count($this->studentUserRepository->getStudentsForRegion($user->getRegion()));
             $numberOfEducatorsInRegion = count($this->educatorUserRepository->getEducatorsForRegion($user->getRegion()));
             $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
-            $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getEventsByRegionGroupedBySchool($user->getRegion());
-            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
+            $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getNumberOfEventsGroupedBySchoolForRegion($user->getRegion());
+            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getNumberOfEventsGroupedByPrimaryIndustry();
             $numberOfRegistrationsGroupedByPrimaryIndustryForRegion = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForRegion($user->getRegion());
-            $schoolEventsByRegionGroupedBySchoolIncludingZero = [];
-            $companyEventsGroupedByPrimaryIndustryIncludingZero = [];
-            $numberOfRegistrationsGroupedByPrimaryIndustryForRegionIncludingZero = [];
-
-            // @TODO: Josh Clean Up
-            foreach ( $user->getRegion()->getSchools() as $school ) {
-                $school_name = $school->getName();
-                $default = [
-                    'num_of_school_events' => 0,
-                    'school_name' => $school_name
-                ];
-
-                $school_found = array_values(array_filter( $schoolEventsByRegionGroupedBySchool, function($result) use ( $school_name ) {
-                    return $result['school_name'] === $school_name;
-                }));
-                array_push( $schoolEventsByRegionGroupedBySchoolIncludingZero, array_merge( $default, !empty( $school_found ) ? $school_found[0] : [] ) );
-            }
-
-            $primaryIndustries = $this->industryRepository->findAll();
-            foreach ( $primaryIndustries as $industry ) {
-                $industry_name = $industry->getName();
-                $default = [
-                    'num_of_company_events' => 0,
-                    'primary_industry_name' => $industry_name
-                ];
-
-                $event_found = array_values( array_filter( $companyEventsGroupedByPrimaryIndustry, function($result) use ( $industry_name ) {
-                    return $result['primary_industry_name'] === $industry_name;
-                }));
-                array_push( $companyEventsGroupedByPrimaryIndustryIncludingZero, array_merge( $default, !empty( $event_found ) ? $event_found[0] : [] ) );
-            }
-            foreach ( $primaryIndustries as $industry ) {
-                $industry_name = $industry->getName();
-                $default = [
-                    'number_of_registrations' => 0,
-                    'primary_industry_name' => $industry_name
-                ];
-
-                $registration_found = array_values(array_filter( $numberOfRegistrationsGroupedByPrimaryIndustryForRegion, function($result) use ( $industry_name ) {
-                    return $result['primary_industry_name'] === $industry_name;
-                }));
-                array_push( $numberOfRegistrationsGroupedByPrimaryIndustryForRegionIncludingZero, array_merge( $default, !empty( $registration_found ) ? $registration_found[0] : [] ) );
-            }
-            // END Josh Clean Up
 
             $dashboards = [
                 'numberOfStudentsInRegion' => $numberOfStudentsInRegion,
                 'numberOfEducatorsInRegion' => $numberOfEducatorsInRegion,
                 'numberOfSchoolAdminsInRegion' => $numberOfSchoolAdminsInRegion,
                 'schoolEventsByRegionGroupedBySchool' => $schoolEventsByRegionGroupedBySchool,
-                'schoolEventsByRegionGroupedBySchoolIncludingZero' => $schoolEventsByRegionGroupedBySchoolIncludingZero,
                 'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
-                'companyEventsGroupedByPrimaryIndustryIncludingZero' => $companyEventsGroupedByPrimaryIndustryIncludingZero,
                 'numberOfRegistrationsGroupedByPrimaryIndustryForRegion' => $numberOfRegistrationsGroupedByPrimaryIndustryForRegion,
-                'numberOfRegistrationsGroupedByPrimaryIndustryForRegionIncludingZero' => $numberOfRegistrationsGroupedByPrimaryIndustryForRegionIncludingZero
             ];
         } elseif ($user->isSchoolAdministrator()) {
             /** @var SchoolAdministrator $user */
@@ -129,16 +82,16 @@ class DashboardController extends AbstractController
                 $numberOfStudentsInSchoolNetwork += count($this->studentUserRepository->findBy(['school' => $school]));
                 $numberOfEducatorsInSchoolNetwork+= count($this->educatorUserRepository->findBy(['school' => $school]));
 
-                $registrationsGroupedByPrimaryIndustryInSchool = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryInSchool($school);
+                $numberOfRegistrationsGroupedByPrimaryIndustryForSchool = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForSchool($school);
 
                 $dashboards['registrationsGroupedByPrimaryIndustryInSchool'][$school->getId()] = [
                     'schoolName' => $school->getName(),
                     'school_id' => $school->getId(),
-                    'registrationsGroupedByPrimaryIndustryInSchool' => $registrationsGroupedByPrimaryIndustryInSchool
+                    'registrationsGroupedByPrimaryIndustryInSchool' => $numberOfRegistrationsGroupedByPrimaryIndustryForSchool
                 ];
             }
 
-            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getEventsGroupedByPrimaryIndustry();
+            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getNumberOfEventsGroupedByPrimaryIndustry();
 
             $dashboards = [
                 'numberOfStudentsInSchoolNetwork' => $numberOfStudentsInSchoolNetwork,
