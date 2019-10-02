@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\Experience;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -147,4 +148,19 @@ class ExperienceController extends AbstractController
             'user' => $user,
         ]);
     }
+
+    /**
+     * There are many different types of experiences. this acts as a central router
+     * to route to the specific view for each experience.
+     *
+     * @Route("/experiences/{id}/view", name="experience_view", methods={"GET"})
+     * @param Request $request
+     * @param Experience $experience
+     */
+    public function experienceAction(Request $request, Experience $experience) {
+
+        return new Response("experience hub");
+
+    }
+
 }
