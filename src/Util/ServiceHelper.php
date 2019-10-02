@@ -23,6 +23,7 @@ use App\Repository\EducatorReviewCompanyExperienceFeedbackRepository;
 use App\Repository\EducatorReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\EducatorUserRepository;
 use App\Repository\ExperienceRepository;
+use App\Repository\FeedbackRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
@@ -329,6 +330,11 @@ trait ServiceHelper
     private $studentReviewTeachLessonExperienceFeedbackRepository;
 
     /**
+     * @var FeedbackRepository
+     */
+    private $feedbackRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -383,6 +389,7 @@ trait ServiceHelper
      * @param EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository
      * @param StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository
      * @param StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository
+     * @param FeedbackRepository $feedbackRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -437,7 +444,8 @@ trait ServiceHelper
         EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
         EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository,
         StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository,
-        StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository
+        StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository,
+        FeedbackRepository $feedbackRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -492,6 +500,7 @@ trait ServiceHelper
         $this->educatorReviewTeachLessonExperienceFeedbackRepository = $educatorReviewTeachLessonExperienceFeedbackRepository;
         $this->studentReviewCompanyExperienceFeedbackRepository = $studentReviewCompanyExperienceFeedbackRepository;
         $this->studentReviewTeachLessonExperienceFeedbackRepository = $studentReviewTeachLessonExperienceFeedbackRepository;
+        $this->feedbackRepository = $feedbackRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

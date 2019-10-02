@@ -194,11 +194,17 @@ abstract class Experience
      */
     protected $registrations;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="experience")
+     */
+    protected $feedback;
+
     public function __construct()
     {
         $this->experienceFiles = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
         $this->registrations = new ArrayCollection();
+        $this->feedback = new ArrayCollection();
     }
 
     public function getId()
@@ -490,6 +496,37 @@ abstract class Experience
             // set the owning side to null (unless already changed)
             if ($registration->getExperience() === $this) {
                 $registration->setExperience(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Feedback[]
+     */
+    public function getFeedback(): Collection
+    {
+        return $this->feedback;
+    }
+
+    public function addFeedback(Feedback $feedback): self
+    {
+        if (!$this->feedback->contains($feedback)) {
+            $this->feedback[] = $feedback;
+            $feedback->setExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedback(Feedback $feedback): self
+    {
+        if ($this->feedback->contains($feedback)) {
+            $this->feedback->removeElement($feedback);
+            // set the owning side to null (unless already changed)
+            if ($feedback->getExperience() === $this) {
+                $feedback->setExperience(null);
             }
         }
 
