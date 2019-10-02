@@ -9,5 +9,4 @@ require('./subscribe-secondary-industries');
 require('./favorite-company');
 require('./favorite-lesson');
 require('./pie-chart');
-require('./school-calendar');
 require('./teach-lesson');
