@@ -2,6 +2,7 @@
 
 {% block title %}View Lesson{% endblock %}
 {% block bodyClass %}page-lesson-view{% endblock %}
+{% block flashMessage %}{% endblock %}
 
 {% block body %}
 
@@ -207,7 +208,7 @@
                                             </div>
                                         </div>
                                         {% endif %}
-                                        <button type="button" class="uk-button uk-button-primary uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
+                                        <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
                                         <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                     </div>
                                 </div>

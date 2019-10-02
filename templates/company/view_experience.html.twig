@@ -38,14 +38,6 @@
             </div>
         </div>
 
-        {% if user.isStudent%}
-            <form method="post" action="{{ path('company_experience_student_express_interest', {'id' : experience.id }) }}">
-                <div class="uk-margin">
-                    <button class="uk-button uk-button-primary uk-inline">Express Interest</button>
-                </div>
-            </form>
-        {% endif %}
-
         <ul class="uk-tab" uk-switcher="connect: #tab-experience" uk-tab>
             <li class="uk-active"><a href="#experience-details">Experience</a></li>
             {% if experience.payment > 0 %}
@@ -133,7 +125,7 @@
                     <tbody>
                     <tr>
                         <td>Event Coordinator</td>
-                        <td>{{ experience.employeeContact.fullName }}</td>
+                        <td>{{ experience.employeeContact.fullName }} <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button></td>
                     </tr>
                     <tr>
                         <td>Email</td>

@@ -133,25 +133,26 @@ class FeedbackController extends AbstractController
 
         /** @var EducatorUser|StudentUser $user */
         $user = $this->getUser();
-        $feedback = null;
         $formType = null;
         $template = null;
 
-        $experienceHasFeedback = $this->feedbackRepository->findOneBy([
+        $feedback = $this->feedbackRepository->findOneBy([
            'user' => $user,
            'experience' => $experience
-        ]) ? true : false;
+        ]);
+
+        $experienceHasFeedback = $feedback ? true : false;
 
         // look at the experience object and see which form you should load in
         switch ($experience->getClassName()) {
             case 'CompanyExperience':
                 /** @var CompanyExperience $experience */
                 if($user->isStudent()) {
-                    $feedback = new StudentReviewCompanyExperienceFeedback();
+                    $feedback = $feedback ? $feedback : new StudentReviewCompanyExperienceFeedback();
                     $formType = StudentReviewCompanyExperienceFeedbackFormType::class;
                     $template = 'new_student_review_company_experience_feedback.html.twig';
                 } elseif ($user->isEducator()) {
-                    $feedback = new EducatorReviewCompanyExperienceFeedback();
+                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewCompanyExperienceFeedback();
                     $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_company_experience_feedback.html.twig';
                 }
@@ -159,11 +160,11 @@ class FeedbackController extends AbstractController
             case 'TeachLessonExperience':
                 /** @var TeachLessonExperience $experience */
                 if($user->isStudent()) {
-                    $feedback = new StudentReviewTeachLessonExperienceFeedback();
+                    $feedback = $feedback = $feedback ? $feedback : new StudentReviewTeachLessonExperienceFeedback();
                     $formType = StudentReviewTeachLessonExperienceFeedbackFormType::class;
                     $template = 'new_student_review_teach_lesson_experience_feedback.html.twig';
                 } elseif ($user->isEducator()) {
-                    $feedback = new EducatorReviewTeachLessonExperienceFeedback();
+                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewTeachLessonExperienceFeedback();
                     $formType = EducatorReviewTeachLessonExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_teach_lesson_experience_feedback.html.twig';
                 }
@@ -227,6 +228,7 @@ class FeedbackController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
             'feedback' => $feedback,
+            'experience' => $experience,
             'experienceHasFeedback' => $experienceHasFeedback
         ]);
     }

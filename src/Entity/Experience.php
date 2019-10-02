@@ -190,7 +190,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\Registration", mappedBy="experience")
+     * @ORM\OneToMany(targetEntity="App\Entity\registration", mappedBy="experience")
      */
     protected $registrations;
 

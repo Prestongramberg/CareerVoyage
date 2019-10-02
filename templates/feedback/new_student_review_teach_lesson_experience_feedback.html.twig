@@ -16,37 +16,57 @@
             </div>
         {% endif %}
 
-        {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
-        {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.rating) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.feedback.rating) }}
+        <fieldset {% if experienceHasFeedback %}disabled="disabled"{% endif %}>
 
-        {{ form_label(form.feedback.providedCareerInsight, 'Did the class provide career insights*') }}
-        {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.providedCareerInsight) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.feedback.providedCareerInsight) }}
+            {% if experienceHasFeedback %}
+                <h3>Viewing your feedback for {{ experience.title }}</h3>
+            {% else %}
+                <h3>Giving feedback for {{ experience.title }}</h3>
+            {% endif %}
 
-        {{ form_label(form.feedback.wasEnjoyableAndEngaging, 'Was the class enjoyable and engaging*') }}
-        {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.wasEnjoyableAndEngaging) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.feedback.wasEnjoyableAndEngaging) }}
+            <div class="uk-width-xlarge">
+                <div>
+                    {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
+                    {{ form_widget(form.feedback.rating, {'attr': {'class': '' ~ ( form_errors(form.feedback.rating) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.feedback.rating) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.feedback.providedCareerInsight, 'Did the class provide career insights*') }}
+                    {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': '' ~ ( form_errors(form.feedback.providedCareerInsight) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.feedback.providedCareerInsight) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.feedback.wasEnjoyableAndEngaging, 'Was the class enjoyable and engaging*') }}
+                    {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': '' ~ ( form_errors(form.feedback.wasEnjoyableAndEngaging) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.feedback.wasEnjoyableAndEngaging) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.feedback.learnSomethingNew, 'Did you learn something new*') }}
+                    {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': '' ~ ( form_errors(form.feedback.learnSomethingNew) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.feedback.learnSomethingNew) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.interestInWorkingInThisIndustry, 'After this lesson, my interest in working in this industry is*') }}
+                    {{ form_widget(form.interestInWorkingInThisIndustry, {'attr': {'class': '' ~ ( form_errors(form.interestInWorkingInThisIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.interestInWorkingInThisIndustry) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a friend*') }}
+                    {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
+                </div>
+                <div class="uk-margin">
+                    {{ form_label(form.feedback.additionalFeedback, 'Additional Feedback (Optional)') }}
+                    {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.feedback.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.feedback.additionalFeedback) }}
+                </div>
+            </div>
 
-        {{ form_label(form.feedback.learnSomethingNew, 'Did you learn something new*') }}
-        {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.learnSomethingNew) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.feedback.learnSomethingNew) }}
+            <div class="uk-margin">
+                <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+            </div>
 
-        {{ form_label(form.interestInWorkingInThisIndustry, 'After this lesson, my interest in working in this industry is*') }}
-        {{ form_widget(form.interestInWorkingInThisIndustry, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interestInWorkingInThisIndustry) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.interestInWorkingInThisIndustry) }}
-
-        {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this guest instructor to a friend*') }}
-        {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
-
-        {{ form_label(form.feedback.additionalFeedback, 'Additional Feedback (Optional)') }}
-        {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-input' ~ ( form_errors(form.feedback.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
-        {{ form_errors(form.feedback.additionalFeedback) }}
-
-        <div class="uk-margin">
-            <button class="uk-button uk-button-primary uk-button-small">Submit</button>
-        </div>
+        </fieldset>
 
         {{ form_end(form) }}
 
