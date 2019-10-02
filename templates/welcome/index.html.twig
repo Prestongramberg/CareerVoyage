@@ -13,7 +13,7 @@
         <div class="uk-container login-box">
             <div class="uk-card uk-card-default uk-card-body">
 
-                <h1 class="uk-card-title">Future Forward<sup>(BETA)</sup></h1>
+                <h1 class="uk-card-title">{{ get_site().name }}<sup>(BETA)</sup></h1>
 
                 <ul class="uk-child-width-expand" data-uk-tab="{connect: '#tab-login'}" uk-switcher>
                     <li {{ formType is null  ? 'class="uk-active"' : ''  }}><a href="#login">Login</a></li>

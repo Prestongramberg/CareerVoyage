@@ -1,0 +1,12 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}View Feedback{% endblock %}
+{% block bodyClass %}page-feedback-all{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        {% for feedback in feedback %}
+            {{ feedback.rating }}
+        {% endfor %}
+    </div>
+{% endblock %}

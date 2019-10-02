@@ -279,4 +279,25 @@ class FeedbackController extends AbstractController
             'feedback' => $feedback,
         ]);
     }
+
+    /**
+     * @Route("/{id}/view-all", name="feedback_view_all", options = { "expose" = true })
+     * @param Request $request
+     * @param Experience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function feedbackViewAllAction(Request $request, Experience $experience) {
+
+        $user = $this->getUser();
+
+        $feedback = $this->feedbackRepository->findBy([
+            'experience' => $experience
+        ]);
+
+        return $this->render("feedback/view_all.html.twig", [
+            'user' => $user,
+            'feedback' => $feedback,
+        ]);
+    }
 }

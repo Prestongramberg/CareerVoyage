@@ -87,6 +87,11 @@ class Site
      */
     private $logoEmail;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fullyQualifiedBaseUrl;
+
     public function __construct()
     {
         $this->siteAdminUsers = new ArrayCollection();
@@ -428,6 +433,18 @@ class Site
     public function setLogoEmail(?string $logoEmail): self
     {
         $this->logoEmail = $logoEmail;
+
+        return $this;
+    }
+
+    public function getFullyQualifiedBaseUrl(): ?string
+    {
+        return $this->fullyQualifiedBaseUrl;
+    }
+
+    public function setFullyQualifiedBaseUrl(?string $fullyQualifiedBaseUrl): self
+    {
+        $this->fullyQualifiedBaseUrl = $fullyQualifiedBaseUrl;
 
         return $this;
     }

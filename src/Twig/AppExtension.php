@@ -5,15 +5,24 @@ namespace App\Twig;
 
 use App\Entity\CompanyResource;
 use App\Entity\Company;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Lesson;
+use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
+use App\Entity\Site;
+use App\Entity\SiteAdminUser;
+use App\Entity\StateCoordinator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\RequestRepository;
+use App\Repository\SiteRepository;
 use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -59,6 +68,16 @@ class AppExtension extends AbstractExtension
     private $twig;
 
     /**
+     * @var SiteRepository
+     */
+    private $siteRepository;
+
+    /**
+     * @var RouterInterface
+     */
+    protected $router;
+
+    /**
      * AppExtension constructor.
      * @param UploaderHelper $uploadHelper
      * @param SerializerInterface $serializer
@@ -67,9 +86,20 @@ class AppExtension extends AbstractExtension
      * @param ChatRepository $chatRepository
      * @param ChatMessageRepository $chatMessageRepository
      * @param Environment $twig
+     * @param SiteRepository $siteRepository
+     * @param RouterInterface $router
      */
-    public function __construct(UploaderHelper $uploadHelper, SerializerInterface $serializer, RequestRepository $requestRepository, UserRepository $userRepository, ChatRepository $chatRepository, ChatMessageRepository $chatMessageRepository, Environment $twig)
-    {
+    public function __construct(
+        UploaderHelper $uploadHelper,
+        SerializerInterface $serializer,
+        RequestRepository $requestRepository,
+        UserRepository $userRepository,
+        ChatRepository $chatRepository,
+        ChatMessageRepository $chatMessageRepository,
+        Environment $twig,
+        SiteRepository $siteRepository,
+        RouterInterface $router
+    ) {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
         $this->requestRepository = $requestRepository;
@@ -77,8 +107,9 @@ class AppExtension extends AbstractExtension
         $this->chatRepository = $chatRepository;
         $this->chatMessageRepository = $chatMessageRepository;
         $this->twig = $twig;
+        $this->siteRepository = $siteRepository;
+        $this->router = $router;
     }
-
 
     public function getFunctions(): array
     {
@@ -99,6 +130,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('render_request_status_text', [$this, 'renderRequestStatusText']),
             new TwigFunction('list_pluck', [$this, 'listPluck']),
             new TwigFunction('quote_array_elements_for_react', [$this, 'quoteArrayElementsForReact']),
+            new TwigFunction('get_site', [$this, 'getSite']),
         ];
     }
 
@@ -285,5 +317,48 @@ class AppExtension extends AbstractExtension
         return array_map( function( $value ) {
             return '"' . $value . '"';
         }, $array );
+    }
+
+    /**
+     * @param User|null $user
+     * @return Site|null
+     */
+    public function getSite(User $user = null) {
+
+        $site = null;
+
+        if($user instanceof SiteAdminUser ||
+            $user instanceof RegionalCoordinator ||
+            $user instanceof StateCoordinator ||
+            $user instanceof SchoolAdministrator ||
+            $user instanceof EducatorUser ||
+            $user instanceof StudentUser ) {
+            $site = $user->getSite();
+        } else {
+            $site = $this->siteRepository->findOneBy([
+                'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl()
+            ]);
+        }
+
+        return $site;
+    }
+
+    /**
+     * Generate the fully qualified base URL (scheme + host + port, if not default + app base path)
+     *
+     * @return string
+     */
+    protected function getFullyQualifiedBaseUrl()
+    {
+        $routerContext = $this->router->getContext();
+        $port = $routerContext->getHttpPort();
+
+        return sprintf(
+            '%s://%s%s%s',
+            $routerContext->getScheme(),
+            $routerContext->getHost(),
+            ($port !== 80 ? ':'.$port : ''),
+            $routerContext->getBaseUrl()
+        );
     }
 }

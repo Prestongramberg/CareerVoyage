@@ -39,7 +39,8 @@
                 <div class="nav-overlay uk-navbar-left">
                     <span uk-icon="icon: menu; ratio: 1.5" uk-toggle="target: #offcanvas-menu"></span>
                     <a class="uk-navbar-item uk-logo" href="{{ path('dashboard') }}">
-                        <img src="{{ asset('build/images/logo-future-forward.png') }}" alt="">
+                        {% set url = 'build/images/' ~ get_site().logo %}
+                        <img src="{{ asset(url) }}" alt="">
                     </a>
                 </div>
             </div>

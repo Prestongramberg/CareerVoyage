@@ -38,6 +38,7 @@ use App\Repository\SchoolAdministratorRepository;
 use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SiteAdminUserRepository;
+use App\Repository\SiteRepository;
 use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentReviewCompanyExperienceFeedbackRepository;
 use App\Repository\StudentReviewTeachLessonExperienceFeedbackRepository;
@@ -61,6 +62,7 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\Paginator;
+use Twig\Environment;
 
 trait ServiceHelper
 {
@@ -335,6 +337,16 @@ trait ServiceHelper
     private $feedbackRepository;
 
     /**
+     * @var Environment
+     */
+    private $twig;
+
+    /**
+     * @var SiteRepository
+     */
+    private $siteRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -390,6 +402,8 @@ trait ServiceHelper
      * @param StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository
      * @param StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository
      * @param FeedbackRepository $feedbackRepository
+     * @param Environment $twig
+     * @param SiteRepository $siteRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -445,7 +459,9 @@ trait ServiceHelper
         EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository,
         StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository,
         StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository,
-        FeedbackRepository $feedbackRepository
+        FeedbackRepository $feedbackRepository,
+        Environment $twig,
+        SiteRepository $siteRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -501,6 +517,8 @@ trait ServiceHelper
         $this->studentReviewCompanyExperienceFeedbackRepository = $studentReviewCompanyExperienceFeedbackRepository;
         $this->studentReviewTeachLessonExperienceFeedbackRepository = $studentReviewTeachLessonExperienceFeedbackRepository;
         $this->feedbackRepository = $feedbackRepository;
+        $this->twig = $twig;
+        $this->siteRepository = $siteRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
@@ -513,4 +531,5 @@ trait ServiceHelper
             $routerContext->getBaseUrl()
         );
     }
+
 }
