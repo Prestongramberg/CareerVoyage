@@ -16,7 +16,7 @@ class App extends React.Component {
     render() {
         return this.props.calendar.loading ? (
             <div key="spinner" className="uk-width-1-1 uk-align-center">
-                <div data-uk-spinner></div>
+                <div className="uk-spinner" data-uk-spinner></div>
             </div>
         ) : this.renderCalendar();
     }
