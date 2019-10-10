@@ -27,7 +27,7 @@ class App extends React.Component {
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
 
         return (
-            <div className="pintex-calendar">
+            <div className="pintex-calendar pintex-testing">
                 <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                     <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                         <div className="uk-search uk-search-default uk-width-1-1">
