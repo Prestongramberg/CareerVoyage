@@ -15,7 +15,7 @@ class App extends React.Component {
 
     render() {
         return this.props.calendar.loading ? (
-            <div className="uk-width-1-1 uk-align-center">
+            <div key="spinner" className="uk-width-1-1 uk-align-center">
                 <div data-uk-spinner></div>
             </div>
         ) : this.renderCalendar();
@@ -27,7 +27,7 @@ class App extends React.Component {
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
 
         return (
-            <div className="pintex-calendar">
+            <div key="calendar" className="pintex-calendar">
                 <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                     <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                         <div className="uk-search uk-search-default uk-width-1-1">
