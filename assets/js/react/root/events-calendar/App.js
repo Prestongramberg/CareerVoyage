@@ -31,7 +31,7 @@ class App extends React.Component {
                 <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                     <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                         <div className="uk-search uk-search-default uk-width-1-1">
-                            {/*<span data-uk-search-icon></span>*/}
+                            <span data-uk-search-icon></span>
                             <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                         </div>
                     </div>
