@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { companyFavorited, companyUnfavorited, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import CompanyListing from "../../components/CompanyListing/CompanyListing";
+import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
 
@@ -42,7 +43,7 @@ class App extends React.Component {
                             <div className="uk-width-1-1 company-listings">
                                 { this.props.search.loading && (
                                     <div className="uk-width-1-1 uk-align-center">
-                                        <div data-uk-spinner></div>
+                                        <Loader />
                                     </div>
                                 )}
                                 { !this.props.search.loading && relevantCompanies.map(company => (
