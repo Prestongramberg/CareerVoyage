@@ -48,8 +48,12 @@
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
                     <tr>
-                        <td>Email</td>
-                        <td><a href="mailto:{{ experience.email }}">{{ experience.email }}</a></td>
+                        <td>Name</td>
+                        {% if experience.originalRequest.isFromProfessional %}
+                            <td>{{ experience.originalRequest.needsApprovalBy.fullName }}</td>
+                        {% else %}
+                            <td>{{ experience.originalRequest.createdBy.fullName }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <td>Address</td>
