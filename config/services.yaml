@@ -67,3 +67,7 @@ services:
           - "@app.file_uploader"
           - "@app.image_cache_generator"
           - "@doctrine.orm.entity_manager"
+
+    App\EventListener\RequestListener:
+        tags:
+          - { name: kernel.event_listener, event: kernel.request }

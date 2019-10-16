@@ -531,11 +531,35 @@ class SecurityController extends AbstractController
             throw new \Exception("User not found");
         }
 
+        $request->getSession()->invalidate();
+        $this->securityToken->setToken(null);
+        $session->clear();
+
         return $this->guardHandler->authenticateUserAndHandleSuccess(
             $user,
             $request,
             $this->authenticator,
             'main' // firewall name in security.yaml
         );
+    }
+
+    /**
+     * The normal logout function/route was not clearing all the session history due to our
+     * custom middleware for logging into various site URLs
+     *
+     * @Route("/sign-out", name="sign_out", methods={"GET"})
+     *
+     * @param Request $request
+     * @param SessionInterface $session
+     * @return Response
+     * @throws \Exception
+     */
+    public function signOut(Request $request, SessionInterface $session)
+    {
+        $session->invalidate();
+        $this->securityToken->setToken(null);
+        $session->clear();
+
+        return $this->redirectToRoute('welcome');
     }
 }

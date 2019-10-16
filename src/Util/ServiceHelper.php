@@ -56,6 +56,7 @@ use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
@@ -347,6 +348,11 @@ trait ServiceHelper
     private $siteRepository;
 
     /**
+     * @var TokenStorageInterface
+     */
+    private $securityToken;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -404,6 +410,7 @@ trait ServiceHelper
      * @param FeedbackRepository $feedbackRepository
      * @param Environment $twig
      * @param SiteRepository $siteRepository
+     * @param TokenStorageInterface $securityToken
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -461,7 +468,8 @@ trait ServiceHelper
         StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository,
         FeedbackRepository $feedbackRepository,
         Environment $twig,
-        SiteRepository $siteRepository
+        SiteRepository $siteRepository,
+        TokenStorageInterface $securityToken
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -519,6 +527,7 @@ trait ServiceHelper
         $this->feedbackRepository = $feedbackRepository;
         $this->twig = $twig;
         $this->siteRepository = $siteRepository;
+        $this->securityToken = $securityToken;
     }
 
     public function getFullQualifiedBaseUrl() {
