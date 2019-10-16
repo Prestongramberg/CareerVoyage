@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -33,14 +34,16 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $passwordEncoder;
     private $baseUrl;
     private $siteRepository;
+    private $session;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository)
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository, SessionInterface $session)
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
         $this->siteRepository = $siteRepository;
+        $this->session = $session;
     }
 
     public function supports(Request $request)
@@ -129,8 +132,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        // if the user is not on the correct site URL then redirect to our router middleware
-        if($site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl()) {
+        // if the user is not on the correct site URL and an admin isn't logged temporarily
+        // logged in as another user then redirect to our router middleware
+        //$sessionData = $this->session->has('previouslyLoggedInAs')
+
+        if($site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl() && !$this->session->get('previouslyLoggedInAs', null)) {
             return new RedirectResponse($site->getFullyQualifiedBaseUrl() . sprintf('/security-router/%s', $user->getTemporarySecurityToken()));
         } else {
             // once the user is on the correct site URL let's go ahead and direct them to the appropriate place

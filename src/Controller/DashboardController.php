@@ -56,7 +56,6 @@ class DashboardController extends AbstractController
 
         $dashboards = [];
 
-
         if($user->isAdmin()) {
 
             $dashboards = [

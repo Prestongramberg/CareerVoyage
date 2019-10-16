@@ -60,7 +60,7 @@ class ManageUsersController extends AbstractController
     use ServiceHelper;
 
     /**
-     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/", name="manage_users", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response

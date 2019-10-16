@@ -389,9 +389,9 @@ class SecurityController extends AbstractController
             throw new \Exception("User not found");
         }
 
-        $request->getSession()->invalidate();
+      /*  $request->getSession()->invalidate();
         $this->securityToken->setToken(null);
-        $session->clear();
+        $session->clear();*/
 
         return $this->guardHandler->authenticateUserAndHandleSuccess(
             $user,

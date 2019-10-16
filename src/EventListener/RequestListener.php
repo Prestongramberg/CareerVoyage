@@ -37,6 +37,8 @@ class RequestListener
 
     public function onKernelRequest(RequestEvent $event)
     {
+        // todo come back to this and lock down the URLs on the site
+        return;
 
         $route = $event->getRequest()->get('_route');
 
