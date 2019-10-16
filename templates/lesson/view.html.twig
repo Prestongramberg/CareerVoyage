@@ -208,6 +208,8 @@
                                             </div>
                                         </div>
                                         {% endif %}
+                                    </div>
+                                    <div class="uk-width-1-1 uk-width-auto@m">
                                         <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
                                         <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                     </div>
@@ -232,8 +234,8 @@
                                         <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
                                         <dd>{{ lessonTeachable.user.briefBio }}</dd>
                                     </div>
-                                    <div class="uk-width-auto">
-                                        <button type="button" class="uk-button uk-button-primary uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
+                                    <div class="uk-width-1-1 uk-width-auto@m">
+                                        <button type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ lessonTeachable.user.id }}">Chat</button>
                                         <a href="{{ path('profile_index', { "id": lessonTeachable.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                     </div>
                                 </div>

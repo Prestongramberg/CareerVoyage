@@ -70,7 +70,7 @@ window.Pintex = {
             `;
 
         if ( event.url ) {
-            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right">View More Details</a>`;
+            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
@@ -97,7 +97,7 @@ window.Pintex = {
         // HHMM format for Yahoo Duration
         const yahooDuration = secondsToHHMM( Math.min(epochEndTime - epochStartTime, 356459 ) );
 
-        return `<div class="atc-wrapper">
+        return `<div class="atc-wrapper uk-margin-small-bottom">
             <label for="atc-checkbox" class="atc-checkbox-label">Add to Calendar</label>
             <input name="atc-checkbox" class="atc-checkbox" id="atc-checkbox" type="checkbox">
             <div class="atc-links-wrapper">

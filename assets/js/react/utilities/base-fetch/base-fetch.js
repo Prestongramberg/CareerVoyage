@@ -1,3 +1,5 @@
+import 'whatwg-fetch'
+
 export function baseFetch(url, options = {}) {
     const baseOptions = {
         credentials: "same-origin",
@@ -11,7 +13,7 @@ export function baseFetch(url, options = {}) {
         options.body = JSON.stringify(options.body)
     }
 
-    return fetch(url, Object.assign({}, baseOptions, options))
+    return window.fetch(url, Object.assign({}, baseOptions, options))
         .then(
             (response) => {
                 return parseJSON(response)

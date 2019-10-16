@@ -350,6 +350,7 @@ class AppExtension extends AbstractExtension
             $user instanceof StudentUser) ) {
             $site = $user->getSite();
         } else {
+
             $site = $this->siteRepository->findOneBy([
                 'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl()
             ]);

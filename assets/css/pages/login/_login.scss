@@ -3,7 +3,6 @@
 .page-login {
 
   .login-box {
-    flex: 1;
     padding-bottom: 50px;
     padding-top: 50px;
     max-width: 600px;
@@ -32,4 +31,16 @@
     display: block;
   }
 
+}
+
+.page-forgot,
+.page-activated {
+
+  .uk-container {
+    max-width: 600px;
+  }
+
+  .uk-card {
+    background: rgba(255, 255, 255, 0.85);
+  }
 }

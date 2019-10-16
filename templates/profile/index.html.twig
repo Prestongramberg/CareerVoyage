@@ -3,19 +3,21 @@
 {% block title %}Profile{% endblock %}
 
 {% block body %}
-    {% if profileUser.isAdmin %}
-        {% include 'profile/partials/_view_admin_profile.html.twig' %}
-    {% elseif profileUser.isProfessional %}
-        {% include 'profile/partials/_view_professional_profile.html.twig' %}
-    {% elseif profileUser.isEducator %}
-        {% include 'profile/partials/_view_educator_profile.html.twig' %}
-    {% elseif profileUser.isStudent %}
-        {% include 'profile/partials/_view_student_profile.html.twig' %}
-    {% elseif profileUser.isStateCoordinator %}
-        {% include 'profile/partials/_view_state_coordinator_profile.html.twig' %}
-    {% elseif profileUser.isRegionalCoordinator %}
-        {% include 'profile/partials/_view_regional_coordinator_profile.html.twig' %}
-    {% elseif profileUser.isSchoolAdministrator %}
-        {% include 'profile/partials/_view_school_administrator_profile.html.twig' %}
-    {% endif %}
+    <div class="uk-width-1-1">
+        {% if profileUser.isAdmin %}
+            {% include 'profile/partials/_view_admin_profile.html.twig' %}
+        {% elseif profileUser.isProfessional %}
+            {% include 'profile/partials/_view_professional_profile.html.twig' %}
+        {% elseif profileUser.isEducator %}
+            {% include 'profile/partials/_view_educator_profile.html.twig' %}
+        {% elseif profileUser.isStudent %}
+            {% include 'profile/partials/_view_student_profile.html.twig' %}
+        {% elseif profileUser.isStateCoordinator %}
+            {% include 'profile/partials/_view_state_coordinator_profile.html.twig' %}
+        {% elseif profileUser.isRegionalCoordinator %}
+            {% include 'profile/partials/_view_regional_coordinator_profile.html.twig' %}
+        {% elseif profileUser.isSchoolAdministrator %}
+            {% include 'profile/partials/_view_school_administrator_profile.html.twig' %}
+        {% endif %}
+    </div>
 {% endblock %}

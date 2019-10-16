@@ -10,46 +10,48 @@
 
 {% block body %}
     <div class="uk-flex uk-flex-center uk-height-viewport js-form" data-route="{{ path('industry_change') }}">
-        <div class="uk-container login-box">
-            <div class="uk-card uk-card-default uk-card-body">
+        <div class="uk-width-1-1">
+            <div class="uk-container uk-flex-1 login-box">
+                <div class="uk-card uk-card-default uk-card-body">
 
-                <h1 class="uk-card-title">{{ get_site().name }}<sup>(BETA)</sup></h1>
+                    <h1 class="uk-card-title">{{ get_site().name }}<sup>(BETA)</sup></h1>
 
-                <ul class="uk-child-width-expand" data-uk-tab="{connect: '#tab-login'}" uk-switcher>
-                    <li {{ formType is null  ? 'class="uk-active"' : ''  }}><a href="#login">Login</a></li>
-                    <li {{ formType ? 'class="uk-active"' : '' }}><a href="#register">Register</a></li>
-                </ul>
+                    <ul class="uk-child-width-expand" data-uk-tab="{connect: '#tab-login'}" uk-switcher>
+                        <li {{ formType is null  ? 'class="uk-active"' : ''  }}><a href="#login">Login</a></li>
+                        <li {{ formType ? 'class="uk-active"' : '' }}><a href="#register">Register</a></li>
+                    </ul>
 
-                <div class="uk-switcher" id="tab-login">
-                    <div class="login-box__login">
-                        <form method="post">
-                            {% if error %}
-                                <div class="uk-alert-danger" uk-alert>
-                                    <a class="uk-alert-close" uk-close></a>
-                                    <p>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
-                                </div>
-                            {% endif %}
-                            <fieldset class="uk-fieldset">
-                                <div class="uk-margin">
-                                    <input class="uk-input" type="text" value="{{ last_username }}" name="email" id="inputEmail" placeholder="Email/Username" required autofocus>
-                                </div>
-                                <div class="uk-margin">
-                                    <input class="uk-input" type="password" name="password" id="inputPassword" placeholder="Password" required>
-                                </div>
-                                <div class="uk-margin">
-                                    <button class="uk-button uk-button-primary uk-width-1-1">Submit</button>
-                                </div>
-                            </fieldset>
+                    <div class="uk-switcher" id="tab-login">
+                        <div class="login-box__login">
+                            <form method="post">
+                                {% if error %}
+                                    <div class="uk-alert-danger" uk-alert>
+                                        <a class="uk-alert-close" uk-close></a>
+                                        <p>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+                                    </div>
+                                {% endif %}
+                                <fieldset class="uk-fieldset">
+                                    <div class="uk-margin">
+                                        <input class="uk-input" type="text" value="{{ last_username }}" name="email" id="inputEmail" placeholder="Email/Username" required autofocus>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <input class="uk-input" type="password" name="password" id="inputPassword" placeholder="Password" required>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <button class="uk-button uk-button-primary uk-width-1-1">Submit</button>
+                                    </div>
+                                </fieldset>
 
-                            <input type="hidden" name="formType" value="loginForm">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                        </form>
+                                <input type="hidden" name="formType" value="loginForm">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                            </form>
 
-                        <p>Need to <a href="#register" data-uk-switcher-item="1">Register</a> for an Account? <a href="{{ path('forgot_password_form') }}">Forgot Password?</a></p>
-                    </div>
-                    <div class="login-box__register">
-                        <p>{{ get_site().name }} empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
-                        {% include 'welcome/professional-register.html.twig' %}
+                            <p>Need to <a href="#register" data-uk-switcher-item="1">Register</a> for an Account? <a href="{{ path('forgot_password_form') }}">Forgot Password?</a></p>
+                        </div>
+                        <div class="login-box__register">
+                            <p>{{ get_site().name }} empowers professionals to impact and positively alter the trajectory of students’ lives by sharing their expertise and career experience.</p>
+                            {% include 'welcome/professional-register.html.twig' %}
+                        </div>
                     </div>
                 </div>
             </div>

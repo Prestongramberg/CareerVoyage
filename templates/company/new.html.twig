@@ -96,7 +96,7 @@
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }} <a class="uk-link-muted" data-select-all="new_company_form[schools][]">Select All</a>
+                            {{ form_label(form.schools, 'Schools*') }} <a class="uk-link-muted" data-select-all="new_company_form[schools][]">Select All</a> - <a class="uk-link-muted" data-unselect-all="new_company_form[schools][]">UnSelect All</a>
                             {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
                             <div class="clear"></div>
                             {{ form_errors(form.schools) }}

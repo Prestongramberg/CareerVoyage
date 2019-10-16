@@ -175,7 +175,10 @@ class App extends React.Component {
             const searchableFields = ["firstName", "lastName", "briefBio"];
 
             // Filter By Company
-            if ( !!this.props.search.company && professional.company && parseInt(professional.company.id ) !== parseInt( this.props.search.company ) ) {
+            if ( !!this.props.search.company && (
+                ( !professional.company ) ||
+                ( professional.company && parseInt(professional.company.id ) !== parseInt( this.props.search.company ) )
+            ) ) {
                 return false;
             }
 

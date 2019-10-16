@@ -1,12 +1,5 @@
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
-    <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
-        <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
-        <li><a href="#account-career-fields">Career Fields of Interest</a></li>
-        <li><a href="#account-students">Students</a></li>
-        <li><a href="#account-account">Account</a></li>
-    </ul>
-
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
     {% if form_errors(form) %}
@@ -15,6 +8,13 @@
             <div>{{ form_errors(form) }}</div>
         </div>
     {% endif %}
+
+    <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
+        <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
+        <li><a href="#account-career-fields">Career Fields of Interest</a></li>
+        <li><a href="#account-students">Students</a></li>
+        <li><a href="#account-account">Account</a></li>
+    </ul>
 
     <div class="uk-switcher" id="tab-account">
 

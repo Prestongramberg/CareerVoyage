@@ -88,6 +88,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 <label>Company Thumbnail</label>
+                                <div class="uk-text-meta">Upload a square image if possible.  Will auto resize to 300x300.</div>
                                 <div data-upload-url="{{ path('company_thumbnail_add', { id: company.id }) }}" data-type="image:companyThumbnailImage"></div>
                             </div>
                         </div>
@@ -99,6 +100,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 <label>Company Featured Image</label>
+                                <div class="uk-text-meta">Ideal size for company banner is 1680x300 with central focal point.</div>
                                 <div data-upload-url="{{ path('company_featured_add', { id: company.id }) }}" data-type="image:companyFeaturedImage"></div>
                             </div>
                         </div>
@@ -141,7 +143,7 @@
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="edit_company_form[schools][]">Select All</a>
+                            {{ form_label(form.schools, 'Schools*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="edit_company_form[schools][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="edit_company_form[schools][]">UnSelect All</a>
                             {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
                             <div class="clear"></div>
                             {{ form_errors(form.schools) }}
