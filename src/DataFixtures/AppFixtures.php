@@ -47,16 +47,22 @@ class AppFixtures extends Fixture
         $site = new Site();
         $site->setName('maranatha');
         $site->setBaseUrl('maranatha.org');
+        $site->setChildSite(true);
+        $site->setParentSite(false);
         $manager->persist($site);
 
         $site = new Site();
         $site->setName('future forward');
         $site->setBaseUrl('my.futureforward.org');
+        $site->setChildSite(true);
+        $site->setParentSite(false);
         $manager->persist($site);
 
         $site = new Site();
         $site->setName('pintex');
         $site->setBaseUrl('pintex.org');
+        $site->setChildSite(false);
+        $site->setParentSite(true);
         $manager->persist($site);
 
         $manager->flush();

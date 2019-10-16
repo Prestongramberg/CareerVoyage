@@ -97,6 +97,16 @@ class Site
      */
     private $signature;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $parentSite = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $childSite = true;
+
     public function __construct()
     {
         $this->siteAdminUsers = new ArrayCollection();
@@ -462,6 +472,30 @@ class Site
     public function setSignature(?string $signature): self
     {
         $this->signature = $signature;
+
+        return $this;
+    }
+
+    public function getParentSite(): ?bool
+    {
+        return $this->parentSite;
+    }
+
+    public function setParentSite(?bool $parentSite): self
+    {
+        $this->parentSite = $parentSite;
+
+        return $this;
+    }
+
+    public function getChildSite(): ?bool
+    {
+        return $this->childSite;
+    }
+
+    public function setChildSite(?bool $childSite): self
+    {
+        $this->childSite = $childSite;
 
         return $this;
     }

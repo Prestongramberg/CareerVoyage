@@ -190,12 +190,12 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\registration", mappedBy="experience")
+     * @ORM\OneToMany(targetEntity="App\Entity\registration", mappedBy="experience", cascade={"remove"})
      */
     protected $registrations;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="experience")
+     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="experience", cascade={"remove"})
      */
     protected $feedback;
 

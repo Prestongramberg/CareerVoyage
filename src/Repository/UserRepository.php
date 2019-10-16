@@ -124,6 +124,22 @@ class UserRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * @param $token
+     * @return User|null
+     * @throws NonUniqueResultException
+     * @throws \Exception
+     */
+    public function getByTemporarySecurityToken($token) {
+
+        return $this->createQueryBuilder('u')
+            ->where('u.temporarySecurityToken = :token')
+            ->setParameter('token', $token)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+
     public function findByRole($role)
     {
         $qb = $this->createQueryBuilder('u')

@@ -513,4 +513,29 @@ class SecurityController extends AbstractController
             'main' // firewall name in security.yaml
         );
     }
+
+    /**
+     * @Route("/security-router/{token}", name="security_router", methods={"GET"}, requirements={"token" = "^[a-f0-9]{64}$"})
+     *
+     * @param Request $request
+     * @param SessionInterface $session
+     * @param $token
+     * @return Response
+     * @throws \Exception
+     */
+    public function securityRouter(Request $request, SessionInterface $session, $token)
+    {
+        $user = $this->userRepository->getByTemporarySecurityToken($token);
+
+        if(!$user) {
+            throw new \Exception("User not found");
+        }
+
+        return $this->guardHandler->authenticateUserAndHandleSuccess(
+            $user,
+            $request,
+            $this->authenticator,
+            'main' // firewall name in security.yaml
+        );
+    }
 }

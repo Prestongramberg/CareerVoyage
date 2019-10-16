@@ -215,6 +215,14 @@ abstract class User implements UserInterface
      */
     protected $feedback;
 
+    /**
+     * This is just a temporary token that is used in various parts of the app to later authenticate the user.
+     * One of the spots it's used now is in the security-router to redirect the user to proper base url for login
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $temporarySecurityToken;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -916,6 +924,7 @@ abstract class User implements UserInterface
         $roles = $this->getRoles();
         $this->roles[] = self::ROLE_DASHBOARD_USER;
     }
+    
 
     public function getActivationCode()
     {
@@ -1073,5 +1082,22 @@ abstract class User implements UserInterface
         }
 
         return $this;
+    }
+
+    public function getTemporarySecurityToken(): ?string
+    {
+        return $this->temporarySecurityToken;
+    }
+
+    public function setTemporarySecurityToken(?string $temporarySecurityToken): self
+    {
+        $this->temporarySecurityToken = $temporarySecurityToken;
+
+        return $this;
+    }
+
+    public function initializeTemporarySecurityToken()
+    {
+        $this->temporarySecurityToken = bin2hex(random_bytes(32));
     }
 }
