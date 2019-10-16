@@ -16,7 +16,6 @@ use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
-use App\Entity\SchoolAdministratorRequest;
 use App\Entity\SchoolExperience;
 use App\Entity\SchoolPhoto;
 use App\Entity\SchoolVideo;

@@ -15,6 +15,9 @@
                     <li><span>School Administrators</span></li>
                 </ul>
 
+                {% include 'manageUsers/partials/_filters.html.twig' %}
+                <br>
+
                 <div class="count">
                     Total Users: {{ pagination.getTotalItemCount }}
                 </div>
@@ -25,6 +28,7 @@
                         <th>Last Name</th>
                         <th>Email</th>
                         <th>Username</th>
+                        <th>Site</th>
                         <th>School</th>
                         {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
                         <th>Edit/Delete</th>
@@ -38,6 +42,11 @@
                             <td>{{ paginatedUser.lastName }}</td>
                             <td>{{ paginatedUser.email }}</td>
                             <td>{{ paginatedUser.username }}</td>
+                            <td>
+                                {% if paginatedUser.site is defined and paginatedUser.site is not null %}
+                                    {{ paginatedUser.site.name }}
+                                {% endif %}
+                            </td>
                             <td>
                                 {% for school in paginatedUser.schools %}
                                     <a href="{{ path('school_edit', {'id': school.id}) }}">{{ school.name }}</a>

@@ -12,15 +12,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"newCompanyRequest" = "NewCompanyRequest",
+ * @ORM\DiscriminatorMap({
+ *     "newCompanyRequest" = "NewCompanyRequest",
  *     "joinCompanyRequest" = "JoinCompanyRequest",
- *     "stateCoordinatorRequest" = "StateCoordinatorRequest",
- *     "regionalCoordinatorRequest" = "RegionalCoordinatorRequest",
- *     "schoolAdministratorRequest" = "SchoolAdministratorRequest",
  *     "teachLessonRequest" = "TeachLessonRequest",
- *     "siteAdminRequest" = "SiteAdminRequest",
- *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
- *     "companyExperienceStudentExpressInterestRequest" = "CompanyExperienceStudentExpressInterestRequest"
+ *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest"
  * })
  */
 abstract class Request
@@ -38,6 +34,7 @@ abstract class Request
     protected $id;
 
     /**
+     *
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "REQUEST"})
      * @ORM\Column(type="boolean")
      */

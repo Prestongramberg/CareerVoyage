@@ -5,11 +5,18 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolAdministrator;
+use App\Entity\SiteAdminUser;
+use App\Entity\StateCoordinator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
+use App\Form\ManageUserFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Repository\AdminUserRepository;
@@ -28,6 +35,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -76,8 +86,17 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $form = $this->buildFilterForm(ProfessionalUser::class, $this->generateUrl('manage_professionals'));
+
+        $form->handleRequest($request);
+
         $filterBuilder = $this->professionalUserRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
 
         $filterQuery = $filterBuilder->getQuery();
 
@@ -89,7 +108,9 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/professionals.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_professionals')
         ]);
     }
 
@@ -104,12 +125,20 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $form = $this->buildFilterForm(SiteAdminUser::class, $this->generateUrl('manage_site_admins'));
+        $form->handleRequest($request);
+
         $filterBuilder = $this->siteAdminRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
                 ->setParameter('site', $user->getSite());
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
 
         $filterQuery = $filterBuilder->getQuery();
@@ -122,7 +151,9 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/site_admins.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_site_admins')
         ]);
     }
 
@@ -137,12 +168,20 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $form = $this->buildFilterForm(StateCoordinator::class, $this->generateUrl('manage_state_coordinators'));
+        $form->handleRequest($request);
+
         $filterBuilder = $this->stateCoordinatorRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
             $filterBuilder->where('u.site = :site')
                 ->setParameter('site', $user->getSite());
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
 
         $filterQuery = $filterBuilder->getQuery();
@@ -155,7 +194,9 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/state_coordinators.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_state_coordinators')
         ]);
     }
 
@@ -169,6 +210,9 @@ class ManageUsersController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $form = $this->buildFilterForm(RegionalCoordinator::class, $this->generateUrl('manage_regional_coordinators'));
+        $form->handleRequest($request);
 
         $filterBuilder = $this->regionalCoordinatorRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
@@ -184,6 +228,11 @@ class ManageUsersController extends AbstractController
                 ->setParameter('state', $user->getState());
         }
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
         $filterQuery = $filterBuilder->getQuery();
 
         $pagination = $this->paginator->paginate(
@@ -194,7 +243,9 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/regional_coordinators.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_regional_coordinators')
         ]);
     }
 
@@ -208,6 +259,9 @@ class ManageUsersController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $form = $this->buildFilterForm(SchoolAdministrator::class, $this->generateUrl('manage_school_administrators'));
+        $form->handleRequest($request);
 
         $filterBuilder = $this->schoolAdministratorRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
@@ -229,6 +283,11 @@ class ManageUsersController extends AbstractController
                 ->setParameter('region', $user->getRegion());
         }
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
         $filterQuery = $filterBuilder->getQuery();
 
         $pagination = $this->paginator->paginate(
@@ -239,7 +298,9 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/school_administrators.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_school_administrators')
         ]);
     }
 
@@ -253,6 +314,9 @@ class ManageUsersController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $form = $this->buildFilterForm(StudentUser::class, $this->generateUrl('manage_students'));
+        $form->handleRequest($request);
 
         $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
@@ -279,6 +343,11 @@ class ManageUsersController extends AbstractController
                 ->setParameter('school', $user->getSchool());
         }
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
         $filterQuery = $filterBuilder->getQuery();
 
         $pagination = $this->paginator->paginate(
@@ -289,7 +358,9 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/students.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_students')
         ]);
     }
 
@@ -303,6 +374,9 @@ class ManageUsersController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $form = $this->buildFilterForm(EducatorUser::class, $this->generateUrl('manage_educators'));
+        $form->handleRequest($request);
 
         $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
@@ -329,6 +403,11 @@ class ManageUsersController extends AbstractController
                 ->setParameter('school', $user->getSchool());
         }
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
         $filterQuery = $filterBuilder->getQuery();
 
         $pagination = $this->paginator->paginate(
@@ -339,7 +418,27 @@ class ManageUsersController extends AbstractController
 
         return $this->render('manageUsers/educators.html.twig', [
             'user' => $user,
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('manage_educators')
         ]);
+    }
+
+    /**
+     * Builds the manage users filter form
+     *
+     * @param $filterType
+     * @param $action
+     * @return FormInterface The form
+     */
+    private function buildFilterForm($filterType, $action)
+    {
+        $form = $this->createForm(ManageUserFilterType::class, null, [
+            'action' => $action,
+            'method' => 'GET',
+            'filter_type' => $filterType
+        ]);
+
+        return $form;
     }
 }

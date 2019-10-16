@@ -46,11 +46,6 @@ class School
      * @ORM\OneToMany(targetEntity="App\Entity\EducatorUser", mappedBy="school")
      */
     private $educatorUsers;
-    
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdministratorRequest", mappedBy="school")
-     */
-    private $schoolAdministratorRequests;
 
     /**
      * @Assert\NotBlank(message="Don't forget a school email!", groups={"EDIT"})
@@ -134,7 +129,6 @@ class School
         $this->companies = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
-        $this->schoolAdministratorRequests = new ArrayCollection();
         $this->schoolAdministrators = new ArrayCollection();
         $this->schoolVideos = new ArrayCollection();
         $this->schoolExperiences = new ArrayCollection();
@@ -242,37 +236,6 @@ class School
             // set the owning side to null (unless already changed)
             if ($educatorUser->getSchool() === $this) {
                 $educatorUser->setSchool(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|SchoolAdministratorRequest[]
-     */
-    public function getSchoolAdministratorRequests(): Collection
-    {
-        return $this->schoolAdministratorRequests;
-    }
-
-    public function addSchoolAdministratorRequest(SchoolAdministratorRequest $schoolAdministratorRequest): self
-    {
-        if (!$this->schoolAdministratorRequests->contains($schoolAdministratorRequest)) {
-            $this->schoolAdministratorRequests[] = $schoolAdministratorRequest;
-            $schoolAdministratorRequest->setSchool($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSchoolAdministratorRequest(SchoolAdministratorRequest $schoolAdministratorRequest): self
-    {
-        if ($this->schoolAdministratorRequests->contains($schoolAdministratorRequest)) {
-            $this->schoolAdministratorRequests->removeElement($schoolAdministratorRequest);
-            // set the owning side to null (unless already changed)
-            if ($schoolAdministratorRequest->getSchool() === $this) {
-                $schoolAdministratorRequest->setSchool(null);
             }
         }
 

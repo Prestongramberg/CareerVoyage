@@ -32,12 +32,22 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Professional</td>
+                    <td>
+                        {{ request.needsApprovalBy.fullName }}
+                    </td>
+                </tr>
+                <tr>
                     <td>Status</td>
                     <td>
                         <span class="uk-label">
                             {{ render_request_status_text( request ) }}
                         </span>
                     </td>
+                </tr>
+                <tr>
+                    <td>Created On</td>
+                    <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -107,6 +117,10 @@
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
                         </td>
+                    </tr>
+                    <tr>
+                        <td>Created On</td>
+                        <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
                     </tr>
                     {% endif %}
                     </tbody>

@@ -33,11 +33,6 @@ class Site
     private $siteAdminUsers;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SiteAdminRequest", mappedBy="site")
-     */
-    private $siteAdminRequests;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $baseUrl;
@@ -110,7 +105,6 @@ class Site
     public function __construct()
     {
         $this->siteAdminUsers = new ArrayCollection();
-        $this->siteAdminRequests = new ArrayCollection();
         $this->stateCoordinators = new ArrayCollection();
         $this->regionalCoordinators = new ArrayCollection();
         $this->regions = new ArrayCollection();
@@ -162,37 +156,6 @@ class Site
             // set the owning side to null (unless already changed)
             if ($siteAdminUser->getSite() === $this) {
                 $siteAdminUser->setSite(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|SiteAdminRequest[]
-     */
-    public function getSiteAdminRequests(): Collection
-    {
-        return $this->siteAdminRequests;
-    }
-
-    public function addSiteAdminRequest(SiteAdminRequest $siteAdminRequest): self
-    {
-        if (!$this->siteAdminRequests->contains($siteAdminRequest)) {
-            $this->siteAdminRequests[] = $siteAdminRequest;
-            $siteAdminRequest->setSite($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSiteAdminRequest(SiteAdminRequest $siteAdminRequest): self
-    {
-        if ($this->siteAdminRequests->contains($siteAdminRequest)) {
-            $this->siteAdminRequests->removeElement($siteAdminRequest);
-            // set the owning side to null (unless already changed)
-            if ($siteAdminRequest->getSite() === $this) {
-                $siteAdminRequest->setSite(null);
             }
         }
 

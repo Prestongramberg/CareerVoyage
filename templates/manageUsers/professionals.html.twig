@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}School Administrators{% endblock %}
+{% block title %}Professionals{% endblock %}
 
 {% block body %}
 
@@ -15,9 +15,12 @@
                     <li><span>Professionals</span></li>
                 </ul>
 
+                {% include 'manageUsers/partials/_filters.html.twig' %}
+                <br>
                 <div class="count">
                     Total Users: {{ pagination.getTotalItemCount }}
                 </div>
+
                 <table class="uk-table uk-table-small uk-table-divider">
                     <tr>
                         <th>ID</th>

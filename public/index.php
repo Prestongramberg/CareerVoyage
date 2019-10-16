@@ -4,6 +4,9 @@ use App\Kernel;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
+ini_set('post_max_size', '64M');
+ini_set('upload_max_filesize', '64M');
+
 require dirname(__DIR__).'/config/bootstrap.php';
 
 if ($_SERVER['APP_DEBUG']) {

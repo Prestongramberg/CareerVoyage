@@ -64,6 +64,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\Paginator;
 use Twig\Environment;
+use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdaterInterface;
 
 trait ServiceHelper
 {
@@ -353,6 +354,11 @@ trait ServiceHelper
     private $securityToken;
 
     /**
+     * @var FilterBuilderUpdaterInterface
+     */
+    private $filterBuilder;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -411,6 +417,7 @@ trait ServiceHelper
      * @param Environment $twig
      * @param SiteRepository $siteRepository
      * @param TokenStorageInterface $securityToken
+     * @param FilterBuilderUpdaterInterface $filterBuilder
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -469,7 +476,8 @@ trait ServiceHelper
         FeedbackRepository $feedbackRepository,
         Environment $twig,
         SiteRepository $siteRepository,
-        TokenStorageInterface $securityToken
+        TokenStorageInterface $securityToken,
+        FilterBuilderUpdaterInterface $filterBuilder
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -528,6 +536,7 @@ trait ServiceHelper
         $this->twig = $twig;
         $this->siteRepository = $siteRepository;
         $this->securityToken = $securityToken;
+        $this->filterBuilder = $filterBuilder;
     }
 
     public function getFullQualifiedBaseUrl() {
