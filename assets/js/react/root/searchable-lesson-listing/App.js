@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { lessonFavorited, lessonUnfavorited, lessonTeach, lessonUnteach, loadLessons, loadUser, updateCourseQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import LessonListing from "../../components/LessonListing/LessonListing";
+import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
 
@@ -47,7 +48,7 @@ class App extends React.Component {
                             <div className="lesson-listings" data-uk-grid="masonry: true">
                                 { this.props.search.loading && (
                                     <div className="uk-width-1-1 uk-align-center">
-                                        <div data-uk-spinner></div>
+                                        <Loader />
                                     </div>
                                 )}
                                 { !this.props.search.loading && relevantLessons.map(lesson => (

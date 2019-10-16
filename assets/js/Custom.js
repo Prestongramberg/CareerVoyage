@@ -148,7 +148,7 @@ jQuery(document).ready(function($) {
                     // console.log('load', arguments);
                 },
                 error: function () {
-                    //console.log('error', arguments);
+                    console.log('error', arguments);
                     window.Pintex.notification("Failed to upload file", "error");
                 },
                 complete: function () {
@@ -222,12 +222,24 @@ jQuery(document).ready(function($) {
     /**
      * Errors Triggering Correct Tabs
      */
-    $('form .uk-switcher').each(function() {
-        var $tab = $(this).children().has('ul:not(".ql-container ul")').first();
+    $('.uk-switcher:not(".uk-switcher .uk-switcher")').each(function() {
+
+        // Find Index of First Tab With Error
+        var $tab = $(this).children().has('ul:not(".ql-container ul"):not(".uk-list")').first();
         if( $tab.length > 0 ) {
             var index = $tab.index();
             $(this).children().removeClass('uk-active').eq(index).addClass('uk-active');
-            $("[uk-tab*=" + $(this).attr('id') + "]").children().removeClass('uk-active').eq(index).addClass('uk-active');
+            $("[uk-switcher*=" + $(this).attr('id') + "]").children().removeClass('uk-active').eq(index).addClass('uk-active');
+
+            // Find First Inner Tab With Error (if applicable)
+            debugger;
+            var $switcher = $tab.find('.uk-switcher');
+            var $innerTab = $switcher.children().has('ul:not(".ql-container ul"):not(".uk-list")').first();
+            if( $innerTab.length > 0 ) {
+                var innerIndex = $innerTab.index();
+                $switcher.children().removeClass('uk-active').eq(innerIndex).addClass('uk-active');
+                $("[uk-tab*=" + $switcher.attr('id') + "]").children().removeClass('uk-active').eq(innerIndex).addClass('uk-active');
+            }
         }
     });
 
@@ -254,6 +266,14 @@ jQuery(document).ready(function($) {
     $(document).on('click', '[data-select-all]', function() {
        const nameOfTargets = $(this).attr('data-select-all');
        $('[name="'+nameOfTargets+'"]').prop( "checked", true );
+    });
+
+    /**
+     * DeSelect All
+     */
+    $(document).on('click', '[data-deselect-all]', function() {
+        const nameOfTargets = $(this).attr('data-deselect-all');
+        $('[name="'+nameOfTargets+'"]').prop( "checked", false );
     });
 
     /**
@@ -544,10 +564,21 @@ jQuery(document).ready(function($) {
     /**
      * Live Chat Users from Link/Button
      */
+
     $(document).on("click", "[data-message-user-id]", function() {
         var userId = $(this).attr('data-message-user-id');
         var message = $(this).attr('data-message');
-        window.dispatchEvent(new CustomEvent("live-chat-user", { "detail": { "userId": userId, "message": message } } ))
+
+        if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+            var customEvent = document.createEvent("CustomEvent");
+            customEvent.initCustomEvent('live-chat-user', false, false,{
+                "userId": userId,
+                "message": message,
+            });
+            window.dispatchEvent(customEvent);
+        } else {
+            window.dispatchEvent(new CustomEvent("live-chat-user", { "detail": { "userId": userId, "message": message } } ))
+        }
     })
 
 });

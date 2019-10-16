@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { loadProfessionals, updateCompanyQuery, updatePrimaryIndustryQuery, updateRoleQuery, updateSearchQuery, updateSecondaryIndustryQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import ProfessionalListing from "../../components/ProfessionalListing/ProfessionalListing";
+import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
 
@@ -40,7 +41,7 @@ class App extends React.Component {
                         <div className="professional-listings" data-uk-grid="masonry: true">
                             { this.props.search.loading && (
                                 <div className="uk-width-1-1 uk-align-center">
-                                    <div data-uk-spinner></div>
+                                    <Loader />
                                 </div>
                             )}
                             { !this.props.search.loading && relevantProfessionals.map(professional => {
@@ -174,7 +175,10 @@ class App extends React.Component {
             const searchableFields = ["firstName", "lastName", "briefBio"];
 
             // Filter By Company
-            if ( !!this.props.search.company && professional.company && parseInt(professional.company.id ) !== parseInt( this.props.search.company ) ) {
+            if ( !!this.props.search.company && (
+                ( !professional.company ) ||
+                ( professional.company && parseInt(professional.company.id ) !== parseInt( this.props.search.company ) )
+            ) ) {
                 return false;
             }
 

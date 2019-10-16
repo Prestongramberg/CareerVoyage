@@ -52,6 +52,9 @@ class SchoolAdminFormType extends AbstractType
                 'choice_label' => 'name',
                 'expanded'  => true,
                 'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
                 'query_builder' => function (EntityRepository $er) use ($site) {
                     return $er->createQueryBuilder('s')
                         ->where('s.site = :site')

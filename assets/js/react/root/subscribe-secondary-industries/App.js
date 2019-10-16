@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { loadIndustries, primaryIndustryChanged, subscribe, unsubscribe } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import { getSecondaryIndustry } from "./helpers/industries"
+import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
 
@@ -16,7 +17,7 @@ class App extends React.Component {
 
         return this.props.uiState.loading ? (
             <div className="uk-width-1-1 uk-align-center">
-                <div data-uk-spinner></div>
+                <Loader />
             </div>
         ) : this.renderFields();
     }

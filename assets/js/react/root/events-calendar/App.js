@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import {loadEvents, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery} from "./actions/actionCreators";
+import Loader from "../../components/Loader/Loader"
 
 class App extends React.Component {
 
@@ -16,7 +17,7 @@ class App extends React.Component {
     render() {
         return this.props.calendar.loading ? (
             <div className="uk-width-1-1 uk-align-center">
-                <div data-uk-spinner></div>
+                <Loader />
             </div>
         ) : this.renderCalendar();
     }
@@ -27,7 +28,7 @@ class App extends React.Component {
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
 
         return (
-            <div className="pintex-calendar">
+            <div className="pintex-calendar pintex-testing">
                 <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                     <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                         <div className="uk-search uk-search-default uk-width-1-1">

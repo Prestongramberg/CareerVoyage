@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import {deepObject} from "../../utilities/object-utils";
 
 const cb = "loader";
 
@@ -50,7 +51,9 @@ class Loader extends Component {
 
     componentWillUnmount() {
         // remove dynamic stylesheet from document
-        this.state.style.remove();
+        if ( deepObject(this.state, 'style.remove') ) {
+            this.state.style.remove();
+        }
     }
 
     render () {

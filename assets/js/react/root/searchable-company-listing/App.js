@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { companyFavorited, companyUnfavorited, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import CompanyListing from "../../components/CompanyListing/CompanyListing";
+import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
 
@@ -42,7 +43,7 @@ class App extends React.Component {
                             <div className="uk-width-1-1 company-listings">
                                 { this.props.search.loading && (
                                     <div className="uk-width-1-1 uk-align-center">
-                                        <div data-uk-spinner></div>
+                                        <Loader />
                                     </div>
                                 )}
                                 { !this.props.search.loading && relevantCompanies.map(company => (
@@ -103,49 +104,49 @@ class App extends React.Component {
                                             </div>
                                             <div className="uk-width-expand">
                                                 <h3>{ user.company.name }</h3>
-                                            </div>
-                                            <div className="uk-width-auto">
-                                                <a href={window.Routing.generate('company_view', {'id': user.company.id})}
-                                                   className="uk-button uk-button-default uk-button-small uk-margin-small-left">View</a>
-                                                {user.ownedCompany && user.ownedCompany.id === user.company.id && (
-                                                    <a href={window.Routing.generate('company_edit', {'id': user.company.id})}
-                                                       className="uk-button uk-button-primary uk-button-small uk-margin-small-left">Edit</a>
-                                                )}
+                                                <div>
+                                                    <a href={window.Routing.generate('company_view', {'id': user.company.id})}
+                                                       className="uk-button uk-button-default uk-button-small">View</a>
+                                                    {user.ownedCompany && user.ownedCompany.id === user.company.id && (
+                                                        <a href={window.Routing.generate('company_edit', {'id': user.company.id})}
+                                                           className="uk-button uk-button-primary uk-button-small uk-margin-small-left">Edit</a>
+                                                    )}
 
-                                                { !user.ownedCompany && ([
-                                                    <button data-uk-toggle="target: #remove-from-company" type="button"
-                                                            className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove</button>,
-                                                    <div id="remove-from-company" data-uk-modal>
-                                                        <div className="uk-modal-dialog uk-modal-body">
-                                                            <h2 className="uk-modal-title">Are you sure you want to remove yourself
-                                                                from "{ this.props.user.company.name }"?</h2>
-                                                            <div className="uk-margin">
-                                                                <form className="uk-inline uk-margin-right" method="post" action={window.Routing.generate('company_remove_user', { id: user.id })}>
-                                                                    <button className="uk-button uk-button-danger" type="submit">Yes</button>
-                                                                </form>
-                                                                <button className="uk-button uk-button-default uk-modal-close">No,
-                                                                    Cancel
-                                                                </button>
+                                                    { !user.ownedCompany && ([
+                                                        <button data-uk-toggle="target: #remove-from-company" type="button"
+                                                                className="uk-button uk-button-secondary uk-button-small uk-margin-small-left">Remove</button>,
+                                                        <div id="remove-from-company" data-uk-modal>
+                                                            <div className="uk-modal-dialog uk-modal-body">
+                                                                <h2 className="uk-modal-title">Are you sure you want to remove yourself
+                                                                    from "{ this.props.user.company.name }"?</h2>
+                                                                <div className="uk-margin">
+                                                                    <form className="uk-inline uk-margin-right" method="post" action={window.Routing.generate('company_remove_user', { id: user.id })}>
+                                                                        <button className="uk-button uk-button-danger" type="submit">Yes</button>
+                                                                    </form>
+                                                                    <button className="uk-button uk-button-default uk-modal-close">No,
+                                                                        Cancel
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ])}
+                                                    ])}
 
-                                                { user.ownedCompany && user.ownedCompany.id === user.company.id && ([
-                                                    <button data-uk-toggle="target: #remove-company" type="button"
-                                                            className="uk-button uk-button-danger uk-button-small uk-margin-small-left">Delete
-                                                    </button>,
-                                                    <div id="remove-company" data-uk-modal>
-                                                        <div className="uk-modal-dialog uk-modal-body">
-                                                        <h2 className="uk-modal-title">Are you sure you want to delete company "{ user.company.name }"?</h2>
-                                                        <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: user.company.id }) }>
-                                                            <button className="uk-button uk-button-danger" type="submit">Yes</button>
-                                                        </form>
-                                                        <button className="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                                                    { user.ownedCompany && user.ownedCompany.id === user.company.id && ([
+                                                        <button data-uk-toggle="target: #remove-company" type="button"
+                                                                className="uk-button uk-button-danger uk-button-small uk-margin-small-left">Delete
+                                                        </button>,
+                                                        <div id="remove-company" data-uk-modal>
+                                                            <div className="uk-modal-dialog uk-modal-body">
+                                                                <h2 className="uk-modal-title">Are you sure you want to delete company "{ user.company.name }"?</h2>
+                                                                <form className="uk-inline uk-margin-right" method="post" action={ window.Routing.generate('company_delete', { id: user.company.id }) }>
+                                                                    <button className="uk-button uk-button-danger" type="submit">Yes</button>
+                                                                </form>
+                                                                <button className="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ])}
+                                                    ])}
 
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

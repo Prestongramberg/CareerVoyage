@@ -74,7 +74,7 @@
                     <div class="uk-margin">
                         <ul class="uk-tab" uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
                             <li class="uk-active"><a href="#school-{{ school.id }}-tools-calendar">Calendar</a></li>
-                            <li><a href="#school-{{ school.id }}-tools-participation">Participation</a></li>
+                            <li class="uk-visible@m"><a href="#school-{{ school.id }}-tools-participation">Participation</a></li>
                             <li><a href="#school-{{ school.id }}-tools-educators">Educators</a></li>
                             <li><a href="#school-{{ school.id }}-tools-students">Students</a></li>
                             <li><a href="#school-{{ school.id }}-tools-experiences">Experiences</a></li>
@@ -83,7 +83,7 @@
                             <div class="school_{{ school.id }}_tools_calendar">
                                 <div class="react-events-calendar" data-school-id="{{ school.id }}"></div>
                             </div>
-                            <div class="school_{{ school.id }}_tools_participation">
+                            <div class="school_{{ school.id }}_tools_participation uk-visible@m">
                                 <div class="uk-card uk-card-default">
                                     <div class="uk-card-body">
                                         <h3>Company Events in {{ "now"|date("F, Y") }} by Industry</h3>
@@ -111,7 +111,7 @@
                                                         <dt>{{ educatorUser.firstName }} {{ educatorUser.lastName }}</dt>
                                                         <dd>{{ excerpt_length( educatorUser.briefBio, 100 ) }}</dd>
                                                     </div>
-                                                    <div class="uk-width-auto">
+                                                    <div class="uk-width-1-1 uk-width-auto@m">
                                                         <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                                         <form class="uk-inline" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST">
                                                             <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
@@ -144,7 +144,7 @@
                                                         <dt>{{ studentUser.firstName }} {{ studentUser.lastName }}</dt>
                                                         <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
                                                     </div>
-                                                    <div class="uk-width-auto">
+                                                    <div class="uk-width-1-1 uk-width-auto@m">
                                                         <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                                         <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
                                                             <input type="hidden" name="schoolAdminId" value="{{ user.id }}">

@@ -295,14 +295,23 @@ class CompanyController extends AbstractController
     public function companyProfessionalRemoveAction(Request $request, ProfessionalUser $professional) {
 
         $company = $professional->getCompany();
-        $this->denyAccessUnlessGranted('edit', $company);
+        /** @var User $user */
+        $user = $this->getUser();
+        $canRemove = false;
 
-        if($company->isUserOwner($professional)) {
-            $this->addFlash('error', 'The owner of a company cannot be removed. Please transfer ownership first.');
-
-            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+        if($user->isAdmin()) {
+            $canRemove = true;
+        } else if($company->isUserOwner($professional)) {
+            // the owner of the company can't be removed unless someone else becomes the owner first
+            $canRemove = false;
+        } else if ($user->getId() === $professional->getId()) {
+            $canRemove = true;
         }
 
+        if(!$canRemove) {
+            $this->addFlash('error', 'That user cannot be removed from the company.');
+            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+        }
 
         $companyId = $professional->getCompany()->getId();
         $professional->setCompany(null);
