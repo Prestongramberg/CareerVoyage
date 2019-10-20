@@ -36,3 +36,4 @@ puphpet/config.yaml
 
 /public/uploads/
 .env.local
+.env
