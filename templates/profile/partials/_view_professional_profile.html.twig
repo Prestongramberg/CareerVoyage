@@ -59,7 +59,7 @@
                                 <a href="{{ profileUser.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
                             {% endif %}
 
-                            {% if profileUser.id != user.id %}
+                            {% if user_can_chat_with_user( user, profileUser ) %}
                                 <a href="javascript:void(0)" class="uk-icon-button uk-margin-small-right" uk-icon="comments" data-message-user-id="{{ profileUser.id }}"></a>
                             {% endif %}
                         </div>
@@ -184,7 +184,9 @@
                         {% else %}
                             <p>This user hasn't added any roles yet.</p>
                         {% endif %}
-                        <p><button class="uk-button uk-button-default uk-button-small" data-message-user-id="{{ profileUser.id }}">Chat with {{ profileUser.firstName }}</button></p>
+                        {% if user_can_chat_with_user( user, profileUser ) %}
+                            <p><button class="uk-button uk-button-default uk-button-small" data-message-user-id="{{ profileUser.id }}">Chat with {{ profileUser.firstName }}</button></p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

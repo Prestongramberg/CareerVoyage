@@ -84,6 +84,13 @@ class FeedbackController extends AbstractController
     use ServiceHelper;
 
     /**
+     * @var array
+     */
+    private $emailsToSendRequestIdeaTo = [
+        'cpears@apritonadvisors.com'
+    ];
+
+    /**
      * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER"})
      * @Route("/request-lesson-experience-or-site-visit", name="request_lesson_experience_or_site_visit", options = { "expose" = true })
      * @param Request $request
@@ -110,6 +117,18 @@ class FeedbackController extends AbstractController
             foreach($user->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
                 $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($schoolAdministrator, $message);
             }
+
+            foreach($this->emailsToSendRequestIdeaTo as $emailToSendRequestIdeaTo) {
+                // Chris said he wants an email sent to him when this happens. So here it goes....
+                // todo this could probably be refactored or cleaned up somewhere as a constant...
+                $userToSendEmailTo = $this->adminUserRepository->findOneBy([
+                    'email' => $emailToSendRequestIdeaTo
+                ]);
+                if($userToSendEmailTo) {
+                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($userToSendEmailTo, $message);
+                }
+            }
+
 
             $this->addFlash('success', 'Feedback successfully submitted.');
             return $this->redirectToRoute('request_lesson_experience_or_site_visit');

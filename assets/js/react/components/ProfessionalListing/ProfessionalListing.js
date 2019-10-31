@@ -35,7 +35,6 @@ class ProfessionalListing extends Component {
                             )}
                             { this.props.phone && <a href={`tel:${this.props.phone}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a>}
                             { this.props.linkedIn && <a href={this.props.linkedIn} className="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"  target="_blank"></a>}
-                            <a href="javascript:void(0)" className="uk-icon-button uk-margin-small-right" data-uk-icon="comments" data-message-user-id={ this.props.id }></a>
                         </div>
                     </div>
                 </div>

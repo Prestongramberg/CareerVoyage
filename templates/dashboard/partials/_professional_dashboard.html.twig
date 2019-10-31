@@ -163,6 +163,49 @@
                     </div>
                 </div>
             </div>
+            <!-- My Company -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">My Company</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        {% if user.company is defined and user.company %}
+                            <a href="{{ path('company_view', { id: user.company.id }) }}"><h4>{{ user.company.name }}</h4></a>
+                            <h5>Upcoming Events</h5>
+                            {% set noEventsFound = true %}
+                            {% if user.company.companyExperiences|length > 0 %}
+                                <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
+                                    {% for experience in user.company.companyExperiences %}
+                                        {% if date(experience.startDateAndTime) > date() %}
+                                            {% set noEventsFound = false %}
+                                            <li><a class="uk-text-meta" href="{{ path('company_experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if noEventsFound == true %}
+                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                            {% endif %}
+
+                            {% if user.isAdmin or user.id == user.company.owner.id %}
+                                <a href="{{ path('company_experience_create') }}" class="uk-button uk-button-primary uk-button-small uk-inline">Create an Experience</a>
+                            {% endif %}
+                        {% else %}
+                            <div className="uk-placeholder uk-text-center">
+                                <p>You aren't associated with a company yet.</p>
+                                <a href="{{ path('company_index') }}" class="uk-button uk-button-default uk-button-small uk-inline uk-margin-small-right">Join a Company</a>
+                                <a href="{{ path('company_new') }}" class="uk-button uk-button-primary uk-button-small uk-inline">Create</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

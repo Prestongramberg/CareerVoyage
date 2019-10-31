@@ -8,6 +8,7 @@ use App\Entity\Company;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Lesson;
+use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolAdministrator;
 use App\Entity\Site;
@@ -141,6 +142,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('list_pluck', [$this, 'listPluck']),
             new TwigFunction('quote_array_elements_for_react', [$this, 'quoteArrayElementsForReact']),
             new TwigFunction('get_site', [$this, 'getSite']),
+            new TwigFunction('user_can_chat_with_user', [$this, 'userCanChatWithUser']),
         ];
     }
 
@@ -360,6 +362,41 @@ class AppExtension extends AbstractExtension
             }
         }
         return $site;
+    }
+
+    public function userCanChatWithUser( User $user, User $userToBeChatted ) {
+
+        // Users should not chat with themselves
+        if( $user && $userToBeChatted && $user->getId() === $userToBeChatted->getId() ) {
+            return false;
+        }
+
+        // Educators can chat with Educators, Professionals, and Students
+        if($user && ($user instanceof EducatorUser) ) {
+            if ( $userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
+                $userToBeChatted instanceof ProfessionalUser ||
+                $userToBeChatted instanceof StudentUser ) ) {
+                return true;
+            }
+        }
+
+        // Students can chat with Students and Educators
+        if($user && ($user instanceof StudentUser) ) {
+            if ( $userToBeChatted && ($userToBeChatted instanceof StudentUser ||
+                $userToBeChatted instanceof EducatorUser ) ) {
+                return true;
+            }
+        }
+
+        // Professionals can chat with Educators and Professionals
+        if($user && ($user instanceof ProfessionalUser) ) {
+            if ( $userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
+                $userToBeChatted instanceof ProfessionalUser ) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

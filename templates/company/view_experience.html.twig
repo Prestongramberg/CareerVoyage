@@ -50,6 +50,10 @@
             {% if user.isEducator or user.isStudent %}
                 <li><a href="#experience-registration">Registration</a></li>
             {% endif %}
+            {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
+                <li><a href="#experience-sign-ups">Sign Ups</a></li>
+                <li><a href="#experience-feedback">Feeedback</a></li>
+            {% endif %}
 
         </ul>
         <div class="uk-switcher" id="tab-experience">
@@ -71,6 +75,15 @@
                         <tr>
                             <td>Available Spaces</td>
                             <td>{{ experience.availableSpaces }}</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>
+                                <p>
+                                    {{ experience.street }}<br />
+                                    {{ experience.city }} {{ experience.state.name }}, {{ experience.zipcode }}
+                                </p>
+                            </td>
                         </tr>
                         <tr>
                             <td>Start Time</td>
@@ -125,7 +138,11 @@
                     <tbody>
                     <tr>
                         <td>Event Coordinator</td>
-                        <td>{{ experience.employeeContact.fullName }} <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button></td>
+                        <td>{{ experience.employeeContact.fullName }}
+                            {% if user_can_chat_with_user( user, experience.employeeContact ) %}
+                                <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td>Email</td>
@@ -181,11 +198,82 @@
                         {% if user.educatorUsers|length > 0 %}
                             <p>Click below to tell your teacher about your interest in this event:</p>
                             {% for educator in user.educatorUsers %}
-                                <button class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-message-user-id="{{ educator.id }}" data-message="I am interested in {{ experience.title }} on {{ experience.startDateAndTime|date("F jS") }}">Chat with {{ educator.fullName }}</button>
+                                {% if user_can_chat_with_user( user, educator ) %}
+                                    <button class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-message-user-id="{{ educator.id }}" data-message="I am interested in {{ experience.title }} on {{ experience.startDateAndTime|date("F jS") }}">Chat with {{ educator.fullName }}</button>
+                                {% endif %}
                             {% endfor %}
                         {% else %}
                             <p>No educators are linked to you yet.  Please speak directly with them about interest in this event.</p>
                         {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
+                <div class="experience_signups">
+                    {% if experience.registrations|length > 0 %}
+                        <table class="uk-table uk-table-divider">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>School</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registration in experience.registrations %}
+                                    <tr>
+                                        <td>{{ registration.user.fullName }}</td>
+                                        <td>{{ registration.user.school.name }}</td>
+                                        <td>
+                                            {% if registration.user.educator %}
+                                                Educator &nbsp;&nbsp;&nbsp;
+                                                {% if user_can_chat_with_user( user, registration.user ) %}
+                                                    <button class="uk-button uk-button-default uk-button-small uk-margin-small-left uk-margin-small-right" data-message-user-id="{{ registration.user.id }}">Chat</button>
+                                                {% endif %}
+                                            {% else %}
+                                                Student
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No Sign Ups yet - check your <a href="{{ path('requests') }}">requests view</a> for possible registrations</p>
+                    {% endif %}
+                </div>
+                <div class="experience_feedback">
+                    {% if experience.feedback|length > 0 %}
+                        <div class="uk-overflow-auto">
+                            <table class="uk-table uk-table-divider">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Rating</th>
+                                    <th>Insight</th>
+                                    <th>Enjoyable</th>
+                                    <th>Learned</th>
+                                    <th>Recommendation</th>
+                                    <th>Feedback</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for feedback in experience.feedback %}
+                                    <tr>
+                                        <td class="uk-text-nowrap">{{ feedback.user.fullName }}</td>
+                                        <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+                                        <td class="uk-text-nowrap">{{ feedback.providedCareerInsight == 1 ? "YES" : "NO" }}</td>
+                                        <td class="uk-text-nowrap">{{ feedback.wasEnjoyableAndEngaging == 1 ? "YES" : "NO" }}</td>
+                                        <td class="uk-text-nowrap">{{ feedback.learnSomethingNew == 1 ? "YES" : "NO" }}</td>
+                                        <td class="uk-text-nowrap">{{ feedback.likelihoodToRecommendToFriend }}</td>
+                                        <td>{{ feedback.additionalFeedback }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p>No feedback has been submitted yet.</p>
                     {% endif %}
                 </div>
             {% endif %}

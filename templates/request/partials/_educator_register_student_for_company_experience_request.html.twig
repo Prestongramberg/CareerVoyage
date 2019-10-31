@@ -47,7 +47,9 @@
                         <input type="hidden" name="request" value="{{ request.id }}">
                     </form>
                 {% endif %}
-                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+                {% if user_can_chat_with_user( user, request.createdBy ) %}
+                    <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+                {% endif %}
             </div>
     {% endif %}
 

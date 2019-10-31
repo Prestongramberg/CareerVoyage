@@ -13,15 +13,15 @@ use Swift_Attachment;
  */
 class FeedbackMailer extends AbstractMailer
 {
-    public function requestForLessonIdeaOrSiteVisit(SchoolAdministrator $schoolAdministrator, $message) {
+    public function requestForLessonIdeaOrSiteVisit(User $user, $message) {
 
         $message = (new \Swift_Message('Request for lesson, idea or site visit.'))
             ->setFrom($this->siteFromEmail)
-            ->setTo($schoolAdministrator->getEmail())
+            ->setTo($user->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/feedback/request_for_lesson_experience_or_site_visit.html.twig',
-                    ['user' => $schoolAdministrator, 'message' => $message]
+                    ['user' => $user, 'message' => $message]
                 ),
                 'text/html'
             );

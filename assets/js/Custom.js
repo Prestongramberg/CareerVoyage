@@ -225,16 +225,15 @@ jQuery(document).ready(function($) {
     $('.uk-switcher:not(".uk-switcher .uk-switcher")').each(function() {
 
         // Find Index of First Tab With Error
-        var $tab = $(this).children().has('ul:not(".ql-container ul"):not(".uk-list")').first();
+        var $tab = $(this).children().has('ul:not(".ql-container ul"):not(".uk-list"):not(".uk-tab")').first();
         if( $tab.length > 0 ) {
             var index = $tab.index();
             $(this).children().removeClass('uk-active').eq(index).addClass('uk-active');
             $("[uk-switcher*=" + $(this).attr('id') + "]").children().removeClass('uk-active').eq(index).addClass('uk-active');
 
             // Find First Inner Tab With Error (if applicable)
-            debugger;
             var $switcher = $tab.find('.uk-switcher');
-            var $innerTab = $switcher.children().has('ul:not(".ql-container ul"):not(".uk-list")').first();
+            var $innerTab = $switcher.children().has('ul:not(".ql-container ul"):not(".uk-list"):not(".uk-tab")').first();
             if( $innerTab.length > 0 ) {
                 var innerIndex = $innerTab.index();
                 $switcher.children().removeClass('uk-active').eq(innerIndex).addClass('uk-active');
@@ -580,5 +579,20 @@ jQuery(document).ready(function($) {
             window.dispatchEvent(new CustomEvent("live-chat-user", { "detail": { "userId": userId, "message": message } } ))
         }
     })
+
+    /**
+     * Fire off a custom event to update all of the calendars on tab switching
+     */
+    $(document).on( "click", ".uk-tab", function() {
+        setTimeout(function() {
+            if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+                var customEvent = document.createEvent("CustomEvent");
+                customEvent.initCustomEvent('uk-tab-clicked', false, false,{});
+                window.dispatchEvent(customEvent);
+            } else {
+                window.dispatchEvent(new CustomEvent("uk-tab-clicked", { "detail": {} } ))
+            }
+        }, 10);
+    });
 
 });

@@ -5,12 +5,13 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import {loadEvents, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery} from "./actions/actionCreators";
 import Loader from "../../components/Loader/Loader"
+import Pusher from "pusher-js";
 
 class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["getEventObjectByType", "getRelevantEvents", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
+        const methods = ["getEventObjectByType", "getRelevantEvents", "handleTabNavigation", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -110,9 +111,11 @@ class App extends React.Component {
     }
 
     renderEventTypes() {
-
         return null;
+    }
 
+    handleTabNavigation() {
+        this.forceUpdate();
     }
 
     getRelevantEvents() {
@@ -173,6 +176,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.props.loadEvents( window.Routing.generate('get_experiences', { 'userId': this.props.userId, 'schoolId': this.props.schoolId }) );
+        window.addEventListener('uk-tab-clicked', this.handleTabNavigation )
     }
 }
 

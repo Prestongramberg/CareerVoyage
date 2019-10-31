@@ -55,7 +55,9 @@
                         <td>Initiated By</td>
                         <td>
                             {{ request.createdBy.firstName }} {{ request.createdBy.lastName }}
-                            <button class="uk-inline uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ request.createdBy.id }}">Chat</button>
+                            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                                <button class="uk-inline uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ request.createdBy.id }}">Chat</button>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
