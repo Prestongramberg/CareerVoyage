@@ -33,11 +33,6 @@ class Region
     private $regionalCoordinators;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\RegionalCoordinatorRequest", mappedBy="region")
-     */
-    private $regionalCoordinatorRequests;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="regions")
      */
     private $state;
@@ -55,7 +50,6 @@ class Region
     public function __construct()
     {
         $this->regionalCoordinators = new ArrayCollection();
-        $this->regionalCoordinatorRequests = new ArrayCollection();
         $this->schools = new ArrayCollection();
     }
 
@@ -101,37 +95,6 @@ class Region
             // set the owning side to null (unless already changed)
             if ($regionalCoordinator->getRegion() === $this) {
                 $regionalCoordinator->setRegion(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|RegionalCoordinatorRequest[]
-     */
-    public function getRegionalCoordinatorRequests(): Collection
-    {
-        return $this->regionalCoordinatorRequests;
-    }
-
-    public function addRegionalCoordinatorRequest(RegionalCoordinatorRequest $regionalCoordinatorRequest): self
-    {
-        if (!$this->regionalCoordinatorRequests->contains($regionalCoordinatorRequest)) {
-            $this->regionalCoordinatorRequests[] = $regionalCoordinatorRequest;
-            $regionalCoordinatorRequest->setRegion($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRegionalCoordinatorRequest(RegionalCoordinatorRequest $regionalCoordinatorRequest): self
-    {
-        if ($this->regionalCoordinatorRequests->contains($regionalCoordinatorRequest)) {
-            $this->regionalCoordinatorRequests->removeElement($regionalCoordinatorRequest);
-            // set the owning side to null (unless already changed)
-            if ($regionalCoordinatorRequest->getRegion() === $this) {
-                $regionalCoordinatorRequest->setRegion(null);
             }
         }
 

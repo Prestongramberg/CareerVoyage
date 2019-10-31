@@ -1,0 +1,55 @@
+{{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+<div class="uk-width-1-4">
+    {{ form_widget(form.firstName, {'attr': {'class': 'uk-input', 'placeholder': 'First Name'}}) }}
+</div>
+<div class="uk-width-1-4@s">
+    {{ form_widget(form.lastName, {'attr': {'class': 'uk-input', 'placeholder': 'Last Name'}}) }}
+</div>
+<div class="uk-width-1-4@s">
+    {{ form_widget(form.email, {'attr': {'class': 'uk-input', 'placeholder': 'Email'}}) }}
+</div>
+<div class="uk-width-1-4@s">
+    {{ form_widget(form.username, {'attr': {'class': 'uk-input', 'placeholder': 'Username'}}) }}
+</div>
+
+{% if form.company['name'] is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.company['name'], {'attr': {'class': 'uk-input', 'placeholder': 'Company'}}) }}
+    </div>
+{% endif %}
+
+{% if form.site['name'] is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.site['name'], {'attr': {'class': 'uk-input', 'placeholder': 'Site'}}) }}
+    </div>
+{% endif %}
+
+{% if form.state is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.state, {'attr': {'class': 'uk-input', 'placeholder': 'State'}}) }}
+    </div>
+{% endif %}
+
+{% if form.region is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.region, {'attr': {'class': 'uk-input', 'placeholder': 'Region'}}) }}
+    </div>
+{% endif %}
+
+{% if form.schools is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.schools, {'attr': {'class': 'uk-input', 'placeholder': 'School'}}) }}
+    </div>
+{% endif %}
+
+{% if form.school is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.school, {'attr': {'class': 'uk-input', 'placeholder': 'School'}}) }}
+    </div>
+{% endif %}
+
+<div class="uk-width-1-4@s">
+    <button class="uk-button uk-button-default">Search</button>
+    <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
+</div>
+{{ form_end(form) }}

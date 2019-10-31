@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}School Administrators{% endblock %}
+{% block title %}State Coordinators{% endblock %}
 {% set previouslyLoggedInAs = app.session.get('previouslyLoggedInAs', null) %}
 
 {% block body %}
@@ -15,6 +15,9 @@
                     <li><a href="{{ path('manage_users') }}">Manage Users</a></li>
                     <li><span>State Coordinators</span></li>
                 </ul>
+
+                {% include 'manageUsers/partials/_filters.html.twig' %}
+                <br>
 
                 <div class="count">
                     Total Users: {{ pagination.getTotalItemCount }}

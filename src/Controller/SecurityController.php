@@ -6,14 +6,10 @@ use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
-use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
-use App\Entity\SchoolAdministratorRequest;
-use App\Entity\SiteAdminRequest;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
-use App\Entity\StateCoordinatorRequest;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
@@ -317,147 +313,9 @@ class SecurityController extends AbstractController
             throw new \Exception("Activation code invalid");
         }
 
-        $this->handleRequestApproval($request, $httpRequest);
+        // todo finish this function to allow requests to be approved by email and link in the email to click and approve
 
         return $this->redirectToRoute('requests');
-    }
-
-    /**
-     * @param \App\Entity\Request $request
-     * @param Request $httpRequest
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    private function handleRequestApproval(\App\Entity\Request $request, Request $httpRequest) {
-
-        switch($request->getClassName()) {
-            case 'NewCompanyRequest':
-                /** @var NewCompanyRequest $request */
-                $request->setApproved(true);
-                $company = $request->getCompany();
-                $company->setApproved(true);
-                $this->entityManager->persist($company);
-                $this->addFlash('success', 'Company approved');
-                $this->requestsMailer->newCompanyRequestApproval($request);
-                break;
-            case 'JoinCompanyRequest':
-                /** @var JoinCompanyRequest $request */
-                $request->setApproved(true);
-                if($request->getIsFromCompany()) {
-                    /** @var ProfessionalUser $needsApprovalBy */
-                    $needsApprovalBy = $request->getNeedsApprovalBy();
-                    $needsApprovalBy->setupAsProfessional();
-                    $needsApprovalBy->setCompany($request->getCompany());
-                    $needsApprovalBy->agreeToTerms();
-                    $this->entityManager->persist($needsApprovalBy);
-                    $this->addFlash('success', 'You have joined the company!');
-                } else {
-                    /** @var ProfessionalUser $createdBy */
-                    $createdBy = $request->getCreatedBy();
-                    $createdBy->setupAsProfessional();
-                    $createdBy->setCompany($request->getCompany());
-                    $createdBy->agreeToTerms();
-                    $this->entityManager->persist($createdBy);
-                    $this->addFlash('success', 'User successfully added to company!');
-                }
-                $this->requestsMailer->joinCompanyRequestApproval($request);
-                break;
-            case 'StateCoordinatorRequest':
-                /** @var StateCoordinatorRequest $request */
-                $request->setApproved(true);
-                /** @var StateCoordinator $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a state coordinator position!');
-                $needsApprovalBy->setState($request->getState());
-                $needsApprovalBy->agreeToTerms();
-                $needsApprovalBy->setupAsStateCoordinator();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->stateCoordinatorRequestApproval($request);
-                break;
-            case 'RegionalCoordinatorRequest':
-                /** @var RegionalCoordinatorRequest $request */
-                $request->setApproved(true);
-                /** @var RegionalCoordinator $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a regional coordinator position!');
-                $needsApprovalBy->setRegion($request->getRegion());
-                $needsApprovalBy->agreeToTerms();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->regionalCoordinatorRequestApproval($request);
-                break;
-            case 'SchoolAdministratorRequest':
-                /** @var SchoolAdministratorRequest $request */
-                $request->setApproved(true);
-                /** @var SchoolAdministrator $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a school administrator position!');
-                $needsApprovalBy->addSchool($request->getSchool());
-                $needsApprovalBy->agreeToTerms();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->schoolAdministratorRequestApproval($request);
-                break;
-            case 'TeachLessonRequest':
-                /** @var TeachLessonRequest $request */
-                $request->setApproved(true);
-                /** @var ProfessionalUser $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-
-                $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                $teachLessonExperience = new TeachLessonExperience();
-                $teachLessonExperience->setStartDateAndTime($date);
-                $teachLessonExperience->setTitle('Lesson Teaching');
-                $teachLessonExperience->setBriefDescription(sprintf("
-                You are teaching lesson %s at school %s
-                ", $request->getLesson()->getTitle(), $request->getCreatedBy()->getSchool()->getName()));
-
-                /** @var School $school */
-                $school = $request->getCreatedBy()->getSchool();
-
-                // the CSV school import fixtures did not have emails so we need to check for them!
-                if($school->getEmail()) {
-                    $teachLessonExperience->setEmail($school->getEmail());
-                }
-
-                if($school->getStreet()) {
-                    $teachLessonExperience->setStreet($school->getStreet());
-                }
-
-                if($school->getCity()) {
-                    $teachLessonExperience->setCity($school->getCity());
-                }
-
-                if($school->getState()) {
-                    $teachLessonExperience->setState($school->getState());
-                }
-
-                if($school->getZipcode()) {
-                    $teachLessonExperience->setZipcode($school->getZipcode());
-                }
-
-                $this->entityManager->persist($teachLessonExperience);
-                $this->addFlash('success', 'You have accepted the invite to teach!');
-
-                // not all educators have an email address.
-                if($request->getCreatedBy()->getEmail()) {
-                    $this->requestsMailer->teachLessonRequestApproval($request);
-                }
-                break;
-            case 'SiteAdminRequest':
-                /** @var SiteAdminRequest $request */
-                $request->setApproved(true);
-                /** @var SiteAdminUser $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a site administrator position!');
-                $needsApprovalBy->setSite($request->getSite());
-                $needsApprovalBy->agreeToTerms();
-                $needsApprovalBy->setupAsSiteAdminUser();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->siteAdminRequestApproval($request);
-                break;
-        }
-        $this->entityManager->persist($request);
-        $this->entityManager->flush();
     }
 
     /**
@@ -512,5 +370,54 @@ class SecurityController extends AbstractController
             $this->authenticator,
             'main' // firewall name in security.yaml
         );
+    }
+
+    /**
+     * @Route("/security-router/{token}", name="security_router", methods={"GET"}, requirements={"token" = "^[a-f0-9]{64}$"})
+     *
+     * @param Request $request
+     * @param SessionInterface $session
+     * @param $token
+     * @return Response
+     * @throws \Exception
+     */
+    public function securityRouter(Request $request, SessionInterface $session, $token)
+    {
+        $user = $this->userRepository->getByTemporarySecurityToken($token);
+
+        if(!$user) {
+            throw new \Exception("User not found");
+        }
+
+      /*  $request->getSession()->invalidate();
+        $this->securityToken->setToken(null);
+        $session->clear();*/
+
+        return $this->guardHandler->authenticateUserAndHandleSuccess(
+            $user,
+            $request,
+            $this->authenticator,
+            'main' // firewall name in security.yaml
+        );
+    }
+
+    /**
+     * The normal logout function/route was not clearing all the session history due to our
+     * custom middleware for logging into various site URLs
+     *
+     * @Route("/sign-out", name="sign_out", methods={"GET"})
+     *
+     * @param Request $request
+     * @param SessionInterface $session
+     * @return Response
+     * @throws \Exception
+     */
+    public function signOut(Request $request, SessionInterface $session)
+    {
+        $session->invalidate();
+        $this->securityToken->setToken(null);
+        $session->clear();
+
+        return $this->redirectToRoute('welcome');
     }
 }

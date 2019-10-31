@@ -32,11 +32,6 @@ class CompanyExperience extends Experience
     private $educatorRegisterStudentForCompanyExperienceRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperienceStudentExpressInterestRequest", mappedBy="companyExperience")
-     */
-    private $companyExperienceStudentExpressInterestRequests;
-
-    /**
      * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
      */
     private $studentReviewExperienceFeedback;
@@ -50,7 +45,6 @@ class CompanyExperience extends Experience
     {
         parent::__construct();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
-        $this->companyExperienceStudentExpressInterestRequests = new ArrayCollection();
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
     }
@@ -104,37 +98,6 @@ class CompanyExperience extends Experience
             // set the owning side to null (unless already changed)
             if ($educatorRegisterStudentForCompanyExperienceRequest->getCompanyExperience() === $this) {
                 $educatorRegisterStudentForCompanyExperienceRequest->setCompanyExperience(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|CompanyExperienceStudentExpressInterestRequest[]
-     */
-    public function getCompanyExperienceStudentExpressInterestRequests(): Collection
-    {
-        return $this->companyExperienceStudentExpressInterestRequests;
-    }
-
-    public function addCompanyExperienceStudentExpressInterestRequest(CompanyExperienceStudentExpressInterestRequest $companyExperienceStudentExpressInterestRequest): self
-    {
-        if (!$this->companyExperienceStudentExpressInterestRequests->contains($companyExperienceStudentExpressInterestRequest)) {
-            $this->companyExperienceStudentExpressInterestRequests[] = $companyExperienceStudentExpressInterestRequest;
-            $companyExperienceStudentExpressInterestRequest->setCompanyExperience($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompanyExperienceStudentExpressInterestRequest(CompanyExperienceStudentExpressInterestRequest $companyExperienceStudentExpressInterestRequest): self
-    {
-        if ($this->companyExperienceStudentExpressInterestRequests->contains($companyExperienceStudentExpressInterestRequest)) {
-            $this->companyExperienceStudentExpressInterestRequests->removeElement($companyExperienceStudentExpressInterestRequest);
-            // set the owning side to null (unless already changed)
-            if ($companyExperienceStudentExpressInterestRequest->getCompanyExperience() === $this) {
-                $companyExperienceStudentExpressInterestRequest->setCompanyExperience(null);
             }
         }
 

@@ -13,6 +13,16 @@
                     <td>{{ request.companyExperience.title }}</td>
                 </tr>
                 <tr>
+                    <td>Students</td>
+                    <td>
+                        <ul>
+                            {% for student in request.studentUsers %}
+                                <li>{{ student.fullName }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
                     <td>Sent to</td>
                     <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }}</td>
                 </tr>
@@ -24,6 +34,10 @@
                         </span>
                     </td>
                 </tr>
+                <tr>
+                    <td>Created On</td>
+                    <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -32,6 +46,7 @@
             <div class="uk-accordion-content">
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested that you register the following students
                     to the event: {{ request.companyExperience.title }}</p>
+                <p>Created On {{ request.createdAt|date("m/d/Y h:i:s A") }}</p>
                 <ul>
                     {% for student in request.studentUsers %}
                         <li>{{ student.fullName }}</li>

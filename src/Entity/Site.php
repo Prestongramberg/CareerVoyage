@@ -33,11 +33,6 @@ class Site
     private $siteAdminUsers;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SiteAdminRequest", mappedBy="site")
-     */
-    private $siteAdminRequests;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $baseUrl;
@@ -97,10 +92,19 @@ class Site
      */
     private $signature;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $parentSite = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $childSite = true;
+
     public function __construct()
     {
         $this->siteAdminUsers = new ArrayCollection();
-        $this->siteAdminRequests = new ArrayCollection();
         $this->stateCoordinators = new ArrayCollection();
         $this->regionalCoordinators = new ArrayCollection();
         $this->regions = new ArrayCollection();
@@ -152,37 +156,6 @@ class Site
             // set the owning side to null (unless already changed)
             if ($siteAdminUser->getSite() === $this) {
                 $siteAdminUser->setSite(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|SiteAdminRequest[]
-     */
-    public function getSiteAdminRequests(): Collection
-    {
-        return $this->siteAdminRequests;
-    }
-
-    public function addSiteAdminRequest(SiteAdminRequest $siteAdminRequest): self
-    {
-        if (!$this->siteAdminRequests->contains($siteAdminRequest)) {
-            $this->siteAdminRequests[] = $siteAdminRequest;
-            $siteAdminRequest->setSite($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSiteAdminRequest(SiteAdminRequest $siteAdminRequest): self
-    {
-        if ($this->siteAdminRequests->contains($siteAdminRequest)) {
-            $this->siteAdminRequests->removeElement($siteAdminRequest);
-            // set the owning side to null (unless already changed)
-            if ($siteAdminRequest->getSite() === $this) {
-                $siteAdminRequest->setSite(null);
             }
         }
 
@@ -462,6 +435,30 @@ class Site
     public function setSignature(?string $signature): self
     {
         $this->signature = $signature;
+
+        return $this;
+    }
+
+    public function getParentSite(): ?bool
+    {
+        return $this->parentSite;
+    }
+
+    public function setParentSite(?bool $parentSite): self
+    {
+        $this->parentSite = $parentSite;
+
+        return $this;
+    }
+
+    public function getChildSite(): ?bool
+    {
+        return $this->childSite;
+    }
+
+    public function setChildSite(?bool $childSite): self
+    {
+        $this->childSite = $childSite;
 
         return $this;
     }

@@ -12,15 +12,11 @@ use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
-use App\Entity\RegionalCoordinatorRequest;
 use App\Entity\Registration;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
-use App\Entity\SchoolAdministratorRequest;
-use App\Entity\SiteAdminRequest;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
-use App\Entity\StateCoordinatorRequest;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
@@ -205,34 +201,34 @@ class RequestController extends AbstractController
             'denied' => false,
             'approved' => false,
             'allowApprovalByActivationCode' => false
-        ]);
+        ], ['createdAt' => 'DESC']);
 
         $myCreatedRequests = $this->requestRepository->findBy([
             'created_by' => $user,
             'denied' => false,
             'approved' => false,
             'allowApprovalByActivationCode' => false
-        ]);
+        ], ['createdAt' => 'DESC']);
 
         $deniedByMeRequests = $this->requestRepository->findBy([
             'needsApprovalBy' => $user,
             'denied' => true,
-        ]);
+        ], ['createdAt' => 'DESC']);
 
         $myDeniedAccessRequests = $this->requestRepository->findBy([
             'created_by' => $user,
             'denied' => true,
-        ]);
+        ], ['createdAt' => 'DESC']);
 
         $approvedByMeRequests = $this->requestRepository->findBy([
             'needsApprovalBy' => $user,
             'approved' => true,
-        ]);
+        ], ['createdAt' => 'DESC']);
 
         $myApprovedAccessRequests = $this->requestRepository->findBy([
             'created_by' => $user,
             'approved' => true,
-        ]);
+        ], ['createdAt' => 'DESC']);
 
 
         // todo you could return a different view per user role as well
@@ -290,6 +286,7 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     private function handleRequestApproval(\App\Entity\Request $request, Request $httpRequest) {
 
@@ -324,39 +321,6 @@ class RequestController extends AbstractController
                     $this->addFlash('success', 'User successfully added to company!');
                 }
                 $this->requestsMailer->joinCompanyRequestApproval($request);
-                break;
-            case 'StateCoordinatorRequest':
-                /** @var StateCoordinatorRequest $request */
-                $request->setApproved(true);
-                /** @var StateCoordinator $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a state coordinator position!');
-                $needsApprovalBy->setState($request->getState());
-                $needsApprovalBy->agreeToTerms();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->stateCoordinatorRequestApproval($request);
-                break;
-            case 'RegionalCoordinatorRequest':
-                /** @var RegionalCoordinatorRequest $request */
-                $request->setApproved(true);
-                /** @var RegionalCoordinator $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a regional coordinator position!');
-                $needsApprovalBy->setRegion($request->getRegion());
-                $needsApprovalBy->agreeToTerms();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->regionalCoordinatorRequestApproval($request);
-                break;
-            case 'SchoolAdministratorRequest':
-                /** @var SchoolAdministratorRequest $request */
-                $request->setApproved(true);
-                /** @var SchoolAdministrator $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a school administrator position!');
-                $needsApprovalBy->addSchool($request->getSchool());
-                $needsApprovalBy->agreeToTerms();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->schoolAdministratorRequestApproval($request);
                 break;
             case 'TeachLessonRequest':
                 /** @var TeachLessonRequest $request */
@@ -444,18 +408,6 @@ class RequestController extends AbstractController
                 if($request->getCreatedBy()->getEmail()) {
                     $this->requestsMailer->teachLessonRequestApproval($request);
                 }
-                break;
-            case 'SiteAdminRequest':
-                /** @var SiteAdminRequest $request */
-                $request->setApproved(true);
-                /** @var SiteAdminUser $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-                $this->addFlash('success', 'You have accepted a site administrator position!');
-                $needsApprovalBy->setSite($request->getSite());
-                $needsApprovalBy->setupAsSiteAdminUser();
-                $needsApprovalBy->agreeToTerms();
-                $this->entityManager->persist($needsApprovalBy);
-                $this->requestsMailer->siteAdminRequestApproval($request);
                 break;
             case 'EducatorRegisterStudentForCompanyExperienceRequest':
                 /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */

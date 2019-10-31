@@ -3,11 +3,14 @@
 // src/Security/LoginFormAuthenticator.php
 namespace App\Security;
 
+use App\Entity\Site;
 use App\Entity\User;
+use App\Repository\SiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -29,13 +32,18 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $router;
     private $csrfTokenManager;
     private $passwordEncoder;
+    private $baseUrl;
+    private $siteRepository;
+    private $session;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository, SessionInterface $session)
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->siteRepository = $siteRepository;
+        $this->session = $session;
     }
 
     public function supports(Request $request)
@@ -98,16 +106,70 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-            return new RedirectResponse($targetPath);
+        /** @var User $user */
+        $user = $token->getUser();
+        $site = null;
+        if($user->isProfessional() || $user->isAdmin()) {
+            /** @var Site $site */
+            $site = $this->siteRepository->findOneBy([
+                'parentSite' => 1
+            ]);
+        } else if($user->isSiteAdmin()
+            || $user->isStateCoordinator()
+            || $user->isRegionalCoordinator()
+            || $user->isSchoolAdministrator()
+            || $user->isStudent() ||
+            $user->isEducator()){
+            /** @var Site $site */
+            $site = $user->getSite();
+        }
+
+        if(!$site) {
+            throw new CustomUserMessageAuthenticationException('Issue locating a site connected to user.');
+        }
+
+        $user->initializeTemporarySecurityToken();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        // if the user is not on the correct site URL and an admin isn't logged temporarily
+        // logged in as another user then redirect to our router middleware
+        //$sessionData = $this->session->has('previouslyLoggedInAs')
+
+        if($site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl() && !$this->session->get('previouslyLoggedInAs', null)) {
+            return new RedirectResponse($site->getFullyQualifiedBaseUrl() . sprintf('/security-router/%s', $user->getTemporarySecurityToken()));
         } else {
-            $targetPath = $this->router->generate('dashboard');
-            return new RedirectResponse($targetPath);
+            // once the user is on the correct site URL let's go ahead and direct them to the appropriate place
+            if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+                return new RedirectResponse($targetPath);
+            } else {
+                $targetPath = $this->router->generate('dashboard');
+                return new RedirectResponse($targetPath);
+            }
         }
     }
 
     protected function getLoginUrl()
     {
         return $this->router->generate('welcome');
+    }
+
+    /**
+     * Generate the fully qualified base URL (scheme + host + port, if not default + app base path)
+     *
+     * @return string
+     */
+    protected function getFullyQualifiedBaseUrl()
+    {
+        $routerContext = $this->router->getContext();
+        $port = $routerContext->getHttpPort();
+
+        return sprintf(
+            '%s://%s%s%s',
+            $routerContext->getScheme(),
+            $routerContext->getHost(),
+            ($port !== 80 ? ':'.$port : ''),
+            $routerContext->getBaseUrl()
+        );
     }
 }

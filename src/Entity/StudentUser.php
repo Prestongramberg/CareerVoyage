@@ -79,19 +79,9 @@ class StudentUser extends User
     private $educatorUsers;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", inversedBy="studentUsers")
-     */
-    private $educatorRegisterStudentForCompanyExperienceRequest;
-
-    /**
      * @ORM\ManyToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUsers")
      */
     private $educatorRegisterStudentForCompanyExperienceRequests;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperienceStudentExpressInterestRequest", mappedBy="studentUser")
-     */
-    private $companyExperienceStudentExpressInterestRequests;
 
     /**
      * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="student", orphanRemoval=true)
@@ -110,7 +100,6 @@ class StudentUser extends User
         $this->companiesInterestedIn = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
-        $this->companyExperienceStudentExpressInterestRequests = new ArrayCollection();
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
     }
@@ -326,37 +315,6 @@ class StudentUser extends User
         if ($this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
             $this->educatorRegisterStudentForCompanyExperienceRequests->removeElement($educatorRegisterStudentForCompanyExperienceRequest);
             $educatorRegisterStudentForCompanyExperienceRequest->removeStudentUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|CompanyExperienceStudentExpressInterestRequest[]
-     */
-    public function getCompanyExperienceStudentExpressInterestRequests(): Collection
-    {
-        return $this->companyExperienceStudentExpressInterestRequests;
-    }
-
-    public function addCompanyExperienceStudentExpressInterestRequest(CompanyExperienceStudentExpressInterestRequest $companyExperienceStudentExpressInterestRequest): self
-    {
-        if (!$this->companyExperienceStudentExpressInterestRequests->contains($companyExperienceStudentExpressInterestRequest)) {
-            $this->companyExperienceStudentExpressInterestRequests[] = $companyExperienceStudentExpressInterestRequest;
-            $companyExperienceStudentExpressInterestRequest->setStudentUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompanyExperienceStudentExpressInterestRequest(CompanyExperienceStudentExpressInterestRequest $companyExperienceStudentExpressInterestRequest): self
-    {
-        if ($this->companyExperienceStudentExpressInterestRequests->contains($companyExperienceStudentExpressInterestRequest)) {
-            $this->companyExperienceStudentExpressInterestRequests->removeElement($companyExperienceStudentExpressInterestRequest);
-            // set the owning side to null (unless already changed)
-            if ($companyExperienceStudentExpressInterestRequest->getStudentUser() === $this) {
-                $companyExperienceStudentExpressInterestRequest->setStudentUser(null);
-            }
         }
 
         return $this;

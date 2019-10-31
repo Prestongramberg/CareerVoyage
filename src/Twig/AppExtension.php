@@ -236,24 +236,6 @@ class AppExtension extends AbstractExtension
                     'user' => $user,
                 ]);
                 break;
-            case "StateCoordinatorRequest":
-                return $this->twig->render('request/partials/_state_coordinator_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                ]);
-                break;
-            case "RegionalCoordinatorRequest":
-                return $this->twig->render('request/partials/_regional_coordinator_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                ]);
-                break;
-            case "SchoolAdministratorRequest":
-                return $this->twig->render('request/partials/_school_administrator_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                ]);
-                break;
             case "TeachLessonRequest":
                 return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
                     'request' => $request,

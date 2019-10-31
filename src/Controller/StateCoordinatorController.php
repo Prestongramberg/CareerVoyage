@@ -11,7 +11,6 @@ use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
-use App\Entity\StateCoordinatorRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -25,7 +24,6 @@ use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\StateCoordinatorRepository;
-use App\Repository\StateCoordinatorRequestRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -52,7 +50,8 @@ use Symfony\Component\Asset\Packages;
 /**
  * Class StateCoordinatorController
  * @package App\Controller
- * @Route("/dashboard/state-coordinator")
+ * @Route("/dashboard/
+ * state-coordinator")
  */
 class StateCoordinatorController extends AbstractController
 {
@@ -120,11 +119,6 @@ class StateCoordinatorController extends AbstractController
     private $requestsMailer;
 
     /**
-     * @var StateCoordinatorRequestRepository
-     */
-    private $stateCoordinatorRequestRepository;
-
-    /**
      * @var StateCoordinatorRepository
      */
     private $stateCoordinatorRepository;
@@ -148,7 +142,6 @@ class StateCoordinatorController extends AbstractController
      * @param LessonTeachableRepository $lessonTeachableRepository
      * @param SecurityMailer $securityMailer
      * @param RequestsMailer $requestsMailer
-     * @param StateCoordinatorRequestRepository $stateCoordinatorRequestRepository
      * @param StateCoordinatorRepository $stateCoordinatorRepository
      * @param UserRepository $userRepository
      */
@@ -165,7 +158,6 @@ class StateCoordinatorController extends AbstractController
         LessonTeachableRepository $lessonTeachableRepository,
         SecurityMailer $securityMailer,
         RequestsMailer $requestsMailer,
-        StateCoordinatorRequestRepository $stateCoordinatorRequestRepository,
         StateCoordinatorRepository $stateCoordinatorRepository,
         UserRepository $userRepository
     ) {
@@ -181,7 +173,6 @@ class StateCoordinatorController extends AbstractController
         $this->lessonTeachableRepository = $lessonTeachableRepository;
         $this->securityMailer = $securityMailer;
         $this->requestsMailer = $requestsMailer;
-        $this->stateCoordinatorRequestRepository = $stateCoordinatorRequestRepository;
         $this->stateCoordinatorRepository = $stateCoordinatorRepository;
         $this->userRepository = $userRepository;
     }

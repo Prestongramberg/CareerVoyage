@@ -28,6 +28,10 @@
                         </span>
                     </td>
                 </tr>
+                <tr>
+                    <td>Created On</td>
+                    <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -81,6 +85,10 @@
                                 </form>
                             {% endif %}
                         </td>
+                    </tr>
+                    <tr>
+                        <td>Created On</td>
+                        <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
                     </tr>
                     </tbody>
                 </table>
