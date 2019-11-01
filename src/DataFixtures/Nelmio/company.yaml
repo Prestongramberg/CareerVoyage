@@ -7,7 +7,7 @@ App\Entity\Company:
         emailAddress: <companyEmail()>
         phone: <phoneNumber()>
         description: <paragraph(2)>
-        thumbnailImage: <imageObject('thumbnail_image', 'city')>
+        thumbnailImage: <imageObject('thumbnail_image', 'city', '500', '500')>
         featuredImage: <imageObject('featured_image', 'city', '1400', '500')>
         primaryContact: <name()>
         companyLinkedinPage: <url()>

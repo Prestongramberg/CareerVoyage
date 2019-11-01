@@ -87,6 +87,7 @@ class FixtureHelper
 
         $faker = \Faker\Factory::create();
         $path = $faker->image(sys_get_temp_dir(), $width, $height, $imageCategory);
+
         $file = new File($path);
         $mimeType = $file->getMimeType();
         $newFileName = $this->uploaderHelper->upload($file, $folder);
