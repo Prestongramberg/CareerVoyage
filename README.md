@@ -12,19 +12,8 @@ add to your /etc/hosts file
 192.168.56.109 pintex.test
 192.168.56.109 www.pintex.test
 
-bin/console doctrine:fixtures:load --append
-
-(To keep the tables starting at 1 index you need to completely delete all tables and rerun )
-
-import the industries
-./bin/console industry:import ./secondaryIndustries.csv
-
-import the lessons
-./bin/console lesson:import ./lessons.csv
-
-import the schools
-./bin/console school:import ./southeast-school-list.csv
-
+Run Vagrant Install
+./vendor/bin/phing vagrant-install
 
 That's it!
 
