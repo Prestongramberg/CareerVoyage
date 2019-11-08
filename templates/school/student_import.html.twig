@@ -20,6 +20,31 @@
                         </div>
                         <div class="uk-card-body">
 
+                            <h3>Import Process</h3>
+                            <p>Download the <a class="uk-link" href="{{ asset('build/static/student-import-example.csv') }}" download="">sample CSV</a>, and customize for your Students.</p>
+                            <p>Required Fields:</p>
+
+                            <table class="uk-table uk-table-divider">
+                                <thead>
+                                <tr>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Student ID</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>The Student's first name</td>
+                                    <td>The Student's last name</td>
+                                    <td>A unique identifier for the Student (student ID, email, etc)</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="uk-text-meta">Note: Once the import process is completed, you will receive a confirmation email with usernames generated for your Students.  Default password for login will be the first 3 letters of their last name, followed by their Student ID, followed by an exclamation point.</div>
+
+                            <br /><br />
+
                             {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
                             {% if form_errors(form) %}

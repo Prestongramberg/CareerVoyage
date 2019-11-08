@@ -51,6 +51,11 @@ class RolesWillingToFulfill
      */
     private $experiences;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $inSchoolEventDropdown = false;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -170,6 +175,18 @@ class RolesWillingToFulfill
                 $experience->setType(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getInSchoolEventDropdown(): ?bool
+    {
+        return $this->inSchoolEventDropdown;
+    }
+
+    public function setInSchoolEventDropdown(bool $inSchoolEventDropdown): self
+    {
+        $this->inSchoolEventDropdown = $inSchoolEventDropdown;
 
         return $this;
     }

@@ -1,23 +1,6 @@
-export function shuffle(array) {
-    var newArray = [];
-    var currentIndex = array.length, temporaryValue, randomIndex;
-
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-
-        // And swap it with the current element.
-        if (newArray.hasOwnProperty(currentIndex)) {
-            temporaryValue = newArray[currentIndex];
-        } else {
-            temporaryValue = array[currentIndex];
-        }
-        newArray[currentIndex] = array[randomIndex];
-        newArray[randomIndex] = temporaryValue;
-    }
-
-    return newArray;
+export function shuffle( arr ) {
+    return arr
+        .map(a => [Math.random(), a])
+        .sort((a, b) => a[0] - b[0])
+        .map(a => a[1]);
 }

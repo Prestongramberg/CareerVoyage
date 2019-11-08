@@ -1,49 +1,52 @@
 App\Entity\RolesWillingToFulfill:
-    role_1:
-        name: 'Expert Presenter'
-        description: 'Experts from business and industry visit classrooms and  (1) share information about their careers, educational background, and personal choices that impacted their career success and/or (2) guest instruct on a specific curriculum topic for that class which they have experience in and shows relevance and applicability of curriculum being taught to their profession.'
-    role_2:
-        name: 'Student Field Trip Host'
-        description: 'Students go to a business and/or industry to learn first-hand about the employability skills needed in the different career pathways and the nature of the work in that profession.'
-        eventName: 'Student Field Trip'
-        inEventDropdown: true
-    role_3:
-        name: 'Teacher Externship Host'
-        description: 'Teachers spend time in a workplace to learn through direct experience about trends, skill requirements and opportunities in industries related to their subject in order to enrich and strengthen their teaching and bring relevance to student learning.'
-        eventName: 'Teacher Externship'
-        inEventDropdown: true
-    role_4:
-        name: 'Informational interviewer'
-        description: 'Up to a one hour interview where a professional meets with up to 5 students to provide information on their career field, the nature and rewards of the work and the pathways to get into that career.'
-        eventName: 'Informational interview'
-        inEventDropdown: false
-    role_5:
-        name: 'Job shadow host'
-        description: 'A short-term experience  at a business that helps students explore a range of career options and begin to identify a career field or pathway of interest.'
-        eventName: 'Job shadow'
-        inEventDropdown: true
-    role_6:
-        name: 'Internship provider'
-        description: 'Typically paid or unpaid short-term experiences in business that involve youth working in professional settings under the supervision and monitoring of practicing professionals.'
-        eventName: 'Internship'
-        inEventDropdown: true
-    role_7:
-      name: 'Mentor'
-      description: 'A professional relationship that connect youth with a positive role model who can assist in career exploration. Can be virtual or in person.'
-      eventName: 'Mentor'
-      inEventDropdown: false
-    role_8:
-      name: 'Work Experience provider'
-      description: 'Learning that takes place outside of the classroom and at the place of business. The student is not compensated and could earn credit to be applied to a high school and/or post-secondary transcript.'
-      eventName: 'Work Experience'
-      inEventDropdown: true
-    role_9:
-      name: 'Apprenticeship provider'
-      description: 'Employer paid work experiences for students in grades 11 and 12. Students are supervised by a licensed Work-Based Learning teacher in a state-approved program. Typically one or more semesters/one to three hours a day.'
-      eventName: 'Apprenticeship'
-      inEventDropdown: true
-    role_10:
-      name: 'Student Project provider'
-      description: 'Companies provide a specific project related to their business for a small team of students to work on and then present their solution to the business  for evaluation and feedback.'
-      eventName: 'Student Project'
-      inEventDropdown: false
+  role_1:
+    name: 'Expert Presenter'
+    description: 'Experts from business and industry visit classrooms and  (1) share information about their careers, educational background, and personal choices that impacted their career success and/or (2) guest instruct on a specific curriculum topic for that class which they have experience in and shows relevance and applicability of curriculum being taught to their profession.'
+  role_2:
+    name: 'Student Field Trip Host'
+    description: 'Students go to a business and/or industry to learn first-hand about the employability skills needed in the different career pathways and the nature of the work in that profession.'
+    eventName: 'Student Field Trip'
+    inEventDropdown: true
+  role_3:
+    name: 'Teacher Externship Host'
+    description: 'Teachers spend time in a workplace to learn through direct experience about trends, skill requirements and opportunities in industries related to their subject in order to enrich and strengthen their teaching and bring relevance to student learning.'
+    eventName: 'Teacher Externship'
+    inEventDropdown: true
+  role_4:
+    name: 'Informational interviewer'
+    description: 'Up to a one hour interview where a professional meets with up to 5 students to provide information on their career field, the nature and rewards of the work and the pathways to get into that career.'
+    eventName: 'Informational interview'
+  role_5:
+    name: 'Job shadow host'
+    description: 'A short-term experience  at a business that helps students explore a range of career options and begin to identify a career field or pathway of interest.'
+    eventName: 'Job shadow'
+    inEventDropdown: true
+  role_6:
+    name: 'Internship provider'
+    description: 'Typically paid or unpaid short-term experiences in business that involve youth working in professional settings under the supervision and monitoring of practicing professionals.'
+    eventName: 'Internship'
+    inEventDropdown: true
+  role_7:
+    name: 'Mentor'
+    description: 'A professional relationship that connect youth with a positive role model who can assist in career exploration. Can be virtual or in person.'
+    eventName: 'Mentor'
+  role_8:
+    name: 'Work Experience provider'
+    description: 'Learning that takes place outside of the classroom and at the place of business. The student is not compensated and could earn credit to be applied to a high school and/or post-secondary transcript.'
+    eventName: 'Work Experience'
+    inEventDropdown: true
+  role_9:
+    name: 'Apprenticeship provider'
+    description: 'Employer paid work experiences for students in grades 11 and 12. Students are supervised by a licensed Work-Based Learning teacher in a state-approved program. Typically one or more semesters/one to three hours a day.'
+    eventName: 'Apprenticeship'
+    inEventDropdown: true
+  role_10:
+    name: 'Student Project provider'
+    description: 'Companies provide a specific project related to their business for a small team of students to work on and then present their solution to the business  for evaluation and feedback.'
+    eventName: 'Student Project'
+  role_11:
+    name: 'In School Event'
+    description: 'School event'
+    eventName: 'In School Event'
+    inEventDropDown: false
+    inSchoolEventDropdown: true

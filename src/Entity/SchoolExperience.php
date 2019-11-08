@@ -9,6 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class SchoolExperience extends Experience
 {
+
+	public static $types = [
+		'School Event' => 'IN_SCHOOL',
+	];
+
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolExperiences")
      * @ORM\JoinColumn(nullable=false)

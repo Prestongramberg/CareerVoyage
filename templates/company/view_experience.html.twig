@@ -52,7 +52,7 @@
             {% endif %}
             {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
                 <li><a href="#experience-sign-ups">Sign Ups</a></li>
-                <li><a href="#experience-feedback">Feeedback</a></li>
+                <li><a href="#experience-feedback">Feedback</a></li>
             {% endif %}
 
         </ul>
