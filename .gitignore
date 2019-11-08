@@ -35,4 +35,3 @@ yarn-error.log
 
 /public/uploads/
 .env.local
-.env
