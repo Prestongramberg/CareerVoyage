@@ -88,6 +88,13 @@ class FeedbackController extends AbstractController
     ];
 
     /**
+     * @var array
+     */
+    private $emailsToSendRequestCourseTo = [
+        'cpears@apritonadvisors.com'
+    ];
+
+    /**
      * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER"})
      * @Route("/request-lesson-experience-or-site-visit", name="request_lesson_experience_or_site_visit", options = { "expose" = true })
      * @param Request $request
@@ -132,6 +139,52 @@ class FeedbackController extends AbstractController
         }
 
         return $this->render('feedback/request_lesson_experience_or_site_visit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_PROFESSIONAL_USER"})
+     * @Route("/request-to-add-new-course-to-system", name="request_to_add_course", options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function requestCourseAction(Request $request) {
+
+        /** @var EducatorUser|StudentUser $user */
+        $user = $this->getUser();
+
+        $form = $this->createFormBuilder()
+            ->add('message', TextareaType::class, ['label' => 'Request for a new course to be added to the system.',
+                'constraints' => [
+                    new NotBlank(),
+                ]
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $message = $form->get('message')->getData();
+
+            foreach($this->emailsToSendRequestCourseTo as $emailToSendRequestCourseTo) {
+                // Chris said he wants an email sent to him when this happens. So here it goes....
+                // todo this could probably be refactored or cleaned up somewhere as a constant...
+                $userToSendEmailTo = $this->adminUserRepository->findOneBy([
+                    'email' => $emailToSendRequestCourseTo
+                ]);
+                if($userToSendEmailTo) {
+                    $this->feedbackMailer->requestForNewCourseToBeAddedToSystem($userToSendEmailTo, $message);
+                }
+            }
+
+
+            $this->addFlash('success', 'Feedback successfully submitted.');
+            return $this->redirectToRoute('request_to_add_course');
+        }
+
+        return $this->render('feedback/request_course.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
         ]);

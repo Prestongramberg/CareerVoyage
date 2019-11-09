@@ -28,4 +28,20 @@ class FeedbackMailer extends AbstractMailer
 
         $this->mailer->send($message);
     }
+
+    public function requestForNewCourseToBeAddedToSystem(User $user, $message) {
+
+        $message = (new \Swift_Message('Request for new course to be added to the system.'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/feedback/request_for_new_course.html.twig',
+                    ['user' => $user, 'message' => $message]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
 }

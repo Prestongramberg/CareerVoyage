@@ -1,0 +1,32 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Request for a new course to be added to the system.{% endblock %}
+{% block bodyClass %}page-lesson-edit{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container js-form">
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        <div class="uk-margin">
+            {{ form_label(form.message, 'Request for a new course to be added to they system.') }}
+            {{ form_widget(form.message, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.message) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(form.message) }}
+        </div>
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+{% endblock %}

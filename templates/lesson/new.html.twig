@@ -10,6 +10,7 @@
 
 {% block body %}
 
+
 <div class="uk-container js-form" data-route="{{ path('lesson_new') }}">
 
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
@@ -79,6 +80,7 @@
                             </div>
                         {% endif %}
                     </div>
+                    <a href="{{ path('request_to_add_course') }}">Request for a new course to be added to this list</a>
                 </fieldset>
             </div>
         </div>

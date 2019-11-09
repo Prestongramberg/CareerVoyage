@@ -1,0 +1,9 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<p>Hi {{ user.firstName }},</p>
+
+<p>You have a request for a new course to be added to the system.</p>
+
+<p></p>message: <strong>{{ message }}</strong></p>
+
+{% include 'email/partial/emailFooter.html.twig' %}
