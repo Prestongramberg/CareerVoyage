@@ -17,6 +17,7 @@ Run Vagrant Install
 
 That's it!
 
+
 Visit www.pintex.test in your browser
 
 to compile your assets 
