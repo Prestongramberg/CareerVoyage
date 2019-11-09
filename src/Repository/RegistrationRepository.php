@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CompanyExperience;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Registration;
 use App\Entity\User;
@@ -66,5 +67,26 @@ class RegistrationRepository extends ServiceEntityRepository
             ->setParameter('experience', $experience)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @param EducatorUser $educatorUser
+     * @param Experience $experience
+     * @return mixed
+     */
+    public function getAllByEducatorAndExperience(EducatorUser $educatorUser, Experience $experience) {
+
+        $studentIds = [];
+        foreach($educatorUser->getStudentUsers() as $studentUser) {
+            $studentIds[] = $studentUser->getId();
+        }
+
+        return $this->createQueryBuilder('r')
+            ->where('r.user IN (:ids)')
+            ->andWhere('r.experience = :experience')
+            ->setParameter('ids', $studentIds)
+            ->setParameter('experience', $experience)
+            ->getQuery()
+            ->getResult();
     }
 }

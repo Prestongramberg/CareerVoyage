@@ -14,6 +14,7 @@ use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
+use App\Entity\Registration;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\CompanyInviteFormType;
@@ -102,7 +103,7 @@ class CompanyController extends AbstractController
         $options = [
             'method' => 'POST',
             'company' => $company,
-            'skip_validation' => $request->request->get('skip_validation', false)
+            'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
         $form = $this->createForm(NewCompanyFormType::class, $company, $options);
@@ -144,15 +145,15 @@ class CompanyController extends AbstractController
                 [
                     'success' => false,
                     'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                        'form' => $form->createView()
-                    ])
+                        'form' => $form->createView(),
+                    ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
 
         return $this->render('company/new.html.twig', [
             'user' => $user,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -168,7 +169,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/view.html.twig', [
             'user' => $user,
-            'company' => $company
+            'company' => $company,
         ]);
     }
 
@@ -260,7 +261,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/invite.html.twig', [
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -273,7 +274,7 @@ class CompanyController extends AbstractController
     public function companyProfessionalsAction(Request $request, Company $company) {
 
         $professionals = $this->professionalUserRepository->findBy([
-           'company' => $company->getId()
+           'company' => $company->getId(),
         ]);
 
         /** @var User $user */
@@ -356,7 +357,7 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::THUMBNAIL_IMAGE.'/'.$newFilename, 'squared_thumbnail_small'),
-                    'id' => $image->getId()
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -401,7 +402,7 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::FEATURE_IMAGE.'/'.$newFilename, 'squared_thumbnail_small'),
-                    'id' => $image->getId()
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -446,7 +447,7 @@ class CompanyController extends AbstractController
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
                     'id' => $companyResource->getId(),
                     'title' => $title,
-                    'description' => $description
+                    'description' => $description,
 
                 ], Response::HTTP_OK
             );
@@ -493,7 +494,7 @@ class CompanyController extends AbstractController
                     'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
                     'id' => $companyResource->getId(),
                     'title' => $title,
-                    'description' => $description
+                    'description' => $description,
 
                 ], Response::HTTP_OK
             );
@@ -531,7 +532,7 @@ class CompanyController extends AbstractController
                     'success' => true,
                     'id' => $video->getId(),
                     'name' => $name,
-                    'videoId' => $videoId
+                    'videoId' => $videoId,
 
                 ], Response::HTTP_OK
             );
@@ -571,7 +572,7 @@ class CompanyController extends AbstractController
                     'success' => true,
                     'id' => $video->getId(),
                     'name' => $name,
-                    'videoId' => $videoId
+                    'videoId' => $videoId,
 
                 ], Response::HTTP_OK
             );
@@ -663,7 +664,7 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::COMPANY_PHOTO.'/'.$newFilename, 'squared_thumbnail_small'),
-                    'id' => $image->getId()
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -713,7 +714,7 @@ class CompanyController extends AbstractController
         $options = [
             'method' => 'POST',
             'company' => $company,
-            'skip_validation' => $request->request->get('skip_validation', false)
+            'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
         $form = $this->createForm(EditCompanyFormType::class, $company, $options);
@@ -736,8 +737,8 @@ class CompanyController extends AbstractController
                 [
                     'success' => false,
                     'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                        'form' => $form->createView()
-                    ])
+                        'form' => $form->createView(),
+                    ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
@@ -745,7 +746,7 @@ class CompanyController extends AbstractController
         return $this->render('company/edit.html.twig', [
             'company' => $company,
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -786,7 +787,7 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
             'method' => 'POST',
-            'company' => $company
+            'company' => $company,
         ]);
 
         $form->handleRequest($request);
@@ -809,7 +810,7 @@ class CompanyController extends AbstractController
         return $this->render('company/new_experience.html.twig', [
             'company' => $company,
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -829,7 +830,7 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(EditCompanyExperienceType::class, $experience, [
             'method' => 'POST',
-            'company' => $company
+            'company' => $company,
         ]);
 
         $form->handleRequest($request);
@@ -850,7 +851,7 @@ class CompanyController extends AbstractController
             'company' => $company,
             'form' => $form->createView(),
             'user' => $user,
-            'experience' => $experience
+            'experience' => $experience,
         ]);
     }
 
@@ -885,7 +886,7 @@ class CompanyController extends AbstractController
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
-            'educatorRegisterStudentForExperienceForm' => $educatorRegisterStudentForExperienceForm !== null ? $educatorRegisterStudentForExperienceForm->createView() : null
+            'educatorRegisterStudentForExperienceForm' => $educatorRegisterStudentForExperienceForm !== null ? $educatorRegisterStudentForExperienceForm->createView() : null,
         ]);
     }
 
@@ -899,38 +900,91 @@ class CompanyController extends AbstractController
      */
     public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience) {
 
+        $theEducatorsAlreadyRegistrations = $this->registrationRepository->getAllByEducatorAndExperience($this->getUser(), $experience);
+        $theEducatorsAlreadyRegisteredStudentIds = [];
+        /** @var Registration $theEducatorsAlreadyRegistration */
+        foreach($theEducatorsAlreadyRegistrations as $theEducatorsAlreadyRegistration) {
+            $theEducatorsAlreadyRegisteredStudentIds[] = $theEducatorsAlreadyRegistration->getUser()->getId();
+        }
+        $studentsThatNeedAdding = [];
+        $studentsThatNeedRemoving = [];
+
         /** @var User $user */
         $user = $this->getUser();
         $form = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class,null, [
             'method' => 'POST',
-            'educator' => $user
+            'educator' => $user,
         ]);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()) {
 
             $studentsToRegister = $form->get('studentUsers')->getData();
-            $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
-            $registerRequest->setCreatedBy($user);
-            $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-            $registerRequest->setCompanyExperience($experience);
 
-            foreach($studentsToRegister as $student) {
-                $previousStudentRegistration = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($student, $experience);
-                // if the student is already registered for this event then don't add them again
-                if($previousStudentRegistration) {
-                    continue;
-                }
-                $registerRequest->addStudentUser($student);
+            $studentsToRegisterIds = [];
+            /** @var StudentUser $studentToRegister */
+            foreach($studentsToRegister as $studentToRegister) {
+                $studentsToRegisterIds[] = $studentToRegister->getId();
             }
 
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
+            /** @var StudentUser $theEducatorsAlreadyRegisteredStudent */
+            foreach($theEducatorsAlreadyRegisteredStudentIds as $theEducatorsAlreadyRegisteredStudentId) {
+                if(!in_array($theEducatorsAlreadyRegisteredStudentId, $studentsToRegisterIds)) {
+                    $studentsThatNeedRemoving[] = $theEducatorsAlreadyRegisteredStudentId;
+                }
+            }
 
-            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
+            /** @var StudentUser $studentToRegister */
+            foreach($studentsToRegister as $studentToRegister) {
+                if(!in_array($studentToRegister->getId(), $theEducatorsAlreadyRegisteredStudentIds)) {
+                    $studentsThatNeedAdding[] = $studentToRegister->getId();
+                }
+            }
 
-            $this->addFlash('success', 'Student registration request sent successfully to company owner.');
-        } else {
-            $this->addFlash('error', 'There was an error processing your student registration request.');
+            // go ahead and remove the students that need removing
+
+            foreach($studentsThatNeedRemoving as $studentThatNeedsRemoving) {
+                $registrationToRemove = $this->registrationRepository->findOneBy([
+                   'user' => $studentThatNeedsRemoving,
+                   'experience' => $experience,
+                ]);
+                $this->entityManager->remove($registrationToRemove);
+                $this->entityManager->flush();
+            }
+
+            $this->entityManager->refresh($experience);
+            $currentNumberOfRegistrations = count($experience->getRegistrations());
+            $totalInitialAvailableSpaces = $experience->getAvailableSpaces();
+            $numberOfSlotsLeft = $totalInitialAvailableSpaces - $currentNumberOfRegistrations;
+
+            if((count($studentsThatNeedAdding) + $currentNumberOfRegistrations) >= $totalInitialAvailableSpaces) {
+                $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
+                return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+            }
+
+            if(!empty($studentsThatNeedAdding)) {
+                $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
+                $registerRequest->setCreatedBy($user);
+                $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
+                $registerRequest->setCompanyExperience($experience);
+
+                foreach($studentsThatNeedAdding as $student) {
+                    $student = $this->studentUserRepository->find($student);
+                    $previousStudentRegistration = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($student, $experience);
+                    // if the student is already registered for this event then don't add them again
+                    if($previousStudentRegistration) {
+                        continue;
+                    }
+                    $registerRequest->addStudentUser($student);
+                }
+
+                $this->entityManager->persist($registerRequest);
+                $this->entityManager->flush();
+
+                $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
+            }
+
+            $this->addFlash('success', sprintf('(%s) Registration requests successfully sent, and (%s) registrations successfully removed.', count($studentsThatNeedAdding), count($studentsThatNeedRemoving)));
+
         }
 
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
@@ -990,7 +1044,7 @@ class CompanyController extends AbstractController
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
                     'id' => $file->getId(),
                     'title' => $title,
-                    'description' => $description
+                    'description' => $description,
 
                 ], Response::HTTP_OK
             );
@@ -1046,7 +1100,7 @@ class CompanyController extends AbstractController
                 'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
                 'id' => $file->getId(),
                 'title' => $file->getTitle(),
-                'description' => $file->getDescription()
+                'description' => $file->getDescription(),
 
             ], Response::HTTP_OK
         );
