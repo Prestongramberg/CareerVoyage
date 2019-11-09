@@ -15,7 +15,6 @@ add to your /etc/hosts file
 Run Vagrant Install
 ./vendor/bin/phing vagrant-install
 
-
 That's it!
 
 Visit www.pintex.test in your browser
