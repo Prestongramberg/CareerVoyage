@@ -422,6 +422,8 @@ class CompanyController extends AbstractController
      */
     public function companyAddResourceAction(Request $request, Company $company) {
 
+        $this->denyAccessUnlessGranted('edit', $company);
+
         /** @var UploadedFile $file */
         $file = $request->files->get('resource');
         $title = $request->request->get('title');

@@ -18,6 +18,7 @@ use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\SchoolPhoto;
+use App\Entity\SchoolResource;
 use App\Entity\SchoolVideo;
 use App\Entity\StudentUser;
 use App\Entity\User;
@@ -75,6 +76,19 @@ class SchoolController extends AbstractController
     use FileHelper;
     use ServiceHelper;
     use RandomStringGenerator;
+
+    /**
+     * @Route("/schools", name="school_index", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function indexAction(Request $request) {
+
+        $user = $this->getUser();
+        return $this->render('school/index.html.twig', [
+            'user' => $user,
+        ]);
+    }
 
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
@@ -260,10 +274,12 @@ class SchoolController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var School $school */
             $school = $form->getData();
+            if($coordinates = $this->geocoder->geocode($school->getAddress())) {
+                $school->setLongitude($coordinates['lng']);
+                $school->setLatitude($coordinates['lat']);
+            }
             $this->entityManager->persist($school);
             $this->entityManager->flush();
-
-
             $this->addFlash('success', sprintf('School successfully updated.'));
             return $this->redirectToRoute('school_edit', ['id' => $school->getId()]);
         }
@@ -578,6 +594,123 @@ class SchoolController extends AbstractController
         return new JsonResponse(
             [
                 'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/schools/{id}/resource/add", name="school_resource_add", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return JsonResponse
+     */
+    public function schoolAddResourceAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($file && $title && $description) {
+            $mimeType = $file->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
+            $schoolResource = new SchoolResource();
+            $schoolResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+            $schoolResource->setMimeType($mimeType ?? 'application/octet-stream');
+            $schoolResource->setFileName($newFilename);
+            $schoolResource->setFile(null);
+            $schoolResource->setSchool($school);
+            $schoolResource->setDescription($description);
+            $schoolResource->setTitle($title);
+            $this->entityManager->persist($schoolResource);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename,
+                    'id' => $schoolResource->getId(),
+                    'title' => $title,
+                    'description' => $description,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/schools/resource/{id}/remove", name="school_resource_remove", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolResource $schoolResource
+     * @return JsonResponse
+     */
+    public function schoolRemoveResourceAction(Request $request, SchoolResource $schoolResource) {
+
+        $this->denyAccessUnlessGranted('edit', $schoolResource->getSchool());
+
+        $this->entityManager->remove($schoolResource);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/schools/resources/{id}/edit", name="school_resource_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolResource $schoolResource
+     * @return JsonResponse
+     */
+    public function schoolEditResourceAction(Request $request, SchoolResource $schoolResource) {
+
+        $this->denyAccessUnlessGranted('edit', $schoolResource->getSchool());
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+
+        if($file && $title && $description) {
+            $mimeType = $file->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
+            $schoolResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+            $schoolResource->setMimeType($mimeType ?? 'application/octet-stream');
+            $schoolResource->setFileName($newFilename);
+            $schoolResource->setFile(null);
+            $schoolResource->setDescription($description);
+            $schoolResource->setTitle($title);
+            $this->entityManager->persist($schoolResource);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => 'uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename,
+                    'id' => $schoolResource->getId(),
+                    'title' => $title,
+                    'description' => $description,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
             ], Response::HTTP_BAD_REQUEST
         );
     }
@@ -978,6 +1111,96 @@ class SchoolController extends AbstractController
             return $this->determineUsername(sprintf("%s%s", $tempUsername, $this->generateRandomNumber($i)), ++$i);
         }
         return $tempUsername;
+    }
+
+    /**
+     * @Route("/schools/{id}/featured/add", name="school_featured_add", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return JsonResponse
+     */
+    public function schoolAddFeaturedAction(Request $request, School $school) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $featuredImage = $request->files->get('file');
+
+        if($featuredImage) {
+            $mimeType = $featuredImage->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($featuredImage, UploaderHelper::FEATURE_IMAGE);
+            $image = new Image();
+            $image->setOriginalName($featuredImage->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $school->setFeaturedImage($image);
+            $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::FEATURE_IMAGE) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::FEATURE_IMAGE.'/'.$newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    /**
+     * @Route("/schools/{id}/thumbnail/add", name="school_thumbnail_add", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return JsonResponse
+     */
+    public function schoolAddThumbnailAction(Request $request, School $school) {
+
+        $user = $this->getUser();
+
+        /** @var UploadedFile $uploadedFile */
+        $thumbnailImage = $request->files->get('file');
+
+        if($thumbnailImage) {
+            $mimeType = $thumbnailImage->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($thumbnailImage, UploaderHelper::THUMBNAIL_IMAGE);
+            $image = new Image();
+            $image->setOriginalName($thumbnailImage->getClientOriginalName() ?? $newFilename);
+            $image->setMimeType($mimeType ?? 'application/octet-stream');
+            $image->setFileName($newFilename);
+            $school->setThumbnailImage($image);
+            $this->entityManager->persist($image);
+
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) .'/'. $newFilename;
+            $this->imageCacheGenerator->cacheImageForAllFilters($path);
+
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::THUMBNAIL_IMAGE.'/'.$newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+            ], Response::HTTP_BAD_REQUEST
+        );
     }
 
 }
