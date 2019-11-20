@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,7 +27,7 @@ class School
     private $id;
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -90,16 +91,22 @@ class School
     private $studentUsers;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a street!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $street;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $city;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
@@ -110,6 +117,8 @@ class School
     private $site;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a state!", groups={"EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="schools")
      */
     private $state;
@@ -124,6 +133,33 @@ class School
      */
     private $teachLessonExperiences;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolResource", mappedBy="school", orphanRemoval=true, cascade={"remove"})
+     */
+    private $schoolResources;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $latitude;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $longitude;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    private $thumbnailImage;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    private $featuredImage;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -136,6 +172,7 @@ class School
         $this->studentUsers = new ArrayCollection();
         $this->teachLessonRequests = new ArrayCollection();
         $this->teachLessonExperiences = new ArrayCollection();
+        $this->schoolResources = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -555,5 +592,151 @@ class School
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|SchoolResource[]
+     */
+    public function getSchoolResources(): Collection
+    {
+        return $this->schoolResources;
+    }
+
+    public function addSchoolResource(SchoolResource $schoolResource): self
+    {
+        if (!$this->schoolResources->contains($schoolResource)) {
+            $this->schoolResources[] = $schoolResource;
+            $schoolResource->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolResource(SchoolResource $schoolResource): self
+    {
+        if ($this->schoolResources->contains($schoolResource)) {
+            $this->schoolResources->removeElement($schoolResource);
+            // set the owning side to null (unless already changed)
+            if ($schoolResource->getSchool() === $this) {
+                $schoolResource->setSchool(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAddress() {
+        return sprintf("%s %s %s %s",
+            $this->street,
+            $this->city,
+            $this->state->getAbbreviation(),
+            $this->zipcode
+        );
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?string $latitude): self
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?string $longitude): self
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getFeaturedImage()
+    {
+        return $this->featuredImage;
+    }
+
+    public function setFeaturedImage(?Image $featuredImage)
+    {
+        $this->featuredImage = $featuredImage;
+
+        return $this;
+    }
+
+    public function getThumbnailImage()
+    {
+        return $this->thumbnailImage;
+    }
+
+    public function setThumbnailImage(?Image $thumbnailImage)
+    {
+        $this->thumbnailImage = $thumbnailImage;
+
+        return $this;
+    }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @return string
+     */
+    public function getFeaturedImagePath()
+    {
+        if($this->getFeaturedImage()) {
+            return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @return string
+     */
+    public function getThumbnailImagePath()
+    {
+        if($this->getThumbnailImage()) {
+            return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     */
+    public function getThumbnailImageURL() {
+        if($this->getThumbnailImage()) {
+            return '/media/cache/squared_thumbnail_small/uploads/' . $this->getThumbnailImagePath();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     */
+    public function getFeaturedImageURL() {
+        if($this->getFeaturedImage()) {
+            return '/uploads/' . $this->getFeaturedImagePath();
+        }
+        return '';
+    }
+
+    /**
+     * Just allowing school administrators to create experiences
+     * @param User $user
+     * @return bool
+     */
+    public function canCreateExperiences(User $user)
+    {
+        return ($this->schoolAdministrators->filter(
+                function (SchoolAdministrator $schoolAdministrator) use ($user) {
+                    return $schoolAdministrator->getId() === $user->getId();
+                }
+            )->count() > 0);
     }
 }

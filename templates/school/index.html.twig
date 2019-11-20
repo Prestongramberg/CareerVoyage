@@ -1,0 +1,11 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Schools{% endblock %}
+
+{% block body %}
+    <div id="searchable-school-listing" data-user-id="{{ user.id }}" data-user-roles="{{ user.roles|json_encode() }}"></div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}

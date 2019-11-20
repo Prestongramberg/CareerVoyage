@@ -48,6 +48,7 @@ use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRepository;
 use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
+use App\Service\Geocoder;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
@@ -359,6 +360,11 @@ trait ServiceHelper
     private $filterBuilder;
 
     /**
+     * @var Geocoder
+     */
+    private $geocoder;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -418,6 +424,7 @@ trait ServiceHelper
      * @param SiteRepository $siteRepository
      * @param TokenStorageInterface $securityToken
      * @param FilterBuilderUpdaterInterface $filterBuilder
+     * @param Geocoder $geocoder
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -477,7 +484,8 @@ trait ServiceHelper
         Environment $twig,
         SiteRepository $siteRepository,
         TokenStorageInterface $securityToken,
-        FilterBuilderUpdaterInterface $filterBuilder
+        FilterBuilderUpdaterInterface $filterBuilder,
+        Geocoder $geocoder
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -537,6 +545,7 @@ trait ServiceHelper
         $this->siteRepository = $siteRepository;
         $this->securityToken = $securityToken;
         $this->filterBuilder = $filterBuilder;
+        $this->geocoder = $geocoder;
     }
 
     public function getFullQualifiedBaseUrl() {

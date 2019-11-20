@@ -18,6 +18,7 @@ class UploaderHelper
     const FEATURE_IMAGE = 'featured_image';
     const COMPANY_PHOTO = 'company_photo';
     const COMPANY_RESOURCE = 'company_resource';
+    const SCHOOL_RESOURCE = 'school_resource';
     const LESSON_THUMBNAIL = 'lesson_thumbnail';
     const LESSON_FEATURED = 'lesson_featured';
     const EXPERIENCE_FILE = 'experience_file';

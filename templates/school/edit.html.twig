@@ -18,6 +18,7 @@
             <li class="uk-active"><a href="#school-details">Edit School</a></li>
             <li><a href="#school-photos">Photos</a></li>
             <li><a href="#school-videos">Videos</a></li>
+            <li><a href="#school-resources">Resources</a></li>
         </ul>
 
         {% if form_errors(form) %}
@@ -68,6 +69,30 @@
                             {{ form_label(form.zipcode, 'Zip*') }}
                             {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.zipcode) }}
+                        </div>
+                        <div class="uk-margin uk-grid" uk-grid>
+                            {% if school.thumbnailImage %}
+                                <div class="uk-width-small">
+                                    <img id="schoolThumbnailImage" src="{{ asset(uploaded_asset(school.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                </div>
+                            {% endif %}
+                            <div class="uk-width-expand">
+                                <label>School Thumbnail</label>
+                                <div class="uk-text-meta">Upload a square image if possible.  Will auto resize to 300x300.</div>
+                                <div data-upload-url="{{ path('school_thumbnail_add', { id: school.id }) }}" data-type="image:schoolThumbnailImage"></div>
+                            </div>
+                        </div>
+                        <div class="uk-margin uk-grid" uk-grid>
+                            {% if school.featuredImage %}
+                                <div class="uk-width-small">
+                                    <img id="schoolFeaturedImage" src="{{ asset(uploaded_asset(school.featuredImagePath))|imagine_filter('squared_thumbnail_small') }}" />
+                                </div>
+                            {% endif %}
+                            <div class="uk-width-expand">
+                                <label>School Featured Image</label>
+                                <div class="uk-text-meta">Ideal size for school banner is 1680x300 with central focal point.</div>
+                                <div data-upload-url="{{ path('school_featured_add', { id: school.id }) }}" data-type="image:schoolFeaturedImage"></div>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
@@ -161,6 +186,77 @@
                                         </div>
                                     </a>
                                     <button type="button" data-remove="{{ path('school_video_remove', {'id' : video.id }) }}" uk-close></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="page-school-edit__resources">
+                <div class="uk-width-xlarge">
+                    <p>Resources are meant to provide helpful resources to understand more about your school.</p>
+                </div>
+                <div class="uk-margin">
+                    <div class="uk-text-center uk-placeholder">
+                        <a class="uk-button uk-button-default uk-button-small" href="#modal-add-school-resource" uk-toggle>Add a Resource</a>
+                        <div id="modal-add-school-resource" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Add a Resource</h3>
+
+                                <div class="uk-margin">
+                                    <label for="edit_school_add_resource_title" class="required">Name*</label>
+                                    <input type="text" id="edit_school_add_resource_title" name="title" required="required" class="uk-input" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_school_add_resource_description" class="required">Description*</label>
+                                    <input type="text" id="edit_school_add_resource_title" name="description" required="required" class="uk-textarea" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label>Resource File*</label><br />
+                                    <div uk-form-custom="target: true">
+                                        <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                    </div>
+                                </div>
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('school_resource_add', {'id' : school.id}) }}" />
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="schoolResourcesTemplate" style="display: none;">
+                        <div class="uk-grid uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <dt>RESOURCE_TITLE</dt>
+                                <dd>RESOURCE_DESCRIPTION</dd>
+                            </div>
+                            <div class="uk-width-auto">
+                                <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                            </div>
+                            <button type="button" data-remove="{{ path('school_resource_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    {% if school.schoolResources|length %}
+                        <h4>Current Resources</h4>
+                    {% endif %}
+                    <div id="schoolResources">
+                        {% if school.schoolResources|length %}
+                            {% for schoolResource in school.schoolResources %}
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ schoolResource.title }}</dt>
+                                        <dd>{{ schoolResource.description }}</dd>
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        <a href="{{ asset(uploaded_asset(schoolResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    </div>
+                                    <button type="button" data-remove="{{ path('school_resource_remove', {'id' : schoolResource.id }) }}" uk-close></button>
                                 </div>
                             {% endfor %}
                         {% endif %}
