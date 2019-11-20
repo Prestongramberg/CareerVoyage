@@ -3,6 +3,8 @@ import $ from "jquery";
 
 jQuery(document).ready(function($) {
 
+    var youtubeAPIKey = 'AIzaSyDRsAB-EVUDoPlO2Aq4QdB5fGlFrICJqbw';
+
     /**
      * Smooth Page Transitions
      */
@@ -304,7 +306,7 @@ jQuery(document).ready(function($) {
         $videoField.removeClass('uk-form-success uk-form-error');
 
         // Validate Youtube Video ID
-        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=AIzaSyCGilvitz5k3BVVa4tjpPMsoufRtDHj7E8` ).always(function( response ) {
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
             if( response && response.etag ) {
                 // Turn the youtube Video Field Green/Red Depending
                 if( response.items.length ) {
@@ -487,7 +489,7 @@ jQuery(document).ready(function($) {
         $videoField.removeClass('uk-form-success uk-form-error');
 
         // Validate Youtube Video ID
-        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=AIzaSyCGilvitz5k3BVVa4tjpPMsoufRtDHj7E8` ).always(function( response ) {
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
             if( response && response.etag ) {
                 // Turn the youtube Video Field Green/Red Depending
                 if( response.items.length ) {
