@@ -17,6 +17,7 @@ use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\CourseRepository;
 use App\Repository\IndustryRepository;
+use App\Repository\SchoolRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -39,11 +40,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
 /**
- * Class CompanyController
+ * Class SchoolController
  * @package App\Controller
  * @Route("/api")
  */
-class CompanyController extends AbstractController
+class SchoolController extends AbstractController
 {
     use FileHelper;
 
@@ -104,7 +105,12 @@ class CompanyController extends AbstractController
     private $courseRepository;
 
     /**
-     * CompanyController constructor.
+     * @var SchoolRepository
+     */
+    private $schoolRepository;
+
+    /**
+     * SchoolController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -116,6 +122,7 @@ class CompanyController extends AbstractController
      * @param IndustryRepository $industryRepository
      * @param CompanyFavoriteRepository $companyFavoriteRepository
      * @param CourseRepository $courseRepository
+     * @param SchoolRepository $schoolRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -128,7 +135,8 @@ class CompanyController extends AbstractController
         CompanyRepository $companyRepository,
         IndustryRepository $industryRepository,
         CompanyFavoriteRepository $companyFavoriteRepository,
-        CourseRepository $courseRepository
+        CourseRepository $courseRepository,
+        SchoolRepository $schoolRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -141,41 +149,20 @@ class CompanyController extends AbstractController
         $this->industryRepository = $industryRepository;
         $this->companyFavoriteRepository = $companyFavoriteRepository;
         $this->courseRepository = $courseRepository;
+        $this->schoolRepository = $schoolRepository;
     }
 
     /**
-     * @Route("/companies", name="get_companies", methods={"GET"}, options = { "expose" = true })
+     * @Route("/schools", name="get_schools", methods={"GET"}, options = { "expose" = true })
      */
-    public function getCompanies() {
+    public function getSchools() {
 
         /** @var User $user */
         $user = $this->getUser();
 
-        $companies = $this->companyRepository->findBy([
-            'approved' => true
-        ]);
+        $schools = $this->schoolRepository->findAll();
 
-        foreach($companies as $company) {
-
-            $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
-                'company' => $company,
-                'user' => $user
-            ]);
-
-            if($favoriteCompany) {
-                $company->setIsFavorite(true);
-            } else {
-                $company->setIsFavorite(false);
-            }
-
-            if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
-                $company->setIsMine(true);
-            } else {
-                $company->setIsMine(false);
-            }
-        }
-
-        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
 
         $payload = json_decode($json, true);
 
