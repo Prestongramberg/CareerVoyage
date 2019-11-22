@@ -160,6 +160,45 @@ class School
      */
     private $featuredImage;
 
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
+     *      groups={"EDIT"}
+     * )
+     * @Assert\NotBlank(message="Don't forget a short description!", groups={"EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $shortDescription;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a phone number!", groups={"EDIT"})
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
+     *     match=true,
+     *     message="The phone number needs to be in this format: xxxxxxxxxx",
+     *     groups={"EDIT"}
+     * )
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phone;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @Assert\NotBlank(message="Don't forget a website!", groups={"EDIT"})
+     * @Assert\Regex("/^(http|https):\/\//", message="Website must start with http or https!", groups={"EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $website;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolLinkedInPage;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -738,5 +777,53 @@ class School
                     return $schoolAdministrator->getId() === $user->getId();
                 }
             )->count() > 0);
+    }
+
+    public function getShortDescription(): ?string
+    {
+        return $this->shortDescription;
+    }
+
+    public function setShortDescription(?string $shortDescription): self
+    {
+        $this->shortDescription = $shortDescription;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getWebsite(): ?string
+    {
+        return $this->website;
+    }
+
+    public function setWebsite(?string $website): self
+    {
+        $this->website = $website;
+
+        return $this;
+    }
+
+    public function getSchoolLinkedInPage(): ?string
+    {
+        return $this->schoolLinkedInPage;
+    }
+
+    public function setSchoolLinkedInPage(?string $schoolLinkedInPage): self
+    {
+        $this->schoolLinkedInPage = $schoolLinkedInPage;
+
+        return $this;
     }
 }

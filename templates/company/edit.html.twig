@@ -53,6 +53,26 @@
                             {{ form_errors(form.name) }}
                         </div>
                         <div class="uk-margin">
+                            {{ form_label(form.street, 'Street*') }}
+                            {{ form_widget(form.street, {'attr': {'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.street) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.city, 'City*') }}
+                            {{ form_widget(form.city, {'attr': {'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.city) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.state, 'State*') }}
+                            {{ form_widget(form.state, {'attr': {'class': 'uk-input' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.state) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.zipcode, 'Zip*') }}
+                            {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.zipcode) }}
+                        </div>
+                        <div class="uk-margin">
                             {{ form_label(form.website, 'Website*') }}
                             {{ form_widget(form.website, {'attr': {'class': 'uk-input' ~ ( form_errors(form.website) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.website) }}

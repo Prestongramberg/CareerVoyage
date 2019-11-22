@@ -7,6 +7,7 @@ use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
+use App\Entity\State;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
 use Doctrine\ORM\EntityRepository;
@@ -53,6 +54,15 @@ class NewCompanyFormType extends AbstractType
 
         $builder
             ->add('name', TextType::class, [])
+            ->add('street', TextType::class, [])
+            ->add('city', TextType::class, [])
+            ->add('state', EntityType::class, [
+                'class' => State::class,
+                'choice_label' => 'name',
+                'expanded'  => false,
+                'multiple'  => false,
+            ])
+            ->add('zipcode', TextType::class, [])
             ->add('website', TextType::class, [
                 'attr' => [
                     'placeholder' => 'http://example.org'

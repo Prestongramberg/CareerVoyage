@@ -7,6 +7,7 @@ namespace App\Util;
 use App\Entity\CompanyExperience;
 use App\Mailer\FeedbackMailer;
 use App\Mailer\ImportMailer;
+use App\Mailer\NotificationsMailer;
 use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -365,6 +366,11 @@ trait ServiceHelper
     private $geocoder;
 
     /**
+     * @var NotificationsMailer
+     */
+    private $notificationsMailer;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -425,6 +431,7 @@ trait ServiceHelper
      * @param TokenStorageInterface $securityToken
      * @param FilterBuilderUpdaterInterface $filterBuilder
      * @param Geocoder $geocoder
+     * @param NotificationsMailer $notificationsMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -485,7 +492,8 @@ trait ServiceHelper
         SiteRepository $siteRepository,
         TokenStorageInterface $securityToken,
         FilterBuilderUpdaterInterface $filterBuilder,
-        Geocoder $geocoder
+        Geocoder $geocoder,
+        NotificationsMailer $notificationsMailer
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -546,6 +554,7 @@ trait ServiceHelper
         $this->securityToken = $securityToken;
         $this->filterBuilder = $filterBuilder;
         $this->geocoder = $geocoder;
+        $this->notificationsMailer = $notificationsMailer;
     }
 
     public function getFullQualifiedBaseUrl() {

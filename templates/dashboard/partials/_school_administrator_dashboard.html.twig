@@ -162,6 +162,28 @@
                                 <div class="uk-placeholder uk-text-center">
                                     <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_experience_create', {'id': school.id}) }}">Create an Event</a></p>
                                 </div>
+
+                                {% if school.schoolExperiences|length %}
+                                    <div class="school__educators">
+                                        <dl class="uk-description-list uk-description-list-divider">
+                                            {% for experience in school.schoolExperiences %}
+                                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                                    <div class="uk-width-expand">
+                                                        <dt>{{ experience.title }}</dt>
+                                                    </div>
+                                                    <div class="uk-width-1-1 uk-width-auto@m">
+                                                        <a href="{{ path('school_experience_view', { "id": experience.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                                        <form class="uk-inline" action="{{ path('school_experience_remove', { "id": experience.id }) }}" method="POST">
+                                                            <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+                                                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </dl>
+                                    </div>
+                                {% endif %}
+
                             </div>
                         </div>
                     </div>
