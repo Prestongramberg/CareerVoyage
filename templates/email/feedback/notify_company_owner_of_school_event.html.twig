@@ -1,0 +1,18 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<p>Hi {{ user.firstName }},</p>
+
+<p>{{ experience.school.name }} has a school event we think you might be interested in.</p>
+
+<p>Location: <strong>{{ experience.street }} {{ experience.city }} {{ experience.state.abbreviation }} {{ experience.zipcode }}</strong>
+<p>When: <strong>{{ experience.startDateAndTime|date("F jS, Y") }} - {{ experience.endDateAndTime|date("F jS, Y") }}</strong></p>
+<p>Contact: <strong>{{ experience.phoneNumber }} {{ experience.email }}</strong></p>
+<p>Type: <strong>{{ experience.type }}</strong></p>
+<p>About:
+<p><strong>{{ experience.title }}</strong></p>
+<p><strong>{{ experience.briefDescription }}</strong></p>
+</p>
+<a href="{{ url }}">Click for more details...</a>
+</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

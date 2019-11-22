@@ -113,10 +113,13 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Company $company */
             $company = $form->getData();
+            $shouldAttemptGeocode = $company->getStreet() && $company->getCity() && $company->getState() && $company->getZipcode();
+            if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($company->getFormattedAddress())) {
+                $company->setLongitude($coordinates['lng']);
+                $company->setLatitude($coordinates['lat']);
+            }
             $company->setOwner($user);
-
             $user->setCompany($company);
-
             $adminUsers = $this->adminUserRepository->findAll();
             $adminUser = $adminUsers[0];
 
@@ -726,6 +729,11 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var Company $company */
             $company = $form->getData();
+            $shouldAttemptGeocode = $company->getStreet() && $company->getCity() && $company->getState() && $company->getZipcode();
+            if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($company->getFormattedAddress())) {
+                $company->setLongitude($coordinates['lng']);
+                $company->setLatitude($coordinates['lat']);
+            }
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 

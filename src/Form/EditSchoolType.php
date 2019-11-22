@@ -39,6 +39,16 @@ class EditSchoolType extends AbstractType
     {
 
         $builder->add('name', TextType::class, [])
+            ->add('website', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'http://example.org'
+                ]
+            ])
+            ->add('phone', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'XXXXXXXXXX'
+                ]
+            ])
             ->add('email', EmailType::class, [])
             ->add('overviewAndBackground', TextareaType::class, [])
             ->add('street', TextType::class, [])
@@ -49,7 +59,9 @@ class EditSchoolType extends AbstractType
                 'expanded'  => false,
                 'multiple'  => false,
             ])
-            ->add('zipcode', TextType::class, []);
+            ->add('zipcode', TextType::class, [])
+            ->add('schoolLinkedinPage', TextType::class, [])
+            ->add('shortDescription', TextareaType::class, []);
 
     }
 

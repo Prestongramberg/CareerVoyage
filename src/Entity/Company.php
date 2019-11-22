@@ -30,13 +30,6 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget an address!")
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $address;
-
-    /**
-     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a phone number!", groups={"CREATE", "EDIT"})
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
@@ -48,7 +41,7 @@ class Company
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
-
+    
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -215,6 +208,50 @@ class Company
      */
     private $studentUsers;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $latitude;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $longitude;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $street;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $city;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $zipcode;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\State")
+     */
+    private $state;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $address;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -232,18 +269,6 @@ class Company
     public function getId()
     {
         return $this->id;
-    }
-
-    public function getAddress()
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?string $address)
-    {
-        $this->address = $address;
-
-        return $this;
     }
 
     public function getPhone()
@@ -820,6 +845,98 @@ class Company
             return true;
         }
         return false;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?string $latitude): self
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?string $longitude): self
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(?string $street): self
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getZipcode(): ?string
+    {
+        return $this->zipcode;
+    }
+
+    public function setZipcode(?string $zipcode): self
+    {
+        $this->zipcode = $zipcode;
+
+        return $this;
+    }
+
+    public function getState(): ?State
+    {
+        return $this->state;
+    }
+
+    public function setState(?State $state): self
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    public function getAddress() {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getFormattedAddress() {
+        return sprintf("%s %s %s %s",
+            $this->street,
+            $this->city,
+            $this->state->getAbbreviation(),
+            $this->zipcode
+        );
     }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Company;
+use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -70,6 +71,15 @@ class CompanyRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function getBySchool(School $school) {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.schools', 'schools')
+            ->where('schools.id = :id')
+            ->setParameter('id', $school->getId())
+            ->getQuery()
+            ->getResult();
     }
 
 }

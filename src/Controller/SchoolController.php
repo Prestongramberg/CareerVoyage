@@ -108,7 +108,7 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(SchoolAdminFormType::class, $schoolAdmin, [
             'method' => 'POST',
-            'site' => $user->getSite()
+            'site' => $user->getSite(),
         ]);
 
         $form->handleRequest($request);
@@ -144,7 +144,7 @@ class SchoolController extends AbstractController
 
         return $this->render('school/new_admin.html.twig', [
             'user' => $user,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -183,7 +183,7 @@ class SchoolController extends AbstractController
 
         return $this->render('school/new.html.twig', [
             'user' => $user,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -217,7 +217,7 @@ class SchoolController extends AbstractController
 
         $this->addFlash('success', 'Educator removed from school');
 
-        return $this->redirectToRoute('school_administrator_schools', ['id' => $schoolAdminId]);
+        return $this->redirectToRoute('dashboard');
 
     }
 
@@ -249,7 +249,7 @@ class SchoolController extends AbstractController
         $this->entityManager->remove($studentUser);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('school_administrator_schools', ['id' => $schoolAdminId]);
+        return $this->redirectToRoute('dashboard');
     }
 
     /**
@@ -287,7 +287,7 @@ class SchoolController extends AbstractController
         return $this->render('school/edit.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
-            'school' => $school
+            'school' => $school,
         ]);
     }
 
@@ -303,7 +303,7 @@ class SchoolController extends AbstractController
 
         return $this->render('school/view.html.twig', [
             'user' => $user,
-            'school' => $school
+            'school' => $school,
         ]);
     }
 
@@ -366,7 +366,7 @@ class SchoolController extends AbstractController
                     $studentId = $student['Student Id'];
                     $studentObj = $this->studentUserRepository->findOneBy([
                         'studentId' => $studentId,
-                        'school' => $school->getId()
+                        'school' => $school->getId(),
                     ]);
 
                     // only create the student if it doesn't exist
@@ -425,7 +425,7 @@ class SchoolController extends AbstractController
         return $this->render('school/student_import.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
-            'school' => $school
+            'school' => $school,
         ]);
     }
 
@@ -488,7 +488,7 @@ class SchoolController extends AbstractController
                     $educatorId = $educator['Educator Id'];
                     $educatorObj = $this->educatorUserRepository->findOneBy([
                         'educatorId' => $educatorId,
-                        'school' => $school->getId()
+                        'school' => $school->getId(),
                     ]);
 
                     // only create the educator if it doesn't exist
@@ -548,7 +548,7 @@ class SchoolController extends AbstractController
         return $this->render('school/educator_import.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
-            'school' => $school
+            'school' => $school,
         ]);
     }
 
@@ -586,7 +586,7 @@ class SchoolController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::SCHOOL_PHOTO.'/'.$newFilename, 'squared_thumbnail_small'),
-                    'id' => $image->getId()
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -760,7 +760,7 @@ class SchoolController extends AbstractController
                     'success' => true,
                     'id' => $video->getId(),
                     'name' => $name,
-                    'videoId' => $videoId
+                    'videoId' => $videoId,
 
                 ], Response::HTTP_OK
             );
@@ -800,7 +800,7 @@ class SchoolController extends AbstractController
                     'success' => true,
                     'id' => $video->getId(),
                     'name' => $name,
-                    'videoId' => $videoId
+                    'videoId' => $videoId,
 
                 ], Response::HTTP_OK
             );
@@ -846,7 +846,7 @@ class SchoolController extends AbstractController
         /*$user = $this->getUser();*/
 
         $experiences = $this->schoolExperienceRepository->findBy([
-            'school' => $school->getId()
+            'school' => $school->getId(),
         ]);
 
         $data = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA']]);
@@ -855,7 +855,7 @@ class SchoolController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
 
             ], Response::HTTP_OK
         );
@@ -876,7 +876,7 @@ class SchoolController extends AbstractController
         $experience = new SchoolExperience();
         $form = $this->createForm(NewSchoolExperienceType::class, $experience, [
             'method' => 'POST',
-            'school' => $school
+            'school' => $school,
         ]);
 
         $form->handleRequest($request);
@@ -899,7 +899,7 @@ class SchoolController extends AbstractController
         return $this->render('school/new_experience.html.twig', [
             'school' => $school,
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -918,7 +918,7 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(EditSchoolExperienceType::class, $experience, [
             'method' => 'POST',
-            'school' => $school
+            'school' => $school,
         ]);
 
         $form->handleRequest($request);
@@ -940,7 +940,7 @@ class SchoolController extends AbstractController
         return $this->render('school/edit_experience.html.twig', [
             'school' => $school,
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -948,7 +948,7 @@ class SchoolController extends AbstractController
      * @Route("/schools/experiences/{id}/remove", name="school_experience_remove", options = { "expose" = true })
      * @param Request $request
      * @param SchoolExperience $experience
-     * @return JsonResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function experienceRemoveAction(Request $request, SchoolExperience $experience) {
 
@@ -957,12 +957,25 @@ class SchoolController extends AbstractController
         $this->entityManager->remove($experience);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
+        return $this->redirectToRoute('dashboard');
+    }
 
-            ], Response::HTTP_OK
-        );
+    /**
+     * @Route("/schools/experiences/{id}/notify-companies", name="school_notify_companies", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function experienceNotifyCompaniesAction(Request $request, SchoolExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+        $companies = $this->companyRepository->getBySchool($experience->getSchool());
+        /** @var Company $company */
+        foreach($companies as $company) {
+            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience);
+        }
+        $this->addFlash('success', 'Companies notified of event.');
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
     /**
@@ -977,7 +990,7 @@ class SchoolController extends AbstractController
 
         return $this->render('school/view_experience.html.twig', [
             'user' => $user,
-            'experience' => $experience
+            'experience' => $experience,
         ]);
     }
 
@@ -1016,7 +1029,7 @@ class SchoolController extends AbstractController
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
                     'id' => $file->getId(),
                     'title' => $title,
-                    'description' => $description
+                    'description' => $description,
 
                 ], Response::HTTP_OK
             );
@@ -1071,7 +1084,7 @@ class SchoolController extends AbstractController
                 'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
                 'id' => $file->getId(),
                 'title' => $file->getTitle(),
-                'description' => $file->getDescription()
+                'description' => $file->getDescription(),
 
             ], Response::HTTP_OK
         );

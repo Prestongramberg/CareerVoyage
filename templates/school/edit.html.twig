@@ -70,6 +70,26 @@
                             {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.zipcode) }}
                         </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.schoolLinkedinPage, 'School LinkedIn Page') }}
+                            {{ form_widget(form.schoolLinkedinPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.schoolLinkedinPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schoolLinkedinPage) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.website, 'Website*') }}
+                            {{ form_widget(form.website, {'attr': {'class': 'uk-input' ~ ( form_errors(form.website) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.website) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.phone, 'Phone*') }}
+                            {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.phone) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.shortDescription, 'Short Description*') }}
+                            {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.shortDescription) }}
+                        </div>
                         <div class="uk-margin uk-grid" uk-grid>
                             {% if school.thumbnailImage %}
                                 <div class="uk-width-small">
