@@ -61,6 +61,7 @@
 
         <ul data-uk-tab="{connect: '#tab-company-detail'}" uk-switcher>
             <li class="uk-active"><a href="#company-summary">Summary</a></li>
+            <li><a href="#company-location">Location</a></li>
             {% if company.companyPhotos|length %}
                 <li><a href="#company-photos">Photos</a></li>
             {% endif %}
@@ -100,6 +101,9 @@
                         {% endif %}
                     </div>
                 </div>
+            </div>
+            <div class="company__location">
+                <div class="react-google-map" data-latitude="{{  }}" data-longitude=""></div>
             </div>
             {% if company.companyPhotos|length %}
                 <div class="company__photos">

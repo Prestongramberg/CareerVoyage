@@ -25,12 +25,13 @@
         "build": "encore production --progress"
     },
     "dependencies": {
-        "@fullcalendar/core": "^4.3.0",
+        "@fullcalendar/core": "^4.3.1",
         "@fullcalendar/daygrid": "^4.3.0",
         "@fullcalendar/react": "^4.3.0",
         "chart.js": "^2.8.0",
         "daterangepicker": "^3.0.5",
         "file-saver": "^2.0.2",
+        "google-map-react": "^1.1.5",
         "list.js": "^1.5.0",
         "lodash": "^4.17.14",
         "prop-types": "^15.7.2",

@@ -15,7 +15,9 @@
             {% if user.isStudent == false %}
                 <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
             {% endif %}
-{#            <li><a href="#">Schools</a></li>#}
+            {% if user.isProfessional %}
+                <li><a href="{{ path('school_index') }}">Schools</a></li>
+            {% endif %}
             {% if user.isProfessional or user.isEducator or user.isStudent %}
                 <li><a href="{{ path('experience_index') }}">Experiences</a></li>
             {% endif %}

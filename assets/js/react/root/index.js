@@ -1,10 +1,12 @@
 require('./bar-chart');
 require('./chat');
 require('./events-calendar');
+require('./google-map');
 require('./horizontal-bar-chart');
 require('./searchable-company-listing');
 require('./searchable-lesson-listing');
 require('./searchable-professional-listing');
+require('./searchable-school-listing');
 require('./subscribe-secondary-industries');
 require('./favorite-company');
 require('./favorite-lesson');
