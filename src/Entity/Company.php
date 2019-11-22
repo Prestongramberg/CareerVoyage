@@ -34,14 +34,14 @@ class Company
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
-     *     message="The phone number needs to be in this format: xxxxxxxxxx",
+     *     message="The phone number needs to be in this format: xxx-xxx-xxxx",
      *     groups={"CREATE", "EDIT"}
      * )
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
-    
+
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -209,11 +209,13 @@ class Company
     private $studentUsers;
 
     /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $latitude;
 
     /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $longitude;
@@ -920,7 +922,7 @@ class Company
     }
 
     public function getAddress() {
-        return $this->address;
+        return $this->getFormattedAddress();
     }
 
     public function setAddress(?string $address): self
@@ -934,7 +936,7 @@ class Company
         return sprintf("%s %s %s %s",
             $this->street,
             $this->city,
-            $this->state->getAbbreviation(),
+            $this->state ? $this->state->getAbbreviation() : '',
             $this->zipcode
         );
     }

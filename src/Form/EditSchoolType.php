@@ -15,6 +15,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -63,6 +64,15 @@ class EditSchoolType extends AbstractType
             ->add('schoolLinkedinPage', TextType::class, [])
             ->add('shortDescription', TextareaType::class, []);
 
+	    $builder->get('phone')->addModelTransformer(new CallbackTransformer(
+		    function ($phone) {
+			    return str_replace('-', '', $phone);
+		    },
+		    function ($phone) {
+			    return $this->localize_us_number($phone);
+		    }
+	    ));
+
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -72,4 +82,9 @@ class EditSchoolType extends AbstractType
             'validation_groups' => ["EDIT"]
         ]);
     }
+
+	private function localize_us_number($phone) {
+		$numbers_only = preg_replace("/[^\d]/", "", $phone);
+		return preg_replace("/^1?(\d{3})(\d{3})(\d{4})$/", "$1-$2-$3", $numbers_only);
+	}
 }

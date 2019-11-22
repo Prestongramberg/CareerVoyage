@@ -19,7 +19,7 @@ class School
     use Timestampable;
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -61,6 +61,7 @@ class School
     private $overviewAndBackground;
 
     /**
+     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
      * @ORM\ManyToMany(targetEntity="App\Entity\SchoolAdministrator", inversedBy="schools")
      */
     private $schoolAdministrators;
@@ -178,7 +179,7 @@ class School
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
-     *     message="The phone number needs to be in this format: xxxxxxxxxx",
+     *     message="The phone number needs to be in this format: xxx-xxx-xxxx",
      *     groups={"EDIT"}
      * )
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -664,11 +665,15 @@ class School
         return $this;
     }
 
+	/**
+	 * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
+	 * @return string
+	 */
     public function getAddress() {
         return sprintf("%s %s %s %s",
             $this->street,
             $this->city,
-            $this->state->getAbbreviation(),
+	        $this->state ? $this->state->getAbbreviation() : '',
             $this->zipcode
         );
     }

@@ -2,6 +2,7 @@
 
 {% block title %}View School{% endblock %}
 {% block bodyClass %}page-school-view{% endblock %}
+{% block flashMessage %}{% endblock %}
 
 {% block body %}
 
@@ -26,8 +27,6 @@
         </div>
     </div>
 
-
-
     <div class="uk-container">
 
         {% include 'flash/messages.html.twig' %}
@@ -49,30 +48,34 @@
                 </div>
             </div>
         </div>
-        
-        
+
+
         <ul data-uk-tab="{connect: '#tab-school-detail'}" uk-switcher>
             <li class="uk-active"><a href="#school-summary">Summary</a></li>
+            <li><a href="#school-events">Events</a></li>
+            {% if school.latitude and school.longitude %}
+                <li><a href="#school-location">Location</a></li>
+            {% endif %}
             {% if school.schoolPhotos|length %}
                 <li><a href="#school-photos">Photos</a></li>
             {% endif %}
             {% if school.schoolVideos|length %}
                 <li><a href="#school-videos">Videos</a></li>
             {% endif %}
-            {% if school.schoolExperiences|length %}
-                <li><a href="#school-events">Events</a></li>
-            {% endif %}
             {% if school.schoolResources|length %}
-                <li><a href="#school-events">Resources</a></li>
+                <li><a href="#school-resources">Resources</a></li>
             {% endif %}
             {% if school.educatorUsers|length %}
                 <li><a href="#school-educators">Educators</a></li>
             {% endif %}
+            {% if volunteeringCompanies|length %}
+                <li><a href="#school-companies">Companies</a></li>
+            {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-school-detail">
-            <div class="school__summary">
-                <div class="uk-width-xlarge">
+            <div class="school__summary uk-flex">
+                <div class="uk-width-2-3">
                     <div class="uk-margin">
                         {{ school.overviewAndBackground|raw }}
                     </div>
@@ -82,7 +85,35 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="uk-width-1-3">
+                    {% if school.getSchoolAdministrators|length > 0 %}
+                        {% for admin in school.getSchoolAdministrators %}
+                            <div class="uk-margin">
+                                <h3 class="uk-heading-line uk-text-center"><span>School Administrator</span></h3>
+                                <p class="uk-text-meta">
+                                    <strong>{{ admin.getFullName }}</strong><br />
+                                    <a href="mailto:{{ admin.email }}">{{ admin.email }}</a><br />
+                                </p>
+                            </div>
+                        {% endfor %}
+                        {% if school.phone %}
+                            <a href="tel:{{ school.phone }}" class="uk-button uk-button-primary uk-button-small">Call Us</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
+            <div class="school__events">
+                {% if user.isSchoolAdministrator or user.isAdmin %}
+                    <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_experience_create', {'id': school.id}) }}">Create an Event</a></p>
+                {% endif %}
+                <div class="react-events-calendar" data-school-id="{{ school.id }}"></div>
+            </div>
+            {% if school.latitude and school.longitude %}
+                <div class="school__location">
+                    <p><a class="uk-button uk-button-primary uk-button-small" href="http://maps.google.com/?q={{ school.street }},{{ school.city }},{{ school.zipcode }}" target="_blank">Directions to School</a></p>
+                    <div class="react-google-map" data-latitude="{{ school.latitude }}" data-longitude="{{ school.longitude }}" data-schools="{{ encode_schools( [school] ) }}" data-companies="{{ encode_companies( volunteeringCompanies ) }}"></div>
+                </div>
+            {% endif %}
             {% if school.schoolPhotos|length %}
                 <div class="school__photos">
                     <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid="masonry: true" uk-lightbox="animation: slide">
@@ -104,24 +135,6 @@
                                 <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId }}">
                                     <img src="http://i.ytimg.com/vi/{{ video.videoId }}/hqdefault.jpg" alt="">
                                 </a>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-            {% if school.schoolExperiences|length %}
-                <div class="school__events">
-                    <div class="uk-grid event-listing uk-child-width-1-2@m" uk-grid="masonry: true">
-                        {% for experience in school.schoolExperiences %}
-                            <div>
-                                <div class="uk-card uk-card-default uk-card-body">
-                                    <div class="uk-card-badge uk-label">{{ experience.type }}</div>
-                                    <div class="uk-text-meta">{{ experience.startDateAndTime|date("F jS, Y") }}</div>
-                                    <div class="uk-margin">
-                                        <a href="{{ path('school_experience_view', {'id': experience.id}) }}"><h3 class="uk-card-title">{{ experience.title }}</h3></a>
-                                        <p>{{ experience.briefDescription }}</p>
-                                    </div>
-                                </div>
                             </div>
                         {% endfor %}
                     </div>
@@ -157,6 +170,22 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
+            {% if volunteeringCompanies|length %}
+                <div class="school__companies">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for company in volunteeringCompanies %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ company.name }}</dt>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ path('company_view', { "id": company.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                 </div>
                             </div>
                         {% endfor %}

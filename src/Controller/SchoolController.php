@@ -301,9 +301,12 @@ class SchoolController extends AbstractController
 
         $user = $this->getUser();
 
+        $volunteeringCompanies = $this->companyRepository->getBySchool($school);
+
         return $this->render('school/view.html.twig', [
             'user' => $user,
             'school' => $school,
+	        'volunteeringCompanies' => $volunteeringCompanies
         ]);
     }
 
