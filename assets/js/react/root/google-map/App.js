@@ -1,70 +1,166 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import GoogleMapReact from 'google-map-react';
-import CompanyMarker from './pins/CompanyMarker';
-import SchoolMarker from './pins/SchoolMarker';
+import React, { Component } from 'react';
+import { Map, GoogleApiWrapper, InfoWindow, Marker } from 'google-maps-react';
+import CompanyPin from "./pins/company.svg"
+import SchoolPin from "./pins/school.svg"
 
-class App extends Component {
+const mapStyles = {
+    width: '100%',
+    height: '100%'
+};
+
+export class MapContainer extends Component {
+
     constructor(props) {
         super(props);
+        const methods = ["onMarkerClick", "onClose"];
+        methods.forEach(method => (this[method] = this[method].bind(this)));
         this.state = {
-            clickedMarker: null
+            showingInfoWindow: false,  //Hides or the shows the infoWindow
+            activeMarker: {},          //Shows the active marker upon click
+            selectedPlace: {},         //Shows the infoWindow to the selected place upon a marker
         };
     }
 
     render() {
 
+        const { focalPointLatitude, focalPointLongitude, companies, schools } = this.props
+
+        console.log( this.state );
+
         return (
-            // Important! Always set the container height explicitly
-            <div style={{ flex: '0 0 35rem', height: '100vh', position: 'sticky', top: '0'}}>
+            <div style={{ flex: '0 0 35rem', height: '400px', position: 'sticky', top: '0'}}>
                 <div className="" style={{ height: '100%', width: '100%', position: 'absolute', top: '0px', left: '0px' }}>
-                    <GoogleMapReact
-                        bootstrapURLKeys={{ key: "AIzaSyCKausNOkCzpMeyVhsL20sXmViWvfQ4rXo" }}
-                        defaultCenter={{
-                            lat: this.props.focalPointLatitude,
-                            lng: this.props.focalPointLongitude
+                    <Map
+                        google={this.props.google}
+                        zoom={14}
+                        style={mapStyles}
+                        initialCenter={{
+                            lat: focalPointLatitude,
+                            lng: focalPointLongitude
                         }}
-                        defaultZoom={this.props.zoom}
-                        options={this.createMapOptions}
+                        gestureHandling="greedy"
                     >
-                        <CompanyMarker
-                            lat={this.props.focalPointLatitude}
-                            lng={this.props.focalPointLongitude}
-                            key={1}
-                            additionalInfo={<p>This is hovered content</p>}
-                        />
-                    </GoogleMapReact>
+
+                        {companies && companies.length > 0 && companies.map(company => {
+
+                            const lat = parseFloat(company.latitude)
+                            const lng = parseFloat(company.longitude)
+
+                            if ( !lat || !lng ) {
+                                return null
+                            }
+
+                            return (
+                                <Marker
+                                    onClick={this.onMarkerClick}
+                                    position={{lat: lat, lng: lng}}
+                                    icon={{
+                                        url: CompanyPin,
+                                        anchor: new google.maps.Point(32,32),
+                                        scaledSize: new google.maps.Size(64,64)
+                                    }}
+                                    item={company}
+                                    key={'company' + company.id}
+                                    type={'company'}
+                                />
+                            )
+                        })}
+
+                        {schools && schools.length > 0 && schools.map(school => {
+
+                            const lat = parseFloat(school.latitude)
+                            const lng = parseFloat(school.longitude)
+
+                            if ( !lat || !lng ) {
+                                return null
+                            }
+
+                            return (
+                                <Marker
+                                    onClick={this.onMarkerClick}
+                                    position={{lat: lat, lng: lng}}
+                                    icon={{
+                                        url: SchoolPin,
+                                        anchor: new google.maps.Point(32,32),
+                                        scaledSize: new google.maps.Size(64,64)
+                                    }}
+                                    item={school}
+                                    key={'school' + school.id}
+                                    type={'school'}
+                                >
+                                </Marker>
+                            )
+                        })}
+
+                        <InfoWindow
+                            key={'infoWindow'}
+                            marker={this.state.activeMarker}
+                            visible={this.state.showingInfoWindow}
+                            onClose={this.onClose}
+                        >
+                            <div>
+                                {this.state.selectedPlace.type === 'company' && (
+                                    <div className="uk-card uk-card-default uk-card-small">
+                                        <div className="uk-card-header">
+                                            <h3 className="uk-card-title uk-margin-remove-bottom">{ this.state.selectedPlace.item.name }</h3>
+                                            <div>
+                                                { this.state.selectedPlace.item.address }
+                                            </div>
+                                            {this.state.selectedPlace.item.phone && (
+                                                <div>
+                                                    <a href={`tel:${this.state.selectedPlace.item.phone}`}>{ this.state.selectedPlace.item.phone }</a>
+                                                </div>
+                                            )}
+                                            <p>
+                                                <a href={ window.Routing.generate('company_view', {'id': this.state.selectedPlace.item.id}) } className="uk-button uk-button-primary uk-button-small" target="_blank">Learn More</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                                {this.state.selectedPlace.type === 'school' && (
+                                    <div className="uk-card uk-card-default uk-card-small">
+                                        <div className="uk-card-header">
+                                            <h3 className="uk-card-title uk-margin-remove-bottom">{ this.state.selectedPlace.item.name }</h3>
+                                            <div>
+                                                { this.state.selectedPlace.item.address }
+                                            </div>
+                                            {this.state.selectedPlace.item.phone && (
+                                                <div>
+                                                    <a href={`tel:${this.state.selectedPlace.item.phone}`}>{ this.state.selectedPlace.item.phone }</a>
+                                                </div>
+                                            )}
+                                            <p>
+                                                <a href={ window.Routing.generate('school_view', {'id': this.state.selectedPlace.item.id}) } className="uk-button uk-button-primary uk-button-small" target="_blank">Learn More</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </InfoWindow>
+                    </Map>
                 </div>
             </div>
         );
     }
 
-    createMapOptions(maps) {
-        return {
-            zoomControlOptions: {
-                position: maps.ControlPosition.RIGHT_CENTER,
-                style: maps.ZoomControlStyle.SMALL
-            },
-            mapTypeControlOptions: {
-                position: maps.ControlPosition.TOP_RIGHT
-            },
-            mapTypeControl: true
-        };
+    onMarkerClick(props, marker, e) {
+        this.setState({
+            selectedPlace: props,
+            activeMarker: marker,
+            showingInfoWindow: true
+        });
     }
+
+    onClose(props) {
+        if (this.state.showingInfoWindow) {
+            this.setState({
+                showingInfoWindow: false,
+                activeMarker: null
+            });
+        }
+    };
 }
 
-App.propTypes = {
-    focalPointLatitude: PropTypes.number,
-    focalPointLongitude: PropTypes.number,
-    companies: PropTypes.array,
-    schools: PropTypes.array,
-    zoom: PropTypes.number
-};
-
-App.defaultProps = {
-    companies: [],
-    schools: [],
-    zoom: 14
-};
-
-export default App;
+export default GoogleApiWrapper({
+    apiKey: 'AIzaSyCKausNOkCzpMeyVhsL20sXmViWvfQ4rXo'
+})(MapContainer);

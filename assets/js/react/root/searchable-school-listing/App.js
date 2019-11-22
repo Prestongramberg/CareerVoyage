@@ -44,15 +44,15 @@ class App extends React.Component {
                                 )}
                                 { !this.props.search.loading && relevantSchools.map(school => (
                                     <SchoolListing
-                                        description={school.overviewAndBackground}
+                                        description={school.shortDescription}
                                         email={school.email}
                                         id={school.id}
                                         image={school.thumbnailImageURL}
                                         key={school.id}
                                         linkedIn={''}
                                         name={school.name}
-                                        phone={''}
-                                        website={''} />
+                                        phone={school.phone}
+                                        website={school.website} />
                                 ))}
                                 { !this.props.search.loading && relevantSchools.length === 0 && (
                                     <p>No schools match your selection</p>

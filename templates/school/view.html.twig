@@ -27,8 +27,6 @@
         </div>
     </div>
 
-
-
     <div class="uk-container">
 
         {% include 'flash/messages.html.twig' %}
@@ -70,6 +68,9 @@
             {% if school.educatorUsers|length %}
                 <li><a href="#school-educators">Educators</a></li>
             {% endif %}
+            {% if volunteeringCompanies|length %}
+                <li><a href="#school-companies">Companies</a></li>
+            {% endif %}
         </ul>
 
         <div class="uk-switcher" id="tab-school-detail">
@@ -95,6 +96,9 @@
                                 </p>
                             </div>
                         {% endfor %}
+                        {% if school.phone %}
+                            <a href="tel:{{ school.phone }}" class="uk-button uk-button-primary uk-button-small">Call Us</a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -107,7 +111,7 @@
             {% if school.latitude and school.longitude %}
                 <div class="school__location">
                     <p><a class="uk-button uk-button-primary uk-button-small" href="http://maps.google.com/?q={{ school.street }},{{ school.city }},{{ school.zipcode }}" target="_blank">Directions to School</a></p>
-                    <div class="react-google-map" data-latitude="{{ school.latitude }}" data-longitude="{{ school.longitude }}"></div>
+                    <div class="react-google-map" data-latitude="{{ school.latitude }}" data-longitude="{{ school.longitude }}" data-schools="{{ encode_schools( [school] ) }}" data-companies="{{ encode_companies( volunteeringCompanies ) }}"></div>
                 </div>
             {% endif %}
             {% if school.schoolPhotos|length %}
@@ -166,6 +170,22 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
+            {% if volunteeringCompanies|length %}
+                <div class="school__companies">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for company in volunteeringCompanies %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ company.name }}</dt>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ path('company_view', { "id": company.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                 </div>
                             </div>
                         {% endfor %}

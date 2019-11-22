@@ -128,6 +128,9 @@ class AppExtension extends AbstractExtension
             new TwigFunction('uploaded_asset', [$this, 'getUploadedAssetPath']),
             new TwigFunction('encode_lesson', [$this, 'encodeLesson']),
             new TwigFunction('encode_company', [$this, 'encodeCompany']),
+            new TwigFunction('encode_companies', [$this, 'encodeCompanies']),
+            new TwigFunction('encode_school', [$this, 'encodeSchool']),
+            new TwigFunction('encode_schools', [$this, 'encodeSchools']),
             new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources']),
             new TwigFunction('pending_requests', [$this, 'pendingRequests']),
             new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries']),
@@ -160,6 +163,21 @@ class AppExtension extends AbstractExtension
     {
         return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
     }
+
+	public function encodeCompanies($objects): string
+	{
+		return $this->serializer->serialize($objects, 'json', ['groups' => ['RESULTS_PAGE']]);
+	}
+
+	public function encodeSchool(School $object): string
+	{
+		return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
+	}
+
+	public function encodeSchools($objects): string
+	{
+		return $this->serializer->serialize($objects, 'json', ['groups' => ['RESULTS_PAGE']]);
+	}
 
     public function encodeCompanyResources($companyResources): string
     {
