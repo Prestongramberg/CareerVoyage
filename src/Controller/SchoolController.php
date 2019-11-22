@@ -944,6 +944,7 @@ class SchoolController extends AbstractController
             'school' => $school,
             'form' => $form->createView(),
             'user' => $user,
+	        'experience' => $experience
         ]);
     }
 

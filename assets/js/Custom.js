@@ -638,4 +638,13 @@ jQuery(document).ready(function($) {
         }, 10);
     });
 
+    /**
+     * Stop videos when sidebar is closed
+     */
+    $('#offcanvas-help').on('hide.uk.offcanvas', function() {
+        $('iframe').each(function() {
+            $(this).attr('src', $(this).attr('src'));
+        });
+    });
+
 });

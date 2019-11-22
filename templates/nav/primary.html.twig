@@ -15,15 +15,14 @@
             {% if user.isStudent == false %}
                 <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
             {% endif %}
-            {% if user.isProfessional %}
-                <li><a href="{{ path('school_index') }}">Schools</a></li>
-            {% endif %}
+            <li><a href="{{ path('school_index') }}">Schools</a></li>
             {% if user.isProfessional or user.isEducator or user.isStudent %}
                 <li><a href="{{ path('experience_index') }}">Experiences</a></li>
             {% endif %}
             <li><a href="{{ path('company_index') }}">Companies</a></li>
             <li><a href="{{ path('professional_index') }}">Professionals</a></li>
             <li><a href="{{ path('requests') }}">Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
+            <li><a href="{{ path('knowledge-base') }}">Knowledge Base</a></li>
 
             <li class="uk-nav-divider"></li>
 

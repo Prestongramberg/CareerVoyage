@@ -59,6 +59,7 @@ class App extends React.Component {
                                         linkedIn={company.companyLinkedinPage}
                                         name={company.name}
                                         phone={company.phone}
+                                        primaryIndustry={company.primaryIndustry}
                                         website={company.website} />
                                 ))}
                                 { !this.props.search.loading && relevantCompanies.length === 0 && (

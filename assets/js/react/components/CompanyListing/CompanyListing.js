@@ -31,7 +31,10 @@ class CompanyListing extends Component {
                             <a href={ window.Routing.generate('company_view', { id: this.props.id }) }>
                                 <h4 className="uk-card-title-small uk-heading-divider">{ this.props.name }</h4>
                             </a>
-                            <p>{ this.props.description }</p>
+                            <p>
+                                <strong>{ this.props.primaryIndustry.name }</strong><br />
+                                { this.props.description }
+                            </p>
                             <div className="uk-grid uk-flex-middle" data-uk-grid>
                                 <div className="uk-width-auto">
                                     <div className="company-links">
@@ -67,13 +70,15 @@ CompanyListing.propTypes = {
     name: PropTypes.string,
     linkedIn: PropTypes.string,
     phone: PropTypes.string,
+    primaryIndustry: PropTypes.object,
     website: PropTypes.string
 };
 
 CompanyListing.defaultProps = {
     companyFavorited: () => {},
     companyUnfavorited: () => {},
-    isFavorite: false
+    isFavorite: false,
+    primaryIndustry: {}
 };
 
 export default CompanyListing;

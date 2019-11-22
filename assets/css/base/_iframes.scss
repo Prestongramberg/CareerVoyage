@@ -3,6 +3,10 @@
   overflow: hidden;
   padding-top: 56.25%;
   min-height: 600px;
+
+  &--no-min {
+    min-height: 0;
+  }
 }
 
 .iframe-container iframe {

@@ -72,15 +72,43 @@ class ExperienceController extends AbstractController
         $schoolId = $request->query->get('schoolId', null);
         /** @var User $user */
         if($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-
             $schoolExperiences = $this->schoolExperienceRepository->findBy([
                 'school' => $school
             ]);
-
             $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
-        } else {
+        } else if ( $userId ) {
             $user = $userId ? $this->userRepository->find($userId) : $this->getUser();
             $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
+        } else {
+        	// Everyone sees all company events
+	        $companyExperiences = $this->companyExperienceRepository->findAll();
+
+	        if ( $loggedInUser->isSchoolAdministrator() ) {
+		        /** @var SchoolAdministrator $loggedInUser **/
+		        // School Administrator will see all school events that they manage
+		        foreach($loggedInUser->getSchools() as $school) {
+			        $experiences = $this->schoolExperienceRepository->findBy([
+				        'school' => $school
+			        ]);
+			        $schoolExperiences = array_merge($schoolExperiences, $experiences);
+		        }
+	        } else if ( $loggedInUser->isEducator() || $loggedInUser->isStudent() ) {
+		        // Educator & students will see their school events
+		        /** @var StudentUser|EducatorUser $loggedInUser **/
+	        	$school = $loggedInUser->getSchool();
+		        $schoolExperiences = $this->schoolExperienceRepository->findBy([
+			        'school' => $school
+		        ]);
+	        } else if ( $loggedInUser->isProfessional() ) {
+		        // Professional will see all school events that they VOLUNTEER AT
+		        /** @var ProfessionalUser $loggedInUser **/
+		        foreach($loggedInUser->getSchools() as $school) {
+			        $experiences = $this->schoolExperienceRepository->findBy([
+				        'school' => $school
+			        ]);
+			        $schoolExperiences = array_merge($schoolExperiences, $experiences);
+		        }
+	        }
         }
 
         $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);

@@ -777,7 +777,7 @@ class CompanyController extends AbstractController
         $this->entityManager->remove($company);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'company deleted');
+        $this->addFlash('success', 'Company deleted');
 
         return $this->redirectToRoute('company_index');
     }

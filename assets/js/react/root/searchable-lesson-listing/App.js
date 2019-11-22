@@ -26,9 +26,10 @@ class App extends React.Component {
             <div className="uk-container">
                 <ul className="" data-uk-tab="{connect: '#tab-lessons'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-lessons">All Lessons</a></li>
-                    <li><a href="#favorite-lessons">Favorites</a></li>
-                    <li><a href="#teachable-lessons">Teachable Lessons</a></li>
-                    <li><a href="#my-lessons">My Lessons</a></li>
+                    <li><a href="#teachable-lessons">
+                        {user.educator ? 'Lessons I want taught' : 'Lessons I can teach'}
+                    </a></li>
+                    <li><a href="#my-lessons">My Created Lessons</a></li>
 
                 </ul>
 
@@ -65,22 +66,6 @@ class App extends React.Component {
                                 )}
                             </div>
                         </div>
-                    </div>
-                    <div className="lessons_library">
-                        { favoriteLessons.length > 0 && (
-                            <div className="lesson-listings" data-uk-grid="masonry: true">
-                                { favoriteLessons.map(lesson => (
-                                    <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
-                                        { this.renderLesson( lesson ) }
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        { favoriteLessons.length === 0 && (
-                            <div className="uk-placeholder uk-text-center uk-width-1-1">
-                                <p>You don't have any favorite <i className="fa fa-heart" aria-hidden="true"></i> lessons yet.</p>
-                            </div>
-                        )}
                     </div>
                     <div className="lessons_teachable">
                         { teachableLessons.length > 0 && (
@@ -148,6 +133,7 @@ class App extends React.Component {
             // Set Searchable Fields
             const searchableFields = ["title"];
             const lessonCourseIds = lesson.secondaryCourses.map(course => course.id);
+            const lessonSecondaryCourseNames = lesson.secondaryCourses.map( course => course.title.toLowerCase() );
 
             // Add a Primary Course If Applicable
             if( lesson.primaryCourse && lesson.primaryCourse.id ) {
@@ -161,7 +147,16 @@ class App extends React.Component {
 
             // Filter By Search Term
             if( this.props.search.query ) {
-                return searchableFields.some((field) => lesson[field] && lesson[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
+                // basic search fields
+                const basicSearchFieldsFound = searchableFields.some((field) => ( lesson[field] && lesson[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+
+                // primary course field
+                const primaryCourseFound = lesson['primaryCourse'] && lesson['primaryCourse']['title'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
+
+                // secondary course field
+                const secondaryCourseFound = lessonSecondaryCourseNames.some((courseName) => ( courseName.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+
+                return basicSearchFieldsFound || primaryCourseFound || secondaryCourseFound
             }
 
             return true;
