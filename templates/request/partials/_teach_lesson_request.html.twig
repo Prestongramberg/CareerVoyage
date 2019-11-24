@@ -86,6 +86,14 @@
                             <p>{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}</p>
                         </td>
                     </tr>
+                    {% if render_request_status_text( request ) == "Approved" %}
+                        <tr>
+                            <td>Date Confirmed</td>
+                            <td>
+                                {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}
+                            </td>
+                        </tr>
+                    {% endif %}
                     <tr>
                         <td>Status</td>
                         <td>

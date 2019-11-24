@@ -75,7 +75,7 @@ class ExperienceController extends AbstractController
             $schoolExperiences = $this->schoolExperienceRepository->findBy([
                 'school' => $school
             ]);
-            $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
+            // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
         } else if ( $userId ) {
             $user = $userId ? $this->userRepository->find($userId) : $this->getUser();
             $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
