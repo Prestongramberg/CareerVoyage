@@ -172,7 +172,7 @@ class App extends React.Component {
         return this.props.professionals.filter(professional => {
 
             // Set Searchable Fields
-            const searchableFields = ["firstName", "lastName", "briefBio"];
+            const searchableFields = ["firstName", "lastName", "briefBio", "interests"];
 
             // Filter By Company
             if ( !!this.props.search.company && (
@@ -202,7 +202,13 @@ class App extends React.Component {
 
             // Filter By Search Term
             if( this.props.search.query ) {
-                return searchableFields.some((field) => professional[field] && professional[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
+                // basic search fields
+                const basicSearchFieldsFound = searchableFields.some((field) => ( professional[field] && professional[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+
+                // company name field
+                const companyNameFound = professional['company'] && professional['company']['name'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
+
+                return basicSearchFieldsFound || companyNameFound
             }
 
             return true;
