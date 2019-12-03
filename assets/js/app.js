@@ -49,17 +49,17 @@ window.Pintex = {
     },
     openCalendarEventDetails: function( event ) {
 
+        console.log(event);
+
         let eventHtml = "";
         const eventPayload = deepObject(event, 'extendedProps.customEventPayload') || { className: "default" };
-        const eventStartDate = moment( eventPayload.startDateAndTime , moment.ISO_8601 ).add(5, 'hours').unix(); // CST Timezone Offset
-        const eventEndDate = moment( eventPayload.endDateAndTime , moment.ISO_8601 ).add(5, 'hours').unix();  // CST Timezone Offset
+        const eventStartDate = parseInt( eventPayload.startDateAndTimeTimeStamp );
+        const eventEndDate = parseInt( eventPayload.endDateAndTimeTimeStamp );
         const eventTitle = eventPayload.title;
         const eventAbout = eventPayload.about;
         const eventDescription = eventPayload.briefDescription;
         const eventState = eventPayload.state || {};
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
-
-        console.log( eventPayload );
 
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
@@ -85,9 +85,9 @@ window.Pintex = {
     },
     generateAddToCalendarButton: function( epochStartTime, epochEndTime, title = '', description = '', location = '' ) {
 
-        // Get the dates in Epoch to the format we need
-        const startISOtoSeconds = moment.unix(epochStartTime).utc().format("YYYYMMDDTHHmmss");
-        const endISOtoSeconds = moment.unix(epochEndTime).utc().format("YYYYMMDDTHHmmss");
+        // Get the dates from CST to EPOCH
+        const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
+        const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
 
         // Encode all our user inputs
         title = encodeURI( title.trim() );

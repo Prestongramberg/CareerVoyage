@@ -1,4 +1,5 @@
 require('./bar-chart');
+require('./calendar-button');
 require('./chat');
 require('./events-calendar');
 require('./google-map');

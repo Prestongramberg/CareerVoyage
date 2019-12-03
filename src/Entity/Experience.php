@@ -484,7 +484,7 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getEndDateAndTimeTimestamp() {
+    public function getEndDateAndTimeTimeStamp() {
         if($this->endDateAndTime) {
             return $this->endDateAndTime->getTimestamp();
         }
