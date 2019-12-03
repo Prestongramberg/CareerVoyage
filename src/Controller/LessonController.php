@@ -117,17 +117,6 @@ class LessonController extends AbstractController
             return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId() ]);
         }
 
-        if($request->request->has('primary_industry_change')) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                        'form' => $form->createView()
-                    ])
-                ], Response::HTTP_BAD_REQUEST
-            );
-        }
-
         return $this->render('lesson/new.html.twig', [
             'user' => $user,
             'form' => $form->createView()
@@ -236,17 +225,6 @@ class LessonController extends AbstractController
             $this->addFlash('success', 'Lesson successfully updated');
             return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId()]);
 
-        }
-
-        if($request->request->has('primary_industry_change')) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                        'form' => $form->createView()
-                    ])
-                ], Response::HTTP_BAD_REQUEST
-            );
         }
 
         return $this->render('lesson/edit.html.twig', [
