@@ -61,13 +61,10 @@ class ExperienceController extends AbstractController
      * @return JsonResponse
      */
     public function getExperiences(Request $request) {
-
         $loggedInUser = $this->getUser();
-
         $companyExperiences = [];
         $schoolExperiences = [];
         $userExperiences = [];
-
         $userId = $request->query->get('userId', null);
         $schoolId = $request->query->get('schoolId', null);
         /** @var User $user */
