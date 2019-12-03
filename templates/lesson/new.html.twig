@@ -65,21 +65,10 @@
         <div class="page-lesson-add__industries">
             <div class="uk-width-xlarge">
                 <fieldset class="uk-fieldset">
-                    <div class="uk-margin">
-                        {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                        {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.primaryIndustry) }}
-                    </div>
-                    <div class="js-secondary-industry-container">
-                        {% if form.secondaryIndustries is defined %}
-                            <div class="uk-margin">
-                                {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                <div class="clear"></div>
-                                {{ form_errors(form.secondaryIndustries) }}
-                            </div>
-                        {% endif %}
-                    </div>
+                    <div id="subscribe-secondary-industries"
+                         data-field-name="new_lesson[secondaryIndustries]"
+                         data-remove-dom-id="new_lesson_secondaryIndustries"
+                    ></div>
                     <a href="{{ path('request_to_add_course') }}">Request for a new course to be added to this list</a>
                 </fieldset>
             </div>

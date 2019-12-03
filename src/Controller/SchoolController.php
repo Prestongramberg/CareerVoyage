@@ -326,6 +326,7 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(StudentImportType::class, null, [
             'method' => 'POST',
+            'school' => $school
         ]);
 
         $form->handleRequest($request);
@@ -378,6 +379,19 @@ class SchoolController extends AbstractController
                         $studentObj->setFirstName($student['First Name']);
                         $studentObj->setLastName($student['Last Name']);
                         $studentObj->setStudentId($student['Student Id']);
+                        $studentObj->setGraduatingYear($student['Graduating Year']);
+
+                        // add the educator to the user if the educator id is included in the import
+                        if(!empty($student['Educator Id'])) {
+                            $educator = $this->educatorUserRepository->findOneBy([
+                                'id' => $student['Educator Id'],
+                                'school' => $school
+                            ]);
+                            if($educator) {
+                                $studentObj->addEducatorUser($educator);
+                            }
+                        }
+
                         $studentObj->setSchool($school);
                         $studentObj->setSite($user->getSite());
                         $studentObj->setupAsStudent();

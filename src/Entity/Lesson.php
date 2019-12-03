@@ -45,7 +45,7 @@ class Lesson
     private $grades;
 
     /**
-     * @Assert\NotBlank(message="Don't forget to select a primary course!", groups={"CREATE", "EDIT"})
+     * @Assert\NotNull(message="Don't forget to select a primary course!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="lessons")
      * @ORM\JoinColumn(nullable=true)
@@ -53,7 +53,11 @@ class Lesson
     private $primaryCourse;
 
     /**
-     * @Assert\NotBlank(message="Don't forget to select at least one secondary course!", groups={"CREATE", "EDIT"})
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Don't forget to select at least one secondary course",
+     *     groups={"CREATE", "EDIT"}
+     * )
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="lessons")
      */
@@ -67,12 +71,14 @@ class Lesson
     private $summary;
 
     /**
+     * @Assert\NotBlank(message="Don't forget learning outcomes!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $learningOutcomes;
 
     /**
+     * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
@@ -128,7 +134,6 @@ class Lesson
     private $lessonResources;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="lessons")
      */
     private $primaryIndustry;

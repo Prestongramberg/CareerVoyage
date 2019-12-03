@@ -472,6 +472,26 @@ abstract class Experience
     }
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getStartDateAndTimeTimeStamp() {
+        if($this->startDateAndTime) {
+            return $this->startDateAndTime->getTimestamp();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getEndDateAndTimeTimeStamp() {
+        if($this->endDateAndTime) {
+            return $this->endDateAndTime->getTimestamp();
+        }
+        return '';
+    }
+
+    /**
      * @return Collection|Registration[]
      */
     public function getRegistrations(): Collection
