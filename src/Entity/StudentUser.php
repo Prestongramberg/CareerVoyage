@@ -93,6 +93,11 @@ class StudentUser extends User
      */
     private $studentReviewTeachLessonExperienceFeedback;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $graduatingYear;
+
     public function __construct()
     {
         parent::__construct();
@@ -378,6 +383,18 @@ class StudentUser extends User
                 $studentReviewTeachLessonExperienceFeedback->setStudent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getGraduatingYear(): ?string
+    {
+        return $this->graduatingYear;
+    }
+
+    public function setGraduatingYear(?string $graduatingYear): self
+    {
+        $this->graduatingYear = $graduatingYear;
 
         return $this;
     }
