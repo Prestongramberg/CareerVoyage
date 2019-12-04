@@ -17,7 +17,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $uploadsPath: '%kernel.project_dir%/public/uploads'
-            $siteFromEmail: 'noreply@travishoglund.com'
+            $siteFromEmail: 'noreply@futureforward.org'
             $pusherAppId: '%env(PUSHER_APP_ID)%'
             $pusherAppKey: '%env(PUSHER_APP_KEY)%'
             $pusherAppSecret: '%env(PUSHER_APP_SECRET)%'
