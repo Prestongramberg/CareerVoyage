@@ -115,9 +115,7 @@ class RequestsMailer extends AbstractMailer
     }
 
     public function educatorRegisterStudentForCompanyExperienceRequestApproval(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
-
         $numOfStudentsRegistered = count($educatorRegisterStudentForCompanyExperienceRequest->getStudentUsers());
-
         $message = (new \Swift_Message("Register Students Request Approval."))
             ->setFrom($this->siteFromEmail)
             ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail())
@@ -128,9 +126,7 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-
         $this->mailer->send($message);
-
     }
 
     /**

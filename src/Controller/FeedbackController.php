@@ -84,14 +84,16 @@ class FeedbackController extends AbstractController
      * @var array
      */
     private $emailsToSendRequestIdeaTo = [
-        'cpears@apritonadvisors.com'
+        'cpears@apritonadvisors.com',
+        'sness@ssc.coop'
     ];
 
     /**
      * @var array
      */
     private $emailsToSendRequestCourseTo = [
-        'cpears@apritonadvisors.com'
+        'cpears@apritonadvisors.com',
+        'sness@ssc.coop'
     ];
 
     /**

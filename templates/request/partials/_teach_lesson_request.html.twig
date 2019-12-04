@@ -90,7 +90,9 @@
                         <tr>
                             <td>Date Confirmed</td>
                             <td>
+                                {% if request.teachLessonExperience.startDateAndTime is defined %}
                                 {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}
+                                {% endif %}
                             </td>
                         </tr>
                     {% endif %}
