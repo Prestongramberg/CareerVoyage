@@ -46,6 +46,11 @@
     width: 24px;
   }
 
+  &__bar-unreadMessages--unread {
+    background: red;
+    color: #FFF;
+  }
+
   &__bar-text {
     flex: 1;
     font-size: 15px;

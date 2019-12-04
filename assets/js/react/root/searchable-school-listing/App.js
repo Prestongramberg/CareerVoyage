@@ -49,7 +49,7 @@ class App extends React.Component {
                                         id={school.id}
                                         image={school.thumbnailImageURL}
                                         key={school.id}
-                                        linkedIn={''}
+                                        linkedIn={school.schoolLinkedInPage}
                                         name={school.name}
                                         phone={school.phone}
                                         website={school.website} />

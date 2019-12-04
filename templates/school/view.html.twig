@@ -80,8 +80,17 @@
                         {{ school.overviewAndBackground|raw }}
                     </div>
                     <div class="school-links uk-margin">
+                        {% if school.website %}
+                            <a href="{{ school.website }}" target="_blank" class="uk-icon-button uk-margin-small-right" data-uk-icon="world"></a>
+                        {% endif %}
+                        {% if school.phone %}
+                            <a href="tel:{{ school.phone }}" class="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a>
+                        {% endif %}
                         {% if school.email %}
-                            <a href="mailto:{{ school.email }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            <a href="mailto:{{ school.email }}" class="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                        {% endif %}
+                        {% if school.schoolLinkedInPage %}
+                            <a href="{{ school.schoolLinkedInPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"></a>
                         {% endif %}
                     </div>
                 </div>

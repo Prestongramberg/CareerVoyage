@@ -6,7 +6,7 @@
     <p>Please login to the dashboard to approve request.</p>
     {% else %}
         <p>You have a request from <strong>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</strong> asking if you would teach lesson <strong>{{ request.lesson.title }}</strong> at the following school: <strong>{{ request.createdBy.school.name }}</strong>.</p>
-        <p>Login to the dashboard to accept</p>
+        <p>Login to the <a href="{{ get_site().baseUrl }}">dashboard</a> to accept</p>
 {% endif %}
 
 {% include 'email/partial/emailFooter.html.twig' %}

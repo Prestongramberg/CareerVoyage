@@ -34,7 +34,7 @@ class App extends React.Component {
                     <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                         <div className="uk-search uk-search-default uk-width-1-1">
                             <span data-uk-search-icon></span>
-                            <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+                            <input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                         </div>
                     </div>
                     { this.renderIndustryDropdown() }
@@ -139,7 +139,16 @@ class App extends React.Component {
 
             // Filter By Search Term
             if( this.props.search.query ) {
-                return searchableFields.some((field) => event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 );
+                // basic search fields
+                const basicSearchFieldsFound = searchableFields.some((field) => ( event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+
+                // Event Type (Job Shadow, Interview, etc)
+                const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
+
+                // Event Industry (Carpentry, Brick Layer, etc)
+                const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => ( field.name.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+
+                return basicSearchFieldsFound || eventTypeFound || eventIndustryFound
             }
 
             return true;

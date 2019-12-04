@@ -174,7 +174,8 @@ class App extends React.Component {
             id={lesson.id}
             image={lesson.thumbnailImageURL}
             isFavorite={isFavorited}
-            isTeacher={isTeachable}
+            isTeachable={isTeachable}
+            isTeacher={this.props.user.educator}
             lessonFavorited={this.props.lessonFavorited}
             lessonUnfavorited={this.props.lessonUnfavorited}
             lessonTeach={this.props.lessonTeach}

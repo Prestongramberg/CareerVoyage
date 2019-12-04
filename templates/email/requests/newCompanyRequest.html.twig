@@ -2,6 +2,6 @@
 
 <p>A new company needs approval! <strong>{{ request.company.name }}</strong></p>
 
-<p>Login to the dashboard to approve them!</p>
+<p>Login to the <a href="{{ get_site().baseUrl }}">dashboard</a> to approve them!</p>
 
 {% include 'email/partial/emailFooter.html.twig' %}

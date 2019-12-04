@@ -14,11 +14,11 @@ function get_companies_from_request( professionals ) {
     const companies = [];
 
     professionals.forEach(professional => {
-        if ( professional.company && professional.company.id && professional.company.newCompanyRequest && professional.company.newCompanyRequest.approved && company_ids.indexOf(professional.company.id) === -1 ) {
+        if ( professional.company && professional.company.id && company_ids.indexOf(professional.company.id) === -1 ) {
             company_ids.push(professional.company.id);
             companies.push(professional.company);
         }
     });
 
-    return companies;
+    return companies.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }

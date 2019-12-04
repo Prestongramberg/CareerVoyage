@@ -37,6 +37,21 @@
                         {{ request.needsApprovalBy.fullName }}
                     </td>
                 </tr>
+                {% if render_request_status_text( request ) == "Approved" %}
+                    <tr>
+                        <td>Date Confirmed</td>
+                        <td>
+                            {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}<br /><br />
+                            <div class="react-calendar-button"
+                                 data-event-start-time="{{ request.teachLessonExperience.startDateAndTimeTimeStamp }}"
+                                 data-event-end-time="{{ request.teachLessonExperience.endDateAndTimeTimeStamp }}"
+                                 data-title="{{ request.teachLessonExperience.title }}"
+                                 data-description="{{ request.teachLessonExperience.briefDescription }}"
+                                 data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
+                            ></div>
+                        </td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td>Status</td>
                     <td>
@@ -93,6 +108,14 @@
                                 {% if request.teachLessonExperience.startDateAndTime is defined %}
                                 {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}
                                 {% endif %}
+                                <br /><br />
+                                <div class="react-calendar-button"
+                                    data-event-start-time="{{ request.teachLessonExperience.startDateAndTimeTimeStamp }}"
+                                    data-event-end-time="{{ request.teachLessonExperience.endDateAndTimeTimeStamp }}"
+                                    data-title="{{ request.teachLessonExperience.title }}"
+                                    data-description="{{ request.teachLessonExperience.briefDescription }}"
+                                    data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
+                                ></div>
                             </td>
                         </tr>
                     {% endif %}

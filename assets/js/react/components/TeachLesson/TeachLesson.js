@@ -21,12 +21,14 @@ class TeachLesson extends Component {
 
     renderBasedOnTeachable( isTeachable ) {
 
+        const staticText = this.props.isTeacher ? "Lessons I want Taught" : "Lessons I can Teach";
+
         if( isTeachable ) {
-            return <span className="teach-lesson" data-uk-tooltip="title: Remove from My Teachable Lessons" onClick={this.unTeachLesson}>
+            return <span className="teach-lesson" data-uk-tooltip={`title: Remove from ${staticText}`} onClick={this.unTeachLesson}>
                         <i className="fa fa-graduation-cap" aria-hidden="true"></i>
                     </span>
         } else {
-            return <span className="teach-lesson" data-uk-tooltip="title: Add to My Teachable Lessons" onClick={this.teachLesson}>
+            return <span className="teach-lesson" data-uk-tooltip={`title: Add to ${staticText}`} onClick={this.teachLesson}>
                         <i style={{ opacity: 0.5 }} className="fa fa-graduation-cap" aria-hidden="true"></i>
                     </span>
         }
@@ -75,6 +77,7 @@ class TeachLesson extends Component {
 TeachLesson.propTypes = {
     id: PropTypes.number,
     isTeachable: PropTypes.bool,
+    isTeacher: PropTypes.bool,
     lessonIsNowTeachable: PropTypes.func,
     lessonIsNowUnteachable: PropTypes.func,
     boundByProps: PropTypes.bool
@@ -82,6 +85,7 @@ TeachLesson.propTypes = {
 
 TeachLesson.defaultProps = {
     boundByProps: false,
+    isTeacher: false,
     lessonIsNowTeachable: () => {},
     lessonIsNowUnteachable: () => {}
 };
