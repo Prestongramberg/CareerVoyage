@@ -48,6 +48,7 @@ class App extends React.Component {
         const { chat, ui } = this.props
         const { isChatOpen } = ui
         const chatWindowClassName = isChatOpen ? `${cb}__window--active` : "";
+        const chatUnreadClassName = parseInt(chat.unreadMessages) > 0 ? `${cb}__bar-unreadMessages--unread` : "";
 
         return (
             <div className={`${cb}`}>
@@ -55,7 +56,7 @@ class App extends React.Component {
                     { isChatOpen ? this.renderChatWindow() : null }
                 </div>
                 <div className={`${cb}__bar`} onClick={ this.toggleChatWindow }>
-                    <div className={`${cb}__bar-unreadMessages`}>
+                    <div className={`${cb}__bar-unreadMessages ${chatUnreadClassName}`}>
                         { parseInt(chat.unreadMessages) }
                     </div>
                     <div className={`${cb}__bar-text`}>
