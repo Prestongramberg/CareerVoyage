@@ -22,7 +22,8 @@ class LessonListing extends Component {
                         <TeachLesson
                             boundByProps={true}
                             id={this.props.id}
-                            isTeachable={this.props.isTeacher}
+                            isTeachable={this.props.isTeachable}
+                            isTeacher={this.props.isTeacher}
                             lessonIsNowTeachable={this.props.lessonTeach}
                             lessonIsNowUnteachable={this.props.lessonUnteach}
                         />
@@ -48,7 +49,7 @@ class LessonListing extends Component {
 
     toggleTeacher() {
         const lessonId = this.props.id;
-        this.props.isTeacher ? this.props.lessonUnteach(lessonId) : this.props.lessonTeach(lessonId);
+        this.props.isTeachable ? this.props.lessonUnteach(lessonId) : this.props.lessonTeach(lessonId);
     }
 }
 
@@ -56,6 +57,7 @@ LessonListing.propTypes = {
     description: PropTypes.string,
     id: PropTypes.number,
     isFavorite: PropTypes.bool,
+    isTeachable: PropTypes.bool,
     isTeacher: PropTypes.bool,
     image: PropTypes.string,
     lessonFavorited: PropTypes.func,
@@ -67,6 +69,7 @@ LessonListing.propTypes = {
 
 LessonListing.defaultProps = {
     isFavorite: false,
+    isTeachable: false,
     isTeacher: false,
     lessonFavorited: () => {},
     lessonUnfavorited: () => {},

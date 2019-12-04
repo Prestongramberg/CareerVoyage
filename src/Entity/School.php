@@ -49,6 +49,7 @@ class School
     private $educatorUsers;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
      * @Assert\NotBlank(message="Don't forget a school email!", groups={"EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */

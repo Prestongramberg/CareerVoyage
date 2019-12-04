@@ -22,6 +22,11 @@ export default (state = {}, action) => {
                 ...state,
                 subscribed: state.subscribed.filter(industryId => industryId !== action.industryId)
             };
+        case actionTypes.UNSUBSCRIBE_ALL:
+            return {
+                ...state,
+                subscribed: []
+            }
         default:
             return state;
     }

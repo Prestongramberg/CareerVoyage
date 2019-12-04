@@ -17,9 +17,7 @@
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
-                                {% if user.isProfessional %}
-                                    <div class="react-teach-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-teachable="{{ lesson.isTeachableByUser( user ) }}"></div>&nbsp;&nbsp;&nbsp;
-                                {% endif %}
+                                <div class="react-teach-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-teachable="{{ lesson.isTeachableByUser( user ) }}" data-teacher="{{ user.isEducator }}"></div>&nbsp;&nbsp;&nbsp;
                                 <div class="react-favorite-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-favorited="{{ lesson.isFavoritedByUser( user ) }}"></div>
                             </div>
                         </div>

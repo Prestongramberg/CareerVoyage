@@ -22,6 +22,12 @@ export function unsubscribe(industryId) {
     };
 }
 
+export function unsubscribeAll() {
+    return {
+        type: actionTypes.UNSUBSCRIBE_ALL
+    }
+}
+
 export function loadIndustries(url, removeDomId) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.LOAD_INDUSTRIES})

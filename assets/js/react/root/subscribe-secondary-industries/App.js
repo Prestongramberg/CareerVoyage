@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadIndustries, primaryIndustryChanged, subscribe, unsubscribe } from './actions/actionCreators'
+import { loadIndustries, primaryIndustryChanged, subscribe, unsubscribe, unsubscribeAll } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import { getSecondaryIndustry } from "./helpers/industries"
 import Loader from "../../components/Loader/Loader";
@@ -9,7 +9,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["relevantSecondaryIndustries", "renderFields"];
+        const methods = ["relevantSecondaryIndustries", "renderFields", "subscribeToAllSecondaryIndustries"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -25,6 +25,7 @@ class App extends React.Component {
     renderFields() {
 
         const secondaryIndustries = this.relevantSecondaryIndustries();
+        const currentPrimaryIndustry = !!this.props.uiState.primaryIndustrySelected ? this.props.subscriptions.data.find( event => event.id === this.props.uiState.primaryIndustrySelected ) : {};
 
         if ( this.props.subscriptions.data.length === 0 ) {
             return <p>Something went wrong, please contact support.</p>
@@ -37,6 +38,7 @@ class App extends React.Component {
                     <div className="uk-grid" data-uk-grid>
                         <div className="uk-width-1-1">
                             <h4>{ this.props.currentTitle || "Add Relevant Career Fields" }</h4>
+                            <p>Start by selecting an industry.  Relevant career fields are then shown and can be added individually (or use select all if applicable).  If you are interested in multiple industries, select another option from the main dropdown.</p>
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-2">
                                     <select className="uk-select" onChange={this.props.primaryIndustryChanged}>
@@ -45,12 +47,21 @@ class App extends React.Component {
                                     </select>
                                 </div>
 
-                                { this.props.uiState.primaryIndustrySelected && (
+                                { !!this.props.uiState.primaryIndustrySelected && (
                                     <div className="uk-width-1-2">
                                         <select className="uk-select" onChange={this.props.secondaryIndustryChanged} value={this.props.uiState.secondaryIndustrySelected}>
-                                            <option value="">Add A Career Field</option>
+                                            <option value="">Add Specific Career Field</option>
                                             {secondaryIndustries.map(industry => <option key={industry.id} value={industry.id}>{industry.name}</option>)}
                                         </select>
+
+                                        { currentPrimaryIndustry && currentPrimaryIndustry.name && (
+                                            <div className="uk-text-center">
+                                                <hr/>
+                                                <strong>OR</strong>
+                                                <hr/>
+                                                <a onClick={this.subscribeToAllSecondaryIndustries}>Add all Career Fields</a>
+                                            </div>
+                                        )}
                                     </div>
                                 ) }
                             </div>
@@ -60,7 +71,14 @@ class App extends React.Component {
 
                 {this.props.subscriptions.subscribed.length > 0 && (
                     <div className="uk-margin">
-                        <h4>{ this.props.existingTitle || "Current Career Fields:" }</h4>
+                        <div className="uk-grid" data-uk-grid>
+                            <div className="uk-width-expand">
+                                <h4>{ this.props.existingTitle || "Current Career Fields:" } </h4>
+                            </div>
+                            <div className="uk-width-auto">
+                                <a onClick={this.props.removeAllSubscriptions}><em>Remove All</em></a>
+                            </div>
+                        </div>
                         <ul className="uk-list uk-list-divider">
                             {this.props.subscriptions.subscribed.map((secondaryIndustryId, index) => {
                                 const secondaryIndustry = getSecondaryIndustry(this.props.subscriptions.data, secondaryIndustryId);
@@ -102,6 +120,20 @@ class App extends React.Component {
         return secondaryIndustries;
     }
 
+    subscribeToAllSecondaryIndustries() {
+        const currentPrimaryIndustry = !!this.props.uiState.primaryIndustrySelected ? this.props.subscriptions.data.find( event => event.id === this.props.uiState.primaryIndustrySelected ) : {};
+
+        if ( currentPrimaryIndustry && currentPrimaryIndustry.secondaryIndustries ) {
+            currentPrimaryIndustry.secondaryIndustries.forEach(secondaryIndustry => {
+                this.props.secondaryIndustryChanged({
+                    target: {
+                        value: secondaryIndustry.id
+                    }
+                });
+            });
+        }
+    }
+
     componentDidMount() {
         this.props.loadIndustries( window.Routing.generate('get_industries'), this.props.removeDomId );
     }
@@ -131,7 +163,8 @@ export const mapDispatchToProps = dispatch => ({
     loadIndustries: (url, removeDomId) => dispatch(loadIndustries(url, removeDomId)),
     primaryIndustryChanged: (event) => dispatch(primaryIndustryChanged(event.target.value)),
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
-    removeIndustry: (industryId) => dispatch(unsubscribe(industryId))
+    removeIndustry: (industryId) => dispatch(unsubscribe(industryId)),
+    removeAllSubscriptions: () => dispatch(unsubscribeAll())
 });
 
 const ConnectedApp = connect(
