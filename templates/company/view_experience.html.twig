@@ -1,8 +1,8 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{#{% if educatorRegisterStudentForExperienceForm %}
+{% if educatorRegisterStudentForExperienceForm %}
     {% form_theme educatorRegisterStudentForExperienceForm with ['form/fields.html.twig'] %}
-{% endif %}#}
+{% endif %}
 
 {% block title %}View Company Experience{% endblock %}
 {% block bodyClass %}page-company-experience-view{% endblock %}
@@ -73,8 +73,8 @@
                             <td>{{ experience.briefDescription }}</td>
                         </tr>
                         <tr>
-                            <td>Available Spaces</td>
-                            <td>{{ experience.availableSpaces }}</td>
+                            <td>Available Spaces (Once the company approves registrations this count will go down)</td>
+                            <td>{{ numberOfSlotsLeft }}</td>
                         </tr>
                         <tr>
                             <td>Address</td>
@@ -109,8 +109,8 @@
                             <td>{{ experience.paymentShownIsPer }}</td>
                         </tr>
                         <tr>
-                            <td>Available Spaces</td>
-                            <td>{{ experience.availableSpaces }}</td>
+                            <td>Available Spaces (Once the company approves registrations this count will go down)</td>
+                            <td>{{ numberOfSlotsLeft }}</td>
                         </tr>
                         </tbody>
                     </table>

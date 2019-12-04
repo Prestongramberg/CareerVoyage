@@ -85,6 +85,7 @@ abstract class Experience
     protected $about;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a total number of available spaces!", groups={"CREATE", "EDIT"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer", nullable=true)
      */

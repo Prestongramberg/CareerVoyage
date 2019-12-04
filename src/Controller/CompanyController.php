@@ -876,12 +876,13 @@ class CompanyController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-
         $data = [];
         $data['studentUsers'] = new ArrayCollection();
-        $registrations = $experience->getRegistrations();
-        foreach($registrations as $registration) {
-            $data['studentUsers']->add($registration->getUser());
+        /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
+        foreach($experience->getEducatorRegisterStudentForCompanyExperienceRequests() as $request) {
+            foreach($request->getStudentUsers() as $studentUser) {
+                $data['studentUsers']->add($studentUser);
+            }
         }
 
         $educatorRegisterStudentForExperienceForm = null;
@@ -893,10 +894,17 @@ class CompanyController extends AbstractController
             ]);
         }
 
+        $currentRegistrations = $this->registrationRepository->findBy([
+            'experience' => $experience,
+        ]);
+        // we don't want to show negative numbers here so set negative to 0
+        $numberOfSlotsLeft = max($experience->getAvailableSpaces() - count($currentRegistrations), 0);
+
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
             'educatorRegisterStudentForExperienceForm' => $educatorRegisterStudentForExperienceForm !== null ? $educatorRegisterStudentForExperienceForm->createView() : null,
+            'numberOfSlotsLeft' => $numberOfSlotsLeft,
         ]);
     }
 
@@ -906,19 +914,16 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param CompanyExperience $experience
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience) {
-
-        $theEducatorsAlreadyRegistrations = $this->registrationRepository->getAllByEducatorAndExperience($this->getUser(), $experience);
-        $theEducatorsAlreadyRegisteredStudentIds = [];
-        /** @var Registration $theEducatorsAlreadyRegistration */
-        foreach($theEducatorsAlreadyRegistrations as $theEducatorsAlreadyRegistration) {
-            $theEducatorsAlreadyRegisteredStudentIds[] = $theEducatorsAlreadyRegistration->getUser()->getId();
+        $currentRegistrations = $this->registrationRepository->findBy([
+            'experience' => $experience,
+        ]);
+        $numberOfSlotsLeft = $experience->getAvailableSpaces() - count($currentRegistrations);
+        if(count($currentRegistrations) >= $experience->getAvailableSpaces()) {
+            $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
-        $studentsThatNeedAdding = [];
-        $studentsThatNeedRemoving = [];
-
         /** @var User $user */
         $user = $this->getUser();
         $form = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class,null, [
@@ -927,76 +932,23 @@ class CompanyController extends AbstractController
         ]);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()) {
-
             $studentsToRegister = $form->get('studentUsers')->getData();
-
-            $studentsToRegisterIds = [];
-            /** @var StudentUser $studentToRegister */
-            foreach($studentsToRegister as $studentToRegister) {
-                $studentsToRegisterIds[] = $studentToRegister->getId();
-            }
-
-            /** @var StudentUser $theEducatorsAlreadyRegisteredStudent */
-            foreach($theEducatorsAlreadyRegisteredStudentIds as $theEducatorsAlreadyRegisteredStudentId) {
-                if(!in_array($theEducatorsAlreadyRegisteredStudentId, $studentsToRegisterIds)) {
-                    $studentsThatNeedRemoving[] = $theEducatorsAlreadyRegisteredStudentId;
-                }
-            }
-
-            /** @var StudentUser $studentToRegister */
-            foreach($studentsToRegister as $studentToRegister) {
-                if(!in_array($studentToRegister->getId(), $theEducatorsAlreadyRegisteredStudentIds)) {
-                    $studentsThatNeedAdding[] = $studentToRegister->getId();
-                }
-            }
-
-            // go ahead and remove the students that need removing
-
-            foreach($studentsThatNeedRemoving as $studentThatNeedsRemoving) {
-                $registrationToRemove = $this->registrationRepository->findOneBy([
-                   'user' => $studentThatNeedsRemoving,
-                   'experience' => $experience,
-                ]);
-                $this->entityManager->remove($registrationToRemove);
-                $this->entityManager->flush();
-            }
-
-            $this->entityManager->refresh($experience);
-            $currentNumberOfRegistrations = count($experience->getRegistrations());
-            $totalInitialAvailableSpaces = $experience->getAvailableSpaces();
-            $numberOfSlotsLeft = $totalInitialAvailableSpaces - $currentNumberOfRegistrations;
-
-            if((count($studentsThatNeedAdding) + $currentNumberOfRegistrations) >= $totalInitialAvailableSpaces) {
+            if(count($studentsToRegister) > $numberOfSlotsLeft) {
                 $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
                 return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
             }
-
-            if(!empty($studentsThatNeedAdding)) {
-                $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
-                $registerRequest->setCreatedBy($user);
-                $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-                $registerRequest->setCompanyExperience($experience);
-
-                foreach($studentsThatNeedAdding as $student) {
-                    $student = $this->studentUserRepository->find($student);
-                    $previousStudentRegistration = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($student, $experience);
-                    // if the student is already registered for this event then don't add them again
-                    if($previousStudentRegistration) {
-                        continue;
-                    }
-                    $registerRequest->addStudentUser($student);
-                }
-
-                $this->entityManager->persist($registerRequest);
-                $this->entityManager->flush();
-
-                $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
+            $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
+            $registerRequest->setCreatedBy($user);
+            $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
+            $registerRequest->setCompanyExperience($experience);
+            foreach($studentsToRegister as $student) {
+                $registerRequest->addStudentUser($student);
             }
-
-            $this->addFlash('success', sprintf('(%s) Registration requests successfully sent, and (%s) registrations successfully removed.', count($studentsThatNeedAdding), count($studentsThatNeedRemoving)));
-
+            $this->entityManager->persist($registerRequest);
+            $this->entityManager->flush();
+            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
+            $this->addFlash('success', 'Registration request successfully sent.');
         }
-
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
 
