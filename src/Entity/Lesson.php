@@ -78,7 +78,6 @@ class Lesson
     private $learningOutcomes;
 
     /**
-     * @Assert\NotBlank(message="Don't forget educational standards!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */

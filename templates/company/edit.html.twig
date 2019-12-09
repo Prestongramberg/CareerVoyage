@@ -130,7 +130,7 @@
                             {{ form_errors(form.companyLinkedinPage) }}
                         </div>
                         <div class="uk-margin {% if form.owner.vars.choices|length <= 1 %}uk-hidden{% endif %}">
-                            {{ form_label(form.owner, 'Company Page Manager*') }}
+                            {{ form_label(form.owner, 'Company Page Manager Email*') }}
                             {{ form_widget(form.owner, {'attr': {'class': 'uk-input' ~ ( form_errors(form.owner) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.owner) }}
                         </div>
