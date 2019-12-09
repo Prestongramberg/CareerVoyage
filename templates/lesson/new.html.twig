@@ -81,7 +81,7 @@
                         {{ form_errors(form.primaryCourse) }}
                     </div>
                     <div class="uk-margin">
-                        {{ form_label(form.secondaryCourses, 'Secondary Courses') }}
+                        {{ form_label(form.secondaryCourses, 'Secondary Courses') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="new_lesson[secondaryCourses][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="new_lesson[secondaryCourses][]">UnSelect All</a>
                         {{ form_widget(form.secondaryCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryCourses) ? ' uk-form-danger' : '' ) }}) }}
                         <div class="clear"></div>
                         {{ form_errors(form.secondaryCourses) }}

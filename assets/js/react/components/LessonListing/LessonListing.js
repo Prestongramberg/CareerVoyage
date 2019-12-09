@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import FavoriteLesson from "../FavoriteLesson/FavoriteLesson"
 import TeachLesson from "../TeachLesson/TeachLesson"
 
 
@@ -18,7 +17,6 @@ class LessonListing extends Component {
                 <div className="lesson-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                      style={{backgroundImage: `url(${this.props.image})`}}>
                     <div className="uk-inline uk-padding-small">
-
                         <TeachLesson
                             boundByProps={true}
                             id={this.props.id}
@@ -26,14 +24,6 @@ class LessonListing extends Component {
                             isTeacher={this.props.isTeacher}
                             lessonIsNowTeachable={this.props.lessonTeach}
                             lessonIsNowUnteachable={this.props.lessonUnteach}
-                        />
-                        &nbsp;&nbsp;&nbsp;
-                        <FavoriteLesson
-                            boundByProps={true}
-                            id={this.props.id}
-                            isFavorited={this.props.isFavorite}
-                            lessonFavorited={this.props.lessonFavorited}
-                            lessonUnfavorited={this.props.lessonUnfavorited}
                         />
                     </div>
                 </div>

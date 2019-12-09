@@ -31,6 +31,7 @@ jQuery(document).ready(function($) {
         // [{ 'align': [] }],
 
         ['clean'],                                         // remove formatting button
+        ['link'],
         // ['link', 'image', 'video'],
         ['showHtml']
     ];
