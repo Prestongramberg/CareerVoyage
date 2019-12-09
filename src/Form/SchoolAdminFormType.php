@@ -58,7 +58,8 @@ class SchoolAdminFormType extends AbstractType
                 'query_builder' => function (EntityRepository $er) use ($site) {
                     return $er->createQueryBuilder('s')
                         ->where('s.site = :site')
-                        ->setParameter('site', $site);
+                        ->setParameter('site', $site)
+                        ->orderBy('s.name', 'ASC');
                 },
             ]);
     }
