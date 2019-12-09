@@ -125,9 +125,7 @@ class FeedbackController extends AbstractController
             }
 
             foreach($this->emailsToSendRequestIdeaTo as $emailToSendRequestIdeaTo) {
-                // Chris said he wants an email sent to him when this happens. So here it goes....
-                // todo this could probably be refactored or cleaned up somewhere as a constant...
-                $userToSendEmailTo = $this->adminUserRepository->findOneBy([
+                $userToSendEmailTo = $this->userRepository->findOneBy([
                     'email' => $emailToSendRequestIdeaTo
                 ]);
                 if($userToSendEmailTo) {
