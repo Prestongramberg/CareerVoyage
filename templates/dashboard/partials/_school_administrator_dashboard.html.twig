@@ -145,6 +145,7 @@
                                                         <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
                                                     </div>
                                                     <div class="uk-width-1-1 uk-width-auto@m">
+                                                        <a href="{{ path('profile_edit', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">Edit</a>
                                                         <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                                         <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
                                                             <input type="hidden" name="schoolAdminId" value="{{ user.id }}">

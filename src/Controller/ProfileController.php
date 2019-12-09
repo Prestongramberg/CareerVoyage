@@ -84,6 +84,7 @@ class ProfileController extends AbstractController
      */
     public function editAction(Request $request, User $user) {
 
+        $loggedInUser = $this->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
 
         $options = [
@@ -157,6 +158,7 @@ class ProfileController extends AbstractController
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,
+            'loggedInUser' => $loggedInUser
         ]);
     }
 

@@ -97,15 +97,13 @@ class RequestsMailer extends AbstractMailer
 
     public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
 
-        $numOfStudentsToRegister = count($educatorRegisterStudentForCompanyExperienceRequest->getStudentUsers());
-
         $message = (new \Swift_Message("Register Students Request."))
             ->setFrom($this->siteFromEmail)
             ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/educatorRegisterStudentForCompanyExperienceRequest.html.twig',
-                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest, 'numOfStudentsToRegister' => $numOfStudentsToRegister]
+                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
                 ),
                 'text/html'
             );
@@ -193,6 +191,31 @@ class RequestsMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/requests/teachLessonRequestApproval.html.twig',
+                    ['request' => $teachLessonRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
+
+    /**
+     * Teach Lesson Request Denied
+     *
+     * @param TeachLessonRequest $teachLessonRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function teachLessonRequestDenied(TeachLessonRequest $teachLessonRequest) {
+
+        $message = (new \Swift_Message("Teach Lesson Request Denied."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($teachLessonRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/teachLessonRequestDenied.html.twig',
                     ['request' => $teachLessonRequest]
                 ),
                 'text/html'

@@ -877,23 +877,6 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $data = [];
-        $data['studentUsers'] = new ArrayCollection();
-        /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
-        foreach($experience->getEducatorRegisterStudentForCompanyExperienceRequests() as $request) {
-            foreach($request->getStudentUsers() as $studentUser) {
-                $data['studentUsers']->add($studentUser);
-            }
-        }
-
-        $educatorRegisterStudentForExperienceForm = null;
-        if($user->isEducator()) {
-            $educatorRegisterStudentForExperienceForm = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class, $data, [
-                'method' => 'POST',
-                'educator' => $user,
-                'action' => $this->generateUrl('company_experience_student_register', ['id' => $experience->getId()]),
-            ]);
-        }
-
         $currentRegistrations = $this->registrationRepository->findBy([
             'experience' => $experience,
         ]);
@@ -903,7 +886,6 @@ class CompanyController extends AbstractController
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
-            'educatorRegisterStudentForExperienceForm' => $educatorRegisterStudentForExperienceForm !== null ? $educatorRegisterStudentForExperienceForm->createView() : null,
             'numberOfSlotsLeft' => $numberOfSlotsLeft,
         ]);
     }
@@ -916,6 +898,8 @@ class CompanyController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience) {
+        $studentIdToRegister = $request->request->get('studentId');
+        $studentToRegister = $this->studentUserRepository->find($studentIdToRegister);
         $currentRegistrations = $this->registrationRepository->findBy([
             'experience' => $experience,
         ]);
@@ -926,29 +910,20 @@ class CompanyController extends AbstractController
         }
         /** @var User $user */
         $user = $this->getUser();
-        $form = $this->createForm(EducatorRegisterStudentsForExperienceFormType::class,null, [
-            'method' => 'POST',
-            'educator' => $user,
-        ]);
-        $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()) {
-            $studentsToRegister = $form->get('studentUsers')->getData();
-            if(count($studentsToRegister) > $numberOfSlotsLeft) {
-                $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
-                return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-            }
-            $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
-            $registerRequest->setCreatedBy($user);
-            $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-            $registerRequest->setCompanyExperience($experience);
-            foreach($studentsToRegister as $student) {
-                $registerRequest->addStudentUser($student);
-            }
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
-            $this->addFlash('success', 'Registration request successfully sent.');
+
+        if($numberOfSlotsLeft === 0) {
+            $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
+        $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
+        $registerRequest->setCreatedBy($user);
+        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
+        $registerRequest->setCompanyExperience($experience);
+        $registerRequest->setStudentUser($studentToRegister);
+        $this->entityManager->persist($registerRequest);
+        $this->entityManager->flush();
+        $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
+        $this->addFlash('success', 'Registration request successfully sent.');
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
 

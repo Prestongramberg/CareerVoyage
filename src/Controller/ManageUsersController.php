@@ -270,15 +270,15 @@ class ManageUsersController extends AbstractController
             $filterBuilder->where('u.site = :site')
                 ->setParameter('site', $user->getSite());
         } elseif ($user->isStateCoordinator()) {
-            $filterBuilder->innerJoin('u.schools', 's')
+            $filterBuilder->innerJoin('u.schools', 'schools')
                 ->where('u.site = :site')
-                ->andWhere('s.state = :state')
+                ->andWhere('schools.state = :state')
                 ->setParameter('site', $user->getSite())
                 ->setParameter('state', $user->getState());
         } elseif ($user->isRegionalCoordinator()) {
-            $filterBuilder->innerJoin('u.schools', 's')
+            $filterBuilder->innerJoin('u.schools', 'schools')
                 ->where('u.site = :site')
-                ->andWhere('s.region = :region')
+                ->andWhere('schools.region = :region')
                 ->setParameter('site', $user->getSite())
                 ->setParameter('region', $user->getRegion());
         }
@@ -325,15 +325,15 @@ class ManageUsersController extends AbstractController
             $filterBuilder->where('u.site = :site')
                 ->setParameter('site', $user->getSite());
         } elseif ($user->isStateCoordinator()) {
-            $filterBuilder->innerJoin('u.school', 's')
+            $filterBuilder->innerJoin('u.school', 'school')
                 ->where('u.site = :site')
-                ->andWhere('s.state = :state')
+                ->andWhere('school.state = :state')
                 ->setParameter('site', $user->getSite())
                 ->setParameter('state', $user->getState());
         } elseif ($user->isRegionalCoordinator()) {
-            $filterBuilder->innerJoin('u.school', 's')
+            $filterBuilder->innerJoin('u.school', 'school')
                 ->where('u.site = :site')
-                ->andWhere('s.region = :region')
+                ->andWhere('school.region = :region')
                 ->setParameter('site', $user->getSite())
                 ->setParameter('region', $user->getRegion());
         } elseif ($user->isSchoolAdministrator()) {
@@ -385,15 +385,15 @@ class ManageUsersController extends AbstractController
             $filterBuilder->where('u.site = :site')
                 ->setParameter('site', $user->getSite());
         } elseif ($user->isStateCoordinator()) {
-            $filterBuilder->innerJoin('u.school', 's')
+            $filterBuilder->innerJoin('u.school', 'school')
                 ->where('u.site = :site')
-                ->andWhere('s.state = :state')
+                ->andWhere('school.state = :state')
                 ->setParameter('site', $user->getSite())
                 ->setParameter('state', $user->getState());
         } elseif ($user->isRegionalCoordinator()) {
-            $filterBuilder->innerJoin('u.school', 's')
+            $filterBuilder->innerJoin('u.school', 'school')
                 ->where('u.site = :site')
-                ->andWhere('s.region = :region')
+                ->andWhere('school.region = :region')
                 ->setParameter('site', $user->getSite())
                 ->setParameter('region', $user->getRegion());
         } elseif ($user->isSchoolAdministrator()) {

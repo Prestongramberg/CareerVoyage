@@ -79,11 +79,6 @@ class StudentUser extends User
     private $educatorUsers;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUsers")
-     */
-    private $educatorRegisterStudentForCompanyExperienceRequests;
-
-    /**
      * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="student", orphanRemoval=true)
      */
     private $studentReviewExperienceFeedback;
@@ -98,15 +93,20 @@ class StudentUser extends User
      */
     private $graduatingYear;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUser")
+     */
+    private $educatorRegisterStudentForCompanyExperienceRequests;
+
     public function __construct()
     {
         parent::__construct();
         $this->secondaryIndustries = new ArrayCollection();
         $this->companiesInterestedIn = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
-        $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
+        $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -298,34 +298,6 @@ class StudentUser extends User
     }
 
     /**
-     * @return Collection|EducatorRegisterStudentForCompanyExperienceRequest[]
-     */
-    public function getEducatorRegisterStudentForCompanyExperienceRequests(): Collection
-    {
-        return $this->educatorRegisterStudentForCompanyExperienceRequests;
-    }
-
-    public function addEducatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest): self
-    {
-        if (!$this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
-            $this->educatorRegisterStudentForCompanyExperienceRequests[] = $educatorRegisterStudentForCompanyExperienceRequest;
-            $educatorRegisterStudentForCompanyExperienceRequest->addStudentUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEducatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest): self
-    {
-        if ($this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
-            $this->educatorRegisterStudentForCompanyExperienceRequests->removeElement($educatorRegisterStudentForCompanyExperienceRequest);
-            $educatorRegisterStudentForCompanyExperienceRequest->removeStudentUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|StudentReviewCompanyExperienceFeedback[]
      */
     public function getStudentReviewExperienceFeedback(): Collection
@@ -395,6 +367,37 @@ class StudentUser extends User
     public function setGraduatingYear(?string $graduatingYear): self
     {
         $this->graduatingYear = $graduatingYear;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorRegisterStudentForCompanyExperienceRequest[]
+     */
+    public function getEducatorRegisterStudentForCompanyExperienceRequests(): Collection
+    {
+        return $this->educatorRegisterStudentForCompanyExperienceRequests;
+    }
+
+    public function addEducatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest): self
+    {
+        if (!$this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
+            $this->educatorRegisterStudentForCompanyExperienceRequests[] = $educatorRegisterStudentForCompanyExperienceRequest;
+            $educatorRegisterStudentForCompanyExperienceRequest->setStudentUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest): self
+    {
+        if ($this->educatorRegisterStudentForCompanyExperienceRequests->contains($educatorRegisterStudentForCompanyExperienceRequest)) {
+            $this->educatorRegisterStudentForCompanyExperienceRequests->removeElement($educatorRegisterStudentForCompanyExperienceRequest);
+            // set the owning side to null (unless already changed)
+            if ($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser() === $this) {
+                $educatorRegisterStudentForCompanyExperienceRequest->setStudentUser(null);
+            }
+        }
 
         return $this;
     }

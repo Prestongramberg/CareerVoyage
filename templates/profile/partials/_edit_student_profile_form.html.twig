@@ -36,8 +36,13 @@
                         {{ form_widget(form.displayName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.displayName) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.displayName) }}
                     </div>
-                    {% include 'profile/partials/shared/_edit_profile_image.html.twig' %}
-
+                    {% if loggedInUser.schoolAdministrator %}
+                        <div class="uk-margin">
+                            {{ form_label(form.graduatingYear, 'Graduating Year') }}
+                            {{ form_widget(form.graduatingYear, {'attr': {'class': 'uk-input' ~ ( form_errors(form.graduatingYear) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.graduatingYear) }}
+                        </div>
+                    {% endif %}
                 </fieldset>
 
             </div>

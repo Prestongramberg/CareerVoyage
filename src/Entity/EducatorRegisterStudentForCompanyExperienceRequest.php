@@ -14,51 +14,15 @@ use Doctrine\ORM\Mapping\JoinTable;
 class EducatorRegisterStudentForCompanyExperienceRequest extends Request
 {
     /**
-     * @JoinTable(name="student_company_experience_request_registrations",
-     *      joinColumns={@JoinColumn(name="request_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@JoinColumn(name="student_user_id", referencedColumnName="id")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity="App\Entity\StudentUser", inversedBy="educatorRegisterStudentForCompanyExperienceRequests")
-     */
-    private $studentUsers;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\CompanyExperience", inversedBy="educatorRegisterStudentForCompanyExperienceRequests")
      * @ORM\JoinColumn(nullable=true)
      */
     private $companyExperience;
 
-    public function __construct()
-    {
-        $this->studentUsers = new ArrayCollection();
-    }
-
     /**
-     * @return Collection|StudentUser[]
+     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="educatorRegisterStudentForCompanyExperienceRequests")
      */
-    public function getStudentUsers(): Collection
-    {
-        return $this->studentUsers;
-    }
-
-    public function addStudentUser(StudentUser $studentUser): self
-    {
-        if (!$this->studentUsers->contains($studentUser)) {
-            $this->studentUsers[] = $studentUser;
-        }
-
-        return $this;
-    }
-
-    public function removeStudentUser(StudentUser $studentUser): self
-    {
-        if ($this->studentUsers->contains($studentUser)) {
-            $this->studentUsers->removeElement($studentUser);
-        }
-
-        return $this;
-    }
+    private $studentUser;
 
     public function getCompanyExperience(): ?CompanyExperience
     {
@@ -68,6 +32,18 @@ class EducatorRegisterStudentForCompanyExperienceRequest extends Request
     public function setCompanyExperience(?CompanyExperience $companyExperience): self
     {
         $this->companyExperience = $companyExperience;
+
+        return $this;
+    }
+
+    public function getStudentUser(): ?StudentUser
+    {
+        return $this->studentUser;
+    }
+
+    public function setStudentUser(?StudentUser $studentUser): self
+    {
+        $this->studentUser = $studentUser;
 
         return $this;
     }

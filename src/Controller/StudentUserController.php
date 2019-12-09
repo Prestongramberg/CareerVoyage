@@ -146,4 +146,16 @@ class StudentUserController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/graduated", name="graduated")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function graduated(Request $request) {
+            $user = $this->getUser();
+        return $this->render('studentUser/graduated.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
 }
