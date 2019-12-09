@@ -69,7 +69,6 @@
                          data-field-name="new_lesson[secondaryIndustries]"
                          data-remove-dom-id="new_lesson_secondaryIndustries"
                     ></div>
-                    <a href="{{ path('request_to_add_course') }}">Request for a new course to be added to this list</a>
                 </fieldset>
             </div>
         </div>
@@ -82,11 +81,12 @@
                         {{ form_errors(form.primaryCourse) }}
                     </div>
                     <div class="uk-margin">
-                        {{ form_label(form.secondaryCourses, 'Secondary Courses') }}
+                        {{ form_label(form.secondaryCourses, 'Secondary Courses') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="new_lesson[secondaryCourses][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="new_lesson[secondaryCourses][]">UnSelect All</a>
                         {{ form_widget(form.secondaryCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryCourses) ? ' uk-form-danger' : '' ) }}) }}
                         <div class="clear"></div>
                         {{ form_errors(form.secondaryCourses) }}
-                    </div>
+                    </div><br />
+                    <a href="{{ path('request_to_add_course') }}" target="_blank">Don't see a course you are looking for? Let use know</a>
                 </fieldset>
             </div>
         </div>

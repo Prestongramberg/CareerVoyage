@@ -137,10 +137,11 @@ class App extends React.Component {
 
             // Add a Primary Course If Applicable
             if( lesson.primaryCourse && lesson.primaryCourse.id ) {
-                lessonCourseIds.concat([ lesson.primaryCourse.id ]);
+                lessonCourseIds.push(lesson.primaryCourse.id);
+                lessonSecondaryCourseNames.push(lesson.primaryCourse.title.toLowerCase());
             }
 
-            // Filter Category
+            // Filter Courses
             if ( !!this.props.search.course && lessonCourseIds.indexOf( parseInt( this.props.search.course ) ) === -1 ) {
                 return false;
             }

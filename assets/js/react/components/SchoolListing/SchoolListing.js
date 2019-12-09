@@ -29,6 +29,7 @@ class SchoolListing extends Component {
                                         { this.props.phone && <a href={'tel:' + this.props.phone} className="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a> }
                                         { this.props.email && <a href={'mailto:' +this.props.email} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a> }
                                         { this.props.linkedIn && <a href={this.props.linkedIn} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"></a> }
+                                        { this.props.directions && <a href={this.props.directions} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="location"></a> }
                                     </div>
                                 </div>
                                 <div className="uk-width-expand uk-visible@m">
@@ -48,6 +49,7 @@ class SchoolListing extends Component {
 
 SchoolListing.propTypes = {
     description: PropTypes.string,
+    directions: PropTypes.string,
     email: PropTypes.string,
     id: PropTypes.number,
     image: PropTypes.string,

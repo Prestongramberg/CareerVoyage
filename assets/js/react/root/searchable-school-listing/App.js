@@ -45,6 +45,9 @@ class App extends React.Component {
                                 { !this.props.search.loading && relevantSchools.map(school => (
                                     <SchoolListing
                                         description={school.shortDescription}
+                                        directions={(
+                                            school.latitude && school.longitude ? `http://maps.google.com/?q=${ school.street },${ school.city },${ school.zipcode }` : ''
+                                        )}
                                         email={school.email}
                                         id={school.id}
                                         image={school.thumbnailImageURL}

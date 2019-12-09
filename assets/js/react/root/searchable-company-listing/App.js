@@ -51,6 +51,9 @@ class App extends React.Component {
                                         companyFavorited={this.props.companyFavorited}
                                         companyUnfavorited={this.props.companyUnfavorited}
                                         description={company.shortDescription}
+                                        directions={(
+                                            company.latitude && company.longitude ? `http://maps.google.com/?q=${ company.street },${ company.city },${ company.zipcode }` : ''
+                                        )}
                                         email={company.emailAddress}
                                         id={company.id}
                                         image={company.thumbnailImageURL}
@@ -76,6 +79,9 @@ class App extends React.Component {
                                         companyFavorited={this.props.companyFavorited}
                                         companyUnfavorited={this.props.companyUnfavorited}
                                         description={company.shortDescription}
+                                        directions={(
+                                            company.latitude && company.longitude ? `http://maps.google.com/?q=${ company.street },${ company.city },${ company.zipcode }` : ''
+                                        )}
                                         email={company.emailAddress}
                                         id={company.id}
                                         image={company.thumbnailImageURL}

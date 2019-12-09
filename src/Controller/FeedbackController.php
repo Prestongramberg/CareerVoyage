@@ -145,7 +145,6 @@ class FeedbackController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_PROFESSIONAL_USER"})
      * @Route("/request-to-add-new-course-to-system", name="request_to_add_course", options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
