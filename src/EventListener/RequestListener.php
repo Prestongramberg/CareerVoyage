@@ -10,8 +10,10 @@ namespace App\EventListener;
 
 
 use App\Entity\Site;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Repository\SiteRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,65 +39,27 @@ class RequestListener
 
     public function onKernelRequest(RequestEvent $event)
     {
-        // todo come back to this and lock down the URLs on the site
-        return;
-
-        $route = $event->getRequest()->get('_route');
-
         if (!$event->isMasterRequest()) {
             // don't do anything if it's not the master request
             return;
         }
-
-        if(!$this->tokenStorage->getToken() || !$this->tokenStorage->getToken()->getUser()) {
-            return;
-        }
-
-        if($route === 'welcome' && $this->tokenStorage->getToken() && $this->tokenStorage->getToken()->getUser() instanceof User) {
-            $response = new RedirectResponse($this->router->generate('sign_out'));
-            $event->setResponse($response);
-            return;
-        }
-
-        if($route === 'security_router' || $route === 'sign_out' || $route === 'welcome') {
-            return;
-        }
-
-        $user = $this->tokenStorage->getToken()->getUser();
-
-        if($user && $user instanceof User) {
-
-            $site = null;
-            if($user->isProfessional() || $user->isAdmin()) {
-                /** @var Site $site */
-                $site = $this->siteRepository->findOneBy([
-                    'parentSite' => 1
-                ]);
-            } else if($user->isSiteAdmin()
-                || $user->isStateCoordinator()
-                || $user->isRegionalCoordinator()
-                || $user->isSchoolAdministrator()
-                || $user->isStudent() ||
-                $user->isEducator()){
-                /** @var Site $site */
-                $site = $user->getSite();
-            }
-
-            if(!$site) {
-                throw new \Exception('Issue locating a site connected to user.');
-            }
-
-            // if the user is not on the correct site URL then redirect to our router middleware
-            if($site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl()) {
-
-                $response = new RedirectResponse(
-                    $site->getFullyQualifiedBaseUrl() . $this->router->generate($route)
-                );
-
-                $event->setResponse($response);
+        /** @var User $user */
+        if($this->tokenStorage->getToken() && $user = $this->tokenStorage->getToken()->getUser()) {
+            if($user->isStudent()) {
+                /** @var StudentUser $user */
+                if($user->getGraduatingYear()) {
+                    if ('graduated' === $event->getRequest()->get('_route') || $event->getRequest()->get('_route') === 'login_as_user') {
+                        return;
+                    }
+                    if(date("Y") > (int) $user->getGraduatingYear()) {
+                        $url = $this->router->generate('graduated');
+                        $response = new RedirectResponse($url);
+                        $event->setResponse($response);
+                        return;
+                    }
+                }
             }
         }
-        return;
     }
 
     /**

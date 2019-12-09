@@ -32,6 +32,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
@@ -45,14 +46,20 @@ class StudentEditProfileFormType extends AbstractType
      * @var SecondaryIndustryRepository
      */
     private $secondaryIndustryRepository;
+    /**
+     * @var Security
+     */
+    private $security;
 
     /**
      * EditCompanyExperienceType constructor.
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     * @param Security $security
      */
-    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository)
+    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository, Security $security)
     {
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+        $this->security = $security;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -86,6 +93,16 @@ class StudentEditProfileFormType extends AbstractType
             'label' => false,
             'allow_add' => true,
         ]);
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+        if($user->isSchoolAdministrator()) {
+            $builder->add('graduatingYear', TextType::class, [
+                'attr' => [
+                    'placeholder' => '2019'
+                ]
+            ]);
+        }
 
         $builder->get('secondaryIndustries')
             ->addModelTransformer(new CallbackTransformer(
