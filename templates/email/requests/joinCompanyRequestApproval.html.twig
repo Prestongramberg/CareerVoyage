@@ -5,7 +5,7 @@
     <p>Your request for <strong>{{ request.needsApprovalBy.fullName }}</strong> to join your company page has been accepted.</p>
 {% else %}
     <p>Your request to join <strong>{{ request.company.name }}</strong> has been approved</p>
-    <p>Please login to the <a href="{{ get_site().baseUrl }}">dashboard</a> to see your company.</p>
+    <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to see your company.</p>
 {% endif %}
 
 {% include 'email/partial/emailFooter.html.twig' %}
