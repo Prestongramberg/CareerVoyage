@@ -1,6 +1,6 @@
 <li>
     {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to register students for company event.</a>
+        <a class="uk-accordion-title" href="#">Request to register student for company event.</a>
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -16,9 +16,11 @@
                     <td>Students</td>
                     <td>
                         <ul>
-                            {% for student in request.studentUsers %}
-                                <li>{{ student.fullName }}</li>
-                            {% endfor %}
+                            <li>
+                                {% if request.studentUser %}
+                                    {{ request.studentUser.fullName }}
+                                {% endif %}
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -48,9 +50,11 @@
                     to the event: {{ request.companyExperience.title }}</p>
                 <p>Created On {{ request.createdAt|date("m/d/Y h:i:s A") }}</p>
                 <ul>
-                    {% for student in request.studentUsers %}
-                        <li>{{ student.fullName }}</li>
-                    {% endfor %}
+                    <li>
+                        {% if request.studentUser %}
+                            {{ request.studentUser.fullName }}
+                        {% endif %}
+                    </li>
                 </ul>
                 {% if render_request_status_text( request ) == "Pending" %}
                     <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">

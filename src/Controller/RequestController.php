@@ -251,6 +251,7 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function approveRequest(\App\Entity\Request $request, Request $httpRequest) {
 
@@ -424,24 +425,22 @@ class RequestController extends AbstractController
                 break;
             case 'EducatorRegisterStudentForCompanyExperienceRequest':
                 /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
+                $studentUser = $request->getStudentUser();
+                $experience = $request->getCompanyExperience();
+                $currentRegistrations = $this->registrationRepository->findBy([
+                    'experience' => $experience,
+                ]);
+                $numberOfSlotsLeft = $experience->getAvailableSpaces() - count($currentRegistrations);
+                if(count($currentRegistrations) >= $experience->getAvailableSpaces()) {
+                    $this->addFlash('error', sprintf('Could not register student. Only (%s) spots left.', $numberOfSlotsLeft));
+                    return;
+                }
                 $request->setApproved(true);
                 $this->entityManager->persist($request);
-
-                $studentUsers = $request->getStudentUsers();
-                foreach($studentUsers as $studentUser) {
-
-                    // remove any previous registrations if someone is getting registered twice
-                    $previousRegistration = $this->registrationRepository->getByUserAndExperience($studentUser, $request->getCompanyExperience());
-                    if($previousRegistration) {
-                        continue;
-                    }
-
-                    $registration = new Registration();
-                    $registration->setUser($studentUser);
-                    $registration->setExperience($request->getCompanyExperience());
-                    $this->entityManager->persist($registration);
-                }
-
+                $registration = new Registration();
+                $registration->setUser($studentUser);
+                $registration->setExperience($request->getCompanyExperience());
+                $this->entityManager->persist($registration);
                 // make sure the teacher has a registration as well
                 $previousTeacherRegistration = $this->registrationRepository->getByUserAndExperience($request->getCreatedBy(), $request->getCompanyExperience());
                 if(!$previousTeacherRegistration) {
@@ -450,12 +449,10 @@ class RequestController extends AbstractController
                     $registration->setExperience($request->getCompanyExperience());
                     $this->entityManager->persist($registration);
                 }
-
                 // an educator who created the request might not have an email
                 if($request->getCreatedBy()->getEmail()) {
                     $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApproval($request);
                 }
-
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();
                 break;
