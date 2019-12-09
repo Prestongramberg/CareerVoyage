@@ -268,10 +268,23 @@ class RequestController extends AbstractController
      * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
      * @param \App\Entity\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function denyRequest(\App\Entity\Request $request) {
 
         $this->denyAccessUnlessGranted('edit', $request);
+
+
+        switch($request->getClassName()) {
+            case 'TeachLessonRequest':
+                // not all educators have an email address.
+                if($request->getCreatedBy()->getEmail()) {
+                    $this->requestsMailer->teachLessonRequestDenied($request);
+                }
+                break;
+        }
 
         $request->setDenied(true);
         $this->entityManager->persist($request);

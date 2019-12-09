@@ -44,7 +44,10 @@ class RequestListener
             return;
         }
         /** @var User $user */
-        if($this->tokenStorage->getToken() && $user = $this->tokenStorage->getToken()->getUser()) {
+        if($this->tokenStorage->getToken() && $this->tokenStorage->getToken()->getUser()) {
+            if(empty($user) || !$user instanceof User) {
+                return;
+            }
             if($user->isStudent()) {
                 /** @var StudentUser $user */
                 if($user->getGraduatingYear()) {

@@ -201,4 +201,29 @@ class RequestsMailer extends AbstractMailer
         $this->mailer->send($message);
 
     }
+
+    /**
+     * Teach Lesson Request Denied
+     *
+     * @param TeachLessonRequest $teachLessonRequest
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function teachLessonRequestDenied(TeachLessonRequest $teachLessonRequest) {
+
+        $message = (new \Swift_Message("Teach Lesson Request Denied."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($teachLessonRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/teachLessonRequestDenied.html.twig',
+                    ['request' => $teachLessonRequest]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
+    }
 }
