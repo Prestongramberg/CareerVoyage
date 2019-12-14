@@ -3,6 +3,8 @@ security:
       App\Entity\User:
         algorithm: bcrypt
         cost: 12
+    role_hierarchy:
+      ROLE_ADMIN_USER: [ROLE_ALLOWED_TO_SWITCH]
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
       # used to reload user from session & other features (e.g. switch_user)
@@ -20,6 +22,7 @@ security:
                     - App\Security\LoginFormAuthenticator
             logout:
               path:   app_logout
+            switch_user: ~
 #            form_login:
  #             default_target_path: welcome
 

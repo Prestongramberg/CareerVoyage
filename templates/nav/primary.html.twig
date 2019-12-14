@@ -60,17 +60,9 @@
                             <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             <div uk-dropdown="pos: bottom-right">
                                 <ul class="uk-nav uk-dropdown-nav">
-                                    {% set previouslyLoggedInAs = app.session.get('previouslyLoggedInAs', null) %}
-                                    {% if previouslyLoggedInAs is not null %}
-                                        {% set userId = previouslyLoggedInAs['userId'] %}
-                                        {% set fullName = previouslyLoggedInAs['fullName'] %}
-                                        <li>Hey <strong>{{ fullName }}</strong>, <br> <br> You are temporarily logged in as <strong>{{ user.fullName }}</strong></li>
-                                        <br>
-                                        <form method="post" action="{{ path('login_as_user') }}">
-                                            <input type="hidden" name="userId" value="{{ userId }}">
-                                            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-width-1-1">Click here to return to your own account</button>
-                                        </form>
-                                        <br>
+                                    {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                                        You are impersonating {{ app.user.email ? app.user.email : app.user.username }}
+                                        <a href="{{ path('dashboard', {'_switch_user': '_exit'}) }}">Exit impersonation</a>
                                         <li class="uk-nav-divider"></li>
                                     {% endif %}
                                     <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>
