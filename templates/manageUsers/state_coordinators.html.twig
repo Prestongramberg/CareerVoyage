@@ -31,7 +31,7 @@
                         <th>Username</th>
                         <th>Site</th>
                         <th>State</th>
-                        {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
+                        {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
                         <th>Edit/Delete</th>
                     </tr>
 
@@ -53,7 +53,7 @@
                                     {{ paginatedUser.state.name }}
                                 {% endif %}
                             </td>
-                            {% if user.canLoginAsAnotherUser %}
+                            {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
                                 <th>
                                     <a class="uk-button uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
                                 </th>

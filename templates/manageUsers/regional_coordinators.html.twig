@@ -32,7 +32,7 @@
                         <th>Region</th>
                         <th>State</th>
                         <th>Site</th>
-                        {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
+                        {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
                         <th>Edit/Delete</th>
                     </tr>
 
@@ -59,7 +59,7 @@
                                     {{ paginatedUser.region.site.name }}
                                 {% endif %}
                             </td>
-                            {% if user.canLoginAsAnotherUser %}
+                            {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
                                 <th>
                                     <a class="uk-button uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
                                 </th>
