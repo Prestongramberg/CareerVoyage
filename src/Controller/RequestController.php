@@ -350,7 +350,11 @@ class RequestController extends AbstractController
                     // if the request is from the educator this means teacher approval was required and they have approved
                     // next thing you need to do is create a request to be sent to the professional
                     $newRequest = new StudentToMeetProfessionalRequest();
-                    $newRequest->initializeForProfessional($student, $professional,  $reasonToMeet);
+                    $newRequest->setCreatedBy($request->getNeedsApprovalBy());
+                    $newRequest->setProfessional($professional);
+                    $newRequest->setStudent($student);
+                    $newRequest->setReasonToMeet($reasonToMeet);
+                    $newRequest->setNeedsApprovalBy($professional);
                     $this->entityManager->persist($newRequest);
                     $this->addFlash('success', 'Request being sent to professional to setup 3 dates to meet with student!');
                 }
