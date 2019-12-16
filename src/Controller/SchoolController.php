@@ -32,6 +32,7 @@ use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\SchoolAdminFormType;
+use App\Form\SchoolCommunicationType;
 use App\Form\StudentImportType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -285,6 +286,35 @@ class SchoolController extends AbstractController
         }
 
         return $this->render('school/edit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'school' => $school,
+        ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
+     * @Route("/schools/{id}/communication-type", name="school_communication_type", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function communicationType(Request $request, School $school) {
+        $this->denyAccessUnlessGranted('edit', $school);
+        $user = $this->getUser();
+        $form = $this->createForm(SchoolCommunicationType::class, $school, [
+            'method' => 'POST',
+        ]);
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var School $school */
+            $school = $form->getData();
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+            $this->addFlash('success', sprintf('School communication type successfully updated.'));
+            return $this->redirectToRoute('school_communication_type', ['id' => $school->getId()]);
+        }
+        return $this->render('school/communication_type.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
             'school' => $school,

@@ -18,6 +18,16 @@ class School
 {
     use Timestampable;
 
+    const COMMUNICATION_TYPE_DEFAULT = 'COMMUNICATION_TYPE_DEFAULT';
+    const COMMUNICATION_TYPE_TEACHER_APPROVAL_NOT_REQUIRED = 'COMMUNICATION_TYPE_TEACHER_APPROVAL_NOT_REQUIRED';
+    const COMMUNICATION_TYPE_TEACHER_APPROVAL_REQUIRED = 'COMMUNICATION_TYPE_TEACHER_APPROVAL_REQUIRED';
+
+    public static $communicationTypes = [
+        'Default' => self::COMMUNICATION_TYPE_DEFAULT,
+        'Teacher Approval Not Required' => self::COMMUNICATION_TYPE_TEACHER_APPROVAL_NOT_REQUIRED,
+        'Teacher Approval Required' => self::COMMUNICATION_TYPE_TEACHER_APPROVAL_REQUIRED,
+    ];
+
     /**
      * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
      * @ORM\Id()
@@ -200,6 +210,11 @@ class School
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $schoolLinkedInPage;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $communicationType = self::COMMUNICATION_TYPE_DEFAULT;
 
     public function __construct()
     {
@@ -829,6 +844,18 @@ class School
     public function setSchoolLinkedInPage(?string $schoolLinkedInPage): self
     {
         $this->schoolLinkedInPage = $schoolLinkedInPage;
+
+        return $this;
+    }
+
+    public function getCommunicationType(): ?string
+    {
+        return $this->communicationType;
+    }
+
+    public function setCommunicationType(?string $communicationType): self
+    {
+        $this->communicationType = $communicationType;
 
         return $this;
     }

@@ -17,6 +17,8 @@ use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
+use App\Entity\StudentToMeetProfessionalExperience;
+use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
@@ -35,6 +37,7 @@ use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
+use App\Util\ServiceHelper;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -63,126 +66,7 @@ use Symfony\Component\Asset\Packages;
 class RequestController extends AbstractController
 {
     use FileHelper;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileUploader $fileUploader
-     */
-    private $fileUploader;
-
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
-
-    /**
-     * @var ImageCacheGenerator
-     */
-    private $imageCacheGenerator;
-
-    /**
-     * @var UploaderHelper
-     */
-    private $uploaderHelper;
-
-    /**
-     * @var Packages
-     */
-    private $assetsManager;
-
-    /**
-     * @var CompanyRepository
-     */
-    private $companyRepository;
-
-    /**
-     * @var CompanyPhotoRepository
-     */
-    private $companyPhotoRepository;
-
-    /**
-     * @var NewCompanyRequestRepository
-     */
-    private $newCompanyRequestRepository;
-
-    /**
-     * @var JoinCompanyRequestRepository
-     */
-    private $joinCompanyRequestRepository;
-
-    /**
-     * @var RequestRepository
-     */
-    private $requestRepository;
-
-    /**
-     * @var RequestsMailer
-     */
-    private $requestsMailer;
-
-    /**
-     * @var RegistrationRepository
-     */
-    private $registrationRepository;
-
-    /**
-     * @var EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
-     */
-    private $educatorRegisterStudentForExperienceRequestRepository;
-
-    /**
-     * RequestController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param Packages $assetsManager
-     * @param CompanyRepository $companyRepository
-     * @param CompanyPhotoRepository $companyPhotoRepository
-     * @param NewCompanyRequestRepository $newCompanyRequestRepository
-     * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
-     * @param RequestRepository $requestRepository
-     * @param RequestsMailer $requestsMailer
-     * @param RegistrationRepository $registrationRepository
-     * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository,
-        NewCompanyRequestRepository $newCompanyRequestRepository,
-        JoinCompanyRequestRepository $joinCompanyRequestRepository,
-        RequestRepository $requestRepository,
-        RequestsMailer $requestsMailer,
-        RegistrationRepository $registrationRepository,
-        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->assetsManager = $assetsManager;
-        $this->companyRepository = $companyRepository;
-        $this->companyPhotoRepository = $companyPhotoRepository;
-        $this->newCompanyRequestRepository = $newCompanyRequestRepository;
-        $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
-        $this->requestRepository = $requestRepository;
-        $this->requestsMailer = $requestsMailer;
-        $this->registrationRepository = $registrationRepository;
-        $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
-    }
-
+    use ServiceHelper;
 
     /**
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
@@ -456,8 +340,111 @@ class RequestController extends AbstractController
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();
                 break;
+            case 'StudentToMeetProfessionalRequest':
+                /** @var StudentToMeetProfessionalRequest $request */
+                $student = $request->getStudent();
+                $professional = $request->getProfessional();
+                $request->setApproved(true);
+                $reasonToMeet = $request->getReasonToMeet();
+                if($httpRequest->request->has('isFromEducator')) {
+                    // if the request is from the educator this means teacher approval was required and they have approved
+                    // next thing you need to do is create a request to be sent to the professional
+                    $newRequest = new StudentToMeetProfessionalRequest();
+                    $newRequest->initializeForProfessional($student, $professional,  $reasonToMeet);
+                    $this->entityManager->persist($newRequest);
+                    $this->addFlash('success', 'Request being sent to professional to setup 3 dates to meet with student!');
+                }
+                if($httpRequest->request->has('isFromProfessional')) {
+                    // if the request is from the professional send off the next request to the student to finalize the date
+                    $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionOne'));
+                    $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionTwo'));
+                    $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionThree'));
+                    $newRequest = new StudentToMeetProfessionalRequest();
+                    $newRequest->setDateOptionOne($dateOptionOne);
+                    $newRequest->setDateOptionTwo($dateOptionTwo);
+                    $newRequest->setDateOptionThree($dateOptionThree);
+                    $newRequest->setStudent($student);
+                    $newRequest->setReasonToMeet($reasonToMeet);
+                    $newRequest->setProfessional($professional);
+                    $newRequest->setNeedsApprovalBy($student);
+                    $newRequest->setCreatedBy($professional);
+                    $this->entityManager->persist($newRequest);
+                    $this->addFlash('success', 'Request sent to student to finalize one of your three dates!');
+                }
+
+                if($httpRequest->request->has('isFromStudent')) {
+                    // if the request is from the student then they are approving the final date. Go ahead and add it to both the
+                    // students calendar and professionals calendar by creating a new experience object for both of them.
+                    $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
+                    // we must have an end date so let's just set it for 2 hours from the start
+                    $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
+                    $endDate->add(new DateInterval('PT2H'));
+                    $request->setConfirmedDate($date);
+
+                    $experience = new StudentToMeetProfessionalExperience();
+                    $experience->setOriginalRequest($request);
+                    $experience->setStartDateAndTime($date);
+                    $experience->setEndDateAndTime($endDate);
+                    $experience->setTitle("Student to meet Professional");
+                    $experience->setBriefDescription(sprintf("Student %s to meet with Professional %s for %s",
+                        $request->getNeedsApprovalBy()->getFullName(), $request->getCreatedBy()->getFullName(), $request->getReasonToMeet()->getName())
+                    );
+                    $experience->setOriginalRequest($request);
+                    $this->entityManager->persist($experience);
+                    // student registration for event
+                    $studentRegistration = new Registration();
+                    $studentRegistration->setUser($request->getNeedsApprovalBy());
+                    $studentRegistration->setExperience($experience);
+                    $this->entityManager->persist($studentRegistration);
+                    // teacher registration for event
+                    $teacherRegistration = new Registration();
+                    $teacherRegistration->setUser($request->getCreatedBy());
+                    $teacherRegistration->setExperience($experience);
+                    $this->entityManager->persist($teacherRegistration);
+                    $this->addFlash('success', 'Request successfully confirmed! This event will be added to yours and the professionals calendar.');
+                }
+
+                // todo make sure we send emails
+                $this->entityManager->flush();
+                break;
         }
         $this->entityManager->persist($request);
         $this->entityManager->flush();
+    }
+
+    /**
+     * @IsGranted("ROLE_STUDENT_USER")
+     * @Route("/requests/student-to-meet-professional", name="student_request_to_meet_professional", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function studentRequestToMeetProfessionalAction(Request $request) {
+        $studentId = $request->request->get('studentId');
+        $student = $this->studentUserRepository->find($studentId);
+        $professionalId = $request->request->get('professionalId');
+        $professional = $this->professionalUserRepository->find($professionalId);
+        $reasonToMeet = $request->request->get('reasonToMeet');
+        $reasonToMeet = $this->rolesWillingToFulfillRepository->findOneBy([
+           'eventName' => $reasonToMeet
+        ]);
+        // let's determine who gets the first request. Professional or the Educator
+        $request = new StudentToMeetProfessionalRequest();
+        if($student->isCommunicationEnabled() && $student->isTeacherApprovalNotRequired()) {
+            $request->initializeForProfessional($student, $professional,  $reasonToMeet);
+        } elseif ($student->isCommunicationEnabled() && $student->isTeacherApprovalRequired()) {
+            $teachers = $student->getEducatorUsers();
+            if(count($teachers) === 0) {
+                $this->addFlash('error', 'You must have at least one educator setup in your profile to perform this action.');
+                return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
+            }
+            // todo we might need to refactor this so there is a designated teacher that receives the request
+            //  right now just sending the request to the first teacher in the collection
+            $request->initializeForEducator($student, $professional, $teachers[0], $reasonToMeet);
+        }
+        $this->entityManager->persist($request);
+        $this->entityManager->flush();
+        /*$this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);*/
+        $this->addFlash('success', 'Request to meet successfully sent.');
+        return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
     }
 }

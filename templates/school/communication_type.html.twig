@@ -1,0 +1,27 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% form_theme form _self %}
+
+{% block title %}School Communication Type{% endblock %}
+{% block bodyClass %}page-school-communication-type{% endblock %}
+{% block flashMessage %}{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        {% include 'flash/messages.html.twig' %}
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+        {{ form_label(form.communicationType, 'Communication Type*') }}
+        {{ form_widget(form.communicationType, {'attr': {'class': 'uk-input' ~ ( form_errors(form.communicationType) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.communicationType) }}
+        <div class="uk-margin">
+            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

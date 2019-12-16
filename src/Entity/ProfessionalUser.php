@@ -99,6 +99,11 @@ class ProfessionalUser extends User
      */
     private $teachLessonExperiences;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentToMeetProfessionalRequest", mappedBy="professional")
+     */
+    private $studentToMeetProfessionalRequests;
+
     public function __construct()
     {
         parent::__construct();
@@ -107,6 +112,7 @@ class ProfessionalUser extends User
         $this->rolesWillingToFulfill = new ArrayCollection();
         $this->companyExperiences = new ArrayCollection();
         $this->teachLessonExperiences = new ArrayCollection();
+        $this->studentToMeetProfessionalRequests = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -359,6 +365,37 @@ class ProfessionalUser extends User
             // set the owning side to null (unless already changed)
             if ($teachLessonExperience->getTeacher() === $this) {
                 $teachLessonExperience->setTeacher(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StudentToMeetProfessionalRequest[]
+     */
+    public function getStudentToMeetProfessionalRequests(): Collection
+    {
+        return $this->studentToMeetProfessionalRequests;
+    }
+
+    public function addStudentToMeetProfessionalRequest(StudentToMeetProfessionalRequest $studentToMeetProfessionalRequest): self
+    {
+        if (!$this->studentToMeetProfessionalRequests->contains($studentToMeetProfessionalRequest)) {
+            $this->studentToMeetProfessionalRequests[] = $studentToMeetProfessionalRequest;
+            $studentToMeetProfessionalRequest->setProfessional($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentToMeetProfessionalRequest(StudentToMeetProfessionalRequest $studentToMeetProfessionalRequest): self
+    {
+        if ($this->studentToMeetProfessionalRequests->contains($studentToMeetProfessionalRequest)) {
+            $this->studentToMeetProfessionalRequests->removeElement($studentToMeetProfessionalRequest);
+            // set the owning side to null (unless already changed)
+            if ($studentToMeetProfessionalRequest->getProfessional() === $this) {
+                $studentToMeetProfessionalRequest->setProfessional(null);
             }
         }
 
