@@ -104,6 +104,11 @@ class ProfessionalUser extends User
      */
     private $studentToMeetProfessionalRequests;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\AllowedCommunication", mappedBy="professionalUser")
+     */
+    private $allowedCommunications;
+
     public function __construct()
     {
         parent::__construct();
@@ -113,6 +118,7 @@ class ProfessionalUser extends User
         $this->companyExperiences = new ArrayCollection();
         $this->teachLessonExperiences = new ArrayCollection();
         $this->studentToMeetProfessionalRequests = new ArrayCollection();
+        $this->allowedCommunications = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -396,6 +402,37 @@ class ProfessionalUser extends User
             // set the owning side to null (unless already changed)
             if ($studentToMeetProfessionalRequest->getProfessional() === $this) {
                 $studentToMeetProfessionalRequest->setProfessional(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|AllowedCommunication[]
+     */
+    public function getAllowedCommunications(): Collection
+    {
+        return $this->allowedCommunications;
+    }
+
+    public function addAllowedCommunication(AllowedCommunication $allowedCommunication): self
+    {
+        if (!$this->allowedCommunications->contains($allowedCommunication)) {
+            $this->allowedCommunications[] = $allowedCommunication;
+            $allowedCommunication->setProfessionalUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAllowedCommunication(AllowedCommunication $allowedCommunication): self
+    {
+        if ($this->allowedCommunications->contains($allowedCommunication)) {
+            $this->allowedCommunications->removeElement($allowedCommunication);
+            // set the owning side to null (unless already changed)
+            if ($allowedCommunication->getProfessionalUser() === $this) {
+                $allowedCommunication->setProfessionalUser(null);
             }
         }
 

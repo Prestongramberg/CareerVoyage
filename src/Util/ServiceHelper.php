@@ -14,6 +14,7 @@ use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Mailer\UnseenMessagesMailer;
 use App\Repository\AdminUserRepository;
+use App\Repository\AllowedCommunicationRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\CompanyExperienceRepository;
@@ -60,6 +61,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\Asset\Packages;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -384,6 +386,11 @@ trait ServiceHelper
     private $rolesWillingToFulfillRepository;
 
     /**
+     * @var AllowedCommunicationRepository
+     */
+    private $allowedCommunicationsRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -447,6 +454,7 @@ trait ServiceHelper
      * @param NotificationsMailer $notificationsMailer
      * @param NewCompanyRequestRepository $newCompanyRequestRepository
      * @param RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
+     * @param AllowedCommunicationRepository $allowedCommunicationsRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -510,7 +518,8 @@ trait ServiceHelper
         Geocoder $geocoder,
         NotificationsMailer $notificationsMailer,
         NewCompanyRequestRepository $newCompanyRequestRepository,
-        RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
+        RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
+        AllowedCommunicationRepository $allowedCommunicationsRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -574,6 +583,7 @@ trait ServiceHelper
         $this->notificationsMailer = $notificationsMailer;
         $this->newCompanyRequestRepository = $newCompanyRequestRepository;
         $this->rolesWillingToFulfillRepository = $rolesWillingToFulfillRepository;
+        $this->allowedCommunicationsRepository = $allowedCommunicationsRepository;
     }
 
     public function getFullQualifiedBaseUrl() {

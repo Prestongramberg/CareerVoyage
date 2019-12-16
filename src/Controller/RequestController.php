@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AllowedCommunication;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
@@ -406,6 +407,11 @@ class RequestController extends AbstractController
                     $teacherRegistration->setExperience($experience);
                     $this->entityManager->persist($teacherRegistration);
                     $this->addFlash('success', 'Request successfully confirmed! This event will be added to yours and the professionals calendar.');
+                    // The whole process has been completed successfully. Now you need to open up the line of communication between the student and professional
+                    $allowedCommunication = new AllowedCommunication();
+                    $allowedCommunication->setStudentUser($student);
+                    $allowedCommunication->setProfessionalUser($professional);
+                    $this->entityManager->persist($allowedCommunication);
                 }
 
                 // todo make sure we send emails
