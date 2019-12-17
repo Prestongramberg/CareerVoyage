@@ -358,6 +358,7 @@ class RequestController extends AbstractController
                     $newRequest->setNeedsApprovalBy($professional);
                     $this->entityManager->persist($newRequest);
                     $this->addFlash('success', 'Request being sent to professional to setup 3 dates to meet with student!');
+                    $this->requestsMailer->studentToMeetProfessionalApproval($newRequest);
                 }
                 if($httpRequest->request->has('isFromProfessional')) {
                     // if the request is from the professional send off the next request to the student to finalize the date
@@ -375,6 +376,7 @@ class RequestController extends AbstractController
                     $newRequest->setCreatedBy($professional);
                     $this->entityManager->persist($newRequest);
                     $this->addFlash('success', 'Request sent to student to finalize one of your three dates!');
+                    $this->requestsMailer->studentToMeetProfessionalApproval($newRequest);
                 }
 
                 if($httpRequest->request->has('isFromStudent')) {
@@ -412,6 +414,7 @@ class RequestController extends AbstractController
                     $allowedCommunication->setStudentUser($student);
                     $allowedCommunication->setProfessionalUser($professional);
                     $this->entityManager->persist($allowedCommunication);
+                    $this->requestsMailer->studentToMeetProfessionalFinalDateConfirmed($request);
                 }
 
                 // todo make sure we send emails
@@ -427,6 +430,9 @@ class RequestController extends AbstractController
      * @Route("/requests/student-to-meet-professional", name="student_request_to_meet_professional", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function studentRequestToMeetProfessionalAction(Request $request) {
         $studentId = $request->request->get('studentId');
@@ -451,6 +457,7 @@ class RequestController extends AbstractController
             //  right now just sending the request to the first teacher in the collection
             $request->initializeForEducator($student, $professional, $teachers[0], $reasonToMeet);
         }
+        $this->requestsMailer->studentToMeetProfessionalApproval($request);
         $this->entityManager->persist($request);
         $this->entityManager->flush();
         /*$this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);*/
