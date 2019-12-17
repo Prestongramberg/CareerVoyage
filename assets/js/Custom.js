@@ -228,7 +228,7 @@ jQuery(document).ready(function($) {
     $('.uk-switcher:not(".uk-switcher .uk-switcher")').each(function() {
 
         // Find Index of First Tab With Error
-        var $tab = $(this).children().has('ul:not(".ql-container ul"):not(".uk-list"):not(".uk-tab"):not(".uk-accordion")').first();
+        var $tab = $(this).children().has('ul.errors').first();
         if( $tab.length > 0 ) {
             var index = $tab.index();
             $(this).children().removeClass('uk-active').eq(index).addClass('uk-active');
@@ -236,7 +236,7 @@ jQuery(document).ready(function($) {
 
             // Find First Inner Tab With Error (if applicable)
             var $switcher = $tab.find('.uk-switcher');
-            var $innerTab = $switcher.children().has('ul:not(".ql-container ul"):not(".uk-list"):not(".uk-tab")').first();
+            var $innerTab = $switcher.children().has('ul.errors').first();
             if( $innerTab.length > 0 ) {
                 var innerIndex = $innerTab.index();
                 $switcher.children().removeClass('uk-active').eq(innerIndex).addClass('uk-active');

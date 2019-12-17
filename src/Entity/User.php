@@ -224,11 +224,6 @@ abstract class User implements UserInterface
      */
     protected $temporarySecurityToken;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StudentToMeetProfessionalExperience", mappedBy="user")
-     */
-    private $studentToMeetProfessionalExperiences;
-
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -240,7 +235,6 @@ abstract class User implements UserInterface
         $this->chatMessages = new ArrayCollection();
         $this->registrations = new ArrayCollection();
         $this->feedback = new ArrayCollection();
-        $this->studentToMeetProfessionalExperiences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1107,36 +1101,4 @@ abstract class User implements UserInterface
     {
         $this->temporarySecurityToken = bin2hex(random_bytes(32));
     }
-
-    /**
-     * @return Collection|StudentToMeetProfessionalExperience[]
-     */
-    public function getStudentToMeetProfessionalExperiences(): Collection
-    {
-        return $this->studentToMeetProfessionalExperiences;
-    }
-
-    public function addStudentToMeetProfessionalExperience(StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience): self
-    {
-        if (!$this->studentToMeetProfessionalExperiences->contains($studentToMeetProfessionalExperience)) {
-            $this->studentToMeetProfessionalExperiences[] = $studentToMeetProfessionalExperience;
-            $studentToMeetProfessionalExperience->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeStudentToMeetProfessionalExperience(StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience): self
-    {
-        if ($this->studentToMeetProfessionalExperiences->contains($studentToMeetProfessionalExperience)) {
-            $this->studentToMeetProfessionalExperiences->removeElement($studentToMeetProfessionalExperience);
-            // set the owning side to null (unless already changed)
-            if ($studentToMeetProfessionalExperience->getUser() === $this) {
-                $studentToMeetProfessionalExperience->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
 }
