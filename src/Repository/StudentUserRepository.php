@@ -96,7 +96,7 @@ class StudentUserRepository extends ServiceEntityRepository
      */
     public function findByAllowedCommunication($search, ProfessionalUser $professionalUser) {
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
         inner join student_user su on u.id = su.id inner join allowed_communication ac on su.id = ac.student_user_id 
         where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" and ac.professional_user_id = "%s"', $search, $professionalUser->getId());
 
