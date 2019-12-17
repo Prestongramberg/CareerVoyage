@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Chat;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
@@ -22,6 +23,8 @@ use App\Entity\SchoolResource;
 use App\Entity\SchoolVideo;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Form\ChatFilterType;
+use App\Form\ChatMessageFilterType;
 use App\Form\EditCompanyFormType;
 use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
@@ -57,6 +60,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -318,6 +322,98 @@ class SchoolController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
             'school' => $school,
+        ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
+     * @Route("/schools/{id}/chats", name="school_chat", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function chats(Request $request, School $school) {
+        $this->denyAccessUnlessGranted('edit', $school);
+        $user = $this->getUser();
+
+        $form = $this->createForm(ChatFilterType::class, null, [
+            'action' => $this->generateUrl('school_chat', ['id' => $school->getId()]),
+            'method' => 'GET'
+        ]);
+
+        $form->handleRequest($request);
+        $studentIds = [];
+        foreach($school->getStudentUsers() as $studentUser) {
+            $studentIds[] = $studentUser->getId();
+        }
+        $filterBuilder = $this->chatRepository->createQueryBuilder('c')
+            ->andWhere('c.userOne IN (:userOneIds) OR c.userTwo IN (:userTwoIds)')
+            ->setParameter('userOneIds', $studentIds)
+            ->setParameter('userTwoIds', $studentIds);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render('school/chat.html.twig', [
+            'user' => $user,
+            'school' => $school,
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
+     * @Route("/schools/{id}/chats{chatId}/messages", name="school_chat_messages", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @param Chat $chat
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function chatMessages(Request $request, School $school, Chat $chat) {
+        $this->denyAccessUnlessGranted('edit', $school);
+        $user = $this->getUser();
+
+        $form = $this->createForm(ChatMessageFilterType::class, null, [
+            'action' => $this->generateUrl('school_chat_messages', ['id' => $school->getId(), 'chatId' => $chat->getId()]),
+            'method' => 'GET'
+        ]);
+
+        $form->handleRequest($request);
+        $filterBuilder = $this->chatMessageRepository->createQueryBuilder('cm')
+            ->where('cm.chat = :chat')
+            ->setParameter('chat', $chat);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render('school/chat_messages.html.twig', [
+            'user' => $user,
+            'school' => $school,
+            'pagination' => $pagination,
+            'chat' => $chat,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('school_chat_messages', ['id' => $school->getId(), 'chatId' => $chat->getId()])
         ]);
     }
 
