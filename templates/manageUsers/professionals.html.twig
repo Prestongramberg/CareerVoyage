@@ -30,7 +30,7 @@
                         <th>Email</th>
                         <th>Username</th>
                         <th>Company</th>
-                        {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
+                        {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
                         <th>Is Owner</th>
                         <th>Edit/Delete</th>
                     </tr>
@@ -50,19 +50,9 @@
                                     User does not belong to company
                                 {% endif %}
                             </td>
-                            {% if user.canLoginAsAnotherUser %}
+                            {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
                                 <th>
-                                    {% if previouslyLoggedInAs is not null %}
-                                        <form method="post" action="{{ path('login_as_user') }}">
-                                            <input type="hidden" name="userId" value="{{ previouslyLoggedInAs['userId'] }}">
-                                            <button type="submit" class="uk-button uk-button-default uk-button-small uk-width-1-1">RETURN</button>
-                                        </form>
-                                    {% else %}
-                                        <form method="post" action="{{ path('login_as_user') }}">
-                                            <input type="hidden" name="userId" value="{{ paginatedUser.id }}">
-                                            <button class="uk-button uk-button-default uk-button-small" type="submit">Login</button>
-                                        </form>
-                                    {% endif %}
+                                    <a class="uk-button uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
                                 </th>
                             {% endif %}
 

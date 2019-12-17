@@ -32,7 +32,7 @@
                         <th>Region</th>
                         <th>State</th>
                         <th>Site</th>
-                        {% if user.canLoginAsAnotherUser %}<th>Login As User</th>{% endif %}
+                        {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
                         <th>Edit/Delete</th>
                     </tr>
 
@@ -59,20 +59,9 @@
                                     {{ paginatedUser.region.site.name }}
                                 {% endif %}
                             </td>
-                            {% if user.canLoginAsAnotherUser %}
+                            {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
                                 <th>
-                                    {% if previouslyLoggedInAs is not null %}
-                                        <form method="post" action="{{ path('login_as_user') }}">
-                                            <input type="hidden" name="userId" value="{{ previouslyLoggedInAs['userId'] }}">
-                                            <button type="submit" class="uk-button uk-button-default uk-button-small uk-width-1-1">RETURN</button>
-                                        </form>
-                                    {% else %}
-                                        <form method="post" action="{{ path('login_as_user') }}">
-                                            <input type="hidden" name="userId" value="{{ paginatedUser.id }}">
-                                            <button class="uk-button uk-button-default uk-button-small" type="submit">Login</button>
-                                        </form>
-                                    {% endif %}
-
+                                    <a class="uk-button uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
                                 </th>
                             {% endif %}
                             <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>

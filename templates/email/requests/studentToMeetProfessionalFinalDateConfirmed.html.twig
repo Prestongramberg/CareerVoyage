@@ -1,0 +1,6 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.needsApprovalBy.firstName } %}
+
+<p>Student {{ request.student.fullName }} has confirmed a date to meet {{ request.confirmedDate|date("m/d/Y h:i:s A") }}</p>
+<p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to view your calendar.</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

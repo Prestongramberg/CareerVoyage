@@ -109,13 +109,15 @@
                                 {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}
                                 {% endif %}
                                 <br /><br />
-                                <div class="react-calendar-button"
-                                    data-event-start-time="{{ request.teachLessonExperience.startDateAndTimeTimeStamp }}"
-                                    data-event-end-time="{{ request.teachLessonExperience.endDateAndTimeTimeStamp }}"
-                                    data-title="{{ request.teachLessonExperience.title }}"
-                                    data-description="{{ request.teachLessonExperience.briefDescription }}"
-                                    data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
-                                ></div>
+                        {% if request.teachLessonExperience is not null %}
+                            <div class="react-calendar-button"
+                                 data-event-start-time="{{ request.teachLessonExperience.startDateAndTimeTimeStamp }}"
+                                 data-event-end-time="{{ request.teachLessonExperience.endDateAndTimeTimeStamp }}"
+                                 data-title="{{ request.teachLessonExperience.title }}"
+                                 data-description="{{ request.teachLessonExperience.briefDescription }}"
+                                 data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
+                            ></div>
+                        {% endif %}
                             </td>
                         </tr>
                     {% endif %}

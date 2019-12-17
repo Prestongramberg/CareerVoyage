@@ -1,0 +1,371 @@
+<li>
+    {# start request from student to educator for approval (Show this view to who it needs approval by) #}
+    {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.needsApprovalByUser(user) %}
+        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Student to meet professional.</td>
+                </tr>
+                <tr>
+                    <td>Reason to meet</td>
+                    <td>{{ request.reasonToMeet.name }}</td>
+                </tr>
+                <tr>
+                    <td>Student</td>
+                    <td>{{ request.createdBy.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Professional</td>
+                    <td>{{ request.professional.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email ? request.needsApprovalBy.email : request.needsApprovalBy.username }} (Yourself)</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            {% if render_request_status_text( request ) == "Pending" %}
+                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-success" type="submit" value="Approve">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                    <input type="hidden" name="isFromEducator" value="true">
+                </form>
+                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                    <input type="hidden" name="isFromEducator" value="true">
+                </form>
+            {% endif %}
+            </tbody>
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
+    {% endif %}
+    {# end request from student to educator for approval (Show this view to who it needs approval by) #}
+
+
+    {# start request from student to educator for approval (Show this view to who it was created by) #}
+    {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.wasCreatedByUser(user) %}
+        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Student to meet professional.</td>
+                </tr>
+                <tr>
+                    <td>Reason to meet</td>
+                    <td>{{ request.reasonToMeet.name }}</td>
+                </tr>
+                <tr>
+                    <td>Student</td>
+                    <td>{{ request.createdBy.fullName }} (Yourself)</td>
+                </tr>
+                <tr>
+                    <td>Professional</td>
+                    <td>{{ request.professional.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email ? request.needsApprovalBy.email : request.needsApprovalBy.username }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            </tbody>
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
+    {% endif %}
+    {# end request from student to educator for approval (Show this view to who it was created by) #}
+
+    {# start request from professional to student for approval (Show this view to who it needs approval by) #}
+    {% if request.createdBy.isProfessional and  request.needsApprovalBy.isStudent and request.needsApprovalByUser(user) %}
+        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Student to meet professional.</td>
+                </tr>
+                <tr>
+                    <td>Reason to meet</td>
+                    <td>{{ request.reasonToMeet.name }}</td>
+                </tr>
+                <tr>
+                    <td>Professional</td>
+                    <td>{{ request.createdBy.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }} (Yourself)</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Dates Available</td>
+                    <td>
+                        <p>{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}</p>
+                        <p>{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}</p>
+                        <p>{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}</p>
+                    </td>
+                </tr>
+                {% if request.confirmedDate is not null %}
+                <tr>
+                    <td>Confirmed Date</td>
+                    <td>
+                        <p>{{ request.confirmedDate|date("m/d/Y h:i:s A") }}</p>
+                    </td>
+                </tr>
+                {% endif %}
+                {% if render_request_status_text( request ) == "Pending" %}
+                    <tr>
+                        <td>Confirm a Date</td>
+                        <td>
+                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                                <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="date" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="request" value="{{ request.id }}">
+                                <input type="hidden" name="isFromStudent" value="true">
+                            </form>
+                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                                <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="date" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="request" value="{{ request.id }}">
+                                <input type="hidden" name="isFromStudent" value="true">
+                            </form>
+                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                                <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="date" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="request" value="{{ request.id }}">
+                                <input type="hidden" name="isFromStudent" value="true">
+                            </form>
+
+                            <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                                <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                <input type="hidden" name="request" value="{{ request.id }}">
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Created On</td>
+                        <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+            {% if render_request_status_text( request ) == "Pending" %}
+                <p>The professional has selected three dates that work for them to meet. Please select one of the three dates above that work best for you.</p>
+            {% endif %}
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
+    {% endif %}
+    {# end request from professional to student for approval (Show this view to who it needs approval by) #}
+
+
+    {# start request from professional to student for approval (Show this view to who it was created by) #}
+    {% if request.createdBy.isProfessional and request.needsApprovalBy.isStudent and request.wasCreatedByUser(user) %}
+        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Student to meet professional.</td>
+                </tr>
+                <tr>
+                    <td>Reason to meet</td>
+                    <td>{{ request.reasonToMeet.name }}</td>
+                </tr>
+                <tr>
+                    <td>Professional</td>
+                    <td>{{ request.createdBy.fullName }} (Yourself)</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td>Created On</td>
+                        <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                    </tr>
+                {% if request.confirmedDate is not null %}
+                    <tr>
+                        <td>Confirmed Date</td>
+                        <td>
+                            <p>{{ request.confirmedDate|date("m/d/Y h:i:s A") }}</p>
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
+    {% endif %}
+    {# end request from professional to student for approval (Show this view to who it was created by) #}
+
+
+
+    {# start request from student to professional for approval  (Show this view to who it was created by) #}
+    {% if (request.createdBy.isStudent or request.createdBy.isEducator) and request.needsApprovalBy.isProfessional and request.wasCreatedByUser(user) %}
+        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Student to meet professional.</td>
+                </tr>
+                <tr>
+                    <td>Reason to meet</td>
+                    <td>{{ request.reasonToMeet.name }}</td>
+                </tr>
+                <tr>
+                    <td>Student</td>
+                    <td>{{ request.student.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Created On</td>
+                    <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                </tr>
+                </tbody>
+            </table>
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
+    {% endif %}
+    {# end request from student to professional for approval (Show this view to who it was created by) #}
+
+
+
+    {# start request from teacher to professional for approval (Show this view to who it needs approval by) #}
+    {% if (request.createdBy.isStudent or request.createdBy.isEducator) and request.needsApprovalBy.isProfessional and request.needsApprovalByUser(user) %}
+        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Student to meet professional.</td>
+                </tr>
+                <tr>
+                    <td>Reason to meet</td>
+                    <td>{{ request.reasonToMeet.name }}</td>
+                </tr>
+                <tr>
+                    <td>Student</td>
+                    <td>{{ request.student.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }} (Yourself)</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Created On</td>
+                    <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                </tr>
+                </tbody>
+            </table>
+            {% if render_request_status_text( request ) == "Pending" %}
+
+                <button data-uk-toggle="target: #student-to-meet-professional-dates" type="button"
+                        class="uk-label uk-label-success">Approve
+                </button>
+                <div id="student-to-meet-professional-dates" data-uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h2 class="uk-modal-title">Request for student to meet professional</h2>
+                        <p>Please select 3 different date/times that work best for you to meet.</p>
+                        <form method="post" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <input type="hidden" name="request" value="{{ request.id }}">
+                            <input type="hidden" name="isFromProfessional" value="true">
+                            <div class="uk-margin">
+                                <label for="dateOptionOne" class="required">Date 1*</label>
+                                <input type="text" name="dateOptionOne" required="required" class="uk-timepicker uk-input" />
+                            </div>
+                            <div class="uk-margin">
+                                <label for="dateOptionTwo" class="required">Date 2*</label>
+                                <input type="text" name="dateOptionTwo" required="required" class="uk-timepicker uk-input" />
+                            </div>
+                            <div class="uk-margin">
+                                <label for="dateOptionThree" class="required">Date 3*</label>
+                                <input type="text" name="dateOptionThree" required="required" class="uk-timepicker uk-timepicker-up uk-input" />
+                            </div>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary uk-inline">Yes, Send</button>
+                                <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                </form>
+            {% endif %}
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
+    {% endif %}
+    {# end request from teacher to professional for approval (Show this view to who it needs approval by) #}
+
+</li>

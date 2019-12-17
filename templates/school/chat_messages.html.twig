@@ -1,0 +1,59 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Schools{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+                {% include 'flash/messages.html.twig' %}
+
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('school_chat', {'id': school.id}) }}">Chats</a></li>
+                    <li><span>messages</span></li>
+                </ul>
+
+
+                {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+                <div class="uk-width-1-4">
+                    {{ form_widget(form.body, {'attr': {'class': 'uk-input', 'placeholder': 'Body'}}) }}
+                </div>
+                <div class="uk-width-1-4@s">
+                    <button class="uk-button uk-button-default">Search</button>
+                    <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
+                </div>
+                {{ form_end(form) }}
+
+                <br>
+                <div class="count">
+                    Total Messages: {{ pagination.getTotalItemCount }}
+                </div>
+
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tr>
+                        <th>Chat Body</th>
+                        <th>Sent From</th>
+                        <th>Sent To</th>
+                        <th>Sent At</th>
+                    </tr>
+
+                    {% for paginatedMessage in pagination %}
+                        <tr>
+                            <td>{{ paginatedMessage.body }}</td>
+                            <td>{{ paginatedMessage.sentFrom.fullName }}</td>
+                            <td>{{ paginatedMessage.sentTo.fullName }}</td>
+                            <td>{{ paginatedMessage.sentAt|date("F jS, Y h:i:s A")  }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="navigation">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}

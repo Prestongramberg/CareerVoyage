@@ -98,6 +98,16 @@ class StudentUser extends User
      */
     private $educatorRegisterStudentForCompanyExperienceRequests;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentToMeetProfessionalRequest", mappedBy="student")
+     */
+    private $studentToMeetProfessionalRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\AllowedCommunication", mappedBy="studentUser")
+     */
+    private $allowedCommunications;
+
     public function __construct()
     {
         parent::__construct();
@@ -107,6 +117,8 @@ class StudentUser extends User
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
+        $this->studentToMeetProfessionalRequests = new ArrayCollection();
+        $this->allowedCommunications = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -396,6 +408,89 @@ class StudentUser extends User
             // set the owning side to null (unless already changed)
             if ($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser() === $this) {
                 $educatorRegisterStudentForCompanyExperienceRequest->setStudentUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isCommunicationEnabled() {
+        if($this->getSchool() && $this->getSchool()->getCommunicationType() !== null && $this->getSchool()->getCommunicationType() !== School::COMMUNICATION_TYPE_DEFAULT) {
+            return true;
+        }
+        return false;
+    }
+
+    public function isTeacherApprovalRequired() {
+        if($this->getSchool() && $this->getSchool()->getCommunicationType() !== null && $this->getSchool()->getCommunicationType() === School::COMMUNICATION_TYPE_TEACHER_APPROVAL_REQUIRED) {
+            return true;
+        }
+        return false;
+    }
+
+    public function isTeacherApprovalNotRequired() {
+        if($this->getSchool() && $this->getSchool()->getCommunicationType() !== null && $this->getSchool()->getCommunicationType() === School::COMMUNICATION_TYPE_TEACHER_APPROVAL_NOT_REQUIRED) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return Collection|StudentToMeetProfessionalRequest[]
+     */
+    public function getStudentToMeetProfessionalRequests(): Collection
+    {
+        return $this->studentToMeetProfessionalRequests;
+    }
+
+    public function addStudentToMeetProfessionalRequest(StudentToMeetProfessionalRequest $studentToMeetProfessionalRequest): self
+    {
+        if (!$this->studentToMeetProfessionalRequests->contains($studentToMeetProfessionalRequest)) {
+            $this->studentToMeetProfessionalRequests[] = $studentToMeetProfessionalRequest;
+            $studentToMeetProfessionalRequest->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStudentToMeetProfessionalRequest(StudentToMeetProfessionalRequest $studentToMeetProfessionalRequest): self
+    {
+        if ($this->studentToMeetProfessionalRequests->contains($studentToMeetProfessionalRequest)) {
+            $this->studentToMeetProfessionalRequests->removeElement($studentToMeetProfessionalRequest);
+            // set the owning side to null (unless already changed)
+            if ($studentToMeetProfessionalRequest->getStudent() === $this) {
+                $studentToMeetProfessionalRequest->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|AllowedCommunication[]
+     */
+    public function getAllowedCommunications(): Collection
+    {
+        return $this->allowedCommunications;
+    }
+
+    public function addAllowedCommunication(AllowedCommunication $allowedCommunication): self
+    {
+        if (!$this->allowedCommunications->contains($allowedCommunication)) {
+            $this->allowedCommunications[] = $allowedCommunication;
+            $allowedCommunication->setStudentUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAllowedCommunication(AllowedCommunication $allowedCommunication): self
+    {
+        if ($this->allowedCommunications->contains($allowedCommunication)) {
+            $this->allowedCommunications->removeElement($allowedCommunication);
+            // set the owning side to null (unless already changed)
+            if ($allowedCommunication->getStudentUser() === $this) {
+                $allowedCommunication->setStudentUser(null);
             }
         }
 

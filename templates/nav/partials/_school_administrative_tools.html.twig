@@ -6,3 +6,7 @@
 {% else %}
     <li><a href="{{ path('requests') }}">! Pending Request</a></li>
 {% endif %}
+{% for school in user.schools %}
+    <li><a href="{{ path('school_chat', {'id': school.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: comments"></span> CHAT - {{ school.name }}</a></li>
+{% endfor %}
+

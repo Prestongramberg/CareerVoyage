@@ -160,18 +160,6 @@ class LessonController extends AbstractController
         $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionOne'));
         $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionTwo'));
         $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionThree'));
-        /*$redirectUrl = $request->request->get('redirectUrl', null);*/
-
-    /*    $requests = $this->teachLessonRequestRepository->getByEducatorAndProfessional($user, $professionalUser);
-
-        if(count($requests) > 0) {
-            $this->addFlash('error', 'You have already made a request to this professional to teach this lesson.');
-            if($redirectUrl) {
-                return $this->redirect($redirectUrl);
-            }
-            return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
-        }*/
-
         $teachLessonRequest = new TeachLessonRequest();
         $teachLessonRequest->setDateOptionOne($dateOptionOne);
         $teachLessonRequest->setDateOptionTwo($dateOptionTwo);

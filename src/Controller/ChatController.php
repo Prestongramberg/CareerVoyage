@@ -368,7 +368,8 @@ class ChatController extends AbstractController
             $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
             $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
             $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers);
+            $professionalUsers = $this->professionalUserRepository->findByAllowedCommunication($search, $loggedInUser);
+            $users = array_merge($professionalUsers, $educatorUsers, $schoolAdministrators, $studentUsers);
         }
 
         /**
@@ -398,7 +399,8 @@ class ChatController extends AbstractController
             $educatorUsers = $this->educatorUserRepository->findBySearchTerm($search);
             $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
             $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
-            $users = array_merge($educatorUsers, $schoolAdministrators, $professionalUsers);
+            $studentUsers = $this->studentUserRepository->findByAllowedCommunication($search, $loggedInUser);
+            $users = array_merge($studentUsers, $educatorUsers, $schoolAdministrators, $professionalUsers);
         }
 
         return $users;

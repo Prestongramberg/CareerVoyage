@@ -266,6 +266,12 @@ class AppExtension extends AbstractExtension
                     'user' => $user,
                 ]);
                 break;
+            case "StudentToMeetProfessionalRequest":
+                return $this->twig->render('request/partials/_student_to_meet_professional_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                ]);
+                break;
             default:
                 return null;
         }

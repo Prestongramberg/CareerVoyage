@@ -16,7 +16,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     "newCompanyRequest" = "NewCompanyRequest",
  *     "joinCompanyRequest" = "JoinCompanyRequest",
  *     "teachLessonRequest" = "TeachLessonRequest",
- *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest"
+ *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
+ *     "studentToMeetProfessionalRequest" = "StudentToMeetProfessionalRequest"
  * })
  */
 abstract class Request
@@ -116,6 +117,10 @@ abstract class Request
 
     public function wasCreatedByUser(User $user) {
         return $user->getId() === $this->created_by->getId();
+    }
+
+    public function needsApprovalByUser(User $user) {
+        return $user->getId() === $this->getNeedsApprovalBy()->getId();
     }
 
     public function getDenied(): ?bool

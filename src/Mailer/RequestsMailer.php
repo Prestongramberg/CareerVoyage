@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
+use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Mailer\AbstractMailer;
@@ -223,5 +224,49 @@ class RequestsMailer extends AbstractMailer
 
         $this->mailer->send($message);
 
+    }
+
+    /**
+     * Student to meet professional approval
+     *
+     * @param StudentToMeetProfessionalRequest $request
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function studentToMeetProfessionalApproval(StudentToMeetProfessionalRequest $request) {
+        $message = (new \Swift_Message("Student To Meet Professional Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($request->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/studentToMeetProfessional.html.twig',
+                    ['request' => $request]
+                ),
+                'text/html'
+            );
+        $this->mailer->send($message);
+    }
+
+    /**
+     * Student to meet professional approval
+     *
+     * @param StudentToMeetProfessionalRequest $request
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function studentToMeetProfessionalFinalDateConfirmed(StudentToMeetProfessionalRequest $request) {
+        $message = (new \Swift_Message("Student To Meet Final Date Approved."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($request->getProfessional()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/studentToMeetProfessionalFinalDateConfirmed.html.twig',
+                    ['request' => $request]
+                ),
+                'text/html'
+            );
+        $this->mailer->send($message);
     }
 }

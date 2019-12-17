@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\ProfessionalUser;
 use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\StudentUser;
@@ -85,5 +86,23 @@ class StudentUserRepository extends ServiceEntityRepository
             ->setParameter('region', $region)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param $search
+     * @param ProfessionalUser $professionalUser
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByAllowedCommunication($search, ProfessionalUser $professionalUser) {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+        inner join student_user su on u.id = su.id inner join allowed_communication ac on su.id = ac.student_user_id 
+        where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" and ac.professional_user_id = "%s"', $search, $professionalUser->getId());
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 }

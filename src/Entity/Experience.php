@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience"})
+ * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience", "studentToMeetProfessionalExperience" = "StudentToMeetProfessionalExperience"})
  */
 abstract class Experience
 {
