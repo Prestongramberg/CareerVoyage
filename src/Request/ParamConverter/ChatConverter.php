@@ -38,10 +38,7 @@ class ChatConverter implements ParamConverterInterface
      */
     public function apply(Request $request, ParamConverter $configuration)
     {
-	    $chatId = $request->attributes->get('id', false);
-	    if(!$chatId) {
-		    $chatId = $request->attributes->get('chatId');
-	    }
+        $chatId = $request->attributes->get('chatId');
         $chat = $this->chatRepository->find($chatId);
         if(!$chat) {
             return false;
