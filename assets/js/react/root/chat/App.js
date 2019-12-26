@@ -4,6 +4,7 @@ import { closeChat, closeThread, handlePusherEvent, initiateChatWithUserId, load
 import Loader from '../../components/Loader/Loader'
 import PropTypes from "prop-types";
 import Pusher from 'pusher-js';
+import {deepObject} from "../../utilities/object-utils";
 
 const cb = "live-chat";
 
@@ -169,6 +170,17 @@ class App extends React.Component {
 
         const { ui, userId, chat } = this.props
         const { isThreadLoading } = ui
+        const sentFrom = deepObject( chat, 'messages.0.sentFrom' ) || {}
+        const sentTo = deepObject( chat, 'messages.0.sentTo' ) || {}
+
+        let studentProfessionalChat = false;
+
+        if(
+            ( sentFrom.professional === true && sentTo.student === true  ) ||
+            ( sentFrom.student === true && sentTo.professional === true  )
+        ) {
+            studentProfessionalChat = true
+        }
 
         if ( isThreadLoading ) {
             return <Loader />
@@ -181,21 +193,28 @@ class App extends React.Component {
                 </div>
                 <div className={`${cb}__window-thread-chatting-with`}>Chatting with: <a href={ window.Routing.generate("profile_index", { id: chat.userEngagedWith.id }) }>{ chat.userEngagedWith.fullName }</a></div>
                 {chat.messages.length ? (
-                    <div className={`${cb}__window-thread-messages`}>
-                        { chat.messages.map( (message) => {
-
-                            const messageClassNameModifier = message.sentFrom.id === userId ? "to" : "from";
-
-                            return (
-                                <div key={message.id} className={`${cb}__window-thread-message ${cb}__window-thread-message--${messageClassNameModifier}`}>
-                                    <div className={`${cb}__window-thread-message-text ${cb}__window-thread-message-text--${messageClassNameModifier}`}>
-                                        { message.body }
-                                    </div>
+                    <div>
+                        <div className={`${cb}__window-thread-messages`}>
+                            { studentProfessionalChat && (
+                                <div className={`${cb}__window-thread-messages-warning`}>
+                                    This chat is being monitored for student protection.
                                 </div>
-                            )
-                        })}
-                        <div style={{ float:"left", clear: "both" }}
-                             ref={(el) => { this.messagesEnd = el; }}>
+                            )}
+                            { chat.messages.map( (message) => {
+
+                                const messageClassNameModifier = message.sentFrom.id === userId ? "to" : "from";
+
+                                return (
+                                    <div key={message.id} className={`${cb}__window-thread-message ${cb}__window-thread-message--${messageClassNameModifier}`}>
+                                        <div className={`${cb}__window-thread-message-text ${cb}__window-thread-message-text--${messageClassNameModifier}`}>
+                                            { message.body }
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                            <div style={{ float:"left", clear: "both" }}
+                                 ref={(el) => { this.messagesEnd = el; }}>
+                            </div>
                         </div>
                     </div>
                 ) : (

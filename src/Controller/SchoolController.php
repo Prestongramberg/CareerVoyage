@@ -326,16 +326,20 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER"})
      * @Route("/schools/{id}/chats", name="school_chat", options = { "expose" = true })
      * @param Request $request
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function chats(Request $request, School $school) {
-        $this->denyAccessUnlessGranted('edit', $school);
+    	/** @var User $user */
         $user = $this->getUser();
-
+		if($user->isEducator() && $user->getSchool()->getId() !== $school->getId()) {
+			throw new AccessDeniedException();
+		} else if(!$user->isEducator()) {
+			$this->denyAccessUnlessGranted('edit', $school);
+		}
         $form = $this->createForm(ChatFilterType::class, null, [
             'action' => $this->generateUrl('school_chat', ['id' => $school->getId()]),
             'method' => 'GET'
@@ -373,7 +377,7 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER"})
      * @Route("/schools/{id}/chats{chatId}/messages", name="school_chat_messages", options = { "expose" = true })
      * @param Request $request
      * @param School $school
@@ -381,8 +385,13 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function chatMessages(Request $request, School $school, Chat $chat) {
-        $this->denyAccessUnlessGranted('edit', $school);
-        $user = $this->getUser();
+
+	    $user = $this->getUser();
+	    if($user->isEducator() && $user->getSchool()->getId() !== $school->getId()) {
+		    throw new AccessDeniedException();
+	    } else if(!$user->isEducator()) {
+		    $this->denyAccessUnlessGranted('edit', $school);
+	    }
 
         $form = $this->createForm(ChatMessageFilterType::class, null, [
             'action' => $this->generateUrl('school_chat_messages', ['id' => $school->getId(), 'chatId' => $chat->getId()]),

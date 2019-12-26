@@ -447,7 +447,7 @@ abstract class User implements UserInterface
     }
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "CHAT", "MESSAGE"})
      * @return bool
      */
     public function isProfessional()
@@ -462,7 +462,7 @@ abstract class User implements UserInterface
     }
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "CHAT", "MESSAGE"})
      * @return bool
      */
     public function isEducator()
@@ -477,7 +477,7 @@ abstract class User implements UserInterface
     }
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "CHAT", "MESSAGE"})
      * @return bool
      */
     public function isStudent()

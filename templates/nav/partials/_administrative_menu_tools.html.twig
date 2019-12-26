@@ -3,6 +3,7 @@
 {% elseif user.isSiteAdmin %}
     {% include 'nav/partials/_site_admin_administrative_tools.html.twig' %}
 {% elseif user.isEducator %}
+    {% include 'nav/partials/_educator_administrative_tools.html.twig' %}
 {% elseif user.isStateCoordinator %}
     {% include 'nav/partials/_state_administrative_tools.html.twig' %}
 {% elseif user.isRegionalCoordinator %}

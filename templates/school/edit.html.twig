@@ -20,6 +20,7 @@
             <li><a href="#school-photos">Photos</a></li>
             <li><a href="#school-videos">Videos</a></li>
             <li><a href="#school-resources">Resources</a></li>
+            <li><a href="#school-preferences">Communication</a></li>
         </ul>
 
         {% if form_errors(form) %}
@@ -31,7 +32,6 @@
 
         <div class="uk-switcher" id="tab-edit-school">
             <div class="page-school-edit__details">
-                <a style="float:right" href="{{ path('school_communication_type', {id: school.id}) }}">Set Communication Type</a>
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
@@ -284,6 +284,9 @@
                         {% endif %}
                     </div>
                 </div>
+            </div>
+            <div class="page-school-edit__communication">
+                <a href="{{ path('school_communication_type', {id: school.id}) }}" class="uk-button uk-button-default uk-button-small" target="_blank">Change Communication Preferences</a>
             </div>
         </div>
 

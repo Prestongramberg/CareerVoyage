@@ -82,6 +82,13 @@
     overflow: auto;
   }
 
+  &__window-thread-messages-warning {
+    color: red;
+    font-size: 12px;
+    font-style: italic;
+    padding: 5px 0;
+  }
+
   &__window-chat-thread {
     align-items: center;
     cursor: pointer;

@@ -16,9 +16,15 @@
                 <div>{{ form_errors(form) }}</div>
             </div>
         {% endif %}
-        {{ form_label(form.communicationType, 'Communication Type*') }}
+        {{ form_label(form.communicationType, 'Communication Type (between student/professionals)*') }}
         {{ form_widget(form.communicationType, {'attr': {'class': 'uk-input' ~ ( form_errors(form.communicationType) ? ' uk-form-danger' : '' ) }}) }}
         {{ form_errors(form.communicationType) }}
+        <div class="uk-margin">
+            <p><strong>Default</strong> - No communication allowed</p>
+            <p><strong>Teacher Approval Required</strong> - Students can request to meet a professional, but a teacher must approve the request before the professional is contacted</p>
+            <p><strong>Teacher Approval Not Required</strong> - Students can request to meet a professional and confirm appointments with them directly.</p>
+            <p><em>Note:</em> All chats between professionals and students are monitored and stored.</p>
+        </div>
         <div class="uk-margin">
             <button class="uk-button uk-button-primary uk-button-small">Save</button>
         </div>
