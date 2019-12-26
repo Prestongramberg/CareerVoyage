@@ -374,7 +374,7 @@ class SchoolController extends AbstractController
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
-     * @Route("/schools/{id}/chats{chatId}/messages", name="school_chat_messages", options = { "expose" = true })
+     * @Route("/schools/{id}/chats/{chatId}/messages", name="school_chat_messages", options = { "expose" = true })
      * @param Request $request
      * @param School $school
      * @param Chat $chat
