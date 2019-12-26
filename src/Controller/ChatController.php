@@ -229,7 +229,7 @@ class ChatController extends AbstractController
     /**
      * 1. Mark the messages as read for the logged in user for that given chat
      *
-     * @Route("/chats/{id}/read", name="chat_read_messages", methods={"POST"}, options = { "expose" = true })
+     * @Route("/chats/{chatId}/read", name="chat_read_messages", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @param Chat $chat
      * @return JsonResponse
@@ -259,7 +259,7 @@ class ChatController extends AbstractController
     /**
      * sends a single message to a chat
      *
-     * @Route("/chats/{id}/unread", name="get_unread_chat_messages", methods={"POST"}, options = { "expose" = true })
+     * @Route("/chats/{chatId}/unread", name="get_unread_chat_messages", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @param Chat $chat
      * @return JsonResponse
@@ -290,7 +290,7 @@ class ChatController extends AbstractController
     /**
      * sends a single message to a chat
      *
-     * @Route("/chats/{id}/message", name="message_chat", methods={"POST"}, options = { "expose" = true })
+     * @Route("/chats/{chatId}/message", name="message_chat", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @param Chat $chat
      * @param $pusherAppId
