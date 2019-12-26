@@ -132,7 +132,7 @@ export function loadThread( userId, refresh = false ) {
 export function sendMessage( message, chatId ) {
     return (dispatch, getState) => {
 
-        const url = window.Routing.generate("message_chat", { id: chatId })
+        const url = window.Routing.generate("message_chat", { chatId: chatId })
 
         dispatch({type: actionTypes.SEND_MESSAGE})
 
