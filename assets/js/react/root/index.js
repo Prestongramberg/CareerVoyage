@@ -2,6 +2,7 @@ require('./bar-chart');
 require('./calendar-button');
 require('./chat');
 require('./events-calendar');
+require('./form-smile-rating');
 require('./google-map');
 require('./horizontal-bar-chart');
 require('./searchable-company-listing');

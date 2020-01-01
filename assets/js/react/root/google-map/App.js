@@ -25,8 +25,6 @@ export class MapContainer extends Component {
 
         const { focalPointLatitude, focalPointLongitude, companies, schools } = this.props
 
-        console.log( this.state );
-
         return (
             <div style={{ flex: '0 0 35rem', height: '400px', position: 'sticky', top: '0'}}>
                 <div className="" style={{ height: '100%', width: '100%', position: 'absolute', top: '0px', left: '0px' }}>

@@ -24,6 +24,11 @@ export default (state = {}, action) => {
                 ...state,
                 secondaryIndustry: action.industry
             };
+        case actionTypes.EVENT_TYPE_QUERY_CHANGED:
+            return {
+                ...state,
+                eventType: action.eventType
+            }
         case actionTypes.COMPANY_QUERY_CHANGED:
             return {
                 ...state,

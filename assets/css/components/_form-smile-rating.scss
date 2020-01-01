@@ -1,0 +1,16 @@
+.form-smile-rating {
+
+  display: flex;
+  flex-direction: row;
+
+  &__input {
+    margin-right: 10px;
+    width: 50px;
+
+    image {
+      cursor: pointer;
+      cursor: hand;
+    }
+  }
+
+}

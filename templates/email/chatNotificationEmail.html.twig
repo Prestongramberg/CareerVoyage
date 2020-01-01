@@ -1,0 +1,23 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<p>You have <strong>23 unread messages</strong></p>
+<hr style="margin-bottom: 25px;">
+
+<!-- foreach user -->
+<div style="text-align: center; margin-bottom: 25px;">
+    {# Josh - for reference when you add the loop - <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">#}
+    <img class="uk-border-circle" width="60" height="60" src="{{ asset('build/images/avatar.png') }}"><br />
+    <p><strong>Jane Doe</strong></p>
+</div>
+<div style="text-align: center; margin-bottom: 25px;">
+    {# Josh - for reference when you add the loop - <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">#}
+    <img class="uk-border-circle" width="60" height="60" src="{{ asset('build/images/avatar.png') }}"><br />
+    <p><strong>John Doe</strong></p>
+</div>
+<!-- endforeach -->
+
+<div>
+    <a style="height: 40px; line-height: 40px; text-align: center; background-color: #1e87f0; color: #FFF; padding: 5px; display: inline-block; width: 300px; text-decoration: none;" href="{{ url('dashboard') }}">View messages</a>
+</div>
+
+{% include 'email/partial/emailFooter.html.twig' %}

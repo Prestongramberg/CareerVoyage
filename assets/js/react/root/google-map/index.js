@@ -10,9 +10,6 @@ for( let i = 0; i < maps.length; i++) {
     const companies = JSON.parse(maps[i].getAttribute("data-companies"));
     const schools = JSON.parse(maps[i].getAttribute("data-schools"));
 
-    console.log(companies);
-    console.log(schools);
-
     ReactDOM.render(
         <App
             focalPointLatitude={focalPointLatitude}

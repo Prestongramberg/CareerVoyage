@@ -54,7 +54,7 @@ abstract class Feedback
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
-    protected $likelihoodToRecommendToFriend = 4;
+    protected $likelihoodToRecommendToFriend = 7;
 
     /**
      * @ORM\Column(type="text", nullable=true)

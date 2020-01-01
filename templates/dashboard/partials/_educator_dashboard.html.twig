@@ -41,22 +41,14 @@
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">Calendar</a></li>
-{#                    <li><a href="#user-participation">Participation</a></li>#}
                     <li><a href="#user-favorites">Favorites</a></li>
                     <li><a href="#user-events">Events</a></li>
+                    <li><a href="#user-students">My Students</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
                         <div class="react-events-calendar" data-user-id="{{ user.id }}"></div>
                     </div>
-{#                    <div class="user_preferences_participation">#}
-{#                        <div class="uk-card uk-card-default">#}
-{#                            <div class="uk-card-body">#}
-{#                                <h3 class="uk-card-title uk-margin-remove-bottom">My Student's Participation</h3>#}
-{#                                <div class="react-horizontal-bar-chart" data-sets='[{"label": "Student Participation", "data": [4,8,12,6,10,2,0,7]}]' data-labels='["Rick", "Ralph", "Sarah", "Joe", "Brittney", "Josh", "Chelsea", "Alexis"]'></div>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
                     <div class="user_preferences_favorites">
                         <div class="uk-card uk-card-default">
                             <div class="uk-card-body">
@@ -176,6 +168,27 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="user_students">
+                        <dl class="uk-description-list uk-description-list-divider">
+                            {% if user.studentUsers|length > 0 %}
+                                {% for studentUser in user.studentUsers %}
+                                    <div class="uk-grid uk-flex-middle" uk-grid>
+                                        <div class="uk-width-auto">
+                                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <dt>{{ studentUser.firstName }} {{ studentUser.lastName }}</dt>
+                                        </div>
+                                        <div class="uk-width-auto">
+                                            <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>You currently do not have any students assigned to you.  You can change this in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a>.</p>
+                            {% endif %}
+                        </dl>
                     </div>
                 </div>
             </div>

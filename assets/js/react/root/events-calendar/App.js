@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types";
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import {loadEvents, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery} from "./actions/actionCreators";
+import {loadEvents, updateEventTypeQuery, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery} from "./actions/actionCreators";
 import Loader from "../../components/Loader/Loader"
 import Pusher from "pusher-js";
 
@@ -111,7 +111,30 @@ class App extends React.Component {
     }
 
     renderEventTypes() {
-        return null;
+
+        if ( this.props.events.length > 0 ) {
+
+            const eventTypes = this.props.events.map( event => {
+                if ( !event.type ) {
+                    return null
+                }
+                return event.type.name
+            } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
+
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateEventTypeQuery}>
+                        <option value="">Filter by Event Type...</option>
+                        { eventTypes.map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
     }
 
     handleTabNavigation() {
@@ -134,6 +157,11 @@ class App extends React.Component {
 
             // Filter By Sub Industry
             if ( !!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
+                return false;
+            }
+
+            // Filter by Event Type
+            if ( !!this.props.search.eventType && ( !event.type || event.type.name !== this.props.search.eventType ) ) {
                 return false;
             }
 
@@ -215,6 +243,7 @@ export const mapStateToProps = (state = {}) => ({
 
 export const mapDispatchToProps = dispatch => ({
     loadEvents: (url) => dispatch(loadEvents(url)),
+    updateEventTypeQuery: (event) => dispatch(updateEventTypeQuery(event.target.value)),
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value))

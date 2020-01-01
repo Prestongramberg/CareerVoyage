@@ -182,6 +182,63 @@
                 </div>
             </div>
 
+            <!-- My School -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">My School</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        {% if user.school is defined and user.school %}
+                            <a href="{{ path('school_view', { id: user.school.id }) }}"><h4>{{ user.school.name }}</h4></a>
+
+                            <h5>Supervising Teacher</h5>
+                            {% if user.educatorUsers|length > 0 %}
+                                <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
+                                    {% for educatorUser in user.educatorUsers %}
+                                        <li>
+                                            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                                <div class="uk-width-auto">
+                                                    <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                                </div>
+                                                <div class="uk-width-expand">
+                                                    <a class="uk-text-meta" href="{{ path('profile_index', {id: educatorUser.id}) }}">{{ educatorUser.fullName }}</a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            <h5>Upcoming Events</h5>
+                            {% set noEventsFound = true %}
+                            {% if user.school.schoolExperiences|length > 0 %}
+                                <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
+                                    {% for experience in user.school.schoolExperiences %}
+                                        {% if date(experience.startDateAndTime) > date() %}
+                                            {% set noEventsFound = false %}
+                                            <li><a class="uk-text-meta" href="{{ path('school_experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if noEventsFound == true %}
+                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                            {% endif %}
+                        {% else %}
+                            <div className="uk-placeholder uk-text-center">
+                                <p>You aren't associated with a school yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

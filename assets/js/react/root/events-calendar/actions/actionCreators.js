@@ -29,6 +29,13 @@ export function updateSecondaryIndustryQuery(industry) {
     };
 }
 
+export function updateEventTypeQuery(eventType) {
+    return {
+        type: actionTypes.EVENT_TYPE_QUERY_CHANGED,
+        eventType: eventType
+    };
+}
+
 export function loadEvents(url) {
     return (dispatch, getState) => {
         dispatch({type: actionTypes.EVENTS_LOADING})
