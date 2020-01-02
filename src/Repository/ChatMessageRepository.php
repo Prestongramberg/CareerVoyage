@@ -121,6 +121,7 @@ class ChatMessageRepository extends ServiceEntityRepository
     }
 
     /**
+     * 1. Get total message count for user and additional data
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -135,6 +136,26 @@ class ChatMessageRepository extends ServiceEntityRepository
                   and cm.has_been_read = 0
                   and cm.email_sent = 0
                   group by sent_to_id;";
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        return array(
+            "results"  => $results
+        );
+    }
+
+    /**
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getAllUnreadChatMessageIdsInPastHour() {
+        $query = "select cm.id from chat_message cm inner join user user_sent_to on cm.sent_to_id = user_sent_to.id
+                  WHERE user_sent_to.email is not null and user_sent_to.email != ''
+                  /* Get all from within the past hour */
+                  and cm.sent_at >= DATE_SUB(NOW(),INTERVAL 1 HOUR)
+                  and cm.has_been_read = 0
+                  and cm.email_sent = 0";
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();

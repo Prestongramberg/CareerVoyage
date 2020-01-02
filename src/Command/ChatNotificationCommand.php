@@ -205,6 +205,14 @@ class ChatNotificationCommand extends Command
             }
         }
 
+        // mark chats as email being sent that way we don't notify again for the same emails
+        $chatMessageIds = $this->chatMessageRepository->getAllUnreadChatMessageIdsInPastHour();
+        foreach($chatMessageIds['results'] as $result) {
+            $chatMessage = $this->chatMessageRepository->find($result['id']);
+            $chatMessage->setEmailSent(true);
+        }
+        $this->entityManager->flush();
+
         $output->writeln('Chat notification emails successfully sent...');
     }
 }
