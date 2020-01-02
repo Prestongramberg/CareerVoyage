@@ -39,6 +39,17 @@ class AbstractMailer
      */
     protected $userRepository;
 
+
+    /**
+     * @var string
+     */
+    protected $baseHost;
+
+    /**
+     * @var string
+     */
+    protected $baseScheme;
+
     /**
      * AbstractMailer constructor.
      * @param Swift_Mailer $mailer
@@ -46,19 +57,25 @@ class AbstractMailer
      * @param Environment $templating
      * @param string $siteFromEmail
      * @param UserRepository $userRepository
+     * @param string $baseHost
+     * @param string $baseScheme
      */
     public function __construct(
         Swift_Mailer $mailer,
         RouterInterface $router,
         Environment $templating,
         string $siteFromEmail,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        string $baseHost,
+        string $baseScheme
     ) {
         $this->mailer = $mailer;
         $this->router = $router;
         $this->templating = $templating;
         $this->siteFromEmail = $siteFromEmail;
         $this->userRepository = $userRepository;
+        $this->baseHost = $baseHost;
+        $this->baseScheme = $baseScheme;
     }
 
     /**

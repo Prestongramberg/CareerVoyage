@@ -36,7 +36,7 @@
                                 <tr>
                                     <td>The Educator's first name</td>
                                     <td>The Educator's last name</td>
-                                    <td>A unique identifier for the Educator (employee ID, email, etc)</td>
+                                    <td>A unique identifier for the Educator (educator id)</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -72,6 +72,24 @@
                             {{ form_end(form) }}
                         </div>
                     </div>
+
+                    <br>
+                    <div class="uk-card uk-card-default">
+                        <div class="uk-card-header">
+                            <h3 class="uk-card-title uk-margin-remove-bottom">Teacher Ids</h3>
+                            <p class="uk-margin-remove-top">
+                                Optional Educator ID to mass update educators that already exist in the system
+                            </p>
+                        </div>
+                        <div class="uk-card-body">
+                            <h3>Educator Ids</h3>
+                            <br>
+                            {% for educator in school.educatorUsers %}
+                                <p>{{ educator.fullName }} - {{ educator.id }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

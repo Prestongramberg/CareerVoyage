@@ -12,8 +12,10 @@ use App\Entity\SchoolExperience;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Mailer\ChatNotificationMailer;
 use App\Message\RecapMessage;
 use App\Message\UnseenMessagesMessage;
+use App\Repository\ChatMessageRepository;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CourseRepository;
 use App\Repository\EducatorUserRepository;
@@ -36,13 +38,13 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class UnseenMessagesCommand extends Command
+class ChatNotificationCommand extends Command
 {
     use FileHelper;
 
-    const COMMAND = 'send:unseenMessagesEmail';
+    const COMMAND = 'sendChatNotifications';
 
-    const DESCRIPTION = 'This command sends an email of all unseen messages';
+    const DESCRIPTION = 'This command sends an email of all unseen chat messages within the past hour';
 
     /**
      * @var EntityManagerInterface
@@ -115,7 +117,17 @@ class UnseenMessagesCommand extends Command
     private $bus;
 
     /**
-     * SendRecapCommand constructor.
+     * @var ChatMessageRepository
+     */
+    private $chatMessageRepository;
+
+    /**
+     * @var ChatNotificationMailer
+     */
+    private $chatNotificationMailer;
+
+    /**
+     * ChatNotificationCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param GradeRepository $gradeRepository
      * @param CourseRepository $courseRepository
@@ -130,6 +142,8 @@ class UnseenMessagesCommand extends Command
      * @param CompanyExperienceRepository $companyExperienceRepository
      * @param SchoolExperienceRepository $schoolExperienceRepository
      * @param MessageBusInterface $bus
+     * @param ChatMessageRepository $chatMessageRepository
+     * @param ChatNotificationMailer $chatNotificationMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -145,7 +159,9 @@ class UnseenMessagesCommand extends Command
         ProfessionalUserRepository $professionalUserRepository,
         CompanyExperienceRepository $companyExperienceRepository,
         SchoolExperienceRepository $schoolExperienceRepository,
-        MessageBusInterface $bus
+        MessageBusInterface $bus,
+        ChatMessageRepository $chatMessageRepository,
+        ChatNotificationMailer $chatNotificationMailer
     ) {
         $this->entityManager = $entityManager;
         $this->gradeRepository = $gradeRepository;
@@ -161,9 +177,12 @@ class UnseenMessagesCommand extends Command
         $this->companyExperienceRepository = $companyExperienceRepository;
         $this->schoolExperienceRepository = $schoolExperienceRepository;
         $this->bus = $bus;
+        $this->chatMessageRepository = $chatMessageRepository;
+        $this->chatNotificationMailer = $chatNotificationMailer;
 
         parent::__construct();
     }
+
 
     protected function configure()
     {
@@ -174,18 +193,18 @@ class UnseenMessagesCommand extends Command
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
-
-        $users = $this->userRepository->findBy([
-            'id' => 62
-        ]);
-
-        // let's go ahead and push each user onto the queue so it's picked up by it's own worker
-        /** @var User $user */
-        foreach($users as $user) {
-            $output->writeln('test');
-            $this->bus->dispatch(new UnseenMessagesMessage($user->getId()));
+        $unreadMessageCounts = $this->chatMessageRepository->getUnreadMessageCountGroupedBySentFromUser();
+        $totalUnreadMessageCounts = $this->chatMessageRepository->getTotalUnreadMessageCountGroupedBySentToUser();
+        if(!empty($totalUnreadMessageCounts['results'])) {
+            foreach ($totalUnreadMessageCounts['results'] as $totalUnreadMessageCount) {
+                $userSentToId = $totalUnreadMessageCount['user_sent_to_id'];
+                $unreadMessageCountsForUser = array_filter($unreadMessageCounts['results'], function($array) use($userSentToId) {
+                    return $array['user_sent_to_id'] === $userSentToId;
+                });
+                $this->chatNotificationMailer->send($totalUnreadMessageCount, $unreadMessageCountsForUser);
+            }
         }
 
-        $output->writeln('Unseen Messages email successfully sent...');
+        $output->writeln('Chat notification emails successfully sent...');
     }
 }

@@ -12,7 +12,7 @@ use App\Mailer\NotificationsMailer;
 use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
-use App\Mailer\UnseenMessagesMailer;
+use App\Mailer\ChatNotificationMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\AllowedCommunicationRepository;
 use App\Repository\ChatMessageRepository;
@@ -306,11 +306,6 @@ trait ServiceHelper
     private $teachLessonExperienceRepository;
 
     /**
-     * @var UnseenMessagesMailer
-     */
-    private $unseenMessagesMailer;
-
-    /**
      * @var CompanyFavoriteRepository
      */
     private $companyFavoriteRepository;
@@ -438,7 +433,6 @@ trait ServiceHelper
      * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
      * @param SchoolRepository $schoolRepository
      * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
-     * @param UnseenMessagesMailer $unseenMessagesMailer
      * @param CompanyFavoriteRepository $companyFavoriteRepository
      * @param RegistrationRepository $registrationRepository
      * @param EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository
@@ -503,7 +497,6 @@ trait ServiceHelper
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
         SchoolRepository $schoolRepository,
         TeachLessonExperienceRepository $teachLessonExperienceRepository,
-        UnseenMessagesMailer $unseenMessagesMailer,
         CompanyFavoriteRepository $companyFavoriteRepository,
         RegistrationRepository $registrationRepository,
         EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
@@ -567,7 +560,6 @@ trait ServiceHelper
         $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
         $this->schoolRepository = $schoolRepository;
         $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
-        $this->unseenMessagesMailer = $unseenMessagesMailer;
         $this->companyFavoriteRepository = $companyFavoriteRepository;
         $this->registrationRepository = $registrationRepository;
         $this->educatorReviewCompanyExperienceFeedbackRepository = $educatorReviewCompanyExperienceFeedbackRepository;

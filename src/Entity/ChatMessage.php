@@ -58,6 +58,11 @@ class ChatMessage
      */
     private $hasBeenRead = false;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $emailSent = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -144,6 +149,18 @@ class ChatMessage
     public function setHasBeenRead(bool $hasBeenRead): self
     {
         $this->hasBeenRead = $hasBeenRead;
+
+        return $this;
+    }
+
+    public function getEmailSent(): ?bool
+    {
+        return $this->emailSent;
+    }
+
+    public function setEmailSent(bool $emailSent): self
+    {
+        $this->emailSent = $emailSent;
 
         return $this;
     }
