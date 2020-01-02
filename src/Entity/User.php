@@ -227,7 +227,7 @@ abstract class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="user", orphanRemoval=true)
      */
-    private $userRegisterForSchoolExperienceRequests;
+    protected $userRegisterForSchoolExperienceRequests;
 
     public function __construct()
     {
