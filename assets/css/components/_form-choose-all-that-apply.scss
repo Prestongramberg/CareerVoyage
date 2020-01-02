@@ -1,0 +1,19 @@
+.form-choose-all-that-apply {
+
+  display: flex;
+
+  &__field {
+    padding: 15px;
+    width: 90px;
+  }
+
+  &__image {
+    margin-bottom: 10px;
+  }
+
+  &__label {
+    font-size: 12px;
+    text-align: center;
+  }
+
+}

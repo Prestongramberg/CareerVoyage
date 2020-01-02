@@ -18,6 +18,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -42,17 +43,7 @@ class EducatorReviewCompanyExperienceFeedbackFormType extends AbstractType
             'data_class' => StudentReviewCompanyExperienceFeedback::class,
         ]);
 
-        $builder->add('awarenessOfCareerOpportunities', ChoiceType::class, [
-            'choices'  => [
-                '1' => 1,
-                '2' => 2,
-                '3' => 3,
-                '4' => 4,
-                '5' => 5
-            ],
-            'expanded' => true,
-            'multiple' => false
-        ]);
+        $builder->add('awarenessOfCareerOpportunities', HiddenType::class, []);
 
     }
 

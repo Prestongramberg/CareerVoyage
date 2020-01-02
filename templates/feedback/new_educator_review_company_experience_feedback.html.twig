@@ -16,10 +16,11 @@
             </div>
         {% endif %}
 
-        <fieldset {% if experienceHasFeedback %}disabled="disabled"{% endif %}>
+        <fieldset class="uk-padding" {% if experienceHasFeedback %}disabled="disabled"{% endif %}>
 
             {% if experienceHasFeedback %}
                 <h3>Viewing your feedback for {{ experience.title }}</h3>
+                <p>Your responses are now locked.  This is for viewing only.</p>
             {% else %}
                 <h3>Giving feedback for {{ experience.title }}</h3>
             {% endif %}
@@ -28,7 +29,7 @@
                 <div>
                     {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
                     {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-hidden' }}) }}
-                    <div class="react-form-smile-rating" data-name="educator_review_company_experience_feedback_form[feedback][rating]" data-value="{{ feedback.rating }}"></div>
+                    <div class="react-form-smile-rating" data-disabled="{{ experienceHasFeedback }}" data-name="educator_review_company_experience_feedback_form[feedback][rating]" data-value="{{ feedback.rating }}"></div>
                     {% if form_errors(form.feedback.rating) %}
                         <div class="uk-form-danger">
                             {{ form_errors(form.feedback.rating) }}
@@ -37,32 +38,35 @@
                     {{ form_errors(form.feedback.rating) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.providedCareerInsight, 'Did the experience provide career insights*') }}
-                    {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': '' ~ ( form_errors(form.feedback.providedCareerInsight) ? ' uk-form-danger' : '' ) }}) }}
-                    {{ form_errors(form.feedback.providedCareerInsight) }}
-                </div>
-                <div class="uk-margin">
-                    {{ form_label(form.feedback.wasEnjoyableAndEngaging, 'Was the experience enjoyable and engaging*') }}
-                    {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': '' ~ ( form_errors(form.feedback.wasEnjoyableAndEngaging) ? ' uk-form-danger' : '' ) }}) }}
-                    {{ form_errors(form.feedback.wasEnjoyableAndEngaging) }}
-                </div>
-                <div class="uk-margin">
-                    {{ form_label(form.feedback.learnSomethingNew, 'Did you learn something new*') }}
-                    {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': '' ~ ( form_errors(form.feedback.learnSomethingNew) ? ' uk-form-danger' : '' ) }}) }}
-                    {{ form_errors(form.feedback.learnSomethingNew) }}
+                    {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': 'uk-hidden' }}) }}
+                    {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-hidden' }}) }}
+                    {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': 'uk-hidden' }}) }}
+
+                    <label>Choose all that apply</label>
+                    <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}" data-fields='[
+                        { "name": "educator_review_company_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insights", "value": "{{ feedback.providedCareerInsight }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
+                        { "name": "educator_review_company_experience_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
+                        { "name": "educator_review_company_experience_feedback_form[feedback][learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
+                    ]'></div>
                 </div>
                 <div class="uk-margin">
                     {{ form_label(form.awarenessOfCareerOpportunities, 'After this experience, my awareness of career opportunites for students at this company is*') }}
-                    {{ form_widget(form.awarenessOfCareerOpportunities, {'attr': {'class': '' ~ ( form_errors(form.awarenessOfCareerOpportunities) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_widget(form.awarenessOfCareerOpportunities, {'attr': {'class': 'uk-hidden' }}) }}
+                    <div class="react-form-rating" data-disabled="{{ experienceHasFeedback }}" data-name="educator_review_company_experience_feedback_form[awarenessOfCareerOpportunities]" data-value="{{ feedback.awarenessOfCareerOpportunities }}"></div>
+                    {% if form_errors(form.awarenessOfCareerOpportunities) %}
+                        <div class="uk-form-danger">
+                            {{ form_errors(form.awarenessOfCareerOpportunities) }}
+                        </div>
+                    {% endif %}
                     {{ form_errors(form.awarenessOfCareerOpportunities) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a friend*') }}
+                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a fellow teacher?*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.additionalFeedback, 'Additional Feedback (Optional)') }}
+                    {{ form_label(form.feedback.additionalFeedback, 'Specific Thoughts, Feedback?') }}
                     {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.feedback.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
                     {{ form_errors(form.feedback.additionalFeedback) }}
                 </div>

@@ -2,6 +2,8 @@ require('./bar-chart');
 require('./calendar-button');
 require('./chat');
 require('./events-calendar');
+require('./form-choose-all-that-apply');
+require('./form-rating');
 require('./form-smile-rating');
 require('./google-map');
 require('./horizontal-bar-chart');

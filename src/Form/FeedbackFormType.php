@@ -38,36 +38,9 @@ class FeedbackFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('rating', HiddenType::class, [
-        ])->add('providedCareerInsight', ChoiceType::class, [
-            'choices'  => [
-                'Yes' => true,
-                'No' => false,
-            ],
-            'expanded' => true,
-            'multiple' => false,
-            'choice_attr' => function($choice, $key, $value) {
-                return ['class' => 'uk-radio'];
-            },
-        ])->add('wasEnjoyableAndEngaging', ChoiceType::class, [
-            'choices'  => [
-                'Yes' => true,
-                'No' => false,
-            ],
-            'expanded' => true,
-            'multiple' => false,
-            'choice_attr' => function($choice, $key, $value) {
-                return ['class' => 'uk-radio'];
-            },
-        ])->add('learnSomethingNew', ChoiceType::class, [
-            'choices'  => [
-                'Yes' => true,
-                'No' => false,
-            ],
-            'expanded' => true,
-            'multiple' => false,
-            'choice_attr' => function($choice, $key, $value) {
-                return ['class' => 'uk-radio'];
-            },
+        ])->add('providedCareerInsight', HiddenType::class, [
+        ])->add('wasEnjoyableAndEngaging', HiddenType::class, [
+        ])->add('learnSomethingNew', HiddenType::class, [
         ])->add('likelihoodToRecommendToFriend', RangeType::class, [
             'attr'  => [
                 'min' => 0,

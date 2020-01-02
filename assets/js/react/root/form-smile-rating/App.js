@@ -42,9 +42,11 @@ export class FormSmileRating extends Component {
         return (
             <div className="form-smile-rating__input">
                 <img src={ this.getProperImage(value) } onClick={() => {
-                    this.setState({
-                        fieldValue: value
-                    })
+                    if ( !this.props.disabled ) {
+                        this.setState({
+                            fieldValue: value
+                        })
+                    }
                 }} />
             </div>
         )

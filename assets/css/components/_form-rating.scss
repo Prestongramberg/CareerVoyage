@@ -1,0 +1,36 @@
+.form-rating {
+
+  display: flex;
+  flex-direction: row;
+
+  &__input {
+    cursor: pointer;
+    cursor: hand;
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+  }
+
+  &__input--active, &__input:hover {
+    .form-rating {
+      &__input-button {
+        background: #1e87f0;
+        color: #FFF;
+      }
+    }
+  }
+
+  &__input-button {
+    border: 1px solid #555;
+    border-radius: 5px 5px 0 0;
+    background: #ddd;
+    color: #555;
+  }
+
+  &__input-text {
+    color: #555;
+    padding-top: 5px;
+    text-align: center;
+  }
+
+}
