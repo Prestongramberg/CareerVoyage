@@ -13,6 +13,12 @@
                 <h3 class="uk-margin-remove-top">{{ experience.title }}</h3>
                 <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
+
+                {% if user.isProfessional or user.isStudent %}
+                <form class="uk-inline" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
+                    <button class="uk-button uk-button-secondary uk-button-small" type="submit">Register</button>
+                </form>
+                {% endif %}
             </div>
         </div>
 

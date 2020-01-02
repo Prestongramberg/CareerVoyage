@@ -23,6 +23,7 @@ use App\Entity\SchoolResource;
 use App\Entity\SchoolVideo;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Form\ChatFilterType;
 use App\Form\ChatMessageFilterType;
 use App\Form\EditCompanyFormType;
@@ -1145,6 +1146,44 @@ class SchoolController extends AbstractController
             'user' => $user,
             'experience' => $experience,
         ]);
+    }
+
+    /**
+     * @Route("/schools/experiences/{id}/register", name="school_experience_register", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
+        /** @var User $user */
+        $user = $this->getUser();
+        $request = $this->userRegisterForSchoolExperienceRequestRepository->findOneBy([
+            'user' => $user,
+            'schoolExperience' => $experience
+        ]);
+        if($request) {
+            $this->addFlash('error', 'Registration request already sent for this event.');
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
+        if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
+            $this->addFlash('error', 'Could not register for event. 0 spots left.');
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
+
+        if($user->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+            $this->addFlash('error', 'Could not register for event. 0 spots left.');
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
+        $registerRequest = new UserRegisterForSchoolExperienceRequest();
+        $registerRequest->setCreatedBy($user);
+        $registerRequest->setNeedsApprovalBy($experience->getSchoolContact());
+        $registerRequest->setSchoolExperience($experience);
+        $registerRequest->setUser($user);
+        $this->entityManager->persist($registerRequest);
+        $this->entityManager->flush();
+        $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
+        $this->addFlash('success', 'Registration request successfully sent.');
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
     /**

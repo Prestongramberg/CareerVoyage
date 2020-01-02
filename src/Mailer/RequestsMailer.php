@@ -9,6 +9,7 @@ use App\Entity\NewCompanyRequest;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
+use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Mailer\AbstractMailer;
 use App\Repository\AdminUserRepository;
 
@@ -122,6 +123,36 @@ class RequestsMailer extends AbstractMailer
                 $this->templating->render(
                     'email/requests/educatorRegisterStudentForCompanyExperienceRequestApproval.html.twig',
                     ['request' => $educatorRegisterStudentForCompanyExperienceRequest, 'numOfStudentsToRegistered' => $numOfStudentsRegistered]
+                ),
+                'text/html'
+            );
+        $this->mailer->send($message);
+    }
+
+    public function userRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest  $userRegisterForSchoolExperienceRequest) {
+
+        $message = (new \Swift_Message("Register User Request."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($userRegisterForSchoolExperienceRequest->getNeedsApprovalBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/userRegisterForSchoolExperienceRequest.html.twig',
+                    ['request' => $userRegisterForSchoolExperienceRequest]
+                ),
+                'text/html'
+            );
+        $this->mailer->send($message);
+    }
+
+    public function userRegisterForSchoolExperienceRequestApproval(UserRegisterForSchoolExperienceRequest  $userRegisterForSchoolExperienceRequest) {
+
+        $message = (new \Swift_Message("Register User Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/userRegisterForSchoolExperienceRequestApproval.html.twig',
+                    ['request' => $userRegisterForSchoolExperienceRequest]
                 ),
                 'text/html'
             );

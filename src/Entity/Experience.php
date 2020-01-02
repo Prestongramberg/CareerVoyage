@@ -53,7 +53,6 @@ abstract class Experience
                     ->addViolation();
             }
         }
-
     }
 
     /**
@@ -66,14 +65,14 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255)
      */
     protected $title;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255)
      */
     protected $briefDescription;
@@ -89,7 +88,7 @@ abstract class Experience
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer", nullable=true)
      */
-    protected $availableSpaces;
+    protected $availableSpaces = 0;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
@@ -117,35 +116,35 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $street;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $city;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $zipcode;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a start date", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a start date", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget an end date", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget an end date", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;
@@ -154,9 +153,9 @@ abstract class Experience
      * @Groups({"EXPERIENCE_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"CREATE", "EDIT"}
+     *     groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $email;
@@ -169,14 +168,14 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
      */
     protected $state;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="experiences")
      * @ORM\JoinColumn(nullable=true)

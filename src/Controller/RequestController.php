@@ -16,6 +16,7 @@ use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
+use App\Entity\SchoolExperience;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentToMeetProfessionalExperience;
@@ -23,6 +24,7 @@ use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
+use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -418,6 +420,38 @@ class RequestController extends AbstractController
                 }
 
                 // todo make sure we send emails
+                $this->entityManager->flush();
+                break;
+            case 'UserRegisterForSchoolExperienceRequest':
+                /** @var UserRegisterForSchoolExperienceRequest $request */
+                /** @var User $user */
+                $user = $request->getUser();
+                /** @var SchoolExperience $experience */
+                $experience = $request->getSchoolExperience();
+                if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
+                    $this->addFlash('error', 'Could not approve registration. 0 spots left.');
+                }
+                if($user->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+                    $this->addFlash('error', 'Could not approve registration. 0 spots left.');
+                }
+
+                if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() !== 0) {
+                    $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() - 1);
+
+                }
+                if($user->isStudent() && $experience->getAvailableStudentSpaces() !== 0) {
+                    $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() - 1);
+                }
+
+                $request->setApproved(true);
+                $this->entityManager->persist($request);
+                $this->entityManager->persist($experience);
+                $registration = new Registration();
+                $registration->setUser($user);
+                $registration->setExperience($experience);
+                $this->entityManager->persist($registration);
+                $this->requestsMailer->userRegisterForSchoolExperienceRequestApproval($request);
+                $this->addFlash('success', 'User has been registered for event!');
                 $this->entityManager->flush();
                 break;
         }

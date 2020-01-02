@@ -76,7 +76,8 @@ class EditSchoolExperienceType extends AbstractType
                         ->setParameter('inEventDropdown', true);
                 },
             ])
-            ->add('availableSpaces', NumberType::class, [])
+            ->add('availableStudentSpaces', NumberType::class, [])
+            ->add('availableProfessionalSpaces', NumberType::class, [])
             ->add('payment', NumberType::class, [
                 'required' => false,
             ])
@@ -171,7 +172,7 @@ class EditSchoolExperienceType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => SchoolExperience::class,
-            'validation_groups' => ['CREATE'],
+            'validation_groups' => ['SCHOOL_EXPERIENCE'],
         ]);
 
         $resolver->setRequired(['school']);

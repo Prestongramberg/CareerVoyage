@@ -50,6 +50,7 @@ use App\Repository\StudentReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\TeachLessonRequestRepository;
+use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
 use App\Repository\UserRepository;
 use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
@@ -386,6 +387,11 @@ trait ServiceHelper
     private $allowedCommunicationsRepository;
 
     /**
+     * @var UserRegisterForSchoolExperienceRequestRepository
+     */
+    private $userRegisterForSchoolExperienceRequestRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -449,6 +455,7 @@ trait ServiceHelper
      * @param NewCompanyRequestRepository $newCompanyRequestRepository
      * @param RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
      * @param AllowedCommunicationRepository $allowedCommunicationsRepository
+     * @param UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -512,7 +519,8 @@ trait ServiceHelper
         NotificationsMailer $notificationsMailer,
         NewCompanyRequestRepository $newCompanyRequestRepository,
         RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
-        AllowedCommunicationRepository $allowedCommunicationsRepository
+        AllowedCommunicationRepository $allowedCommunicationsRepository,
+        UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -576,7 +584,9 @@ trait ServiceHelper
         $this->newCompanyRequestRepository = $newCompanyRequestRepository;
         $this->rolesWillingToFulfillRepository = $rolesWillingToFulfillRepository;
         $this->allowedCommunicationsRepository = $allowedCommunicationsRepository;
+        $this->userRegisterForSchoolExperienceRequestRepository = $userRegisterForSchoolExperienceRequestRepository;
     }
+
 
     public function getFullQualifiedBaseUrl() {
         $routerContext = $this->router->getContext();

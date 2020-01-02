@@ -1,0 +1,6 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
+
+<p>Your request to <strong>{{ request.needsApprovalBy.firstName }} {{ request.needsApprovalBy.lastName }}</strong> wishing to register
+    for the event <strong>{{ request.schoolExperience.title }}</strong> has been approved!</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

@@ -224,6 +224,11 @@ abstract class User implements UserInterface
      */
     protected $temporarySecurityToken;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="user", orphanRemoval=true)
+     */
+    private $userRegisterForSchoolExperienceRequests;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -235,6 +240,7 @@ abstract class User implements UserInterface
         $this->chatMessages = new ArrayCollection();
         $this->registrations = new ArrayCollection();
         $this->feedback = new ArrayCollection();
+        $this->userRegisterForSchoolExperienceRequests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1100,5 +1106,36 @@ abstract class User implements UserInterface
     public function initializeTemporarySecurityToken()
     {
         $this->temporarySecurityToken = bin2hex(random_bytes(32));
+    }
+
+    /**
+     * @return Collection|UserRegisterForSchoolExperienceRequest[]
+     */
+    public function getUserRegisterForSchoolExperienceRequests(): Collection
+    {
+        return $this->userRegisterForSchoolExperienceRequests;
+    }
+
+    public function addUserRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest): self
+    {
+        if (!$this->userRegisterForSchoolExperienceRequests->contains($userRegisterForSchoolExperienceRequest)) {
+            $this->userRegisterForSchoolExperienceRequests[] = $userRegisterForSchoolExperienceRequest;
+            $userRegisterForSchoolExperienceRequest->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest): self
+    {
+        if ($this->userRegisterForSchoolExperienceRequests->contains($userRegisterForSchoolExperienceRequest)) {
+            $this->userRegisterForSchoolExperienceRequests->removeElement($userRegisterForSchoolExperienceRequest);
+            // set the owning side to null (unless already changed)
+            if ($userRegisterForSchoolExperienceRequest->getUser() === $this) {
+                $userRegisterForSchoolExperienceRequest->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
