@@ -229,6 +229,11 @@ abstract class User implements UserInterface
      */
     protected $userRegisterForSchoolExperienceRequests;
 
+    /**
+     * @Groups({"STUDENT_USER", "EDUCATOR_USER"})
+     */
+    protected $tempPassword;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -1137,5 +1142,21 @@ abstract class User implements UserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTempPassword()
+    {
+        return $this->tempPassword;
+    }
+
+    /**
+     * @param mixed $tempPassword
+     */
+    public function setTempPassword($tempPassword): void
+    {
+        $this->tempPassword = $tempPassword;
     }
 }

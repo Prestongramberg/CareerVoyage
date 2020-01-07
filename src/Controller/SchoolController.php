@@ -520,11 +520,14 @@ class SchoolController extends AbstractController
                         // add the educator to the user if the educator id is included in the import
                         if(!empty($student['Educator Id'])) {
                             $educator = $this->educatorUserRepository->findOneBy([
-                                'id' => $student['Educator Id'],
+                                'educatorId' => $student['Educator Id'],
                                 'school' => $school
                             ]);
                             if($educator) {
                                 $studentObj->addEducatorUser($educator);
+                            } else {
+                                $this->addFlash('error', sprintf('Error importing students. At least one of the educator Ids does not belong to an educator for school %s. Check educator id list below', $school->getName()));
+                                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
                             }
                         }
 
@@ -534,23 +537,14 @@ class SchoolController extends AbstractController
                         $studentObj->initializeNewUser();
                         $studentObj->setActivated(true);
                         $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
-                        $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $studentObj->getTempPassword());
+                        $tempPassword = $this->determinePassword();
+                        $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
+                        $studentObj->setTempPassword($tempPassword);
                         $studentObj->setPassword($encodedPassword);
                     } else {
                         // we only allow overriding first name and last name by imports
                         $studentObj->setFirstName($student['First Name']);
                         $studentObj->setLastName($student['Last Name']);
-                    }
-
-                    // let's manually validate the object before importing
-                    $errors = $this->validator->validate($studentObj,
-                        null,
-                        ['STUDENT_USER']
-                    );
-
-                    if (count($errors) > 0) {
-                        $errorsString = (string) $errors;
-                        continue;
                     }
 
                     $this->entityManager->persist($studentObj);
@@ -656,23 +650,14 @@ class SchoolController extends AbstractController
                         $educatorObj->initializeNewUser();
                         $educatorObj->setActivated(true);
                         $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
-                        $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $educatorObj->getTempPassword());
+                        $tempPassword = $this->determinePassword();
+                        $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
+                        $educatorObj->setTempPassword($tempPassword);
                         $educatorObj->setPassword($encodedPassword);
                     } else {
                         // we only allow overriding first name and last name by imports
                         $educatorObj->setFirstName($educator['First Name']);
                         $educatorObj->setLastName($educator['Last Name']);
-                    }
-
-                    // let's manually validate the object before importing
-                    $errors = $this->validator->validate($educatorObj,
-                        null,
-                        ['EDUCATOR_USER']
-                    );
-
-                    if (count($errors) > 0) {
-                        $errorsString = (string) $errors;
-                        continue;
                     }
 
                     $this->entityManager->persist($educatorObj);
@@ -1316,6 +1301,13 @@ class SchoolController extends AbstractController
             return $this->determineUsername(sprintf("%s%s", $tempUsername, $this->generateRandomNumber($i)), ++$i);
         }
         return $tempUsername;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function determinePassword() {
+        return sprintf("TEST%s", $this->generateRandomNumber(5));
     }
 
     /**

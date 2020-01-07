@@ -216,19 +216,6 @@ class EducatorUser extends User
         ));
     }
 
-    /**
-     * first 3 letters of last name followed by their unique educator ID
-     * followed by an explanation point
-     *
-     * @return string
-     */
-    public function getTempPassword() {
-        return strtolower(sprintf("%s%s!",
-            substr($this->lastName, 0, 3),
-            $this->getEducatorId()
-        ));
-    }
-
     public function getSite(): ?Site
     {
         return $this->site;
