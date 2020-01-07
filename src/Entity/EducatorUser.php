@@ -72,7 +72,7 @@ class EducatorUser extends User
     private $site;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\StudentUser", inversedBy="educatorUsers")
+     * @ORM\ManyToMany(targetEntity="App\Entity\StudentUser", inversedBy="educatorUsers", cascade={"persist"})
      */
     private $studentUsers;
 

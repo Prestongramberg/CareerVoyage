@@ -31,7 +31,7 @@ class CSVColumnNamesMatchValidator extends ConstraintValidator
                 }
                 fclose($fp);
             }
-
+            $columns = array_filter($columns);
             if($constraint->types != $columns) {
                 $this->context->buildViolation($constraint->message)
                     ->addViolation();
