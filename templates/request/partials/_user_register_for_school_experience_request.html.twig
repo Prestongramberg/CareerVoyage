@@ -46,7 +46,12 @@
                 <ul>
                     <li>
                         {% if request.user %}
-                            {{ request.user.fullName }}
+                            <a href="{{ path('profile_index', {id: request.user.id}) }}">{{ request.user.fullName }}</a>
+                            {% if request.user.professional %}
+                                - (Professional)
+                            {% elseif request.user.student %}
+                                - (Student - {{ request.user.school.name }})
+                            {% endif %}
                         {% endif %}
                     </li>
                 </ul>

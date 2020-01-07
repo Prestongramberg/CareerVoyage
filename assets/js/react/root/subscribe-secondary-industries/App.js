@@ -9,7 +9,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["relevantSecondaryIndustries", "renderFields", "subscribeToAllSecondaryIndustries"];
+        const methods = ["relevantSecondaryIndustries", "renderFields", "subscribeToAllSecondaryIndustries", "subscribeToAllIndustries"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -45,6 +45,12 @@ class App extends React.Component {
                                         <option value="">Select an Industry</option>
                                         {this.props.subscriptions.data.map(industry => <option key={industry.id} value={industry.id}>{industry.name}</option>)}
                                     </select>
+                                    <div className="uk-text-center">
+                                        <hr/>
+                                        <strong>OR</strong>
+                                        <hr/>
+                                        <a onClick={this.subscribeToAllIndustries}>Add all Industry Careers</a>
+                                    </div>
                                 </div>
 
                                 { !!this.props.uiState.primaryIndustrySelected && (
@@ -73,7 +79,7 @@ class App extends React.Component {
                     <div className="uk-margin">
                         <div className="uk-grid" data-uk-grid>
                             <div className="uk-width-expand">
-                                <h4>{ this.props.existingTitle || "Current Career Fields:" } </h4>
+                                <h4>{ this.props.existingTitle || "Applicable Career Fields:" } </h4>
                             </div>
                             <div className="uk-width-auto">
                                 <a onClick={this.props.removeAllSubscriptions}><em>Remove All</em></a>
@@ -132,6 +138,18 @@ class App extends React.Component {
                 });
             });
         }
+    }
+
+    subscribeToAllIndustries() {
+        this.props.subscriptions.data.forEach(primaryIndustry => {
+            primaryIndustry.secondaryIndustries.forEach(secondaryIndustry => {
+                this.props.secondaryIndustryChanged({
+                    target: {
+                        value: secondaryIndustry.id
+                    }
+                });
+            });
+        });
     }
 
     componentDidMount() {

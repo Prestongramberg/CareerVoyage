@@ -44,6 +44,7 @@
             {% if experience.experienceFiles|length %}
                 <li><a href="#experience-attachments">Event Documents</a></li>
             {% endif %}
+            <li><a href="#experience-registrations">Registrations</a></li>
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
         <div class="uk-switcher" id="tab-experience">
@@ -118,6 +119,39 @@
                     </dl>
                 </div>
             {% endif %}
+            <div class="experience_registrations">
+                <h3>Students</h3>
+                <div class="uk-width-xlarge">
+                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
+                        {% if request.user.student %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <h3>Professionals</h3>
+                <div class="uk-width-xlarge">
+                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
+                        {% if request.user.professional %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
             <div class="experience_contact">
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
