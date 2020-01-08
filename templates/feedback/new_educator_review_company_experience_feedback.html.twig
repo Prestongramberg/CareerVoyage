@@ -63,6 +63,7 @@
                 <div class="uk-margin">
                     {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a fellow teacher?*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
+                    <div class="react-form-range" data-name="educator_review_company_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
                 </div>
                 <div class="uk-margin">

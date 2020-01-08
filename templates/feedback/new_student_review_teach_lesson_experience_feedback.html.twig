@@ -61,8 +61,9 @@
                     {{ form_errors(form.interestInWorkingInThisIndustry) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this gues instructor to a friend*') }}
+                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this guest instructor to a friend*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
+                    <div class="react-form-range" data-name="student_review_teach_lesson_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
                 </div>
                 <div class="uk-margin">

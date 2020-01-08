@@ -9,7 +9,7 @@ export class FormChooseAllThatApply extends Component {
         this.state = {};
     }
 
-    componentDidMount() {
+    componentWillMount() {
         const fields = JSON.parse( this.props.fields )
 
         fields.forEach(field => {
@@ -22,7 +22,6 @@ export class FormChooseAllThatApply extends Component {
     render() {
 
         const fields = JSON.parse( this.props.fields )
-        console.log( this.state );
 
         return (
             <div className={cb}>

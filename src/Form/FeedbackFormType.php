@@ -41,11 +41,7 @@ class FeedbackFormType extends AbstractType
         ])->add('providedCareerInsight', HiddenType::class, [
         ])->add('wasEnjoyableAndEngaging', HiddenType::class, [
         ])->add('learnSomethingNew', HiddenType::class, [
-        ])->add('likelihoodToRecommendToFriend', RangeType::class, [
-            'attr'  => [
-                'min' => 0,
-	            'max' => 10
-            ],
+        ])->add('likelihoodToRecommendToFriend', HiddenType::class, [
         ])->add('additionalFeedback', TextareaType::class, []);
     }
 
