@@ -137,9 +137,9 @@ class CompanyController extends AbstractController
             $this->requestsMailer->newCompanyRequest($newCompanyRequest);
             $this->requestsMailer->companyAwaitingApproval($newCompanyRequest);
 
-            $this->addFlash('success', 'Company successfully created');
+            $this->addFlash('success', 'Company successfully created. While you\'re company is waiting for approval go ahead and add some images and videos!');
 
-            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
 
         }
 

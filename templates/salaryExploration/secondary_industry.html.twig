@@ -9,9 +9,11 @@
             <h3>Select a Targeted Career Field</h3>
             <p><a href="{{ path('salary_exploration_primary_industry') }}">Back to primary exploration</a></p>
             {% for secondaryIndustry in secondaryIndustries %}
-                <div>
-                    <a href="{{ path('salary_exploration_details', {'id' : secondaryIndustry.id }) }}">{{ secondaryIndustry.name }}</a>
-                </div>
+                {% if secondaryIndustry.url %}
+                    <div>
+                        <a href="{{ path('salary_exploration_details', {'id' : secondaryIndustry.id }) }}">{{ secondaryIndustry.name }}</a>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

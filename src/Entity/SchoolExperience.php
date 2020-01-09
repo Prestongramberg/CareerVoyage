@@ -15,8 +15,8 @@ class SchoolExperience extends Experience
 {
 
 	public static $types = [
-                                          		'School Event' => 'IN_SCHOOL',
-                                          	];
+	    'School Event' => 'IN_SCHOOL',
+    ];
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolExperiences")
@@ -132,5 +132,13 @@ class SchoolExperience extends Experience
         }
 
         return $this;
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @return string
+     */
+    public function getFriendlyEventName() {
+        return 'School Event';
     }
 }

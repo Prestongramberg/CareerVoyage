@@ -119,9 +119,14 @@ class FeedbackController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
             $message = $form->get('message')->getData();
+            $from = sprintf("Full Name: %s, Email: %s, Username: %s",
+                $user->getFullName(),
+                !empty($user->getEmail()) ? $user->getEmail() : 'N/A',
+                !empty($user->getUsername()) ? $user->getUsername() : 'N/A'
+            );
 
             foreach($user->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
-                $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($schoolAdministrator, $message);
+                $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($schoolAdministrator, $message, $from);
             }
 
             foreach($this->emailsToSendRequestIdeaTo as $emailToSendRequestIdeaTo) {
@@ -129,7 +134,7 @@ class FeedbackController extends AbstractController
                     'email' => $emailToSendRequestIdeaTo
                 ]);
                 if($userToSendEmailTo) {
-                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($userToSendEmailTo, $message);
+                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($userToSendEmailTo, $message, $from);
                 }
             }
 
@@ -167,6 +172,12 @@ class FeedbackController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             $message = $form->get('message')->getData();
 
+            $from = sprintf("Full Name: %s, Email: %s, Username: %s",
+                $user->getFullName(),
+                !empty($user->getEmail()) ? $user->getEmail() : 'N/A',
+                !empty($user->getUsername()) ? $user->getUsername() : 'N/A'
+            );
+
             foreach($this->emailsToSendRequestCourseTo as $emailToSendRequestCourseTo) {
                 // Chris said he wants an email sent to him when this happens. So here it goes....
                 // todo this could probably be refactored or cleaned up somewhere as a constant...
@@ -174,7 +185,7 @@ class FeedbackController extends AbstractController
                     'email' => $emailToSendRequestCourseTo
                 ]);
                 if($userToSendEmailTo) {
-                    $this->feedbackMailer->requestForNewCourseToBeAddedToSystem($userToSendEmailTo, $message);
+                    $this->feedbackMailer->requestForNewCourseToBeAddedToSystem($userToSendEmailTo, $message, $from);
                 }
             }
 

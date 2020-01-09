@@ -13,7 +13,7 @@ use Swift_Attachment;
  */
 class FeedbackMailer extends AbstractMailer
 {
-    public function requestForLessonIdeaOrSiteVisit(User $user, $message) {
+    public function requestForLessonIdeaOrSiteVisit(User $user, $message, $from) {
 
         $message = (new \Swift_Message('Request for lesson, idea or site visit.'))
             ->setFrom($this->siteFromEmail)
@@ -21,7 +21,7 @@ class FeedbackMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/feedback/request_for_lesson_experience_or_site_visit.html.twig',
-                    ['user' => $user, 'message' => $message]
+                    ['user' => $user, 'message' => $message, 'from' => $from]
                 ),
                 'text/html'
             );
@@ -29,7 +29,7 @@ class FeedbackMailer extends AbstractMailer
         $this->mailer->send($message);
     }
 
-    public function requestForNewCourseToBeAddedToSystem(User $user, $message) {
+    public function requestForNewCourseToBeAddedToSystem(User $user, $message, $from) {
 
         $message = (new \Swift_Message('Request for new course to be added to the system.'))
             ->setFrom($this->siteFromEmail)
@@ -37,7 +37,7 @@ class FeedbackMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/feedback/request_for_new_course.html.twig',
-                    ['user' => $user, 'message' => $message]
+                    ['user' => $user, 'message' => $message, 'from' => $from]
                 ),
                 'text/html'
             );
