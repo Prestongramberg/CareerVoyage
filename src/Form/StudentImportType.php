@@ -29,7 +29,7 @@ class StudentImportType extends AbstractType
             'required' => true,
             'constraints' => [
                 new NotBlank(),
-                new CSVColumnNamesMatch(['First Name', 'Last Name', 'Student Id', 'Graduating Year',  'Educator Id'], [])
+                new CSVColumnNamesMatch(['First Name', 'Last Name', 'Graduating Year',  'Educator Id'], [])
             ],
         ]);
     }

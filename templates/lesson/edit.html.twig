@@ -116,7 +116,8 @@
                             {{ form_widget(form.secondaryCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryCourses) ? ' uk-form-danger' : '' ) }}) }}
                             <div class="clear"></div>
                             {{ form_errors(form.secondaryCourses) }}
-                        </div>
+                        </div><br>
+                        <a href="{{ path('request_to_add_course') }}" target="_blank">Don't see a course you are looking for? Let us know</a>
                     </fieldset>
                 </div>
             </div>

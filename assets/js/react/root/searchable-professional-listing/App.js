@@ -16,6 +16,7 @@ class App extends React.Component {
     render() {
 
         const relevantProfessionals = this.getRelevantProfessionals();
+        const { user = {} } = this.props;
 
         return (
             <div className="uk-container">
@@ -49,21 +50,24 @@ class App extends React.Component {
                                 const primaryIndustry = professional.primaryIndustry !== null ? professional.primaryIndustry.name : null;
                                 const secondaryIndustry = professional.secondaryIndustries.length > 0 ? professional.secondaryIndustries[0].name : null;
                                 const professionalCompany = professional.company ? professional.company : {};
+                                const hiddenAttributes = user.student ? {} : {
+                                    email: professional.emailAfterPrivacySettingsApplied,
+                                    linkedIn: professional.linkedinProfile,
+                                    phone: professional.phoneAfterPrivacySettingsApplied
+                                };
 
                                 return <div className="uk-width-1-1 uk-width-1-2@l" key={professional.id}>
                                     <ProfessionalListing
                                         briefBio={professional.briefBio}
                                         company={professionalCompany}
-                                        email={professional.emailAfterPrivacySettingsApplied}
                                         firstName={professional.firstName}
                                         key={professional.id}
                                         id={professional.id}
                                         image={professional.photoImageURL}
                                         lastName={professional.lastName}
-                                        linkedIn={professional.linkedinProfile}
-                                        phone={professional.phoneAfterPrivacySettingsApplied}
                                         primaryIndustry={primaryIndustry}
                                         secondaryIndustry={secondaryIndustry}
+                                        { ...hiddenAttributes }
                                     />
                                 </div>
                             })}

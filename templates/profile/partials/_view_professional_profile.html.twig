@@ -72,17 +72,16 @@
                             <p>This user has not added a bio yet.</p>
                         {% endif %}
                         <div class="professional-links">
-                            {% if profileUser.emailAfterPrivacySettingsApplied %}
-                                <a href="mailto:{{ profileUser.emailAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                            {% endif %}
-                            {% if profileUser.phoneAfterPrivacySettingsApplied %}
-                                <a href="tel:{{ profileUser.phoneAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
-                            {% endif %}
-                            {% if profileUser.getLinkedinProfile %}
-                                <a href="{{ profileUser.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
-                            {% endif %}
-
                             {% if user_can_chat_with_user( user, profileUser ) %}
+                                {% if profileUser.emailAfterPrivacySettingsApplied %}
+                                    <a href="mailto:{{ profileUser.emailAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                                {% endif %}
+                                {% if profileUser.phoneAfterPrivacySettingsApplied %}
+                                    <a href="tel:{{ profileUser.phoneAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                                {% endif %}
+                                {% if profileUser.getLinkedinProfile %}
+                                    <a href="{{ profileUser.linkedinProfile }}" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin" target="_blank"></a>
+                                {% endif %}
                                 <a href="javascript:void(0)" class="uk-icon-button uk-margin-small-right" uk-icon="comments" data-message-user-id="{{ profileUser.id }}"></a>
                             {% endif %}
                         </div>

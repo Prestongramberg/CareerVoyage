@@ -83,7 +83,7 @@ class EditCompanyFormType extends AbstractType
                         ->where('p.company = :company')
                         ->setParameter('company', $company->getId());
                 },
-                'choice_label' => 'email',
+                'choice_label' => 'email'
             ]);
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(

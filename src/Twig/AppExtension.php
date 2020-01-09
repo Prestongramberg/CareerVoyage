@@ -10,6 +10,7 @@ use App\Entity\Experience;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\Site;
 use App\Entity\SiteAdminUser;
@@ -131,6 +132,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('encode_companies', [$this, 'encodeCompanies']),
             new TwigFunction('encode_school', [$this, 'encodeSchool']),
             new TwigFunction('encode_schools', [$this, 'encodeSchools']),
+            new TwigFunction('encode_user', [$this, 'encodeUser']),
             new TwigFunction('encode_company_resources', [$this, 'encodeCompanyResources']),
             new TwigFunction('pending_requests', [$this, 'pendingRequests']),
             new TwigFunction('encode_secondary_industries', [$this, 'encodeSecondaryIndustries']),
@@ -173,6 +175,11 @@ class AppExtension extends AbstractExtension
 	{
 		return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
 	}
+
+    public function encodeUser(User $object): string
+    {
+        return $this->serializer->serialize($object, 'json', ['groups' => ['ALL_USER_DATA']]);
+    }
 
 	public function encodeSchools($objects): string
 	{

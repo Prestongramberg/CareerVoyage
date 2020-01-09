@@ -11,7 +11,7 @@ const searchableProfessionalListing = document.getElementById("searchable-profes
 
 if( searchableProfessionalListing ) {
 
-    const userId = parseInt( searchableProfessionalListing.getAttribute("data-user-id") );
+    const user = JSON.parse( searchableProfessionalListing.getAttribute("data-user") ) || {};
 
     const store = createStore(
         reducers,
@@ -31,7 +31,7 @@ if( searchableProfessionalListing ) {
     const render = () => {
         ReactDOM.render(
             <Provider store={store}>
-                <App userId={userId} />
+                <App user={user} />
             </Provider>,
             document.getElementById("searchable-professional-listing")
         );

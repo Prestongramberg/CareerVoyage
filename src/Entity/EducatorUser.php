@@ -61,7 +61,6 @@ class EducatorUser extends User
     private $displayName;
 
     /**
-     * @Groups({"EDUCATOR_USER"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educatorId;

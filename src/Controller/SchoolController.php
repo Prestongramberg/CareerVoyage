@@ -503,49 +503,35 @@ class SchoolController extends AbstractController
                 $studentObjs = [];
                 foreach($students as $student) {
 
-                    $studentId = $student['Student Id'];
-                    $studentObj = $this->studentUserRepository->findOneBy([
-                        'studentId' => $studentId,
-                        'school' => $school->getId(),
-                    ]);
+                    $studentObj = new StudentUser();
+                    $studentObj->setFirstName($student['First Name']);
+                    $studentObj->setLastName($student['Last Name']);
+                    $studentObj->setGraduatingYear($student['Graduating Year']);
 
-                    // only create the student if it doesn't exist
-                    if(!$studentObj) {
-                        $studentObj = new StudentUser();
-                        $studentObj->setFirstName($student['First Name']);
-                        $studentObj->setLastName($student['Last Name']);
-                        $studentObj->setStudentId($student['Student Id']);
-                        $studentObj->setGraduatingYear($student['Graduating Year']);
-
-                        // add the educator to the user if the educator id is included in the import
-                        if(!empty($student['Educator Id'])) {
-                            $educator = $this->educatorUserRepository->findOneBy([
-                                'educatorId' => $student['Educator Id'],
-                                'school' => $school
-                            ]);
-                            if($educator) {
-                                $studentObj->addEducatorUser($educator);
-                            } else {
-                                $this->addFlash('error', sprintf('Error importing students. At least one of the educator Ids does not belong to an educator for school %s. Check educator id list below', $school->getName()));
-                                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
-                            }
+                    // add the educator to the user if the educator id is included in the import
+                    if(!empty($student['Educator Id'])) {
+                        $educator = $this->educatorUserRepository->findOneBy([
+                            'id' => $student['Educator Id'],
+                            'school' => $school
+                        ]);
+                        if($educator) {
+                            $studentObj->addEducatorUser($educator);
+                        } else {
+                            $this->addFlash('error', sprintf('Error importing students. At least one of the educator Ids does not belong to an educator for school %s. Check educator id list below', $school->getName()));
+                            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
                         }
-
-                        $studentObj->setSchool($school);
-                        $studentObj->setSite($user->getSite());
-                        $studentObj->setupAsStudent();
-                        $studentObj->initializeNewUser();
-                        $studentObj->setActivated(true);
-                        $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
-                        $tempPassword = $this->determinePassword();
-                        $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
-                        $studentObj->setTempPassword($tempPassword);
-                        $studentObj->setPassword($encodedPassword);
-                    } else {
-                        // we only allow overriding first name and last name by imports
-                        $studentObj->setFirstName($student['First Name']);
-                        $studentObj->setLastName($student['Last Name']);
                     }
+
+                    $studentObj->setSchool($school);
+                    $studentObj->setSite($user->getSite());
+                    $studentObj->setupAsStudent();
+                    $studentObj->initializeNewUser();
+                    $studentObj->setActivated(true);
+                    $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
+                    $tempPassword = $this->determinePassword();
+                    $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
+                    $studentObj->setTempPassword($tempPassword);
+                    $studentObj->setPassword($encodedPassword);
 
                     $this->entityManager->persist($studentObj);
                     $studentObjs[] = $studentObj;
@@ -631,35 +617,28 @@ class SchoolController extends AbstractController
 
                 $educatorObjs = [];
                 foreach($educators as $educator) {
-
-                    $educatorId = $educator['Educator Id'];
-                    $educatorObj = $this->educatorUserRepository->findOneBy([
-                        'educatorId' => $educatorId,
-                        'school' => $school->getId(),
+                    $email = $educator['Email'];
+                    $existingUser = $this->userRepository->findOneBy([
+                        'email' => $email
                     ]);
-
-                    // only create the educator if it doesn't exist
-                    if(!$educatorObj) {
-                        $educatorObj = new EducatorUser();
-                        $educatorObj->setFirstName($educator['First Name']);
-                        $educatorObj->setLastName($educator['Last Name']);
-                        $educatorObj->setEducatorId($educator['Educator Id']);
-                        $educatorObj->setSchool($school);
-                        $educatorObj->setupAsEducator();
-                        $educatorObj->setSite($user->getSite());
-                        $educatorObj->initializeNewUser();
-                        $educatorObj->setActivated(true);
-                        $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
-                        $tempPassword = $this->determinePassword();
-                        $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
-                        $educatorObj->setTempPassword($tempPassword);
-                        $educatorObj->setPassword($encodedPassword);
-                    } else {
-                        // we only allow overriding first name and last name by imports
-                        $educatorObj->setFirstName($educator['First Name']);
-                        $educatorObj->setLastName($educator['Last Name']);
+                    if($existingUser) {
+                        $this->addFlash('error', sprintf('Error importing educators. At least one of the emails you are trying to import already belongs to another user'));
+                        return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
                     }
-
+                    $educatorObj = new EducatorUser();
+                    $educatorObj->setFirstName($educator['First Name']);
+                    $educatorObj->setLastName($educator['Last Name']);
+                    $educatorObj->setSchool($school);
+                    $educatorObj->setupAsEducator();
+                    $educatorObj->setSite($user->getSite());
+                    $educatorObj->initializeNewUser();
+                    $educatorObj->setActivated(true);
+                    $educatorObj->setEmail($educator['Email']);
+                    $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
+                    $tempPassword = $this->determinePassword();
+                    $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
+                    $educatorObj->setTempPassword($tempPassword);
+                    $educatorObj->setPassword($encodedPassword);
                     $this->entityManager->persist($educatorObj);
                     $educatorObjs[] = $educatorObj;
                 }

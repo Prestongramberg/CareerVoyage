@@ -29,7 +29,6 @@
                                 <tr>
                                     <th>First Name</th>
                                     <th>Last Name</th>
-                                    <th>Student ID</th>
                                     <th>Graduating Year</th>
                                     <th>Educator Id</th>
                                 </tr>
@@ -38,14 +37,13 @@
                                 <tr>
                                     <td>The Student's first name</td>
                                     <td>The Student's last name</td>
-                                    <td>A unique identifier for the Student (student ID, email, etc)</td>
                                     <td>Graduating year for the student</td>
-                                    <td>Optional educator id. See list below for current educator ids for this school.</td>
+                                    <td>Educator id. See list below for current educator ids for this school.</td>
                                 </tr>
                                 </tbody>
                             </table>
 
-                            <div class="uk-text-meta">Note: Once the import process is completed, you will receive a confirmation email with usernames and temporary passwords generated for your Students.</div>
+                            <div class="uk-text-meta">Note: Once the import process is completed, you will receive a confirmation email with usernames and temporary passwords generated for your Students to login to their account.</div>
 
                             <br /><br />
 
@@ -80,16 +78,15 @@
                     <br>
                     <div class="uk-card uk-card-default">
                         <div class="uk-card-header">
-                            <h3 class="uk-card-title uk-margin-remove-bottom">Teacher Ids</h3>
+                            <h3>Educator Ids</h3>
                             <p class="uk-margin-remove-top">
                                 When associating educators with students on the import, you need to add the educator id to the "Educator Id" column on the import
                             </p>
                         </div>
                         <div class="uk-card-body">
-                            <h3>Educator Ids</h3>
                             <br>
                             {% for educator in school.educatorUsers %}
-                            <p>{{ educator.fullName }} - {{ educator.educatorId }}</p>
+                            <p>{{ educator.fullName }} - {{ educator.id }}</p>
                             {% endfor %}
                         </div>
                     </div>
