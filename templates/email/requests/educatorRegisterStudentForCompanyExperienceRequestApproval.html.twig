@@ -1,6 +1,5 @@
 {% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
 
-<p>Your request to <strong>{{ request.needsApprovalBy.firstName }} {{ request.needsApprovalBy.lastName }}</strong> from company <strong>{{ request.needsApprovalBy.company.name }}</strong> wishing to register
-    <strong>{{ numOfStudentsToRegistered }}</strong> of your students for the event <strong>{{ request.companyExperience.title }}</strong> has been approved!</p>
+<p>Student <strong>{{ request.studentUser.fullName }}</strong> has been successfully registered for the following event <strong>{{ request.companyExperience.title }}</strong>!</p>
 
 {% include 'email/partial/emailFooter.html.twig' %}

@@ -115,14 +115,13 @@ class RequestsMailer extends AbstractMailer
     }
 
     public function educatorRegisterStudentForCompanyExperienceRequestApproval(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
-        $numOfStudentsRegistered = count($educatorRegisterStudentForCompanyExperienceRequest->getStudentUsers());
         $message = (new \Swift_Message("Register Students Request Approval."))
             ->setFrom($this->siteFromEmail)
             ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/educatorRegisterStudentForCompanyExperienceRequestApproval.html.twig',
-                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest, 'numOfStudentsToRegistered' => $numOfStudentsRegistered]
+                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
                 ),
                 'text/html'
             );
