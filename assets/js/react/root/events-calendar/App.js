@@ -115,10 +115,10 @@ class App extends React.Component {
         if ( this.props.events.length > 0 ) {
 
             const eventTypes = this.props.events.map( event => {
-                if ( !event.type ) {
+                if ( !event.friendlyEventName ) {
                     return null
                 }
-                return event.type.name
+                return event.friendlyEventName
             } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
@@ -161,7 +161,7 @@ class App extends React.Component {
             }
 
             // Filter by Event Type
-            if ( !!this.props.search.eventType && ( !event.type || event.type.name !== this.props.search.eventType ) ) {
+            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName !== this.props.search.eventType ) ) {
                 return false;
             }
 
