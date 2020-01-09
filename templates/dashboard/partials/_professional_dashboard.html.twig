@@ -66,6 +66,7 @@
                     <li class="uk-active"><a href="#user-preferences">Calendar</a></li>
                     <li><a href="#user-schools">My Schools</a></li>
                     <li><a href="#user-lessons">My Lessons</a></li>
+                    <li><a href="#user-feedback">My Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -134,6 +135,60 @@
                                 {% endif %}
                             </div>
                         </div>
+                    </div>
+                    <div class="user_preferences_feedback">
+                        {% if dashboards.completedTeachLessonExperiences|length > 0 %}
+                            <div uk-grid>
+                                <div class="uk-width-1-1 uk-width-small@m">
+                                    <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                                        {% for experience in dashboards.completedTeachLessonExperiences %}
+                                            <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="uk-width-1-1 uk-width-expand@m">
+                                    <ul id="tab-account-inner" class="uk-switcher">
+                                        {% for experience in dashboards.completedTeachLessonExperiences %}
+                                            <div class="feedback-{{ experience.id }}">
+                                                <strong>Feedback for {{ experience.title }}</strong>
+                                                {% if experience.feedback|length > 0 %}
+                                                    <div class="uk-overflow-auto">
+                                                        <table class="uk-table uk-table-divider">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>Role</th>
+                                                                <th>Rating</th>
+                                                                <th>Insight</th>
+                                                                <th>Enjoyable</th>
+                                                                <th>Learned</th>
+                                                                <th>Recommendation</th>
+                                                                <th>Feedback</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for feedback in experience.feedback %}
+                                                                <tr>
+                                                                    <td class="uk-text-nowrap">{{ feedback.user.educator ? "Educator" : "Student" }}</td>
+                                                                    <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+                                                                    <td class="uk-text-nowrap">{{ feedback.providedCareerInsight == 1 ? "YES" : "NO" }}</td>
+                                                                    <td class="uk-text-nowrap">{{ feedback.wasEnjoyableAndEngaging == 1 ? "YES" : "NO" }}</td>
+                                                                    <td class="uk-text-nowrap">{{ feedback.learnSomethingNew == 1 ? "YES" : "NO" }}</td>
+                                                                    <td class="uk-text-nowrap">{{ feedback.likelihoodToRecommendToFriend }}</td>
+                                                                    <td>{{ feedback.additionalFeedback }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                {% else %}
+                                                    <p>No feedback has been submitted yet.</p>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
