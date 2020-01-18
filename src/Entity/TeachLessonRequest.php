@@ -42,6 +42,7 @@ class TeachLessonRequest extends Request
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="teachLessonRequests")
+     * @ORM\JoinColumn(name="school_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $school;
 

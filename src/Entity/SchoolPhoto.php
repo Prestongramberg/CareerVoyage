@@ -12,7 +12,7 @@ class SchoolPhoto extends Image
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolPhotos")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="school_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $school;
 

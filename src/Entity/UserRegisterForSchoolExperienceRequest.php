@@ -11,7 +11,7 @@ class UserRegisterForSchoolExperienceRequest extends Request
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\SchoolExperience", inversedBy="userRegisterForSchoolExperienceRequests")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="school_experience_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $schoolExperience;
 

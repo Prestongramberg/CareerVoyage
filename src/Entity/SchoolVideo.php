@@ -11,7 +11,7 @@ class SchoolVideo extends Video
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolVideos")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="school_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $school;
 

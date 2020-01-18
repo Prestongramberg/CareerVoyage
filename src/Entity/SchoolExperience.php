@@ -20,7 +20,7 @@ class SchoolExperience extends Experience
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolExperiences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="school_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $school;
 

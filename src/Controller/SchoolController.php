@@ -241,6 +241,27 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/{id}/delete", name="school_delete", options = { "expose" = true })
+     * @param Request $request
+     * @param School $school
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteSchoolAction(Request $request, School $school) {
+
+        $this->denyAccessUnlessGranted('edit', $school);
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $this->entityManager->remove($school);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'School deleted');
+
+        return $this->redirectToRoute('dashboard');
+    }
+
+    /**
      * @Route("/schools/students/{id}/remove", name="remove_student", methods={"POST"})
      * @param Request $request
      * @param StudentUser $studentUser

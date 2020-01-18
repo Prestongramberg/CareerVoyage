@@ -83,17 +83,17 @@ class School
     private $region;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolVideo", mappedBy="school", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolVideo", mappedBy="school")
      */
     private $schoolVideos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="school", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="school")
      */
     private $schoolExperiences;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolPhoto", mappedBy="school", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolPhoto", mappedBy="school")
      */
     private $schoolPhotos;
 
@@ -146,7 +146,7 @@ class School
     private $teachLessonExperiences;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolResource", mappedBy="school", orphanRemoval=true, cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolResource", mappedBy="school")
      */
     private $schoolResources;
 

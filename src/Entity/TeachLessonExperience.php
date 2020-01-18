@@ -15,6 +15,7 @@ class TeachLessonExperience extends Experience
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\TeachLessonRequest", inversedBy="teachLessonExperience", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name="original_request_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $originalRequest;
 
@@ -26,6 +27,7 @@ class TeachLessonExperience extends Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="teachLessonExperiences")
+     * @ORM\JoinColumn(name="school_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $school;
 

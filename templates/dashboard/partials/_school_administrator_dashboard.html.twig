@@ -1,7 +1,5 @@
 <div class="uk-container">
 
-    {% include 'flash/messages.html.twig' %}
-
     <div class="uk-grid" uk-grid>
         <div class="uk-width-1-1">
             <!-- PROFILE -->
@@ -56,6 +54,10 @@
                                             <p>This school does not have an overview added yet.</p>
                                         {% endif %}
                                         <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
+
+                                        <form action="{{ path('school_delete', { "id": school.id }) }}" method="POST">
+                                            <button style="float: right" class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

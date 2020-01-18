@@ -15,7 +15,7 @@ class SchoolResource extends Image
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="schoolResources")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(name="school_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $school;
 
