@@ -258,7 +258,7 @@ class SchoolController extends AbstractController
 
         $this->addFlash('success', 'School deleted');
 
-        return $this->redirectToRoute('dashboard');
+        return $this->redirectToRoute('school_index');
     }
 
     /**

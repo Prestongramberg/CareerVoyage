@@ -50,4 +50,8 @@ class RegionalCoordinator extends User
 
         return $this;
     }
+
+    public function canEditSchool(School $school) {
+        return $this->getRegion()->getId() === $school->getRegion()->getId();
+    }
 }

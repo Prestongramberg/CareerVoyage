@@ -55,9 +55,11 @@
                                         {% endif %}
                                         <p><a class="uk-link" href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
 
-                                        <form action="{{ path('school_delete', { "id": school.id }) }}" method="POST">
+                                        <!--
+                                         <form action="{{ path('school_delete', { "id": school.id }) }}" method="POST">
                                             <button style="float: right" class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
                                         </form>
+                                        -->
                                     </div>
                                 </div>
                             </div>

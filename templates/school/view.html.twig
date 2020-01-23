@@ -45,6 +45,11 @@
                     {% if school.canCreateExperiences(user) %}
                         <a href="{{ path('school_experience_create', {id: school.id}) }}" class="uk-button uk-button-default uk-button-small">Create Event</a>
                     {% endif %}
+                    {% if user.isRegionalCoordinator and user.canEditSchool(school) %}
+                    <form action="{{ path('school_delete', { "id": school.id }) }}" method="POST">
+                        <button style="float: right" class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
