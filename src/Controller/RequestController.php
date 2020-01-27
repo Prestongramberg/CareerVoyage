@@ -314,14 +314,15 @@ class RequestController extends AbstractController
                 /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
                 $studentUser = $request->getStudentUser();
                 $experience = $request->getCompanyExperience();
-                $currentRegistrations = $this->registrationRepository->findBy([
-                    'experience' => $experience,
-                ]);
-                $numberOfSlotsLeft = $experience->getAvailableSpaces() - count($currentRegistrations);
-                if(count($currentRegistrations) >= $experience->getAvailableSpaces()) {
-                    $this->addFlash('error', sprintf('Could not register student. Only (%s) spots left.', $numberOfSlotsLeft));
-                    return;
+
+                if($experience->getAvailableSpaces() === 0) {
+                    $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
+
+                if($experience->getAvailableSpaces() !== 0) {
+                    $experience->setAvailableSpaces($experience->getAvailableSpaces() - 1);
+                }
+                $this->entityManager->persist($experience);
                 $request->setApproved(true);
                 $this->entityManager->persist($request);
                 $registration = new Registration();

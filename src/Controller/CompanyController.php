@@ -876,17 +876,10 @@ class CompanyController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-        $data = [];
-        $currentRegistrations = $this->registrationRepository->findBy([
-            'experience' => $experience,
-        ]);
-        // we don't want to show negative numbers here so set negative to 0
-        $numberOfSlotsLeft = max($experience->getAvailableSpaces() - count($currentRegistrations), 0);
 
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
-            'experience' => $experience,
-            'numberOfSlotsLeft' => $numberOfSlotsLeft,
+            'experience' => $experience
         ]);
     }
 

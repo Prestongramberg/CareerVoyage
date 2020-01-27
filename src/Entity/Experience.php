@@ -552,4 +552,13 @@ abstract class Experience
 
         return $this;
     }
+
+    public function isRegistered(User $user) {
+        foreach($this->getRegistrations() as $registration) {
+            if($registration->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -16,7 +16,11 @@
 
                 {% if user.isProfessional or user.isStudent %}
                 <form class="uk-inline" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
-                    <button class="uk-button uk-button-secondary uk-button-small" type="submit">Register</button>
+                    {% if experience.isRegistered(user) %}
+                        <button class="uk-button uk-button-secondary uk-button-small disabled" type="submit">Already Register</button>
+                    {% else %}
+                        <button class="uk-button uk-button-secondary uk-button-small" type="submit">Register</button>
+                    {% endif %}
                 </form>
                 {% endif %}
             </div>

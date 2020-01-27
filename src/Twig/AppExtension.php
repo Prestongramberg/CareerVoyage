@@ -222,7 +222,8 @@ class AppExtension extends AbstractExtension
 
         $requests = $this->requestRepository->findBy([
             'needsApprovalBy' => $user,
-            'approved' => false
+            'approved' => false,
+            'denied' => false
         ]);
 
         return count($requests);
