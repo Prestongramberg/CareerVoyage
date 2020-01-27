@@ -266,7 +266,7 @@ class AppExtension extends AbstractExtension
                     $request->getCreatedBy(),
                     $request->getNeedsApprovalBy()
                 ])) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
 
                 return $this->twig->render('request/partials/_join_companies.html.twig', [
@@ -281,7 +281,7 @@ class AppExtension extends AbstractExtension
                     $request->getCreatedBy(),
                     $request->getNeedsApprovalBy()
                 ])) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
                 return $this->twig->render('request/partials/_new_companies.html.twig', [
                     'request' => $request,
@@ -296,7 +296,7 @@ class AppExtension extends AbstractExtension
                     $request->getCreatedBy(),
                     $request->getNeedsApprovalBy()
                 ])) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
                 return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
                     'request' => $request,
@@ -311,11 +311,11 @@ class AppExtension extends AbstractExtension
                     $request->getCreatedBy(),
                     $request->getNeedsApprovalBy()
                 ])) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
 
                 if(!$request->getStudentUser()) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
 
                 return $this->twig->render('request/partials/_educator_register_student_for_company_experience_request.html.twig', [
@@ -333,7 +333,7 @@ class AppExtension extends AbstractExtension
                     $request->getNeedsApprovalBy(),
                     $request->getReasonToMeet()
                 ])) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
 
                 return $this->twig->render('request/partials/_student_to_meet_professional_request.html.twig', [
@@ -350,7 +350,7 @@ class AppExtension extends AbstractExtension
                     $request->getCreatedBy(),
                     $request->getNeedsApprovalBy()
                 ])) {
-                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                    return '';
                 }
 
                 return $this->twig->render('request/partials/_user_register_for_school_experience_request.html.twig', [
