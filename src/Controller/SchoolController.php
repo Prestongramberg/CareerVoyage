@@ -489,76 +489,55 @@ class SchoolController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
-
-            if($file) {
-                $tempPathName = $file->getRealPath();
-                $rowNo = 1;
-                $students = [];
-                if (($fp = fopen($tempPathName, "r")) !== FALSE) {
-                    $keys = [];
-                    while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
-                        if($rowNo === 1) {
-                            $keys = $row;
-                            $rowNo++;
-                            continue;
-                        }
-
-                        if(trim(implode('', $row)) == '') {
-                            continue;
-                        }
-
-                        if(count($row) !== count($keys)) {
-                            $rowNo++;
-                            continue;
-                        }
-
-                        $students[] = array_combine($keys, $row);
-                        $rowNo++;
-                    }
-                    fclose($fp);
-                }
-
-                $studentObjs = [];
-                foreach($students as $student) {
-
-                    $studentObj = new StudentUser();
-                    $studentObj->setFirstName($student['First Name']);
-                    $studentObj->setLastName($student['Last Name']);
-                    $studentObj->setGraduatingYear($student['Graduating Year']);
-
-                    // add the educator to the user if the educator id is included in the import
-                    if(!empty($student['Educator Id'])) {
-                        $educator = $this->educatorUserRepository->findOneBy([
-                            'id' => $student['Educator Id'],
-                            'school' => $school
-                        ]);
-                        if($educator) {
-                            $studentObj->addEducatorUser($educator);
-                        } else {
-                            $this->addFlash('error', sprintf('Error importing students. At least one of the educator Ids does not belong to an educator for school %s. Check educator id list below', $school->getName()));
-                            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
-                        }
-                    }
-
-                    $studentObj->setSchool($school);
-                    $studentObj->setSite($user->getSite());
-                    $studentObj->setupAsStudent();
-                    $studentObj->initializeNewUser();
-                    $studentObj->setActivated(true);
-                    $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
-                    $tempPassword = $this->determinePassword();
-                    $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
-                    $studentObj->setTempPassword($tempPassword);
-                    $studentObj->setPassword($encodedPassword);
-
-                    $this->entityManager->persist($studentObj);
-                    $studentObjs[] = $studentObj;
-                }
-                $this->entityManager->flush();
+            $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            $expectedColumns = ['First Name', 'Last Name', 'Graduating Year',  'Educator Id'];
+            if($columns != $expectedColumns) {
+                $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
+                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
+            $rows = $this->phpSpreadsheetHelper->getAllRows($file);
+            $columns = array_shift($rows);
+            $students = [];
+            for($i = 0; $i < count($rows); $i++) {
+                $students[] = array_combine($columns, $rows[$i]);
+            }
+            foreach($students as $student) {
+                $studentObj = new StudentUser();
+                $studentObj->setFirstName($student['First Name']);
+                $studentObj->setLastName($student['Last Name']);
+                $studentObj->setGraduatingYear($student['Graduating Year']);
+                // add the educator to the user if the educator id is included in the import
+                if(!empty($student['Educator Id'])) {
+                    $educator = $this->educatorUserRepository->findOneBy([
+                        'id' => $student['Educator Id'],
+                        'school' => $school
+                    ]);
+                    if($educator) {
+                        $studentObj->addEducatorUser($educator);
+                    } else {
+                        $this->addFlash('error', sprintf('Error importing students. Educator ID %s does not belong to an educator for school %s. Check educator id list below', $student['Educator Id'], $school->getName()));
+                        return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+                    }
+                }
+
+                $studentObj->setSchool($school);
+                $studentObj->setSite($user->getSite());
+                $studentObj->setupAsStudent();
+                $studentObj->initializeNewUser();
+                $studentObj->setActivated(true);
+                $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
+                $tempPassword = $this->determinePassword();
+                $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
+                $studentObj->setTempPassword($tempPassword);
+                $studentObj->setPassword($encodedPassword);
+
+                $this->entityManager->persist($studentObj);
+                $studentObjs[] = $studentObj;
+            }
+
+            $this->entityManager->flush();
 
             $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
             $data = json_decode($data, true);
@@ -604,68 +583,49 @@ class SchoolController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
-
-            if($file) {
-                $tempPathName = $file->getRealPath();
-                $rowNo = 1;
-                $educators = [];
-                if (($fp = fopen($tempPathName, "r")) !== FALSE) {
-                    $keys = [];
-                    while (($row = fgetcsv($fp, 1000, ",")) !== FALSE) {
-                        if($rowNo === 1) {
-                            $keys = $row;
-                            $rowNo++;
-                            continue;
-                        }
-
-                        if(trim(implode('', $row)) == '') {
-                            continue;
-                        }
-
-                        if(count($row) !== count($keys)) {
-                            $rowNo++;
-                            continue;
-                        }
-
-                        $educators[] = array_combine($keys, $row);
-                        $rowNo++;
-                    }
-                    fclose($fp);
-                }
-
-                $educatorObjs = [];
-                foreach($educators as $educator) {
-                    $email = $educator['Email'];
-                    $existingUser = $this->userRepository->findOneBy([
-                        'email' => $email
-                    ]);
-                    if($existingUser) {
-                        $this->addFlash('error', sprintf('Error importing educators. At least one of the emails you are trying to import already belongs to another user'));
-                        return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
-                    }
-                    $educatorObj = new EducatorUser();
-                    $educatorObj->setFirstName($educator['First Name']);
-                    $educatorObj->setLastName($educator['Last Name']);
-                    $educatorObj->setSchool($school);
-                    $educatorObj->setupAsEducator();
-                    $educatorObj->setSite($user->getSite());
-                    $educatorObj->initializeNewUser();
-                    $educatorObj->setActivated(true);
-                    $educatorObj->setEmail($educator['Email']);
-                    $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
-                    $tempPassword = $this->determinePassword();
-                    $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
-                    $educatorObj->setTempPassword($tempPassword);
-                    $educatorObj->setPassword($encodedPassword);
-                    $this->entityManager->persist($educatorObj);
-                    $educatorObjs[] = $educatorObj;
-                }
-
-                $this->entityManager->flush();
+            $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            $expectedColumns = ['First Name', 'Last Name', 'Email'];
+            if($columns != $expectedColumns) {
+                $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
+                return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
             }
+            $rows = $this->phpSpreadsheetHelper->getAllRows($file);
+            $columns = array_shift($rows);
+            $educators = [];
+            for($i = 0; $i < count($rows); $i++) {
+                $educators[] = array_combine($columns, $rows[$i]);
+            }
+            $educatorObjs = [];
+            foreach($educators as $educator) {
+                $email = $educator['Email'];
+                $existingUser = $this->userRepository->findOneBy([
+                    'email' => $email
+                ]);
+                if($existingUser) {
+                    $this->addFlash('error', sprintf('Error importing educators. Email %s already exists in the system and belongs to another educator', $existingUser->getEmail()));
+                    return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+                }
+                $educatorObj = new EducatorUser();
+                $educatorObj->setFirstName($educator['First Name']);
+                $educatorObj->setLastName($educator['Last Name']);
+                $educatorObj->setSchool($school);
+                $educatorObj->setupAsEducator();
+                $educatorObj->setSite($user->getSite());
+                $educatorObj->initializeNewUser();
+                $educatorObj->setActivated(true);
+                $educatorObj->setEmail($educator['Email']);
+                $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
+                $tempPassword = $this->determinePassword();
+                $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
+                $educatorObj->setTempPassword($tempPassword);
+                $educatorObj->setPassword($encodedPassword);
+                $this->entityManager->persist($educatorObj);
+                $educatorObjs[] = $educatorObj;
+            }
+
+            $this->entityManager->flush();
 
             $data = $this->serializer->serialize($educatorObjs, 'json', ['groups' => ['EDUCATOR_USER']]);
             $data = json_decode($data, true);

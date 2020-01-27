@@ -15,13 +15,13 @@
                         <div class="uk-card-header">
                             <h3 class="uk-card-title uk-margin-remove-bottom">Import Educators</h3>
                             <p class="uk-margin-remove-top">
-                                Educators are imported from a CSV file, download our <a class="uk-link" href="{{ asset('build/static/educator-import-example.csv') }}" download="">sample one</a> to get started.
+                                <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">CSV Sample</a> <br>
+                                <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">EXCEL Sample</a>
                             </p>
                         </div>
                         <div class="uk-card-body">
 
                             <h3>Import Process</h3>
-                            <p>Download the <a class="uk-link" href="{{ asset('build/static/educator-import-example.csv') }}" download="">sample CSV</a>, and customize for your Educators.</p>
                             <p>Required Fields:</p>
 
                             <table class="uk-table uk-table-divider">
@@ -55,7 +55,7 @@
                             {% endif %}
 
                             <div class="uk-margin">
-                                {{ form_label(form.file, 'CSV File*') }}<br />
+                                {{ form_label(form.file, 'CSV or Excel File*') }}<br />
                                 <div uk-form-custom="target: true">
                                     {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>

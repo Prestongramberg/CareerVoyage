@@ -56,6 +56,7 @@ use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
 use App\Service\Geocoder;
 use App\Service\ImageCacheGenerator;
+use App\Service\PhpSpreadsheetHelper;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -392,6 +393,11 @@ trait ServiceHelper
     private $userRegisterForSchoolExperienceRequestRepository;
 
     /**
+     * @var PhpSpreadsheetHelper;
+     */
+    private $phpSpreadsheetHelper;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -456,6 +462,7 @@ trait ServiceHelper
      * @param RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
      * @param AllowedCommunicationRepository $allowedCommunicationsRepository
      * @param UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository
+     * @param PhpSpreadsheetHelper $phpSpreadsheetHelper
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -520,7 +527,8 @@ trait ServiceHelper
         NewCompanyRequestRepository $newCompanyRequestRepository,
         RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
         AllowedCommunicationRepository $allowedCommunicationsRepository,
-        UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository
+        UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository,
+        PhpSpreadsheetHelper $phpSpreadsheetHelper
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -585,6 +593,7 @@ trait ServiceHelper
         $this->rolesWillingToFulfillRepository = $rolesWillingToFulfillRepository;
         $this->allowedCommunicationsRepository = $allowedCommunicationsRepository;
         $this->userRegisterForSchoolExperienceRequestRepository = $userRegisterForSchoolExperienceRequestRepository;
+        $this->phpSpreadsheetHelper = $phpSpreadsheetHelper;
     }
 
 

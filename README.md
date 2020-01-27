@@ -29,3 +29,6 @@ You need to install Rabbit MQ:
 https://tecadmin.net/install-rabbitmq-server-on-ubuntu/
 
 sudo service rabbitmq-server reload
+
+sudo apt-get update
+sudo apt-get install php7.2-gd

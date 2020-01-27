@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Validator\Constraints\CSVColumnNamesMatch;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -21,12 +20,11 @@ class EducatorImportType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('file', FileType::class, [
-            'label' => 'Educator (CSV file)',
+            'label' => 'Educator (CSV or Excel file)',
             'mapped' => false,
             'required' => true,
             'constraints' => [
-                new NotBlank(),
-                new CSVColumnNamesMatch(['First Name', 'Last Name', 'Email'], [])
+                new NotBlank()
             ],
         ]);
     }

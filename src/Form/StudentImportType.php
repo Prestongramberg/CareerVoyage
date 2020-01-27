@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\School;
-use App\Validator\Constraints\CSVColumnNamesMatch;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -24,12 +23,11 @@ class StudentImportType extends AbstractType
         /** @var School $school */
         $school = $options['school'];
         $builder->add('file', FileType::class, [
-            'label' => 'Student (CSV file)',
+            'label' => 'Student (CSV or Excel file)',
             'mapped' => false,
             'required' => true,
             'constraints' => [
-                new NotBlank(),
-                new CSVColumnNamesMatch(['First Name', 'Last Name', 'Graduating Year',  'Educator Id'], [])
+                new NotBlank()
             ],
         ]);
     }

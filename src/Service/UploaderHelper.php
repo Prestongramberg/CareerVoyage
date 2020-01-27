@@ -125,4 +125,31 @@ class UploaderHelper
     public function getUploadsPath() {
         return $this->uploadsPath;
     }
+
+    /**
+     * For security reasons symfony uses the following method to determine file extension
+     * https://www.tutorialfor.com/questions-41236.htm
+     * This can cause us issues on determining extension and mime type for CSV file
+     *
+     * @param File $file
+     * @return string|null
+     */
+    public function guessExtension(File $file) {
+        if ($file instanceof UploadedFile) {
+            $originalFilename = $file->getClientOriginalName();
+        } else {
+            $originalFilename = $file->getFilename();
+        }
+
+        // For security reasons symfony uses the following method to determine file extension
+        // https://www.tutorialfor.com/questions-41236.htm
+        // This can cause issues guessing whether or not it's a csv file
+        if(pathinfo (basename ($originalFilename)) ['extension'] === 'csv') {
+            $extension = 'csv';
+        } else {
+            $extension = $file->getClientOriginalExtension();
+        }
+        return $extension;
+    }
+
 }
