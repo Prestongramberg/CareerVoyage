@@ -2,13 +2,13 @@
     {% if request.isFromCompany == true%}
 
         {% if request.wasCreatedByUser(user) %}
-            <a class="uk-accordion-title" href="#">Request to join your company</a>
+            <a class="uk-accordion-title" href="#">Join company request</a>
             <div class="uk-accordion-content">
-                <p>You have requested that {{ request.needsApprovalBy.fullName}} join your company.</p>
+                <p>You have requested {{ request.needsApprovalBy.fullName}} to join your company {{ request.company.name }}.</p>
                 <p>Status: <span class="uk-label">{{ render_request_status_text( request ) }}</span></p>
             </div>
             {% else %}
-                <a class="uk-accordion-title" href="#">You've been invited to join a company</a>
+                <a class="uk-accordion-title" href="#">You have requested {{ request.needsApprovalBy.fullName}} to join your company {{ request.company.name }}</a>
                 <div class="uk-accordion-content">
                     <table class="uk-table uk-table-small uk-table-divider">
                         <tbody>
@@ -62,8 +62,9 @@
     {% elseif request.isFromCompany == false %}
 
         {% if request.wasCreatedByUser(user) %}
-            <a class="uk-accordion-title" href="#">Request to join another company</a>
+            <a class="uk-accordion-title" href="#">Join company request</a>
             <div class="uk-accordion-content">
+                <p>You've sent a request to join company {{ request.company.name }}</p>
                 <table class="uk-table uk-table-small uk-table-divider">
                     <tbody>
                     <tr>
@@ -98,7 +99,7 @@
                 </table>
             </div>
             {% else %}
-                <a class="uk-accordion-title" href="#">Request to join another company</a>
+                <a class="uk-accordion-title" href="#">Join company request</a>
                 <div class="uk-accordion-content">
                     <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
                     {% if render_request_status_text( request ) == "Pending" %}
@@ -111,6 +112,9 @@
                             <input type="hidden" name="request" value="{{ request.id }}">
                         </form>
                     {% endif %}
+                    <div>
+                        Status:  <span class="uk-label">{{ render_request_status_text( request ) }}</span>
+                    </div>
                 </div>
         {% endif %}
 

@@ -18,7 +18,7 @@
                                 <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(profileUser, 'photo') is defined and profileUser.photo ) ? asset(uploaded_asset(profileUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
-                                    <a href="{{ path('profile_index', {'id': user.id}) }}">
+                                    <a href="{{ path('profile_index', {'id': profileUser.id}) }}">
                                         <h3 class="uk-card-title uk-margin-remove-bottom">{{ profileUser.getFullName }}</h3>
                                     </a>
                                 {% if user.isStudent and user.isCommunicationEnabled %}

@@ -15,6 +15,7 @@ use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\Registration;
+use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\CompanyInviteFormType;
@@ -128,6 +129,15 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setCreatedBy($user);
             $newCompanyRequest->setCompany($company);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
+
+            $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
+
+            foreach($adminUsers as $adminUser) {
+                $possibleApprover = new RequestPossibleApprovers();
+                $possibleApprover->setPossibleApprover($adminUser);
+                $possibleApprover->setRequest($newCompanyRequest);
+                $this->entityManager->persist($possibleApprover);
+            }
 
             $this->entityManager->persist($newCompanyRequest);
             $this->entityManager->persist($company);

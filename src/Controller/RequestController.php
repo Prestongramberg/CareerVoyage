@@ -83,12 +83,7 @@ class RequestController extends AbstractController
 
         $requestsByType = [];
 
-        $requestsThatNeedMyApproval = $this->requestRepository->findBy([
-            'needsApprovalBy' => $user,
-            'denied' => false,
-            'approved' => false,
-            'allowApprovalByActivationCode' => false
-        ], ['createdAt' => 'DESC']);
+        $requestsThatNeedMyApproval = $this->requestRepository->getRequestsThatNeedMyApproval($user);
 
         $myCreatedRequests = $this->requestRepository->findBy([
             'created_by' => $user,

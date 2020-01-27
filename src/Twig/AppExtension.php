@@ -5,9 +5,12 @@ namespace App\Twig;
 
 use App\Entity\CompanyResource;
 use App\Entity\Company;
+use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
+use App\Entity\JoinCompanyRequest;
 use App\Entity\Lesson;
+use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\School;
@@ -15,8 +18,11 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\Site;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
+use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\StudentUser;
+use App\Entity\TeachLessonRequest;
 use App\Entity\User;
+use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\RequestRepository;
@@ -220,11 +226,13 @@ class AppExtension extends AbstractExtension
 
     public function pendingRequests(User $user) {
 
-        $requests = $this->requestRepository->findBy([
+     /*   $requests = $this->requestRepository->findBy([
             'needsApprovalBy' => $user,
             'approved' => false,
             'denied' => false
-        ]);
+        ]);*/
+
+        $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
 
         return count($requests);
     }
@@ -251,36 +259,100 @@ class AppExtension extends AbstractExtension
 
         switch ($request->getClassName()) {
             case "JoinCompanyRequest":
+
+                /** @var JoinCompanyRequest $request */
+                if($this->containsNullObjects([
+                    $request->getCompany(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy()
+                ])) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
+
                 return $this->twig->render('request/partials/_join_companies.html.twig', [
                     'request' => $request,
                     'user' => $user,
                 ]);
                 break;
             case "NewCompanyRequest":
+                /** @var NewCompanyRequest $request */
+                if($this->containsNullObjects([
+                    $request->getCompany(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy()
+                ])) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
                 return $this->twig->render('request/partials/_new_companies.html.twig', [
                     'request' => $request,
                     'user' => $user,
                 ]);
                 break;
             case "TeachLessonRequest":
+                /** @var TeachLessonRequest $request */
+                if($this->containsNullObjects([
+                    $request->getLesson(),
+                    $request->getSchool(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy()
+                ])) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
                 return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
                 ]);
                 break;
             case "EducatorRegisterStudentForCompanyExperienceRequest":
+                /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
+                if($this->containsNullObjects([
+                    $request->getCompanyExperience(),
+                    $request->getStudentUser(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy()
+                ])) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
+
+                if(!$request->getStudentUser()) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
+
                 return $this->twig->render('request/partials/_educator_register_student_for_company_experience_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
                 ]);
                 break;
             case "StudentToMeetProfessionalRequest":
+
+                /** @var StudentToMeetProfessionalRequest $request */
+                if($this->containsNullObjects([
+                    $request->getStudent(),
+                    $request->getProfessional(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy(),
+                    $request->getReasonToMeet()
+                ])) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
+
                 return $this->twig->render('request/partials/_student_to_meet_professional_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
                 ]);
                 break;
             case "UserRegisterForSchoolExperienceRequest":
+
+                /** @var UserRegisterForSchoolExperienceRequest $request */
+                if($this->containsNullObjects([
+                    $request->getSchoolExperience(),
+                    $request->getUser(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy()
+                ])) {
+                    return $this->twig->render('request/partials/_request_data_error.html.twig', []);
+                }
+
                 return $this->twig->render('request/partials/_user_register_for_school_experience_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
@@ -436,5 +508,20 @@ class AppExtension extends AbstractExtension
             ($port !== 80 ? ':'.$port : ''),
             $routerContext->getBaseUrl()
         );
+    }
+
+    /**
+     * Some weird bugs where requests view showing errors for some values being null
+     * This is more of a safety check incase that happens again in the future
+     * @param $objs
+     * @return bool
+     */
+    private function containsNullObjects($objs) {
+        foreach($objs as $obj) {
+            if(!$obj) {
+                return true;
+            }
+        }
+        return false;
     }
 }

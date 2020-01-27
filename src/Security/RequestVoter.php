@@ -48,6 +48,12 @@ class RequestVoter extends Voter
 
     private function canEdit(Request $request, User $user)
     {
+        foreach($request->getRequestPossibleApprovers() as $requestPossibleApprover) {
+            if($requestPossibleApprover->getPossibleApprover()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
         return $request->getNeedsApprovalBy()->getId() === $user->getId();
     }
 }

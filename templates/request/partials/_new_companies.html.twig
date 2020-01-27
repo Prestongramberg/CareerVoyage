@@ -74,6 +74,7 @@
                             <span class="uk-label">
                                 {{ render_request_status_text( request ) }}
                             </span>
+                            <br>
                             {% if render_request_status_text( request ) == "Pending" %}
                                 <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
                                     <input class="uk-label uk-label-success" type="submit" value="Approve">

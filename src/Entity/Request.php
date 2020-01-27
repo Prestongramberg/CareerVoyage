@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -69,6 +71,16 @@ abstract class Request
      * @ORM\Column(type="boolean")
      */
     protected $allowApprovalByActivationCode = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\RequestPossibleApprovers", mappedBy="request", orphanRemoval=true)
+     */
+    private $requestPossibleApprovers;
+
+    public function __construct()
+    {
+        $this->requestPossibleApprovers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -164,6 +176,37 @@ abstract class Request
     {
         $activationCode = bin2hex(random_bytes(32));
         $this->setActivationCode($activationCode);
+    }
+
+    /**
+     * @return Collection|RequestPossibleApprovers[]
+     */
+    public function getRequestPossibleApprovers(): Collection
+    {
+        return $this->requestPossibleApprovers;
+    }
+
+    public function addRequestPossibleApprover(RequestPossibleApprovers $requestPossibleApprover): self
+    {
+        if (!$this->requestPossibleApprovers->contains($requestPossibleApprover)) {
+            $this->requestPossibleApprovers[] = $requestPossibleApprover;
+            $requestPossibleApprover->setRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestPossibleApprover(RequestPossibleApprovers $requestPossibleApprover): self
+    {
+        if ($this->requestPossibleApprovers->contains($requestPossibleApprover)) {
+            $this->requestPossibleApprovers->removeElement($requestPossibleApprover);
+            // set the owning side to null (unless already changed)
+            if ($requestPossibleApprover->getRequest() === $this) {
+                $requestPossibleApprover->setRequest(null);
+            }
+        }
+
+        return $this;
     }
 
 }

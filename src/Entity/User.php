@@ -234,6 +234,11 @@ abstract class User implements UserInterface
      */
     protected $tempPassword;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\RequestPossibleApprovers", mappedBy="possibleApprover", orphanRemoval=true)
+     */
+    protected $requestPossibleApprovers;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -246,6 +251,7 @@ abstract class User implements UserInterface
         $this->registrations = new ArrayCollection();
         $this->feedback = new ArrayCollection();
         $this->userRegisterForSchoolExperienceRequests = new ArrayCollection();
+        $this->requestPossibleApprovers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1158,5 +1164,36 @@ abstract class User implements UserInterface
     public function setTempPassword($tempPassword): void
     {
         $this->tempPassword = $tempPassword;
+    }
+
+    /**
+     * @return Collection|RequestPossibleApprovers[]
+     */
+    public function getRequestPossibleApprovers(): Collection
+    {
+        return $this->requestPossibleApprovers;
+    }
+
+    public function addRequestPossibleApprover(RequestPossibleApprovers $requestPossibleApprover): self
+    {
+        if (!$this->requestPossibleApprovers->contains($requestPossibleApprover)) {
+            $this->requestPossibleApprovers[] = $requestPossibleApprover;
+            $requestPossibleApprover->setPossibleApprover($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestPossibleApprover(RequestPossibleApprovers $requestPossibleApprover): self
+    {
+        if ($this->requestPossibleApprovers->contains($requestPossibleApprover)) {
+            $this->requestPossibleApprovers->removeElement($requestPossibleApprover);
+            // set the owning side to null (unless already changed)
+            if ($requestPossibleApprover->getPossibleApprover() === $this) {
+                $requestPossibleApprover->setPossibleApprover(null);
+            }
+        }
+
+        return $this;
     }
 }

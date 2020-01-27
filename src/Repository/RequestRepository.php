@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Request;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +48,21 @@ class RequestRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function getRequestsThatNeedMyApproval(User $user) {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.requestPossibleApprovers', 'rpa')
+            ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+            ->andWhere('r.denied = :denied')
+            ->andWhere('r.approved = :approved')
+            ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode')
+            ->setParameter('possibleApprover', $user)
+            ->setParameter('needsApprovalBy', $user)
+            ->setParameter('denied', false)
+            ->setParameter('approved', false)
+            ->setParameter('allowApprovalByActivationCode', false)
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
