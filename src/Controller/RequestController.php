@@ -336,6 +336,11 @@ class RequestController extends AbstractController
                 if($request->getCreatedBy()->getEmail()) {
                     $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApproval($request);
                 }
+
+                if($request->getStudentUser()->getEmail()) {
+                    $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent($request);
+                }
+
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();
                 break;

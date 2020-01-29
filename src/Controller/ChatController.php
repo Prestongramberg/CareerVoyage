@@ -367,9 +367,10 @@ class ChatController extends AbstractController
         if($loggedInUser->isStudent()) {
             $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
             $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
+            // for now we are disabling student to student communication
+            //$studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
             $professionalUsers = $this->professionalUserRepository->findByAllowedCommunication($search, $loggedInUser);
-            $users = array_merge($professionalUsers, $educatorUsers, $schoolAdministrators, $studentUsers);
+            $users = array_merge($professionalUsers, $educatorUsers, $schoolAdministrators);
         }
 
         /**

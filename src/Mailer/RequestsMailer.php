@@ -99,7 +99,7 @@ class RequestsMailer extends AbstractMailer
 
     public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
 
-        $message = (new \Swift_Message("Register Students Request."))
+        $message = (new \Swift_Message("Register Student Request."))
             ->setFrom($this->siteFromEmail)
             ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
@@ -115,12 +115,27 @@ class RequestsMailer extends AbstractMailer
     }
 
     public function educatorRegisterStudentForCompanyExperienceRequestApproval(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
-        $message = (new \Swift_Message("Register Students Request Approval."))
+        $message = (new \Swift_Message("Register Student Request Approval."))
             ->setFrom($this->siteFromEmail)
             ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/educatorRegisterStudentForCompanyExperienceRequestApproval.html.twig',
+                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
+                ),
+                'text/html'
+            );
+        $this->mailer->send($message);
+    }
+
+
+    public function educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
+        $message = (new \Swift_Message("You've Been Registered For a Company Event."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent.html.twig',
                     ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
                 ),
                 'text/html'

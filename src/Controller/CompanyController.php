@@ -903,21 +903,13 @@ class CompanyController extends AbstractController
     public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience) {
         $studentIdToRegister = $request->request->get('studentId');
         $studentToRegister = $this->studentUserRepository->find($studentIdToRegister);
-        $currentRegistrations = $this->registrationRepository->findBy([
-            'experience' => $experience,
-        ]);
-        $numberOfSlotsLeft = $experience->getAvailableSpaces() - count($currentRegistrations);
-        if(count($currentRegistrations) >= $experience->getAvailableSpaces()) {
-            $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
+
+        if($experience->getAvailableSpaces() === 0) {
+            $this->addFlash('error', sprintf('Could not register students. 0 spots left.'));
             return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
         /** @var User $user */
         $user = $this->getUser();
-
-        if($numberOfSlotsLeft === 0) {
-            $this->addFlash('error', sprintf('Could not register students. Only (%s) spots left.', $numberOfSlotsLeft));
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
         $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
         $registerRequest->setCreatedBy($user);
         $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());

@@ -982,7 +982,7 @@ abstract class User implements UserInterface
         return $this->isEmailHiddenFromProfile;
     }
 
-    public function setIsEmailHiddenFromProfile(bool $isEmailHiddenFromProfile): self
+    public function setIsEmailHiddenFromProfile(?bool $isEmailHiddenFromProfile): self
     {
         $this->isEmailHiddenFromProfile = $isEmailHiddenFromProfile;
 
@@ -994,7 +994,7 @@ abstract class User implements UserInterface
         return $this->isPhoneHiddenFromProfile;
     }
 
-    public function setIsPhoneHiddenFromProfile(bool $isPhoneHiddenFromProfile): self
+    public function setIsPhoneHiddenFromProfile(?bool $isPhoneHiddenFromProfile): self
     {
         $this->isPhoneHiddenFromProfile = $isPhoneHiddenFromProfile;
 
