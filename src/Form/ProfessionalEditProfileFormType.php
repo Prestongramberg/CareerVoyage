@@ -127,7 +127,8 @@ class ProfessionalEditProfileFormType extends AbstractType
             'query_builder' => function (EntityRepository $er) use ($industry) {
                 return $er->createQueryBuilder('si')
                     ->where('si.primaryIndustry = :primaryIndustry')
-                    ->setParameter('primaryIndustry', $industry->getId());
+                    ->setParameter('primaryIndustry', $industry->getId())
+                    ->orderBy('si.name', 'ASC');
             },
             'choice_label' => 'name',
             'expanded' => true,

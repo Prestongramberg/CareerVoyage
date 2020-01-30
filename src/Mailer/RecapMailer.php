@@ -20,12 +20,13 @@ class RecapMailer extends AbstractMailer
     /**
      * @param User $user
      * @param $lessons Lesson[]
-     * @param $experiences Experience[]
+     * @param array $schoolExperiences
+     * @param array $companyExperiences
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function send(User $user, $lessons = [], $experiences = []) {
+    public function send(User $user, $lessons = [], $schoolExperiences = [], $companyExperiences = []) {
 
         $subject = 'Weekly Recap';
         if($user->isStudent() || $user->isEducator()) {
@@ -41,7 +42,7 @@ class RecapMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/recap/index.html.twig',
-                    ['user' => $user, 'lessons' => $lessons, 'experiences' => $experiences]
+                    ['user' => $user, 'lessons' => $lessons, 'schoolExperiences' => $schoolExperiences, 'companyExperiences' => $companyExperiences]
                 ),
                 'text/html'
             );

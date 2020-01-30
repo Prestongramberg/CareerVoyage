@@ -5,13 +5,28 @@
 {% for lesson in lessons %}
     <p>Title: <strong>{{ lesson.title }}</strong></p>
     <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
+{% else %}
+    <p>No New Lessons exist at this time.</p>
 {% endfor %}
 
-{# Relevant Events #}
-<h2>New Events</h2>
-{% for experience in experiences %}
-    <p>Title: <strong>{{ experience.title }}</strong></p>
-    <p>Brief Description: <strong>{{ experience.brief_description }}</strong></p>
+{# Relevant School Events #}
+<h2>New School Events</h2>
+{% for schoolExperience in schoolExperiences %}
+    <p>Title: <strong>{{ schoolExperience.title }}</strong></p>
+    <p>Brief Description: <strong>{{ schoolExperience.brief_description }}</strong></p>
+    {% else %}
+    <p>No New School Events at this time.</p>
 {% endfor %}
+
+{# Relevant Company Events #}
+<h2>New Company Events</h2>
+{% for companyExperience in companyExperiences %}
+    <p>Title: <strong>{{ companyExperience.title }}</strong></p>
+    <p>Brief Description: <strong>{{ companyExperience.brief_description }}</strong></p>
+{% else %}
+    <p>No New Company Events at this time.</p>
+{% endfor %}
+
+<p>Please login to your <a href="{{ url('dashboard') }}">dashboard</a> for more details.</p>
 
 {% include 'email/partial/emailFooter.html.twig' %}
