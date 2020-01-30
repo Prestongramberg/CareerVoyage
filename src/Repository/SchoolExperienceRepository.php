@@ -105,4 +105,21 @@ HERE;
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * @param int $days
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findAllFromPastDays($days = 7) {
+        $query = sprintf("select e.id, e.title, e.brief_description from experience e
+                inner join school_experience se on se.id = e.id
+                WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY
+                GROUP BY se.id order by e.start_date_and_time ASC", $days);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

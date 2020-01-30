@@ -12,6 +12,7 @@ use App\Entity\SchoolExperience;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Mailer\RecapMailer;
 use App\Message\RecapMessage;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CourseRepository;
@@ -114,6 +115,11 @@ class SendRecapCommand extends Command
     private $bus;
 
     /**
+     * @var RecapMailer
+     */
+    private $recapMailer;
+
+    /**
      * SendRecapCommand constructor.
      * @param EntityManagerInterface $entityManager
      * @param GradeRepository $gradeRepository
@@ -129,6 +135,7 @@ class SendRecapCommand extends Command
      * @param CompanyExperienceRepository $companyExperienceRepository
      * @param SchoolExperienceRepository $schoolExperienceRepository
      * @param MessageBusInterface $bus
+     * @param RecapMailer $recapMailer
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -144,7 +151,8 @@ class SendRecapCommand extends Command
         ProfessionalUserRepository $professionalUserRepository,
         CompanyExperienceRepository $companyExperienceRepository,
         SchoolExperienceRepository $schoolExperienceRepository,
-        MessageBusInterface $bus
+        MessageBusInterface $bus,
+        RecapMailer $recapMailer
     ) {
         $this->entityManager = $entityManager;
         $this->gradeRepository = $gradeRepository;
@@ -160,9 +168,11 @@ class SendRecapCommand extends Command
         $this->companyExperienceRepository = $companyExperienceRepository;
         $this->schoolExperienceRepository = $schoolExperienceRepository;
         $this->bus = $bus;
+        $this->recapMailer = $recapMailer;
 
         parent::__construct();
     }
+
 
     protected function configure()
     {
@@ -174,15 +184,43 @@ class SendRecapCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output) {
 
-        $studentUsers = $this->studentUserRepository->findAll();
+        // TODO for now just grab all the users
+        // we can refactor this in the future if we need to
+        $users = $this->userRepository->findAll();
+
+       /* $studentUsers = $this->studentUserRepository->findAll();
         $educatorUsers = $this->educatorUserRepository->findAll();
         $professionalUsers = $this->professionalUserRepository->findAll();
-        $users = array_merge($studentUsers, $educatorUsers, $professionalUsers);
+        $users = array_merge($studentUsers, $educatorUsers, $professionalUsers);*/
 
         // let's go ahead and push each user onto the queue so it's picked up by it's own worker
         /** @var User $user */
         foreach($users as $user) {
-            $this->bus->dispatch(new RecapMessage($user->getId()));
+
+            if(!$user->getEmail()) {
+                continue;
+            }
+
+            // TODO getSecondaryIndustries() ONLY exists on certain user types
+            //  and not the RegionalCoordinator object, etc. So rethink this in the future
+            /*$userSecondaryIndustries = $user->getSecondaryIndustries();*/
+
+            // TODO possibly implement this in the future
+            //  This function will get relevant lessons for the user's secondary industry preferences
+            //$lessons = $this->lessonRepository->findBySecondaryIndustries($userSecondaryIndustries);
+
+            // For now just return all lessons from last 7 days
+            $lessons = $this->lessonRepository->findAllLessonsFromPastDays(7);
+
+            // Get relevant events for the user's secondary industry preferences
+            // TODO Possibly call findBySecondaryIndustries($secondaryIndustries, $limit = 6)  in
+            //  the future to only pull event results if they express interest in that industry
+            $schoolExperiences = $this->schoolExperienceRepository->findAllFromPastDays(7);
+            $companyExperiences = $this->companyExperienceRepository->findAllFromPastDays(7);
+
+            $this->recapMailer->send($user, $lessons, $schoolExperiences, $companyExperiences);
+
+            break;
         }
 
         $output->writeln('Recap successfully sent...');
