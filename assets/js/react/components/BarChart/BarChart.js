@@ -22,7 +22,18 @@ class BarChart extends Component {
         };
 
         return (
-            <Bar data={data} />
+            <Bar
+                data={data}
+                options={{
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }}
+            />
         );
     }
 }

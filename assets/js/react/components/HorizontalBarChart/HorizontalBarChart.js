@@ -31,7 +31,18 @@ class HorizontalBarChart extends Component {
         };
 
         return (
-            <HorizontalBar data={data} />
+            <HorizontalBar
+                data={data}
+                options={{
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }}
+            />
         );
     }
 }
