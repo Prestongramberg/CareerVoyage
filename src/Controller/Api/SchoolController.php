@@ -19,6 +19,7 @@ use App\Repository\CourseRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\SchoolRepository;
 use App\Service\FileUploader;
+use App\Service\Geocoder;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
@@ -110,6 +111,11 @@ class SchoolController extends AbstractController
     private $schoolRepository;
 
     /**
+     * @var Geocoder
+     */
+    private $geocoder;
+
+    /**
      * SchoolController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -123,6 +129,7 @@ class SchoolController extends AbstractController
      * @param CompanyFavoriteRepository $companyFavoriteRepository
      * @param CourseRepository $courseRepository
      * @param SchoolRepository $schoolRepository
+     * @param Geocoder $geocoder
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -136,7 +143,8 @@ class SchoolController extends AbstractController
         IndustryRepository $industryRepository,
         CompanyFavoriteRepository $companyFavoriteRepository,
         CourseRepository $courseRepository,
-        SchoolRepository $schoolRepository
+        SchoolRepository $schoolRepository,
+        Geocoder $geocoder
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -150,6 +158,7 @@ class SchoolController extends AbstractController
         $this->companyFavoriteRepository = $companyFavoriteRepository;
         $this->courseRepository = $courseRepository;
         $this->schoolRepository = $schoolRepository;
+        $this->geocoder = $geocoder;
     }
 
     /**
@@ -165,6 +174,45 @@ class SchoolController extends AbstractController
         $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
 
         $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Example Request: http://pintex.test/api/schools-by-radius?zipcode=54017
+     *
+     * @Route("/schools-by-radius", name="get_schools_by_radius", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getSchoolsByRadius(Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+        // todo how do we know the users default zipcode? Probably just return all results if zipcode is null right?
+        $zipcode = $request->query->get('zipcode',  null);
+        $radius = $request->query->get('radius', 70);
+        $lng = null;
+        $lat = null;
+
+        if($zipcode &&  $coordinates = $this->geocoder->geocode($zipcode)) {
+            $lng = $coordinates['lng'];
+            $lat = $coordinates['lat'];
+            list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+            $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+            $payload = $schools;
+        } else {
+            $schools = $this->schoolRepository->findAll();
+            $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
+            $payload = json_decode($json, true);
+        }
 
         return new JsonResponse(
             [

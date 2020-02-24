@@ -18,6 +18,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\CourseRepository;
 use App\Repository\IndustryRepository;
 use App\Service\FileUploader;
+use App\Service\Geocoder;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
@@ -104,6 +105,11 @@ class CompanyController extends AbstractController
     private $courseRepository;
 
     /**
+     * @var Geocoder
+     */
+    private $geocoder;
+
+    /**
      * CompanyController constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -116,6 +122,7 @@ class CompanyController extends AbstractController
      * @param IndustryRepository $industryRepository
      * @param CompanyFavoriteRepository $companyFavoriteRepository
      * @param CourseRepository $courseRepository
+     * @param Geocoder $geocoder
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -128,7 +135,8 @@ class CompanyController extends AbstractController
         CompanyRepository $companyRepository,
         IndustryRepository $industryRepository,
         CompanyFavoriteRepository $companyFavoriteRepository,
-        CourseRepository $courseRepository
+        CourseRepository $courseRepository,
+        Geocoder $geocoder
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -141,6 +149,7 @@ class CompanyController extends AbstractController
         $this->industryRepository = $industryRepository;
         $this->companyFavoriteRepository = $companyFavoriteRepository;
         $this->courseRepository = $courseRepository;
+        $this->geocoder = $geocoder;
     }
 
     /**
@@ -178,6 +187,89 @@ class CompanyController extends AbstractController
         $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
 
         $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * Example Request: http://pintex.test/api/companies-by-radius?zipcode=54017
+     *
+     * @Route("/companies-by-radius", name="get_companies_by_radius", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getCompaniesByRadius(Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+        // todo how do we know the users default zipcode? Probably just return all results if zipcode is null right?
+        $zipcode = $request->query->get('zipcode',  null);
+        $radius = $request->query->get('radius', 70);
+        $lng = null;
+        $lat = null;
+
+        if($zipcode &&  $coordinates = $this->geocoder->geocode($zipcode)) {
+            $lng = $coordinates['lng'];
+            $lat = $coordinates['lat'];
+            list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+            $companies = $this->companyRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+            // add is favorite and is mine logic to the companies array
+            foreach ($companies as &$company) {
+
+                $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
+                    'company' => $company['id'],
+                    'user' => $user
+                ]);
+
+                if($favoriteCompany) {
+                    $company['favorite'] = true;
+                } else {
+                    $company['favorite'] = false;
+                }
+
+                if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
+                    $company['mine'] = true;
+                } else {
+                    $company['mine'] = false;
+                }
+            }
+
+            $payload = $companies;
+        } else {
+            $companies = $this->companyRepository->findBy([
+                'approved' => true
+            ]);
+
+            foreach($companies as $company) {
+
+                $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
+                    'company' => $company,
+                    'user' => $user
+                ]);
+
+                if($favoriteCompany) {
+                    $company->setIsFavorite(true);
+                } else {
+                    $company->setIsFavorite(false);
+                }
+
+                if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
+                    $company->setIsMine(true);
+                } else {
+                    $company->setIsMine(false);
+                }
+            }
+
+            $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
+            $payload = json_decode($json, true);
+        }
 
         return new JsonResponse(
             [

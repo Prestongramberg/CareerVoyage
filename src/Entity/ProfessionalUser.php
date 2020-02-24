@@ -109,6 +109,46 @@ class ProfessionalUser extends User
      */
     private $allowedCommunications;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $latitude;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $longitude;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $street;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $city;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $zipcode;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $address;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="professionalUsers")
+     */
+    private $state;
+    
     public function __construct()
     {
         parent::__construct();
@@ -435,6 +475,90 @@ class ProfessionalUser extends User
                 $allowedCommunication->setProfessionalUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?string $latitude): self
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?string $longitude): self
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(?string $street): self
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getZipcode(): ?string
+    {
+        return $this->zipcode;
+    }
+
+    public function setZipcode(?string $zipcode): self
+    {
+        $this->zipcode = $zipcode;
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getState(): ?State
+    {
+        return $this->state;
+    }
+
+    public function setState(?State $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

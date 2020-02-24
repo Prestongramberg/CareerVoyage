@@ -128,7 +128,16 @@ class ProfileController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
 
+            /** @var User $user */
             $user = $form->getData();
+
+            if($user->isProfessional()) {
+                $shouldAttemptGeocode = $company->getStreet() && $company->getCity() && $company->getState() && $company->getZipcode();
+                if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($company->getFormattedAddress())) {
+                    $company->setLongitude($coordinates['lng']);
+                    $company->setLatitude($coordinates['lat']);
+                }
+            }
 
             if($user->getPlainPassword()) {
                 $encodedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());

@@ -7,6 +7,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
+use App\Entity\State;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -72,6 +73,15 @@ class ProfessionalEditProfileFormType extends AbstractType
                 },
             ])
             ->add('interests', TextareaType::class)
+            ->add('street', TextType::class, [])
+            ->add('city', TextType::class, [])
+            ->add('state', EntityType::class, [
+                'class' => State::class,
+                'choice_label' => 'name',
+                'expanded'  => false,
+                'multiple'  => false,
+            ])
+            ->add('zipcode', TextType::class, [])
             ->add('briefBio', TextareaType::class)
             ->add('linkedinProfile', TextType::class)
             ->add('phone', TextType::class)
@@ -155,14 +165,14 @@ class ProfessionalEditProfileFormType extends AbstractType
                 /** @var ProfessionalUser $data */
                 $data = $form->getData();
                 if(!$data->getPrimaryIndustry()) {
-                    return ['EDIT'];
+                    return ['EDIT', 'PROFESSIONAL_USER'];
                 }
 
                 if($data->getPrimaryIndustry()) {
-                    return ['EDIT', 'SECONDARY_INDUSTRY'];
+                    return ['EDIT', 'SECONDARY_INDUSTRY', 'PROFESSIONAL_USER'];
                 }
 
-                return ['EDIT'];
+                return ['EDIT', 'PROFESSIONAL_USER'];
             },
         ]);
 

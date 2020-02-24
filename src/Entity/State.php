@@ -104,11 +104,17 @@ class State
      */
     private $schools;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalUser", mappedBy="state")
+     */
+    private $professionalUsers;
+
     public function __construct()
     {
         $this->regions = new ArrayCollection();
         $this->experiences = new ArrayCollection();
         $this->schools = new ArrayCollection();
+        $this->professionalUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -227,6 +233,37 @@ class State
             // set the owning side to null (unless already changed)
             if ($school->getState() === $this) {
                 $school->setState(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProfessionalUser[]
+     */
+    public function getProfessionalUsers(): Collection
+    {
+        return $this->professionalUsers;
+    }
+
+    public function addProfessionalUser(ProfessionalUser $professionalUser): self
+    {
+        if (!$this->professionalUsers->contains($professionalUser)) {
+            $this->professionalUsers[] = $professionalUser;
+            $professionalUser->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfessionalUser(ProfessionalUser $professionalUser): self
+    {
+        if ($this->professionalUsers->contains($professionalUser)) {
+            $this->professionalUsers->removeElement($professionalUser);
+            // set the owning side to null (unless already changed)
+            if ($professionalUser->getState() === $this) {
+                $professionalUser->setState(null);
             }
         }
 
