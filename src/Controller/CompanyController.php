@@ -816,6 +816,12 @@ class CompanyController extends AbstractController
             /** @var CompanyExperience $experience */
             $experience = $form->getData();
 
+            $shouldAttemptGeocode = $experience->getStreet() && $experience->getCity() && $experience->getState() && $experience->getZipcode();
+            if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($experience->getFormattedAddress())) {
+                $experience->setLongitude($coordinates['lng']);
+                $experience->setLatitude($coordinates['lat']);
+            }
+
             $this->entityManager->persist($experience);
 
             $experience->setCompany($company);
@@ -858,6 +864,12 @@ class CompanyController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             /** @var CompanyExperience $experience */
             $experience = $form->getData();
+
+            $shouldAttemptGeocode = $experience->getStreet() && $experience->getCity() && $experience->getState() && $experience->getZipcode();
+            if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($experience->getFormattedAddress())) {
+                $experience->setLongitude($coordinates['lng']);
+                $experience->setLatitude($coordinates['lat']);
+            }
 
             $this->entityManager->persist($experience);
             $experience->setCompany($company);

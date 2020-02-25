@@ -199,6 +199,16 @@ abstract class Experience
      */
     protected $feedback;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $latitude;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $longitude;
+
     public function __construct()
     {
         $this->experienceFiles = new ArrayCollection();
@@ -560,5 +570,38 @@ abstract class Experience
             }
         }
         return false;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?string $latitude): self
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?string $longitude): self
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getFormattedAddress() {
+        return sprintf("%s %s %s %s",
+            $this->street,
+            $this->city,
+            $this->state ? $this->state->getAbbreviation() : '',
+            $this->zipcode
+        );
     }
 }

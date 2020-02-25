@@ -120,7 +120,7 @@ class ProfessionalUser extends User
     private $longitude;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a street!", groups={"PROFESSIONAL_USER"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $street;
@@ -132,19 +132,13 @@ class ProfessionalUser extends User
     private $city;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"PROFESSIONAL_USER"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $address;
-
-    /**
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a state!", groups={"PROFESSIONAL_USER"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="professionalUsers")
      */
     private $state;
@@ -539,18 +533,6 @@ class ProfessionalUser extends User
         return $this;
     }
 
-    public function getAddress(): ?string
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?string $address): self
-    {
-        $this->address = $address;
-
-        return $this;
-    }
-
     public function getState(): ?State
     {
         return $this->state;
@@ -561,5 +543,14 @@ class ProfessionalUser extends User
         $this->state = $state;
 
         return $this;
+    }
+
+    public function getFormattedAddress() {
+        return sprintf("%s %s %s %s",
+            $this->street,
+            $this->city,
+            $this->state ? $this->state->getAbbreviation() : '',
+            $this->zipcode
+        );
     }
 }

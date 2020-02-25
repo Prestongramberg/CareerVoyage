@@ -79,4 +79,32 @@ class ExperienceRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * To use this function a few things must happen first
+     * 1. You must use google api to find the starting latitude and starting longitude of the starting address or zipcode
+     * 2. You must use the geocoder->calculateSearchSquare() service to return the 4 lat/lng points
+     * 3. Then you can call this function!
+     *
+     * @param $latN
+     * @param $latS
+     * @param $lonE
+     * @param $lonW
+     * @param $startingLatitude
+     * @param $startingLongitude
+     * @param $userId
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getAllEventsRegisteredForByUserByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $userId) {
+
+        $query = sprintf('SELECT * from experience e INNER JOIN registration r on r.experience_id = e.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND r.user_id = %s',
+            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $userId
+        );
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

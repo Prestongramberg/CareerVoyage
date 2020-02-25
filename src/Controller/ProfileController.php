@@ -132,10 +132,11 @@ class ProfileController extends AbstractController
             $user = $form->getData();
 
             if($user->isProfessional()) {
-                $shouldAttemptGeocode = $company->getStreet() && $company->getCity() && $company->getState() && $company->getZipcode();
-                if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($company->getFormattedAddress())) {
-                    $company->setLongitude($coordinates['lng']);
-                    $company->setLatitude($coordinates['lat']);
+                /** @var ProfessionalUser $user */
+                $shouldAttemptGeocode = $user->getStreet() && $user->getCity() && $user->getState() && $user->getZipcode();
+                if($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($user->getFormattedAddress())) {
+                    $user->setLongitude($coordinates['lng']);
+                    $user->setLatitude($coordinates['lat']);
                 }
             }
 

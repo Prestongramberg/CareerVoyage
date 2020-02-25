@@ -149,15 +149,13 @@ class ProfessionalController extends AbstractController
         $this->professionalUserRepository = $professionalUserRepository;
         $this->geocoder = $geocoder;
     }
-    
+
     /**
      * @Route("/professionals", name="get_professionals", methods={"GET"}, options = { "expose" = true })
      */
     public function getProfessionals() {
 
-        $professionals = $this->professionalUserRepository->findBy([
-            'activated' => true
-        ]);
+        $professionals = $this->professionalUserRepository->findAll();
 
         $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
 
@@ -173,7 +171,7 @@ class ProfessionalController extends AbstractController
     }
 
     /**
-     * Example Request: http://pintex.test/api/schools-by-radius?zipcode=54017
+     * Example Request: http://pintex.test/api/professionals-by-radius?zipcode=54017
      *
      * @Route("/professionals-by-radius", name="get_professionals_by_radius", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
@@ -194,11 +192,11 @@ class ProfessionalController extends AbstractController
             $lng = $coordinates['lng'];
             $lat = $coordinates['lat'];
             list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
-            $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+            $schools = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
             $payload = $schools;
         } else {
-            $schools = $this->schoolRepository->findAll();
-            $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
+            $professionals = $this->professionalUserRepository->findAll();
+            $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
             $payload = json_decode($json, true);
         }
 

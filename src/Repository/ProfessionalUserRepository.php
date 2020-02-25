@@ -81,4 +81,31 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * To use this function a few things must happen first
+     * 1. You must use google api to find the starting latitude and starting longitude of the starting address or zipcode
+     * 2. You must use the geocoder->calculateSearchSquare() service to return the 4 lat/lng points
+     * 3. Then you can call this function!
+     *
+     * @param $latN
+     * @param $latS
+     * @param $lonE
+     * @param $lonW
+     * @param $startingLatitude
+     * @param $startingLongitude
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
+
+        $query = sprintf('SELECT * from professional_user p WHERE p.latitude <= %s AND p.latitude >= %s AND p.longitude <= %s AND p.longitude >= %s AND (p.latitude != %s AND p.longitude != %s)',
+            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+        );
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
