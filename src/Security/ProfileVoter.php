@@ -17,11 +17,12 @@ class ProfileVoter extends Voter
 {
     // these strings are just invented: you can use anything
     const EDIT = 'edit';
+    const VIEW = 'view';
 
     protected function supports($attribute, $subject)
     {
         // if the attribute isn't one we support, return false
-        if (!in_array($attribute, [self::EDIT])) {
+        if (!in_array($attribute, [self::EDIT, self::VIEW])) {
             return false;
         }
 
@@ -48,6 +49,8 @@ class ProfileVoter extends Voter
         switch ($attribute) {
             case self::EDIT:
                 return $this->canEdit($userToVoteOn, $user);
+            case self::VIEW:
+                return $this->canView($userToVoteOn, $user);
         }
 
         throw new \LogicException('This code should not be reached!');
@@ -103,6 +106,38 @@ class ProfileVoter extends Voter
         /** @var EducatorUser $userToVoteOn */
         if ( $userToVoteOn->isEducator() || $userToVoteOn->isStudent() ) {
 
+            $possibleSchoolIds = [];
+            if($user->isSchoolAdministrator()) {
+                foreach($user->getSchools() as $school) {
+                    $possibleSchoolIds[] = $school->getId();
+                }
+            }
+
+            return (
+                ( $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() ) ||
+                ( $user->isStateCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getState()->getId() === $userToVoteOn->getSchool()->getState()->getId() ) ||
+                ( $user->isRegionalCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getRegion()->getId() === $userToVoteOn->getSchool()->getRegion()->getId() ) ||
+                ( $user->isSchoolAdministrator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && in_array($userToVoteOn->getSchool()->getId(), $possibleSchoolIds) )
+            );
+        }
+
+        return false;
+    }
+
+    public static function canView(User $userToVoteOn, User $user)
+    {
+        // admins can edit everyone!
+        if($user->isAdmin()) {
+            return true;
+        }
+
+        // you can always edit your own user account. duhhhhhh
+        if($user->getId() === $userToVoteOn->getId()) {
+            return true;
+        }
+
+        /** @var StudentUser $userToVoteOn */
+        if ( $userToVoteOn->isStudent() ) {
             $possibleSchoolIds = [];
             if($user->isSchoolAdministrator()) {
                 foreach($user->getSchools() as $school) {

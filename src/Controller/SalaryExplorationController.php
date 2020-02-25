@@ -77,7 +77,8 @@ class SalaryExplorationController extends AbstractController
 
         return $this->render('salaryExploration/secondary_industry.html.twig', [
             'user' => $user,
-            'secondaryIndustries' => $secondaryIndustries
+            'secondaryIndustries' => $secondaryIndustries,
+            'primaryIndustry' => $primaryIndustry
         ]);
     }
 

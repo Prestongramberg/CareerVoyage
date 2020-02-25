@@ -7,6 +7,13 @@
     <div class="uk-container">
         <div class="uk-section uk-section-muted uk-padding">
             <h3>Select a Targeted Career Field</h3>
+            <h4>
+                {% if primaryIndustry.url %}
+                    <div>
+                        <a href="{{ primaryIndustry.url }}">{{ primaryIndustry.name }}</a>
+                    </div>
+                {% endif %}
+            </h4>
             <p><a href="{{ path('salary_exploration_primary_industry') }}">Back to primary exploration</a></p>
             {% for secondaryIndustry in secondaryIndustries %}
                 {% if secondaryIndustry.url %}

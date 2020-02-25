@@ -47,6 +47,12 @@ class Industry
      */
     private $professionalUsers;
 
+    /**
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "EXPERIENCE_DATA"})
+     * @ORM\Column(type="string", length=255)
+     */
+    private $url;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -192,6 +198,18 @@ class Industry
                 $professionalUser->setPrimaryIndustry(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
 
         return $this;
     }

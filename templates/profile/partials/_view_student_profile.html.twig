@@ -18,28 +18,227 @@
                                     <a href="#">{{ profileUser.school.name }}</a> - Student
                                 </p>
                             </div>
+                            <div class="uk-width-auto">
+                                <div class="uk-align-right">
+                                    <a href="{{ path('profile_edit', {'id': profileUser.id}) }}">
+                                        <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if profileUser.briefBio %}
-                            <div class="uk-margin">
-                                {{ profileUser.briefBio|raw }}
-                            </div>
-                        {% else %}
-                            <p>This student has not added a bio yet.</p>
-                        {% endif %}
+                        <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': profileUser.id}) }}">Add a brief bio</a> so others know more about you.</p>
+                        <div class="professional-links">
+                            <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        {% if profileUser.email %}
-                            <div class="professional-links">
-                                <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                {% if user_can_chat_with_user( user, profileUser ) %}
-                                    <a href="javascript:void(0)" class="uk-icon-button uk-margin-small-right" uk-icon="comments" data-message-user-id="{{ profileUser.id }}"></a>
-                                {% endif %}
+            <div class="uk-margin">
+                <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
+                    <li class="uk-active"><a href="#user-preferences">Calendar</a></li>
+                    <li><a href="#user-favorites">Favorites</a></li>
+                    <li><a href="#user-events">Events</a></li>
+                </ul>
+                <div class="uk-switcher" id="tab-user-preferences">
+                    <div class="user_preferences_calendar">
+                        <div class="react-events-calendar" data-user-id="{{ profileUser.id }}"></div>
+                    </div>
+                    <div class="user_preferences_favorites">
+                        <div class="uk-card uk-card-default">
+                            <div class="uk-card-body">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">My Favorites</h3>
+                                <ul class="uk-tab" uk-switcher="connect: #tab-favorites" uk-tab>
+                                    <li><a href="#favorites-companies">Companies</a></li>
+                                </ul>
+                                <div class="uk-switcher" id="tab-favorites">
+                                    <div class="tab-favorites__companies">
+                                        {% if profileUser.companyFavorites|length > 0 %}
+                                            <ul class="uk-list uk-list-divider">
+                                                {% for favorite in profileUser.companyFavorites %}
+                                                    <li>
+                                                        <a class="uk-link-text" href="{{ path('company_view', {'id': favorite.company.id}) }}">{{ favorite.company.name }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p>No favorite companies added yet.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user_preferences_events">
+                        <div>
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-body">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Events</h3>
+                                    <ul class="uk-tab" uk-switcher="connect: #tab-events" uk-tab>
+                                        <li class="uk-active"><a href="#events-upcoming">Upcoming</a></li>
+                                        <li><a href="#events-completed">Completed</a></li>
+                                    </ul>
+                                    <div class="uk-switcher" id="tab-events">
+                                        <div class="tab-events__upcoming">
+                                            {% if dashboards.upcomingEventsRegisteredForByUser|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for event in dashboards.upcomingEventsRegisteredForByUser %}
+                                                        {% if event.company is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('company_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% elseif event.school is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('school_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No upcoming events.</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="tab-events__completed">
+                                            {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for event in dashboards.completedEventsRegisteredForByUser %}
+                                                        {% if event.company is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('company_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% elseif event.school is defined %}
+                                                            <li><a class="uk-link-text" href="{{ path('school_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No completed events.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-body">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Reviews</h3>
+                                    <ul class="uk-tab" uk-switcher="connect: #tab-reviews" uk-tab>
+                                        <li class="uk-active"><a href="#reviews-todo">Todo</a></li>
+                                        <li><a href="#reviews-submitted">Submitted</a></li>
+                                    </ul>
+                                    <div class="uk-switcher" id="tab-reviews">
+                                        <div class="tab-reviews__todo">
+                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
+                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>All reviews are up to date!</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="tab-reviews__submitted">
+                                            {% if dashboards.eventsWithFeedback|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for eventProps in dashboards.eventsWithFeedback %}
+                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No events reviews have been submitted.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="uk-width-1-3@m uk-width-1-1">
+            <!-- Salary Exploration -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">Exploration</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        <ul class="uk-list">
+                            <li>
+                                <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Learn about Careers</a>
+                            </li>
+                            <li>
+                                <a class="uk-link" href="{{ path('company_index') }}">Learn about Companies</a>
+                            </li>
+                            <li>
+                                <a class="uk-link" href="{{ path('experience_index') }}">Career Experiences</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My School -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">My School</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        {% if profileUser.school is defined and profileUser.school %}
+                            <a href="{{ path('school_view', { id: profileUser.school.id }) }}"><h4>{{ profileUser.school.name }}</h4></a>
+
+                            <h5>Supervising Teacher</h5>
+                            {% if profileUser.educatorUsers|length > 0 %}
+                                <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
+                                    {% for educatorUser in profileUser.educatorUsers %}
+                                        <li>
+                                            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                                <div class="uk-width-auto">
+                                                    <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                                </div>
+                                                <div class="uk-width-expand">
+                                                    <a class="uk-text-meta" href="{{ path('profile_index', {id: educatorUser.id}) }}">{{ educatorUser.fullName }}</a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            <h5>Upcoming Events</h5>
+                            {% set noEventsFound = true %}
+                            {% if profileUser.school.schoolExperiences|length > 0 %}
+                                <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
+                                    {% for experience in profileUser.school.schoolExperiences %}
+                                        {% if date(experience.startDateAndTime) > date() %}
+                                            {% set noEventsFound = false %}
+                                            <li><a class="uk-text-meta" href="{{ path('school_experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if noEventsFound == true %}
+                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                            {% endif %}
+                        {% else %}
+                            <div className="uk-placeholder uk-text-center">
+                                <p>You aren't associated with a school yet.</p>
                             </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
