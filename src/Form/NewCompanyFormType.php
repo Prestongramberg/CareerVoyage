@@ -17,6 +17,7 @@ use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -86,7 +87,9 @@ class NewCompanyFormType extends AbstractType
                 }
             ])
             ->add('shortDescription', TextareaType::class, [])
-            ->add('description', TextareaType::class);
+            ->add('description', TextareaType::class)
+            ->add('geoRadius', HiddenType::class, [])
+            ->add('geoZipCode', HiddenType::class, []);
 
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(

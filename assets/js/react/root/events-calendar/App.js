@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types";
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import {loadEvents, updateEventTypeQuery, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery} from "./actions/actionCreators";
+import {loadEvents, radiusChanged, updateEventTypeQuery, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery, zipcodeChanged} from "./actions/actionCreators";
 import Loader from "../../components/Loader/Loader"
 import Pusher from "pusher-js";
 
@@ -11,7 +11,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["getEventObjectByType", "getRelevantEvents", "handleTabNavigation", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
+        const methods = ["getEventObjectByType", "getRelevantEvents", "handleTabNavigation", "loadEvents", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -27,6 +27,7 @@ class App extends React.Component {
 
         const events = this.getRelevantEvents();
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
+        const ranges = [ 25, 50, 70, 150 ];
 
         return (
             <div className="pintex-calendar pintex-testing">
@@ -40,6 +41,22 @@ class App extends React.Component {
                     { this.renderIndustryDropdown() }
                     { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
                     { this.renderEventTypes() }
+                </div>
+                <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
+                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                        <div className="uk-search uk-search-default uk-width-1-1">
+                            <span data-uk-search-icon></span>
+                            <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
+                        </div>
+                    </div>
+                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                        <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} value={ parseInt( this.props.search.radius ) }>
+                            {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
+                        </select>
+                    </div>
+                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                        <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
+                    </div>
                 </div>
                 <div className="uk-margin">
                     <FullCalendar
@@ -212,8 +229,17 @@ class App extends React.Component {
 
 
     componentDidMount() {
-        this.props.loadEvents( window.Routing.generate('get_experiences', { 'userId': this.props.userId, 'schoolId': this.props.schoolId }) );
+        this.loadEvents();
         window.addEventListener('uk-tab-clicked', this.handleTabNavigation )
+    }
+
+    loadEvents() {
+        this.props.loadEvents( window.Routing.generate('get_experiences_by_radius', {
+            'radius': this.props.search.radius,
+            'schoolId': this.props.schoolId,
+            'userId': this.props.userId,
+            'zipcode': this.props.search.zipcode
+        }) );
     }
 }
 
@@ -243,10 +269,12 @@ export const mapStateToProps = (state = {}) => ({
 
 export const mapDispatchToProps = dispatch => ({
     loadEvents: (url) => dispatch(loadEvents(url)),
+    radiusChanged: (radius) => dispatch(radiusChanged(radius)),
     updateEventTypeQuery: (event) => dispatch(updateEventTypeQuery(event.target.value)),
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
-    updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value))
+    updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
+    zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode))
 });
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);

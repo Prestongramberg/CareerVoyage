@@ -7,6 +7,11 @@ export default (state = {}, action) => {
                 ...state,
                 query: action.query
             };
+        case actionTypes.SCHOOLS_LOADING:
+            return {
+                ...state,
+                loading: true
+            };
         case actionTypes.USER_LOADING_SUCCESS:
         case actionTypes.USER_LOADING_FAILURE:
             return {
@@ -20,6 +25,16 @@ export default (state = {}, action) => {
                 ...state,
                 loading: !!state.loadingUser,
                 loadingSchools: false
+            };
+        case actionTypes.RADIUS_CHANGED:
+            return {
+                ...state,
+                radius: action.radius
+            };
+        case actionTypes.ZIPCODE_CHANGED:
+            return {
+                ...state,
+                zipcode: action.zipcode
             };
         default:
             return state;

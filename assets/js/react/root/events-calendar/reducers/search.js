@@ -34,6 +34,16 @@ export default (state = {}, action) => {
                 ...state,
                 company: action.company
             };
+        case actionTypes.RADIUS_CHANGED:
+            return {
+                ...state,
+                radius: action.radius
+            };
+        case actionTypes.ZIPCODE_CHANGED:
+            return {
+                ...state,
+                zipcode: action.zipcode
+            };
         default:
             return state;
     }

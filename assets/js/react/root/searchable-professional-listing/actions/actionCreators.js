@@ -36,6 +36,20 @@ export function updateSecondaryIndustryQuery(industry) {
     };
 }
 
+export function radiusChanged(radius) {
+    return {
+        type: actionTypes.RADIUS_CHANGED,
+        radius: radius
+    };
+}
+
+export function zipcodeChanged(zipcode) {
+    return {
+        type: actionTypes.ZIPCODE_CHANGED,
+        zipcode: zipcode
+    };
+}
+
 export function loadProfessionals(url) {
     return (dispatch, getState) => {
 

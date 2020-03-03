@@ -164,8 +164,18 @@
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="edit_company_form[schools][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="edit_company_form[schools][]">UnSelect All</a>
-                            {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_label(form.schools, 'Schools*') }}
+                            <div class="react-schools-select-by-radius"
+                                 data-field-name="edit_company_form[schools][]"
+                                 data-field-value="{{ form.schools.vars.value|json_encode }}"
+                                 data-georadius-name="edit_company_form[geoRadius]"
+                                 data-georadius-value="{{ form.geoRadius.vars.value }}"
+                                 data-geozipcode-name="edit_company_form[geoZipCode]"
+                                 data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif user.zipcode is defined %}{{ user.zipcode }}{% endif %}">
+                                {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_widget(form.geoZipCode) }}
+                                {{ form_widget(form.geoRadius) }}
+                            </div>
                             <div class="clear"></div>
                             {{ form_errors(form.schools) }}
                         </div>

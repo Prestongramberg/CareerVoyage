@@ -4,7 +4,6 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialSearchState } from "./init";
 import App from "./App";
 
 const searchableProfessionalListing = document.getElementById("searchable-professional-listing");
@@ -12,6 +11,7 @@ const searchableProfessionalListing = document.getElementById("searchable-profes
 if( searchableProfessionalListing ) {
 
     const user = JSON.parse( searchableProfessionalListing.getAttribute("data-user") ) || {};
+    const zipcode = searchableProfessionalListing.getAttribute("data-zipcode");
 
     const store = createStore(
         reducers,
@@ -20,7 +20,16 @@ if( searchableProfessionalListing ) {
             industries: [],
             professionals: [],
             roles: [],
-            search: getInitialSearchState()
+            search: {
+                company: '',
+                industry: '',
+                query: '',
+                loading: true,
+                radius: 70,
+                role: '',
+                secondaryIndustry: '',
+                zipcode: zipcode
+            }
         },
         compose(
             applyMiddleware(thunk),

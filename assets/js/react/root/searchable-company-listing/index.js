@@ -4,19 +4,28 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialSearchState } from "./init";
 import App from "./App";
 
 const searchableCompanyListing = document.getElementById("searchable-company-listing");
 
 if( searchableCompanyListing ) {
 
+    const zipcode = searchableCompanyListing.getAttribute("data-zipcode");
+
     const store = createStore(
         reducers,
         {
             companies: [],
             industries: [],
-            search: getInitialSearchState(),
+            search: {
+                industry: 0,
+                query: '',
+                loading: true,
+                loadingCompanies: true,
+                loadingUser: true,
+                radius: 70,
+                zipcode: zipcode
+            },
             user: {}
         },
         compose(

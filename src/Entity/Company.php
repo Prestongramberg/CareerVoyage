@@ -254,6 +254,16 @@ class Company
      */
     private $address;
 
+	/**
+	 * @var string
+	 */
+    private $geoRadius;
+
+	/**
+	 * @var string
+	 */
+    private $geoZipCode;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -941,4 +951,31 @@ class Company
         );
     }
 
+	/**
+	 * @return string
+	 */
+	public function getGeoRadius(): ?string {
+		return $this->geoRadius;
+	}
+
+	/**
+	 * @param string $geoRadius
+	 */
+	public function setGeoRadius( ?string $geoRadius ): void {
+		$this->geoRadius = $geoRadius;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGeoZipCode(): ?string {
+		return $this->geoZipCode;
+	}
+
+	/**
+	 * @param string $geoZipCode
+	 */
+	public function setGeoZipCode( ?string $geoZipCode ): void {
+		$this->geoZipCode = $geoZipCode;
+	}
 }

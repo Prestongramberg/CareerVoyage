@@ -16,6 +16,7 @@ use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -84,7 +85,9 @@ class EditCompanyFormType extends AbstractType
                         ->setParameter('company', $company->getId());
                 },
                 'choice_label' => 'email'
-            ]);
+            ])
+	        ->add('geoRadius', HiddenType::class, [])
+	        ->add('geoZipCode', HiddenType::class, []);;
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {

@@ -2,6 +2,11 @@ import * as actionTypes from "../actions/actionTypes";
 
 export default (state = {}, action) => {
     switch (action.type) {
+        case actionTypes.PROFESSIONALS_LOADING:
+            return {
+                ...state,
+                loading: true
+            };
         case actionTypes.PROFESSIONALS_LOADING_SUCCESS:
         case actionTypes.PROFESSIONALS_LOADING_FAILURE:
             return {
@@ -33,6 +38,16 @@ export default (state = {}, action) => {
             return {
                 ...state,
                 role: action.role
+            };
+        case actionTypes.RADIUS_CHANGED:
+            return {
+                ...state,
+                radius: action.radius
+            };
+        case actionTypes.ZIPCODE_CHANGED:
+            return {
+                ...state,
+                zipcode: action.zipcode
             };
         default:
             return state;

@@ -3,7 +3,7 @@
 {% block title %}Schools{% endblock %}
 
 {% block body %}
-    <div id="searchable-school-listing"></div>
+    <div id="searchable-school-listing" data-zipcode="{% if user.zipcode is defined %}{{ user.zipcode }}{% endif %}"></div>
 {% endblock %}
 
 {% block stylesheets %}

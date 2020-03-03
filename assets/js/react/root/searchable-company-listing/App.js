@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { companyFavorited, companyUnfavorited, loadCompanies, loadUser, updateIndustryQuery, updateSearchQuery } from './actions/actionCreators'
+import { companyFavorited, companyUnfavorited, loadCompanies, loadUser, radiusChanged, updateIndustryQuery, updateSearchQuery, zipcodeChanged } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import CompanyListing from "../../components/CompanyListing/CompanyListing";
 import Loader from "../../components/Loader/Loader";
@@ -9,7 +9,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["renderIndustryDropdown", "getRelevantCompanies"];
+        const methods = ["loadCompanies", "renderIndustryDropdown", "getRelevantCompanies"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -18,6 +18,7 @@ class App extends React.Component {
         const { user } = this.props;
         const relevantCompanies = this.getRelevantCompanies();
         const favoriteCompanies = this.props.companies.filter(company => company.favorite === true);
+        const ranges = [ 25, 50, 70, 150 ];
 
         return (
             <div className="uk-container">
@@ -37,6 +38,23 @@ class App extends React.Component {
                                 </div>
                             </div>
                             { this.renderIndustryDropdown() }
+                        </div>
+
+                        <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-search uk-search-default uk-width-1-1">
+                                    <span data-uk-search-icon></span>
+                                    <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
+                                </div>
+                            </div>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} value={ parseInt( this.props.search.radius ) }>
+                                    {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
+                                </select>
+                            </div>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-button uk-button-primary" onClick={this.loadCompanies}>Apply</div>
+                            </div>
                         </div>
 
                         <div className="uk-grid" data-uk-grid>
@@ -216,8 +234,15 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.props.loadCompanies( window.Routing.generate('get_companies') );
+        this.loadCompanies();
         this.props.loadUser( window.Routing.generate('logged_in_user') );
+    }
+
+    loadCompanies() {
+        this.props.loadCompanies( window.Routing.generate('get_companies_by_radius', {
+            'radius': this.props.search.radius,
+            'zipcode': this.props.search.zipcode
+        }) );
     }
 }
 
@@ -247,8 +272,10 @@ export const mapDispatchToProps = dispatch => ({
     companyUnfavorited: (companyId) => dispatch(companyUnfavorited(companyId)),
     loadCompanies: (url) => dispatch(loadCompanies(url)),
     loadUser: (url) => dispatch(loadUser(url)),
+    radiusChanged: (radius) => dispatch(radiusChanged(radius)),
     updateIndustryQuery: (event) => dispatch(updateIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
+    zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode)),
 });
 
 const ConnectedApp = connect(

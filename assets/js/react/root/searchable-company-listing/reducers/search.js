@@ -19,12 +19,28 @@ export default (state = {}, action) => {
                 loading: !!state.loadingCompanies,
                 loadingUser: false
             };
+        case actionTypes.COMPANIES_LOADING:
+            return {
+                ...state,
+                loading: true,
+                loadingCompanies: true
+            };
         case actionTypes.COMPANIES_LOADING_SUCCESS:
         case actionTypes.COMPANIES_LOADING_FAILURE:
             return {
                 ...state,
                 loading: !!state.loadingUser,
                 loadingCompanies: false
+            };
+        case actionTypes.RADIUS_CHANGED:
+            return {
+                ...state,
+                radius: action.radius
+            };
+        case actionTypes.ZIPCODE_CHANGED:
+            return {
+                ...state,
+                zipcode: action.zipcode
             };
         default:
             return state;

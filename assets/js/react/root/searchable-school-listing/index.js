@@ -4,18 +4,26 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
-import { getInitialSearchState } from "./init";
 import App from "./App";
 
 const searchableSchoolListing = document.getElementById("searchable-school-listing");
 
 if( searchableSchoolListing ) {
 
+    const zipcode = searchableSchoolListing.getAttribute("data-zipcode");
+
     const store = createStore(
         reducers,
         {
             schools: [],
-            search: getInitialSearchState(),
+            search: {
+                query: '',
+                loading: true,
+                loadingSchools: true,
+                loadingUser: true,
+                radius: 70,
+                zipcode: zipcode
+            },
             user: {}
         },
         compose(

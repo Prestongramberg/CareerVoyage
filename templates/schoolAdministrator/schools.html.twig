@@ -47,7 +47,7 @@
                             </ul>
                             <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
                                 <div class="school_{{ school.id }}_tools_calendar">
-                                    <div class="react-events-calendar" data-school-id="{{ school.id }}"></div>
+                                    <div class="react-events-calendar" data-zipcode="{% if user.zipcode is defined %}{{ user.zipcode }}{% endif %}" data-school-id="{{ school.id }}"></div>
                                 </div>
                                 <div class="school_{{ school.id }}_tools_educators">
 
