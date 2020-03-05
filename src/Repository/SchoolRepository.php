@@ -76,7 +76,7 @@ class SchoolRepository extends ServiceEntityRepository
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
 
-        $query = sprintf('SELECT * from school s WHERE s.latitude <= %s AND s.latitude >= %s AND s.longitude <= %s AND s.longitude >= %s AND (s.latitude != %s AND s.longitude != %s)',
+        $query = sprintf('SELECT id from school s WHERE s.latitude <= %s AND s.latitude >= %s AND s.longitude <= %s AND s.longitude >= %s AND (s.latitude != %s AND s.longitude != %s)',
             $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
         );
 
@@ -84,5 +84,18 @@ class SchoolRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    /**
+     * @param $schoolIds
+     * @return mixed
+     */
+    public function getByArrayOfIds($schoolIds) {
+
+        return $this->createQueryBuilder('s')
+            ->where('s.id IN (:ids)')
+            ->setParameter('ids', $schoolIds)
+            ->getQuery()
+            ->getResult();
     }
 }

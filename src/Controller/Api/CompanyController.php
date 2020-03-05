@@ -220,56 +220,39 @@ class CompanyController extends AbstractController
             $lat = $coordinates['lat'];
             list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
             $companies = $this->companyRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
-            // add is favorite and is mine logic to the companies array
-            foreach ($companies as &$company) {
-
-                $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
-                    'company' => $company['id'],
-                    'user' => $user
-                ]);
-
-                if($favoriteCompany) {
-                    $company['favorite'] = true;
-                } else {
-                    $company['favorite'] = false;
-                }
-
-                if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
-                    $company['mine'] = true;
-                } else {
-                    $company['mine'] = false;
-                }
+            $companyIds = [];
+            foreach($companies as $company) {
+                $companyIds[] = $company['id'];
             }
-
-            $payload = $companies;
+            $companies = $this->companyRepository->getByArrayOfIds($companyIds);
         } else {
             $companies = $this->companyRepository->findBy([
                 'approved' => true
             ]);
+        }
 
-            foreach($companies as $company) {
+        foreach($companies as $company) {
 
-                $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
-                    'company' => $company,
-                    'user' => $user
-                ]);
+            $favoriteCompany = $this->companyFavoriteRepository->findOneBy([
+                'company' => $company,
+                'user' => $user
+            ]);
 
-                if($favoriteCompany) {
-                    $company->setIsFavorite(true);
-                } else {
-                    $company->setIsFavorite(false);
-                }
-
-                if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
-                    $company->setIsMine(true);
-                } else {
-                    $company->setIsMine(false);
-                }
+            if($favoriteCompany) {
+                $company->setIsFavorite(true);
+            } else {
+                $company->setIsFavorite(false);
             }
 
-            $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
-            $payload = json_decode($json, true);
+            if($user->isProfessional() && $user->getCompany() && $user->getCompany()->getId() === $company->getId()) {
+                $company->setIsMine(true);
+            } else {
+                $company->setIsMine(false);
+            }
         }
+
+        $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $payload = json_decode($json, true);
 
         return new JsonResponse(
             [

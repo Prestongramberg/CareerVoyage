@@ -207,12 +207,17 @@ class SchoolController extends AbstractController
             $lat = $coordinates['lat'];
             list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
             $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
-            $payload = $schools;
+            $schoolIds = [];
+            foreach($schools as $school) {
+                $schoolIds[] = $school['id'];
+            }
+            $schools = $this->schoolRepository->getByArrayOfIds($schoolIds);
         } else {
             $schools = $this->schoolRepository->findAll();
-            $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
-            $payload = json_decode($json, true);
         }
+
+        $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $payload = json_decode($json, true);
 
         return new JsonResponse(
             [

@@ -192,13 +192,18 @@ class ProfessionalController extends AbstractController
             $lng = $coordinates['lng'];
             $lat = $coordinates['lat'];
             list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
-            $schools = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
-            $payload = $schools;
+            $professionals = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+            $professionalIds = [];
+            foreach($professionals as $professional) {
+                $professionalIds[] = $professional['id'];
+            }
+            $professionals = $this->professionalUserRepository->getByArrayOfIds($professionalIds);
         } else {
             $professionals = $this->professionalUserRepository->findAll();
-            $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
-            $payload = json_decode($json, true);
         }
+
+        $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
+        $payload = json_decode($json, true);
 
         return new JsonResponse(
             [

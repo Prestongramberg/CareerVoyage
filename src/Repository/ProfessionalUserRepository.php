@@ -99,7 +99,7 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
 
-        $query = sprintf('SELECT * from professional_user p WHERE p.latitude <= %s AND p.latitude >= %s AND p.longitude <= %s AND p.longitude >= %s AND (p.latitude != %s AND p.longitude != %s)',
+        $query = sprintf('SELECT id from professional_user p WHERE p.latitude <= %s AND p.latitude >= %s AND p.longitude <= %s AND p.longitude >= %s AND (p.latitude != %s AND p.longitude != %s)',
             $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
         );
 
@@ -107,5 +107,18 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    /**
+     * @param $professionalIds
+     * @return mixed
+     */
+    public function getByArrayOfIds($professionalIds) {
+
+        return $this->createQueryBuilder('p')
+            ->where('p.id IN (:ids)')
+            ->setParameter('ids', $professionalIds)
+            ->getQuery()
+            ->getResult();
     }
 }

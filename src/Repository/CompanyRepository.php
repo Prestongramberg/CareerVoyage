@@ -99,7 +99,7 @@ class CompanyRepository extends ServiceEntityRepository
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
 
-        $query = sprintf('SELECT * from company c WHERE c.latitude <= %s AND c.latitude >= %s AND c.longitude <= %s AND c.longitude >= %s AND (c.latitude != %s AND c.longitude != %s) AND c.approved = 1',
+        $query = sprintf('SELECT id from company c WHERE c.latitude <= %s AND c.latitude >= %s AND c.longitude <= %s AND c.longitude >= %s AND (c.latitude != %s AND c.longitude != %s) AND c.approved = 1',
             $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
         );
 
@@ -107,6 +107,19 @@ class CompanyRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    /**
+     * @param $companyIds
+     * @return mixed
+     */
+    public function getByArrayOfIds($companyIds) {
+
+        return $this->createQueryBuilder('c')
+            ->where('c.id IN (:ids)')
+            ->setParameter('ids', $companyIds)
+            ->getQuery()
+            ->getResult();
     }
 
 }
