@@ -504,6 +504,12 @@ class SchoolController extends AbstractController
                 $students[] = array_combine($columns, $rows[$i]);
             }
             foreach($students as $student) {
+
+                // if any column in the student array is null let's assume they were not setup properly and skip adding them
+                if(in_array(null, $student)) {
+                    continue;
+                }
+
                 $studentObj = new StudentUser();
                 $studentObj->setFirstName($student['First Name']);
                 $studentObj->setLastName($student['Last Name']);
@@ -599,6 +605,12 @@ class SchoolController extends AbstractController
             }
             $educatorObjs = [];
             foreach($educators as $educator) {
+
+                // if any column in the student array is null let's assume they were not setup properly and skip adding them
+                if(in_array(null, $educator)) {
+                    continue;
+                }
+
                 $email = $educator['Email'];
                 $existingUser = $this->userRepository->findOneBy([
                     'email' => $email

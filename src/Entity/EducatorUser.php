@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Util\RandomStringGenerator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,6 +25,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class EducatorUser extends User
 {
+    use RandomStringGenerator;
+
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="educatorUsers")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
@@ -209,9 +212,10 @@ class EducatorUser extends User
      * @return string
      */
     public function getTempUsername() {
-        return strtolower(sprintf("%s.%s",
+        return strtolower(sprintf("%s.%s.%s",
             $this->firstName,
-            $this->lastName
+            $this->lastName,
+            $this->generateRandomCharacters(5)
         ));
     }
 
