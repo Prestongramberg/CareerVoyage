@@ -492,32 +492,41 @@ class SchoolController extends AbstractController
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
-            $expectedColumns = ['First Name', 'Last Name', 'Graduating Year',  'Educator Id'];
+            // capitalize each word in each item in array so we can assure a proper comparision
+            $columns = array_map('ucwords', $columns);
+            $expectedColumns = ['First Name', 'Last Name', 'Graduating Year',  'Educator Number'];
             if($columns != $expectedColumns) {
                 $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
                 return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
             $rows = $this->phpSpreadsheetHelper->getAllRows($file);
             $columns = array_shift($rows);
+            $columns = array_map('ucwords', $columns);
             $students = [];
             for($i = 0; $i < count($rows); $i++) {
                 $students[] = array_combine($columns, $rows[$i]);
             }
             foreach($students as $student) {
+
+                // if any column in the student array is null let's assume they were not setup properly and skip adding them
+                if(in_array(null, $student)) {
+                    continue;
+                }
+
                 $studentObj = new StudentUser();
                 $studentObj->setFirstName($student['First Name']);
                 $studentObj->setLastName($student['Last Name']);
                 $studentObj->setGraduatingYear($student['Graduating Year']);
                 // add the educator to the user if the educator id is included in the import
-                if(!empty($student['Educator Id'])) {
+                if(!empty($student['Educator Number'])) {
                     $educator = $this->educatorUserRepository->findOneBy([
-                        'id' => $student['Educator Id'],
+                        'id' => $student['Educator Number'],
                         'school' => $school
                     ]);
                     if($educator) {
                         $studentObj->addEducatorUser($educator);
                     } else {
-                        $this->addFlash('error', sprintf('Error importing students. Educator ID %s does not belong to an educator for school %s. Check educator id list below', $student['Educator Id'], $school->getName()));
+                        $this->addFlash('error', sprintf('Error importing students. Educator Number %s does not belong to an educator for school %s. Check educator Number list below', $student['Educator Number'], $school->getName()));
                         return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
                     }
                 }
@@ -586,6 +595,8 @@ class SchoolController extends AbstractController
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            // capitalize each word in each item in array so we can assure a proper comparision
+            $columns = array_map('ucwords', $columns);
             $expectedColumns = ['First Name', 'Last Name', 'Email'];
             if($columns != $expectedColumns) {
                 $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
@@ -593,12 +604,19 @@ class SchoolController extends AbstractController
             }
             $rows = $this->phpSpreadsheetHelper->getAllRows($file);
             $columns = array_shift($rows);
+            $columns = array_map('ucwords', $columns);
             $educators = [];
             for($i = 0; $i < count($rows); $i++) {
                 $educators[] = array_combine($columns, $rows[$i]);
             }
             $educatorObjs = [];
             foreach($educators as $educator) {
+
+                // if any column in the student array is null let's assume they were not setup properly and skip adding them
+                if(in_array(null, $educator)) {
+                    continue;
+                }
+
                 $email = $educator['Email'];
                 $existingUser = $this->userRepository->findOneBy([
                     'email' => $email

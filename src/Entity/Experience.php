@@ -184,6 +184,11 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You must specify at least one Career Field.",
+     *     groups={"SCHOOL_EXPERIENCE"}
+     * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
      */
     protected $secondaryIndustries;

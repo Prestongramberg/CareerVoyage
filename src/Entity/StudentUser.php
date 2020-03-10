@@ -249,9 +249,10 @@ class StudentUser extends User
      * @return string
      */
     public function getTempUsername() {
-        return strtolower(sprintf("%s.%s",
+        return strtolower(sprintf("%s.%s.%s",
                 $this->firstName,
-                $this->lastName
+                $this->lastName,
+                $this->generateRandomCharacters(5)
         ));
     }
 

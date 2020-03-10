@@ -175,6 +175,12 @@ class ExperienceController extends AbstractController
             case 'SchoolExperience':
                 return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
                 break;
+            default:
+                return $this->render('experience/generic_experience.html.twig', [
+                    'user' => $user,
+                    'experience' => $experience
+                ]);
+                break;
         }
 
         // If for some reason a normal experience is not found then just redirect to the dashboard

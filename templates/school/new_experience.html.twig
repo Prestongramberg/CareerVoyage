@@ -73,12 +73,12 @@
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.availableStudentSpaces, 'Available Student Spaces') }}
+                            {{ form_label(form.availableStudentSpaces, 'Available Student Spaces*') }}
                             {{ form_widget(form.availableStudentSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableStudentSpaces) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.availableStudentSpaces) }}
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.availableProfessionalSpaces, 'Available Professional Spaces') }}
+                            {{ form_label(form.availableProfessionalSpaces, 'Available Professional Spaces*') }}
                             {{ form_widget(form.availableProfessionalSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableProfessionalSpaces) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.availableProfessionalSpaces) }}
                         </div>
