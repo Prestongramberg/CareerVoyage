@@ -26,6 +26,8 @@ use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EducatorReviewCompanyExperienceFeedbackFormType;
 use App\Form\EducatorReviewTeachLessonExperienceFeedbackFormType;
+use App\Form\FeedbackFormType;
+use App\Form\GenericFeedbackFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -248,6 +250,11 @@ class FeedbackController extends AbstractController
                     $template = 'new_educator_review_teach_lesson_experience_feedback.html.twig';
                 }
                 break;
+            default:
+                $feedback = $feedback = $feedback ? $feedback : new Feedback();
+                $formType = GenericFeedbackFormType::class;
+                $template = 'new_generic_feedback.html.twig';
+                break;
         }
 
         if(!$feedback || !$formType || !$template) {
@@ -293,6 +300,11 @@ class FeedbackController extends AbstractController
                     $feedback->setTeachLessonExperience($experience);
                     $feedback->setStudent($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                default:
+                    /** @var Feedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    // do nothing
                     break;
             }
 
@@ -348,6 +360,10 @@ class FeedbackController extends AbstractController
                 /** @var TeachLessonExperience $experience */
                 $formType = StudentReviewTeachLessonExperienceFeedbackFormType::class;
                 $template = 'view_student_review_teach_lesson_experience_feedback.html.twig';
+                break;
+            default:
+                $formType = GenericFeedbackFormType::class;
+                $template = 'view_generic_feedback.html.twig';
                 break;
         }
 
