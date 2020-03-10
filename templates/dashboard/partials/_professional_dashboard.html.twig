@@ -329,7 +329,7 @@
                                     {% for experience in user.company.companyExperiences %}
                                         {% if date(experience.startDateAndTime) > date() %}
                                             {% set noEventsFound = false %}
-                                            <li><a class="uk-text-meta" href="{{ path('company_experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
+                                            <li><a class="uk-text-meta" href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
                                         {% endif %}
                                     {% endfor %}
                                 </ul>
