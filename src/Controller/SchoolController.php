@@ -492,6 +492,8 @@ class SchoolController extends AbstractController
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            // capitalize each word in each item in array so we can assure a proper comparision
+            $columns = array_map('ucwords', $columns);
             $expectedColumns = ['First Name', 'Last Name', 'Graduating Year',  'Educator Id'];
             if($columns != $expectedColumns) {
                 $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
@@ -499,6 +501,7 @@ class SchoolController extends AbstractController
             }
             $rows = $this->phpSpreadsheetHelper->getAllRows($file);
             $columns = array_shift($rows);
+            $columns = array_map('ucwords', $columns);
             $students = [];
             for($i = 0; $i < count($rows); $i++) {
                 $students[] = array_combine($columns, $rows[$i]);
@@ -592,6 +595,8 @@ class SchoolController extends AbstractController
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            // capitalize each word in each item in array so we can assure a proper comparision
+            $columns = array_map('ucwords', $columns);
             $expectedColumns = ['First Name', 'Last Name', 'Email'];
             if($columns != $expectedColumns) {
                 $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
@@ -599,6 +604,7 @@ class SchoolController extends AbstractController
             }
             $rows = $this->phpSpreadsheetHelper->getAllRows($file);
             $columns = array_shift($rows);
+            $columns = array_map('ucwords', $columns);
             $educators = [];
             for($i = 0; $i < count($rows); $i++) {
                 $educators[] = array_combine($columns, $rows[$i]);
