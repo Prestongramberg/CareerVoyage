@@ -513,6 +513,13 @@ class SchoolController extends AbstractController
                     continue;
                 }
 
+                $usernameToFind = $student['First Name'] . '.' . $student['Last Name'];
+                $usernameExists = $this->userRepository->findOneBy(['username' => $usernameToFind]);
+                $addStringToUsername = false;
+                if ($usernameExists) {
+                    $addStringToUsername = true;
+                }
+
                 $studentObj = new StudentUser();
                 $studentObj->setFirstName($student['First Name']);
                 $studentObj->setLastName($student['Last Name']);
@@ -536,7 +543,7 @@ class SchoolController extends AbstractController
                 $studentObj->setupAsStudent();
                 $studentObj->initializeNewUser();
                 $studentObj->setActivated(true);
-                $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername()));
+                $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername($addStringToUsername)));
                 $tempPassword = $this->determinePassword();
                 $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
                 $studentObj->setTempPassword($tempPassword);
@@ -621,6 +628,14 @@ class SchoolController extends AbstractController
                 $existingUser = $this->userRepository->findOneBy([
                     'email' => $email
                 ]);
+
+                $usernameToFind = $educator['First Name'] . '.' . $educator['Last Name'];
+                $usernameExists = $this->userRepository->findOneBy(['username' => $usernameToFind]);
+                $addStringToUsername = false;
+                if ($usernameExists) {
+                    $addStringToUsername = true;
+                }
+
                 if($existingUser) {
                     $this->addFlash('error', sprintf('Error importing educators. Email %s already exists in the system and belongs to another educator', $existingUser->getEmail()));
                     return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
@@ -634,7 +649,7 @@ class SchoolController extends AbstractController
                 $educatorObj->initializeNewUser();
                 $educatorObj->setActivated(true);
                 $educatorObj->setEmail($educator['Email']);
-                $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername()));
+                $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername($addStringToUsername)));
                 $tempPassword = $this->determinePassword();
                 $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
                 $educatorObj->setTempPassword($tempPassword);
