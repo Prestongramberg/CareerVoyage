@@ -248,13 +248,13 @@ class StudentUser extends User
      * first name - period - last name (- period - random string)
      * @return string
      */
-    public function getTempUsername($addStringToUsername) {
+    public function getTempUsername($similarUsernameCount) {
 
-        if ($addStringToUsername) {
+        if ($similarUsernameCount) {
             return strtolower(sprintf("%s.%s.%s",
                 $this->firstName,
                 $this->lastName,
-                $this->generateRandomCharacters(5)
+                $similarUsernameCount
             ));
         } else {
             return strtolower(sprintf("%s.%s",
