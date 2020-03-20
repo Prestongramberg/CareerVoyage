@@ -208,15 +208,23 @@ class EducatorUser extends User
     }
 
     /**
-     * first name - period - last name
+     * first name - period - last name (- period - random string)
      * @return string
      */
-    public function getTempUsername() {
-        return strtolower(sprintf("%s.%s.%s",
-            $this->firstName,
-            $this->lastName,
-            $this->generateRandomCharacters(5)
-        ));
+    public function getTempUsername($similarUsernameCount) {
+
+        if ($similarUsernameCount) {
+            return strtolower(sprintf("%s.%s.%s",
+                $this->firstName,
+                $this->lastName,
+                $similarUsernameCount
+            ));
+        } else {
+            return strtolower(sprintf("%s.%s",
+                $this->firstName,
+                $this->lastName
+            ));
+        }
     }
 
     public function getSite(): ?Site
