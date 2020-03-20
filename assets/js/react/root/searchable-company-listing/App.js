@@ -25,7 +25,7 @@ class App extends React.Component {
                 <ul className="" data-uk-tab="{connect: '#tab-companies'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-companies">All Companies</a></li>
                     <li><a href="#favorite-companies">Favorites</a></li>
-                    {user && user.roles && user.roles.indexOf("ROLE_ADMIN_USER") === -1 && <li><a href="#my-company">My Company</a></li> }
+                    {user && user.roles && user.roles.indexOf("ROLE_ADMIN_USER") === -1 && user.roles.indexOf("ROLE_STUDENT_USER") === -1 && <li><a href="#my-company">My Company</a></li> }
                 </ul>
 
                 <div className="uk-switcher" id="tab-companies">
