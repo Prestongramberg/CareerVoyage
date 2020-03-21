@@ -826,6 +826,12 @@ class CompanyController extends AbstractController
 
             $experience->setCompany($company);
 
+            $registration = new Registration();
+            $registration->setUser($this->getUser());
+            $registration->setExperience($experience);
+
+            $this->entityManager->persist($registration);
+
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Experience successfully created!');
