@@ -243,13 +243,23 @@
                                 {% for registration in experience.registrations %}
                                     <tr>
                                         <td>{{ registration.user.fullName }}</td>
-                                        <td>{{ registration.user.school.name }}</td>
+                                        <td>
+                                            {% if registration.user.professional %}
+                                                {% if registration.user.company %}
+                                                    {{ registration.user.company.name }}
+                                                {% endif %}
+                                            {% elseif registration.user %}
+                                                {{ registration.user.school.name }}
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if registration.user.educator %}
                                                 Educator &nbsp;&nbsp;&nbsp;
                                                 {% if user_can_chat_with_user( user, registration.user ) %}
                                                     <button class="uk-button uk-button-default uk-button-small uk-margin-small-left uk-margin-small-right" data-message-user-id="{{ registration.user.id }}">Chat</button>
                                                 {% endif %}
+                                            {% elseif registration.user.professional %}
+                                                Professional
                                             {% else %}
                                                 Student
                                             {% endif %}
