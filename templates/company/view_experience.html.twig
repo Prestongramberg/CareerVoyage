@@ -134,10 +134,17 @@
                     <tbody>
                     <tr>
                         <td>Event Coordinator</td>
-                        <td>{{ experience.employeeContact.fullName }}
-                            {% if user_can_chat_with_user( user, experience.employeeContact ) %}
-                                <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button>
+                        <td>
+                            {% if experience.employeeContact and experience.employeeContact.fullName %}
+                                {{ experience.employeeContact.fullName }}
                             {% endif %}
+
+                            {% if experience.employeeContact and experience.employeeContact.fullName %}
+                                {% if user_can_chat_with_user( user, experience.employeeContact ) %}
+                                    <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button>
+                                {% endif %}
+                            {% endif %}
+
                         </td>
                     </tr>
                     <tr>

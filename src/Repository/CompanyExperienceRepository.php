@@ -199,15 +199,14 @@ HERE;
     }
 
     /**
-     * @param int $days
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findAllFromPastDays($days = 7) {
+    public function findAllFutureEvents() {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
-                WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY
-                GROUP BY ce.id order by e.start_date_and_time ASC", $days);
+                WHERE e.start_date_and_time >= DATE(NOW())
+                GROUP BY ce.id order by e.start_date_and_time ASC");
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

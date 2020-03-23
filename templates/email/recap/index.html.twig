@@ -1,31 +1,50 @@
 {% include 'email/partial/emailHeader.html.twig' %}
 
 {# Relevant Lessons #}
-<h2>New Lessons</h2>
-{% for lesson in lessons %}
-    <p>Title: <strong>{{ lesson.title }}</strong></p>
-    <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
-{% else %}
-    <p>No New Lessons exist at this time.</p>
-{% endfor %}
+<hr>
+<h2>New Lessons (Created within past 7 days)</h2>
+<hr>
+<div style="text-align: left">
+    {% for lesson in lessons %}
+        <p>Title: <strong>{{ lesson.title }}</strong></p>
+        <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
+        <hr>
+    {% else %}
+        <p>No New Lessons exist at this time.</p>
+    {% endfor %}
+</div>
 
 {# Relevant School Events #}
+<hr>
 <h2>New School Events</h2>
+<hr>
+<div style="text-align: left">
 {% for schoolExperience in schoolExperiences %}
     <p>Title: <strong>{{ schoolExperience.title }}</strong></p>
-    <p>Brief Description: <strong>{{ schoolExperience.brief_description }}</strong></p>
+    <p>Brief Description: <strong>{{ schoolExperience.briefDescription }}</strong></p>
+    <p>Start Date and Time: <strong>{{ schoolExperience.startDateAndTime|date("m/d/Y h:i A") }}</strong></p>
+    <p>End Date and Time: <strong>{{ schoolExperience.endDateAndTime|date("m/d/Y h:i A") }}</strong></p>
+    <hr>
     {% else %}
     <p>No New School Events at this time.</p>
 {% endfor %}
+</div>
 
 {# Relevant Company Events #}
+<hr>
 <h2>New Company Events</h2>
+<hr>
+<div style="text-align: left">
 {% for companyExperience in companyExperiences %}
     <p>Title: <strong>{{ companyExperience.title }}</strong></p>
-    <p>Brief Description: <strong>{{ companyExperience.brief_description }}</strong></p>
+    <p>Brief Description: <strong>{{ companyExperience.briefDescription }}</strong></p>
+    <p>Start Date and Time: <strong>{{ companyExperience.startDateAndTime|date("m/d/Y h:i A") }}</strong></p>
+    <p>End Date and Time: <strong>{{ companyExperience.endDateAndTime|date("m/d/Y h:i A") }}</strong></p>
+    <hr>
 {% else %}
     <p>No New Company Events at this time.</p>
 {% endfor %}
+</div>
 
 <p>Please login to your <a href="{{ url('dashboard') }}">dashboard</a> for more details.</p>
 
