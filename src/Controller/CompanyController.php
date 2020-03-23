@@ -157,7 +157,7 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_new_company_field.html.twig', [
                         'form' => $form->createView(),
                     ]),
                 ], Response::HTTP_BAD_REQUEST
