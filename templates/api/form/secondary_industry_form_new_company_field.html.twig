@@ -1,0 +1,13 @@
+{{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+<div class="js-secondary-industry-container">
+    {% if form.secondaryIndustries is defined %}
+        <div class="uk-margin">
+            {{ form_label(form.secondaryIndustries, 'Career Fields*') }}  &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="new_company_form[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="new_company_form[secondaryIndustries][]">UnSelect All</a>
+            {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+            <div class="clear"></div>
+            {{ form_errors(form.secondaryIndustries) }}
+        </div>
+    {% endif %}
+</div>
+{{ form_end(form) }}
+
