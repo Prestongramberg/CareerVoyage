@@ -31,14 +31,14 @@ class SchoolExperience extends Experience
     private $schoolContact;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
+     * @Assert\Positive(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
     private $availableStudentSpaces = 0;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
+     * @Assert\Positive(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
