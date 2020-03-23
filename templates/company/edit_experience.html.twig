@@ -79,7 +79,7 @@
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.availableSpaces, 'Available Spaces') }}
+                            {{ form_label(form.availableSpaces, 'Available Spaces*') }}
                             {{ form_widget(form.availableSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableSpaces) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.availableSpaces) }}
                             <small>Set to 0 for unlimited registrations.</small>

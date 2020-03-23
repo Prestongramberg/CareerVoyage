@@ -144,11 +144,11 @@ class EditCompanyFormType extends AbstractType
             'data_class' => Company::class,
             'validation_groups' => function (FormInterface $form) {
 
-                $skipValidation = $form->getConfig()->getOption('skip_validation');
+                // $skipValidation = $form->getConfig()->getOption('skip_validation');
 
-                if($skipValidation) {
-                    return [];
-                }
+                // if($skipValidation) {
+                //     return [];
+                // }
 
                 /** @var Company $data */
                 $data = $form->getData();

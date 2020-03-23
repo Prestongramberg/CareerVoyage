@@ -84,8 +84,8 @@ abstract class Experience
     protected $about;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a total number of available spaces!", groups={"CREATE", "EDIT"})
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Assert\PositiveOrZero(message="Don't forget a total number of available spaces!", groups={"CREATE", "EDIT"})
+     * @Groups({"EXPERIENCE_DATA", "CREATE", "EDIT"})
      * @ORM\Column(type="integer", nullable=true)
      */
     protected $availableSpaces = 0;
@@ -187,7 +187,7 @@ abstract class Experience
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "You must specify at least one Career Field.",
-     *     groups={"SCHOOL_EXPERIENCE"}
+     *     groups={"SCHOOL_EXPERIENCE", "EDIT", "CREATE"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
      */
