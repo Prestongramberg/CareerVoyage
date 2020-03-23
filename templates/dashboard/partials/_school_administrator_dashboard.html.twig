@@ -112,7 +112,7 @@
                                                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                                     </div>
                                                     <div class="uk-width-expand">
-                                                        <dt>{{ educatorUser.firstName }} {{ educatorUser.lastName }}</dt>
+                                                        <dt>{{ educatorUser.lastName }}, {{ educatorUser.firstName }}</dt>
                                                         <dd>{{ excerpt_length( educatorUser.briefBio, 100 ) }}</dd>
                                                     </div>
                                                     <div class="uk-width-1-1 uk-width-auto@m">
@@ -145,7 +145,7 @@
                                                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                                     </div>
                                                     <div class="uk-width-expand">
-                                                        <dt>{{ studentUser.firstName }} {{ studentUser.lastName }}</dt>
+                                                        <dt>{{ studentUser.lastName }}, {{ studentUser.firstName }}</dt>
                                                         <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
                                                     </div>
                                                     <div class="uk-width-1-1 uk-width-auto@m">
