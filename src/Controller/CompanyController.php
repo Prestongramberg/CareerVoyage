@@ -442,7 +442,7 @@ class CompanyController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
-        if($file && $title && $description) {
+        if($file && $title) {
             $mimeType = $file->getMimeType();
             $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
             $companyResource = new CompanyResource();
@@ -451,7 +451,7 @@ class CompanyController extends AbstractController
             $companyResource->setFileName($newFilename);
             $companyResource->setFile(null);
             $companyResource->setCompany($company);
-            $companyResource->setDescription($description);
+            $companyResource->setDescription($description ? $description : null);
             $companyResource->setTitle($title);
             $this->entityManager->persist($companyResource);
             $this->entityManager->flush();
@@ -974,7 +974,7 @@ class CompanyController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
-        if($resource && $title && $description) {
+        if($resource && $title) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
             $file = new ExperienceFile();
@@ -983,7 +983,7 @@ class CompanyController extends AbstractController
             $file->setFileName($newFilename);
             $file->setFile(null);
             $file->setExperience($experience);
-            $file->setDescription($description);
+            $file->setDescription($description ? $description : null);
             $file->setTitle($title);
             $this->entityManager->persist($file);
             $this->entityManager->flush();

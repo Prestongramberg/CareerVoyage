@@ -746,7 +746,7 @@ class SchoolController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
-        if($file && $title && $description) {
+        if($file && $title) {
             $mimeType = $file->getMimeType();
             $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
             $schoolResource = new SchoolResource();
@@ -755,7 +755,7 @@ class SchoolController extends AbstractController
             $schoolResource->setFileName($newFilename);
             $schoolResource->setFile(null);
             $schoolResource->setSchool($school);
-            $schoolResource->setDescription($description);
+            $schoolResource->setDescription($description ? $description : null);
             $schoolResource->setTitle($title);
             $this->entityManager->persist($schoolResource);
             $this->entityManager->flush();
