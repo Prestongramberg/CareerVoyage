@@ -19,12 +19,14 @@ use App\Entity\RegionalCoordinator;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
+use App\Entity\StudentReviewMeetProfessionalExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EducatorReviewCompanyExperienceFeedbackFormType;
+use App\Form\EducatorReviewMeetProfessionalExperienceFeedbackFormType;
 use App\Form\EducatorReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\FeedbackFormType;
 use App\Form\GenericFeedbackFormType;
@@ -34,6 +36,7 @@ use App\Form\ProfessionalEditProfileFormType;
 use App\Form\RegionalCoordinatorFormType;
 use App\Form\StateCoordinatorFormType;
 use App\Form\StudentReviewCompanyExperienceFeedbackFormType;
+use App\Form\StudentReviewMeetProfessionalExperienceFeedbackFormType;
 use App\Form\StudentReviewTeachLessonExperienceFeedbackFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -226,7 +229,7 @@ class FeedbackController extends AbstractController
 
         // look at the experience object and see which form you should load in
         switch ($experience->getClassName()) {
-            case 'CompanyExperience':
+            case 'CompanyExperience':case 'CompanyExperience':
                 /** @var CompanyExperience $experience */
                 if($user->isStudent()) {
                     $feedback = $feedback ? $feedback : new StudentReviewCompanyExperienceFeedback();
@@ -248,6 +251,14 @@ class FeedbackController extends AbstractController
                     $feedback = $feedback = $feedback ? $feedback : new EducatorReviewTeachLessonExperienceFeedback();
                     $formType = EducatorReviewTeachLessonExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_teach_lesson_experience_feedback.html.twig';
+                }
+                break;
+            case 'StudentToMeetProfessionalExperience':
+                /** @var StudentToMeetProfessionalExperience $experience */
+                if($user->isStudent()) {
+                    $feedback = $feedback = $feedback ? $feedback : new StudentReviewMeetProfessionalExperienceFeedback();
+                    $formType = StudentReviewMeetProfessionalExperienceFeedbackFormType::class;
+                    $template = 'new_student_review_meet_professional_feedback.html.twig';
                 }
                 break;
             default:
@@ -300,6 +311,13 @@ class FeedbackController extends AbstractController
                     $feedback->setTeachLessonExperience($experience);
                     $feedback->setStudent($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                case 'StudentReviewMeetProfessionalExperienceFeedback':
+                    /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudent($user);
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setInterestInWorkingForCompany($feedback->interestInWorkingForCompany);
                     break;
                 default:
                     /** @var Feedback $feedback */
