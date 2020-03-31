@@ -18,7 +18,7 @@
             </div>
             <div class="uk-width-1-2 uk-width-1-2@m">
                 <div class="uk-flex uk-flex-right@m">
-                    {% if user.isEducator or user.isStudent %}
+                    {% if user.isEducator or user.isStudent or user.isProfessional %}
                         <a href="{{ path('request_lesson_experience_or_site_visit') }}" class="uk-button uk-button-default uk-button-small">Suggest an Experience</a>
                     {% endif %}
                     {% if user.company is defined and user.company.owner.id == user.id %}

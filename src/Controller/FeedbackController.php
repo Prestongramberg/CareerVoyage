@@ -99,14 +99,14 @@ class FeedbackController extends AbstractController
     ];
 
     /**
-     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER"})
+     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
      * @Route("/request-lesson-experience-or-site-visit", name="request_lesson_experience_or_site_visit", options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function requestIdeaAction(Request $request) {
 
-        /** @var EducatorUser|StudentUser $user */
+        /** @var EducatorUser|StudentUser|ProfessionalUser $user */
         $user = $this->getUser();
 
         $form = $this->createFormBuilder()
@@ -127,8 +127,10 @@ class FeedbackController extends AbstractController
                 !empty($user->getUsername()) ? $user->getUsername() : 'N/A'
             );
 
-            foreach($user->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
-                $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($schoolAdministrator, $message, $from);
+            if (!$user->isProfessional()) {
+                foreach($user->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
+                    $this->feedbackMailer->requestForLessonIdeaOrSiteVisit($schoolAdministrator, $message, $from);
+                }
             }
 
             foreach($this->emailsToSendRequestIdeaTo as $emailToSendRequestIdeaTo) {
