@@ -77,6 +77,11 @@ class StudentEditProfileFormType extends AbstractType
                 ]
             ])
             ->add('displayName', TextType::class)
+            ->add('careerStatement', TextareaType::class, [
+                'attr' => [
+                    'placeholder' => 'Share what your career interests are, create hashtags for anything you are interested in, either jobs or types of work.'
+                ]
+            ])
             ->add('studentId', TextType::class, [
                 'attr' => [
                     'disabled' => true

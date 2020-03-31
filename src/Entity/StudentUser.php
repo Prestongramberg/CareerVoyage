@@ -107,6 +107,11 @@ class StudentUser extends User
      */
     private $allowedCommunications;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $careerStatement;
+
     public function __construct()
     {
         parent::__construct();
@@ -240,6 +245,18 @@ class StudentUser extends User
     public function setDisplayName(?string $displayName): self
     {
         $this->displayName = $displayName;
+
+        return $this;
+    }
+
+    public function getCareerStatement(): ?string
+    {
+        return $this->careerStatement;
+    }
+
+    public function setCareerStatement(?string $careerStatement): self
+    {
+        $this->careerStatement = $careerStatement;
 
         return $this;
     }
