@@ -129,6 +129,21 @@
                             {{ form_widget(form.companyLinkedinPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyLinkedinPage) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.companyLinkedinPage) }}
                         </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.companyFacebookPage, 'Company Facebook Page') }}
+                            {{ form_widget(form.companyFacebookPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyFacebookPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.companyFacebookPage) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.companyInstagramPage, 'Company Instagram Page') }}
+                            {{ form_widget(form.companyInstagramPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyInstagramPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.companyInstagramPage) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.companyTwitterPage, 'Company Twitter Page') }}
+                            {{ form_widget(form.companyTwitterPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyTwitterPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.companyTwitterPage) }}
+                        </div>
                         <div class="uk-margin {% if form.owner.vars.choices|length <= 1 %}uk-hidden{% endif %}">
                             {{ form_label(form.owner, 'Company Page Manager Email*') }}
                             {{ form_widget(form.owner, {'attr': {'class': 'uk-input' ~ ( form_errors(form.owner) ? ' uk-form-danger' : '' ) }}) }}

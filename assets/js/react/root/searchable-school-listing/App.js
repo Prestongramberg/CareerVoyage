@@ -72,6 +72,9 @@ class App extends React.Component {
                                         image={school.thumbnailImageURL}
                                         key={school.id}
                                         linkedIn={school.schoolLinkedInPage}
+                                        facebook={school.schoolFacebookPage}
+                                        instagram={school.schoolInstagramPage}
+                                        twitter={school.schoolTwitterPage}
                                         name={school.name}
                                         phone={school.phone}
                                         website={school.website} />

@@ -107,6 +107,15 @@
                         {% if company.companyLinkedinPage %}
                             <a href="{{ company.companyLinkedinPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
                         {% endif %}
+                        {% if company.companyFacebookPage %}
+                            <a href="{{ company.companyFacebookPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="facebook"></a>
+                        {% endif %}
+                        {% if company.companyInstagramPage %}
+                            <a href="{{ company.companyInstagramPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="instagram"></a>
+                        {% endif %}
+                        {% if company.companyTwitterPage %}
+                            <a href="{{ company.companyTwitterPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="twitter"></a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

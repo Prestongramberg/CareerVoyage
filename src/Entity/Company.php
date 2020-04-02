@@ -50,6 +50,24 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyFacebookPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyInstagramPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyTwitterPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a primary contact!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -303,6 +321,42 @@ class Company
     public function setCompanyLinkedinPage(?string $companyLinkedinPage)
     {
         $this->companyLinkedinPage = $companyLinkedinPage;
+
+        return $this;
+    }
+
+    public function getCompanyFacebookPage()
+    {
+        return $this->companyFacebookPage;
+    }
+
+    public function setCompanyFacebookPage(?string $companyFacebookPage)
+    {
+        $this->companyFacebookPage = $companyFacebookPage;
+
+        return $this;
+    }
+
+    public function getCompanyInstagramPage()
+    {
+        return $this->companyInstagramPage;
+    }
+
+    public function setCompanyInstagramPage(?string $companyInstagramPage)
+    {
+        $this->companyInstagramPage = $companyInstagramPage;
+
+        return $this;
+    }
+
+    public function getCompanyTwitterPage()
+    {
+        return $this->companyTwitterPage;
+    }
+
+    public function setCompanyTwitterPage(?string $companyTwitterPage)
+    {
+        $this->companyTwitterPage = $companyTwitterPage;
 
         return $this;
     }

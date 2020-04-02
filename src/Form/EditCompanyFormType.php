@@ -74,6 +74,9 @@ class EditCompanyFormType extends AbstractType
                 }
             ])
             ->add('companyLinkedinPage', TextType::class, [])
+            ->add('companyFacebookPage', TextType::class, [])
+            ->add('companyInstagramPage', TextType::class, [])
+            ->add('companyTwitterPage', TextType::class, [])
 
             ->add('shortDescription', TextareaType::class, [])
             ->add('description', TextareaType::class)
