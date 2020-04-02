@@ -76,7 +76,9 @@
                                 {% if profileUser.emailAfterPrivacySettingsApplied %}
                                     <a href="mailto:{{ profileUser.emailAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                                 {% endif %}
-                                {% if profileUser.phoneAfterPrivacySettingsApplied %}
+                                {% if profileUser.phoneAfterPrivacySettingsApplied and profileUser.phoneExt %}
+                                    <a href="tel:{{ profileUser.phoneAfterPrivacySettingsApplied }},{{profileUser.phoneExt}}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                                {% elseif profileUser.phoneAfterPrivacySettingsApplied %}
                                     <a href="tel:{{ profileUser.phoneAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                                 {% endif %}
                                 {% if profileUser.getLinkedinProfile %}

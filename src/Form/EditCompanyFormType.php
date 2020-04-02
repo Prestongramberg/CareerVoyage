@@ -59,6 +59,11 @@ class EditCompanyFormType extends AbstractType
                     'placeholder' => 'XXXXXXXXXX'
                 ]
             ])
+            ->add('phoneExt', TextType::class, [
+                'attr' => [
+                    'placeholder' => '123'
+                ]
+            ])
             ->add('emailAddress', TextType::class)
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,

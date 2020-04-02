@@ -43,6 +43,11 @@ class Company
     private $phone;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phoneExt;
+
+    /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -309,6 +314,18 @@ class Company
     public function setPhone(?string $phone)
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getPhoneExt()
+    {
+        return $this->phoneExt;
+    }
+
+    public function setPhoneExt(?string $phoneExt)
+    {
+        $this->phoneExt = $phoneExt;
 
         return $this;
     }

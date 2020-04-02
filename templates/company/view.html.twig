@@ -98,8 +98,10 @@
                         {% if company.website %}
                             <a href="{{ company.website }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
                         {% endif %}
-                        {% if company.phone %}
-                            <a href="{{ company.phone }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                        {% if company.phone and company.phoneExt %}
+                            <a href="tel:{{ company.phone }},{{company.phoneExt}}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                        {% elseif company.phone %}
+                            <a href="tel:{{ company.phone }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                         {% endif %}
                         {% if company.emailAddress %}
                             <a href="mailto:{{ company.emailAddress }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
