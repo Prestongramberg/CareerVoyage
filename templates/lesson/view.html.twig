@@ -224,14 +224,16 @@
                 {% if lesson.lessonTeachables|length > 0 %}
                     <dl class="uk-description-list uk-description-list-divider">
                         {% for lessonTeachable in lesson.lessonTeachables %}
-                            {% if lessonTeachable.user.isEducator %}
+                            {% if lessonTeachable.user.isEducator or lessonTeachable.user.isSchoolAdministrator %}
                                 <div class="uk-grid uk-flex-middle" uk-grid>
                                     <div class="uk-width-auto">
                                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                     </div>
                                     <div class="uk-width-expand">
                                         <dt>{{ lessonTeachable.user.firstName }} {{ lessonTeachable.user.lastName }}</dt>
-                                        <dd>{{ lessonTeachable.user.briefBio }}</dd>
+                                        {% if lessonTeachable.user.isEducator %}
+                                            <dd>{{ lessonTeachable.user.briefBio }}</dd>
+                                        {% endif %}
                                     </div>
                                     <div class="uk-width-1-1 uk-width-auto@m">
                                         {% if user_can_chat_with_user( user, lessonTeachable.user ) %}
