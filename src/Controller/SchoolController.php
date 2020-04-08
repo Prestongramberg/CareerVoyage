@@ -1179,6 +1179,34 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/experiences/{id}/deregister", name="school_experience_deregister", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function schoolExperienceDeregisterAction(Request $request, SchoolExperience $experience) {
+        $userIdToDeregister = $request->request->get('userId');
+        $userToDeregister = $this->userRepository->find($userIdToDeregister);
+
+        $deregisterUserForExperience = $this->userRegisterForSchoolExperienceRequestRepository->getByUserAndExperience($userToDeregister, $experience);
+
+        if ($userToDeregister->isStudent()) {
+            $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
+        } else if ($userToDeregister->isProfessional()) {
+            $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() + 1);
+        }
+
+        $registration = $this->registrationRepository->getByUserAndExperience($userToDeregister, $experience);
+
+        $this->entityManager->remove($deregisterUserForExperience);
+        $this->entityManager->remove($registration);
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'User has been removed from this experience.');
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
      * @Route("/schools/experiences/{id}/file/add", name="school_experience_file_add", options = { "expose" = true })
      * @param Request $request
      * @param SchoolExperience $experience
