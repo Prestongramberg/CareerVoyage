@@ -61,51 +61,55 @@ class ProfileController extends AbstractController
 
         if ($profileUser->isStudent()) {
 
-            $this->denyAccessUnlessGranted('view', $profileUser);
+            // $this->denyAccessUnlessGranted('view', $profileUser);
+            $educators = $profileUser->getEducatorUsers();
+            if ($educators->contains($user) || $profileUser == $user) {
+                /** @var StudentUser $user */
+                $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
+                $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
+                $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($profileUser);
+                $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($profileUser);
+                $primaryIndustries = $this->industryRepository->findAll();
 
-            /** @var StudentUser $user */
-            $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
-            $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
-            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($profileUser);
-            $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($profileUser);
-            $primaryIndustries = $this->industryRepository->findAll();
-
-            $guestLectures = [];
-            if($profileUser->getSchool()) {
-                $guestLectures = $this->teachLessonExperienceRepository->findBy([
-                    'school' => $profileUser->getSchool()
-                ]);
-            }
-
-            $dashboards = [
-                'companyFavorites' => $companyFavorites,
-                'lessonFavorites' => $lessonFavorites,
-                'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
-                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
-                'guestLectures' => $guestLectures,
-                'eventsWithFeedback' => [],
-                'eventsMissingFeedback' => [],
-                'primaryIndustries' => $primaryIndustries
-            ];
-
-            // let's see which events have feedback from the user and which don't
-            foreach($completedEventsRegisteredForByUser as $event) {
-                $feedback = $this->feedbackRepository->findOneBy([
-                    'user' => $profileUser,
-                    'experience' => $event
-                ]);
-
-                if(!$feedback) {
-                    $dashboards['eventsMissingFeedback'][] = [
-                        'event' => $event,
-                        'feedback' => $feedback
-                    ];
-                } else {
-                    $dashboards['eventsWithFeedback'][] = [
-                        'event' => $event,
-                        'feedback' => $feedback
-                    ];
+                $guestLectures = [];
+                if($profileUser->getSchool()) {
+                    $guestLectures = $this->teachLessonExperienceRepository->findBy([
+                        'school' => $profileUser->getSchool()
+                    ]);
                 }
+
+                $dashboards = [
+                    'companyFavorites' => $companyFavorites,
+                    'lessonFavorites' => $lessonFavorites,
+                    'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
+                    'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
+                    'guestLectures' => $guestLectures,
+                    'eventsWithFeedback' => [],
+                    'eventsMissingFeedback' => [],
+                    'primaryIndustries' => $primaryIndustries
+                ];
+
+                // let's see which events have feedback from the user and which don't
+                foreach($completedEventsRegisteredForByUser as $event) {
+                    $feedback = $this->feedbackRepository->findOneBy([
+                        'user' => $profileUser,
+                        'experience' => $event
+                    ]);
+
+                    if(!$feedback) {
+                        $dashboards['eventsMissingFeedback'][] = [
+                            'event' => $event,
+                            'feedback' => $feedback
+                        ];
+                    } else {
+                        $dashboards['eventsWithFeedback'][] = [
+                            'event' => $event,
+                            'feedback' => $feedback
+                        ];
+                    }
+                }
+            } else {
+                $this->denyAccessUnlessGranted('view', $profileUser);
             }
         }
 
