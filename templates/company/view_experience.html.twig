@@ -26,9 +26,24 @@
                 <div class="uk-align-right@l">
                     {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
                         <a href="{{ path('company_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
-                        <form class="uk-inline" method="get" action="{{ path('company_experience_remove', {'id' : experience.id}) }}">
-                            <button class="uk-button uk-button-danger uk-button-small" type="submit">Delete</button>
-                        </form>
+                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Delete</a>
+
+                        <div id="modal-remove-company-event" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Delete Event</h3>
+                                <form class="uk-inline" method="get" action="{{ path('company_experience_remove', {'id' : experience.id}) }}">
+
+                                    <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
+
+                                    <textarea class="uk-textarea" name="cancellationMessage" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-danger" type="submit">Delete</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </div>
