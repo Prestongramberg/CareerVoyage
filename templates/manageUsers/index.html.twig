@@ -16,10 +16,13 @@
 
                 <ul class="uk-list uk-list-divider">
 
-                    {% if user.isAdmin %}
+                    {% if user.isAdmin or user.isRegionalCoordinator %}
                         <li>
                             <a href="{{ path('manage_professionals') }}">Professionals</a>
                         </li>
+                    {%  endif %}
+
+                    {% if user.isAdmin %}
                         <li>
                             <a href="{{ path('manage_site_admins') }}">Site Admins</a>
                         </li>
