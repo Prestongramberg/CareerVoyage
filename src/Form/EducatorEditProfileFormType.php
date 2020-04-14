@@ -79,6 +79,11 @@ class EducatorEditProfileFormType extends AbstractType
             ->add('briefBio', TextareaType::class)
             ->add('linkedinProfile', TextType::class)
             ->add('phone', TextType::class)
+            ->add('phoneExt', TextType::class, [
+                'attr' => [
+                    'placeholder' => '123'
+                ]
+            ])
             ->add('username')
             ->add('email')
             ->add('plainPassword', PasswordType::class, [

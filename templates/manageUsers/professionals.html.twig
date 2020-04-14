@@ -18,6 +18,13 @@
 
                 {% include 'manageUsers/partials/_filters.html.twig' %}
                 <br>
+
+                {% if user.isRegionalCoordinator %}
+                    <div>
+                        <a href="{{ path('professional_export') }}">Export Professionals</a>
+                    </div>
+                {% endif %}
+
                 <div class="count">
                     Total Users: {{ pagination.getTotalItemCount }}
                 </div>

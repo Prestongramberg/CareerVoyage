@@ -62,6 +62,9 @@ class EditSchoolType extends AbstractType
             ])
             ->add('zipcode', TextType::class, [])
             ->add('schoolLinkedinPage', TextType::class, [])
+            ->add('schoolFacebookPage', TextType::class, [])
+            ->add('schoolInstagramPage', TextType::class, [])
+            ->add('schoolTwitterPage', TextType::class, [])
             ->add('shortDescription', TextareaType::class, []);
 
 	    $builder->get('phone')->addModelTransformer(new CallbackTransformer(

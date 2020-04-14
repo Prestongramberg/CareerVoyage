@@ -78,6 +78,21 @@
                             {{ form_errors(form.schoolLinkedinPage) }}
                         </div>
                         <div class="uk-margin">
+                            {{ form_label(form.schoolFacebookPage, 'School Facebook Page') }}
+                            {{ form_widget(form.schoolFacebookPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.schoolFacebookPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schoolFacebookPage) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.schoolInstagramPage, 'School Instagram Page') }}
+                            {{ form_widget(form.schoolInstagramPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.schoolInstagramPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schoolInstagramPage) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.schoolTwitterPage, 'School Twitter Page') }}
+                            {{ form_widget(form.schoolTwitterPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.schoolTwitterPage) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.schoolTwitterPage) }}
+                        </div>
+                        <div class="uk-margin">
                             {{ form_label(form.website, 'Website*') }}
                             {{ form_widget(form.website, {'attr': {'class': 'uk-input' ~ ( form_errors(form.website) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.website) }}

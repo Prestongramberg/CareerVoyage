@@ -27,6 +27,7 @@ use App\Form\NewCompanyExperienceType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Mailer\ExperienceMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -59,6 +60,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ProfileController
@@ -941,15 +943,50 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/companies/experiences/{id}/students/deregister", name="company_experience_student_deregister", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceStudentDeregisterAction(Request $request, CompanyExperience $experience) {
+        $studentIdToDeregister = $request->request->get('studentId');
+        $studentToDeregister = $this->studentUserRepository->find($studentIdToDeregister);
+
+        $deregisterStudentForExperience = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($studentToDeregister, $experience);
+
+        $deregisterRequest = $this->requestRepository->find($deregisterStudentForExperience);
+
+        if ($deregisterRequest->getApproved()) {
+            $experience->setAvailableSpaces($experience->getAvailableSpaces() + 1);
+        }
+
+        $this->entityManager->remove($deregisterStudentForExperience);
+        $this->entityManager->remove($deregisterRequest);
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'Student has been removed from this experience.');
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
      * @Route("/companies/experiences/{id}/remove", name="company_experience_remove", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function experienceRemoveAction(Request $request, CompanyExperience $experience) {
+    public function experienceRemoveAction(Request $request, CompanyExperience $experience, LoggerInterface $logger) {
 
         $company = $experience->getCompany();
         $this->denyAccessUnlessGranted('edit', $experience->getCompany());
+
+        $message = $request->request->get('cancellationMessage');
+
+        $registrations = $experience->getRegistrations();
+
+        foreach ($registrations as $registration) {
+            $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
+        }
 
         $this->entityManager->remove($experience);
         $this->entityManager->flush();

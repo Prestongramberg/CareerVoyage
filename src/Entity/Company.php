@@ -43,10 +43,33 @@ class Company
     private $phone;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phoneExt;
+
+    /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $companyLinkedinPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyFacebookPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyInstagramPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyTwitterPage;
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
@@ -171,7 +194,7 @@ class Company
      * @Groups({"RESULTS_PAGE"})
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must specify at least one secondary industry",
+     *      minMessage = "You must specify at least one career field",
      *     groups={"SECONDARY_INDUSTRY"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="companies")
@@ -295,6 +318,18 @@ class Company
         return $this;
     }
 
+    public function getPhoneExt()
+    {
+        return $this->phoneExt;
+    }
+
+    public function setPhoneExt(?string $phoneExt)
+    {
+        $this->phoneExt = $phoneExt;
+
+        return $this;
+    }
+
     public function getCompanyLinkedinPage()
     {
         return $this->companyLinkedinPage;
@@ -303,6 +338,42 @@ class Company
     public function setCompanyLinkedinPage(?string $companyLinkedinPage)
     {
         $this->companyLinkedinPage = $companyLinkedinPage;
+
+        return $this;
+    }
+
+    public function getCompanyFacebookPage()
+    {
+        return $this->companyFacebookPage;
+    }
+
+    public function setCompanyFacebookPage(?string $companyFacebookPage)
+    {
+        $this->companyFacebookPage = $companyFacebookPage;
+
+        return $this;
+    }
+
+    public function getCompanyInstagramPage()
+    {
+        return $this->companyInstagramPage;
+    }
+
+    public function setCompanyInstagramPage(?string $companyInstagramPage)
+    {
+        $this->companyInstagramPage = $companyInstagramPage;
+
+        return $this;
+    }
+
+    public function getCompanyTwitterPage()
+    {
+        return $this->companyTwitterPage;
+    }
+
+    public function setCompanyTwitterPage(?string $companyTwitterPage)
+    {
+        $this->companyTwitterPage = $companyTwitterPage;
 
         return $this;
     }

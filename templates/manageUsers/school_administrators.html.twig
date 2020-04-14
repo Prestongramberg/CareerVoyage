@@ -19,6 +19,12 @@
                 {% include 'manageUsers/partials/_filters.html.twig' %}
                 <br>
 
+                {% if user.isRegionalCoordinator %}
+                    <div>
+                        <a href="{{ path('school_admin_export') }}">Export School Administrators</a>
+                    </div>
+                {% endif %}
+
                 <div class="count">
                     Total Users: {{ pagination.getTotalItemCount }}
                 </div>

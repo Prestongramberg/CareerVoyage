@@ -140,7 +140,7 @@ class Lesson
     /**
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must specify at least one secondary industry",
+     *      minMessage = "You must specify at least one career field",
      *     groups={"SECONDARY_INDUSTRY"}
      * )
      *

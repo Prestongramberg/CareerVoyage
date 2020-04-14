@@ -85,6 +85,11 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('briefBio', TextareaType::class)
             ->add('linkedinProfile', TextType::class)
             ->add('phone', TextType::class)
+            ->add('phoneExt', TextType::class, [
+                'attr' => [
+                    'placeholder' => '123'
+                ]
+            ])
             ->add('isEmailHiddenFromProfile', ChoiceType::class, [
                 'choices'  => [
                     'Yes' => true,

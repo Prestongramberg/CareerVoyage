@@ -12,6 +12,7 @@ use App\Mailer\NotificationsMailer;
 use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Mailer\ExperienceMailer;
 use App\Mailer\ChatNotificationMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\AllowedCommunicationRepository;
@@ -131,6 +132,11 @@ trait ServiceHelper
      * @var SecurityMailer
      */
     private $securityMailer;
+
+    /**
+     * @var ExperienceMailer
+     */
+    private $experienceMailer;
 
     /**
      * @var ProfessionalUserRepository
@@ -410,6 +416,7 @@ trait ServiceHelper
      * @param AdminUserRepository $adminUserRepository
      * @param RequestsMailer $requestsMailer
      * @param SecurityMailer $securityMailer
+     * @param ExperienceMailer $experienceMailer
      * @param ProfessionalUserRepository $professionalUserRepository
      * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
      * @param UserRepository $userRepository
@@ -476,6 +483,7 @@ trait ServiceHelper
         AdminUserRepository $adminUserRepository,
         RequestsMailer $requestsMailer,
         SecurityMailer $securityMailer,
+        ExperienceMailer $experienceMailer,
         ProfessionalUserRepository $professionalUserRepository,
         JoinCompanyRequestRepository $joinCompanyRequestRepository,
         UserRepository $userRepository,
@@ -541,6 +549,7 @@ trait ServiceHelper
         $this->adminUserRepository = $adminUserRepository;
         $this->requestsMailer = $requestsMailer;
         $this->securityMailer = $securityMailer;
+        $this->experienceMailer = $experienceMailer;
         $this->professionalUserRepository = $professionalUserRepository;
         $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
         $this->userRepository = $userRepository;

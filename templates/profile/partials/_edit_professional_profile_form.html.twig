@@ -153,9 +153,18 @@
                                         {{ form_errors(form.linkedinProfile) }}
                                     </div>
                                     <div class="uk-margin">
-                                        {{ form_label(form.phone, 'Phone') }}
-                                        {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
-                                        {{ form_errors(form.phone) }}
+                                        <div class="uk-column-1-2">
+                                            <div>
+                                                {{ form_label(form.phone, 'Phone') }}
+                                                {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                                                {{ form_errors(form.phone) }}
+                                            </div>
+                                            <div>
+                                                {{ form_label(form.phoneExt, 'Ext.') }}
+                                                {{ form_widget(form.phoneExt, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phoneExt) ? ' uk-form-danger' : '' ) }}) }}
+                                                {{ form_errors(form.phoneExt) }}
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="uk-margin">
                                         <h4 class="uk-heading-divider">Contact Preferences</h4>

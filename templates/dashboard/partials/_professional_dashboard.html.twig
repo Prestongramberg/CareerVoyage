@@ -50,7 +50,9 @@
                             {% if user.emailAfterPrivacySettingsApplied %}
                                 <a href="mailto:{{ user.emailAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                             {% endif %}
-                            {% if user.phoneAfterPrivacySettingsApplied %}
+                            {% if user.phoneAfterPrivacySettingsApplied and user.phoneExt %}
+                                <a href="tel:{{ user.phoneAfterPrivacySettingsApplied }},{{user.phoneExt}}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            {% elseif user.phoneAfterPrivacySettingsApplied %}
                                 <a href="tel:{{ user.phoneAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                             {% endif %}
                             {% if user.getLinkedinProfile %}

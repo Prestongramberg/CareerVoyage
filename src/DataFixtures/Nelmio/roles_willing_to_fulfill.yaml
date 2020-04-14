@@ -50,3 +50,23 @@ App\Entity\RolesWillingToFulfill:
     eventName: 'In School Event'
     inEventDropDown: false
     inSchoolEventDropdown: true
+  role_12:
+    name: 'Career Fair Host'
+    description: ''
+    eventName: 'Career Fair'
+    inEventDropdown: true
+  role_13:
+    name: 'Virtual Site Visit Host'
+    description: ''
+    eventName: 'Virtual Site Visit'
+    inEventDropdown: true
+  role_14:
+    name: 'Virtual Informational Meeting Host'
+    description: ''
+    eventName: 'Virtual Informational Meeting'
+    inEventDropdown: true
+  role_15:
+    name: 'Project For Students'
+    description: ''
+    eventName: 'Project For Students'
+    inEventDropdown: true

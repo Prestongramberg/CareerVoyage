@@ -48,6 +48,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Class ManageUsersController
@@ -76,7 +77,7 @@ class ManageUsersController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_ADMIN_USER"})
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER"})
      * @Route("/professionals", name="manage_professionals", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -440,5 +441,98 @@ class ManageUsersController extends AbstractController
         ]);
 
         return $form;
+    }
+
+    /**
+     * @IsGranted({"ROLE_REGIONAL_COORDINATOR_USER"})
+     * @Route("/school-administrator/export", name="school_admin_export", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function schoolAdminExportAction(Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $school_administrators = $this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion());
+
+        $rows = array();
+        array_push($rows, 'First Name,Last Name,Email,School');
+        foreach ($school_administrators as $school_admin) {
+            $schools = array();
+            foreach ($school_admin->getSchools() as $school) {
+                array_push($schools, $school->getName());
+            }
+            $data = array($school_admin->getFirstName(), $school_admin->getLastName(), $school_admin->getEmail(), implode('; ', $schools));
+            array_push($rows, implode(',', $data));
+        }
+
+        $content = implode("\n", $rows);
+        $response = new Response($content);
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="school_administrators.csv');
+
+        return $response;
+    }
+
+    /**
+     * @IsGranted({"ROLE_REGIONAL_COORDINATOR_USER"})
+     * @Route("/educator/export", name="educator_export", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function educatorExportAction(Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $educators = $this->educatorUserRepository->getEducatorsForRegion($user->getRegion());
+
+        $rows = array();
+        array_push($rows, 'First Name,Last Name,Email,Phone Number,School');
+        foreach ($educators as $educator) {
+            $data = array($educator->getFirstName(), $educator->getLastName(), $educator->getEmail(), $educator->getPhone(), $educator->getSchool()->getName());
+            array_push($rows, implode(',', $data));
+        }
+
+        $content = implode("\n", $rows);
+        $response = new Response($content);
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="educators.csv');
+
+        return $response;
+    }
+
+    /**
+     * @IsGranted({"ROLE_REGIONAL_COORDINATOR_USER"})
+     * @Route("/professional/export", name="professional_export", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function professionalExportAction(Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $professionals = $this->professionalUserRepository->createQueryBuilder('u')
+            ->addOrderBy('u.firstName', 'ASC')
+            ->getQuery()
+            ->getResult();;
+
+        $rows = array();
+        array_push($rows, 'First Name,Last Name,Email,Phone Number,Company,Owner');
+        foreach ($professionals as $professional) {
+            $companyName = $professional->getCompany() ? $professional->getCompany()->getName() : '';
+            $owner = $professional->getCompany() && $professional->getCompany()->getOwner() && $professional->getCompany()->getOwner()->getId() === $professional->getId() ? 'Yes' : 'No';
+            $data = array($professional->getFirstName(), $professional->getLastName(), $professional->getEmail(), $professional->getPhone(), $companyName, $owner);
+            array_push($rows, implode(',', $data));
+        }
+
+        $content = implode("\n", $rows);
+        $response = new Response($content);
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="professionals.csv');
+
+        return $response;
     }
 }

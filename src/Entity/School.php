@@ -215,6 +215,24 @@ class School
     private $schoolLinkedInPage;
 
     /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolFacebookPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolInstagramPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolTwitterPage;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $communicationType = self::COMMUNICATION_TYPE_DEFAULT;
@@ -859,6 +877,42 @@ class School
     public function setCommunicationType(?string $communicationType): self
     {
         $this->communicationType = $communicationType;
+
+        return $this;
+    }
+
+    public function getSchoolFacebookPage()
+    {
+        return $this->schoolFacebookPage;
+    }
+
+    public function setSchoolFacebookPage(?string $schoolFacebookPage)
+    {
+        $this->schoolFacebookPage = $schoolFacebookPage;
+
+        return $this;
+    }
+
+    public function getSchoolInstagramPage()
+    {
+        return $this->schoolInstagramPage;
+    }
+
+    public function setSchoolInstagramPage(?string $schoolInstagramPage)
+    {
+        $this->schoolInstagramPage = $schoolInstagramPage;
+
+        return $this;
+    }
+
+    public function getSchoolTwitterPage()
+    {
+        return $this->schoolTwitterPage;
+    }
+
+    public function setSchoolTwitterPage(?string $schoolTwitterPage)
+    {
+        $this->schoolTwitterPage = $schoolTwitterPage;
 
         return $this;
     }
