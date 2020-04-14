@@ -395,7 +395,8 @@ class RequestController extends AbstractController
                     $experience->setOriginalRequest($request);
                     $experience->setStartDateAndTime($date);
                     $experience->setEndDateAndTime($endDate);
-                    $experience->setTitle("Student to meet Professional");
+                    $experience->setTitle(sprintf("Student %s to meet with Professional %s",
+                    $request->getNeedsApprovalBy()->getFullName(), $request->getCreatedBy()->getFullName()));
                     $experience->setBriefDescription(sprintf("Student %s to meet with Professional %s for %s",
                         $request->getNeedsApprovalBy()->getFullName(), $request->getCreatedBy()->getFullName(), $request->getReasonToMeet()->getName())
                     );
