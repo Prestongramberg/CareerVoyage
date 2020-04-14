@@ -27,6 +27,7 @@ use App\Form\NewCompanyExperienceType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Mailer\ExperienceMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -59,6 +60,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ProfileController
@@ -973,10 +975,18 @@ class CompanyController extends AbstractController
      * @param CompanyExperience $experience
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function experienceRemoveAction(Request $request, CompanyExperience $experience) {
+    public function experienceRemoveAction(Request $request, CompanyExperience $experience, LoggerInterface $logger) {
 
         $company = $experience->getCompany();
         $this->denyAccessUnlessGranted('edit', $experience->getCompany());
+
+        $message = $request->request->get('cancellationMessage');
+
+        $registrations = $experience->getRegistrations();
+
+        foreach ($registrations as $registration) {
+            $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
+        }
 
         $this->entityManager->remove($experience);
         $this->entityManager->flush();
