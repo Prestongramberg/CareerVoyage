@@ -59,11 +59,10 @@ class EducatorRegisterStudentForExperienceRequestRepository extends ServiceEntit
      */
     public function getByStudentAndExperience(StudentUser $student, CompanyExperience $experience) {
         return $this->createQueryBuilder('e')
-            ->innerJoin('e.studentUsers', 'su')
-            ->where('su.id = :student_id')
-            ->andWhere('e.companyExperience = :companyExperience')
+            ->where('e.studentUser = :student_id')
+            ->andWhere('e.companyExperience = :company_experience_id')
             ->setParameter('student_id', $student->getId())
-            ->setParameter('companyExperience', $experience->getId())
+            ->setParameter('company_experience_id', $experience->getId())
             ->getQuery()
             ->getOneOrNullResult();
     }

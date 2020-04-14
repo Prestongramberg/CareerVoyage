@@ -204,6 +204,12 @@
                                                     <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
                                                 </form>
                                             {% endif %}
+                                            {% if showPendingRegisterButton == false %}
+                                                <form class="uk-inline" action="{{ path('company_experience_student_deregister', { "id": experience.id }) }}" method="POST">
+                                                    <input type="hidden" name="studentId" value="{{ studentUser.id }}">
+                                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
+                                                </form>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}

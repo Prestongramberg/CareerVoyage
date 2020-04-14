@@ -941,6 +941,33 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/companies/experiences/{id}/students/deregister", name="company_experience_student_deregister", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceStudentDeregisterAction(Request $request, CompanyExperience $experience) {
+        $studentIdToDeregister = $request->request->get('studentId');
+        $studentToDeregister = $this->studentUserRepository->find($studentIdToDeregister);
+
+        $deregisterStudentForExperience = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($studentToDeregister, $experience);
+
+        $deregisterRequest = $this->requestRepository->find($deregisterStudentForExperience);
+
+        if ($deregisterRequest->getApproved()) {
+            $experience->setAvailableSpaces($experience->getAvailableSpaces() + 1);
+        }
+
+        $this->entityManager->remove($deregisterStudentForExperience);
+        $this->entityManager->remove($deregisterRequest);
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'Student has been removed from this experience.');
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
      * @Route("/companies/experiences/{id}/remove", name="company_experience_remove", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience

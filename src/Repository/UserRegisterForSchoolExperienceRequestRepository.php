@@ -5,6 +5,9 @@ namespace App\Repository;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use App\Entity\Experience;
+use App\Entity\SchoolExperience;
+use App\Entity\User;
 
 /**
  * @method UserRegisterForSchoolExperienceRequest|null find($id, $lockMode = null, $lockVersion = null)
@@ -47,4 +50,20 @@ class UserRegisterForSchoolExperienceRequestRepository extends ServiceEntityRepo
         ;
     }
     */
+
+    /**
+     * @param User $user
+     * @param SchoolExperience $experience
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByUserAndExperience(User $user, SchoolExperience $experience) {
+        return $this->createQueryBuilder('r')
+            ->where('r.user = :user_id')
+            ->andWhere('r.schoolExperience = :school_experience_id')
+            ->setParameter('user_id', $user->getId())
+            ->setParameter('school_experience_id', $experience->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
