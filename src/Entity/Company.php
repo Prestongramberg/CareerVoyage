@@ -194,7 +194,7 @@ class Company
      * @Groups({"RESULTS_PAGE"})
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must specify at least one secondary industry",
+     *      minMessage = "You must specify at least one career field",
      *     groups={"SECONDARY_INDUSTRY"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="companies")
