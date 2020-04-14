@@ -27,7 +27,7 @@ class App extends React.Component {
                 <ul className="" data-uk-tab="{connect: '#tab-lessons'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-lessons">All Lessons</a></li>
                     <li><a href="#teachable-lessons">
-                        {user.educator ? 'Lessons I want taught' : 'Lessons I can teach'}
+                        {(user.educator || user.schoolAdministrator)  ? 'Lessons I want taught' : 'Lessons I can teach'}
                     </a></li>
                     <li><a href="#my-lessons">My Created Lessons</a></li>
 
