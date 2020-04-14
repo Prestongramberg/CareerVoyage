@@ -28,7 +28,12 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> so others know more about you.</p>
+                        {% if user.careerStatement %}
+                            <p class="uk-text-large">My Career Statement</p>
+                            <p>{{ user.careerStatement }}</p>
+                        {% else %}
+                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief career interests bio</a> so others know more about you.</p>
+                        {% endif %}
                         <div class="professional-links">
                             <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                         </div>
@@ -39,8 +44,8 @@
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
-                    <li><a href="#user-favorites">Favorites</a></li>
-                    <li><a href="#user-events">Events</a></li>
+                    <li><a href="#user-favorites">My Favorites</a></li>
+                    <li><a href="#user-events">My Events</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
