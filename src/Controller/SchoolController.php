@@ -71,6 +71,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class SchoolController
@@ -1433,6 +1434,32 @@ class SchoolController extends AbstractController
                 'success' => false,
             ], Response::HTTP_BAD_REQUEST
         );
+    }
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/schools/experiences/{id}/students/forward", name="school_experience_bulk_notify", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceBulkNotifyAction(Request $request, SchoolExperience $experience) {
+        $message = $request->get('message');
+        $students = $request->get('students');
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        foreach ($students as $student) {
+            
+            /** @var StudentUser $student */
+            $student = $this->studentUserRepository->find($student);
+            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+        }
+
+        $this->addFlash('success', 'Experience has been sent to students!');
+
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
 }

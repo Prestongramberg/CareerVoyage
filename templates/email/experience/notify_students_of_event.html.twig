@@ -1,0 +1,20 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<p>Hi {{ user.firstName }},</p>
+
+<p>{{ message }}</p>
+
+<p>Location: <strong>{{ experience.street }} {{ experience.city }} {{ experience.state.abbreviation }} {{ experience.zipcode }}</strong>
+<p>When: <strong>{{ experience.startDateAndTime|date("F jS, Y h:i A") }}</strong></p>
+<p>Type: <strong>{{ experience.type }}</strong></p>
+<p>About:
+<p><strong>{{ experience.title }}</strong></p>
+<p><strong>{{ experience.briefDescription }}</strong></p>
+</p>
+<a href="{{ url }}">Click for more details...</a>
+</p>
+
+<p>Sincerely,</p>
+<p><strong>{{ educator.firstName }} {{ educator.lastName }}</strong></p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

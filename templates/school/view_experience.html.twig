@@ -42,6 +42,37 @@
                             <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
                             <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Notify Companies of Event</button>
                         </form>
+                    {% elseif user.isEducator and user.studentUsers|length > 0 %}
+                        <a class="uk-button uk-button-primary uk-button-small" href="#modal-bulk-send-to-students" uk-toggle>Forward to your students</a>
+
+                        <div id="modal-bulk-send-to-students" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Forward to your students</h3>
+                                <form class="uk-inline" method="post" action="{{ path('school_experience_bulk_notify', {'id' : experience.id}) }}">
+
+                                    <label class="uk-form-label">Select your students:</label>
+
+                                    <div class="uk-form-controls">
+                                        {% for studentUser in user.studentUsers %}
+                                            <label class="uk-form-label">
+                                                <input class="uk-checkbox" type="checkbox" name="students[]" value="{{ studentUser.id }}" />
+                                                {{ studentUser.firstName }} {{ studentUser.lastName }}
+                                            </label>
+                                            <br />
+                                        {% endfor %}
+                                    </div>
+
+                                    <label class="uk-form-label">Add a message to send to your students:</label>
+
+                                    <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-primary" type="submit">Send</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </div>
