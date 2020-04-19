@@ -62,12 +62,38 @@
             </div>
 
             <div class="uk-margin">
-                <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+                <div class="uk-column-1-2">
+                    <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+
+                    <a class="uk-button uk-button-primary uk-button-small" id="copyFeedbackUrl" data-url="{{ studentFeedbackUrl }}"><span uk-icon="icon: forward"></span> Share URL With Students</a>
+                </div>
             </div>
+
+            <div class="uk-margin">
+                <span id="urlCopiedMessage" class="uk-text-success" style="display: none;">Feedback URL has been copied to your clipboard and can be sent to any of your students!</span>
+            </div>
+        </div>
         </fieldset>
 
         {{ form_end(form) }}
 
     </div>
+
+    <script>
+        document.getElementById('copyFeedbackUrl').addEventListener('click', function () {
+            var url = document.getElementById('copyFeedbackUrl').getAttribute('data-url');
+            var el = document.createElement('textarea');
+            el.value = url
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            document.getElementById('urlCopiedMessage').style.display = 'block';
+            setTimeout(function () {
+                document.getElementById('urlCopiedMessage').style.display = 'none';
+            }, 4000);
+        });
+    </script>
 
 {% endblock %}

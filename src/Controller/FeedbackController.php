@@ -224,6 +224,8 @@ class FeedbackController extends AbstractController
 
         $experienceHasFeedback = $feedback ? true : false;
 
+        $studentFeedbackUrl = '';
+
         // look at the experience object and see which form you should load in
         switch ($experience->getClassName()) {
             case 'CompanyExperience':
@@ -248,6 +250,14 @@ class FeedbackController extends AbstractController
                     $feedback = $feedback = $feedback ? $feedback : new EducatorReviewTeachLessonExperienceFeedback();
                     $formType = EducatorReviewTeachLessonExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_teach_lesson_experience_feedback.html.twig';
+
+                    $routerContext = $this->router->getContext();
+                    $scheme = $routerContext->getScheme();
+                    $host = $routerContext->getHost();
+                    $port = $routerContext->getHttpPort();
+
+                    $studentFeedbackUrl = $scheme . '://' . $host . ($port !== 80 ? ':'. $port : '');
+                    $studentFeedbackUrl .= $this->router->generate('experience_feedback', ['id' => $experience->getId()]);
                 }
                 break;
             default:
@@ -320,7 +330,8 @@ class FeedbackController extends AbstractController
             'form' => $form->createView(),
             'feedback' => $feedback,
             'experience' => $experience,
-            'experienceHasFeedback' => $experienceHasFeedback
+            'experienceHasFeedback' => $experienceHasFeedback,
+            'studentFeedbackUrl' => $studentFeedbackUrl
         ]);
     }
 

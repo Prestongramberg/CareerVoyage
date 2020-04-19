@@ -151,6 +151,7 @@ class DashboardController extends AbstractController
             /** @var ProfessionalUser $user */
             $dashboards = [
                 'myCompany' => $user->getCompany(),
+                'eventsMissingFeedback' => [],
             ];
 
             $teachableLessonIds = [];
