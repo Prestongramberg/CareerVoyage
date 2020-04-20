@@ -74,13 +74,8 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\Length(
-     *      max = 255,
-     *      maxMessage = "The short description cannot be longer than {{ limit }} characters",
-     *      groups={"EDIT"}
-     * )
      * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $shortDescription;
 
