@@ -36,6 +36,11 @@ class ProfessionalUser extends User
     private $phone;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phoneExt;
+
+    /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -175,6 +180,18 @@ class ProfessionalUser extends User
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getPhoneExt(): ?string
+    {
+        return $this->phoneExt;
+    }
+
+    public function setPhoneExt(?string $phoneExt): self
+    {
+        $this->phoneExt = $phoneExt;
 
         return $this;
     }

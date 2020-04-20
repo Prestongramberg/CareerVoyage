@@ -39,6 +39,11 @@ class EducatorUser extends User
     private $phone;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phoneExt;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $briefBio;
@@ -117,6 +122,18 @@ class EducatorUser extends User
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getPhoneExt(): ?string
+    {
+        return $this->phoneExt;
+    }
+
+    public function setPhoneExt(?string $phoneExt): self
+    {
+        $this->phoneExt = $phoneExt;
 
         return $this;
     }

@@ -70,6 +70,11 @@ class NewCompanyFormType extends AbstractType
                 ]
             ])
             ->add('phone', TextType::class)
+            ->add('phoneExt', TextType::class, [
+                'attr' => [
+                    'placeholder' => '123'
+                ]
+            ])
             ->add('emailAddress', TextType::class)
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,

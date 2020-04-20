@@ -36,6 +36,11 @@
                         {{ form_widget(form.displayName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.displayName) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.displayName) }}
                     </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.careerStatement, 'My Career Statement') }}
+                        {{ form_widget(form.careerStatement, {'attr': {'class': 'uk-input' ~ ( form_errors(form.careerStatement) ? ' uk-form-danger' : '' ), 'style' : 'height: 200px' }}) }}
+                        {{ form_errors(form.careerStatement) }}
+                    </div>
                     {% if loggedInUser.schoolAdministrator %}
                         <div class="uk-margin">
                             {{ form_label(form.graduatingYear, 'Graduating Year') }}

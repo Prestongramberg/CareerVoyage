@@ -50,7 +50,9 @@
                             {% if user.emailAfterPrivacySettingsApplied %}
                                 <a href="mailto:{{ user.emailAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                             {% endif %}
-                            {% if user.phoneAfterPrivacySettingsApplied %}
+                            {% if user.phoneAfterPrivacySettingsApplied and user.phoneExt %}
+                                <a href="tel:{{ user.phoneAfterPrivacySettingsApplied }},{{user.phoneExt}}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            {% elseif user.phoneAfterPrivacySettingsApplied %}
                                 <a href="tel:{{ user.phoneAfterPrivacySettingsApplied }}" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                             {% endif %}
                             {% if user.getLinkedinProfile %}
@@ -63,7 +65,7 @@
 
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
-                    <li class="uk-active"><a href="#user-preferences">Calendar</a></li>
+                    <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-schools">My Schools</a></li>
                     <li><a href="#user-lessons">My Lessons</a></li>
                     <li><a href="#user-feedback">My Feedback</a></li>
@@ -149,17 +151,17 @@
                                 <div class="uk-width-1-1 uk-width-expand@m">
                                     <ul id="tab-account-inner" class="uk-switcher">
 
-                                        {% set cumulativeRating = 0 %}
-                                        {% set cumulativeInsight = 0 %}
-                                        {% set cumulativeEnjoyable = 0 %}
-                                        {% set cumulativeLearned = 0 %}
-                                        {% set cumulativeRecommendation = 0 %}
-
-                                        {% set cumulativePromoters = 0 %}
-                                        {% set cumulativePassives = 0 %}
-                                        {% set cumulativeDetractors = 0 %}
-
                                         {% for experience in dashboards.completedTeachLessonExperiences %}
+
+                                            {% set cumulativeRating = 0 %}
+                                            {% set cumulativeInsight = 0 %}
+                                            {% set cumulativeEnjoyable = 0 %}
+                                            {% set cumulativeLearned = 0 %}
+                                            {% set cumulativeRecommendation = 0 %}
+
+                                            {% set cumulativePromoters = 0 %}
+                                            {% set cumulativePassives = 0 %}
+                                            {% set cumulativeDetractors = 0 %}
 
                                             <div class="feedback-{{ experience.id }}">
                                                 <strong>Feedback for {{ experience.title }}</strong>
@@ -241,7 +243,7 @@
                                                     <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
                                                         <div class="uk-width-1-2 uk-width-1-3@m">
                                                             <div class="uk-text-meta">Average Rating</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeRating / experience.feedback|length )|round(1, 'floor') }}</h4>
+                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeRating / experience.feedback|length ) }}</h4>
                                                         </div>
                                                         <div class="uk-width-1-2 uk-width-1-3@m">
                                                             <div class="uk-text-meta">Total Responses</div>

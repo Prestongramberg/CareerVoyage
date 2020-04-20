@@ -6,6 +6,7 @@ use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OrderBy;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,6 +56,7 @@ class School
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\EducatorUser", mappedBy="school")
+     * @OrderBy({"lastName" = "ASC"})
      */
     private $educatorUsers;
 
@@ -99,6 +101,7 @@ class School
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\StudentUser", mappedBy="school")
+     * @OrderBy({"lastName" = "ASC"})
      */
     private $studentUsers;
 
@@ -210,6 +213,24 @@ class School
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $schoolLinkedInPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolFacebookPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolInstagramPage;
+
+    /**
+     * @Groups({"RESULTS_PAGE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $schoolTwitterPage;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -856,6 +877,42 @@ class School
     public function setCommunicationType(?string $communicationType): self
     {
         $this->communicationType = $communicationType;
+
+        return $this;
+    }
+
+    public function getSchoolFacebookPage()
+    {
+        return $this->schoolFacebookPage;
+    }
+
+    public function setSchoolFacebookPage(?string $schoolFacebookPage)
+    {
+        $this->schoolFacebookPage = $schoolFacebookPage;
+
+        return $this;
+    }
+
+    public function getSchoolInstagramPage()
+    {
+        return $this->schoolInstagramPage;
+    }
+
+    public function setSchoolInstagramPage(?string $schoolInstagramPage)
+    {
+        $this->schoolInstagramPage = $schoolInstagramPage;
+
+        return $this;
+    }
+
+    public function getSchoolTwitterPage()
+    {
+        return $this->schoolTwitterPage;
+    }
+
+    public function setSchoolTwitterPage(?string $schoolTwitterPage)
+    {
+        $this->schoolTwitterPage = $schoolTwitterPage;
 
         return $this;
     }

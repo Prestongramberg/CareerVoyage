@@ -42,6 +42,9 @@ class CompanyListing extends Component {
                                         { this.props.phone && <a href={'tel:' + this.props.phone} className="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a> }
                                         { this.props.email && <a href={'mailto:' +this.props.email} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a> }
                                         { this.props.linkedIn && <a href={this.props.linkedIn} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"></a> }
+                                        { this.props.facebook && <a href={this.props.facebook} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="facebook"></a> }
+                                        { this.props.instagram && <a href={this.props.instagram} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="instagram"></a> }
+                                        { this.props.twitter && <a href={this.props.twitter} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="twitter"></a> }
                                         { this.props.directions && <a href={this.props.directions} target="_blank" className="uk-icon-button uk-margin-small-right" data-uk-icon="location"></a> }
                                     </div>
                                 </div>
@@ -71,6 +74,9 @@ CompanyListing.propTypes = {
     isFavorite: PropTypes.bool,
     name: PropTypes.string,
     linkedIn: PropTypes.string,
+    facebook: PropTypes.string,
+    instagram: PropTypes.string,
+    twitter: PropTypes.string,
     phone: PropTypes.string,
     primaryIndustry: PropTypes.object,
     website: PropTypes.string

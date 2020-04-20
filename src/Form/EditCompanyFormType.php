@@ -59,6 +59,11 @@ class EditCompanyFormType extends AbstractType
                     'placeholder' => 'XXXXXXXXXX'
                 ]
             ])
+            ->add('phoneExt', TextType::class, [
+                'attr' => [
+                    'placeholder' => '123'
+                ]
+            ])
             ->add('emailAddress', TextType::class)
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
@@ -74,6 +79,9 @@ class EditCompanyFormType extends AbstractType
                 }
             ])
             ->add('companyLinkedinPage', TextType::class, [])
+            ->add('companyFacebookPage', TextType::class, [])
+            ->add('companyInstagramPage', TextType::class, [])
+            ->add('companyTwitterPage', TextType::class, [])
 
             ->add('shortDescription', TextareaType::class, [])
             ->add('description', TextareaType::class)
@@ -144,11 +152,11 @@ class EditCompanyFormType extends AbstractType
             'data_class' => Company::class,
             'validation_groups' => function (FormInterface $form) {
 
-                $skipValidation = $form->getConfig()->getOption('skip_validation');
+                // $skipValidation = $form->getConfig()->getOption('skip_validation');
 
-                if($skipValidation) {
-                    return [];
-                }
+                // if($skipValidation) {
+                //     return [];
+                // }
 
                 /** @var Company $data */
                 $data = $form->getData();

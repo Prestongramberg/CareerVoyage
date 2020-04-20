@@ -336,7 +336,7 @@ class LessonController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
-        if($file && $title && $description) {
+        if($file && $title) {
             $mimeType = $file->getMimeType();
             $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
             $lessonResource = new LessonResource();
@@ -346,7 +346,7 @@ class LessonController extends AbstractController
             $lessonResource->setFileName($newFilename);
             $lessonResource->setFile(null);
             $lessonResource->setLesson($lesson);
-            $lessonResource->setDescription($description);
+            $lessonResource->setDescription($description ? $description : null);
             $lessonResource->setTitle($title);
             $this->entityManager->persist($lessonResource);
             $this->entityManager->flush();

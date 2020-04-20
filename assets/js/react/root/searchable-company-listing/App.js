@@ -78,6 +78,9 @@ class App extends React.Component {
                                         isFavorite={company.favorite}
                                         key={company.id}
                                         linkedIn={company.companyLinkedinPage}
+                                        facebook={company.companyFacebookPage}
+                                        instagram={company.companyInstagramPage}
+                                        twitter={company.companyTwitterPage}
                                         name={company.name}
                                         phone={company.phone}
                                         primaryIndustry={company.primaryIndustry}
