@@ -181,7 +181,38 @@ class SchoolController extends AbstractController
             $school->setRegion($user->getRegion());
             $school->setSite($user->getSite());
 
+            if($coordinates = $this->geocoder->geocode($school->getAddress())) {
+                $lng = $coordinates['lng'];
+                $lat = $coordinates['lat'];
+                $school->setLongitude($lng);
+                $school->setLatitude($lat);
+                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, 50);
+                $companies = $this->companyRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+                $professionals = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+            }
+
             $this->entityManager->persist($school);
+            
+            if ($companies) {
+                foreach($companies as $company) {
+                    $companyIds[] = $company['id'];
+                }
+                $companies = $this->companyRepository->getByArrayOfIds($companyIds);
+                foreach($companies as $company) {
+                    $company->addSchool($school);
+                }
+            }
+
+            if ($professionals) {
+                foreach($professionals as $professional) {
+                    $professionalIds[] = $professional['id'];
+                }
+                $professionals = $this->professionalUserRepository->getByArrayOfIds($professionalIds);
+                foreach($professionals as $professional) {
+                    $professional->addSchool($school);
+                }
+            }
+
             $this->entityManager->flush();
 
             $this->addFlash('success', 'School successfully created.');

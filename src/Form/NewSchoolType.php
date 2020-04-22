@@ -11,6 +11,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
+use App\Entity\State;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -37,7 +38,16 @@ class NewSchoolType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', TextType::class, []);
+        $builder->add('name', TextType::class, [])
+        ->add('street', TextType::class, [])
+        ->add('city', TextType::class, [])
+        ->add('state', EntityType::class, [
+            'class' => State::class,
+            'choice_label' => 'name',
+            'expanded'  => false,
+            'multiple'  => false,
+        ])
+        ->add('zipcode', TextType::class, []);
     }
 
     public function configureOptions(OptionsResolver $resolver)
