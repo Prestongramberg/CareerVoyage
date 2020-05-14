@@ -38,10 +38,33 @@
                 <div class="uk-align-right@l">
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
-                        <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
-                            <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Notify Companies of Event</button>
-                        </form>
+
+                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Notify Companies of Event</a>
+                        <div id="modal-remove-company-event" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Notify Companies of Event</h3>
+                                <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
+
+                                    <label class="uk-form-label">Select Companies to Notify.</label>
+
+                                    <div class="uk-margin">
+                                        <select class="uk-select" name="companies[]" id="companies" multiple="multiple">
+                                            {% for company in school.companies %}
+                                                <option value="{{ company.id }}">{{ company.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <label>Custom Cancellation Message</label>
+                                    <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-danger" type="submit">Send</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             </div>

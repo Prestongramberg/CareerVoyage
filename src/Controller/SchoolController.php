@@ -1102,7 +1102,7 @@ class SchoolController extends AbstractController
     public function experienceRemoveAction(Request $request, SchoolExperience $experience) {
 
         $this->denyAccessUnlessGranted('edit', $experience->getSchool());
-        
+
         $message = $request->request->get('cancellationMessage');
 
         $registrations = $experience->getRegistrations();
@@ -1129,10 +1129,23 @@ class SchoolController extends AbstractController
     public function experienceNotifyCompaniesAction(Request $request, SchoolExperience $experience) {
 
         $this->denyAccessUnlessGranted('edit', $experience->getSchool());
-        $companies = $this->companyRepository->getBySchool($experience->getSchool());
+
+        $companyIds = $request->request->get('companies');
+
+        if(empty($companyIds)) {
+            $this->addFlash('error', 'Please select at least one company to notify.');
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
+
+        $customMessage = $request->request->get('customMessage', '');
+
+        $companies = $this->companyRepository->findBy([
+            'id' => $companyIds
+        ]);
+
         /** @var Company $company */
         foreach($companies as $company) {
-            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience);
+            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $customMessage);
         }
         $this->addFlash('success', 'Companies notified of event.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
@@ -1151,6 +1164,7 @@ class SchoolController extends AbstractController
         return $this->render('school/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
+            'school' => $experience->getSchool()
         ]);
     }
 

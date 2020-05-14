@@ -4,6 +4,8 @@
 
 <p>{{ experience.school.name }} has a school event we think you might be interested in.</p>
 
+<p style="font-weight: bold">{{ customMessage }}</p>
+
 <p>Location: <strong>{{ experience.street }} {{ experience.city }} {{ experience.state.abbreviation }} {{ experience.zipcode }}</strong>
 <p>When: <strong>{{ experience.startDateAndTime|date("F jS, Y h:i A") }}</strong></p>
 <p>Contact: <strong>{{ experience.phoneNumber }} {{ experience.email }}</strong></p>
