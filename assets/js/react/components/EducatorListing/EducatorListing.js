@@ -11,7 +11,7 @@ class EducatorListing extends Component {
                     <div className="uk-card-header">
                         <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                             <div className="uk-width-auto">
-                                <img className="uk-border-circle" width="40" height="40" src={ '/media/cache/squared_thumbnail_small/uploads/profile_photo/' + this.props.image } />
+                                { this.props.image && <img className="uk-border-circle" width="40" height="40" src={ '/media/cache/squared_thumbnail_small/uploads/profile_photo/' + this.props.image } /> }
                             </div>
                             <div className="uk-width-expand">
                                 <a href={window.Routing.generate('profile_index', {'id': this.props.id})}>
