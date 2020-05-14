@@ -147,4 +147,20 @@ class EducatorUserController extends AbstractController
             Response::HTTP_OK
         );
     }
+
+    /**
+     * @Route("/", name="educator_index", methods={"GET"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function indexAction(Request $request) {
+
+        $educatorUsers = $this->educatorUserRepository->findAll();
+
+        $user = $this->getUser();
+        return $this->render('educators/index.html.twig', [
+            'user' => $user,
+            'educatorUsers' => $educatorUsers
+        ]);
+    }
 }

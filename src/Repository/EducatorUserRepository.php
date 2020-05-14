@@ -9,6 +9,7 @@ use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\ORM\Query\Expr\Join;
 
 /**
  * @method EducatorUser|null find($id, $lockMode = null, $lockVersion = null)
@@ -131,5 +132,32 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->setParameter('lessonIds', $lessonIds)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findByArrayOfSchoolIds($schoolIds) {
+        return $this->createQueryBuilder('e')
+            ->where("e.school IN (:schools)")
+            ->setParameter('schools', $schoolIds)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    /**
+     * @param $educatorIds
+     * @return mixed
+     */
+    public function getByArrayOfIds($educatorIds) {
+
+        return $this->createQueryBuilder('e')
+            ->where('e.id IN (:ids)')
+            ->setParameter('ids', $educatorIds)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    public function getAll() {
+        return $this->createQueryBuilder('u')
+            ->getQuery()
+            ->getArrayResult();
     }
 }

@@ -1,0 +1,17 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Educators{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div id="searchable-educator-listing" data-user="{{ encode_user(user) }}" ></div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# <script src="{{ asset('build/educators.js') }}"></script> #}
+{% endblock %}
+
