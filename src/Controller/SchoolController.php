@@ -1095,10 +1095,24 @@ class SchoolController extends AbstractController
      * @param Request $request
      * @param SchoolExperience $experience
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function experienceRemoveAction(Request $request, SchoolExperience $experience) {
 
         $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+        
+        $message = $request->request->get('cancellationMessage');
+
+        $registrations = $experience->getRegistrations();
+
+        foreach ($registrations as $registration) {
+            $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
+        }
+
+        $this->entityManager->remove($experience);
+        $this->entityManager->flush();
 
         $this->entityManager->remove($experience);
         $this->entityManager->flush();
