@@ -147,6 +147,11 @@ class ProfessionalUser extends User
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="professionalUsers")
      */
     private $state;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalReviewMeetStudentExperienceFeedback", mappedBy="professional")
+     */
+    private $professionalReviewMeetStudentExperienceFeedback;
     
     public function __construct()
     {
@@ -158,6 +163,7 @@ class ProfessionalUser extends User
         $this->teachLessonExperiences = new ArrayCollection();
         $this->studentToMeetProfessionalRequests = new ArrayCollection();
         $this->allowedCommunications = new ArrayCollection();
+        $this->professionalReviewMeetStudentExperienceFeedback = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -569,5 +575,36 @@ class ProfessionalUser extends User
             $this->state ? $this->state->getAbbreviation() : '',
             $this->zipcode
         );
+    }
+
+    /**
+     * @return Collection|ProfessionalReviewMeetStudentExperienceFeedback[]
+     */
+    public function getProfessionalReviewMeetStudentExperienceFeedback(): Collection
+    {
+        return $this->professionalReviewMeetStudentExperienceFeedback;
+    }
+
+    public function addProfessionalReviewMeetStudentExperienceFeedback(ProfessionalReviewMeetStudentExperienceFeedback $professionalReviewMeetStudentExperienceFeedback): self
+    {
+        if (!$this->professionalReviewMeetStudentExperienceFeedback->contains($professionalReviewMeetStudentExperienceFeedback)) {
+            $this->professionalReviewMeetStudentExperienceFeedback[] = $professionalReviewMeetStudentExperienceFeedback;
+            $professionalReviewMeetStudentExperienceFeedback->setProfessional($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfessionalReviewMeetStudentExperienceFeedback(ProfessionalReviewMeetStudentExperienceFeedback $professionalReviewMeetStudentExperienceFeedback): self
+    {
+        if ($this->professionalReviewMeetStudentExperienceFeedback->contains($professionalReviewMeetStudentExperienceFeedback)) {
+            $this->professionalReviewMeetStudentExperienceFeedback->removeElement($professionalReviewMeetStudentExperienceFeedback);
+            // set the owning side to null (unless already changed)
+            if ($professionalReviewMeetStudentExperienceFeedback->getProfessional() === $this) {
+                $professionalReviewMeetStudentExperienceFeedback->setProfessional(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\ProfessionalUser;
 use App\Entity\StudentToMeetProfessionalExperience;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -47,4 +49,15 @@ class StudentToMeetProfessionalExperienceRepository extends ServiceEntityReposit
         ;
     }
     */
+
+    public function getCompletedByUserForAProfessional(ProfessionalUser $professionalUser) {
+        return $this->createQueryBuilder('e')
+            ->innerJoin('e.originalRequest', 'originalRequest')
+            ->where('originalRequest.professional = :professional')
+            ->andWhere('e.startDateAndTime <= :startDateAndTime')
+            ->setParameter('professional', $professionalUser)
+            ->setParameter('startDateAndTime' , new \DateTime())
+            ->getQuery()
+            ->getResult();
+    }
 }

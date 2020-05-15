@@ -14,6 +14,7 @@ use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
+use App\Entity\ProfessionalReviewMeetStudentExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SecondaryIndustry;
@@ -208,7 +209,7 @@ class FeedbackController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER"})
+     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
      * @Route("/experiences/{id}", name="experience_feedback", options = { "expose" = true })
      * @param Request $request
      * @param Experience $experience
@@ -256,11 +257,16 @@ class FeedbackController extends AbstractController
                 }
                 break;
             case 'StudentToMeetProfessionalExperience':
-                /** @var StudentToMeetProfessionalExperience $experience */
+                /** @var StudentReviewMeetProfessionalExperienceFeedback$experience */
                 if($user->isStudent()) {
                     $feedback = $feedback = $feedback ? $feedback : new StudentReviewMeetProfessionalExperienceFeedback();
                     $formType = StudentReviewMeetProfessionalExperienceFeedbackFormType::class;
                     $template = 'new_student_review_meet_professional_feedback.html.twig';
+                }
+                if($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewMeetStudentExperienceFeedback();
+                    $formType = GenericFeedbackFormType::class;
+                    $template = 'new_generic_feedback.html.twig';
                 }
                 break;
             default:
@@ -316,7 +322,6 @@ class FeedbackController extends AbstractController
                     break;
                 case 'StudentReviewMeetProfessionalExperienceFeedback':
                     /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
-                    /** @var StudentToMeetProfessionalExperience $experience */
                     $feedback->setStudent($user);
                     $feedback->setStudentToMeetProfessionalExperience($experience);
                     $feedback->setInterestInWorkingForCompany($feedback->interestInWorkingForCompany);

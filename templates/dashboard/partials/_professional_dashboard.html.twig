@@ -138,12 +138,13 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="user_preferences_feedback">
-                        {% if dashboards.completedTeachLessonExperiences|length > 0 %}
+                        {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
                             <div uk-grid>
                                 <div class="uk-width-1-1 uk-width-small@m">
                                     <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
-                                        {% for experience in dashboards.completedTeachLessonExperiences %}
+                                        {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
                                             <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
                                         {% endfor %}
                                     </ul>
@@ -151,7 +152,7 @@
                                 <div class="uk-width-1-1 uk-width-expand@m">
                                     <ul id="tab-account-inner" class="uk-switcher">
 
-                                        {% for experience in dashboards.completedTeachLessonExperiences %}
+                                        {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
 
                                             {% set cumulativeRating = 0 %}
                                             {% set cumulativeInsight = 0 %}
@@ -182,30 +183,48 @@
                                                             <tbody>
                                                             {% for feedback in experience.feedback %}
 
-                                                                {% set cumulativeRating = cumulativeRating + feedback.rating %}
-                                                                {% set cumulativeInsight = cumulativeInsight + feedback.providedCareerInsight %}
-                                                                {% set cumulativeEnjoyable = cumulativeEnjoyable + feedback.wasEnjoyableAndEngaging %}
-                                                                {% set cumulativeLearned = cumulativeLearned + feedback.learnSomethingNew %}
-                                                                {% set cumulativeRecommendation = cumulativeRecommendation + feedback.likelihoodToRecommendToFriend %}
+                                                                {% if feedback.user.id != user.id %}
 
-                                                                {# Determine Promoter, Detractors, and Passives #}
-                                                                {% if feedback.likelihoodToRecommendToFriend > 8 %}
-                                                                    {% set cumulativePromoters = cumulativePromoters + 1 %}
-                                                                {% elseif feedback.likelihoodToRecommendToFriend < 7 %}
-                                                                    {% set cumulativeDetractors = cumulativeDetractors + 1 %}
-                                                                {% else %}
-                                                                    {% set cumulativePassives = cumulativePassives + 1 %}
+                                                                    {% set cumulativeRating = cumulativeRating + feedback.rating %}
+                                                                    {% set cumulativeInsight = cumulativeInsight + feedback.providedCareerInsight %}
+                                                                    {% set cumulativeEnjoyable = cumulativeEnjoyable + feedback.wasEnjoyableAndEngaging %}
+                                                                    {% set cumulativeLearned = cumulativeLearned + feedback.learnSomethingNew %}
+                                                                    {% set cumulativeRecommendation = cumulativeRecommendation + feedback.likelihoodToRecommendToFriend %}
+
+                                                                    {# Determine Promoter, Detractors, and Passives #}
+                                                                    {% if feedback.likelihoodToRecommendToFriend > 8 %}
+                                                                        {% set cumulativePromoters = cumulativePromoters + 1 %}
+                                                                    {% elseif feedback.likelihoodToRecommendToFriend < 7 %}
+                                                                        {% set cumulativeDetractors = cumulativeDetractors + 1 %}
+                                                                    {% else %}
+                                                                        {% set cumulativePassives = cumulativePassives + 1 %}
+                                                                    {% endif %}
+
+
+                                                                    {% set role = '' %}
+                                                                    {% if feedback.user.educator %}
+                                                                        {% set role = 'Educator' %}
+                                                                        {% elseif feedback.user.professional %}
+                                                                            {% set role = 'Professional' %}
+                                                                        {% elseif feedback.user.educator %}
+                                                                            {% set role = 'Educator' %}
+                                                                        {% else %}
+                                                                            {% set role = 'Unknown' %}
+                                                                    {% endif %}
+
+
+                                                                    <tr>
+                                                                        <td class="uk-text-nowrap">{{ role }}</td>
+                                                                        <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+                                                                        <td class="uk-text-nowrap">{{ feedback.providedCareerInsight == 1 ? "YES" : "NO" }}</td>
+                                                                        <td class="uk-text-nowrap">{{ feedback.wasEnjoyableAndEngaging == 1 ? "YES" : "NO" }}</td>
+                                                                        <td class="uk-text-nowrap">{{ feedback.learnSomethingNew == 1 ? "YES" : "NO" }}</td>
+                                                                        <td class="uk-text-nowrap">{{ feedback.likelihoodToRecommendToFriend }}</td>
+                                                                        <td>{{ feedback.additionalFeedback }}</td>
+                                                                    </tr>
+
                                                                 {% endif %}
 
-                                                                <tr>
-                                                                    <td class="uk-text-nowrap">{{ feedback.user.educator ? "Educator" : "Student" }}</td>
-                                                                    <td class="uk-text-nowrap">{{ feedback.rating }}</td>
-                                                                    <td class="uk-text-nowrap">{{ feedback.providedCareerInsight == 1 ? "YES" : "NO" }}</td>
-                                                                    <td class="uk-text-nowrap">{{ feedback.wasEnjoyableAndEngaging == 1 ? "YES" : "NO" }}</td>
-                                                                    <td class="uk-text-nowrap">{{ feedback.learnSomethingNew == 1 ? "YES" : "NO" }}</td>
-                                                                    <td class="uk-text-nowrap">{{ feedback.likelihoodToRecommendToFriend }}</td>
-                                                                    <td>{{ feedback.additionalFeedback }}</td>
-                                                                </tr>
                                                             {% endfor %}
                                                             </tbody>
                                                         </table>
@@ -275,7 +294,46 @@
                                 </div>
                             </div>
                         {% endif %}
+
+                        {# Professional Events with feedback and events missing feedback #}
+                        <div class="uk-margin">
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-body">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Reviews</h3>
+                                    <ul class="uk-tab" uk-switcher="connect: #tab-reviews" uk-tab>
+                                        <li class="uk-active"><a href="#reviews-todo">Todo</a></li>
+                                        <li><a href="#reviews-submitted">Submitted</a></li>
+                                    </ul>
+                                    <div class="uk-switcher" id="tab-reviews">
+                                        <div class="tab-reviews__todo">
+                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
+                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>All reviews are up to date!</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="tab-reviews__submitted">
+                                            {% if dashboards.eventsWithFeedback|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for eventProps in dashboards.eventsWithFeedback %}
+                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No events reviews have been submitted.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
             </div>
         </div>
