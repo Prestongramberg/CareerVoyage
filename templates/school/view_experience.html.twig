@@ -38,10 +38,106 @@
                 <div class="uk-align-right@l">
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
-                        <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
-                            <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Notify Companies of Event</button>
-                        </form>
+                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-companies" uk-toggle>Notify Companies of Event</a>
+                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Event</a>
+
+                        <div id="modal-notify-companies" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
+                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+
+                                    <label class="uk-form-label">Select companies to notify:</label>
+
+                                    <div class="uk-form-controls">
+                                        {% if companies.count > 0 %}
+                                            {% for company in companies %}
+                                                <label class="uk-form-label">
+                                                    <input class="uk-checkbox" type="checkbox" name="companies[]" value="{{ company.id }}" />
+                                                    {{ company.name }}
+                                                </label>
+                                                <br />
+                                            {% endfor %}
+                                        {% else %}
+                                            No companies associated with school
+                                        {% endif %}
+                                    </div>
+
+                                    <label class="uk-form-label">Add a message to send to selected companies:</label>
+
+                                    <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-primary" type="submit">Send</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="modal-notify-professionals" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <form class="uk-inline" action="{{ path('school_notify_professionals', { "id": experience.id }) }}" method="POST">
+                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+
+                                    <div class="uk-form-controls">
+
+                                        <label class="uk-form-label">Filter by industry:</label>
+
+                                        <select class="uk-select" id="primaryIndustrySelect">
+                                            <option value="">Select an Industry</option>
+                                            {% for industry in primaryIndustries %}
+                                                <option value="{{industry.id}}">{{industry.name}}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <p></p>
+
+                                        <select class="uk-select" id="secondaryIndustrySelect">
+                                            <option value="">Select a Secondary Industry</option>
+                                            {% for industry in secondaryIndustries %}
+                                                <option value="{{industry.id}}" data-industry="{{industry.primaryIndustry.id}}">{{industry.name}}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <p></p>
+
+                                        {% if professionals.count > 0 %}
+                                            <label class="uk-form-label">Select professionals to notify:</label>
+                                            <div class="uk-column-1-2">
+                                                {% for professional in professionals %}
+                                                    {% set industryArray = [] %}
+                                                    {% for industry in professional.secondaryIndustries %}
+                                                        {% set industryArray = industryArray|merge([industry.id]) %}
+                                                    {% endfor %}
+
+                                                    <label class="uk-form-label professionalUserCheckbox" data-industries="{{ industryArray|json_encode() }}" style="display:block">
+                                                        <input class="uk-checkbox professionalUserCheckboxInput" type="checkbox" name="professionals[]" value="{{ professional.id }}" data-professional-name="{{ professional.firstName }} {{ professional.lastName }}" />
+                                                        {{ professional.firstName }} {{ professional.lastName }}
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            No professionals associated with school
+                                        {% endif %}
+
+                                        <br />
+                                        <div id="selectedProfessionalsContainer" style="display:none">
+                                            <label class="uk-form-label">Selected Professionals:</label>
+                                            <ul id="selectedProfessionals"></ul>
+                                        </div>
+                                    </div>
+
+                                    <label class="uk-form-label">Add a message to send to selected professionals:</label>
+
+                                    <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-primary" type="submit">Send</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
                     {% elseif user.isEducator and user.studentUsers|length > 0 %}
                         <a class="uk-button uk-button-primary uk-button-small" href="#modal-bulk-send-to-students" uk-toggle>Forward to your students</a>
 
@@ -219,5 +315,72 @@
             </div>
         </div>
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+        var selectedProfessionals = [];
+        
+        $('#secondaryIndustrySelect').prop( 'disabled', true );
+
+        $('#primaryIndustrySelect').on('change', function() {
+            $('.professionalUserCheckbox').show();
+            $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
+            var industry = $('#primaryIndustrySelect').val();
+            if (industry) {
+                $('#secondaryIndustrySelect').prop( 'disabled', false );
+
+                $('#secondaryIndustrySelect option').hide();
+                $('#secondaryIndustrySelect option[data-industry="' + industry +'"]').show();
+            } else {
+                $('#secondaryIndustrySelect').prop( 'disabled', true );
+            }
+        });
+
+        $('#secondaryIndustrySelect').on('change', function() {
+            $('.professionalUserCheckbox').show();
+            var secondaryIndustry = parseInt($('#secondaryIndustrySelect').val());
+            if (secondaryIndustry) {
+                $('.professionalUserCheckbox').hide();
+
+                $('.professionalUserCheckbox').each(function(index) {
+                    var myIndustries = $( this ).data('industries');
+                    console.log(secondaryIndustry)
+                    console.log(myIndustries)
+                    if (myIndustries.indexOf(secondaryIndustry) > -1) {
+                        $( this ).show();
+                    }
+                });
+            } else {
+            }
+        });
+
+        $('.professionalUserCheckboxInput').on('change', function() {
+            var name = $( this ).data('professional-name');
+            if ($( this ).prop('checked')) {
+                selectedProfessionals.push(name);
+            } else {
+                var index = selectedProfessionals.indexOf(name);
+                if (index !== -1) {
+                    selectedProfessionals.splice(index, 1);
+                }
+            }
+
+            if (selectedProfessionals.length > 0) {
+                console.log('here')
+                $('#selectedProfessionalsContainer').show();
+            } else {
+                console.log('or here')
+                $('#selectedProfessionalsContainer').hide();
+            }
+
+            $('#selectedProfessionals').empty();
+
+            $.each(selectedProfessionals, function(index, value){
+                $('#selectedProfessionals').append('<li>' + value + '</li>');
+            });
+        });
+
+    </script>
 
 {% endblock %}

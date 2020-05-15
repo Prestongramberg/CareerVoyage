@@ -1147,12 +1147,34 @@ class SchoolController extends AbstractController
     public function experienceNotifyCompaniesAction(Request $request, SchoolExperience $experience) {
 
         $this->denyAccessUnlessGranted('edit', $experience->getSchool());
-        $companies = $this->companyRepository->getBySchool($experience->getSchool());
+        $message = $request->get('message');
+        $companies = $request->get('companies');
         /** @var Company $company */
-        foreach($companies as $company) {
-            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience);
+        foreach($companies as $companyId) {
+            $company = $this->companyRepository->find($companyId);
+            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $message);
         }
         $this->addFlash('success', 'Companies notified of event.');
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
+     * @Route("/schools/experiences/{id}/notify-professionals", name="school_notify_professionals", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function experienceNotifyProfessionalsAction(Request $request, SchoolExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+        $message = $request->get('message');
+        $professionals = $request->get('professionals');
+        /** @var Professional $professional */
+        foreach($professionals as $professionalId) {
+            $professional = $this->professionalUserRepository->find($professionalId);
+            $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
+        }
+        $this->addFlash('success', 'Professionals notified of event.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
@@ -1169,6 +1191,10 @@ class SchoolController extends AbstractController
         return $this->render('school/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
+            'companies' => $experience->getSchool()->getCompanies(),
+            'professionals' => $experience->getSchool()->getProfessionalUsers(),
+            'primaryIndustries' => $this->industryRepository->findAll(),
+            'secondaryIndustries' => $this->secondaryIndustryRepository->findAll()
         ]);
     }
 

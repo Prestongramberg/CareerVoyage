@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class NotificationsMailer extends AbstractMailer
 {
-    public function notifyCompanyOwnerOfSchoolEvent(User $user, SchoolExperience $schoolExperience) {
+    public function notifyCompanyOwnerOfSchoolEvent(User $user, SchoolExperience $schoolExperience, $message) {
 
         $url = $this->router->generate('school_experience_view', ['id' => $schoolExperience->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         $message = (new \Swift_Message('School Event You Might Be Interested In!'))
@@ -24,7 +24,24 @@ class NotificationsMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/feedback/notify_company_owner_of_school_event.html.twig',
-                    ['user' => $user, 'experience' => $schoolExperience, 'url' => $url]
+                    ['user' => $user, 'experience' => $schoolExperience, 'url' => $url, 'message' => $message]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    public function notifyProfessionalOfSchoolEvent(User $user, SchoolExperience $schoolExperience, $message) {
+
+        $url = $this->router->generate('school_experience_view', ['id' => $schoolExperience->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $message = (new \Swift_Message('School Event You Might Be Interested In!'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/feedback/notify_professional_of_school_event.html.twig',
+                    ['user' => $user, 'experience' => $schoolExperience, 'url' => $url, 'message' => $message]
                 ),
                 'text/html'
             );
