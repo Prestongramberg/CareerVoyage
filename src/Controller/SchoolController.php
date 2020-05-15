@@ -1152,6 +1152,40 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/experiences/{id}/notify-professionals", name="school_notify_professionals", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return JsonResponse
+     */
+    public function experienceNotifyProfessionalsAction(Request $request, SchoolExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+
+        $professionalIds = $request->request->get('professionals');
+
+        if(empty($professionalIds)) {
+            return $this->json([
+                'message' => 'You must select at least one professional to notify'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $customMessage = $request->request->get('customMessage', '');
+
+        $professionals = $this->professionalUserRepository->findBy([
+            'id' => $professionalIds
+        ]);
+
+        /** @var ProfessionalUser $professional */
+        foreach($professionals as $professional) {
+            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($professional, $experience, $customMessage);
+        }
+
+        return $this->json([
+            'message' => 'Notifications successfully sent out.'
+        ], Response::HTTP_OK);
+    }
+
+    /**
      * @Route("/schools/experiences/{id}/view", name="school_experience_view", options = { "expose" = true })
      * @param Request $request
      * @param SchoolExperience $experience

@@ -1,0 +1,96 @@
+.react-modal {
+
+  align-items: center;
+  background-color: rgba(0,0,0,0.5);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+
+  &__modal {
+    background-color: #FFF;
+    outline: 0;
+    padding: 0;
+    position: relative;
+    width: 800px;
+  }
+
+  &__title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 40px;
+  }
+
+  &__subtitle {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  &__close {
+    color: #000;
+    content: 'X';
+    cursor: pointer;
+    cursor: hand;
+    font-size: 20px;
+    font-weight: bold;
+    height: 30px;
+    line-height: 30px;
+    position: absolute;
+    right: 15px;
+    text-align: center;
+    top: 15px;
+    width: 30px;
+  }
+
+  &--wrapper {
+    display: flex;
+
+    span {
+      flex: 1 1 auto;
+      padding: 0 10px;
+
+      &:last-child {
+        width: 300px;
+      }
+
+      input, select {
+        width: 100%;
+      }
+    }
+  }
+
+  &--title-row {
+    font-weight: bold;
+    margin: 0 0 15px;
+    padding: 0 0 15px;
+    border-bottom: 1px solid #AAA;
+  }
+
+  &--content-row {
+    margin: 0 0 15px;
+  }
+
+  &--button-row {
+    text-align: right;
+    margin: 0 0 20px;
+  }
+}
+
+.criteria-modal {
+  &__criteria-wrapper {
+    padding: 15px 0px;
+  }
+
+  &__operator-selector-wrapper, &__criteria-selector-wrapper {
+    margin-bottom: 10px;
+  }
+
+  &__depth-block {
+    border: 1px solid #333;
+  }
+}

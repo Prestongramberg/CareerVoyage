@@ -1,6 +1,7 @@
 require('./bar-chart');
 require('./calendar-button');
 require('./chat');
+require('./event-professional-notify');
 require('./events-calendar');
 require('./form-choose-all-that-apply');
 require('./form-range');
