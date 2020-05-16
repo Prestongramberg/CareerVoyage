@@ -69,6 +69,12 @@
                     <li><a href="#user-schools">My Schools</a></li>
                     <li><a href="#user-lessons">My Lessons</a></li>
                     <li><a href="#user-feedback">My Feedback</a></li>
+                    <li><a href="#user-events">
+                    Provide Feedback
+                    {% if dashboards.eventsMissingFeedback|length > 0 %}
+                        ({{ dashboards.eventsMissingFeedback|length }})
+                    {% endif %}
+                    </a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -275,6 +281,44 @@
                                 </div>
                             </div>
                         {% endif %}
+                    </div>
+                    <div class="user_preferences_events">
+
+                        <div class="uk-margin">
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-body">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Reviews</h3>
+                                    <ul class="uk-tab" uk-switcher="connect: #tab-reviews" uk-tab>
+                                        <li class="uk-active"><a href="#reviews-todo">Todo</a></li>
+                                        <li><a href="#reviews-submitted">Submitted</a></li>
+                                    </ul>
+                                    <div class="uk-switcher" id="tab-reviews">
+                                        <div class="tab-reviews__todo">
+                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
+                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>All reviews are up to date!</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="tab-reviews__submitted">
+                                            {% if dashboards.eventsWithFeedback|length > 0 %}
+                                                <ul class="uk-list uk-list-divider">
+                                                    {% for eventProps in dashboards.eventsWithFeedback %}
+                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p>No events reviews have been submitted.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

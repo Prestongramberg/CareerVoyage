@@ -149,9 +149,15 @@ class DashboardController extends AbstractController
             }
         } elseif ($user->isProfessional()) {
             /** @var ProfessionalUser $user */
+            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
+            $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
             $dashboards = [
                 'myCompany' => $user->getCompany(),
                 'eventsMissingFeedback' => [],
+                'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
+                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
+                'eventsWithFeedback' => [],
+                'eventsMissingFeedback' => []
             ];
 
             $teachableLessonIds = [];
@@ -167,6 +173,30 @@ class DashboardController extends AbstractController
             $dashboards['companiesWithOverlappingSecondaryIndustries'] = $companiesWithOverlappingSecondaryIndustries;
 
             $dashboards['completedTeachLessonExperiences'] = $this->teachLessonExperienceRepository->getCompletedByUser($user);
+
+
+            // let's see which events have feedback from the user and which don't
+            foreach($completedEventsRegisteredForByUser as $event) {
+                $feedback = $this->feedbackRepository->findOneBy([
+                    'user' => $user,
+                    'experience' => $event
+                ]);
+
+                // For now, just show Student to meet with professional events
+                if($event->getClassName() == 'StudentToMeetProfessionalExperience') {
+                    if(!$feedback) {
+                        $dashboards['eventsMissingFeedback'][] = [
+                            'event' => $event,
+                            'feedback' => $feedback
+                        ];
+                    } else {
+                        $dashboards['eventsWithFeedback'][] = [
+                            'event' => $event,
+                            'feedback' => $feedback
+                        ];
+                    }
+                }
+            }
         }
 
         return $this->render('dashboard/index.html.twig', [

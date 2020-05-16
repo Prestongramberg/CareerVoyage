@@ -20,6 +20,7 @@ use App\Entity\SecondaryIndustry;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
+use App\Entity\ProfessionalReviewStudentToMeetProfessionalFeedback;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\User;
@@ -35,6 +36,7 @@ use App\Form\RegionalCoordinatorFormType;
 use App\Form\StateCoordinatorFormType;
 use App\Form\StudentReviewCompanyExperienceFeedbackFormType;
 use App\Form\StudentReviewTeachLessonExperienceFeedbackFormType;
+use App\Form\ProfessionalReviewStudentToMeetProfessionalFeedbackFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Repository\CompanyPhotoRepository;
@@ -203,7 +205,7 @@ class FeedbackController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER"})
+     * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
      * @Route("/experiences/{id}", name="experience_feedback", options = { "expose" = true })
      * @param Request $request
      * @param Experience $experience
@@ -212,7 +214,7 @@ class FeedbackController extends AbstractController
      */
     public function experienceFeedbackAction(Request $request, Experience $experience) {
 
-        /** @var EducatorUser|StudentUser $user */
+        /** @var EducatorUser|StudentUser|ProfessionalUser $user */
         $user = $this->getUser();
         $formType = null;
         $template = null;
@@ -258,6 +260,18 @@ class FeedbackController extends AbstractController
 
                     $studentFeedbackUrl = $scheme . '://' . $host . ($port !== 80 ? ':'. $port : '');
                     $studentFeedbackUrl .= $this->router->generate('experience_feedback', ['id' => $experience->getId()]);
+                }
+                break;
+            case 'StudentToMeetProfessionalExperience':
+                /** @var StudentToMeetProfessionalExperience $experience */
+                if($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewStudentToMeetProfessionalFeedback();
+                    $formType = ProfessionalReviewStudentToMeetProfessionalFeedbackFormType::class;
+                    $template = 'new_professional_review_student_to_meet_professional_experience_feedback.html.twig';
+                } else {
+                    $feedback = $feedback = $feedback ? $feedback : new Feedback();
+                    $formType = GenericFeedbackFormType::class;
+                    $template = 'new_generic_feedback.html.twig';
                 }
                 break;
             default:
@@ -310,6 +324,16 @@ class FeedbackController extends AbstractController
                     $feedback->setTeachLessonExperience($experience);
                     $feedback->setStudent($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
+                    /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setProfessional($user);
+                    $educators = $experience->getOriginalRequest()->getStudent()->getEducatorUsers();
+                    foreach ($educators as $educator) {
+                        $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
+                    }
                     break;
                 default:
                     /** @var Feedback $feedback */
@@ -371,6 +395,12 @@ class FeedbackController extends AbstractController
                 /** @var TeachLessonExperience $experience */
                 $formType = StudentReviewTeachLessonExperienceFeedbackFormType::class;
                 $template = 'view_student_review_teach_lesson_experience_feedback.html.twig';
+                break;
+            case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
+                /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
+                /** @var StudentToMeetProfessionalExperience $experience */
+                $formType = ProfessionalReviewStudentToMeetProfessionalFeedbackFormType::class;
+                $template = 'view_professional_review_student_to_meet_professional_experience_feedback.html.twig';
                 break;
             default:
                 $formType = GenericFeedbackFormType::class;

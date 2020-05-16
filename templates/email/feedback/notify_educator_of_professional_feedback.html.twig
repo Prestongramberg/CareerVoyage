@@ -1,0 +1,27 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<p>Hi {{ user.firstName }},</p>
+
+<p>A professional has provided feedback on a meeting with one of your students.</p>
+
+<p>About:
+  <p><strong>{{ experience.title }}</strong></p>
+  <p><strong>{{ experience.briefDescription }}</strong></p>
+</p>
+
+<p>Feedback:</p>
+
+<p>Rate your overall experience in meeting with this student</p>
+{{ feedback.rating }}
+<p>Did the student show up?</p>
+{{ feedback.showUp }}
+<p>Student was on time</p>
+{{ feedback.providedCareerInsight }}
+<p>Student was polite, professional</p>
+{{ feedback.wasEnjoyableAndEngaging }}
+<p>Student was engaged, asked question</p>
+{{ feedback.learnSomethingNew }}
+<p>Any feedback, advice or comments for this student and supervising teacher?</p>
+{{ feedback.additionalFeedback }}
+
+{% include 'email/partial/emailFooter.html.twig' %}

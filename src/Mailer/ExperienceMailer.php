@@ -23,7 +23,7 @@ class ExperienceMailer extends AbstractMailer
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function experienceCancellationMessage(Experience $experience, User $userToSendMessageTo, $message) {
+    public function experienceCancellationMessage(Experience $experience, User $userToSendMessageTo, $userMessage) {
 
         $message = (new \Swift_Message("An Experience you are signed up for has been cancelled."))
             ->setFrom($this->siteFromEmail)
@@ -31,7 +31,7 @@ class ExperienceMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/experience/experienceCancellation.html.twig',
-                    ['experience' => $experience, 'message' => $message, 'user' => $userToSendMessageTo]
+                    ['experience' => $experience, 'message' => $userMessage, 'user' => $userToSendMessageTo]
                 ),
                 'text/html'
             );
@@ -48,7 +48,7 @@ class ExperienceMailer extends AbstractMailer
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function experienceForwardToStudent(Experience $experience, User $userToSendMessageTo, $message, $fromUser) {
+    public function experienceForwardToStudent(Experience $experience, User $userToSendMessageTo, $userMessage, $fromUser) {
 
         $routerContext = $this->router->getContext();
         $scheme = $routerContext->getScheme();
@@ -75,7 +75,7 @@ class ExperienceMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/experience/notify_students_of_event.html.twig',
-                    ['experience' => $experience, 'message' => $message, 'user' => $userToSendMessageTo, 'url' => $url, 'educator' => $fromUser]
+                    ['experience' => $experience, 'message' => $userMessage, 'user' => $userToSendMessageTo, 'url' => $url, 'educator' => $fromUser]
                 ),
                 'text/html'
             );
