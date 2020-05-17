@@ -948,6 +948,7 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param CompanyExperience $experience
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function companyExperienceStudentDeregisterAction(Request $request, CompanyExperience $experience) {
         $studentIdToDeregister = $request->request->get('studentId');
@@ -959,6 +960,18 @@ class CompanyController extends AbstractController
 
         if ($deregisterRequest->getApproved()) {
             $experience->setAvailableSpaces($experience->getAvailableSpaces() + 1);
+        }
+
+        if($experience->getCompany()->getOwner()) {
+            /** @var ProfessionalUser $owner */
+            $owner = $experience->getCompany()->getOwner();
+            if($owner->getEmail()) {
+                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $owner, $experience);
+            }
+        }
+
+        if($studentToDeregister->getEmail()) {
+            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
         }
 
         $this->entityManager->remove($deregisterStudentForExperience);

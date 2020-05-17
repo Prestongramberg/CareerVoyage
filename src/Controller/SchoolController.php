@@ -1245,6 +1245,7 @@ class SchoolController extends AbstractController
      * @param Request $request
      * @param SchoolExperience $experience
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function schoolExperienceDeregisterAction(Request $request, SchoolExperience $experience) {
         $userIdToDeregister = $request->request->get('userId');
@@ -1252,18 +1253,46 @@ class SchoolController extends AbstractController
 
         $deregisterUserForExperience = $this->userRegisterForSchoolExperienceRequestRepository->getByUserAndExperience($userToDeregister, $experience);
 
-        if ($userToDeregister->isStudent()) {
-            $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
-        } else if ($userToDeregister->isProfessional()) {
-            $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() + 1);
-        }
-
         $registration = $this->registrationRepository->getByUserAndExperience($userToDeregister, $experience);
 
-        $this->entityManager->remove($deregisterUserForExperience);
-        $this->entityManager->remove($registration);
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
+        if($registration) {
+            if ($userToDeregister->isStudent()) {
+                /** @var StudentUser $userToDeregister */
+                $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
+
+                if($userToDeregister->getEmail()) {
+                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
+                }
+
+                foreach($userToDeregister->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
+                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
+                }
+
+                foreach($userToDeregister->getEducatorUsers() as $educatorUser) {
+                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $educatorUser, $experience);
+                }
+
+
+
+            } else if ($userToDeregister->isProfessional()) {
+
+                if($userToDeregister->getEmail()) {
+                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
+                }
+
+                foreach($experience->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
+                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
+                }
+
+                $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() + 1);
+            }
+
+            $this->entityManager->remove($deregisterUserForExperience);
+            $this->entityManager->remove($registration);
+            $this->entityManager->persist($experience);
+            $this->entityManager->flush();
+        }
+
         $this->addFlash('success', 'User has been removed from this experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }

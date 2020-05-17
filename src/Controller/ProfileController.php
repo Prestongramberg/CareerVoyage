@@ -59,11 +59,12 @@ class ProfileController extends AbstractController
         $user = $this->getUser();
         $dashboards = [];
 
+        $this->denyAccessUnlessGranted('view', $profileUser);
+
         if ($profileUser->isStudent()) {
 
             // $this->denyAccessUnlessGranted('view', $profileUser);
             $educators = $profileUser->getEducatorUsers();
-            if ($educators->contains($user) || $profileUser == $user) {
                 /** @var StudentUser $user */
                 $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
                 $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
@@ -108,9 +109,6 @@ class ProfileController extends AbstractController
                         ];
                     }
                 }
-            } else {
-                $this->denyAccessUnlessGranted('view', $profileUser);
-            }
         }
 
         return $this->render('profile/index.html.twig', [

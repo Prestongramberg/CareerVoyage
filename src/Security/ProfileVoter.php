@@ -114,6 +114,7 @@ class ProfileVoter extends Voter
             }
 
             return (
+                ( $user->isEducator() && $user->getStudentUsers()->contains($userToVoteOn) ) ||
                 ( $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() ) ||
                 ( $user->isStateCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getState()->getId() === $userToVoteOn->getSchool()->getState()->getId() ) ||
                 ( $user->isRegionalCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getRegion()->getId() === $userToVoteOn->getSchool()->getRegion()->getId() ) ||
@@ -137,7 +138,7 @@ class ProfileVoter extends Voter
         }
 
         /** @var StudentUser $userToVoteOn */
-        if ( $userToVoteOn->isStudent() ) {
+        if ( $userToVoteOn->isEducator() || $userToVoteOn->isStudent() ) {
             $possibleSchoolIds = [];
             if($user->isSchoolAdministrator()) {
                 foreach($user->getSchools() as $school) {
@@ -146,6 +147,7 @@ class ProfileVoter extends Voter
             }
 
             return (
+                ( $user->isEducator() && $user->getStudentUsers()->contains($userToVoteOn) ) ||
                 ( $user->isSiteAdmin() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() ) ||
                 ( $user->isStateCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getState()->getId() === $userToVoteOn->getSchool()->getState()->getId() ) ||
                 ( $user->isRegionalCoordinator() && $user->getSite() && $user->getSite()->getId() === $userToVoteOn->getSite()->getId() && $user->getRegion()->getId() === $userToVoteOn->getSchool()->getRegion()->getId() ) ||

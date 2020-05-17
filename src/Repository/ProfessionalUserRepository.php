@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ProfessionalUser;
+use App\Entity\Region;
 use App\Entity\StudentUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -120,5 +121,33 @@ class ProfessionalUserRepository extends ServiceEntityRepository
             ->setParameter('ids', $professionalIds)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param Region $region
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByRegion(Region $region) {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, pu.phone, c.name as company,
+          IF(c.owner_id = u.id, "YES", "NO") as company_owner,
+          CASE WHEN c.owner_id = u.id THEN c.street ELSE NULL END as street,
+          CASE WHEN c.owner_id = u.id THEN c.city ELSE NULL END as city,
+          CASE WHEN c.owner_id = u.id THEN s.name ELSE NULL END as state,
+          CASE WHEN c.owner_id = u.id THEN c.zipcode ELSE NULL END as zipcode
+          FROM user u 
+          INNER JOIN professional_user pu on u.id = pu.id 
+          INNER JOIN professional_user_school pus on pus.professional_user_id = u.id
+          INNER JOIN school sc on sc.id = pus.school_id
+          INNER JOIN region r on r.id = sc.region_id
+          LEFT JOIN company c on pu.company_id = c.id
+          LEFT JOIN state s on c.state_id = s.id
+          WHERE r.id = "%s"', $region->getId());
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 }

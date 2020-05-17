@@ -4,6 +4,7 @@ namespace App\Mailer;
 
 use App\Entity\Company;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\Experience;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\StudentToMeetProfessionalRequest;
@@ -313,5 +314,22 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
         $this->mailer->send($message);
+    }
+
+    public function userDeregisterFromEvent(User $deregisteredUser, User $userToSendEmailTo, Experience $experience) {
+
+        $message = (new \Swift_Message(sprintf("User %s %s de-registered from event %s", $deregisteredUser->getFirstName(), $deregisteredUser->getLastName(), $experience->getTitle())))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($userToSendEmailTo->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/experience/experienceDeregister.html.twig',
+                    ['experience' => $experience, 'user' => $userToSendEmailTo, 'deregisteredUser' => $deregisteredUser]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+
     }
 }

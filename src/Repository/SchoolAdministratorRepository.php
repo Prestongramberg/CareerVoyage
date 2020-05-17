@@ -101,4 +101,29 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param Region $region
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByRegion(Region $region) {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email,
+        (
+        SELECT GROUP_CONCAT(s.name SEPARATOR \',\') from school s INNER JOIN school_school_administrator ssa WHERE s.id = ssa.school_id
+        AND ssa.school_administrator_id = u.id
+        ) AS schools
+        FROM user u 
+        INNER JOIN school_administrator sa on u.id = sa.id 
+        INNER JOIN school_school_administrator ssa on sa.id = ssa.school_administrator_id
+        INNER JOIN school sc on sc.id = ssa.school_id
+        INNER JOIN region r on r.id = sc.region_id
+        WHERE r.id = "%s"', $region->getId());
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

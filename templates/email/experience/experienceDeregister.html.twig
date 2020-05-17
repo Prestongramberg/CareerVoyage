@@ -1,0 +1,5 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : user.firstName } %}
+
+<p>User {{ deregisteredUser.firstName }} {{ deregisteredUser.lastName }} has de-registered from the following event: <strong>{{ experience.title }}</strong></p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

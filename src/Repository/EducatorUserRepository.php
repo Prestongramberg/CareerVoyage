@@ -132,4 +132,24 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param Region $region
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByRegion(Region $region) {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, eu.phone, sc.name
+          FROM user u 
+          INNER JOIN educator_user eu on u.id = eu.id 
+          INNER JOIN school sc on sc.id = eu.school_id
+          INNER JOIN region r on r.id = sc.region_id
+          WHERE r.id = "%s"', $region->getId());
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
