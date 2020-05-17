@@ -2,32 +2,30 @@ import * as actionTypes from "../actions/actionTypes";
 
 export default (state = {}, action) => {
     switch (action.type) {
-        case actionTypes.PROFESSIONALS_LOADING:
+        case actionTypes.USERS_LOADING :
             return {
                 ...state,
                 loading: true
             };
-        case actionTypes.PROFESSIONALS_LOADING_SUCCESS:
-        case actionTypes.PROFESSIONALS_LOADING_FAILURE:
+        case actionTypes.USERS_LOADING_SUCCESS:
             return {
                 ...state,
                 loading: false
             };
-        case actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED:
+        case actionTypes.NOTIFY_BUTTON_CLICKED:
             return {
                 ...state,
-                industry: action.industry,
-                secondaryIndustry: ''
+                showModal: true
             };
-        case actionTypes.SECONDARY_INDUSTRY_QUERY_CHANGED:
+        case actionTypes.CLOSE_BUTTON_CLICKED:
             return {
                 ...state,
-                secondaryIndustry: action.industry
+                showModal: false
             };
-        case actionTypes.COMPANY_QUERY_CHANGED:
+        case actionTypes.NOTIFICATIONS_SENT:
             return {
                 ...state,
-                company: action.company
+                showModal: false
             };
         default:
             return state;

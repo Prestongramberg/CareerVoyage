@@ -2,6 +2,7 @@
 
 namespace App\Mailer;
 
+use App\Entity\Experience;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\SiteAdminUser;
@@ -25,6 +26,24 @@ class NotificationsMailer extends AbstractMailer
                 $this->templating->render(
                     'email/feedback/notify_company_owner_of_school_event.html.twig',
                     ['user' => $user, 'experience' => $schoolExperience, 'url' => $url, 'customMessage' => $customMessage]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+
+    public function notifyUserOfEvent(User $user, Experience $experience, $customMessage = '') {
+
+        $url = $this->router->generate('experience_view', ['id' => $experience->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $message = (new \Swift_Message('Event You Might Be Interested In!'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/experience/notify_user_of_event.html.twig',
+                    ['user' => $user, 'experience' => $experience, 'url' => $url, 'customMessage' => $customMessage]
                 ),
                 'text/html'
             );

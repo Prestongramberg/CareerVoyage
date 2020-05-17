@@ -1,9 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
 import { onNotifyButtonClick, onFormSubmit, closeModal, onSelectFieldChange, onTextareaFieldChange, updateCompanyQuery, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery } from './actions/actionCreators'
-import PropTypes from "prop-types";
 import Modal from 'react-modal';
-import ProfessionalListing from "../../components/ProfessionalListing/ProfessionalListing";
 import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
@@ -25,8 +23,8 @@ class App extends React.Component {
 
     notifyButton() {
         return (
-            <a className="uk-button uk-button-danger uk-button-small alert alert-primary" role="alert" onClick={this.props.onNotifyButtonClick}>
-                Notify Professionals of Event
+            <a className="uk-button uk-button-danger uk-button-small alert alert-primary" role="alert" onClick={(event) => {this.props.onNotifyButtonClick(event, this.props.form.url) }}>
+                {this.props.ui.title}
             </a>
         )
     }
@@ -39,7 +37,7 @@ class NotificationModal extends React.Component {
         super();
 
         const methods = [
-            "renderCompanyDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown", "getRelevantProfessionals"
+            "renderCompanyDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown", "getRelevantUsers"
         ];
 
         methods.forEach(method => (this[method] = this[method].bind(this)));
@@ -57,7 +55,7 @@ class NotificationModal extends React.Component {
                 overlayClassName="react-modal"
             >
 
-                <h2>Notify Professionals of School event</h2>
+                <h2>{this.props.ui.title}</h2>
                 <br />
 
                 { this.renderCompanyDropdown() }
@@ -68,9 +66,9 @@ class NotificationModal extends React.Component {
                     <span aria-hidden="true">&times;</span>
                 </button>
 
-                <form className="form-inline" onSubmit={(event) => { this.props.onFormSubmit(event, window.Routing.generate('school_notify_professionals', {id: this.props.experienceId})) }}>
+                <form className="form-inline" onSubmit={(event) => { this.props.onFormSubmit(event, window.Routing.generate('experience_notify_users', {id: this.props.experienceId})) }}>
 
-                    <div className="professional-listings">
+                    <div className="user-listings">
 
                         { (this.props.ui.loading) && (
                             <div className="uk-width-1-1 uk-align-center">
@@ -78,18 +76,17 @@ class NotificationModal extends React.Component {
                             </div>
                         )}
 
-                        <label>Available Professionals</label>
-                        {this.getRelevantProfessionals().length > 0 ? (
+                        {this.getRelevantUsers().length > 0 ? (
 
-                            <select name="professionals[]" className="uk-select" multiple="multiple" onChange={this.props.onSelectFieldChange}>
+                            <select name="users[]" className="uk-select" multiple="multiple" onChange={this.props.onSelectFieldChange}>
                                 {
-                                    this.getRelevantProfessionals().map(professional => (
-                                        <option value={professional.id}>{professional.firstName} {professional.lastName}</option>
+                                    this.getRelevantUsers().map(user => (
+                                        <option value={user.id}>{user.firstName} {user.lastName}</option>
                                     ))
                                 }
                             </select>
                             ) : (
-                                <p>No professionals were found.  Please try again later.</p>
+                                <p>No users were found.  Please try again later.</p>
                             )
                         }
                     </div>
@@ -108,28 +105,28 @@ class NotificationModal extends React.Component {
     }
 
 
-    getRelevantProfessionals () {
+    getRelevantUsers () {
 
-        return this.props.professionals.filter(professional => {
+        return this.props.users.filter(user => {
 
             // Filter By Company
             if ( !!this.props.search.company && (
-                ( !professional.company ) ||
-                ( professional.company && parseInt(professional.company.id ) !== parseInt( this.props.search.company ) )
+                ( !user.company ) ||
+                ( user.company && parseInt(user.company.id ) !== parseInt( this.props.search.company ) )
             ) ) {
                 return false;
             }
 
             // Filter By Industry
             if (
-                ( !!this.props.search.industry && !professional.primaryIndustry ) ||
-                ( !!this.props.search.industry && parseInt(professional.primaryIndustry.id ) !== parseInt( this.props.search.industry ) )
+                ( !!this.props.search.industry && !user.primaryIndustry ) ||
+                ( !!this.props.search.industry && parseInt(user.primaryIndustry.id ) !== parseInt( this.props.search.industry ) )
             ) {
                 return false;
             }
 
             // Filter By Sub Industry
-            if ( !!this.props.search.secondaryIndustry && professional.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
+            if ( !!this.props.search.secondaryIndustry && user.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
                 return false;
             }
 
@@ -214,20 +211,20 @@ App.defaultProps = {};
 export const mapStateToProps = (state = {}) => ({
     companies: state.companies,
     industries: state.industries,
-    professionals: state.professionals,
+    users: state.users,
     roles: state.roles,
     search: state.search,
     ui: state.ui,
+    form: state.form,
     experienceId: state.experienceId
 });
 
 export const mapDispatchToProps = dispatch => ({
-    loadProfessionals: (url) => dispatch(loadProfessionals(url)),
     updateCompanyQuery: (event) => dispatch(updateCompanyQuery(event.target.value)),
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
-    onNotifyButtonClick: (event) => dispatch(onNotifyButtonClick(event, window.Routing.generate('get_professionals'))),
+    onNotifyButtonClick: (event, url) => dispatch(onNotifyButtonClick(event, url)),
     onFormSubmit: (event, url) => dispatch(onFormSubmit(event, url)),
     onSelectFieldChange: (event) => dispatch(onSelectFieldChange(event)),
     onTextareaFieldChange: (event) => dispatch(onTextareaFieldChange(event)),

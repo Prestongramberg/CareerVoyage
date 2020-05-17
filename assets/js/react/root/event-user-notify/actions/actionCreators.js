@@ -24,30 +24,34 @@ export function updateSecondaryIndustryQuery(industry) {
 
 export function onNotifyButtonClick(event, url) {
 
+    debugger;
+
     return (dispatch, getState) => {
 
-        dispatch({type: actionTypes.PROFESSIONALS_LOADING})
+        dispatch({type: actionTypes.USERS_LOADING })
         dispatch({type: actionTypes.NOTIFY_BUTTON_CLICKED})
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    dispatch({type: actionTypes.PROFESSIONALS_LOADING_SUCCESS, response: response.responseBody})
+                    dispatch({type: actionTypes.USERS_LOADING_SUCCESS, response: response.responseBody})
                 }  else {
                      dispatch({
-                         type: actionTypes.PROFESSIONALS_LOADING_FAILURE
+                         type: actionTypes.USERS_LOADING_FAILURE
                      })
                 }
             })
             .catch(()=> dispatch({
-                type: actionTypes.PROFESSIONALS_LOADING_FAILURE
+                type: actionTypes.USERS_LOADING_FAILURE
             }));
     }
 }
 
 export function onFormSubmit(event, url) {
+    debugger;
     event.preventDefault();
     return (dispatch, getState) => {
         const { form }  = getState();
+        debugger;
         return api.post(url, form)
             .then((response) => {
                 if (response.statusCode < 300) {
@@ -57,12 +61,12 @@ export function onFormSubmit(event, url) {
                     })
                 }  else {
                     dispatch({
-                        type: actionTypes.PROFESSIONALS_LOADING_FAILURE
+                        type: actionTypes.USERS_LOADING_FAILURE
                     })
                 }
             })
             .catch(()=> dispatch({
-                type: actionTypes.PROFESSIONALS_LOADING_FAILURE
+                type: actionTypes.USERS_LOADING_FAILURE
             }));
     }
 }
@@ -79,7 +83,7 @@ export function onSelectFieldChange(event) {
 
     return {
         type: actionTypes.SELECT_FIELD_CHANGED,
-        professionals: value
+        users: value
     };
 }
 

@@ -67,8 +67,14 @@
                             </div>
                         </div>
                         <br>
-                        <div id="event-professional-notify" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+                        <div class="event-users-notify" data-url="{{ path('get_professionals') }}" data-title="Notify Professionals Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+
                     {% endif %}
+
+                    {% if user.educator and user.school %}
+                        <div class="event-users-notify" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+                    {% endif %}
+
                 </div>
             </div>
         </div>

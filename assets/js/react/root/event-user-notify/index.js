@@ -6,13 +6,13 @@ import thunk from 'redux-thunk';
 import reducers from "./reducers";
 import App from "./App";
 
-const eventProfessionalNotify = document.getElementById("event-professional-notify");
 
-if(eventProfessionalNotify) {
+document.querySelectorAll('.event-users-notify').forEach(function(eventNotificationContainer) {
 
-    debugger;
-    const user = JSON.parse( eventProfessionalNotify.getAttribute("data-user") ) || {};
-    const experienceId = JSON.parse( eventProfessionalNotify.getAttribute("data-experienceId") ) || null;
+    const user = JSON.parse( eventNotificationContainer.getAttribute("data-user") ) || {};
+    const experienceId = JSON.parse( eventNotificationContainer.getAttribute("data-experienceId") ) || null;
+    const title = eventNotificationContainer.getAttribute("data-title") || "";
+    const url = eventNotificationContainer.getAttribute("data-url");
 
     const store = createStore(
         reducers,
@@ -20,7 +20,7 @@ if(eventProfessionalNotify) {
             experienceId: experienceId,
             companies: [],
             industries: [],
-            professionals: [],
+            users: [],
             search: {
                 company: '',
                 industry: '',
@@ -30,11 +30,13 @@ if(eventProfessionalNotify) {
                 secondaryIndustry: ''
             },
             ui: {
-                showModal: false
+                showModal: false,
+                title: title
             },
             form: {
                 professionals: [],
-                customMessage: ''
+                customMessage: '',
+                url: url
             }
         },
         compose(
@@ -50,9 +52,11 @@ if(eventProfessionalNotify) {
                      experience={experienceId}
                 />
             </Provider>,
-            document.getElementById("event-professional-notify")
+            eventNotificationContainer
         );
     };
     render();
     store.subscribe(render);
-}
+
+});
+

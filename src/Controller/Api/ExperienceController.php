@@ -288,4 +288,36 @@ class ExperienceController extends AbstractController
             Response::HTTP_OK
         );
     }
+
+    /**
+     * @Route("/experiences/{id}/notify", name="experience_notify_users", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param Experience $experience
+     * @return JsonResponse
+     */
+    public function experienceNotifyUsersAction(Request $request, Experience $experience) {
+
+        $userIds = $request->request->get('users');
+
+        if(empty($userIds)) {
+            return $this->json([
+                'message' => 'You must select at least one user to notify'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $customMessage = $request->request->get('customMessage', '');
+
+        $users = $this->userRepository->findBy([
+            'id' => $userIds
+        ]);
+
+        /** @var User $user */
+        foreach($users as $user) {
+            $this->notificationsMailer->notifyUserOfEvent($user, $experience, $customMessage);
+        }
+
+        return $this->json([
+            'message' => 'Notifications successfully sent out.'
+        ], Response::HTTP_OK);
+    }
 }

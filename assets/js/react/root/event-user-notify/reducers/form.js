@@ -6,7 +6,7 @@ export default (state = {}, action) => {
         case actionTypes.SELECT_FIELD_CHANGED:
             return {
                 ...state,
-                professionals: action.professionals
+                users: action.users
             };
         case actionTypes.TEXTAREA_FIELD_CHANGED:
             return {
