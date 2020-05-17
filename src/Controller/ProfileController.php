@@ -59,8 +59,6 @@ class ProfileController extends AbstractController
         $user = $this->getUser();
         $dashboards = [];
 
-        $this->denyAccessUnlessGranted('view', $profileUser);
-
         if ($profileUser->isStudent()) {
 
             // $this->denyAccessUnlessGranted('view', $profileUser);
