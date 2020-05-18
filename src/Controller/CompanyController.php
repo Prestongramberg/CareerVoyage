@@ -986,7 +986,11 @@ class CompanyController extends AbstractController
      * @Route("/companies/experiences/{id}/remove", name="company_experience_remove", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience
+     * @param LoggerInterface $logger
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function experienceRemoveAction(Request $request, CompanyExperience $experience, LoggerInterface $logger) {
 

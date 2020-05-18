@@ -1177,20 +1177,24 @@ class SchoolController extends AbstractController
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
         /** @var User $user */
         $user = $this->getUser();
+
+        $userIdToRegister = $request->request->get('userId');
+        $userToRegister = $this->userRepository->find($userIdToRegister);
+
         $request = $this->userRegisterForSchoolExperienceRequestRepository->findOneBy([
-            'user' => $user,
+            'user' => $userToRegister,
             'schoolExperience' => $experience
         ]);
         if($request) {
             $this->addFlash('error', 'Registration request already sent for this event.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
-        if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
+        if($userToRegister->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
             $this->addFlash('error', 'Could not register for event. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
-        if($user->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+        if($userToRegister->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
             $this->addFlash('error', 'Could not register for event. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
@@ -1198,7 +1202,7 @@ class SchoolController extends AbstractController
         $registerRequest->setCreatedBy($user);
         $registerRequest->setNeedsApprovalBy($experience->getSchoolContact());
         $registerRequest->setSchoolExperience($experience);
-        $registerRequest->setUser($user);
+        $registerRequest->setUser($userToRegister);
         $this->entityManager->persist($registerRequest);
         $this->entityManager->flush();
         $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
