@@ -49,6 +49,48 @@
                                  data-description="{{ request.teachLessonExperience.briefDescription }}"
                                  data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
                             ></div>
+
+                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-change-date-{{ request.teachLessonExperience.id }}" uk-toggle>Change Date</a>
+                            <br>
+                            <div id="modal-change-date-{{ request.teachLessonExperience.id }}" uk-modal>
+                                <div class="uk-modal-dialog uk-modal-body">
+                                    <h3>Change Date of Event</h3>
+                                    <form class="uk-inline" action="{{ path('experience_teach_lesson_event_change_date', { "id": request.teachLessonExperience.id }) }}" method="POST">
+
+                                        <label class="uk-form-label">New Date.</label>
+                                        <input class="uk-timepicker uk-input" name="newStartDate" type="text">
+                                        <input class="uk-timepicker uk-input" name="newEndDate" type="text">
+
+                                        <label>Custom Message</label>
+                                        <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                                        <p>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <br>
+
+                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Event</a>
+                            <br>
+                            <div id="modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-modal>
+                                <div class="uk-modal-dialog uk-modal-body">
+                                    <h3>Cancel Event</h3>
+                                    <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
+
+                                        <label>Custom Message</label>
+                                        <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                                        <p>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 {% endif %}
@@ -80,6 +122,15 @@
                         <td>Initiated By</td>
                         <td>
                             {{ request.createdBy.firstName }} {{ request.createdBy.lastName }}
+                            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                                <button class="uk-inline uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ request.createdBy.id }}">Chat</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Reschedule Date</td>
+                        <td>
+                            Please click the chat button below to reach out to the educator to reschedule this event.
                             {% if user_can_chat_with_user( user, request.createdBy ) %}
                                 <button class="uk-inline uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ request.createdBy.id }}">Chat</button>
                             {% endif %}
@@ -118,6 +169,25 @@
                                  data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
                             ></div>
                         {% endif %}
+
+                                <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Event</a>
+                                <br>
+                                <div id="modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        <h3>Cancel Event</h3>
+                                        <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
+
+                                            <label>Custom Message</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                                            <p>
+                                                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                                <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                                            </p>
+                                        </form>
+                                    </div>
+                                </div>
+
                             </td>
                         </tr>
                     {% endif %}

@@ -13,6 +13,7 @@ use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
+use App\Entity\TeachLessonExperience;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -30,6 +31,7 @@ use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -319,5 +321,72 @@ class ExperienceController extends AbstractController
         return $this->json([
             'message' => 'Notifications successfully sent out.'
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/experiences/{id}/teach-lesson-event-change-date", name="experience_teach_lesson_event_change_date", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param TeachLessonExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function experienceTeachLessonEventChangeDateAction(Request $request, TeachLessonExperience $experience) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $newStartDate = $request->request->get('newStartDate');
+        $newStartDate = DateTime::createFromFormat('m/d/Y g:i A', $newStartDate);
+
+        $newEndDate = $request->request->get('newEndDate');
+        $newEndDate = DateTime::createFromFormat('m/d/Y g:i A', $newEndDate);
+
+        $customMessage = $request->request->get('customMessage');
+
+        $experience->setStartDateAndTime($newStartDate);
+        $experience->setEndDateAndTime($newEndDate);
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+
+        if($experience->getTeacher()) {
+            $this->notificationsMailer->notifyUserOfEventDateChange($experience->getTeacher(), $experience, $customMessage);
+        }
+
+        if($user->getEmail()) {
+            $this->notificationsMailer->notifyUserOfEventDateChange($user, $experience, $customMessage);
+        }
+
+        $this->addFlash('success', 'Date successfully changed. Professional will be notified.');
+
+        return $this->redirectToRoute('requests');
+
+    }
+
+    /**
+     * @Route("/experiences/{id}/teach_lesson_event_delete", name="experience_teach_lesson_event_delete", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param Experience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function experienceTeachLessonEventDeleteAction(Request $request, TeachLessonExperience $experience) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $this->entityManager->remove($experience);
+        $this->entityManager->flush();
+
+        $customMessage = $request->request->get('customMessage');
+
+        if($experience->getTeacher()) {
+            $this->notificationsMailer->notifyUserOfEventCancellation($experience->getTeacher(), $experience, $customMessage);
+        }
+
+        if($user->getEmail()) {
+            $this->notificationsMailer->notifyUserOfEventCancellation($user, $experience, $customMessage);
+        }
+
+        $this->addFlash('success', 'Event successfully cancelled. Professional will be notified.');
+
+        return $this->redirectToRoute('requests');
     }
 }

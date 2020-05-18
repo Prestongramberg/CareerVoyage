@@ -50,4 +50,37 @@ class NotificationsMailer extends AbstractMailer
 
         $this->mailer->send($message);
     }
+
+    public function notifyUserOfEventDateChange(User $user, Experience $experience, $customMessage = '') {
+
+        $url = $this->router->generate('experience_view', ['id' => $experience->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $message = (new \Swift_Message('Event Date Changed.'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/experience/notify_user_of_event.html.twig',
+                    ['user' => $user, 'experience' => $experience, 'url' => $url, 'customMessage' => $customMessage]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    public function notifyUserOfEventCancellation(User $user, Experience $experience, $customMessage = '') {
+
+        $message = (new \Swift_Message('Event Cancellation Notice!'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/experience/notify_user_of_event_cancellation.html.twig',
+                    ['user' => $user, 'experience' => $experience, 'customMessage' => $customMessage]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
 }
