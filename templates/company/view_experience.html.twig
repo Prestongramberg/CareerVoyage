@@ -18,6 +18,19 @@
                 <h3 class="uk-margin-remove-top">{{ experience.title }}</h3>
                 <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
+
+
+                {% if user.educator %}
+                    <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Live Feedback URL</a>
+                    <br>
+                    <div id="modal-remove-company-event" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body">
+                            <h3>Live Fedback URL</h3>
+                            {{ url('experience_feedback', {'id' : experience.id}) }}
+                        </div>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
 

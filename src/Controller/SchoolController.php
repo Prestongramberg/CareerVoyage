@@ -183,6 +183,44 @@ class SchoolController extends AbstractController
             $this->entityManager->persist($school);
             $this->entityManager->flush();
 
+
+            $zipcode = $school->getZipcode();
+            $radius = 50;
+            $lng = null;
+            $lat = null;
+
+            if($zipcode &&  $coordinates = $this->geocoder->geocode($zipcode)) {
+                $lng = $coordinates['lng'];
+                $lat = $coordinates['lat'];
+                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+                $professionals = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+                $professionalIds = [];
+                foreach($professionals as $professional) {
+                    $professionalIds[] = $professional['id'];
+                }
+                $professionals = $this->professionalUserRepository->getByArrayOfIds($professionalIds);
+
+                /** @var ProfessionalUser $professional */
+                foreach($professionals as $professional) {
+                    $professional->addSchool($school);
+                }
+
+
+                $companies = $this->companyRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+                $companyIds = [];
+                foreach($companies as $company) {
+                    $companyIds[] = $company['id'];
+                }
+                $companies = $this->companyRepository->getByArrayOfIds($companyIds);
+
+                /** @var Company $company */
+                foreach($companies as $company) {
+                    $company->addSchool($school);
+                }
+            }
+
+            $this->entityManager->flush();
+
             $this->addFlash('success', 'School successfully created.');
             return $this->redirectToRoute('school_new');
         }
@@ -364,7 +402,7 @@ class SchoolController extends AbstractController
 		}
         $form = $this->createForm(ChatFilterType::class, null, [
             'action' => $this->generateUrl('school_chat', ['id' => $school->getId()]),
-            'method' => 'GET'
+            'method' => 'GET',
         ]);
 
         $form->handleRequest($request);
@@ -417,7 +455,7 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(ChatMessageFilterType::class, null, [
             'action' => $this->generateUrl('school_chat_messages', ['id' => $school->getId(), 'chatId' => $chat->getId()]),
-            'method' => 'GET'
+            'method' => 'GET',
         ]);
 
         $form->handleRequest($request);
@@ -444,7 +482,7 @@ class SchoolController extends AbstractController
             'pagination' => $pagination,
             'chat' => $chat,
             'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('school_chat_messages', ['id' => $school->getId(), 'chatId' => $chat->getId()])
+            'clearFormUrl' => $this->generateUrl('school_chat_messages', ['id' => $school->getId(), 'chatId' => $chat->getId()]),
         ]);
     }
 
@@ -463,7 +501,7 @@ class SchoolController extends AbstractController
         return $this->render('school/view.html.twig', [
             'user' => $user,
             'school' => $school,
-	        'volunteeringCompanies' => $volunteeringCompanies
+	        'volunteeringCompanies' => $volunteeringCompanies,
         ]);
     }
 
@@ -483,7 +521,7 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(StudentImportType::class, null, [
             'method' => 'POST',
-            'school' => $school
+            'school' => $school,
         ]);
 
         $form->handleRequest($request);
@@ -529,7 +567,7 @@ class SchoolController extends AbstractController
                 if(!empty($student['Educator Number'])) {
                     $educator = $this->educatorUserRepository->findOneBy([
                         'id' => $student['Educator Number'],
-                        'school' => $school
+                        'school' => $school,
                     ]);
                     if($educator) {
                         $studentObj->addEducatorUser($educator);
@@ -627,7 +665,7 @@ class SchoolController extends AbstractController
 
                 $email = $educator['Email'];
                 $existingUser = $this->userRepository->findOneBy([
-                    'email' => $email
+                    'email' => $email,
                 ]);
 
                 $usernameToFind = strtolower($educator['First Name'] . '.' . $educator['Last Name']);
@@ -1086,7 +1124,7 @@ class SchoolController extends AbstractController
             'school' => $school,
             'form' => $form->createView(),
             'user' => $user,
-	        'experience' => $experience
+	        'experience' => $experience,
         ]);
     }
 
@@ -1140,7 +1178,7 @@ class SchoolController extends AbstractController
         $customMessage = $request->request->get('customMessage', '');
 
         $companies = $this->companyRepository->findBy([
-            'id' => $companyIds
+            'id' => $companyIds,
         ]);
 
         /** @var Company $company */
@@ -1164,7 +1202,7 @@ class SchoolController extends AbstractController
         return $this->render('school/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
-            'school' => $experience->getSchool()
+            'school' => $experience->getSchool(),
         ]);
     }
 
@@ -1183,7 +1221,7 @@ class SchoolController extends AbstractController
 
         $request = $this->userRegisterForSchoolExperienceRequestRepository->findOneBy([
             'user' => $userToRegister,
-            'schoolExperience' => $experience
+            'schoolExperience' => $experience,
         ]);
         if($request) {
             $this->addFlash('error', 'Registration request already sent for this event.');

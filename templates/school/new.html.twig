@@ -28,6 +28,11 @@
                     {{ form_errors(form.name) }}
                 </div>
                 <div class="uk-margin">
+                    {{ form_label(form.zipcode, 'Zipcode*') }}
+                    {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.zipcode) }}
+                </div>
+                <div class="uk-margin">
                     <button class="uk-button uk-button-primary uk-button-small" type="submit">Create School</button>
                 </div>
             </fieldset>

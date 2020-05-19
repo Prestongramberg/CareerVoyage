@@ -121,7 +121,7 @@ class School
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"EDIT"})
+     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
