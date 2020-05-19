@@ -1,0 +1,34 @@
+.global-share {
+
+  &__heading {
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  &__scrollable {
+    background: #eee;
+    border: 1px solid #777;
+    height: 300px;
+    overflow: auto;
+    padding: 0;
+  }
+
+  &__user-add {
+    padding: 3px 6px;
+
+    &:hover {
+      background-color: #1e87f0;
+      color: #FFF;
+    }
+  }
+
+  &__user-remove {
+    padding: 3px 6px;
+
+    &:hover {
+      background-color: #f0506e;
+      color: #FFF;
+    }
+  }
+}

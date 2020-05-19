@@ -8,6 +8,7 @@ require('./form-range');
 require('./form-rating');
 require('./form-smile-rating');
 require('./gauge-chart');
+require('./global-share');
 require('./google-map');
 require('./horizontal-bar-chart');
 require('./schools-select-by-radius');

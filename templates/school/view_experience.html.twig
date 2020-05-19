@@ -36,11 +36,15 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
+                    <div class="react-global-share"
+                         data-user="{{ encode_user(user) }}"
+                         data-message="Check out this upcoming event: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                        Share this Event
+                    </div>
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
 
                         <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Notify Companies of Event</a>
-                        <br>
                         <div id="modal-remove-company-event" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
                                 <h3>Notify Companies of Event</h3>
@@ -66,13 +70,12 @@
                                 </form>
                             </div>
                         </div>
-                        <br>
-                        <div class="event-users-notify" data-url="{{ path('get_professionals') }}" data-title="Notify Professionals Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+                        <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_professionals') }}" data-title="Notify Professionals Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
 
                     {% endif %}
 
                     {% if user.educator and user.school %}
-                        <div class="event-users-notify" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+                        <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
                     {% endif %}
 
                 </div>
@@ -89,7 +92,9 @@
                 <li><a href="#experience-attachments">Event Documents</a></li>
             {% endif %}
             <li><a href="#experience-registrations">Registrations</a></li>
+            {% if user.isEducator %}
             <li><a href="#available-students-to-register">Available Students To Register</a></li>
+            {% endif %}
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
         <div class="uk-switcher" id="tab-experience">
@@ -166,7 +171,7 @@
             {% endif %}
             <div class="experience_registrations">
                 <h3>Students</h3>
-                <div class="uk-width-xlarge">
+                <div class="uk-width-1">
                     {% for request in experience.userRegisterForSchoolExperienceRequests %}
                     {% set showPendingRegisterButton = true %}
                         {% if request.user.student %}
@@ -185,23 +190,20 @@
                                 <div class="uk-width-expand">
                                     <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
                                 </div>
-                                {% if is_granted('view', request.user) %}
-                                    <div class="uk-width-auto">
-                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                                    </div>
-                                {% endif %}
-
-                                {% if showPendingRegisterButton == false %}
-                                    {% if is_granted('edit', request.user) %}
-                                        <div class="uk-width-auto">
-                                            <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                                                <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                                <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
-                                            </form>
-                                        </div>
+                                <div class="uk-width-auto">
+                                    {% if is_granted('view', request.user) %}
+                                            <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                     {% endif %}
-                                {% endif %}
 
+                                    {% if showPendingRegisterButton == false %}
+                                        {% if is_granted('edit', request.user) %}
+                                                <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                    <input type="hidden" name="userId" value="{{ request.user.id }}">
+                                                    <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                                </form>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
                             </div>
                             <hr>
                         {% endif %}
@@ -209,7 +211,7 @@
                 </div>
 
                 <h3>Professionals</h3>
-                <div class="uk-width-xlarge">
+                <div class="uk-width-1">
                     {% for request in experience.userRegisterForSchoolExperienceRequests %}
                         {% if request.user.professional %}
 
@@ -232,19 +234,17 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+
+                                    {% if showPendingRegisterButton == false %}
+                                        {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
+                                            <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                <input type="hidden" name="userId" value="{{ request.user.id }}">
+                                                <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                            </form>
+                                        {% endif %}
+                                    {% endif %}
                                 </div>
                             </div>
-
-                            {% if showPendingRegisterButton == false %}
-                                {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
-                                    <div class="uk-width-auto">
-                                        <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                                            <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                            <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
-                                        </form>
-                                    </div>
-                                {% endif %}
-                            {% endif %}
                             <hr>
                         {% endif %}
                     {% endfor %}
@@ -252,7 +252,6 @@
             </div>
 
             {% if user.isEducator %}
-
 
             <div class="available_students_to_register">
                 <h3>Students</h3>
