@@ -28,7 +28,11 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> so others know more about you.</p>
+                        {% if user.briefBio %}
+                            {{ user.briefBio }}
+                        {% else %}
+                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> so others know more about you.</p>
+                        {% endif %}
                             <div class="professional-links">
                                 {% if user.email %}
                                     <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>

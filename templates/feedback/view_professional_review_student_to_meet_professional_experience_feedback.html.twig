@@ -1,0 +1,21 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}View Feedback{% endblock %}
+{% block bodyClass %}page-view-feedback{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <h2>Rate your overall experience in meeting with this student</h2>
+        {{ feedback.rating }}
+        <h2>Did the student show up?</h2>
+        {{ feedback.showUp }}
+        <h2>Student was on time</h2>
+        {{ feedback.providedCareerInsight }}
+        <h2>Student was polite, professional</h2>
+        {{ feedback.wasEnjoyableAndEngaging }}
+        <h2>Student was engaged, asked question</h2>
+        {{ feedback.learnSomethingNew }}
+        <h2>Any feedback, advice or comments for this student and supervising teacher?</h2>
+        {{ feedback.additionalFeedback }}
+    </div>
+{% endblock %}

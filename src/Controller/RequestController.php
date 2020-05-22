@@ -232,8 +232,8 @@ class RequestController extends AbstractController
                 $teachLessonExperience->setStartDateAndTime($date);
                 $teachLessonExperience->setEndDateAndTime($endDate);
                 $teachLessonExperience->setTitle(sprintf("
-                Lesson: %s for %s Class
-                ", $request->getLesson()->getTitle(), $request->getCreatedBy()->getFullName()));
+                Lesson: %s with Guest Instructor %s, %s in %s Class
+                ", $request->getLesson()->getTitle(), $needsApprovalBy->getFullName(), date_format($date,'F jS Y'), $request->getCreatedBy()->getFullName()));
                 $teachLessonExperience->setBriefDescription(sprintf("%s", $request->getLesson()->getShortDescription()));
                 $teachLessonExperience->setOriginalRequest($request);
 
@@ -390,16 +390,20 @@ class RequestController extends AbstractController
                     $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
                     $endDate->add(new DateInterval('PT2H'));
                     $request->setConfirmedDate($date);
+                    $descriptionDate = date_format($date,'F jS Y');
 
                     $experience = new StudentToMeetProfessionalExperience();
                     $experience->setOriginalRequest($request);
                     $experience->setStartDateAndTime($date);
                     $experience->setEndDateAndTime($endDate);
-                    $experience->setTitle(sprintf("Student %s to meet with Professional %s",
-                    $request->getNeedsApprovalBy()->getFullName(), $request->getCreatedBy()->getFullName()));
-                    $experience->setBriefDescription(sprintf("Student %s to meet with Professional %s for %s",
-                        $request->getNeedsApprovalBy()->getFullName(), $request->getCreatedBy()->getFullName(), $request->getReasonToMeet()->getName())
-                    );
+                    $experience->setTitle(sprintf("Student %s to meet with Professional %s for %s, %s",
+                        $request->getNeedsApprovalBy()->getFullName(),
+                        $request->getCreatedBy()->getFullName(),
+                        $request->getReasonToMeet()->getEventName(),
+                        $descriptionDate
+                    ));
+                    $experience->setBriefDescription("Student to meet Professional");
+
                     $experience->setOriginalRequest($request);
                     $this->entityManager->persist($experience);
                     // student registration for event

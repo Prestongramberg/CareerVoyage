@@ -2,13 +2,10 @@
 
 <p>Hi {{ user.firstName }},</p>
 
-<p>{{ experience.school.name }} has a school event we think you might be interested in.</p>
-
 <p>{{ message }}</p>
 
 <p>Location: <strong>{{ experience.street }} {{ experience.city }} {{ experience.state.abbreviation }} {{ experience.zipcode }}</strong>
 <p>When: <strong>{{ experience.startDateAndTime|date("F jS, Y h:i A") }}</strong></p>
-<p>Contact: <strong>{{ experience.phoneNumber }} {{ experience.email }}</strong></p>
 <p>Type: <strong>{{ experience.type }}</strong></p>
 <p>About:
 <p><strong>{{ experience.title }}</strong></p>
@@ -16,5 +13,8 @@
 </p>
 <a href="{{ url }}">Click for more details...</a>
 </p>
+
+<p>Sincerely,</p>
+<p><strong>{{ educator.firstName }} {{ educator.lastName }}</strong></p>
 
 {% include 'email/partial/emailFooter.html.twig' %}

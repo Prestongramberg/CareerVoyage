@@ -962,20 +962,13 @@ class CompanyController extends AbstractController
             $experience->setAvailableSpaces($experience->getAvailableSpaces() + 1);
         }
 
-        if($experience->getCompany()->getOwner()) {
-            /** @var ProfessionalUser $owner */
-            $owner = $experience->getCompany()->getOwner();
-            if($owner->getEmail()) {
-                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $owner, $experience);
-            }
-        }
-
-        if($studentToDeregister->getEmail()) {
-            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
-        }
+        $registration = $this->registrationRepository->getByUserAndExperience($studentToDeregister, $experience);
 
         $this->entityManager->remove($deregisterStudentForExperience);
         $this->entityManager->remove($deregisterRequest);
+        if ($registration) {
+            $this->entityManager->remove($registration);
+        }
         $this->entityManager->persist($experience);
         $this->entityManager->flush();
         $this->addFlash('success', 'Student has been removed from this experience.');
@@ -992,7 +985,7 @@ class CompanyController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function experienceRemoveAction(Request $request, CompanyExperience $experience, LoggerInterface $logger) {
+    public function experienceRemoveAction(Request $request, CompanyExperience $experience) {
 
         $company = $experience->getCompany();
         $this->denyAccessUnlessGranted('edit', $experience->getCompany());
@@ -1131,5 +1124,31 @@ class CompanyController extends AbstractController
 
             ], Response::HTTP_OK
         );
+    }
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/companies/experiences/{id}/students/forward", name="company_experience_bulk_notify", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience) {
+        $message = $request->get('message');
+        $students = $request->get('students');
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        foreach ($students as $student) {
+            
+            /** @var StudentUser $student */
+            $student = $this->studentUserRepository->find($student);
+            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+        }
+
+        $this->addFlash('success', 'Experience has been sent to students!');
+
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
 }

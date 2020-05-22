@@ -49,37 +49,138 @@
                 <div class="uk-align-right@l">
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
+                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-companies" uk-toggle>Notify Companies of Event</a>
+                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Event</a>
 
-                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Notify Companies of Event</a>
-                        <br>
-                        <div id="modal-remove-company-event" uk-modal>
+                        <div id="modal-notify-companies" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Notify Companies of Event</h3>
                                 <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
+                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
 
-                                    <label class="uk-form-label">Select Companies to Notify.</label>
+                                    <label class="uk-form-label">Select companies to notify:</label>
 
-                                    <div class="uk-margin">
-                                        <select class="uk-select" name="companies[]" id="companies" multiple="multiple">
-                                            {% for company in school.companies %}
-                                                <option value="{{ company.id }}">{{ company.name }}</option>
+                                    <div class="uk-form-controls">
+                                        {% if companies.count > 0 %}
+                                            {% for company in companies %}
+                                                <label class="uk-form-label">
+                                                    <input class="uk-checkbox" type="checkbox" name="companies[]" value="{{ company.id }}" />
+                                                    {{ company.name }}
+                                                </label>
+                                                <br />
                                             {% endfor %}
-                                        </select>
+                                        {% else %}
+                                            No companies associated with school
+                                        {% endif %}
                                     </div>
 
-                                    <label>Custom Cancellation Message</label>
-                                    <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                    <label class="uk-form-label">Add a message to send to selected companies:</label>
+
+                                    <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
 
                                     <p>
                                         <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                        <button class="uk-button uk-button-danger" type="submit">Send</button>
+                                        <button class="uk-button uk-button-primary" type="submit">Send</button>
                                     </p>
                                 </form>
                             </div>
                         </div>
-                        <br>
-                        <div class="event-users-notify" data-url="{{ path('get_professionals') }}" data-title="Notify Professionals Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
 
+                        <div id="modal-notify-professionals" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <form class="uk-inline" action="{{ path('school_notify_professionals', { "id": experience.id }) }}" method="POST">
+                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+
+                                    <div class="uk-form-controls">
+
+                                        <label class="uk-form-label">Filter by industry:</label>
+
+                                        <select class="uk-select" id="primaryIndustrySelect">
+                                            <option value="">Select an Industry</option>
+                                            {% for industry in primaryIndustries %}
+                                                <option value="{{industry.id}}">{{industry.name}}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <p></p>
+
+                                        <select class="uk-select" id="secondaryIndustrySelect">
+                                            <option value="">Select a Secondary Industry</option>
+                                            {% for industry in secondaryIndustries %}
+                                                <option value="{{industry.id}}" data-industry="{{industry.primaryIndustry.id}}">{{industry.name}}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <p></p>
+
+                                        {% if professionals.count > 0 %}
+                                            <label class="uk-form-label">Select professionals to notify:</label>
+                                            <div class="uk-column-1-2">
+                                                {% for professional in professionals %}
+                                                    {% set industryArray = [] %}
+                                                    {% for industry in professional.secondaryIndustries %}
+                                                        {% set industryArray = industryArray|merge([industry.id]) %}
+                                                    {% endfor %}
+
+                                                    <label class="uk-form-label professionalUserCheckbox" data-industries="{{ industryArray|json_encode() }}" style="display:block">
+                                                        <input class="uk-checkbox professionalUserCheckboxInput" type="checkbox" name="professionals[]" value="{{ professional.id }}" data-professional-name="{{ professional.firstName }} {{ professional.lastName }}" />
+                                                        {{ professional.firstName }} {{ professional.lastName }}
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            No professionals associated with school
+                                        {% endif %}
+
+                                        <br />
+                                        <div id="selectedProfessionalsContainer" style="display:none">
+                                            <label class="uk-form-label">Selected Professionals:</label>
+                                            <ul id="selectedProfessionals"></ul>
+                                        </div>
+                                    </div>
+
+                                    <label class="uk-form-label">Add a message to send to selected professionals:</label>
+
+                                    <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-primary" type="submit">Send</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+
+                    {% elseif user.isEducator and user.studentUsers|length > 0 %}
+                        <a class="uk-button uk-button-primary uk-button-small" href="#modal-bulk-send-to-students" uk-toggle>Forward to your students</a>
+
+                        <div id="modal-bulk-send-to-students" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Forward to your students</h3>
+                                <form class="uk-inline" method="post" action="{{ path('school_experience_bulk_notify', {'id' : experience.id}) }}">
+
+                                    <label class="uk-form-label">Select your students:</label>
+
+                                    <div class="uk-form-controls">
+                                        {% for studentUser in user.studentUsers %}
+                                            <label class="uk-form-label">
+                                                <input class="uk-checkbox" type="checkbox" name="students[]" value="{{ studentUser.id }}" />
+                                                {{ studentUser.firstName }} {{ studentUser.lastName }}
+                                            </label>
+                                            <br />
+                                        {% endfor %}
+                                    </div>
+
+                                    <label class="uk-form-label">Add a message to send to your students:</label>
+
+                                    <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
+
+                                    <p>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-primary" type="submit">Send</button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
                     {% endif %}
 
                     {% if user.educator and user.school %}
@@ -350,5 +451,72 @@
             </div>
         </div>
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+        var selectedProfessionals = [];
+        
+        $('#secondaryIndustrySelect').prop( 'disabled', true );
+
+        $('#primaryIndustrySelect').on('change', function() {
+            $('.professionalUserCheckbox').show();
+            $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
+            var industry = $('#primaryIndustrySelect').val();
+            if (industry) {
+                $('#secondaryIndustrySelect').prop( 'disabled', false );
+
+                $('#secondaryIndustrySelect option').hide();
+                $('#secondaryIndustrySelect option[data-industry="' + industry +'"]').show();
+            } else {
+                $('#secondaryIndustrySelect').prop( 'disabled', true );
+            }
+        });
+
+        $('#secondaryIndustrySelect').on('change', function() {
+            $('.professionalUserCheckbox').show();
+            var secondaryIndustry = parseInt($('#secondaryIndustrySelect').val());
+            if (secondaryIndustry) {
+                $('.professionalUserCheckbox').hide();
+
+                $('.professionalUserCheckbox').each(function(index) {
+                    var myIndustries = $( this ).data('industries');
+                    console.log(secondaryIndustry)
+                    console.log(myIndustries)
+                    if (myIndustries.indexOf(secondaryIndustry) > -1) {
+                        $( this ).show();
+                    }
+                });
+            } else {
+            }
+        });
+
+        $('.professionalUserCheckboxInput').on('change', function() {
+            var name = $( this ).data('professional-name');
+            if ($( this ).prop('checked')) {
+                selectedProfessionals.push(name);
+            } else {
+                var index = selectedProfessionals.indexOf(name);
+                if (index !== -1) {
+                    selectedProfessionals.splice(index, 1);
+                }
+            }
+
+            if (selectedProfessionals.length > 0) {
+                console.log('here')
+                $('#selectedProfessionalsContainer').show();
+            } else {
+                console.log('or here')
+                $('#selectedProfessionalsContainer').hide();
+            }
+
+            $('#selectedProfessionals').empty();
+
+            $.each(selectedProfessionals, function(index, value){
+                $('#selectedProfessionals').append('<li>' + value + '</li>');
+            });
+        });
+
+    </script>
 
 {% endblock %}

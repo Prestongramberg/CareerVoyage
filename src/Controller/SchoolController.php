@@ -71,6 +71,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class SchoolController
@@ -180,7 +181,38 @@ class SchoolController extends AbstractController
             $school->setRegion($user->getRegion());
             $school->setSite($user->getSite());
 
+            if($coordinates = $this->geocoder->geocode($school->getAddress())) {
+                $lng = $coordinates['lng'];
+                $lat = $coordinates['lat'];
+                $school->setLongitude($lng);
+                $school->setLatitude($lat);
+                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, 50);
+                $companies = $this->companyRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+                $professionals = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+            }
+
             $this->entityManager->persist($school);
+            
+            if ($companies) {
+                foreach($companies as $company) {
+                    $companyIds[] = $company['id'];
+                }
+                $companies = $this->companyRepository->getByArrayOfIds($companyIds);
+                foreach($companies as $company) {
+                    $company->addSchool($school);
+                }
+            }
+
+            if ($professionals) {
+                foreach($professionals as $professional) {
+                    $professionalIds[] = $professional['id'];
+                }
+                $professionals = $this->professionalUserRepository->getByArrayOfIds($professionalIds);
+                foreach($professionals as $professional) {
+                    $professional->addSchool($school);
+                }
+            }
+
             $this->entityManager->flush();
 
 
@@ -1167,25 +1199,34 @@ class SchoolController extends AbstractController
     public function experienceNotifyCompaniesAction(Request $request, SchoolExperience $experience) {
 
         $this->denyAccessUnlessGranted('edit', $experience->getSchool());
-
-        $companyIds = $request->request->get('companies');
-
-        if(empty($companyIds)) {
-            $this->addFlash('error', 'Please select at least one company to notify.');
-            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
-        }
-
-        $customMessage = $request->request->get('customMessage', '');
-
-        $companies = $this->companyRepository->findBy([
-            'id' => $companyIds,
-        ]);
-
+        $message = $request->get('message');
+        $companies = $request->get('companies');
         /** @var Company $company */
-        foreach($companies as $company) {
-            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $customMessage);
+        foreach($companies as $companyId) {
+            $company = $this->companyRepository->find($companyId);
+            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $message);
         }
         $this->addFlash('success', 'Companies notified of event.');
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
+     * @Route("/schools/experiences/{id}/notify-professionals", name="school_notify_professionals", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function experienceNotifyProfessionalsAction(Request $request, SchoolExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+        $message = $request->get('message');
+        $professionals = $request->get('professionals');
+        /** @var Professional $professional */
+        foreach($professionals as $professionalId) {
+            $professional = $this->professionalUserRepository->find($professionalId);
+            $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
+        }
+        $this->addFlash('success', 'Professionals notified of event.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
@@ -1202,7 +1243,11 @@ class SchoolController extends AbstractController
         return $this->render('school/view_experience.html.twig', [
             'user' => $user,
             'experience' => $experience,
-            'school' => $experience->getSchool(),
+            'companies' => $experience->getSchool()->getCompanies(),
+            'professionals' => $experience->getSchool()->getProfessionalUsers(),
+            'primaryIndustries' => $this->industryRepository->findAll(),
+            'secondaryIndustries' => $this->secondaryIndustryRepository->findAll()
+
         ]);
     }
 
@@ -1532,6 +1577,32 @@ class SchoolController extends AbstractController
                 'success' => false,
             ], Response::HTTP_BAD_REQUEST
         );
+    }
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/schools/experiences/{id}/students/forward", name="school_experience_bulk_notify", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceBulkNotifyAction(Request $request, SchoolExperience $experience) {
+        $message = $request->get('message');
+        $students = $request->get('students');
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        foreach ($students as $student) {
+            
+            /** @var StudentUser $student */
+            $student = $this->studentUserRepository->find($student);
+            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+        }
+
+        $this->addFlash('success', 'Experience has been sent to students!');
+
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
 }

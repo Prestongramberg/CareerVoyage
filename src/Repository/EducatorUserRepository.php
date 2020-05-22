@@ -9,6 +9,7 @@ use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\ORM\Query\Expr\Join;
 
 /**
  * @method EducatorUser|null find($id, $lockMode = null, $lockVersion = null)
@@ -133,23 +134,30 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findByArrayOfSchoolIds($schoolIds) {
+        return $this->createQueryBuilder('e')
+            ->where("e.school IN (:schools)")
+            ->setParameter('schools', $schoolIds)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     /**
-     * @param Region $region
-     * @return mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @param $educatorIds
+     * @return mixed
      */
-    public function findByRegion(Region $region) {
+    public function getByArrayOfIds($educatorIds) {
 
-        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, eu.phone, sc.name
-          FROM user u 
-          INNER JOIN educator_user eu on u.id = eu.id 
-          INNER JOIN school sc on sc.id = eu.school_id
-          INNER JOIN region r on r.id = sc.region_id
-          WHERE r.id = "%s"', $region->getId());
+        return $this->createQueryBuilder('e')
+            ->where('e.id IN (:ids)')
+            ->setParameter('ids', $educatorIds)
+            ->getQuery()
+            ->getArrayResult();
+    }
 
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll();
+    public function getAll() {
+        return $this->createQueryBuilder('u')
+            ->getQuery()
+            ->getArrayResult();
     }
 }

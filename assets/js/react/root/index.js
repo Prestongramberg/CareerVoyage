@@ -14,6 +14,7 @@ require('./schools-select-by-radius');
 require('./searchable-company-listing');
 require('./searchable-lesson-listing');
 require('./searchable-professional-listing');
+require('./searchable-educator-listing');
 require('./searchable-school-listing');
 require('./subscribe-secondary-industries');
 require('./favorite-company');
