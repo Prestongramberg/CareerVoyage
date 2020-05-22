@@ -112,6 +112,14 @@
 
                                         <p></p>
 
+                                        <label class="uk-form-label">Filter by company:</label>
+
+                                        <select class="uk-select" id="companySelect">
+                                            <option value="">Select a Company</option>
+                                        </select>
+
+                                        <p></p>
+
                                         {% if professionals.count > 0 %}
                                             <label class="uk-form-label">Select professionals to notify:</label>
                                             <div class="uk-column-1-2">
@@ -121,7 +129,7 @@
                                                         {% set industryArray = industryArray|merge([industry.id]) %}
                                                     {% endfor %}
 
-                                                    <label class="uk-form-label professionalUserCheckbox" data-industries="{{ industryArray|json_encode() }}" style="display:block">
+                                                    <label class="uk-form-label professionalUserCheckbox" data-industries="{{ industryArray|json_encode() }}" data-company="{{ professional.company ? professional.company.name : '' }}" style="display:block">
                                                         <input class="uk-checkbox professionalUserCheckboxInput" type="checkbox" name="professionals[]" value="{{ professional.id }}" data-professional-name="{{ professional.firstName }} {{ professional.lastName }}" />
                                                         {{ professional.firstName }} {{ professional.lastName }}
                                                     </label>
@@ -459,12 +467,23 @@
     <script>
 
         var selectedProfessionals = [];
+        var companies = [];
+
+        $('.professionalUserCheckbox').each(function() {
+            var company = $( this ).data('company');
+            if (company && companies.indexOf(company) === -1) {
+                companies.push(company);
+                $('#companySelect').append('<option value="' + company + '">' + company + '</option>');
+            }
+        });
+    
         
         $('#secondaryIndustrySelect').prop( 'disabled', true );
 
         $('#primaryIndustrySelect').on('change', function() {
             $('.professionalUserCheckbox').show();
             $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
+            $('#companySelect option[value=""]').prop( 'selected', true );
             var industry = $('#primaryIndustrySelect').val();
             if (industry) {
                 $('#secondaryIndustrySelect').prop( 'disabled', false );
@@ -484,13 +503,26 @@
 
                 $('.professionalUserCheckbox').each(function(index) {
                     var myIndustries = $( this ).data('industries');
-                    console.log(secondaryIndustry)
-                    console.log(myIndustries)
                     if (myIndustries.indexOf(secondaryIndustry) > -1) {
                         $( this ).show();
                     }
                 });
             } else {
+            }
+        });
+
+        $('#companySelect').on('change', function() {
+            $('#primaryIndustrySelect option[value=""]').prop( 'selected', true );
+            $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
+            var company = $('#companySelect').val();
+            $('.professionalUserCheckbox').hide();
+            if (company) {
+                $('.professionalUserCheckbox').each(function(index) {
+                    var myCompany = $( this ).data('company');
+                    if (myCompany === company) {
+                        $( this ).show();
+                    }
+                });
             }
         });
 
@@ -506,10 +538,8 @@
             }
 
             if (selectedProfessionals.length > 0) {
-                console.log('here')
                 $('#selectedProfessionalsContainer').show();
             } else {
-                console.log('or here')
                 $('#selectedProfessionalsContainer').hide();
             }
 

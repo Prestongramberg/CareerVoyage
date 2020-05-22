@@ -31,7 +31,7 @@ class App extends React.Component {
                             <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                                 <div className="uk-search uk-search-default uk-width-1-1">
                                     <span data-uk-search-icon></span>
-                                    <input className="uk-search-input" type="search" placeholder="Search by Name or Interests..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+                                    <input className="uk-search-input" type="search" placeholder="Search by Name or School..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                                 </div>
                             </div>
                         </div>
@@ -93,9 +93,8 @@ class App extends React.Component {
     getRelevantEducators () {
 
         return this.props.educators.filter(educator => {
-            console.log(educator)
             // Set Searchable Fields
-            const searchableFields = ["firstName", "lastName", "briefBio"];
+            const searchableFields = ["firstName", "lastName", "briefBio", "school"];
 
             // Filter By Search Term
             if( this.props.search.query ) {
