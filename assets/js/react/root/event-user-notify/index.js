@@ -6,13 +6,13 @@ import thunk from 'redux-thunk';
 import reducers from "./reducers";
 import App from "./App";
 
+const eventUserNotifies = document.getElementsByClassName("event-users-notify");
+for ( let i = 0; i < eventUserNotifies.length; i++ ) {
 
-document.querySelectorAll('.event-users-notify').forEach(function(eventNotificationContainer) {
-
-    const user = JSON.parse( eventNotificationContainer.getAttribute("data-user") ) || {};
-    const experienceId = JSON.parse( eventNotificationContainer.getAttribute("data-experienceId") ) || null;
-    const title = eventNotificationContainer.getAttribute("data-title") || "";
-    const url = eventNotificationContainer.getAttribute("data-url");
+    const user = JSON.parse( eventUserNotifies[i].getAttribute("data-user") ) || {};
+    const experienceId = JSON.parse( eventUserNotifies[i].getAttribute("data-experienceId") ) || null;
+    const title = eventUserNotifies[i].getAttribute("data-title") || "";
+    const url = eventUserNotifies[i].getAttribute("data-url");
 
     const store = createStore(
         reducers,
@@ -50,13 +50,14 @@ document.querySelectorAll('.event-users-notify').forEach(function(eventNotificat
             <Provider store={store}>
                 <App user={user}
                      experience={experienceId}
+                     uniqueId={i}
                 />
             </Provider>,
-            eventNotificationContainer
+            eventUserNotifies[i]
         );
     };
     render();
     store.subscribe(render);
 
-});
+}
 

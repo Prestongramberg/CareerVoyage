@@ -22,9 +22,7 @@ export function updateSecondaryIndustryQuery(industry) {
     };
 }
 
-export function onNotifyButtonClick(event, url) {
-
-    debugger;
+export function onNotifyButtonClick(url) {
 
     return (dispatch, getState) => {
 

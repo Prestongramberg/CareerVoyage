@@ -1,109 +1,78 @@
 import React from "react"
 import { connect } from "react-redux"
 import { onNotifyButtonClick, onFormSubmit, closeModal, onSelectFieldChange, onTextareaFieldChange, updateCompanyQuery, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery } from './actions/actionCreators'
-import Modal from 'react-modal';
 import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["notifyButton"];
+        const methods = ["renderCompanyDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown", "getRelevantUsers"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     render() {
+
+        const uniqueId = this.props.uniqueId || Math.round(Math.random() * 100000);
+
         return (
             <div>
-                {this.notifyButton()}
-                <NotificationModal {...this.props} />
+                <button data-uk-toggle={`target: #notify-professionals-of-event-${uniqueId}`} type="button"
+                        className="uk-button uk-button-danger uk-button-small alert alert-primary">
+                    {this.props.ui.title}
+                </button>
+                <div id={`notify-professionals-of-event-${uniqueId}`} className="uk-modal-800" data-uk-modal>
+                    <div className="uk-modal-dialog uk-modal-body">
+                        <h2>{this.props.ui.title}</h2>
+                        <br />
+
+                        <div className="uk-grid-small uk-flex-middle uk-grid" data-uk-grid>
+                            { this.renderCompanyDropdown() }
+                            { this.renderIndustryDropdown() }
+                            { this.renderSecondaryIndustryDropdown() }
+                        </div>
+
+                        <form className="form-inline uk-margin" onSubmit={(event) => { this.props.onFormSubmit(event, window.Routing.generate('experience_notify_users', {id: this.props.experienceId})) }}>
+
+                            <div className="user-listings">
+
+                                { (this.props.ui.loading) && (
+                                    <div className="uk-width-1-1 uk-align-center">
+                                        <Loader />
+                                    </div>
+                                )}
+
+                                {this.getRelevantUsers().length > 0 ? (
+
+                                    <select name="users[]" className="uk-select" multiple="multiple" onChange={this.props.onSelectFieldChange}>
+                                        {
+                                            this.getRelevantUsers().map(user => (
+                                                <option value={user.id}>{user.firstName} {user.lastName}</option>
+                                            ))
+                                        }
+                                    </select>
+                                ) : (
+                                    <p>No users were found with this criteria.</p>
+                                )
+                                }
+                            </div>
+
+                            <div className="customMessage uk-margin">
+                                <label>Custom Notification Message</label>
+                                <textarea className="uk-textarea" name="customMessage" onChange={this.props.onTextareaFieldChange}></textarea>
+                            </div>
+
+                            <div className="uk-margin">
+                                <button type="submit" className="uk-button uk-button-primary uk-button-small uk-display-inline-block">Send Notification</button>
+                                <button className="uk-button uk-button-default uk-modal-close uk-button-small uk-display-inline-block uk-margin-left">Cancel</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
             </div>
         )
     }
-
-    notifyButton() {
-        return (
-            <a className="uk-button uk-button-danger uk-button-small alert alert-primary" role="alert" onClick={(event) => {this.props.onNotifyButtonClick(event, this.props.form.url) }}>
-                {this.props.ui.title}
-            </a>
-        )
-    }
-
-    componentDidMount() {}
-}
-
-class NotificationModal extends React.Component {
-    constructor() {
-        super();
-
-        const methods = [
-            "renderCompanyDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown", "getRelevantUsers"
-        ];
-
-        methods.forEach(method => (this[method] = this[method].bind(this)));
-    }
-
-    render() {
-        const isModalOpen = this.props.ui.showModal;
-
-        return (
-            <Modal
-                isOpen={isModalOpen}
-                onAfterOpen={() => {}}
-                //onRequestClose={this.props.closeModal}
-                className="react-modal__modal"
-                overlayClassName="react-modal"
-            >
-
-                <h2>{this.props.ui.title}</h2>
-                <br />
-
-                { this.renderCompanyDropdown() }
-                { this.renderIndustryDropdown() }
-                { this.renderSecondaryIndustryDropdown() }
-
-                <button type="button" className="close" aria-label="Close" onClick={this.props.closeModal}>
-                    <span aria-hidden="true">&times;</span>
-                </button>
-
-                <form className="form-inline" onSubmit={(event) => { this.props.onFormSubmit(event, window.Routing.generate('experience_notify_users', {id: this.props.experienceId})) }}>
-
-                    <div className="user-listings">
-
-                        { (this.props.ui.loading) && (
-                            <div className="uk-width-1-1 uk-align-center">
-                                <Loader />
-                            </div>
-                        )}
-
-                        {this.getRelevantUsers().length > 0 ? (
-
-                            <select name="users[]" className="uk-select" multiple="multiple" onChange={this.props.onSelectFieldChange}>
-                                {
-                                    this.getRelevantUsers().map(user => (
-                                        <option value={user.id}>{user.firstName} {user.lastName}</option>
-                                    ))
-                                }
-                            </select>
-                            ) : (
-                                <p>No users were found.  Please try again later.</p>
-                            )
-                        }
-                    </div>
-
-                    <div className="customMessage">
-                        <label>Custom Notification Message</label>
-                        <textarea className="uk-textarea" name="customMessage" onChange={this.props.onTextareaFieldChange}></textarea>
-                    </div>
-
-                    <button type="submit" className="btn btn-primary">Send Notification</button>
-
-                </form>
-
-            </Modal>
-        );
-    }
-
 
     getRelevantUsers () {
 
@@ -202,10 +171,13 @@ class NotificationModal extends React.Component {
 
         return null;
     }
+
+    componentDidMount() {
+        this.props.onNotifyButtonClick( this.props.form.url );
+    }
 }
 
 App.propTypes = {};
-
 App.defaultProps = {};
 
 export const mapStateToProps = (state = {}) => ({
@@ -224,7 +196,7 @@ export const mapDispatchToProps = dispatch => ({
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
-    onNotifyButtonClick: (event, url) => dispatch(onNotifyButtonClick(event, url)),
+    onNotifyButtonClick: (url) => dispatch(onNotifyButtonClick(url)),
     onFormSubmit: (event, url) => dispatch(onFormSubmit(event, url)),
     onSelectFieldChange: (event) => dispatch(onSelectFieldChange(event)),
     onTextareaFieldChange: (event) => dispatch(onTextareaFieldChange(event)),
