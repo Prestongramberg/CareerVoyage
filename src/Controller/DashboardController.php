@@ -253,9 +253,31 @@ class DashboardController extends AbstractController
             }
         }
 
+        $lessons = $this->lessonRepository->findAllLessonsFromPastDays(7);
+
+        // Get relevant events for the user's secondary industry preferences
+        // TODO Possibly call findBySecondaryIndustries($secondaryIndustries, $limit = 6)  in
+        //  the future to only pull event results if they express interest in that industry
+        $schoolExperiences = $this->schoolExperienceRepository->findAllFutureEvents();
+        $schoolExperienceIds = [];
+        foreach($schoolExperiences as $schoolExperience) {
+            $schoolExperienceIds[] = $schoolExperience['id'];
+        }
+        $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds]);
+
+        $companyExperiences = $this->companyExperienceRepository->findAllFutureEvents();
+        $companyExperienceIds = [];
+        foreach($companyExperiences as $companyExperience) {
+            $companyExperienceIds[] = $companyExperience['id'];
+        }
+        $companyExperiences = $this->companyExperienceRepository->findBy(['id' => $companyExperienceIds]);
+
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,
             'dashboards' => $dashboards,
+            'lessons' => $lessons,
+            'schoolExperiences' => $schoolExperiences,
+            'companyExperiences' => $companyExperiences
         ]);
     }
 }
