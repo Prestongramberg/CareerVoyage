@@ -28,6 +28,7 @@ class EducatorUser extends User
     use RandomStringGenerator;
 
     /**
+     * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="educatorUsers")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
@@ -54,6 +55,7 @@ class EducatorUser extends User
     private $linkedinProfile;
 
     /**
+     * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="educatorUsers", cascade={"persist", "remove"})
      */
     private $secondaryIndustries;
@@ -93,6 +95,12 @@ class EducatorUser extends User
      */
     private $educatorReviewTeachLessonExperienceFeedback;
 
+    /**
+     * @Groups({"EDUCATOR_USER_DATA"})
+     * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="educatorUsers")
+     */
+    private $myCourses;
+
     public function __construct()
     {
         parent::__construct();
@@ -100,6 +108,7 @@ class EducatorUser extends User
         $this->studentUsers = new ArrayCollection();
         $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
+        $this->myCourses = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -339,6 +348,32 @@ class EducatorUser extends User
             if ($educatorReviewTeachLessonExperienceFeedback->getEducator() === $this) {
                 $educatorReviewTeachLessonExperienceFeedback->setEducator(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Course[]
+     */
+    public function getMyCourses(): Collection
+    {
+        return $this->myCourses;
+    }
+
+    public function addMyCourse(Course $myCourse): self
+    {
+        if (!$this->myCourses->contains($myCourse)) {
+            $this->myCourses[] = $myCourse;
+        }
+
+        return $this;
+    }
+
+    public function removeMyCourse(Course $myCourse): self
+    {
+        if ($this->myCourses->contains($myCourse)) {
+            $this->myCourses->removeElement($myCourse);
         }
 
         return $this;

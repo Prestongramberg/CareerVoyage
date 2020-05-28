@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Course;
 use App\Entity\EducatorUser;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
@@ -139,6 +140,18 @@ class EducatorEditProfileFormType extends AbstractType
                     ->orderBy('s.firstName', 'ASC');
             }
             ]);
+
+        $builder->add('myCourses', EntityType::class, [
+            'class' => Course::class,
+            'multiple' => true,
+            'expanded' => true,
+            'choice_attr' => function($choice, $key, $value) {
+                return ['class' => 'uk-checkbox'];
+            },
+            'choice_label' => function (Course $course) {
+                return $course->getTitle();
+            }
+        ]);
 
         $builder->get('secondaryIndustries')
             ->addModelTransformer(new CallbackTransformer(

@@ -238,7 +238,11 @@ class EducatorController extends AbstractController
             foreach($educators as $educator) {
                 $educatorObj = $educator;
                 $educator = $this->educatorUserRepository->find($educatorObj['id']);
-                $educatorObj['school'] = $educator->getSchool()->getName();
+
+                if($educator->getSchool()) {
+                    $educatorObj['school'] = $educator->getSchool()->getName();
+                }
+
                 $educatorArray[] = $educatorObj;
 
             }

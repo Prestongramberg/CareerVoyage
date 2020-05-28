@@ -12,6 +12,7 @@
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         <li><a href="#account-career-fields">Career Fields of Interest</a></li>
+        <li><a href="#account-courses">Courses</a></li>
         <li><a href="#account-students">Students</a></li>
         <li><a href="#account-account">Account</a></li>
     </ul>
@@ -68,6 +69,18 @@
                             </div>
                         </div>
                     {% endif %}
+                </fieldset>
+            </div>
+        </div>
+        <div class="account_courses">
+            <div class="uk-width-xlarge">
+                <fieldset class="uk-fieldset">
+                    <div class="uk-margin">
+                        {{ form_label(form.myCourses, 'My Courses*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[myCourses][]">Select All</a>
+                        {{ form_widget(form.myCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.myCourses) ? ' uk-form-danger' : '' ) }}) }}
+                        <div class="clear"></div>
+                        {{ form_errors(form.myCourses) }}
+                    </div>
                 </fieldset>
             </div>
         </div>

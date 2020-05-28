@@ -45,7 +45,7 @@ abstract class User implements UserInterface
     const ROLE_SITE_ADMIN_USER = 'ROLE_SITE_ADMIN_USER';
 
     /**
-     * @Groups({"ALL_USER_DATA", "PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EXPERIENCE_DATA"})
+     * @Groups({"ALL_USER_DATA", "PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -53,7 +53,7 @@ abstract class User implements UserInterface
     protected $id;
 
     /**
-     * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE"})
+     * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EDUCATOR_USER_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT"}
@@ -94,7 +94,7 @@ abstract class User implements UserInterface
     protected $invitationCode;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      *
      * @ORM\Column(type="string", length=24, nullable=true)
@@ -102,7 +102,7 @@ abstract class User implements UserInterface
     protected $firstName;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      *
      * @ORM\Column(type="string", length=24, nullable=true)

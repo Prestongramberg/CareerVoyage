@@ -1261,8 +1261,7 @@ class SchoolController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $userIdToRegister = $request->request->get('userId');
-        $userToRegister = $this->userRepository->find($userIdToRegister);
+        $userToRegister = $user;
 
         $request = $this->userRegisterForSchoolExperienceRequestRepository->findOneBy([
             'user' => $userToRegister,
@@ -1583,8 +1582,11 @@ class SchoolController extends AbstractController
      * @IsGranted("ROLE_EDUCATOR_USER")
      * @Route("/schools/experiences/{id}/students/forward", name="school_experience_bulk_notify", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
-     * @param CompanyExperience $experience
+     * @param SchoolExperience $experience
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function companyExperienceBulkNotifyAction(Request $request, SchoolExperience $experience) {
         $message = $request->get('message');
@@ -1597,7 +1599,10 @@ class SchoolController extends AbstractController
             
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
-            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+
+            if($student->getEmail()) {
+                $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+            }
         }
 
         $this->addFlash('success', 'Experience has been sent to students!');

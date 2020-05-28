@@ -47,11 +47,15 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
-                    <div class="react-global-share"
-                         data-user="{{ encode_user(user) }}"
-                         data-message="Check out this upcoming event: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
-                        Share this Event
-                    </div>
+
+                    {% if not user.student %}
+                        <div class="react-global-share"
+                             data-user="{{ encode_user(user) }}"
+                             data-message="Check out this upcoming event: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                            Share this Event
+                        </div>
+                    {% endif %}
+
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
                         <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-companies" uk-toggle>Notify Companies of Event</a>
@@ -170,6 +174,7 @@
 
                         <div id="modal-bulk-send-to-students" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
+                                <button class="uk-modal-close-default" type="button" uk-close></button>
                                 <h3>Forward to your students</h3>
                                 <form class="uk-inline" method="post" action="{{ path('school_experience_bulk_notify', {'id' : experience.id}) }}">
 
@@ -198,9 +203,9 @@
                         </div>
                     {% endif %}
 
-                    {% if user.educator and user.school %}
+                   {# {% if user.educator and user.school %}
                         <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
-                    {% endif %}
+                    {% endif %}#}
 
                 </div>
             </div>

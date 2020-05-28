@@ -30,7 +30,7 @@ class School
     ];
 
     /**
-     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
+     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE", "EDUCATOR_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -38,7 +38,7 @@ class School
     private $id;
 
     /**
-     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE"})
+     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE", "EDUCATOR_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */

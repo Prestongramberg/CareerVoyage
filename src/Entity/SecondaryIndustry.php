@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class SecondaryIndustry
 {
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,7 +21,7 @@ class SecondaryIndustry
     private $id;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
@@ -33,7 +33,7 @@ class SecondaryIndustry
     private $url;
 
     /**
-     * @Groups({"EXPERIENCE_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="secondaryIndustries")
      * @ORM\JoinColumn(nullable=false)
      */

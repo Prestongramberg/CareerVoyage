@@ -18,7 +18,7 @@ class Course
     use Timestampable;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "EDUCATOR_USER_DATA"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -26,7 +26,7 @@ class Course
     private $id;
 
     /**
-     * @Groups({"LESSON_DATA"})
+     * @Groups({"LESSON_DATA", "EDUCATOR_USER_DATA"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
@@ -36,9 +36,15 @@ class Course
      */
     private $lessons;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\EducatorUser", mappedBy="myCourses")
+     */
+    private $educatorUsers;
+
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
+        $this->educatorUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,6 +90,34 @@ class Course
             if ($lesson->getPrimaryCourse() === $this) {
                 $lesson->setPrimaryCourse(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorUser[]
+     */
+    public function getEducatorUsers(): Collection
+    {
+        return $this->educatorUsers;
+    }
+
+    public function addEducatorUser(EducatorUser $educatorUser): self
+    {
+        if (!$this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers[] = $educatorUser;
+            $educatorUser->addMyCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorUser(EducatorUser $educatorUser): self
+    {
+        if ($this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers->removeElement($educatorUser);
+            $educatorUser->removeMyCourse($this);
         }
 
         return $this;

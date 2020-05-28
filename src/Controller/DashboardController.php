@@ -180,6 +180,7 @@ class DashboardController extends AbstractController
                 'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
                 'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
                 'eventsWithFeedback' => [],
+                'eventsWithFeedbackFromOthers' => []
             ];
 
             foreach($completedEventsRegisteredForByUser as $event) {
