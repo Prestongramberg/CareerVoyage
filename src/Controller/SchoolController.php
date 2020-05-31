@@ -1177,15 +1177,29 @@ class SchoolController extends AbstractController
 
         $registrations = $experience->getRegistrations();
 
+        $emailsSentTo = [];
         foreach ($registrations as $registration) {
+
+            /** @var User $user */
+            $user = $registration->getUser();
+            if($user->getEmail()) {
+                $emailsSentTo[] = $user->getEmail();
+            }
+
+
             $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
         }
 
-        $this->entityManager->remove($experience);
+        $experience->setCancelled(true);
+        $this->entityManager->persist($experience);
+
+        foreach($experience->getRegistrations() as $registration) {
+            $this->entityManager->remove($registration);
+        }
+
         $this->entityManager->flush();
 
-        $this->entityManager->remove($experience);
-        $this->entityManager->flush();
+        $this->addFlash('success', sprintf('Event successfully cancelled. Email sent to the following addresses: %s. If a student does not have an email they will not appear on this list.', implode(",", $emailsSentTo)));
 
         return $this->redirectToRoute('dashboard');
     }
@@ -1258,10 +1272,13 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
-        /** @var User $user */
-        $user = $this->getUser();
 
-        $userToRegister = $user;
+        $userId = $request->request->get('userId', null);
+        if($userId) {
+            $userToRegister = $this->userRepository->find($userId);
+        } else {
+            $userToRegister = $this->getUser();
+        }
 
         $request = $this->userRegisterForSchoolExperienceRequestRepository->findOneBy([
             'user' => $userToRegister,
@@ -1281,7 +1298,7 @@ class SchoolController extends AbstractController
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
         $registerRequest = new UserRegisterForSchoolExperienceRequest();
-        $registerRequest->setCreatedBy($user);
+        $registerRequest->setCreatedBy($this->getUser());
         $registerRequest->setNeedsApprovalBy($experience->getSchoolContact());
         $registerRequest->setSchoolExperience($experience);
         $registerRequest->setUser($userToRegister);

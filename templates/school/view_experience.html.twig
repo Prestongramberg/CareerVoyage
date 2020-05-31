@@ -7,6 +7,12 @@
 
     <div class="uk-container">
 
+        {% if experience.cancelled %}
+            <div class="uk-alert-danger" uk-alert>
+                <p>Event has been cancelled.</p>
+            </div>
+        {% endif %}
+
         <div class="uk-section uk-section-muted">
             <div class="uk-padding">
                 <h2 class="uk-margin-remove-bottom">{{ experience.school.name }}</h2>
@@ -58,11 +64,10 @@
 
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
-                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-companies" uk-toggle>Notify Companies of Event</a>
                         <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Event</a>
 
-                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Notify Companies of Event</a>
-                        <div id="modal-remove-company-event" uk-modal>
+                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Event</a>
+                        <div id="modal-notify-companies" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
                                 <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
                                     <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
@@ -167,7 +172,6 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_professionals') }}" data-title="Notify Professionals Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
 
                     {% elseif user.isEducator and user.studentUsers|length > 0 %}
                         <a class="uk-button uk-button-primary uk-button-small" href="#modal-bulk-send-to-students" uk-toggle>Forward to your students</a>

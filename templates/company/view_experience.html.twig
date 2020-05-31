@@ -12,6 +12,12 @@
 
     <div class="uk-container">
 
+        {% if experience.cancelled %}
+            <div class="uk-alert-danger" uk-alert>
+                <p>Event has been cancelled.</p>
+            </div>
+        {% endif %}
+
         <div class="uk-section uk-section-muted">
             <div class="uk-padding">
                 <h2 class="uk-margin-remove-bottom">{{ experience.company.name }}</h2>

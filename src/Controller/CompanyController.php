@@ -998,7 +998,13 @@ class CompanyController extends AbstractController
             $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
         }
 
-        $this->entityManager->remove($experience);
+        $experience->setCancelled(true);
+        $this->entityManager->persist($experience);
+
+        foreach($experience->getRegistrations() as $registration) {
+            $this->entityManager->remove($registration);
+        }
+        
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Experience successfully removed!');

@@ -264,14 +264,14 @@ class DashboardController extends AbstractController
         foreach($schoolExperiences as $schoolExperience) {
             $schoolExperienceIds[] = $schoolExperience['id'];
         }
-        $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds]);
+        $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'cancelled' => false]);
 
         $companyExperiences = $this->companyExperienceRepository->findAllFutureEvents();
         $companyExperienceIds = [];
         foreach($companyExperiences as $companyExperience) {
             $companyExperienceIds[] = $companyExperience['id'];
         }
-        $companyExperiences = $this->companyExperienceRepository->findBy(['id' => $companyExperienceIds]);
+        $companyExperiences = $this->companyExperienceRepository->findBy(['id' => $companyExperienceIds, 'cancelled' => false]);
 
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,

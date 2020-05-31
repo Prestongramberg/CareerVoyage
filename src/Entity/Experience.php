@@ -214,6 +214,11 @@ abstract class Experience
      */
     protected $longitude;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $cancelled = false;
+
     public function __construct()
     {
         $this->experienceFiles = new ArrayCollection();
@@ -608,5 +613,17 @@ abstract class Experience
             $this->state ? $this->state->getAbbreviation() : '',
             $this->zipcode
         );
+    }
+
+    public function getCancelled(): ?bool
+    {
+        return $this->cancelled;
+    }
+
+    public function setCancelled(?bool $cancelled): self
+    {
+        $this->cancelled = $cancelled;
+
+        return $this;
     }
 }
