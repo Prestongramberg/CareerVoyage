@@ -217,7 +217,7 @@ abstract class Experience
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $cancelled = false;
+    protected $cancelled = false;
 
     public function __construct()
     {
