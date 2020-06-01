@@ -134,6 +134,9 @@ class DashboardController extends AbstractController
             // let's see which events have feedback from the user and which don't
             foreach($completedEventsRegisteredForByUser as $event) {
 
+                if($user->isStudent() && !$event instanceof StudentToMeetProfessionalExperience) {
+                    continue;
+                }
 
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,

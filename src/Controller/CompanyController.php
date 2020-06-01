@@ -990,7 +990,7 @@ class CompanyController extends AbstractController
         $company = $experience->getCompany();
         $this->denyAccessUnlessGranted('edit', $experience->getCompany());
 
-        $message = $request->request->get('cancellationMessage');
+        $message = $request->query->get('cancellationMessage');
 
         $registrations = $experience->getRegistrations();
 

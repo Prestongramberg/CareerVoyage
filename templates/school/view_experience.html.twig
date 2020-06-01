@@ -42,8 +42,13 @@
                     <br>
                     <div id="modal-remove-company-event" uk-modal>
                         <div class="uk-modal-dialog uk-modal-body">
-                            <h3>Live Fedback URL</h3>
-                            {{ url('experience_feedback', {'id' : experience.id}) }}
+                            <h3>Live Feedback URL</h3>
+
+                            <p>{{ url('experience_feedback', {'id' : experience.id}) }}</p>
+                            <input style="display: none" id="feedback-url" type="text" value="{{ url('experience_feedback', {'id' : experience.id}) }}">
+
+                            <button class="uk-button uk-button-danger" onclick="copyFeedbackUrl()" type="button">Copy</button>
+
                         </div>
                     </div>
                 {% endif %}
@@ -583,6 +588,52 @@
                 $('#selectedProfessionals').append('<li>' + value + '</li>');
             });
         });
+
+    </script>
+
+    <script>
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+
+
+        function copyFeedbackUrl() {
+            var feedbackUrl = document.getElementById("feedback-url");
+            copyTextToClipboard(feedbackUrl.value);
+            window.alert("Url " + feedbackUrl.value + " copied to clipboard.");
+        }
 
     </script>
 
