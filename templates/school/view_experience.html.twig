@@ -232,7 +232,7 @@
             {% if experience.experienceFiles|length %}
                 <li><a href="#experience-attachments">Event Documents</a></li>
             {% endif %}
-            {% if user.isEducator || user.isSchoolAdministrator %}
+            {% if user.isEducator or user.isSchoolAdministrator %}
                 <li><a href="#experience-registrations">Registrations</a></li>
                 <li><a href="#available-students-to-register">Available Students To Register</a></li>
             {% endif %}
