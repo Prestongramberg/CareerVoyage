@@ -259,14 +259,14 @@ class DashboardController extends AbstractController
         // Get relevant events for the user's secondary industry preferences
         // TODO Possibly call findBySecondaryIndustries($secondaryIndustries, $limit = 6)  in
         //  the future to only pull event results if they express interest in that industry
-        $schoolExperiences = $this->schoolExperienceRepository->findAllFutureEvents();
+        $schoolExperiences = $this->schoolExperienceRepository->findAllFromPastDays(7);
         $schoolExperienceIds = [];
         foreach($schoolExperiences as $schoolExperience) {
             $schoolExperienceIds[] = $schoolExperience['id'];
         }
         $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'cancelled' => false]);
 
-        $companyExperiences = $this->companyExperienceRepository->findAllFutureEvents();
+        $companyExperiences = $this->companyExperienceRepository->findAllFromPastDays(7);
         $companyExperienceIds = [];
         foreach($companyExperiences as $companyExperience) {
             $companyExperienceIds[] = $companyExperience['id'];

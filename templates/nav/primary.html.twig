@@ -22,9 +22,7 @@
             <li><a href="{{ path('experience_index') }}">Experiences</a></li>
             <li><a href="{{ path('company_index') }}">Companies</a></li>
             <li><a href="{{ path('professional_index') }}">Professionals</a></li>
-            {% if user.isProfessional or user.isEducator %}
-                <li><a href="{{ path('educator_index') }}">Educators</a></li>
-            {% endif %}
+            <li><a href="{{ path('educator_index') }}">Educators</a></li
             <li><a href="{{ path('requests') }}">Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
             <li><a href="{{ path('knowledge-base') }}">Knowledge Base</a></li>
 

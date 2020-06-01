@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Chat;
+use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
@@ -1218,6 +1219,18 @@ class SchoolController extends AbstractController
         /** @var Company $company */
         foreach($companies as $companyId) {
             $company = $this->companyRepository->find($companyId);
+
+            /*$professionals = $this->professionalUserRepository->findBy([
+                'company' => $company
+            ]);*/
+
+            /** @var ProfessionalUser $professional */
+           /* foreach($professionals as $professionalId) {
+                $professional = $this->professionalUserRepository->find($professionalId);
+                $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
+            }*/
+
+
             $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $message);
         }
         $this->addFlash('success', 'Companies notified of event.');
@@ -1235,7 +1248,7 @@ class SchoolController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $experience->getSchool());
         $message = $request->get('message');
         $professionals = $request->get('professionals');
-        /** @var Professional $professional */
+        /** @var ProfessionalUser $professional */
         foreach($professionals as $professionalId) {
             $professional = $this->professionalUserRepository->find($professionalId);
             $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
@@ -1605,21 +1618,64 @@ class SchoolController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function companyExperienceBulkNotifyAction(Request $request, SchoolExperience $experience) {
+    public function schoolExperienceBulkNotifyAction(Request $request, SchoolExperience $experience) {
+
+
         $message = $request->get('message');
         $students = $request->get('students');
 
         /** @var User $user */
-        $user = $this->getUser();
+        $loggedInUser = $this->getUser();
 
         foreach ($students as $student) {
             
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
 
-            if($student->getEmail()) {
-                $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+            if(!$student) {
+                continue;
             }
+
+            if($student->getEmail()) {
+                $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
+            }
+
+            $chat = $this->chatRepository->findOneBy([
+                'userOne' => $loggedInUser,
+                'userTwo' => $student
+            ]);
+
+            if(!$chat) {
+                $chat = $this->chatRepository->findOneBy([
+                    'userOne' => $student,
+                    'userTwo' => $loggedInUser
+                ]);
+            }
+
+            // if a chat doesn't exist then let's create one!
+            if(!$chat) {
+                $chat = new Chat();
+                $chat->setUserOne($student);
+                $chat->setUserTwo($loggedInUser);
+                $this->entityManager->persist($chat);
+                $this->entityManager->flush();
+            }
+
+
+            $notice = sprintf("Event %s has been cancelled. Teacher message: %s", $experience->getTitle(), $message);
+
+            $chatMessage = new ChatMessage();
+            $chatMessage->setBody($notice);
+            $chatMessage->setSentFrom($loggedInUser);
+            $chatMessage->setSentAt(new \DateTime());
+            $chatMessage->setChat($chat);
+
+            // Figure out which user to message from the chat object
+            $userToMessage = $chat->getUserOne()->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+            $chatMessage->setSentTo($userToMessage);
+
+            $this->entityManager->persist($chatMessage);
+            $this->entityManager->flush();
         }
 
         $this->addFlash('success', 'Experience has been sent to students!');

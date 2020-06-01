@@ -1004,7 +1004,7 @@ class CompanyController extends AbstractController
         foreach($experience->getRegistrations() as $registration) {
             $this->entityManager->remove($registration);
         }
-        
+
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Experience successfully removed!');

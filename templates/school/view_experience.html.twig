@@ -144,7 +144,7 @@
                                                         {% set industryArray = industryArray|merge([industry.id]) %}
                                                     {% endfor %}
 
-                                                    <label class="uk-form-label professionalUserCheckbox" data-industries="{{ industryArray|json_encode() }}" data-company="{{ professional.company ? professional.company.name : '' }}" style="display:block">
+                                                    <label class="uk-form-label professionalUserCheckbox" data-primary-industry="{{ professional.primaryIndustry.id }}" data-industries="{{ industryArray|json_encode() }}" data-company="{{ professional.company ? professional.company.name : '' }}" style="display:block">
                                                         <input class="uk-checkbox professionalUserCheckboxInput" type="checkbox" name="professionals[]" value="{{ professional.id }}" data-professional-name="{{ professional.firstName }} {{ professional.lastName }}" />
                                                         {{ professional.firstName }} {{ professional.lastName }}
                                                     </label>
@@ -227,9 +227,9 @@
             {% if experience.experienceFiles|length %}
                 <li><a href="#experience-attachments">Event Documents</a></li>
             {% endif %}
-            <li><a href="#experience-registrations">Registrations</a></li>
-            {% if user.isEducator %}
-            <li><a href="#available-students-to-register">Available Students To Register</a></li>
+            {% if user.isEducator || user.isSchoolAdministrator %}
+                <li><a href="#experience-registrations">Registrations</a></li>
+                <li><a href="#available-students-to-register">Available Students To Register</a></li>
             {% endif %}
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
@@ -493,27 +493,49 @@
         $('#secondaryIndustrySelect').prop( 'disabled', true );
 
         $('#primaryIndustrySelect').on('change', function() {
+            debugger;
             $('.professionalUserCheckbox').show();
             $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
             $('#companySelect option[value=""]').prop( 'selected', true );
             var industry = $('#primaryIndustrySelect').val();
             if (industry) {
+                debugger;
                 $('#secondaryIndustrySelect').prop( 'disabled', false );
 
                 $('#secondaryIndustrySelect option').hide();
                 $('#secondaryIndustrySelect option[data-industry="' + industry +'"]').show();
+
+                debugger;
+
+                $('.professionalUserCheckbox').hide();
+
+                $('.professionalUserCheckbox').each(function(index) {
+
+                    var primaryIndustry = $( this ).data('primary-industry');
+                    debugger;
+
+                    if(industry == primaryIndustry) {
+                        debugger;
+                        $( this ).show();
+                    }
+                });
+
+
+
             } else {
                 $('#secondaryIndustrySelect').prop( 'disabled', true );
             }
         });
 
         $('#secondaryIndustrySelect').on('change', function() {
+            debugger;
             $('.professionalUserCheckbox').show();
             var secondaryIndustry = parseInt($('#secondaryIndustrySelect').val());
             if (secondaryIndustry) {
                 $('.professionalUserCheckbox').hide();
 
                 $('.professionalUserCheckbox').each(function(index) {
+                    debugger;
                     var myIndustries = $( this ).data('industries');
                     if (myIndustries.indexOf(secondaryIndustry) > -1) {
                         $( this ).show();

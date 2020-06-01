@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\AdminUser;
 use App\Entity\Company;
 use App\Entity\EducatorUser;
+use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
@@ -61,52 +62,65 @@ class ProfileController extends AbstractController
 
         if ($profileUser->isStudent()) {
 
-            // $this->denyAccessUnlessGranted('view', $profileUser);
-            $educators = $profileUser->getEducatorUsers();
-                /** @var StudentUser $user */
-                $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
-                $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
-                $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($profileUser);
-                $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($profileUser);
-                $primaryIndustries = $this->industryRepository->findAll();
+            /** @var StudentUser $profileUser*/
+            $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
+            $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
+            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($profileUser);
+            $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($profileUser);
+            $primaryIndustries = $this->industryRepository->findAll();
 
-                $guestLectures = [];
-                if($profileUser->getSchool()) {
-                    $guestLectures = $this->teachLessonExperienceRepository->findBy([
-                        'school' => $profileUser->getSchool()
-                    ]);
-                }
+            $guestLectures = $this->teachLessonExperienceRepository->findBy([
+                'school' => $profileUser->getSchool(),
+            ]);
 
-                $dashboards = [
-                    'companyFavorites' => $companyFavorites,
-                    'lessonFavorites' => $lessonFavorites,
-                    'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
-                    'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
-                    'guestLectures' => $guestLectures,
-                    'eventsWithFeedback' => [],
-                    'eventsMissingFeedback' => [],
-                    'primaryIndustries' => $primaryIndustries
-                ];
+            $dashboards = [
+                'companyFavorites' => $companyFavorites,
+                'lessonFavorites' => $lessonFavorites,
+                'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
+                'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
+                'guestLectures' => $guestLectures,
+                'eventsWithFeedback' => [],
+                'eventsMissingFeedback' => [],
+                'eventsWithFeedbackFromOthers' => [],
+                'primaryIndustries' => $primaryIndustries,
+            ];
 
-                // let's see which events have feedback from the user and which don't
-                foreach($completedEventsRegisteredForByUser as $event) {
-                    $feedback = $this->feedbackRepository->findOneBy([
-                        'user' => $profileUser,
-                        'experience' => $event
-                    ]);
+            // let's see which events have feedback from the user and which don't
+            foreach($completedEventsRegisteredForByUser as $event) {
 
-                    if(!$feedback) {
-                        $dashboards['eventsMissingFeedback'][] = [
-                            'event' => $event,
-                            'feedback' => $feedback
-                        ];
-                    } else {
-                        $dashboards['eventsWithFeedback'][] = [
-                            'event' => $event,
-                            'feedback' => $feedback
-                        ];
+
+                $allFeedback = $this->feedbackRepository->findBy([
+                    'experience' => $event,
+                ]);
+
+                /** @var Feedback $feedback */
+                foreach($allFeedback as $feedback) {
+                    if($feedback->getUser()->getId() !== $profileUser->getId()) {
+                        $dashboards['eventsWithFeedbackFromOthers'][] = $event;
+                        break;
                     }
                 }
+
+
+
+                $feedback = $this->feedbackRepository->findOneBy([
+                    'user' => $profileUser,
+                    'experience' => $event,
+                ]);
+
+                if(!$feedback) {
+                    $dashboards['eventsMissingFeedback'][] = [
+                        'event' => $event,
+                        'feedback' => $feedback,
+                    ];
+                } else {
+                    $dashboards['eventsWithFeedback'][] = [
+                        'event' => $event,
+                        'feedback' => $feedback,
+                    ];
+                }
+            }
+
         }
 
         return $this->render('profile/index.html.twig', [

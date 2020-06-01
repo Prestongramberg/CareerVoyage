@@ -123,6 +123,22 @@ HERE;
     }
 
     /**
+     * @param int $days
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findAllFromPastDays($days = 7) {
+        $query = sprintf("select e.id, e.title, e.brief_description from experience e
+          inner join school_experience se on se.id = e.id
+          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY GROUP BY e.id order by e.created_at DESC", $days);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
      * To use this function a few things must happen first
      * 1. You must use google api to find the starting latitude and starting longitude of the starting address or zipcode
      * 2. You must use the geocoder->calculateSearchSquare() service to return the 4 lat/lng points
