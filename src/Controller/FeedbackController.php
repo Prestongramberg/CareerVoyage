@@ -23,6 +23,7 @@ use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewMeetProfessionalExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalReviewStudentToMeetProfessionalFeedback;
+use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\User;
@@ -274,21 +275,12 @@ class FeedbackController extends AbstractController
                     $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewStudentToMeetProfessionalFeedback();
                     $formType = ProfessionalReviewStudentToMeetProfessionalFeedbackFormType::class;
                     $template = 'new_professional_review_student_to_meet_professional_experience_feedback.html.twig';
-                } else {
-                    $feedback = $feedback = $feedback ? $feedback : new Feedback();
-                    $formType = GenericFeedbackFormType::class;
-                    $template = 'new_generic_feedback.html.twig';
-                }
-                break;
-            case 'StudentToMeetProfessionalExperience':
-                /** @var StudentReviewMeetProfessionalExperienceFeedback$experience */
-                if($user->isStudent()) {
+                } else if($user->isStudent()) {
                     $feedback = $feedback = $feedback ? $feedback : new StudentReviewMeetProfessionalExperienceFeedback();
                     $formType = StudentReviewMeetProfessionalExperienceFeedbackFormType::class;
                     $template = 'new_student_review_meet_professional_feedback.html.twig';
-                }
-                if($user->isProfessional()) {
-                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewMeetStudentExperienceFeedback();
+                } else {
+                    $feedback = $feedback = $feedback ? $feedback : new Feedback();
                     $formType = GenericFeedbackFormType::class;
                     $template = 'new_generic_feedback.html.twig';
                 }

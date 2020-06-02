@@ -1662,7 +1662,7 @@ class SchoolController extends AbstractController
             }
 
 
-            $notice = sprintf("Event %s has been cancelled. Teacher message: %s", $experience->getTitle(), $message);
+            $notice = $message;
 
             $chatMessage = new ChatMessage();
             $chatMessage->setBody($notice);
