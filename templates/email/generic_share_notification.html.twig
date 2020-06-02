@@ -1,0 +1,9 @@
+{% include 'email/partial/emailHeader.html.twig' %}
+
+<p>Hi {{ user.firstName }},</p>
+
+<p>Shared with you:</p>
+
+<p style="font-weight: bold">{{ customMessage }}</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

@@ -31,18 +31,20 @@ class SchoolExperience extends Experience
     private $schoolContact;
 
     /**
-     * @Assert\Positive(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
+     * @Assert\NotNull(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
+     * @Assert\PositiveOrZero(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
-    private $availableStudentSpaces = 0;
+    private $availableStudentSpaces;
 
     /**
-     * @Assert\Positive(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
+     * @Assert\NotNull(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
+     * @Assert\PositiveOrZero(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\Column(type="integer")
      */
-    private $availableProfessionalSpaces =  0;
+    private $availableProfessionalSpaces;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="schoolExperience", orphanRemoval=true)

@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Chat;
+use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\EducatorUser;
@@ -296,8 +298,14 @@ class ExperienceController extends AbstractController
      * @param Request $request
      * @param Experience $experience
      * @return JsonResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Exception
      */
     public function experienceNotifyUsersAction(Request $request, Experience $experience) {
+
+        $loggedInUser = $this->getUser();
 
         $userIds = $request->request->get('users');
 
@@ -315,7 +323,45 @@ class ExperienceController extends AbstractController
 
         /** @var User $user */
         foreach($users as $user) {
-            $this->notificationsMailer->notifyUserOfEvent($user, $experience, $customMessage);
+
+            $chat = $this->chatRepository->findOneBy([
+                'userOne' => $loggedInUser,
+                'userTwo' => $user
+            ]);
+
+            if(!$chat) {
+                $chat = $this->chatRepository->findOneBy([
+                    'userOne' => $user,
+                    'userTwo' => $loggedInUser
+                ]);
+            }
+
+            // if a chat doesn't exist then let's create one!
+            if(!$chat) {
+                $chat = new Chat();
+                $chat->setUserOne($user);
+                $chat->setUserTwo($loggedInUser);
+                $this->entityManager->persist($chat);
+                $this->entityManager->flush();
+            }
+
+
+            $notice = $customMessage;
+
+            $chatMessage = new ChatMessage();
+            $chatMessage->setBody($notice);
+            $chatMessage->setSentFrom($loggedInUser);
+            $chatMessage->setSentAt(new \DateTime());
+            $chatMessage->setChat($chat);
+
+            // Figure out which user to message from the chat object
+            $userToMessage = $chat->getUserOne()->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+            $chatMessage->setSentTo($userToMessage);
+
+            $this->entityManager->persist($chatMessage);
+            $this->entityManager->flush();
+
+            $this->notificationsMailer->genericShareNotification($user, $customMessage);
         }
 
         return $this->json([
@@ -364,18 +410,34 @@ class ExperienceController extends AbstractController
     /**
      * @Route("/experiences/{id}/teach_lesson_event_delete", name="experience_teach_lesson_event_delete", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
-     * @param Experience $experience
+     * @param TeachLessonExperience $experience
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function experienceTeachLessonEventDeleteAction(Request $request, TeachLessonExperience $experience) {
 
         /** @var User $user */
         $user = $this->getUser();
 
-        $this->entityManager->remove($experience);
+        $customMessage = $request->request->get('customMessage');
+
+        $registrations = $experience->getRegistrations();
+
+        foreach ($registrations as $registration) {
+            $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $customMessage);
+        }
+
+        $experience->setCancelled(true);
+        $this->entityManager->persist($experience);
+
+        foreach($experience->getRegistrations() as $registration) {
+            $this->entityManager->remove($registration);
+        }
+
         $this->entityManager->flush();
 
-        $customMessage = $request->request->get('customMessage');
 
         if($experience->getTeacher()) {
             $this->notificationsMailer->notifyUserOfEventCancellation($experience->getTeacher(), $experience, $customMessage);
@@ -385,7 +447,7 @@ class ExperienceController extends AbstractController
             $this->notificationsMailer->notifyUserOfEventCancellation($user, $experience, $customMessage);
         }
 
-        $this->addFlash('success', 'Event successfully cancelled. Professional will be notified.');
+        $this->addFlash('success', 'Event successfully cancelled. Users will be notified.');
 
         return $this->redirectToRoute('requests');
     }

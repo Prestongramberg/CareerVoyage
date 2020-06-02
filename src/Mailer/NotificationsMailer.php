@@ -67,4 +67,53 @@ class NotificationsMailer extends AbstractMailer
 
         $this->mailer->send($message);
     }
+
+    public function notifyUserOfEventDateChange(User $user, Experience $experience, $message) {
+
+        $message = (new \Swift_Message('Event Date Changed'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/experience/notify_user_of_event_date_change.html.twig',
+                    ['user' => $user, 'experience' => $experience, 'customMessage' => $message]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    public function notifyUserOfEventCancellation(User $user, Experience $experience, $message) {
+
+        $message = (new \Swift_Message('Event Cancelled'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/experience/notify_user_of_event_cancellation.html.twig',
+                    ['user' => $user, 'experience' => $experience, 'customMessage' => $message]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
+    public function genericShareNotification(User $user, $message) {
+
+        $message = (new \Swift_Message('Shared with you.'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/generic_share_notification.html.twig',
+                    ['user' => $user, 'customMessage' => $message]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
 }
