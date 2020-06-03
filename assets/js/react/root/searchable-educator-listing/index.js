@@ -16,7 +16,7 @@ if( searchableEducatorListing ) {
     const store = createStore(
         reducers,
         {
-            companies: [],
+            schools: [],
             industries: [],
             educators: [],
             search: {

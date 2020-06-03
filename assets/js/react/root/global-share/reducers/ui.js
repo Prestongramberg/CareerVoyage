@@ -2,7 +2,8 @@ import * as actionTypes from "../actions/actionTypes";
 
 const initialState = {
     query: '',
-    users: []
+    users: [],
+    message: ''
 }
 
 export default (state = { ...initialState }, action) => {
@@ -24,6 +25,12 @@ export default (state = { ...initialState }, action) => {
             return {
                 ...state,
                 users: state.users.filter(user => user.id !== action.user.id)
+            }
+
+        case actionTypes.UPDATE_MESSAGE:
+            return {
+                ...state,
+                message: action.message
             }
 
         case actionTypes.NOTIFICATIONS_SENDING_SUCCESS:

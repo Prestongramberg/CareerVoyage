@@ -8,6 +8,13 @@ export function updateSearchQuery(query) {
     };
 }
 
+export function updateSchoolQuery(school) {
+    return {
+        type: actionTypes.SCHOOL_QUERY_CHANGED,
+        school: school
+    };
+}
+
 export function radiusChanged(radius) {
     return {
         type: actionTypes.RADIUS_CHANGED,
