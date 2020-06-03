@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import { addUser, removeUser, searchChattableUsers, sendNotifications } from "./actions/actionCreators";
+import { addUser, removeUser, searchChattableUsers, sendNotifications, updateMessage } from "./actions/actionCreators";
 import {connect} from "react-redux";
 
 const cb = 'global-share'
@@ -11,6 +11,10 @@ export class App extends Component {
         super(props);
         // const methods = ["displayFormField", "getText"];
         // methods.forEach(method => (this[method] = this[method].bind(this)));
+    }
+
+    componentWillMount() {
+        this.props.updateMessage( this.props.message )
     }
 
     render() {
@@ -68,7 +72,11 @@ export class App extends Component {
                             </div>
                         </div>
                         <div className="uk-margin">
-                            <button className="uk-button uk-button-primary" onClick={() => { this.props.sendNotifications( this.props.message ) }}>Share to selected users</button>
+                            <label>Message</label>
+                            <textarea id="" className="uk-textarea" cols="30" rows="10" onChange={ (e) => { this.props.updateMessage( e.target.value ) } } value={ this.props.ui.message }></textarea>
+                        </div>
+                        <div className="uk-margin">
+                            <button className="uk-button uk-button-primary" onClick={() => { this.props.sendNotifications() }}>Share to selected users</button>
                         </div>
                     </div>
                 </div>
@@ -96,6 +104,7 @@ export const mapDispatchToProps = dispatch => ({
     removeUser: (user) => dispatch(removeUser( user )),
     searchChattableUsers: (event) => dispatch(searchChattableUsers( event.target.value )),
     sendNotifications: () => dispatch(sendNotifications()),
+    updateMessage: (message) => dispatch(updateMessage(message))
 });
 
 const ConnectedApp = connect(

@@ -206,9 +206,7 @@ class App extends React.Component {
 
                                 return (
                                     <div key={message.id} className={`${cb}__window-thread-message ${cb}__window-thread-message--${messageClassNameModifier}`}>
-                                        <div className={`${cb}__window-thread-message-text ${cb}__window-thread-message-text--${messageClassNameModifier}`}>
-                                            { message.body }
-                                        </div>
+                                        <div className={`${cb}__window-thread-message-text ${cb}__window-thread-message-text--${messageClassNameModifier}`} dangerouslySetInnerHTML={{ __html: message.body }}></div>
                                     </div>
                                 )
                             })}

@@ -224,7 +224,6 @@ class EducatorController extends AbstractController
             $educators = $this->educatorUserRepository->getByArrayOfIds($educatorIds);
         } else {
             $educators = $this->educatorUserRepository->getAll();
-
         }
 
 
@@ -235,7 +234,6 @@ class EducatorController extends AbstractController
         foreach($educators as $educator) {
             $educatorObj = $educator;
             $educator = $this->educatorUserRepository->find($educatorObj['id']);
-            $educatorObj['school'] = $educator->getSchool()->getName();
             $educatorArray[] = $educatorObj;
 
         }

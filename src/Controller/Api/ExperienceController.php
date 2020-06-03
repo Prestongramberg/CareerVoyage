@@ -294,20 +294,19 @@ class ExperienceController extends AbstractController
     }
 
     /**
-     * @Route("/experiences/{id}/notify", name="experience_notify_users", options = { "expose" = true }, methods={"POST"})
+     * @Route("/share/notify", name="share_notify", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
-     * @param Experience $experience
      * @return JsonResponse
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      * @throws \Exception
      */
-    public function experienceNotifyUsersAction(Request $request, Experience $experience) {
+    public function experienceNotifyUsersAction(Request $request) {
 
         $loggedInUser = $this->getUser();
 
-        $userIds = $request->request->get('users');
+        $userIds = $request->request->get('user_ids');
 
         if(empty($userIds)) {
             return $this->json([
@@ -315,7 +314,7 @@ class ExperienceController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $customMessage = $request->request->get('customMessage', '');
+        $customMessage = $request->request->get('message', '');
 
         $users = $this->userRepository->findBy([
             'id' => $userIds
@@ -364,9 +363,12 @@ class ExperienceController extends AbstractController
             $this->notificationsMailer->genericShareNotification($user, $customMessage);
         }
 
-        return $this->json([
-            'message' => 'Notifications successfully sent out.'
-        ], Response::HTTP_OK);
+        return new JsonResponse(
+        	[
+        		'success' => true,
+        		'message' => 'Notifications successfully sent out.'
+	        ], Response::HTTP_OK
+        );
     }
 
     /**

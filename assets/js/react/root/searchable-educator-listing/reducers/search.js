@@ -29,15 +29,10 @@ export default (state = {}, action) => {
                 ...state,
                 secondaryIndustry: action.industry
             };
-        case actionTypes.COMPANY_QUERY_CHANGED:
+        case actionTypes.SCHOOL_QUERY_CHANGED:
             return {
                 ...state,
-                company: action.company
-            };
-        case actionTypes.ROLE_QUERY_CHANGED:
-            return {
-                ...state,
-                role: action.role
+                school: action.school
             };
         case actionTypes.RADIUS_CHANGED:
             return {

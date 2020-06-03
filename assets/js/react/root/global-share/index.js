@@ -16,7 +16,7 @@ for( let i = 0; i < globalShares.length; i++) {
     const store = createStore(
         reducers,
         {
-            users: [],
+            users: []
         },
         compose(
             applyMiddleware(thunk),

@@ -18,8 +18,8 @@ class EducatorListing extends Component {
                                     <h3 className="uk-card-title-small uk-margin-remove-bottom">{ this.props.firstName } {this.props.lastName}</h3>
                                 </a>
                                 <p className="uk-text-meta uk-margin-remove-top">
-                                    { this.props.school && <span>{ this.props.school }</span> }
-                                    { !this.props.school && <span>Educator</span> }
+                                    { this.props.school.id && <span>{ this.props.school.name }</span> }
+                                    { !this.props.school.id && <span>Educator</span> }
                                     { this.props.interests && <span> - { this.props.interests }</span> }
                                 </p>
                             </div>
@@ -54,7 +54,7 @@ EducatorListing.propTypes = {
     phone: PropTypes.string,
     primaryIndustry: PropTypes.string,
     secondaryIndustry: PropTypes.string,
-    school: PropTypes.string
+    school: PropTypes.object
 };
 
 EducatorListing.defaultProps = {

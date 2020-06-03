@@ -15,6 +15,13 @@ export function removeUser( user ) {
     }
 }
 
+export function updateMessage( message ) {
+    return {
+        type: actionTypes.UPDATE_MESSAGE,
+        message: message
+    }
+}
+
 export function searchChattableUsers( search ) {
     return (dispatch, getState) => {
 
@@ -42,17 +49,17 @@ export function searchChattableUsers( search ) {
     }
 }
 
-export function sendNotifications( message ) {
+export function sendNotifications() {
     return (dispatch, getState) => {
 
         const { ui } = getState();
 
-        const url = window.Routing.generate("share_chat")
+        const url = window.Routing.generate("share_notify")
 
         dispatch({type: actionTypes.NOTIFICATIONS_SENDING})
 
         return api.post(url, {
-                message: message ,
+                message: ui.message,
                 user_ids: ui.users.map((user) => user.id)
             })
             .then((response) => {
