@@ -89,7 +89,7 @@ abstract class Experience
      * @Groups({"EXPERIENCE_DATA", "CREATE", "EDIT"})
      * @ORM\Column(type="integer", nullable=true)
      */
-    protected $availableSpaces = 0;
+    protected $availableSpaces;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})

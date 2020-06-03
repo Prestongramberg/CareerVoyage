@@ -426,6 +426,11 @@ class ExperienceController extends AbstractController
         $registrations = $experience->getRegistrations();
 
         foreach ($registrations as $registration) {
+
+            if($registration->getUser()->isStudent()) {
+                continue;
+            }
+
             $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $customMessage);
         }
 
