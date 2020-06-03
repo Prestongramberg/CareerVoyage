@@ -152,12 +152,12 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->where('e.id IN (:ids)')
             ->setParameter('ids', $educatorIds)
             ->getQuery()
-            ->getArrayResult();
+            ->getResult();
     }
 
     public function getAll() {
         return $this->createQueryBuilder('u')
             ->getQuery()
-            ->getArrayResult();
+            ->getResult();
     }
 }

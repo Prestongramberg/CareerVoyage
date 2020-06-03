@@ -222,40 +222,28 @@ class EducatorController extends AbstractController
                 $educatorIds[] = $educator['id'];
             }
             $educators = $this->educatorUserRepository->getByArrayOfIds($educatorIds);
-            $educatorArray = [];
-            foreach($educators as $educator) {
-                $educatorObj = $educator;
-                $educator = $this->educatorUserRepository->find($educatorObj['id']);
-                $educatorObj['school'] = $educator->getSchool()->getName();
-                $educatorArray[] = $educatorObj;
-
-            }
-            $educators = $educatorArray;
         } else {
             $educators = $this->educatorUserRepository->getAll();
 
-            $educatorArray = [];
-            foreach($educators as $educator) {
-                $educatorObj = $educator;
-                $educator = $this->educatorUserRepository->find($educatorObj['id']);
-
-                if($educator->getSchool()) {
-                    $educatorObj['school'] = $educator->getSchool()->getName();
-                }
-
-                $educatorArray[] = $educatorObj;
-
-            }
-            $educators = $educatorArray;
         }
 
-        $json = $this->serializer->serialize($educators, 'json', ['groups' => ['EDUCATOR_USER_DATA']]);
-        $payload = json_decode($json, true);
 
+        $json = $this->serializer->serialize($educators, 'json', ['groups' => ['EDUCATOR_USER_DATA']]);
+        $educators = json_decode($json, true);
+
+        $educatorArray = [];
+        foreach($educators as $educator) {
+            $educatorObj = $educator;
+            $educator = $this->educatorUserRepository->find($educatorObj['id']);
+            $educatorObj['school'] = $educator->getSchool()->getName();
+            $educatorArray[] = $educatorObj;
+
+        }
+        
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $payload
+                'data' => $educatorArray
             ],
             Response::HTTP_OK
         );
