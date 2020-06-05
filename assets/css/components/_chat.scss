@@ -175,13 +175,17 @@
     margin-bottom: 4px;
     padding: 3px 8px;
 
+    a {
+      color: #FFF;
+    }
+
     &--from {
       background: #e5e5e5;
       color: #777;
-    }
 
-    a {
-      color: #FFF;
+      a {
+        color: #000;
+      }
     }
   }
 

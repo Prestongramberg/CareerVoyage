@@ -4,6 +4,6 @@
 
 <p>Shared with you:</p>
 
-<p style="font-weight: bold">{{ customMessage }}</p>
+<p style="font-weight: bold">{{ customMessage | raw }}</p>
 
 {% include 'email/partial/emailFooter.html.twig' %}
