@@ -46,7 +46,16 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
-                    {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
+
+                    {% if not user.student %}
+                        <div style="display: inline-block" class="react-global-share"
+                             data-user="{{ encode_user(user) }}"
+                             data-message="Check out this upcoming event: <a href='{{ path('company_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                            Share this Event
+                        </div>
+                    {% endif %}
+
+                    {% if user.isAdmin or ( user.company is defined and user.company and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
                         <a href="{{ path('company_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
                         <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Delete</a>
 
@@ -117,7 +126,7 @@
             {% if user.isEducator or user.isStudent %}
                 <li><a href="#experience-registration">Registration</a></li>
             {% endif %}
-            {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
+            {% if user.isAdmin or ( user.company is defined and user.company and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
                 <li><a href="#experience-sign-ups">Sign Ups</a></li>
                 <li><a href="#experience-feedback">Feedback</a></li>
             {% endif %}
@@ -305,7 +314,7 @@
                     {% endif %}
                 </div>
             {% endif %}
-            {% if user.isAdmin or ( user.company is defined and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
+            {% if user.isAdmin or ( user.company is defined and user.company and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
                 <div class="experience_signups">
                     {% if experience.registrations|length > 0 %}
                         <table class="uk-table uk-table-divider">
