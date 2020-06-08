@@ -439,15 +439,6 @@ class ExperienceController extends AbstractController
 
         $this->entityManager->flush();
 
-
-        if($experience->getTeacher()) {
-            $this->notificationsMailer->notifyUserOfEventCancellation($experience->getTeacher(), $experience, $customMessage);
-        }
-
-        if($user->getEmail()) {
-            $this->notificationsMailer->notifyUserOfEventCancellation($user, $experience, $customMessage);
-        }
-
         $this->addFlash('success', 'Event successfully cancelled. Users will be notified.');
 
         return $this->redirectToRoute('requests');
