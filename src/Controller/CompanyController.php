@@ -966,6 +966,25 @@ class CompanyController extends AbstractController
 
         $registration = $this->registrationRepository->getByUserAndExperience($studentToDeregister, $experience);
 
+        /** @var ProfessionalUser $companyOwner */
+        $companyOwner = $experience->getCompany()->getOwner();
+
+        if($companyOwner->getEmail()) {
+            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $companyOwner, $experience);
+        }
+
+        $educators = $studentToDeregister->getEducatorUsers();
+
+        foreach($educators as $educator) {
+            if($educator->getEmail()) {
+                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
+            }
+        }
+
+        if($studentToDeregister->getEmail()) {
+            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
+        }
+
         $this->entityManager->remove($deregisterStudentForExperience);
         $this->entityManager->remove($deregisterRequest);
         if ($registration) {
