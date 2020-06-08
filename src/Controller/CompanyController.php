@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Chat;
+use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
@@ -1138,19 +1140,60 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param CompanyExperience $experience
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience) {
         $message = $request->get('message');
         $students = $request->get('students');
 
-        /** @var User $user */
-        $user = $this->getUser();
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
 
         foreach ($students as $student) {
             
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
-            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
+
+
+            $chat = $this->chatRepository->findOneBy([
+                'userOne' => $loggedInUser,
+                'userTwo' => $student
+            ]);
+
+            if(!$chat) {
+                $chat = $this->chatRepository->findOneBy([
+                    'userOne' => $student,
+                    'userTwo' => $loggedInUser
+                ]);
+            }
+
+            // if a chat doesn't exist then let's create one!
+            if(!$chat) {
+                $chat = new Chat();
+                $chat->setUserOne($student);
+                $chat->setUserTwo($loggedInUser);
+                $this->entityManager->persist($chat);
+                $this->entityManager->flush();
+            }
+
+
+            $notice = $message;
+
+            $chatMessage = new ChatMessage();
+            $chatMessage->setBody($notice);
+            $chatMessage->setSentFrom($loggedInUser);
+            $chatMessage->setSentAt(new \DateTime());
+            $chatMessage->setChat($chat);
+
+            // Figure out which user to message from the chat object
+            $userToMessage = $chat->getUserOne()->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+            $chatMessage->setSentTo($userToMessage);
+
+            $this->entityManager->persist($chatMessage);
+            $this->entityManager->flush();
         }
 
         $this->addFlash('success', 'Experience has been sent to students!');
