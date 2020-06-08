@@ -1622,6 +1622,9 @@ class SchoolController extends AbstractController
 
 
         $message = $request->get('message');
+
+        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
         $students = $request->get('students');
 
         /** @var User $user */

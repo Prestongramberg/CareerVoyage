@@ -1145,7 +1145,10 @@ class CompanyController extends AbstractController
      * @throws \Twig\Error\SyntaxError
      */
     public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience) {
-        $message = $request->get('message');
+        $message = $request->get('message', '');
+
+        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
         $students = $request->get('students');
 
         /** @var User $loggedInUser */
