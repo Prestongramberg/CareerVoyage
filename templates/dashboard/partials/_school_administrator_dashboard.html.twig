@@ -173,6 +173,8 @@
                                         <dl class="uk-description-list uk-description-list-divider">
                                             {% for experience in school.schoolExperiences %}
 
+                                                {% set experienceId = experience.id %}
+
                                                 {% if experience.cancelled != 1 %}
                                                     <div class="uk-grid uk-flex-middle" uk-grid>
                                                         <div class="uk-width-expand">
@@ -181,10 +183,9 @@
                                                         <div class="uk-width-1-1 uk-width-auto@m">
                                                             <a href="{{ path('school_experience_view', { "id": experience.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
 
+                                                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Delete</a>
 
-                                                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Delete</a>
-
-                                                            <div id="modal-remove-company-event" uk-modal>
+                                                            <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
                                                                 <div class="uk-modal-dialog uk-modal-body">
                                                                     <h3>Delete Event</h3>
                                                                     <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >

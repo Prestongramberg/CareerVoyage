@@ -308,6 +308,7 @@ class FeedbackController extends AbstractController
             $feedback->setUser($user);
             $feedback->setExperience($experience);
 
+            $name = $feedback->getClassName();
             switch ($feedback->getClassName()) {
                 case 'EducatorReviewCompanyExperienceFeedback':
                     /** @var EducatorReviewCompanyExperienceFeedback $feedback */
@@ -345,6 +346,12 @@ class FeedbackController extends AbstractController
                     foreach ($educators as $educator) {
                         $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
                     }
+                    break;
+                case 'StudentReviewMeetProfessionalExperienceFeedback':
+                    /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setStudent($user);
                     break;
                 default:
                     /** @var Feedback $feedback */

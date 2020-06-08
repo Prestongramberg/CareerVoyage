@@ -1187,7 +1187,6 @@ class SchoolController extends AbstractController
                 $emailsSentTo[] = $user->getEmail();
             }
 
-
             $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
         }
 
