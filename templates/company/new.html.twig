@@ -83,7 +83,7 @@
 
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
-                            <div class="uk-text-meta">This is the excerpt shown in search results throughout the site</div>
+                            <div class="uk-text-meta">This is the excerpt shown in search results throughout the site (Please limit to 240 characters)</div>
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.shortDescription) }}
                         </div>

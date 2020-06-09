@@ -356,11 +356,13 @@ jQuery(document).ready(function($) {
         const $titleField = $modalBody.find('[name="title"]');
         const $descriptionField = $modalBody.find('[name="description"]');
         const $fileField = $modalBody.find('[name="resource"]');
+        const $linkToWebsite = $modalBody.find('[name="linkToWebsite"]');
 
         var formData = new FormData();
         formData.append('title', $titleField.val() );
         formData.append('description', $descriptionField.val() );
         formData.append('resource', $fileField[0].files[0]);
+        formData.append('linkToWebsite', $linkToWebsite.val() );
 
         $.ajax({
             url: url,

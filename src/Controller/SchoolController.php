@@ -1187,7 +1187,6 @@ class SchoolController extends AbstractController
                 $emailsSentTo[] = $user->getEmail();
             }
 
-
             $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $message);
         }
 
@@ -1622,6 +1621,9 @@ class SchoolController extends AbstractController
 
 
         $message = $request->get('message');
+
+        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
         $students = $request->get('students');
 
         /** @var User $user */

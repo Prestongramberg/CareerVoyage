@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Chat;
+use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
@@ -433,7 +435,7 @@ class CompanyController extends AbstractController
      * @Route("/companies/{id}/resource/add", name="company_resource_add", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
-     * @return JsonResponse
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function companyAddResourceAction(Request $request, Company $company) {
 
@@ -442,40 +444,59 @@ class CompanyController extends AbstractController
         /** @var UploadedFile $file */
         $file = $request->files->get('resource');
         $title = $request->request->get('title');
+        $linkToWebsite = $request->request->get('linkToWebsite');
         $description = $request->request->get('description');
 
-        if($file && $title) {
+        if(!$file && !$linkToWebsite) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        if(!$title) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $companyResource = new CompanyResource();
+
+        if($file) {
             $mimeType = $file->getMimeType();
             $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
-            $companyResource = new CompanyResource();
             $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
             $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
             $companyResource->setFileName($newFilename);
             $companyResource->setFile(null);
-            $companyResource->setCompany($company);
-            $companyResource->setDescription($description ? $description : null);
-            $companyResource->setTitle($title);
-            $this->entityManager->persist($companyResource);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
-                    'id' => $companyResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
-
-                ], Response::HTTP_OK
-            );
         }
+
+        if($linkToWebsite) {
+            $companyResource->setLinkToWebsite($linkToWebsite);
+        }
+
+        $companyResource->setCompany($company);
+        $companyResource->setDescription($description ? $description : null);
+        $companyResource->setTitle($title);
+        $this->entityManager->persist($companyResource);
+        $this->entityManager->flush();
 
         return new JsonResponse(
             [
-                'success' => false,
+                'success' => true,
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename : '',
+                'id' => $companyResource->getId(),
+                'title' => $title,
+                'description' => $description,
 
-            ], Response::HTTP_BAD_REQUEST
+            ], Response::HTTP_OK
         );
+
     }
 
     /**
@@ -964,6 +985,25 @@ class CompanyController extends AbstractController
 
         $registration = $this->registrationRepository->getByUserAndExperience($studentToDeregister, $experience);
 
+        /** @var ProfessionalUser $companyOwner */
+        $companyOwner = $experience->getCompany()->getOwner();
+
+        if($companyOwner->getEmail()) {
+            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $companyOwner, $experience);
+        }
+
+        $educators = $studentToDeregister->getEducatorUsers();
+
+        foreach($educators as $educator) {
+            if($educator->getEmail()) {
+                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
+            }
+        }
+
+        if($studentToDeregister->getEmail()) {
+            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
+        }
+
         $this->entityManager->remove($deregisterStudentForExperience);
         $this->entityManager->remove($deregisterRequest);
         if ($registration) {
@@ -1138,19 +1178,63 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param CompanyExperience $experience
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience) {
-        $message = $request->get('message');
+        $message = $request->get('message', '');
+
+        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
         $students = $request->get('students');
 
-        /** @var User $user */
-        $user = $this->getUser();
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
 
         foreach ($students as $student) {
             
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
-            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $user);
+            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
+
+
+            $chat = $this->chatRepository->findOneBy([
+                'userOne' => $loggedInUser,
+                'userTwo' => $student
+            ]);
+
+            if(!$chat) {
+                $chat = $this->chatRepository->findOneBy([
+                    'userOne' => $student,
+                    'userTwo' => $loggedInUser
+                ]);
+            }
+
+            // if a chat doesn't exist then let's create one!
+            if(!$chat) {
+                $chat = new Chat();
+                $chat->setUserOne($student);
+                $chat->setUserTwo($loggedInUser);
+                $this->entityManager->persist($chat);
+                $this->entityManager->flush();
+            }
+
+
+            $notice = $message;
+
+            $chatMessage = new ChatMessage();
+            $chatMessage->setBody($notice);
+            $chatMessage->setSentFrom($loggedInUser);
+            $chatMessage->setSentAt(new \DateTime());
+            $chatMessage->setChat($chat);
+
+            // Figure out which user to message from the chat object
+            $userToMessage = $chat->getUserOne()->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+            $chatMessage->setSentTo($userToMessage);
+
+            $this->entityManager->persist($chatMessage);
+            $this->entityManager->flush();
         }
 
         $this->addFlash('success', 'Experience has been sent to students!');

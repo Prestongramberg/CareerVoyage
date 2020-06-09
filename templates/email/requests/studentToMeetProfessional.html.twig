@@ -2,16 +2,16 @@
 
 {% if request.needsApprovalBy.isEducator %}
 <p>There is a request for student {{ request.student.fullName }} to meet with
-    professional {{ request.professional.fullName }} for {{ request.reasonToMeet.name }}
+    professional {{ request.professional.fullName }} as a {{ request.reasonToMeet.name }}
 </p>
     <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to approve.</p>
 {% elseif  request.needsApprovalBy.isProfessional %}
     <p>There is a request for student {{ request.student.fullName }} to meet with
-        you for {{ request.reasonToMeet.name }}
+        you as a {{ request.reasonToMeet.name }}
     </p>
     <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to approve.</p>
 {% elseif request.needsApprovalBy.isStudent %}
-    <p>Professional {{ request.professional.fullName }} has agreed to meet for {{ request.reasonToMeet.name }}</p>
+    <p>Professional {{ request.professional.fullName }} has agreed to meet as a {{ request.reasonToMeet.name }}</p>
     <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to confirm a date.</p>
 {% endif %}
 

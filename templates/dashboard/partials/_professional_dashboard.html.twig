@@ -214,6 +214,8 @@
                                                                             {% set role = 'Professional' %}
                                                                         {% elseif feedback.user.educator %}
                                                                             {% set role = 'Educator' %}
+                                                                        {% elseif feedback.user.student %}
+                                                                            {% set role = 'Student' %}
                                                                         {% else %}
                                                                             {% set role = 'Unknown' %}
                                                                     {% endif %}
