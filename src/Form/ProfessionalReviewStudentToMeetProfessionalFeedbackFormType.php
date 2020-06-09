@@ -51,6 +51,36 @@ class ProfessionalReviewStudentToMeetProfessionalFeedbackFormType extends Abstra
             'expanded' => true,
             'required' => true
         ]);
+
+	    $builder->add('wasOnTime', ChoiceType::class, [
+		    'choices' => [
+			    'Yes' => true,
+			    'No' => false
+		    ],
+		    'multiple' => false,
+		    'expanded' => true,
+		    'required' => true
+	    ]);
+
+	    $builder->add('politeAndProfessional', ChoiceType::class, [
+		    'choices' => [
+			    'Yes' => true,
+			    'No' => false
+		    ],
+		    'multiple' => false,
+		    'expanded' => true,
+		    'required' => true
+	    ]);
+
+	    $builder->add('engagedAndAskedQuestions', ChoiceType::class, [
+		    'choices' => [
+			    'Yes' => true,
+			    'No' => false
+		    ],
+		    'multiple' => false,
+		    'expanded' => true,
+		    'required' => true
+	    ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

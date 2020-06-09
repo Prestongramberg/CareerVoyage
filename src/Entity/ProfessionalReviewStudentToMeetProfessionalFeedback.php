@@ -33,6 +33,24 @@ class ProfessionalReviewStudentToMeetProfessionalFeedback extends Feedback
      */
     protected $showUp = true;
 
+    /**
+     * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $politeAndProfessional = true;
+
+    /**
+     * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $engagedAndAskedQuestions = true;
+
+    /**
+     * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $wasOnTime = true;
+
     public function getProfessional(): ?ProfessionalUser
     {
         return $this->professional;
@@ -65,6 +83,42 @@ class ProfessionalReviewStudentToMeetProfessionalFeedback extends Feedback
     public function setShowUp(bool $showUp): self
     {
         $this->showUp = $showUp;
+
+        return $this;
+    }
+
+    public function getPoliteAndProfessional(): ?bool
+    {
+        return $this->politeAndProfessional;
+    }
+
+    public function setPoliteAndProfessional(?bool $politeAndProfessional): self
+    {
+        $this->politeAndProfessional = $politeAndProfessional;
+
+        return $this;
+    }
+
+    public function getEngagedAndAskedQuestions(): ?bool
+    {
+        return $this->engagedAndAskedQuestions;
+    }
+
+    public function setEngagedAndAskedQuestions(?bool $engagedAndAskedQuestions): self
+    {
+        $this->engagedAndAskedQuestions = $engagedAndAskedQuestions;
+
+        return $this;
+    }
+
+    public function getWasOnTime(): ?bool
+    {
+        return $this->wasOnTime;
+    }
+
+    public function setWasOnTime(?bool $wasOnTime): self
+    {
+        $this->wasOnTime = $wasOnTime;
 
         return $this;
     }

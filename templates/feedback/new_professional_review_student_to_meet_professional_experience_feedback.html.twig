@@ -42,15 +42,15 @@
                     {{ form_errors(form.showUp) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': 'uk-hidden' }}) }}
-                    {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-hidden' }}) }}
-                    {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': 'uk-hidden' }}) }}
+                    {{ form_widget(form.wasOnTime, {'attr': {'class': 'uk-hidden' }}) }}
+                    {{ form_widget(form.politeAndProfessional, {'attr': {'class': 'uk-hidden' }}) }}
+                    {{ form_widget(form.engagedAndAskedQuestions, {'attr': {'class': 'uk-hidden' }}) }}
 
                     <label>Choose all that apply</label>
                     <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}" data-fields='[
-                        { "name": "professional_review_student_to_meet_professional_feedback_form[feedback][providedCareerInsight]", "label": "Student was on time", "value": "{{ feedback.providedCareerInsight }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
-                        { "name": "professional_review_student_to_meet_professional_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Student was polite, professional", "value": "{{ feedback.wasEnjoyableAndEngaging }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
-                        { "name": "professional_review_student_to_meet_professional_feedback_form[feedback][learnSomethingNew]", "label": "Student was engaged, asked questions", "value": "{{ feedback.learnSomethingNew }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
+                        { "name": "professional_review_student_to_meet_professional_feedback_form[wasOnTime]", "label": "Student was on time", "value": "{{ feedback.wasOnTime }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
+                        { "name": "professional_review_student_to_meet_professional_feedback_form[politeAndProfessional]", "label": "Student was polite, professional", "value": "{{ feedback.politeAndProfessional }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
+                        { "name": "professional_review_student_to_meet_professional_feedback_form[engagedAndAskedQuestions]", "label": "Student was engaged, asked questions", "value": "{{ feedback.engagedAndAskedQuestions }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
                     ]'></div>
                 </div>
                 <div class="uk-margin">
