@@ -186,7 +186,11 @@
                                     <dd>{{ companyResource.description }}</dd>
                                 </div>
                                 <div class="uk-width-auto">
-                                    <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% if companyResource.fileName %}
+                                        <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% else %}
+                                        <a href="{{ companyResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}

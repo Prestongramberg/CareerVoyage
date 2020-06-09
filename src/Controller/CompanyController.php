@@ -435,7 +435,7 @@ class CompanyController extends AbstractController
      * @Route("/companies/{id}/resource/add", name="company_resource_add", options = { "expose" = true })
      * @param Request $request
      * @param Company $company
-     * @return JsonResponse
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function companyAddResourceAction(Request $request, Company $company) {
 
@@ -444,40 +444,59 @@ class CompanyController extends AbstractController
         /** @var UploadedFile $file */
         $file = $request->files->get('resource');
         $title = $request->request->get('title');
+        $linkToWebsite = $request->request->get('linkToWebsite');
         $description = $request->request->get('description');
 
-        if($file && $title) {
+        if(!$file && !$linkToWebsite) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        if(!$title) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $companyResource = new CompanyResource();
+
+        if($file) {
             $mimeType = $file->getMimeType();
             $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
-            $companyResource = new CompanyResource();
             $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
             $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
             $companyResource->setFileName($newFilename);
             $companyResource->setFile(null);
-            $companyResource->setCompany($company);
-            $companyResource->setDescription($description ? $description : null);
-            $companyResource->setTitle($title);
-            $this->entityManager->persist($companyResource);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
-                    'id' => $companyResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
-
-                ], Response::HTTP_OK
-            );
         }
+
+        if($linkToWebsite) {
+            $companyResource->setLinkToWebsite($linkToWebsite);
+        }
+
+        $companyResource->setCompany($company);
+        $companyResource->setDescription($description ? $description : null);
+        $companyResource->setTitle($title);
+        $this->entityManager->persist($companyResource);
+        $this->entityManager->flush();
 
         return new JsonResponse(
             [
-                'success' => false,
+                'success' => true,
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename : '',
+                'id' => $companyResource->getId(),
+                'title' => $title,
+                'description' => $description,
 
-            ], Response::HTTP_BAD_REQUEST
+            ], Response::HTTP_OK
         );
+
     }
 
     /**

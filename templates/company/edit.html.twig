@@ -98,6 +98,7 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
+                            <div class="uk-text-meta">This is the excerpt shown in search results throughout the site (Please limit to 240 characters)</div>
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.shortDescription) }}
                         </div>
@@ -323,7 +324,14 @@
                                 </div>
 
                                 <div class="uk-margin">
-                                    <label>Resource File*</label><br />
+                                    <label for="edit_company_add_resource_description" class="required">Add Link To Website</label>
+                                    <input type="text" id="edit_company_add_resource_link_to_website" name="linkToWebsite" class="uk-input" />
+                                </div>
+
+                                <div>OR</div>
+
+                                <div class="uk-margin">
+                                    <label>Upload Resource File</label><br />
                                     <div uk-form-custom="target: true">
                                         <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
                                         <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
@@ -363,7 +371,11 @@
                                         <dd>{{ companyResource.description }}</dd>
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% if companyResource.fileName %}
+                                            <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% else %}
+                                            <a href="{{ companyResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% endif %}
                                     </div>
                                     <button type="button" data-remove="{{ path('company_resource_remove', {'id' : companyResource.id }) }}" uk-close></button>
                                 </div>

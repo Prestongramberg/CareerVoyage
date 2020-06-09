@@ -38,6 +38,11 @@ class CompanyResource extends Image
      */
     private $file;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $linkToWebsite;
+
 
     public function getCompany(): ?Company
     {
@@ -94,5 +99,17 @@ class CompanyResource extends Image
     public function setFile($file)
     {
         $this->file = $file;
+    }
+
+    public function getLinkToWebsite(): ?string
+    {
+        return $this->linkToWebsite;
+    }
+
+    public function setLinkToWebsite(?string $linkToWebsite): self
+    {
+        $this->linkToWebsite = $linkToWebsite;
+
+        return $this;
     }
 }
