@@ -204,7 +204,10 @@ class ExperienceController extends AbstractController
             }
 
             $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
-            $payload = $experiences;
+            $experienceIds = array_map(function($experience) { return $experience['id']; }, $experiences);
+            $experiences = $this->experienceRepository->findBy(['id' => $experienceIds]);
+	        $json = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA']]);
+	        $payload = json_decode($json, true);
 
         } else {
             /**
