@@ -175,6 +175,7 @@ class ExperienceController extends AbstractController
                 }
             } else {
                 // Everyone sees all company events
+                $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
                 $companyExperiences = $this->companyExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
 
                 if ( $loggedInUser->isSchoolAdministrator() ) {

@@ -154,11 +154,15 @@ HERE;
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId) {
+    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId = null) {
 
-        $query = sprintf('SELECT * from school_experience se INNER JOIN experience e on e.id = se.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND se.school_id = %s',
-            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId
+        $query = sprintf('SELECT * from school_experience se INNER JOIN experience e on e.id = se.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s)',
+            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
         );
+
+        if($schoolId) {
+            $query .= sprintf('AND se.school_id = %s', $schoolId);
+        }
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
