@@ -126,4 +126,27 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * @param Region $region
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function fetchAll() {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, sa.phone as phone,
+        (
+        SELECT GROUP_CONCAT(s.name SEPARATOR \',\') from school s INNER JOIN school_school_administrator ssa WHERE s.id = ssa.school_id
+        AND ssa.school_administrator_id = u.id
+        ) AS schools
+        FROM user u 
+        INNER JOIN school_administrator sa on u.id = sa.id 
+        INNER JOIN school_school_administrator ssa on sa.id = ssa.school_administrator_id
+        INNER JOIN school sc on sc.id = ssa.school_id');
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

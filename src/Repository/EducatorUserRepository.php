@@ -160,4 +160,26 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function fetchAll() {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, eu.phone, sc.name as school_name,
+          sc.street as street,
+          sc.city as city,
+          s.name as state,
+          sc.zipcode as zipcode
+          FROM user u 
+          INNER JOIN educator_user eu on u.id = eu.id 
+          LEFT JOIN school sc on eu.school_id = sc.id
+          LEFT JOIN state s on sc.state_id = s.id');
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

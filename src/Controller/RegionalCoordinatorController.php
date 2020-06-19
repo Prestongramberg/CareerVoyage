@@ -82,13 +82,13 @@ class RegionalCoordinatorController extends AbstractController
 
         switch ($request->query->get('type')) {
             case 'professionals':
-                $data = $this->professionalUserRepository->findByRegion($user->getRegion());
+                $data = $this->professionalUserRepository->fetchAll();
                 break;
             case 'educators':
-                $data = $this->educatorUserRepository->findByRegion($user->getRegion());
+                $data = $this->educatorUserRepository->fetchAll();
                 break;
             case 'school_administrators':
-                $data = $this->schoolAdministratorRepository->findByRegion($user->getRegion());
+                $data = $this->schoolAdministratorRepository->fetchAll();
                 break;
             default:
                 throw new \Exception("Invalid report type.");
