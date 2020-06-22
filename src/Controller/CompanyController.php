@@ -947,7 +947,13 @@ class CompanyController extends AbstractController
 
         if($experience->getAvailableSpaces() === 0) {
             $this->addFlash('error', sprintf('Could not register students. 0 spots left.'));
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+
+            if($request->isXmlHttpRequest()){
+              return new JsonResponse( ["status" => "failure", "message" => 'Could not register students. 0 spots left.', "student_id" => $studentIdToRegister, 'id' => $experience->getId()]);
+            } else {
+              return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+            }
+
         }
         /** @var User $user */
         $user = $this->getUser();
@@ -960,7 +966,13 @@ class CompanyController extends AbstractController
         $this->entityManager->flush();
         $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
         $this->addFlash('success', 'Registration request successfully sent.');
-        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+
+        if($request->isXmlHttpRequest()){
+          // AJAX request
+          return new JsonResponse( ["status" => "success", "student_id" => $studentIdToRegister, 'id' => $experience->getId()]);
+        } else {
+          return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
@@ -1012,7 +1024,13 @@ class CompanyController extends AbstractController
         $this->entityManager->persist($experience);
         $this->entityManager->flush();
         $this->addFlash('success', 'Student has been removed from this experience.');
-        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+
+        if($request->isXmlHttpRequest()){
+          // AJAX request
+          return new JsonResponse( ["status" => "success", "student_id" => $studentIdToDeregister, 'id' => $experience->getId()]);
+        } else {
+          return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
@@ -1193,7 +1211,7 @@ class CompanyController extends AbstractController
         $loggedInUser = $this->getUser();
 
         foreach ($students as $student) {
-            
+
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
             $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
