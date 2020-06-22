@@ -26,6 +26,11 @@ class SchoolAdministrator extends User
      */
     private $site;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phone;
+
     public function __construct()
     {
         parent::__construct();
@@ -114,5 +119,17 @@ class SchoolAdministrator extends User
             $schools[] = $school->getName();
         }
         return implode($delimiter, $schools);
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
     }
 }

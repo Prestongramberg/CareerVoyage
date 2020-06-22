@@ -124,6 +124,28 @@ class ProfessionalUserRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function fetchAll() {
+
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, pu.phone, c.name as company,
+          IF(c.owner_id = u.id, "YES", "NO") as company_owner,
+          CASE WHEN c.owner_id = u.id THEN c.street ELSE NULL END as street,
+          CASE WHEN c.owner_id = u.id THEN c.city ELSE NULL END as city,
+          CASE WHEN c.owner_id = u.id THEN s.name ELSE NULL END as state,
+          CASE WHEN c.owner_id = u.id THEN c.zipcode ELSE NULL END as zipcode
+          FROM user u 
+          INNER JOIN professional_user pu on u.id = pu.id 
+          LEFT JOIN company c on pu.company_id = c.id
+          LEFT JOIN state s on c.state_id = s.id');
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    /**
      * @param Region $region
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException

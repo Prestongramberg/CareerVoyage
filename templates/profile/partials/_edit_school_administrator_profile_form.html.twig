@@ -27,6 +27,11 @@
                         {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.lastName) }}
                     </div>
+                    <div>
+                        {{ form_label(form.phone, 'Phone') }}
+                        {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.phone) }}
+                    </div>
                     {% include 'profile/partials/shared/_edit_profile_image.html.twig' %}
                     <div class="uk-margin">
                         {{ form_label(form.email, 'Email') }}

@@ -42,7 +42,17 @@ class SchoolAdministratorEditProfileFormType extends AbstractType
             ->add('email')
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
-            ]);
+            ])
+            ->add('phone', TextType::class);
+
+        $builder->get('phone')->addModelTransformer(new CallbackTransformer(
+            function ($phone) {
+                return str_replace('-', '', $phone);
+            },
+            function ($phone) {
+                return $this->localize_us_number($phone);
+            }
+        ));
     }
 
     public function configureOptions(OptionsResolver $resolver)
