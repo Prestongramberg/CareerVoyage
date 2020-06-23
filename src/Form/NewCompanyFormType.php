@@ -69,28 +69,32 @@ class NewCompanyFormType extends AbstractType
                     'placeholder' => 'http://example.org'
                 ]
             ])
-            ->add('phone', TextType::class)
+            ->add('phone', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'xxx-xxx-xxxx'
+                ]
+            ])
             ->add('phoneExt', TextType::class, [
                 'attr' => [
                     'placeholder' => '123'
                 ]
             ])
             ->add('emailAddress', TextType::class)
-            ->add('primaryIndustry', EntityType::class, [
-                'class' => Industry::class,
-                'choice_label' => 'name',
-                'required' => false,
-                'placeholder' => 'Select a Primary Industry'
-            ])
-            ->add('schools', EntityType::class, [
-                'class' => School::class,
-                'choice_label' => 'name',
-                'multiple' => true,
-                'expanded' => true,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
-                }
-            ])
+            // ->add('primaryIndustry', EntityType::class, [
+            //     'class' => Industry::class,
+            //     'choice_label' => 'name',
+            //     'required' => false,
+            //     'placeholder' => 'Select a Primary Industry'
+            // ])
+            // ->add('schools', EntityType::class, [
+            //     'class' => School::class,
+            //     'choice_label' => 'name',
+            //     'multiple' => true,
+            //     'expanded' => true,
+            //     'choice_attr' => function($choice, $key, $value) {
+            //         return ['class' => 'uk-checkbox'];
+            //     }
+            // ])
             ->add('shortDescription', TextareaType::class, [])
             ->add('description', TextareaType::class)
             ->add('geoRadius', HiddenType::class, [])
@@ -106,25 +110,25 @@ class NewCompanyFormType extends AbstractType
             }
         ));
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-
-            $data = $event->getData();
-            if(!$data->getPrimaryIndustry()) {
-                return;
-            }
-            $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
-        });
-
-        $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-            /** @var Industry $industry */
-            $industry = $event->getForm()->getData();
-
-            if(!$industry) {
-                return;
-            }
-
-            $this->modifyForm($event->getForm()->getParent(), $industry);
-        });
+        // $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        //
+        //     $data = $event->getData();
+        //     if(!$data->getPrimaryIndustry()) {
+        //         return;
+        //     }
+        //     $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
+        // });
+        //
+        // $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+        //     /** @var Industry $industry */
+        //     $industry = $event->getForm()->getData();
+        //
+        //     if(!$industry) {
+        //         return;
+        //     }
+        //
+        //     $this->modifyForm($event->getForm()->getParent(), $industry);
+        // });
     }
 
 
