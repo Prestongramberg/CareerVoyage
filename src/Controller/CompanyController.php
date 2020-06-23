@@ -774,6 +774,9 @@ class CompanyController extends AbstractController
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
+        if($form->isSubmitted() && !$form->isValid()) {
+          $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
+        }
 
         if($request->request->has('primary_industry_change')) {
             return new JsonResponse(
