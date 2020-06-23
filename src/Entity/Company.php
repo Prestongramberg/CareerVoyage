@@ -30,7 +30,7 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a phone number!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your phone number in xxx-xxx-xxxx format.", groups={"CREATE", "EDIT"})
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
@@ -90,28 +90,28 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your company name.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter a short description.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $shortDescription;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a long description!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter a long description.", groups={"EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a website!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your website.", groups={"CREATE", "EDIT"})
      * @Assert\Regex("/^(http|https):\/\//", message="Website must start with http or https!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -119,14 +119,14 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget an email address!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your email address.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
     private $emailAddress;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please choose at least one primary industry.", groups={"EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="companies")
      */
     private $primaryIndustry;
@@ -189,7 +189,7 @@ class Company
      * @Groups({"RESULTS_PAGE"})
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must specify at least one career field",
+     *      minMessage = "Please choose at least one career field.",
      *     groups={"SECONDARY_INDUSTRY"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="companies")
@@ -199,8 +199,8 @@ class Company
     /**
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must specify at least one school",
-     *     groups={"CREATE", "EDIT"}
+     *      minMessage = "Please specify at least one school.",
+     *     groups={"EDIT"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="companies")
      */
@@ -240,28 +240,28 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your street address.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $street;
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your city.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $city;
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your zipcode.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please choose your state.", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State")
      */
     private $state;
