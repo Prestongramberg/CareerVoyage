@@ -56,7 +56,7 @@ class EditCompanyFormType extends AbstractType
             ])
             ->add('phone', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'XXXXXXXXXX'
+                    'placeholder' => 'xxx-xxx-xxxx'
                 ]
             ])
             ->add('phoneExt', TextType::class, [

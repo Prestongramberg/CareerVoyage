@@ -46,7 +46,9 @@ class rvm::system(
 
   exec { 'system-rvm':
     path        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
-    command     => "curl -fsSL https://get.rvm.io | bash -s -- --version ${actual_version}",
+    #command     => "curl -fsSL https://get.rvm.io | bash -s -- --version ${actual_version}",
+    command     => "curl -fsSL hhttps://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer | bash -s -- --version ${actual_version}",
+
     creates     => '/usr/local/rvm/bin/rvm',
     environment => $environment,
   }

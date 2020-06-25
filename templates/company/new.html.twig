@@ -16,8 +16,6 @@
 
         <ul class="uk-tab" uk-switcher="connect: #tab-new-company" uk-tab>
             <li class="uk-active"><a href="#company-details">New Company</a></li>
-            <li><a href="#company-industries">Industry</a></li>
-            <li><a href="#company-schools">Schools</a></li>
         </ul>
 
         {% if form_errors(form) %}
@@ -64,7 +62,7 @@
                         <div class="uk-margin">
                             <div class="uk-column-1-2">
                                 <div>
-                                    {{ form_label(form.phone, 'Phone') }}
+                                    {{ form_label(form.phone, 'Phone*') }}
                                     {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
                                     {{ form_errors(form.phone) }}
                                 </div>
@@ -88,7 +86,7 @@
                             {{ form_errors(form.shortDescription) }}
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.description, 'Description*') }}
+                            {{ form_label(form.description, 'Description') }}
                             <div class="uk-text-meta">Describe your company in detail</div>
                             <div data-wysiwyg="[name='new_company_form[description]']" class="{{ ( form_errors(form.description) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
@@ -99,50 +97,7 @@
                     </fieldset>
                 </div>
             </div>
-            <div class="page-company-new__industry">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.primaryIndustry) }}
-                        </div>
 
-                        <div class="js-secondary-industry-container">
-                            {% if form.secondaryIndustries is defined %}
-                                <div class="uk-margin">
-                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
-                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                    <div class="clear"></div>
-                                    {{ form_errors(form.secondaryIndustries) }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
-            <div class="page-company-new__schools">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }}
-                            <div class="react-schools-select-by-radius"
-                                 data-field-name="new_company_form[schools][]"
-                                 data-field-value="{{ form.schools.vars.value|json_encode }}"
-                                 data-georadius-name="new_company_form[geoRadius]"
-                                 data-georadius-value="{{ form.geoRadius.vars.value }}"
-                                 data-geozipcode-name="new_company_form[geoZipCode]"
-                                 data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif user.zipcode is defined %}{{ user.zipcode }}{% endif %}">
-                                {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_widget(form.geoZipCode) }}
-                                {{ form_widget(form.geoRadius) }}
-                            </div>
-                            <div class="clear"></div>
-                            {{ form_errors(form.schools) }}
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
         </div>
 
         <div class="uk-margin">
