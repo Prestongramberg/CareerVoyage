@@ -78,6 +78,11 @@ class App extends React.Component {
                 {this.props.subscriptions.subscribed.length > 0 && (
                     <div className="uk-margin">
                         <div className="uk-grid" data-uk-grid>
+                          <div className="uk-width-expand">
+                            <button className="uk-button uk-button-primary uk-button-small">Save</button>
+                          </div>
+                        </div>
+                        <div className="uk-grid" data-uk-grid>
                             <div className="uk-width-expand">
                                 <h4>{ this.props.existingTitle || "Applicable Career Fields:" } </h4>
                             </div>
