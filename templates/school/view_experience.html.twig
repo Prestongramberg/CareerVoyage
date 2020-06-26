@@ -19,9 +19,9 @@
                 <h3 class="uk-margin-remove-top">{{ experience.title }}</h3>
                 <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
-
-                {% if user.isProfessional or user.isStudent %}
 asd
+                {% if user.isProfessional or user.isStudent %}
+
                 {% for registration in user.getRegistrations %}
                   {% if registration.experience.id == experience.id %}
                   <div class="react-calendar-button uk-inline"
