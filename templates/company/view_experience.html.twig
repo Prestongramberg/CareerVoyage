@@ -40,6 +40,18 @@
                     </div>
                 {% endif %}
 
+                {% for registration in user.getRegistrations %}
+                  {% if registration.experience.id == experience.id %}
+                  <div class="react-calendar-button"
+                       data-event-start-time="{{ experience.startDateAndTimeTimeStamp }}"
+                       data-event-end-time="{{ experience.endDateAndTimeTimeStamp }}"
+                       data-title="{{ experience.title }}"
+                       data-description="{{ experience.briefDescription }}"
+                       data-location="{{ experience.getFormattedAddress }}"
+                  ></div>
+                  {% endif %}
+                {% endfor %}
+
             </div>
         </div>
 
