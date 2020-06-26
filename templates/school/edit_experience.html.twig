@@ -115,7 +115,7 @@
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
                             {{ form_label(form.schoolContact, 'School Contact*') }}
-                            <div class="uk-text-meta">This school admin will be be able to manage this event</div>
+                            <div class="uk-text-meta">This educator will be managing this event</div>
                             {{ form_widget(form.schoolContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schoolContact) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.schoolContact) }}
                         </div>
