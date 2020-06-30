@@ -247,6 +247,10 @@ class FeedbackController extends AbstractController
                     $feedback = $feedback = $feedback ? $feedback : new EducatorReviewCompanyExperienceFeedback();
                     $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_company_experience_feedback.html.twig';
+                } elseif ($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewCompanyExperienceFeedback();
+                    $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
+                    $template = 'new_professional_review_student_company_experience_feedback.html.twig';
                 }
                 break;
             case 'TeachLessonExperience':
