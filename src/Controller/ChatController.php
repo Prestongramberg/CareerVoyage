@@ -404,6 +404,28 @@ class ChatController extends AbstractController
             $users = array_merge($studentUsers, $educatorUsers, $schoolAdministrators, $professionalUsers);
         }
 
+        /**
+         * School Administrators can message
+         * 1. All educators on the platform
+         * 2. All school administrators
+         * 4. All Professional Users
+         * @var ProfessionalUser $loggedInUser
+         */
+        if($loggedInUser->isSchoolAdministrator()) {
+
+            // find users just for their school
+            foreach($loggedInUser->getSchools() as $school) {
+                $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $school);
+                $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $school);
+                $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $school);
+                $users = array_merge($users, $studentUsers, $educatorUsers, $schoolAdministrators);
+            }
+
+            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+
+            $users = array_merge($users, $professionalUsers);
+        }
+
         return $users;
     }
 }
