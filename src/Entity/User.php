@@ -942,7 +942,7 @@ abstract class User implements UserInterface
         $roles = $this->getRoles();
         $this->roles[] = self::ROLE_DASHBOARD_USER;
     }
-    
+
 
     public function getActivationCode()
     {

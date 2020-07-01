@@ -10,6 +10,9 @@ use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 
+use App\Entity\EducatorUser;
+
+
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
  * @method User|null findOneBy(array $criteria, array $orderBy = null)
@@ -149,6 +152,56 @@ class UserRepository extends ServiceEntityRepository implements  UserLoaderInter
 
         return $qb->getQuery()->getResult();
     }
+
+
+    public function findContactsBySchool($school)
+    {
+      $query = sprintf('SELECT u.id, u.first_name, u.last_name
+FROM user u, school_school_administrator ssa, educator_user eu
+WHERE
+(
+	(u.id = ssa.school_administrator_id AND ssa.school_id = "%s")
+OR
+	(u.id = eu.id AND eu.school_id = "%s")
+)
+AND eu.id != ssa.school_administrator_id
+GROUP BY u.id ORDER BY
+	last_name, first_name', $school, $school);
+
+
+  // $em = $this->getEntityManager();
+  // $stmt = $em->getConnection()->prepare($query);
+  // return $stmt;
+  // return $stmt->fetchAll();
+
+
+      // $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join educator_user eu on u.id = eu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
+
+      // $em = $this->getDoctrine()->getManager();
+
+      $result = $this->createQueryBuilder('user')
+          ->join('App\Entity\SchoolAdministrator', 'ssa', 'WITH', 'user.id = ssa.school_administrator_id')
+          ->leftJoin('App\Entity\EducatorUser', 'eu', 'WITH', 'user.id = eu.id')
+          ->where('ssa.school_id = :school')
+          ->where('eu.school = :school')
+          ->setParameter('school', $school)
+          ->orderBy("user.lastName");
+
+          // echo $result;
+      // $result = $this->createQueryBuilder('user')
+      //   ->leftJoin('user.user_id', 'school_school_administrator')
+      //   ->leftJoin('user.user_id', 'educator_user')
+      //   ->where('educator_user.id != school_school_administrator.school_administrator_id')
+      //   ->andWhere('( (user.id = school_school_administrator.school_administrator_id AND school_school_administrator.school_id = :school) OR (user.id = educator_user.id AND educator_user.school_id = :school) )')
+      //   ->setParameter('school', $school)
+      //   ->groupBy('user.id')
+      //   ->orderBy('last_name', 'ASC')
+      //   ->addOrderBy('first_name', 'ASC');
+
+
+    }
+
+
 
     /**
      * @param Lesson $lesson

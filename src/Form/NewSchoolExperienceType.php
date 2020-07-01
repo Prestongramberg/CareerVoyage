@@ -40,6 +40,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
+
+use App\Repository\UserRepository;
+
 class NewSchoolExperienceType extends AbstractType
 {
     /**
@@ -87,16 +90,25 @@ class NewSchoolExperienceType extends AbstractType
                 'multiple'  => false,
                 'required' => false
             ])
+            // ->add('schoolContact', EntityType::class, [
+            //     'class' => SchoolAdministrator::class,
+            //     'choice_label' => 'fullName',
+            //     'expanded'  => false,
+            //     'multiple'  => false,
+            //     'query_builder' => function (EntityRepository $er) use ($school) {
+            //         return $er->createQueryBuilder('sa')
+            //             ->innerJoin('sa.schools', 'schools')
+            //             ->where('schools.id = :id')
+            //             ->setParameter('id', $school->getId());
+            //     },
+            // ])
             ->add('schoolContact', EntityType::class, [
-                'class' => SchoolAdministrator::class,
+                'class' => User::class,
                 'choice_label' => 'fullName',
                 'expanded'  => false,
                 'multiple'  => false,
-                'query_builder' => function (EntityRepository $er) use ($school) {
-                    return $er->createQueryBuilder('sa')
-                        ->innerJoin('sa.schools', 'schools')
-                        ->where('schools.id = :id')
-                        ->setParameter('id', $school->getId());
+                'query_builder' => function(UserRepository $repo) use ($school) {
+                    return $repo->findContactsBySchool($school->getId());
                 },
             ])
             ->add('email', TextType::class, [])
