@@ -313,4 +313,15 @@
 
     </div>
 
+    <script>
+      const website = document.getElementById('edit_school_website');
+      website.addEventListener('blur', (event) => {
+        const matched = event.target.value.match(/^(http|https):\/\//);
+        if(!matched) {
+          document.getElementById('edit_school_website').value = 'http://' + event.target.value;
+        }
+      }, true);
+    </script>
+
+
 {% endblock %}
