@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lesson;
+use App\Entity\School;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -157,35 +158,30 @@ class UserRepository extends ServiceEntityRepository implements  UserLoaderInter
     }
 
 
-    public function findContactsBySchool($school)
+    public function findContactsBySchool(School $school)
     {
-      $query = sprintf('SELECT u.id, u.first_name, u.last_name
-                        FROM user u, school_school_administrator ssa, educator_user eu
-                        WHERE ( (u.id = ssa.school_administrator_id AND ssa.school_id = ?) OR (u.id = eu.id AND eu.school_id = ?) ) AND eu.id != ssa.school_administrator_id
-                        GROUP BY u.id ORDER BY last_name, first_name');
-
-      return $this->createQueryBuilder('user')
-          ->leftJoin('App\Entity\EducatorUser', 'eu', 'WITH', 'user.id = eu.id')
-          ->where('eu.school = :school')
-          ->setParameter('school', $school)
-          ->orderBy("user.lastName");
+      $query = sprintf('SELECT u.id FROM user u
+          LEFT JOIN school_school_administrator ssa ON u.id = ssa.school_administrator_id
+          LEFT JOIN educator_user eu ON u.id = eu.id
+          WHERE ssa.school_id = 14 OR eu.school_id = %s
+          ORDER BY u.last_name, u.first_name', $school->getId());
 
 
+      $em = $this->getEntityManager();
+      $stmt = $em->getConnection()->prepare($query);
+      $stmt->execute();
+      $results = $stmt->fetchAll();
 
-      // $em = $this->getEntityManager();
-      // $rsm = new ResultSetMapping();
-      // $rsm->addEntityResult('App\Entity\User', 'u');
-      // $rsm->addFieldResult('u', 'id', 'id');
-      // $rsm->addFieldResult('u', 'firstName', 'first_name');
-      // $rsm->addFieldResult('u', 'lastName', 'last_name');
-      //
-      // $query = $em->createNativeQuery("SELECT u.id, u.first_name, u.last_name FROM user u, educator_user eu WHERE u.id = eu.id AND eu.school_id = ?", $rsm);
-      // $query->setParameter(1, 6);
-      //
-      //
-      // $users = $query->getResult();
-      //
-      // print_r($users);
+
+      $userIds = array_map(function($result) { return $result['id']; }, $results);
+
+      if(!empty($userIds)) {
+          return $this->findBy([
+              'id' => $userIds
+          ]);
+      }
+
+      return [];
     }
 
 
