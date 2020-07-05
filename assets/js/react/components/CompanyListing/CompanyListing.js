@@ -32,7 +32,8 @@ class CompanyListing extends Component {
                                 <h4 className="uk-card-title-small uk-heading-divider">{ this.props.name }</h4>
                             </a>
                             <p>
-                                <strong>{ this.props.primaryIndustry.name }</strong><br />
+                                { this.props.primaryIndustry && <strong> {this.props.primaryIndustry.name } </strong> }
+                                <br />
                                 { this.props.description }
                             </p>
                             <div className="uk-grid uk-flex-middle" data-uk-grid>
