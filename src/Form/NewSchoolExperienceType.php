@@ -51,12 +51,18 @@ class NewSchoolExperienceType extends AbstractType
     private $secondaryIndustryRepository;
 
     /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
      * EditCompanyExperienceType constructor.
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
      */
-    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository)
+    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository, UserRepository $userRepository)
     {
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -105,11 +111,9 @@ class NewSchoolExperienceType extends AbstractType
             ->add('schoolContact', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'fullName',
-                'expanded'  => false,
-                'multiple'  => false,
-                'query_builder' => function(UserRepository $repo) use ($school) {
-                    return $repo->findContactsBySchool($school->getId());
-                },
+                'expanded' => false,
+                'multiple' => false,
+                'choices' => $this->userRepository->findContactsBySchool($school)
             ])
             ->add('email', TextType::class, [])
             ->add('street', TextType::class, [])

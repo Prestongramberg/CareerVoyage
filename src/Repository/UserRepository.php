@@ -160,18 +160,17 @@ class UserRepository extends ServiceEntityRepository implements  UserLoaderInter
 
     public function findContactsBySchool(School $school)
     {
-      $query = sprintf('SELECT u.id FROM user u
+      $query = sprintf('SELECT u.id, u.first_name, u.last_name FROM user u
           LEFT JOIN school_school_administrator ssa ON u.id = ssa.school_administrator_id
           LEFT JOIN educator_user eu ON u.id = eu.id
-          WHERE ssa.school_id = 14 OR eu.school_id = %s
-          ORDER BY u.last_name, u.first_name', $school->getId());
+          WHERE ssa.school_id = :school OR eu.school_id = :school
+          ORDER BY u.last_name, u.first_name');
 
 
       $em = $this->getEntityManager();
       $stmt = $em->getConnection()->prepare($query);
-      $stmt->execute();
+      $stmt->execute(['school' => $school->getId()]);
       $results = $stmt->fetchAll();
-
 
       $userIds = array_map(function($result) { return $result['id']; }, $results);
 
