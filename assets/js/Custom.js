@@ -641,6 +641,23 @@ jQuery(document).ready(function($) {
         }, 10);
     });
 
+
+
+    /**
+     * Capture click from school tab and handle it differently to allow for back button clicking
+     *
+     */
+    $(document).on('click', '.schools-tab', function(e){
+      e.preventDefault();
+      const state = { 'tab': 1 }
+      const title = ''
+      const url = 'hello-world.html'
+
+      window.history.pushState(state, title, url);
+
+      console.log(window.history);
+    });
+
     /**
      * Stop videos when sidebar is closed
      */

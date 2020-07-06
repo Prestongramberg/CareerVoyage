@@ -33,9 +33,9 @@
 
 <div class="uk-container uk-margin">
 
-    <ul class="uk-tab" uk-switcher="connect: #tab-schools" uk-tab>
+    <ul class="uk-tab" id="school-tab" uk-switcher="connect: #tab-schools" uk-tab>
         {% for school in user.schools %}
-            <li {{ loop.index == 1 ? 'class="uk-active"' : '' }}><a href="#school-{{ school.id }}">{{ school.name }}</a></li>
+            <li {{ loop.index == 1 ? 'class="uk-active"' : '' }}><a href="school/{{school.id}}" class="schools-tab" data-tab="#school-{{school.id}}">{{ school.name }}</a></li>
         {% endfor %}
     </ul>
     <div class="uk-switcher" id="tab-schools">
@@ -47,7 +47,7 @@
                             <div class="school_description">
                                 <div class="uk-section uk-section-muted uk-padding-large">
                                     <div class="uk-container">
-                                        <h2>School Overview</h2>
+                                        <h2>{{ school.name }} Overview</h2>
                                         {% if school.overviewAndBackground %}
                                             {{ school.overviewAndBackground|raw }}
                                         {% else %}
