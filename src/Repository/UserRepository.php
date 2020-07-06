@@ -3,12 +3,19 @@
 namespace App\Repository;
 
 use App\Entity\Lesson;
+use App\Entity\School;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
+
+use App\Entity\EducatorUser;
+
+
+
+use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
@@ -149,6 +156,34 @@ class UserRepository extends ServiceEntityRepository implements  UserLoaderInter
 
         return $qb->getQuery()->getResult();
     }
+
+
+    public function findContactsBySchool(School $school)
+    {
+      $query = sprintf('SELECT u.id, u.first_name, u.last_name FROM user u
+          LEFT JOIN school_school_administrator ssa ON u.id = ssa.school_administrator_id
+          LEFT JOIN educator_user eu ON u.id = eu.id
+          WHERE ssa.school_id = :school OR eu.school_id = :school
+          ORDER BY u.last_name, u.first_name');
+
+
+      $em = $this->getEntityManager();
+      $stmt = $em->getConnection()->prepare($query);
+      $stmt->execute(['school' => $school->getId()]);
+      $results = $stmt->fetchAll();
+
+      $userIds = array_map(function($result) { return $result['id']; }, $results);
+
+      if(!empty($userIds)) {
+          return $this->findBy([
+              'id' => $userIds
+          ]);
+      }
+
+      return [];
+    }
+
+
 
     /**
      * @param Lesson $lesson
