@@ -33,9 +33,9 @@
 
 <div class="uk-container uk-margin">
 
-    <ul class="uk-tab" uk-switcher="connect: #tab-schools" uk-tab>
+    <ul class="uk-tab" id="school-tab" uk-switcher="connect: #tab-schools" uk-tab>
         {% for school in user.schools %}
-            <li {{ loop.index == 1 ? 'class="uk-active"' : '' }}><a href="#school-{{ school.id }}">{{ school.name }}</a></li>
+            <li {{ loop.index == 1 ? 'class="uk-active"' : '' }}><a href="?school={{ school.id }}" class="schools-tab" data-tab="#school-{{school.id}}">{{ school.name }}</a></li>
         {% endfor %}
     </ul>
     <div class="uk-switcher" id="tab-schools">
@@ -47,7 +47,7 @@
                             <div class="school_description">
                                 <div class="uk-section uk-section-muted uk-padding-large">
                                     <div class="uk-container">
-                                        <h2>School Overview</h2>
+                                        <h2>{{ school.name }} Overview</h2>
                                         {% if school.overviewAndBackground %}
                                             {{ school.overviewAndBackground|raw }}
                                         {% else %}
@@ -76,12 +76,12 @@
                 </div>
                 {% if school.isUserSchoolAdministrator(user) %}
                     <div class="uk-margin">
-                        <ul class="uk-tab" uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
-                            <li class="uk-active"><a href="#school-{{ school.id }}-tools-calendar">My Calendar</a></li>
-                            <li class="uk-visible@m"><a href="#school-{{ school.id }}-tools-participation">Participation</a></li>
-                            <li><a href="#school-{{ school.id }}-tools-educators">Educators</a></li>
-                            <li><a href="#school-{{ school.id }}-tools-students">Students</a></li>
-                            <li><a href="#school-{{ school.id }}-tools-experiences">Experiences</a></li>
+                        <ul class="uk-tab school-tab-tools" uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
+                            <li class="uk-active"><a href="?school={{school.id}}&tool=calendar">My Calendar</a></li>
+                            <li class="uk-visible@m"><a href="?school={{school.id}}&tool=participation">Participation</a></li>
+                            <li><a href="?school={{school.id}}&tool=educators">Educators</a></li>
+                            <li><a href="?school={{school.id}}&tool=students">Students</a></li>
+                            <li><a href="?school={{school.id}}&tool=experiences">Experiences</a></li>
                         </ul>
                         <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
                             <div class="school_{{ school.id }}_tools_calendar">
