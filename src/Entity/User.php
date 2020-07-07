@@ -239,6 +239,12 @@ abstract class User implements UserInterface
      */
     protected $requestPossibleApprovers;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
+     */
+    private $schoolExperiences;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
