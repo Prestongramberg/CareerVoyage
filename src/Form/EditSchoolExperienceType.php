@@ -40,6 +40,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
+use App\Repository\UserRepository;
+
 class EditSchoolExperienceType extends AbstractType
 {
     /**
@@ -48,12 +50,18 @@ class EditSchoolExperienceType extends AbstractType
     private $secondaryIndustryRepository;
 
     /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
      * EditCompanyExperienceType constructor.
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
      */
-    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository)
+    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository, UserRepository $userRepository)
     {
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -87,17 +95,24 @@ class EditSchoolExperienceType extends AbstractType
                 'multiple'  => false,
                 'required' => false
             ])
+            // ->add('schoolContact', EntityType::class, [
+            //     'class' => SchoolAdministrator::class,
+            //     'choice_label' => 'fullName',
+            //     'expanded'  => false,
+            //     'multiple'  => false,
+            //     'query_builder' => function (EntityRepository $er) use ($school) {
+            //         return $er->createQueryBuilder('sa')
+            //             ->innerJoin('sa.schools', 'schools')
+            //             ->where('schools.id = :id')
+            //             ->setParameter('id', $school->getId());
+            //     },
+            // ])
             ->add('schoolContact', EntityType::class, [
-                'class' => SchoolAdministrator::class,
+                'class' => User::class,
                 'choice_label' => 'fullName',
-                'expanded'  => false,
-                'multiple'  => false,
-                'query_builder' => function (EntityRepository $er) use ($school) {
-                    return $er->createQueryBuilder('sa')
-                        ->innerJoin('sa.schools', 'schools')
-                        ->where('schools.id = :id')
-                        ->setParameter('id', $school->getId());
-                },
+                'expanded' => false,
+                'multiple' => false,
+                'choices' => $this->userRepository->findContactsBySchool($school)
             ])
             ->add('email', TextType::class, [])
             ->add('street', TextType::class, [])
