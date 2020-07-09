@@ -100,6 +100,7 @@ window.Pintex = {
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
         const eventId = parseInt(eventPayload.id);
 
+        console.log(eventPayload);
 
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
@@ -168,8 +169,8 @@ window.Pintex = {
         const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
 
         return `
-        <a class="uk-button uk-button-danger uk-button-small" href="#modal-change-date" uk-toggle>Change Date</a>
-                            <br>
+        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-change-date" uk-toggle>Change Date</a>
+                            
                             <div id="modal-change-date" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
                                     <h3>Change Date of Event</h3>
@@ -193,8 +194,8 @@ window.Pintex = {
 
                             
 
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience" uk-toggle>Cancel Event</a>
-                            <br>
+                            <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Event</a>
+                            
                             <div id="modal-delete-experience" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
                                     <h3>Cancel Event</h3>
