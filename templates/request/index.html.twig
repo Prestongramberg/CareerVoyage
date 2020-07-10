@@ -115,7 +115,107 @@
             {% endif %}
         </div>
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    {# _educator_register_student_for_company_experience_request #}
+    $(document).on('submit', '.ersfcer-approval, .ersfcer-denial', function(e){
+        e.preventDefault();
+        var request = $(this).find('name=["request"]').val();
+        var element = $(this).find('[name="element"]').val();
+
+        $.post( $(this).attr('action'), { request: request }, function(data){
+            var status = JSON.parse(data.status);
+            if( status[0].type == "success"){
+                $('#' + element).remove();
+            }
+            display_message(status[0].type, status[0].message);
+        });
+    });
+
+
+    {# _join_companies #}
+    $(document).on('submit', '.jc-approval, .jc-denial', function(e){
+        e.preventDefault();
+        var request = $(this).find('name=["request"]').val();
+        var element = $(this).find('[name="element"]').val();
+
+        $.post( $(this).attr('action'), { request: request }, function(data){
+            var status = JSON.parse(data.status);
+            if( status[0].type == "success"){
+                $('#' + element).remove();
+            }
+            display_message(status[0].type, status[0].message);
+        });
+    });
+
+    {# _new_companies #}
+    $(document).on('submit', '.nc-approval, .nc-denial', function(e){
+        e.preventDefault();
+        var request = $(this).find('name=["request"]').val();
+        var element = $(this).find('[name="element"]').val();
+
+        $.post( $(this).attr('action'), { request: request }, function(data){
+            var status = JSON.parse(data.status);
+            if( status[0].type == "success"){
+                $('#' + element).remove();
+            }
+            display_message(status[0].type, status[0].message);
+        });
+    });
+
+
+    {# _student_to_meet_professional_request #}
+    $(document).on('submit', '.stmpr-approval, .stmpr-denial', function(e) {
+        e.preventDefault();
+        var request = $(this).find('[name="request"]').val();
+        var element = $(this).find('[name="element"]').val();
+        var date = $(this).find('[name="date"]').val();
+        var isFromEducator = $(this).find('[name="isFromEducator"]').val();
+        var dateOptionOne = $(this).find('[name="dateOptionOne"]').val();
+        var dateOptionTwo = $(this).find('[name="dateOptionTwo"]').val();
+        var dateOptionThree = $(this).find('[name="dateOptionThree"]').val();
+
+        $.post( $(this).attr('action'), { request: request, isFromEducator: isFromEducator, date: date, dateOptionOne: dateOptionOne, dateOptionTwo: dateOptionTwo, dateOptionThree: dateOptionThree }, function(data){
+            var status = JSON.parse(data.status);
+            if( status[0].type == "success" && element != undefined){
+                $('#' + element).remove();
+            }
+            display_message(status[0].type, status[0].message);
+        });
+    })
+
+    {# _teach_lesson_request #}
+    $(document).on('submit', '.tlr-approval, .tlr-denial', function(e){
+        e.preventDefault();
+        var date = $(this).find('[name="date"]').val();
+        var element = $(this).find('[name="element"]').val();
+        var request = $(this).find('[name="request"]').val();
+        $.post( $(this).attr('action'), { request: request, date: date }, function(data){
+            var status = JSON.parse(data.status);
+            if( status[0].type == "success"){
+                $('#' + element).remove();
+            }
+            display_message(status[0].type, status[0].message);
+        });
+    });
+
+    {# _user_register_for_school_experience_request #}
+    $(document).on('submit', '.urfser-approval, .urfser-denial', function(e){
+        e.preventDefault();
+        var element = $(this).find('[name="element"]').val();
+        var request = $(this).find('[name="request"]').val();
+        $.post( $(this).attr('action'), { request: request }, function(data){
+            var status = JSON.parse(data.status);
+            if( status[0].type == "success"){
+                $('#' + element).remove();
+            }
+            display_message(status[0].type, status[0].message);
+        });
+    });
+
+    function display_message(type, message) {
+        $('.main-content').prepend('<div class="uk-container uk-margin-bottom"><div class="uk-alert-' + type + ' uk-margin" uk-alert><a class="uk-alert-close" uk-close></a><p>' + message + '</p></div></div>');
+    }
+    </script>
 {% endblock %}
-
-
-

@@ -1,4 +1,4 @@
-<li>
+<li id="tlr_{{ request.id }}">
     {% if request.isFromProfessional == true %}
     {% if request.wasCreatedByUser(user) %}
         {% else %}
@@ -204,23 +204,26 @@
                     <tr>
                         <td>Confirm a Date</td>
                         <td>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline tlr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="element" value="tlr_{{ request.id }}">
                                 <input type="hidden" name="date" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline tlr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="element" value="tlr_{{ request.id }}">
                                 <input type="hidden" name="date" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline tlr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
+                                <input type="hidden" name="element" value="tlr_{{ request.id }}">
                                 <input type="hidden" name="date" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
 
-                            <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline tlr-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-danger" type="submit" value="Deny">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>

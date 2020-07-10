@@ -37,7 +37,7 @@
         </div>
     </li>
     {% else %}
-        <li>
+        <li id="nc_{{ request.id }}">
             <a class="uk-accordion-title" href="#">Request to create a new company</a>
             <div class="uk-accordion-content">
                 <table class="uk-table uk-table-small uk-table-divider">
@@ -76,13 +76,15 @@
                             </span>
                             <br>
                             {% if render_request_status_text( request ) == "Pending" %}
-                                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                                <form method="post" class="uk-inline nc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                     <input class="uk-label uk-label-success" type="submit" value="Approve">
                                     <input type="hidden" name="request" value="{{ request.id }}">
+                                    <input type="hidden" name="element" value="nc_{{ request.id }}">
                                 </form>
-                                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                                <form method="post" class="uk-inline nc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                                     <input class="uk-label uk-label-danger" type="submit" value="Deny">
                                     <input type="hidden" name="request" value="{{ request.id }}">
+                                    <input type="hidden" name="element" value="nc_{{ request.id }}">
                                 </form>
                             {% endif %}
                         </td>
