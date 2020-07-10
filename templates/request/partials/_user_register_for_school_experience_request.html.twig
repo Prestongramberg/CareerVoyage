@@ -1,4 +1,4 @@
-<li>
+<li id="urfser_{{ request.id }}">
     {% if request.wasCreatedByUser(user) %}
         <a class="uk-accordion-title" href="#">Request to register for school event.</a>
         <div class="uk-accordion-content">
@@ -37,7 +37,7 @@
                 </tbody>
             </table>
         </div>
-        {% else %}
+    {% else %}
             <a class="uk-accordion-title" href="#">Request to register user for school event.</a>
             <div class="uk-accordion-content">
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to register for the
@@ -56,12 +56,14 @@
                     </li>
                 </ul>
                 {% if render_request_status_text( request ) == "Pending" %}
-                    <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <form method="post" class="uk-inline urfser-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                         <input class="uk-label uk-label-success" type="submit" value="Approve">
+                        <input type="hidden" name="element" value="urfser_{{ request.id }}">
                         <input type="hidden" name="request" value="{{ request.id }}">
                     </form>
-                    <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <form method="post" class="uk-inline urfser-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                         <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                        <input type="hidden" name="element" value="urfser_{{ request.id }}">
                         <input type="hidden" name="request" value="{{ request.id }}">
                     </form>
                 {% endif %}

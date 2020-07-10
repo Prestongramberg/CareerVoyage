@@ -1,4 +1,4 @@
-<li>
+<li id="stmpr_{{ request.id }}">
     {# start request from student to educator for approval (Show this view to who it needs approval by) #}
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.needsApprovalByUser(user) %}
         <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
@@ -35,15 +35,17 @@
                 </tr>
             </table>
             {% if render_request_status_text( request ) == "Pending" %}
-                <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                <form method="post" class="uk-inline stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                     <input class="uk-label uk-label-success" type="submit" value="Approve">
                     <input type="hidden" name="request" value="{{ request.id }}">
                     <input type="hidden" name="isFromEducator" value="true">
+                    <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                 </form>
-                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                <form method="post" class="uk-inline stmpr-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                     <input class="uk-label uk-label-danger" type="submit" value="Deny">
                     <input type="hidden" name="request" value="{{ request.id }}">
                     <input type="hidden" name="isFromEducator" value="true">
+                    <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                 </form>
             {% endif %}
             </tbody>
@@ -148,28 +150,32 @@
                     <tr>
                         <td>Confirm a Date</td>
                         <td>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="date" value="{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                                 <input type="hidden" name="isFromStudent" value="true">
+                                <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                             </form>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="date" value="{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                                 <input type="hidden" name="isFromStudent" value="true">
+                                <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                             </form>
-                            <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-success" type="submit" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="date" value="{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                                 <input type="hidden" name="isFromStudent" value="true">
+                                <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                             </form>
 
-                            <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                            <form method="post" class="uk-inline stmpr-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-danger" type="submit" value="Deny">
                                 <input type="hidden" name="request" value="{{ request.id }}">
+                                <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                             </form>
                         </td>
                     </tr>
@@ -334,7 +340,7 @@
                     <div class="uk-modal-dialog uk-modal-body">
                         <h2 class="uk-modal-title">Request for student to meet professional</h2>
                         <p>Please select 3 different date/times that work best for you to meet.</p>
-                        <form method="post" action="{{ path('approve_request', {'id': request.id}) }}">
+                        <form method="post" class="stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                             <input type="hidden" name="request" value="{{ request.id }}">
                             <input type="hidden" name="isFromProfessional" value="true">
                             <div class="uk-margin">
@@ -350,15 +356,16 @@
                                 <input type="text" name="dateOptionThree" required="required" class="uk-timepicker uk-timepicker-up uk-input" />
                             </div>
                             <div class="uk-margin">
-                                <button class="uk-button uk-button-primary uk-inline">Yes, Send</button>
+                                <button class="uk-button uk-button-primary uk-inline uk-modal-close">Yes, Send</button>
                                 <button class="uk-button uk-button-default uk-modal-close">No, Cancel</button>
                             </div>
                         </form>
                     </div>
                 </div>
-                <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                <form method="post" class="uk-inline stmpr-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                     <input class="uk-label uk-label-danger" type="submit" value="Deny">
                     <input type="hidden" name="request" value="{{ request.id }}">
+                    <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                 </form>
             {% endif %}
             {% if user_can_chat_with_user( user, request.createdBy ) %}

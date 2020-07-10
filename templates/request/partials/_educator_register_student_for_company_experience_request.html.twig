@@ -1,4 +1,4 @@
-<li>
+<li id="ersfcer_{{ request.id }}">
     {% if request.wasCreatedByUser(user) %}
         <a class="uk-accordion-title" href="#">Request to register student for company event.</a>
         <div class="uk-accordion-content">
@@ -59,13 +59,15 @@
                     </li>
                 </ul>
                 {% if render_request_status_text( request ) == "Pending" %}
-                    <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <form method="post" class="uk-inline ersfcer-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                         <input class="uk-label uk-label-success" type="submit" value="Approve">
                         <input type="hidden" name="request" value="{{ request.id }}">
+                        <input type="hidden" name="element" value="ersfcer_{{ request.id }}">
                     </form>
-                    <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <form method="post" class="uk-inline ersfcer-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                         <input class="uk-label uk-label-danger" type="submit" value="Deny">
                         <input type="hidden" name="request" value="{{ request.id }}">
+                        <input type="hidden" name="element" value="ersfcer_{{ request.id }}">
                     </form>
                 {% endif %}
                 {% if user_can_chat_with_user( user, request.createdBy ) %}
