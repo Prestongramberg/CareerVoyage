@@ -6,7 +6,6 @@
 {% block body %}
 
     <div class="uk-container">
-
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
             <li class="uk-active"><a href="#requests-mine">My Requests ({{ myCreatedRequests|length }})</a></li>
             {% if requestsThatNeedMyApproval|length > 0 %}
@@ -14,6 +13,10 @@
             {% endif %}
             {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
                 <li><a href="#requests-completed">History</a></li>
+            {% endif %}
+
+            {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
+                <li><a href="#student-company-experiences">My Company Experiences</a></li>
             {% endif %}
         </ul>
 
@@ -112,6 +115,40 @@
                     {% endif %}
                 </div>
 
+            {% endif %}
+
+            {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
+                <div class="uk-section uk-section-muted uk-padding">
+                    <h3>My Company Experiences</h3>
+                    <div class="uk-width-xlarge">
+                        <ul class="" data-uk-tab="{connect: '#tab-requests-by-me'}" uk-switcher>
+                            <li class="uk-active"><a href="#requests-by-me-approved">Approved</a></li>
+                            <li><a href="#requests-by-me-denied">Denied</a></li>
+                        </ul>
+                        <div class="uk-switcher" id="tab-requests-by-me">
+                            <div class="requests-landing__requests-by-me-approved">
+                                <ul class="uk-width-xlarge" uk-accordion>
+                                    {% for request in studentRegisterApproval %}
+                                        {{ render_request( request, user )|raw }}
+                                    {% endfor %}
+                                    {% if studentRegisterApproval|length == 0 %}
+                                        <p>No requests found.</p>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="requests-landing__requests-by-me-denied">
+                                <ul class="uk-width-xlarge" uk-accordion>
+                                    {% for request in studentRegisterDenial %}
+                                        {{ render_request( request, user )|raw }}
+                                    {% endfor %}
+                                    {% if studentRegisterDenial|length == 0 %}
+                                        <p>No requests found.</p>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
         </div>
     </div>
