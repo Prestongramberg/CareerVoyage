@@ -113,6 +113,32 @@ class RequestController extends AbstractController
         ], ['createdAt' => 'DESC']);
 
 
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb
+            ->select('r')
+            ->from('App\Entity\Request', 'r')
+            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+            ->andWhere('e.studentUser = :user')
+            ->andWhere('r.approved = true')
+            ->setParameter('user', $user)
+            ->groupBy('e.id')
+            ->orderBy('r.createdAt', 'DESC');
+
+        $studentRegisterApproval = $qb->getQuery()->getResult();
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb
+            ->select('r')
+            ->from('App\Entity\Request', 'r')
+            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+            ->andWhere('e.studentUser = :user')
+            ->andWhere('r.approved = false')
+            ->setParameter('user', $user)
+            ->groupBy('e.id')
+            ->orderBy('r.createdAt', 'DESC');
+
+        $studentRegisterDenial = $qb->getQuery()->getResult();
+
         // todo you could return a different view per user role as well
         return $this->render('request/index.html.twig', [
             'user' => $user,
@@ -122,6 +148,8 @@ class RequestController extends AbstractController
             'myDeniedAccessRequests' => $myDeniedAccessRequests,
             'approvedByMeRequests' => $approvedByMeRequests,
             'myApprovedAccessRequests' => $myApprovedAccessRequests,
+            'studentRegisterApproval' => $studentRegisterApproval,
+            'studentRegisterDenial' => $studentRegisterDenial
         ]);
     }
 
