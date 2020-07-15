@@ -121,7 +121,7 @@
     {# _educator_register_student_for_company_experience_request #}
     $(document).on('submit', '.ersfcer-approval, .ersfcer-denial', function(e){
         e.preventDefault();
-        var request = $(this).find('name=["request"]').val();
+        var request = $(this).find('[name="request"]').val();
         var element = $(this).find('[name="element"]').val();
 
         $.post( $(this).attr('action'), { request: request }, function(data){
