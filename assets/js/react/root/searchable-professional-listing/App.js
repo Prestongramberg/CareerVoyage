@@ -15,6 +15,9 @@ class App extends React.Component {
 
     render() {
 
+        
+        let p = this.props;
+        
         const relevantProfessionals = this.getRelevantProfessionals();
         const { user = {} } = this.props;
         const ranges = [ 25, 50, 70, 150 ];
@@ -65,8 +68,14 @@ class App extends React.Component {
                             )}
                             { !this.props.search.loading && relevantProfessionals.map(professional => {
 
-                                const primaryIndustry = professional.primaryIndustry !== null ? professional.primaryIndustry.name : null;
-                                const secondaryIndustry = professional.secondaryIndustries.length > 0 ? professional.secondaryIndustries[0].name : null;
+                                const primaryIndustry = professional.primaryIndustry ? professional.primaryIndustry.name : null;
+
+                                let secondaryIndustry = null;
+
+                                if(professional.secondaryIndustries && professional.secondaryIndustries.length > 0) {
+                                    secondaryIndustry = professional.secondaryIndustries[0].name;
+                                }
+                                
                                 const professionalCompany = professional.company ? professional.company : {};
                                 const hiddenAttributes = user.student ? {} : {
                                     email: professional.emailAfterPrivacySettingsApplied,
@@ -191,7 +200,9 @@ class App extends React.Component {
 
     getRelevantProfessionals () {
 
+        
         return this.props.professionals.filter(professional => {
+
 
             // Set Searchable Fields
             const searchableFields = ["firstName", "lastName", "briefBio", "interests"];
@@ -239,10 +250,12 @@ class App extends React.Component {
     }
 
     componentDidMount() {
+        
         this.loadProfessionals();
     }
 
     loadProfessionals() {
+        
         this.props.loadProfessionals( window.Routing.generate('get_professionals_by_radius', {
             'radius': this.props.search.radius,
             'zipcode': this.props.search.zipcode

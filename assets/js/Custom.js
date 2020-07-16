@@ -1,5 +1,6 @@
 import Quill from 'quill';
 import $ from "jquery";
+import UIkit from 'uikit';
 
 jQuery(document).ready(function($) {
 
@@ -640,6 +641,77 @@ jQuery(document).ready(function($) {
             }
         }, 10);
     });
+
+
+
+    /**
+     * Capture click from school tab and handle it differently to allow for back button clicking
+     *
+     */
+
+
+    $(document).on('click', '.schools-tab, .school-tab-tools', function(e){
+      e.preventDefault();
+      const state = { 'tab': 1 }
+      const title = ''
+      const url = e.target.href
+
+      window.history.pushState(state, title, url);
+    });
+
+    $(document).ready( function(e) {
+        if( window.location.href.indexOf("dashboard") > -1 ){
+            loadSpecificTab();
+        }
+    });
+
+    window.onpopstate = function(e) {
+        loadSpecificTab();
+    }
+
+    function loadSpecificTab() {
+        let params = new URLSearchParams(window.location.search);
+        if(params.has('school')) {
+            // Main school tabs
+            let buttons = $('#school-tab').children().toArray();
+            let tabs = $('#tab-schools').children().toArray();
+            let school_id = params.get('school');
+            $.each(tabs, function(index, elem){
+                if( $(elem).hasClass('school_' + school_id) ){
+                    UIkit.switcher('#tab-schools').show(index);
+                    
+                    $.each(buttons, function(index2, elem2){
+                        $(elem2).removeClass('uk-active');
+                        if( index2 === index ){
+                            $(elem2).addClass('uk-active');
+                        }
+                    });
+                }
+            });
+
+            // Selected tool tabs
+            if(params.has('tool')){
+                let tool = params.get('tool');
+                let buttons = $('.school_' + school_id + " .school-tab-tools").children().toArray();
+                let tabs = $("#tab-school-" + school_id + "-tools").children().toArray();
+
+                $.each(tabs, function(index, elem){
+                    if( $(elem).hasClass("school_" + school_id + "_tools_" + tool)){
+                        UIkit.switcher('#tab-school-' + school_id + '-tools').show(index);
+
+                        $.each(buttons, function(index2, elem2) {
+                            $(elem2).removeClass('uk-active');
+                            if( index2 === index){
+                                $(elem2).addClass('uk-active');
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+
 
     /**
      * Stop videos when sidebar is closed

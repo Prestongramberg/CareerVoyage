@@ -239,6 +239,12 @@ abstract class User implements UserInterface
      */
     protected $requestPossibleApprovers;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
+     */
+    private $schoolExperiences;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -942,7 +948,7 @@ abstract class User implements UserInterface
         $roles = $this->getRoles();
         $this->roles[] = self::ROLE_DASHBOARD_USER;
     }
-    
+
 
     public function getActivationCode()
     {

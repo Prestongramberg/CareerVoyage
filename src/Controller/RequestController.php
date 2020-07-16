@@ -61,6 +61,9 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
+use Symfony\Component\HttpFoundation\Session\Session;
+
+
 /**
  * Class RequestController
  * @package App\Controller
@@ -137,6 +140,10 @@ class RequestController extends AbstractController
      */
     public function approveRequest(\App\Entity\Request $request, Request $httpRequest) {
 
+
+        $session = new Session();
+
+
         $this->denyAccessUnlessGranted('edit', $request);
 
         /** @var User $user */
@@ -144,7 +151,23 @@ class RequestController extends AbstractController
 
         $this->handleRequestApproval($request, $httpRequest);
 
-        return $this->redirectToRoute('requests');
+        // return $this->redirectToRoute('requests');
+        // $flashbag = $this->get('session')->getFlashBag();
+        $flashbag = $session->getFlashBag()->all();
+        $flash = [];
+        foreach($flashbag as $type => $messages){
+            foreach($messages as $message){
+                array_push($flash, ["type" => $type, "message" => $message]);
+            }
+        }
+        
+        return new JsonResponse( ["status" => json_encode($flash) ]);
+
+        // if(sizeof($flashbag->get('success')) > 0){
+        //     return new JsonResponse( ["status" => $flashbag->peek('success') ]);
+        // } else {
+        //     return new JsonResponse( ["status" => $flashbag->peek('error') ]);
+        // }
     }
 
     /**
@@ -156,6 +179,8 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\SyntaxError
      */
     public function denyRequest(\App\Entity\Request $request) {
+
+        $session = new Session();
 
         $this->denyAccessUnlessGranted('edit', $request);
 
@@ -173,7 +198,19 @@ class RequestController extends AbstractController
         $this->entityManager->persist($request);
         $this->entityManager->flush();
         $this->addFlash('success', 'Request denied.');
-        return $this->redirectToRoute('requests');
+
+        $flashbag = $session->getFlashBag()->all();
+        $flash = [];
+        foreach($flashbag as $type => $messages){
+            foreach($messages as $message){
+                array_push($flash, ["type" => $type, "message" => $message]);
+            }
+        }
+        
+        return new JsonResponse( ["status" => json_encode($flash) ]);
+
+        // return new JsonResponse( ["status" => "success", "flash" => "Request denied."]);
+
     }
 
     /**

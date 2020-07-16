@@ -16,10 +16,10 @@ class SchoolAdministrator extends User
      */
     private $schools;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
-     */
-    private $schoolExperiences;
+    // /**
+    //  * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
+    //  */
+    // private $schoolExperiences;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="schoolAdministrators")

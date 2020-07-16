@@ -1,4 +1,4 @@
-<li>
+<li id="jc_{{ request.id }}">
     {% if request.isFromCompany == true%}
 
         {% if request.wasCreatedByUser(user) %}
@@ -39,12 +39,14 @@
                                     {{ render_request_status_text( request ) }}
                                 </span>
                                 {% if render_request_status_text( request ) == "Pending" %}
-                                    <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                                    <form method="post" class="uk-inline jc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                                         <input class="uk-label uk-label-success" type="submit" value="Approve">
+                                        <input type="hidden" name="element" value="jc_{{ request.id}}">
                                         <input type="hidden" name="request" value="{{ request.id }}">
                                     </form>
-                                    <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                                    <form method="post" class="uk-inline jc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                                         <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                        <input type="hidden" name="element" value="jc_{{ request.id}}">
                                         <input type="hidden" name="request" value="{{ request.id }}">
                                     </form>
                                 {% endif %}
@@ -103,13 +105,15 @@
                 <div class="uk-accordion-content">
                     <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
                     {% if render_request_status_text( request ) == "Pending" %}
-                        <form method="post" class="uk-inline" action="{{ path('approve_request', {'id': request.id}) }}">
+                        <form method="post" class="uk-inline jc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                             <input class="uk-label uk-label-success" type="submit" value="Approve">
                             <input type="hidden" name="request" value="{{ request.id }}">
+                            <input type="hidden" name="element" value="jc_{{ request.id}}">
                         </form>
-                        <form method="post" class="uk-inline" action="{{ path('deny_request', {'id': request.id}) }}">
+                        <form method="post" class="uk-inline jc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                             <input class="uk-label uk-label-danger" type="submit" value="Deny">
                             <input type="hidden" name="request" value="{{ request.id }}">
+                            <input type="hidden" name="element" value="jc_{{ request.id}}">
                         </form>
                     {% endif %}
                     <div>

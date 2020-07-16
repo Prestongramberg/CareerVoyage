@@ -17,6 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RadioType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -102,7 +103,9 @@ class ProfessionalEditProfileFormType extends AbstractType
                     'Yes' => true,
                     'No' => false,
                 ],
-            ]);
+            ])
+            ->add('geoRadius', HiddenType::class, [])
+	        ->add('geoZipCode', HiddenType::class, []);
 
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
