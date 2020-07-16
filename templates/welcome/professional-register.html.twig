@@ -30,7 +30,7 @@
         </div>
 
         <div class="uk-margin">
-            {{ form_label(professionalRegistrationForm.primaryIndustry, 'Industry*') }}
+            {{ form_label(professionalRegistrationForm.primaryIndustry, 'My Profession*') }}
             {{ form_widget(professionalRegistrationForm.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(professionalRegistrationForm.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
             {{ form_errors(professionalRegistrationForm.primaryIndustry) }}
         </div>
