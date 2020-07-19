@@ -226,6 +226,7 @@ class VideoController extends AbstractController
 
     }
 
+
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/career-videos/{id}/delete", name="career_videos_delete", options = { "expose" = true })

@@ -20,6 +20,7 @@ use App\Entity\Registration;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Entity\Video;
 use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
@@ -560,10 +561,17 @@ class CompanyController extends AbstractController
 
         $name = $request->request->get('name');
         $videoId = $request->request->get('videoId');
+        $tags = $request->request->get('tags');
 
         if($name && $videoId) {
             $video->setName($name);
             $video->setVideoId($videoId);
+
+            if($tags) {
+                $video->setTags($tags);
+            }
+
+
             $this->entityManager->persist($video);
             $this->entityManager->flush();
 
@@ -755,6 +763,12 @@ class CompanyController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $company);
 
+        $editVideoId = $request->query->get('videoEdit', null);
+        $companyVideo = null;
+        if($editVideoId) {
+            $companyVideo = $this->videoRepository->find($editVideoId);
+        }
+
         $user = $this->getUser();
 
         $options = [
@@ -801,6 +815,7 @@ class CompanyController extends AbstractController
             'company' => $company,
             'form' => $form->createView(),
             'user' => $user,
+            'companyVideo' => $companyVideo
         ]);
     }
 

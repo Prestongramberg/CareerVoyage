@@ -56,6 +56,7 @@ use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
 use App\Repository\UserRepository;
 use App\Repository\VideoFavoriteRepository;
+use App\Repository\VideoRepository;
 use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
 use App\Service\Geocoder;
@@ -422,6 +423,11 @@ trait ServiceHelper
     private $videoFavoriteRepository;
 
     /**
+     * @var VideoRepository
+     */
+    private $videoRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -491,6 +497,7 @@ trait ServiceHelper
      * @param CompanyVideoRepository $companyVideoRepository
      * @param CareerVideoRepository $careerVideoRepository
      * @param VideoFavoriteRepository $videoFavoriteRepository
+     * @param VideoRepository $videoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -560,7 +567,8 @@ trait ServiceHelper
         PhpSpreadsheetHelper $phpSpreadsheetHelper,
         CompanyVideoRepository $companyVideoRepository,
         CareerVideoRepository $careerVideoRepository,
-        VideoFavoriteRepository $videoFavoriteRepository
+        VideoFavoriteRepository $videoFavoriteRepository,
+        VideoRepository $videoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -630,6 +638,7 @@ trait ServiceHelper
         $this->companyVideoRepository = $companyVideoRepository;
         $this->careerVideoRepository = $careerVideoRepository;
         $this->videoFavoriteRepository = $videoFavoriteRepository;
+        $this->videoRepository = $videoRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
