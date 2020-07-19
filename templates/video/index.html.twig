@@ -1,0 +1,130 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Videos{% endblock %}
+
+{% block body %}
+
+<div class="uk-container">
+
+    {% if (user.isSiteAdmin or user.isAdmin) %}
+
+        <div class="uk-margin uk-width-1-1">
+            <div class="uk-flex uk-flex-right@m">
+                <a class="uk-button uk-button-primary uk-button-small" href="#modal-add-career-video" uk-toggle>Add a Video</a>
+            </div>
+        </div>
+
+        <div id="modal-add-career-video" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3>Add a Video</h3>
+
+                <div class="uk-margin">
+                    <label for="edit_company_add_video_name" class="required">Name*</label>
+                    <input type="text" id="edit_company_add_video_name" name="name" required="required" class="uk-input" />
+                </div>
+
+                <div class="uk-margin">
+                    <label for="edit_company_add_video_id" class="required">Youtube Video ID*</label>
+                    <div class="uk-position-relative">
+                        <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                        <input class="uk-input" id="edit_company_add_video_id" name="videoId" required="required" type="text">
+                    </div>
+                    <small>Please make sure your video is open to public.</small>
+
+                </div>
+
+                <div class="uk-margin">
+                    <label for="edit_company_add_video_tags" class="required">Keywords</label>
+                    <div class="uk-position-relative">
+                        <textarea id="edit_company_add_video_tags" name="tags" class="uk-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="career-video-secondary-industries"
+                             data-field-name="secondaryIndustries"
+                             data-remove-dom-id="secondaryIndustries"
+                        ></div>
+                    </fieldset>
+                </div>
+
+                <p class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('career_videos_add') }}" />
+                </p>
+            </div>
+        </div>
+
+        {% if careerVideo %}
+
+            <div id="modal-edit-career-video" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <h3>Edit Video</h3>
+
+                    <div class="uk-margin">
+                        <label for="edit_company_edit_video_name" class="required">Name*</label>
+                        <input type="text" id="edit_company_edit_video_name" name="name" required="required" class="uk-input" value="{{ careerVideo.name }}"/>
+                    </div>
+
+                    <div class="uk-margin">
+                        <label for="edit_company_edit_video_id" class="required">Youtube Video ID*</label>
+                        <div class="uk-position-relative">
+                            <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                            <input class="uk-input" id="edit_company_edit_video_id" name="videoId" required="required" type="text" value="{{ careerVideo.videoId }}">
+                        </div>
+                        <small>Please make sure your video is open to public.</small>
+
+                    </div>
+
+                    <div class="uk-margin">
+                        <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                        <div class="uk-position-relative">
+                            <textarea id="edit_company_edit_video_tags" name="tags" class="uk-textarea">{{ careerVideo.tags }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="uk-width-xlarge">
+                        <fieldset class="uk-fieldset">
+                            <div class="career-video-secondary-industries"
+                                 data-field-name="secondaryIndustries"
+                                 data-secondary-industries="{{ encode_secondary_industries(careerVideo.secondaryIndustries) }}"
+                                 data-remove-dom-id="secondaryIndustries"
+                            ></div>
+                        </fieldset>
+                    </div>
+
+                    <p class="uk-text-right">
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('career_videos_edit', {id: careerVideo.id}) }}" />
+                    </p>
+                </div>
+            </div>
+
+
+        {% endif %}
+
+    {% endif %}
+
+    <div id="searchable-video-listing" data-user-id="{{ user.id }}" data-user-roles="{{ user.roles|json_encode() }}"></div>
+
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% if careerVideo %}
+        <script>
+            window.onload = function() {
+                UIkit.modal('#modal-edit-career-video').show()
+            };
+        </script>
+    {% endif %}
+
+{% endblock %}

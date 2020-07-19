@@ -20,6 +20,7 @@ use App\Entity\Registration;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Entity\Video;
 use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
@@ -45,7 +46,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
-use Proxies\__CG__\App\Entity\Video;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -196,6 +196,9 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function joinAction(Request $request, Company $company) {
 
@@ -558,10 +561,17 @@ class CompanyController extends AbstractController
 
         $name = $request->request->get('name');
         $videoId = $request->request->get('videoId');
+        $tags = $request->request->get('tags');
 
         if($name && $videoId) {
             $video->setName($name);
             $video->setVideoId($videoId);
+
+            if($tags) {
+                $video->setTags($tags);
+            }
+
+
             $this->entityManager->persist($video);
             $this->entityManager->flush();
 
@@ -596,12 +606,18 @@ class CompanyController extends AbstractController
 
         $name = $request->request->get('name');
         $videoId = $request->request->get('videoId');
+        $tags = $request->request->get('tags');
 
         if($name && $videoId) {
             $video = new CompanyVideo();
             $video->setName($name);
             $video->setVideoId($videoId);
             $video->setCompany($company);
+
+            if($tags) {
+                $video->setTags($tags);
+            }
+
             $this->entityManager->persist($video);
             $this->entityManager->flush();
 
@@ -747,6 +763,12 @@ class CompanyController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $company);
 
+        $editVideoId = $request->query->get('videoEdit', null);
+        $companyVideo = null;
+        if($editVideoId) {
+            $companyVideo = $this->videoRepository->find($editVideoId);
+        }
+
         $user = $this->getUser();
 
         $options = [
@@ -793,6 +815,7 @@ class CompanyController extends AbstractController
             'company' => $company,
             'form' => $form->createView(),
             'user' => $user,
+            'companyVideo' => $companyVideo
         ]);
     }
 

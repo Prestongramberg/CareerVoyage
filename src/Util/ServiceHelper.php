@@ -16,12 +16,14 @@ use App\Mailer\ExperienceMailer;
 use App\Mailer\ChatNotificationMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\AllowedCommunicationRepository;
+use App\Repository\CareerVideoRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\CompanyVideoRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\EducatorReviewCompanyExperienceFeedbackRepository;
 use App\Repository\EducatorReviewTeachLessonExperienceFeedbackRepository;
@@ -53,6 +55,8 @@ use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
 use App\Repository\UserRepository;
+use App\Repository\VideoFavoriteRepository;
+use App\Repository\VideoRepository;
 use App\Security\LoginFormAuthenticator;
 use App\Service\FileUploader;
 use App\Service\Geocoder;
@@ -404,6 +408,26 @@ trait ServiceHelper
     private $phpSpreadsheetHelper;
 
     /**
+     * @var CompanyVideoRepository
+     */
+    private $companyVideoRepository;
+
+    /**
+     * @var CareerVideoRepository
+     */
+    private $careerVideoRepository;
+
+    /**
+     * @var VideoFavoriteRepository
+     */
+    private $videoFavoriteRepository;
+
+    /**
+     * @var VideoRepository
+     */
+    private $videoRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -470,6 +494,10 @@ trait ServiceHelper
      * @param AllowedCommunicationRepository $allowedCommunicationsRepository
      * @param UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository
      * @param PhpSpreadsheetHelper $phpSpreadsheetHelper
+     * @param CompanyVideoRepository $companyVideoRepository
+     * @param CareerVideoRepository $careerVideoRepository
+     * @param VideoFavoriteRepository $videoFavoriteRepository
+     * @param VideoRepository $videoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -536,7 +564,11 @@ trait ServiceHelper
         RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
         AllowedCommunicationRepository $allowedCommunicationsRepository,
         UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository,
-        PhpSpreadsheetHelper $phpSpreadsheetHelper
+        PhpSpreadsheetHelper $phpSpreadsheetHelper,
+        CompanyVideoRepository $companyVideoRepository,
+        CareerVideoRepository $careerVideoRepository,
+        VideoFavoriteRepository $videoFavoriteRepository,
+        VideoRepository $videoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -603,8 +635,11 @@ trait ServiceHelper
         $this->allowedCommunicationsRepository = $allowedCommunicationsRepository;
         $this->userRegisterForSchoolExperienceRequestRepository = $userRegisterForSchoolExperienceRequestRepository;
         $this->phpSpreadsheetHelper = $phpSpreadsheetHelper;
+        $this->companyVideoRepository = $companyVideoRepository;
+        $this->careerVideoRepository = $careerVideoRepository;
+        $this->videoFavoriteRepository = $videoFavoriteRepository;
+        $this->videoRepository = $videoRepository;
     }
-
 
     public function getFullQualifiedBaseUrl() {
         $routerContext = $this->router->getContext();

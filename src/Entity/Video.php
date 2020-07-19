@@ -2,8 +2,11 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\VideoRepository")
@@ -11,28 +14,56 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo"})
+ * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo"})
  */
 abstract class Video
 {
     use Timestampable;
 
     /**
+     * @Groups({"VIDEO"})
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
+     * @Groups({"VIDEO"})
+     *
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
+     * @Groups({"VIDEO"})
+     *
      * @ORM\Column(type="string", length=255)
      */
-    private $videoId;
+    protected $videoId;
+
+    /**
+     * @Groups({"VIDEO"})
+     * @ORM\Column(type="text", nullable=true)
+     */
+    protected $tags;
+
+
+    /**
+     * @var boolean
+     */
+    private $isFavorite;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="video", orphanRemoval=true)
+     */
+    private $videoFavorites;
+
+    public function __construct()
+    {
+        $this->videoFavorites = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -59,6 +90,67 @@ abstract class Video
     public function setVideoId(string $videoId): self
     {
         $this->videoId = $videoId;
+
+        return $this;
+    }
+
+    public function getTags(): ?string
+    {
+        return $this->tags;
+    }
+
+    public function setTags(?string $tags): self
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+
+    /**
+     * @Groups({"VIDEO"})
+     * @return bool
+     */
+    public function isFavorite()
+    {
+        return $this->isFavorite;
+    }
+
+    /**
+     * @param bool $isFavorite
+     */
+    public function setIsFavorite($isFavorite)
+    {
+        $this->isFavorite = $isFavorite;
+    }
+
+    /**
+     * @return Collection|VideoFavorite[]
+     */
+    public function getVideoFavorites(): Collection
+    {
+        return $this->videoFavorites;
+    }
+
+    public function addVideoFavorite(VideoFavorite $videoFavorite): self
+    {
+        if (!$this->videoFavorites->contains($videoFavorite)) {
+            $this->videoFavorites[] = $videoFavorite;
+            $videoFavorite->setVideo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideoFavorite(VideoFavorite $videoFavorite): self
+    {
+        if ($this->videoFavorites->contains($videoFavorite)) {
+            $this->videoFavorites->removeElement($videoFavorite);
+            // set the owning side to null (unless already changed)
+            if ($videoFavorite->getVideo() === $this) {
+                $videoFavorite->setVideo(null);
+            }
+        }
 
         return $this;
     }

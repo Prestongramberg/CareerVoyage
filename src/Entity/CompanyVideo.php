@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CompanyVideoRepository")
@@ -10,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 class CompanyVideo extends Video
 {
     /**
+     * @Groups({"VIDEO"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyVideos")
      */
     private $company;

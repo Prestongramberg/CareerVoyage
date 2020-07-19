@@ -1,6 +1,7 @@
 import Quill from 'quill';
 import $ from "jquery";
 import UIkit from 'uikit';
+import Routing from "./Routing";
 
 jQuery(document).ready(function($) {
 
@@ -288,18 +289,33 @@ jQuery(document).ready(function($) {
         window.Pintex.modal.dynamic_open( sourceHTML );
     });
 
+
     /**
-     * Company Resource Forms
+     * Edit Company Video Form
      */
-    $(document).on('click', '#modal-add-company-video [data-action]', function(e) {
+    $(document).on('click', '#modal-edit-company-video [data-action]', function(e) {
+
         e.preventDefault();
 
+        debugger;
         const url = $(this).attr('data-action');
         const $modalBody = $(this).closest('.uk-modal-body');
         const $fields = $modalBody.find('[name]');
         const $nameField = $modalBody.find('[name="name"]');
+        const $companyField = $modalBody.find('[name="companyId"]');
+        const companyId = $companyField.val();
         const name = $nameField.val();
         const $videoField = $modalBody.find('[name="videoId"]');
+        debugger;
+        const $secondaryIndustryFields = $modalBody.find('.secondaryIndustries');
+
+        let secondaryIndustries = [];
+        $secondaryIndustryFields.each(function(i, e) {
+            secondaryIndustries.push($(this).val());
+        });
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
         const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
 
         // Smart Set
@@ -316,8 +332,222 @@ jQuery(document).ready(function($) {
                     $.ajax({
                         url: url,
                         data: {
-                          name: name,
-                          videoId: videoId
+                            secondaryIndustries: secondaryIndustries,
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-edit-company-video' ).hide();
+                                window.Pintex.notification("Video updated...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('company_edit', {id: companyId});
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to edit video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    /**
+     * Edit General Career Video Form
+     */
+    $(document).on('click', '#modal-edit-career-video [data-action]', function(e) {
+
+        e.preventDefault();
+
+        debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        debugger;
+        const $secondaryIndustryFields = $modalBody.find('.secondaryIndustries');
+
+        let secondaryIndustries = [];
+        $secondaryIndustryFields.each(function(i, e) {
+            secondaryIndustries.push($(this).val());
+        });
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            secondaryIndustries: secondaryIndustries,
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-add-career-video' ).hide();
+                                window.Pintex.notification("Video updated. Reloading Video Results List...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('video_index');
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to edit video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+
+    /**
+     * General Career Video Form
+     */
+    $(document).on('click', '#modal-add-career-video [data-action]', function(e) {
+
+        e.preventDefault();
+
+        debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        debugger;
+        const $secondaryIndustryFields = $modalBody.find('.secondaryIndustries');
+
+        let secondaryIndustries = [];
+        $secondaryIndustryFields.each(function(i, e) {
+            secondaryIndustries.push($(this).val());
+        });
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            secondaryIndustries: secondaryIndustries,
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-add-career-video' ).hide();
+                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('video_index');
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    /**
+     * Company Resource Forms
+     */
+    $(document).on('click', '#modal-add-company-video [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
                         },
                         method: "POST",
                         complete: function(serverResponse) {
@@ -595,7 +825,6 @@ jQuery(document).ready(function($) {
         }, function(start, end, label) {
             console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
         });
-
     });
 
     /**

@@ -39,7 +39,45 @@ window.Pintex = {
         dynamic_open: function(html) {
             const $modal = $('#global-modal');
             $modal.find('.uk-modal-body').html( html );
+            
             UIkit.modal( $modal ).show();
+
+            const elem = document.querySelector("#modal-change-date");
+            const config = {
+                "attributes": true
+            }
+            const observer = new MutationObserver(function(mutations){
+                mutations.forEach(function(mutation){
+                    if(mutation.type === 'attributes') {
+                        let name = elem.className;
+                        if(name.includes("uk-open") ){
+                            
+                            $('.uk-timepicker').each(function( index ) {
+
+                                var $elem = $(this);
+                                var dropDirection = $elem.hasClass('uk-timepicker-up') ? "up" : "down";
+
+                                $elem.daterangepicker({
+                                    drops: dropDirection,
+                                    singleDatePicker: true,
+                                    timePicker: true,
+                                    timePickerIncrement: 15,
+                                    linkedCalendars: false,
+                                    showCustomRangeLabel: false,
+                                    locale: {
+                                        format: 'MM/DD/YYYY h:mm A'
+                                    }
+                                }, function(start, end, label) {
+                                    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+                                });
+                            });
+                        }
+                    }
+                });
+            });
+
+            observer.observe(elem, config);
+
         },
         close: function() {
             const $modal = $('#global-modal');
@@ -60,6 +98,9 @@ window.Pintex = {
         const eventDescription = eventPayload.briefDescription;
         const eventState = eventPayload.state || {};
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
+        const eventId = parseInt(eventPayload.id);
+
+        console.log(eventPayload);
 
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
@@ -74,6 +115,8 @@ window.Pintex = {
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
+
+        eventHtml += this.generateEditCancelButtons( eventId, eventStartDate, eventEndDate );
 
         this.modal.dynamic_open(`
             <div class="event-modal-details">
@@ -118,7 +161,58 @@ window.Pintex = {
             end
         );
         cal.download("addToCalendar", undefined );
-    }
+    },
+    generateEditCancelButtons( eventId, epochStartTime, epochEndTime) {
+
+        // Get the dates from CST to EPOCH
+        const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
+        const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
+
+        return `
+        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-change-date" uk-toggle>Change Date</a>
+                            
+                            <div id="modal-change-date" uk-modal>
+                                <div class="uk-modal-dialog uk-modal-body">
+                                    <h3>Change Date of Event</h3>
+                                    <form class="uk-inline" action="/api/experiences/${eventId}/teach-lesson-event-change-date" method="POST">
+
+                                        <label class="uk-form-label">Start Date.</label>
+                                        <input class="uk-timepicker uk-input" name="newStartDate" type="text">
+                                        <label class="uk-form-label">End Date.</label>
+                                        <input class="uk-timepicker uk-input" name="newEndDate" type="text">
+
+                                        <label>Custom Message</label>
+                                        <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                                        <p>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+
+                            
+
+                            <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Event</a>
+                            
+                            <div id="modal-delete-experience" uk-modal>
+                                <div class="uk-modal-dialog uk-modal-body">
+                                    <h3>Cancel Event</h3>
+                                    <form class="uk-inline" action="/api/experiences/${eventId}/teach_lesson_event_delete" method="POST">
+
+                                        <label>Custom Message</label>
+                                        <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                                        <p>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+        `;
+    },
 };
 
 // React
