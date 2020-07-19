@@ -20,8 +20,10 @@ use App\Validator\Constraints as CustomAssert;
 class Company
 {
     use Timestampable;
+
     /**
-     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     *
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "VIDEO"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -89,7 +91,7 @@ class Company
     private $companyPhotos;
 
     /**
-     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "VIDEO"})
      * @Assert\NotBlank(message="Please enter your company name.", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */
@@ -125,7 +127,7 @@ class Company
     private $emailAddress;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "VIDEO"})
      * @Assert\NotBlank(message="Please choose at least one primary industry.", groups={"EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="companies")
      */
@@ -186,7 +188,7 @@ class Company
     private $isMine;
 
     /**
-     * @Groups({"RESULTS_PAGE"})
+     * @Groups({"RESULTS_PAGE", "VIDEO"})
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "Please choose at least one career field.",

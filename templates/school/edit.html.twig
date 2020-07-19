@@ -214,8 +214,8 @@
                         {% if school.schoolVideos|length %}
                             {% for video in school.schoolVideos %}
                                 <div class="school-video">
-                                    <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId }}">
-                                        <img src="http://i.ytimg.com/vi/{{ video.videoId }}/hqdefault.jpg" alt="">
+                                    <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                        <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
                                         <div class="school-video__overlay">
                                             <div class="school-video__overlay-title">
                                                 {{ video.name }}

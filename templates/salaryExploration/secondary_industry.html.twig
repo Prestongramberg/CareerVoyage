@@ -9,7 +9,7 @@
             <h3>Select a Targeted Career Field</h3>
             {% if primaryIndustry.url %}
                 <div class="uk-alert uk-alert-primary">
-                    <a href="{{ primaryIndustry.url }}" target="_blank">Click here for general career resources for this industry.</a>
+                    <a href="{{ path('video_index') }}" target="_blank">Click here for general career resources for this industry.</a>
                 </div>
             {% endif %}
             <p><a href="{{ path('salary_exploration_primary_industry') }}"><i class="fa fa-arrow-left"></i> Back to primary exploration</a></p>

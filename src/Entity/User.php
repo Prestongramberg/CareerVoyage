@@ -243,7 +243,12 @@ abstract class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
      */
-    private $schoolExperiences;
+    protected $schoolExperiences;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="user")
+     */
+    protected $videoFavorites;
 
     public function __construct()
     {
@@ -258,6 +263,7 @@ abstract class User implements UserInterface
         $this->feedback = new ArrayCollection();
         $this->userRegisterForSchoolExperienceRequests = new ArrayCollection();
         $this->requestPossibleApprovers = new ArrayCollection();
+        $this->videoFavorites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1202,4 +1208,36 @@ abstract class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection|VideoFavorite[]
+     */
+    public function getVideoFavorites(): Collection
+    {
+        return $this->videoFavorites;
+    }
+
+    public function addVideoFavorite(VideoFavorite $videoFavorite): self
+    {
+        if (!$this->videoFavorites->contains($videoFavorite)) {
+            $this->videoFavorites[] = $videoFavorite;
+            $videoFavorite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideoFavorite(VideoFavorite $videoFavorite): self
+    {
+        if ($this->videoFavorites->contains($videoFavorite)) {
+            $this->videoFavorites->removeElement($videoFavorite);
+            // set the owning side to null (unless already changed)
+            if ($videoFavorite->getUser() === $this) {
+                $videoFavorite->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
 }
