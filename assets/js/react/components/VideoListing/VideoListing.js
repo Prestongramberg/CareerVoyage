@@ -32,7 +32,9 @@ class VideoListing extends Component {
                                 { this.props.careerVideoPage && this.props.user && this.props.user.roles && (this.props.user.roles.indexOf("ROLE_ADMIN_USER") !== -1 || this.props.user.roles.indexOf("ROLE_SITE_ADMIN_USER") !== -1) &&
 
                                     [
-                                        <a style={{marginLeft: "20px"}} className="uk-link-text" href={Routing.generate('video_index') + "?editVideo=" + this.props.id }>Edit</a>
+                                        <a style={{marginLeft: "20px"}} className="uk-link-text" href={Routing.generate('video_index') + "?editVideo=" + this.props.id }>Edit</a>,
+                                        "|",
+                                        <a className="uk-link-text" href={Routing.generate('career_videos_delete', {id: this.props.id}) }>Delete</a>
 
                                     ]
                                 }

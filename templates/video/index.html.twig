@@ -5,9 +5,7 @@
 {% block body %}
 
 <div class="uk-container">
-
-    {% include 'flash/messages.html.twig' %}
-
+    
     {% if (user.isSiteAdmin or user.isAdmin) %}
 
         <div class="uk-margin uk-width-1-1">

@@ -226,4 +226,22 @@ class VideoController extends AbstractController
 
     }
 
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/career-videos/{id}/delete", name="career_videos_delete", options = { "expose" = true })
+     * @param Request $request
+     * @param CareerVideo $video
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function careerDeleteVideoAction(Request $request, CareerVideo $video) {
+
+        $this->entityManager->remove($video);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Video successfully removed');
+
+        return $this->redirectToRoute('video_index');
+    }
+
+
 }
