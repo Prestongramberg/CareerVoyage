@@ -255,7 +255,15 @@
                                         <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
                                         <input class="uk-input" id="edit_company_add_video_id" name="videoId" required="required" type="text">
                                     </div>
+                                    <small>Please make sure your video is open to public.</small>
 
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_add_video_tags" class="required">Keywords</label>
+                                    <div class="uk-position-relative">
+                                        <textarea id="edit_company_add_video_tags" name="tags" class="uk-textarea"></textarea>
+                                    </div>
                                 </div>
 
                                 <p class="uk-text-right">
@@ -287,8 +295,8 @@
                         {% if company.companyVideos|length %}
                             {% for video in company.companyVideos %}
                                 <div class="company-video">
-                                    <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId }}">
-                                        <img src="http://i.ytimg.com/vi/{{ video.videoId }}/hqdefault.jpg" alt="">
+                                    <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                        <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
                                         <div class="company-video__overlay">
                                             <div class="company-video__overlay-title">
                                                 {{ video.name }}

@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class SecondaryIndustry
 {
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA", "VIDEO"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,7 +21,7 @@ class SecondaryIndustry
     private $id;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "RESULTS_PAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA", "VIDEO"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
@@ -33,7 +33,7 @@ class SecondaryIndustry
     private $url;
 
     /**
-     * @Groups({"EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "EDUCATOR_USER_DATA", "VIDEO"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="secondaryIndustries")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -69,6 +69,11 @@ class SecondaryIndustry
      */
     private $experiences;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\CareerVideo", mappedBy="secondaryIndustries")
+     */
+    private $careerVideos;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -77,6 +82,7 @@ class SecondaryIndustry
         $this->educatorUsers = new ArrayCollection();
         $this->studentUsers = new ArrayCollection();
         $this->experiences = new ArrayCollection();
+        $this->careerVideos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,6 +289,34 @@ class SecondaryIndustry
         if ($this->experiences->contains($experience)) {
             $this->experiences->removeElement($experience);
             $experience->removeSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CareerVideo[]
+     */
+    public function getCareerVideos(): Collection
+    {
+        return $this->careerVideos;
+    }
+
+    public function addCareerVideo(CareerVideo $careerVideo): self
+    {
+        if (!$this->careerVideos->contains($careerVideo)) {
+            $this->careerVideos[] = $careerVideo;
+            $careerVideo->addSecondaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCareerVideo(CareerVideo $careerVideo): self
+    {
+        if ($this->careerVideos->contains($careerVideo)) {
+            $this->careerVideos->removeElement($careerVideo);
+            $careerVideo->removeSecondaryIndustry($this);
         }
 
         return $this;
