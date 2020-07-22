@@ -116,7 +116,7 @@ window.Pintex = {
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
 
-        eventHtml += this.generateEditCancelButtons( eventId, eventStartDate, eventEndDate );
+        // eventHtml += this.generateEditCancelButtons( eventId, eventStartDate, eventEndDate );
 
         this.modal.dynamic_open(`
             <div class="event-modal-details">
