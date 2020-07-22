@@ -46,6 +46,7 @@ class School
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Company", mappedBy="schools")
+     * @ORM\OrderBy({"name" = "ASC"})
      */
     private $companies;
 

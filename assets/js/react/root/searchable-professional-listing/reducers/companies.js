@@ -20,5 +20,5 @@ function get_companies_from_request( professionals ) {
         }
     });
 
-    return companies.sort((a, b) => (a.name > b.name) ? 1 : -1);
+    return companies.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
 }
