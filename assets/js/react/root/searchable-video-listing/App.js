@@ -144,7 +144,7 @@ class App extends React.Component {
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateCompanyQuery}>
                         <option value="">Filter by Company...</option>
-                        { this.props.companies.map( company => <option key={company.id} value={company.id}>{company.name}</option> ) }
+                        { this.props.companies.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( company => <option key={company.id} value={company.id}>{company.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
@@ -166,7 +166,7 @@ class App extends React.Component {
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateCompanyVideoIndustryQuery}>
                         <option value="">Filter by Industry...</option>
-                        { this.props.companyVideoIndustries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+                        { this.props.companyVideoIndustries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
@@ -188,7 +188,7 @@ class App extends React.Component {
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateCareerVideoIndustryQuery}>
                         <option value="">Filter by Industry...</option>
-                        { this.props.careerVideoIndustries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+                        { this.props.careerVideoIndustries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
