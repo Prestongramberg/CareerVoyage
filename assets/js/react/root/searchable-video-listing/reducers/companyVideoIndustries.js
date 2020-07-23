@@ -49,6 +49,6 @@ function get_industries_from_request( videos ) {
         }
     });
 
-    return industries;
+    return industries.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }
 

@@ -40,6 +40,6 @@ function get_industries_from_request( professionals ) {
         }
     });
 
-    return industries;
+    return industries.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }
 
