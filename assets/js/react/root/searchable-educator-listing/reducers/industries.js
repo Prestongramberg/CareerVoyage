@@ -35,5 +35,5 @@ function get_industries_from_request( educators ) {
         }
     });
 
-    return industries;
+    return industries.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
 }
