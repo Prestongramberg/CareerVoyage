@@ -103,7 +103,7 @@
                                 {% if user.schools is defined and user.schools|length > 0 %}
                                     <ul class="uk-list uk-list-divider">
                                         {% for school in user.schools %}
-                                            <li>{{ school.name }}</li>
+                                            <li><a href="{{ path('school_view', { 'id': school.id }) }}">{{ school.name }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 {% else %}
