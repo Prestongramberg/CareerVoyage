@@ -136,7 +136,7 @@ class ExperienceController extends AbstractController
     }
 
     /**
-     * @Route("/experiences", name="experience_index", methods={"GET"})
+     * @Route("/experiences", name="experience_index", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -150,10 +150,24 @@ class ExperienceController extends AbstractController
     }
 
     /**
+     * @Route("/experiences-list", name="experience_list", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function listAction(Request $request) {
+
+
+        $user = $this->getUser();
+        return $this->render('experience/list.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
      * There are many different types of experiences. this acts as a central router
      * to route to the specific view for each experience.
      *
-     * @Route("/experiences/{id}/view", name="experience_view", methods={"GET"})
+     * @Route("/experiences/{id}/view", name="experience_view", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @param Experience $experience
      * @return Response

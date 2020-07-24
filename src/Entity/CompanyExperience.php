@@ -166,12 +166,4 @@ class CompanyExperience extends Experience
 
         return $this;
     }
-
-    /**
-     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @return string
-     */
-    public function getFriendlyEventName() {
-        return 'Company Event';
-    }
 }

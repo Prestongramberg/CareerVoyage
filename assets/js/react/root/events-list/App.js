@@ -6,6 +6,9 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import {loadEvents, radiusChanged, updateEventTypeQuery, updatePrimaryIndustryQuery, updateSecondaryIndustryQuery, updateSearchQuery, zipcodeChanged} from "./actions/actionCreators";
 import Loader from "../../components/Loader/Loader"
 import Pusher from "pusher-js";
+import EducatorListing from "../searchable-educator-listing/App";
+import EventListing from "../../components/EventListing/EventListing";
+import ProfessionalListing from "../searchable-professional-listing/App";
 
 class App extends React.Component {
 
@@ -26,6 +29,7 @@ class App extends React.Component {
     renderCalendar() {
 
         const events = this.getRelevantEvents();
+        debugger;
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
         const ranges = [ 25, 50, 70, 150 ];
 
@@ -33,8 +37,8 @@ class App extends React.Component {
 
             [
             <ul className="uk-tab" uk-tab>
-                <li className="uk-active"><a href={Routing.generate('experience_index')}>Experiences Calendar</a></li>
-                <li><a href={Routing.generate('experience_list')}>Experiences List</a></li>
+                <li><a href={Routing.generate('experience_index')}>Experiences Calendar</a></li>
+                <li className="uk-active"><a href={Routing.generate('experience_list')}>Experiences List</a></li>
             </ul>,
 
                 <div className="pintex-calendar pintex-testing">
@@ -66,23 +70,32 @@ class App extends React.Component {
                             <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
                         </div>
                     </div>
-                    <div className="uk-margin">
-                        <FullCalendar
-                            defaultView="dayGridMonth"
-                            eventLimit={true}
-                            events={calendarEvents}
-                            eventClick={(info) => {
-                                info.jsEvent.preventDefault(); // don't let the browser navigate
-                                window.Pintex.openCalendarEventDetails(info.event)
-                            }}
-                            header={{
-                                left: 'prev,next',
-                                center: 'title',
-                                right: 'dayGridDay,dayGridWeek,dayGridMonth'
-                            }}
-                            plugins={[dayGridPlugin]}
-                            timeZone={'America/Chicago'}
-                        />
+                    <div className="educator-listings uk-margin" data-uk-grid="masonry: true">
+                        { this.props.search.loading && (
+                            <div className="uk-width-1-1 uk-align-center">
+                                <Loader />
+                            </div>
+                        )}
+                        { !this.props.search.loading && events.map(event => {
+
+                            debugger;
+
+                            return <div className="uk-width-1-1 uk-width-1-2@l" key={event.id}>
+                                <EventListing
+                                    title={event.title}
+                                    key={event.id}
+                                    id={event.id}
+                                    briefDescription={event.briefDescription}
+                                    className={event.className}
+                                    friendlyStartDateAndTime={event.friendlyStartDateAndTime}
+                                    friendlyEndDateAndTime={event.friendlyEndDateAndTime}
+                                />
+                            </div>
+
+                        })}
+                        { !this.props.search.loading && events.length === 0 && (
+                            <p>No educators match your selection</p>
+                        )}
                     </div>
                 </div>
             ]
