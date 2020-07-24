@@ -50,6 +50,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -797,9 +798,24 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
         if($form->isSubmitted() && !$form->isValid()) {
-          $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
-        }
 
+            $errors = $this->getFormErrors($form);
+
+            foreach($errors as $fieldName => $error) {
+
+                if($fieldName === 'secondaryIndustries') {
+                    $this->addFlash('error', 'Please choose at least one career field.');
+                    break;
+                } elseif($fieldName === 'schools') {
+                    $this->addFlash('error', 'Please select your volunteer schools.');
+                    break;
+                } else {
+                    $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
+                    break;
+                }
+            }
+        }
+        
         if($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
@@ -1284,5 +1300,33 @@ class CompanyController extends AbstractController
         $this->addFlash('success', 'Experience has been sent to students!');
 
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
+     * List all errors of a given bound form.
+     *
+     * @param Form $form
+     *
+     * @return array
+     */
+    protected function getFormErrors(Form $form)
+    {
+        $errors = array();
+
+        // Global
+        foreach ($form->getErrors() as $error) {
+            $errors[$form->getName()][] = $error->getMessage();
+        }
+
+        // Fields
+        foreach ($form as $child /** @var Form $child */) {
+            if (!$child->isValid()) {
+                foreach ($child->getErrors() as $error) {
+                    $errors[$child->getName()][] = $error->getMessage();
+                }
+            }
+        }
+
+        return $errors;
     }
 }

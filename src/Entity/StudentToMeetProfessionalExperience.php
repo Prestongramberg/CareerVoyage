@@ -41,14 +41,6 @@ class StudentToMeetProfessionalExperience extends Experience
     }
 
     /**
-     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @return string
-     */
-    public function getFriendlyEventName() {
-        return 'Student/Professional Meeting';
-    }
-
-    /**
      * @return Collection|ProfessionalReviewMeetStudentExperienceFeedback[]
      */
     public function getProfessionalReviewMeetStudentExperienceFeedback(): Collection

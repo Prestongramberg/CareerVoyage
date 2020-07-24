@@ -627,4 +627,37 @@ abstract class Experience
 
         return $this;
     }
+
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getFriendlyStartDateAndTime() {
+        if($this->startDateAndTime) {
+            return $this->startDateAndTime->format("m/d/Y h:i A");
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getFriendlyEndDateAndTime() {
+        if($this->endDateAndTime) {
+            return $this->endDateAndTime->format("m/d/Y h:i A");
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getFriendlyEventName() {
+        if($this->getType()) {
+            return $this->getType()->getName();
+        }
+        return '';
+    }
+
+
 }
