@@ -76,7 +76,7 @@ class ProfessionalUser extends User
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "You must select at least one career field",
+     *      minMessage = "Please select your profession(s)",
      *     groups={"SECONDARY_INDUSTRY"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="professionalUsers")
@@ -90,6 +90,12 @@ class ProfessionalUser extends User
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
+     * 
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select at least one role",
+     *     groups={"EDIT"}
+     * )
      * @ORM\ManyToMany(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="professionalUsers")
      */
     private $rolesWillingToFulfill;

@@ -606,6 +606,7 @@ jQuery(document).ready(function($) {
                 const response = serverResponse.responseJSON;
 
                 if (response.success) {
+
                     let _template = $('#companyResourcesTemplate').html();
                     $fields.val('');
                     $('#companyResources').append(

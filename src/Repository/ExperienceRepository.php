@@ -107,4 +107,19 @@ class ExperienceRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+
+    public function getEventsClosestToCurrentDateByArrayOfExperienceIds(array $experienceIds) {
+
+        $experienceIds = implode("','", $experienceIds);
+
+        $query = sprintf("SELECT * from experience e where e.start_date_and_time > NOW()
+                        AND e.id IN ('$experienceIds')
+                        ORDER BY e.start_date_and_time ASC");
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

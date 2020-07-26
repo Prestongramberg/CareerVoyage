@@ -166,4 +166,16 @@ class CompanyExperience extends Experience
 
         return $this;
     }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getExperienceListTitle() {
+
+        if($this->getCompany()) {
+            return $this->getCompany()->getName();
+        }
+
+        return '';
+    }
 }

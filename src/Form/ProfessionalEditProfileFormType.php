@@ -55,6 +55,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
                 'choice_label' => 'name',
+                'placeholder' => 'Select Industry',
             ])
             ->add('schools', EntityType::class, [
                 'class' => School::class,

@@ -142,8 +142,8 @@ class ExperienceController extends AbstractController
      */
     public function indexAction(Request $request) {
 
-
         $user = $this->getUser();
+
         return $this->render('experience/index.html.twig', [
             'user' => $user,
         ]);

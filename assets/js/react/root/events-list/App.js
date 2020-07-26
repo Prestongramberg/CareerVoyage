@@ -37,39 +37,43 @@ class App extends React.Component {
 
             [
             <ul className="uk-tab" uk-tab>
-                <li><a href={Routing.generate('experience_index')}>Experiences Calendar</a></li>
-                <li className="uk-active"><a href={Routing.generate('experience_list')}>Experiences List</a></li>
+                <li><a href={Routing.generate('experience_index')}>Calendar</a></li>
+                <li className="uk-active"><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
             </ul>,
 
                 <div className="pintex-calendar pintex-testing">
-                    <div className="uk-grid-small uk-flex-middle" data-uk-grid>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <div className="uk-search uk-search-default uk-width-1-1">
-                                <span data-uk-search-icon></span>
-                                <input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+
+                    <div className="header" id="myHeader">
+                        <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-search uk-search-default uk-width-1-1">
+                                    <span data-uk-search-icon></span>
+                                    <input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+                                </div>
+                            </div>
+                            { this.renderIndustryDropdown() }
+                            { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
+                            { this.renderEventTypes() }
+                        </div>
+                        <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-search uk-search-default uk-width-1-1">
+                                    <span data-uk-search-icon></span>
+                                    <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
+                                </div>
+                            </div>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} >
+                                    <option value="">Filter by Radius...</option>
+                                    {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
+                                </select>
+                            </div>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
                             </div>
                         </div>
-                        { this.renderIndustryDropdown() }
-                        { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
-                        { this.renderEventTypes() }
                     </div>
-                    <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <div className="uk-search uk-search-default uk-width-1-1">
-                                <span data-uk-search-icon></span>
-                                <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
-                            </div>
-                        </div>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} >
-                                <option value="">Filter by Radius...</option>
-                                {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
-                            </select>
-                        </div>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
-                        </div>
-                    </div>
+
                     <div className="educator-listings uk-margin" data-uk-grid="masonry: true">
                         { this.props.search.loading && (
                             <div className="uk-width-1-1 uk-align-center">
@@ -77,8 +81,6 @@ class App extends React.Component {
                             </div>
                         )}
                         { !this.props.search.loading && events.map(event => {
-
-                            debugger;
 
                             return <div className="uk-width-1-1 uk-width-1-2@l" key={event.id}>
                                 <EventListing
@@ -89,12 +91,14 @@ class App extends React.Component {
                                     className={event.className}
                                     friendlyStartDateAndTime={event.friendlyStartDateAndTime}
                                     friendlyEndDateAndTime={event.friendlyEndDateAndTime}
+                                    friendlyName={event.friendlyEventName}
+                                    experienceListTitle={event.experienceListTitle}
                                 />
                             </div>
 
                         })}
                         { !this.props.search.loading && events.length === 0 && (
-                            <p>No educators match your selection</p>
+                            <p>No experiences match your selection</p>
                         )}
                     </div>
                 </div>
@@ -163,7 +167,8 @@ class App extends React.Component {
                     return null;
                 }
 
-                return event.friendlyEventName
+                return event.friendlyEventName;
+
             } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
 
@@ -176,11 +181,12 @@ class App extends React.Component {
                     return null;
                 }
 
-                return event.friendlyEventName
+                return event.friendlyEventName;
+
             } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
-                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                <div className="uk-width-1-1 uk-text-truncate eventType" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateEventTypeQuery}>
                         <option value="">Filter by Event Type...</option>
                         <optgroup label="Company Events">
@@ -224,7 +230,7 @@ class App extends React.Component {
             }
 
             // Filter by Event Type
-            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName !== this.props.search.eventType ) ) {
+            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1 ) ) {
                 return false;
             }
 
@@ -280,7 +286,7 @@ class App extends React.Component {
     }
 
     loadEvents() {
-        this.props.loadEvents( window.Routing.generate('get_experiences_by_radius', {
+        this.props.loadEvents( window.Routing.generate('get_experiences_for_list_by_radius', {
             'radius': this.props.search.radius,
             'schoolId': this.props.schoolId,
             'userId': this.props.userId,

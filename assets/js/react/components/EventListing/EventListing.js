@@ -13,12 +13,11 @@ class EventListing extends Component {
 
                             <div className="uk-width-auto">
                                 <a href={ window.Routing.generate('experience_view', { id: this.props.id }) }>
-                                    <h4 className="uk-card-title-small">{ this.props.title } -
-
-                                        { this.props.className === 'SchoolExperience' && <small> School Experience</small> }
-                                        { this.props.className === 'CompanyExperience' && <small> Company Experience</small> }
-
+                                    <h4 className="uk-card-title-small">{ this.props.title }
                                     </h4>
+                                    <small>{ this.props.friendlyName }</small>
+                                    <br />
+                                    <small>{ this.props.experienceListTitle }</small>
                                 </a>
                             </div>
 
@@ -51,7 +50,9 @@ EventListing.propTypes = {
     briefDescription: PropTypes.string,
     className: PropTypes.string,
     friendlyStartDateAndTime: PropTypes.string,
-    friendlyEndDateAndTime: PropTypes.string
+    friendlyEndDateAndTime: PropTypes.string,
+    friendlyName: PropTypes.string,
+    experienceListTitle: PropTypes.string
 };
 
 EventListing.defaultProps = {
