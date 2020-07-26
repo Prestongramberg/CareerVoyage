@@ -493,7 +493,7 @@ class CompanyController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename : '',
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename : $companyResource->getLinkToWebsite(),
                 'id' => $companyResource->getId(),
                 'title' => $title,
                 'description' => $description,
@@ -801,18 +801,23 @@ class CompanyController extends AbstractController
 
             $errors = $this->getFormErrors($form);
 
+            $showMainError = true;
             foreach($errors as $fieldName => $error) {
 
                 if($fieldName === 'secondaryIndustries') {
+                    $showMainError = false;
                     $this->addFlash('error', 'Please choose at least one career field.');
-                    break;
-                } elseif($fieldName === 'schools') {
-                    $this->addFlash('error', 'Please select your volunteer schools.');
-                    break;
-                } else {
-                    $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
-                    break;
                 }
+
+                if($fieldName === 'schools') {
+                    $showMainError = false;
+                    $this->addFlash('error', 'Please select your volunteer schools.');
+                }
+
+                if($showMainError) {
+                    $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
+                }
+
             }
         }
         

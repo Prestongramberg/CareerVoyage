@@ -22,7 +22,7 @@ for( let i = 0; i < school_selections.length; i++) {
             search: {
                 fieldName: fieldName,
                 geoRadiusName: geoRadiusName,
-                geoRadiusValue: geoRadiusValue || 70,
+                geoRadiusValue: geoRadiusValue | null,
                 geoZipCodeName: geoZipCodeName,
                 geoZipCodeValue: geoZipCodeValue || '',
                 loading: true,

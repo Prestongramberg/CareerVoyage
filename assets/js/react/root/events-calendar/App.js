@@ -33,8 +33,8 @@ class App extends React.Component {
 
             [
             <ul className="uk-tab" uk-tab>
-                <li className="uk-active"><a href={Routing.generate('experience_index')}>Experiences Calendar</a></li>
-                <li><a href={Routing.generate('experience_list')}>Experiences List</a></li>
+                <li className="uk-active"><a href={Routing.generate('experience_index')}>Calendar</a></li>
+                <li><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
             </ul>,
 
                 <div className="pintex-calendar pintex-testing">
@@ -150,7 +150,8 @@ class App extends React.Component {
                     return null;
                 }
 
-                return event.friendlyEventName
+                return event.friendlyEventName;
+
             } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
 
@@ -163,7 +164,8 @@ class App extends React.Component {
                     return null;
                 }
 
-                return event.friendlyEventName
+                return event.friendlyEventName;
+
             } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
@@ -211,7 +213,7 @@ class App extends React.Component {
             }
 
             // Filter by Event Type
-            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName !== this.props.search.eventType ) ) {
+            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1 ) ) {
                 return false;
             }
 

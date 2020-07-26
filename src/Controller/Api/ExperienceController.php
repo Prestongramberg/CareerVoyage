@@ -271,6 +271,160 @@ class ExperienceController extends AbstractController
     }
 
     /**
+     * Example Request: http://pintex.test/api/experiences-by-radius?zipcode=54017
+     *
+     * @Route("/experiences-for-list-by-radius", name="get_experiences_for_list_by_radius", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getExperiencesForListByRadius(Request $request) {
+        $loggedInUser = $this->getUser();
+        $companyExperiences = [];
+        $schoolExperiences = [];
+        $userExperiences = [];
+        $userId = $request->query->get('userId', null);
+        $schoolId = $request->query->get('schoolId', null);
+        $zipcode = $request->query->get('zipcode',  null);
+        $radius = $request->query->get('radius', 70);
+        $lng = null;
+        $lat = null;
+
+        /**
+         * START THE LOGIC FOR FINDING EXPERIENCES BY ZIPCODE
+         */
+        if($zipcode &&  $coordinates = $this->geocoder->geocode($zipcode)) {
+            $lng = $coordinates['lng'];
+            $lat = $coordinates['lat'];
+            list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+
+            /** @var User $user */
+            if($schoolId && $school = $this->schoolRepository->find($schoolId)) {
+                $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
+            } else if ( $userId ) {
+                /** @var User $user */
+                $user = $userId ? $this->userRepository->find($userId) : $this->getUser();
+                $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $userId);
+                if($user && $user->isStudent() && $user->getSchool()) {
+                    $schoolId = $user->getSchool()->getId();
+                    // get any school experiences that are part of your school
+                    $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
+                }
+            } else {
+                // Everyone sees all company events
+                $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+                $companyExperiences = $this->companyExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
+
+                if ( $loggedInUser->isSchoolAdministrator() ) {
+                    /** @var SchoolAdministrator $loggedInUser **/
+                    // School Administrator will see all school events that they manage
+                    foreach($loggedInUser->getSchools() as $school) {
+                        $schoolId = $school->getId();
+                        $experiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
+                        $schoolExperiences = array_merge($schoolExperiences, $experiences);
+                    }
+                } else if ( $loggedInUser->isEducator() || $loggedInUser->isStudent() ) {
+                    // Educator & students will see their school events
+                    /** @var StudentUser|EducatorUser $loggedInUser **/
+                    $school = $loggedInUser->getSchool();
+                    $schoolId = $school->getId();
+                    $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
+                } else if ( $loggedInUser->isProfessional() ) {
+                    // Professional will see all school events that they VOLUNTEER AT
+                    /** @var ProfessionalUser $loggedInUser **/
+                    foreach($loggedInUser->getSchools() as $school) {
+                        $schoolId = $school->getId();
+                        $experiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
+                        $schoolExperiences = array_merge($schoolExperiences, $experiences);
+                    }
+                }
+            }
+
+            $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
+            $experienceIds = array_map(function($experience) { return $experience['id']; }, $experiences);
+
+            $experiences = $this->experienceRepository->getEventsClosestToCurrentDateByArrayOfExperienceIds($experienceIds);
+            $experienceIds = array_map(function($experience) { return $experience['id']; }, $experiences);
+
+            $experiences = $this->experienceRepository->findBy(['id' => $experienceIds], [
+                'startDateAndTime' => 'ASC'
+            ]);
+
+            $json = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA']]);
+            $payload = json_decode($json, true);
+
+        } else {
+            /**
+             * START THE LOGIC FOR FINDING EXPERIENCES WITHOUT ZIPCODE
+             */
+
+            /** @var User $user */
+            if($schoolId && $school = $this->schoolRepository->find($schoolId)) {
+                $schoolExperiences = $this->schoolExperienceRepository->findBy([
+                    'school' => $school
+                ]);
+                // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
+            } else if ( $userId ) {
+                /** @var User $user */
+                $user = $userId ? $this->userRepository->find($userId) : $this->getUser();
+                $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
+            } else {
+                // Everyone sees all company events
+                $companyExperiences = $this->companyExperienceRepository->findAll();
+
+                if ( $loggedInUser->isSchoolAdministrator() ) {
+                    /** @var SchoolAdministrator $loggedInUser **/
+                    // School Administrator will see all school events that they manage
+                    foreach($loggedInUser->getSchools() as $school) {
+                        $experiences = $this->schoolExperienceRepository->findBy([
+                            'school' => $school
+                        ]);
+                        $schoolExperiences = array_merge($schoolExperiences, $experiences);
+                    }
+                } else if ( $loggedInUser->isEducator() || $loggedInUser->isStudent() ) {
+                    // Educator & students will see their school events
+                    /** @var StudentUser|EducatorUser $loggedInUser **/
+                    $school = $loggedInUser->getSchool();
+                    $schoolExperiences = $this->schoolExperienceRepository->findBy([
+                        'school' => $school
+                    ]);
+                } else if ( $loggedInUser->isProfessional() ) {
+                    // Professional will see all school events that they VOLUNTEER AT
+                    /** @var ProfessionalUser $loggedInUser **/
+                    foreach($loggedInUser->getSchools() as $school) {
+                        $experiences = $this->schoolExperienceRepository->findBy([
+                            'school' => $school
+                        ]);
+                        $schoolExperiences = array_merge($schoolExperiences, $experiences);
+                    }
+                }
+            }
+
+            $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
+            $experienceIds = array_map(function($experience) { return $experience->getId(); }, $experiences);
+
+            // we are only showing upcoming dates in the future for the list view
+            $experiences = $this->experienceRepository->getEventsClosestToCurrentDateByArrayOfExperienceIds($experienceIds);
+            $experienceIds = array_map(function($experience) { return $experience['id']; }, $experiences);
+
+            $experiences = $this->experienceRepository->findBy(['id' => $experienceIds], [
+                'startDateAndTime' => 'ASC'
+            ]);
+
+            $json = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA']]);
+            $payload = json_decode($json, true);
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload,
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
      * @Route("/experiences/{id}/remove", name="remove_experience", methods={"POST"}, options = { "expose" = true })
      * @param Experience $experience
      * @param Request $request

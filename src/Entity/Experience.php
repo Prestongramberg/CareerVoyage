@@ -654,10 +654,17 @@ abstract class Experience
      */
     public function getFriendlyEventName() {
         if($this->getType()) {
-            return $this->getType()->getName();
+            return $this->getType()->getEventName();
         }
         return '';
     }
 
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getExperienceListTitle() {
+
+        return $this->getTitle();
+    }
 
 }

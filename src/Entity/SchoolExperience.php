@@ -135,4 +135,16 @@ class SchoolExperience extends Experience
 
         return $this;
     }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getExperienceListTitle() {
+
+        if($this->getSchool()) {
+            return $this->getSchool()->getName();
+        }
+
+        return '';
+    }
 }

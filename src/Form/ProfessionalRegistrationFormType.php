@@ -35,7 +35,7 @@ class ProfessionalRegistrationFormType extends AbstractType
                 'class' => Industry::class,
                 'choice_label' => 'name',
                 'required' => false,
-                'placeholder' => 'Select a primary industry..'
+                'placeholder' => 'Select A Career Sector..'
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
