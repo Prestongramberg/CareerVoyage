@@ -1,5 +1,4 @@
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
-
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         {% include 'profile/partials/shared/_settings_and_delete_tabs.html.twig' %}
@@ -22,7 +21,7 @@
                         <li><a href="#account-details-profile">Personal</a></li>
                         <li><a href="#account-details-profile-industries">Profession</a></li>
                         <li><a href="#account-details-profile-roles">Roles</a></li>
-                        <li><a href="#account-details-profile-schools">Schools</a></li>
+                        <li><a href="#account-details-profile-schools" id="account-details-profile-schools">Schools</a></li>
                         <li><a href="#account-details-profile-account">Account</a></li>
                     </ul>
                 </div>

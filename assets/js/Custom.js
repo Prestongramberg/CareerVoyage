@@ -952,4 +952,14 @@ jQuery(document).ready(function($) {
         });
     });
 
+
+    /**
+     * Load tab if "page" is set
+     */
+    
+    if(window.location.hash) {
+        document.getElementById( window.location.hash.substr(1) ).click();
+        window.scrollTo(0,0);
+    }
+
 });
