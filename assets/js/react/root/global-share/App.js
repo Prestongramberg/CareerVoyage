@@ -15,10 +15,10 @@ export class App extends Component {
 
     componentWillMount() {
         this.props.updateMessage( this.props.message )
+        this.props.addDefaultUsers()
     }
 
     render() {
-
         const uniqueId = this.props.uniqueId || Math.round(Math.random() * 100000);
 
         return (
@@ -104,7 +104,8 @@ export const mapDispatchToProps = dispatch => ({
     removeUser: (user) => dispatch(removeUser( user )),
     searchChattableUsers: (event) => dispatch(searchChattableUsers( event.target.value )),
     sendNotifications: () => dispatch(sendNotifications()),
-    updateMessage: (message) => dispatch(updateMessage(message))
+    updateMessage: (message) => dispatch(updateMessage(message)),
+    addDefaultUsers: () => dispatch(searchChattableUsers(''))
 });
 
 const ConnectedApp = connect(
