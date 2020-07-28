@@ -73,7 +73,7 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     protected $briefDescription;
 

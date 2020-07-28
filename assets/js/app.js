@@ -17,9 +17,10 @@ UIkit.use(Icons);
 
 // App Vendor JS
 const $ = require('jquery');
-const moment = require('./vendor/moment.js');
+// const moment = require('./vendor/moment.js');
 require('./vendor/jquery-datetimepicker.js');
 require('./vendor/fontawesome.js');
+const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
 
 // Binds to Window
@@ -105,7 +106,7 @@ window.Pintex = {
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
                 <p>
-                    <strong>About the Event</strong><br />
+                    <strong>About the Experience</strong><br />
                     ${eventAbout || eventDescription}
                 </p>
             `;
@@ -128,9 +129,12 @@ window.Pintex = {
     },
     generateAddToCalendarButton: function( epochStartTime, epochEndTime, title = '', description = '', location = '' ) {
 
+        console.log
+
         // Get the dates from CST to EPOCH
-        const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
-        const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
+        const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+00:00').format("YYYYMMDDTHHmmss");
+        const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+00:00').format("YYYYMMDDTHHmmss");
+
 
         // Encode all our user inputs
         title = encodeURI( title.trim() );
@@ -144,8 +148,8 @@ window.Pintex = {
             <label for="atc-checkbox" class="atc-checkbox-label">Add to Calendar</label>
             <input name="atc-checkbox" class="atc-checkbox" id="atc-checkbox" type="checkbox">
             <div class="atc-links-wrapper">
-                <a class="atc-link icon-google" target="_blank" href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=${title}&amp;dates=${startISOtoSeconds}Z/${endISOtoSeconds}Z&amp;details=${description}&amp;location=${location}&amp;sprop=&amp;sprop=name:">Google Calendar</a>
-                <a class="atc-link icon-yahoo" target="_blank" href="http://calendar.yahoo.com/?v=60&amp;view=d&amp;type=20&amp;title=${title}&amp;st=${startISOtoSeconds}Z&amp;dur=${yahooDuration}&amp;desc=${description}&amp;in_loc=${location}">Yahoo! Calendar</a>
+                <a class="atc-link icon-google" target="_blank" href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=${title}&amp;dates=${startISOtoSeconds}/${endISOtoSeconds}&amp;details=${description}&amp;location=${location}&amp;sprop=&amp;sprop=name:">Google Calendar</a>
+                <a class="atc-link icon-yahoo" target="_blank" href="http://calendar.yahoo.com/?v=60&amp;view=d&amp;type=20&amp;title=${title}&amp;st=${startISOtoSeconds}&amp;dur=${yahooDuration}&amp;desc=${description}&amp;in_loc=${location}">Yahoo! Calendar</a>
                 <a class="atc-link icon-ical" onClick="window.Pintex.downloadICSCalendarEvent('${title}', '${description}', '${location}', ${epochStartTime*1000}, ${epochEndTime*1000})">iCal Calendar</a>
                 <a class="atc-link icon-outlook" onClick="window.Pintex.downloadICSCalendarEvent('${title}', '${description}', '${location}', ${epochStartTime*1000}, ${epochEndTime*1000})">Outlook Calendar</a>
             </div>
@@ -153,6 +157,7 @@ window.Pintex = {
     },
     downloadICSCalendarEvent: function( title, description, location, begin, end ) {
         const cal = ics();
+
         cal.addEvent(
             decodeURI(title).trim(),
             decodeURI(description).trim(),
