@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use App\Validator\Constraints as CustomAssert;
 
 /**
- * @CustomAssert\ProfessionalAlreadyOwnsCompany(groups={"CREATE"});
+ * @CustomAssert\ProfessionalAlreadyOwnsCompany(groups={"CREATE"})
  * @ORM\Entity(repositoryClass="App\Repository\CompanyRepository")
  * @ORM\HasLifecycleCallbacks()
  */
