@@ -107,23 +107,27 @@ var ics = function(uidDomain, prodId) {
             }
 
             //TODO add time and time zone? use moment to format?
+            // Fixing date time issues - ER -- I changed the start_date.get...() to start_date.getUTC...()
+            // This fixes the timezone issue since the database is stored as local time, not UTC
+
             var start_date = new Date(begin);
             var end_date = new Date(stop);
             var now_date = new Date();
 
-            var start_year = ("0000" + (start_date.getFullYear().toString())).slice(-4);
-            var start_month = ("00" + ((start_date.getMonth() + 1).toString())).slice(-2);
-            var start_day = ("00" + ((start_date.getDate()).toString())).slice(-2);
-            var start_hours = ("00" + (start_date.getHours().toString())).slice(-2);
-            var start_minutes = ("00" + (start_date.getMinutes().toString())).slice(-2);
-            var start_seconds = ("00" + (start_date.getSeconds().toString())).slice(-2);
 
-            var end_year = ("0000" + (end_date.getFullYear().toString())).slice(-4);
-            var end_month = ("00" + ((end_date.getMonth() + 1).toString())).slice(-2);
-            var end_day = ("00" + ((end_date.getDate()).toString())).slice(-2);
-            var end_hours = ("00" + (end_date.getHours().toString())).slice(-2);
-            var end_minutes = ("00" + (end_date.getMinutes().toString())).slice(-2);
-            var end_seconds = ("00" + (end_date.getSeconds().toString())).slice(-2);
+            var start_year = ("0000" + (start_date.getUTCFullYear().toString())).slice(-4);
+            var start_month = ("00" + ((start_date.getUTCMonth() + 1).toString())).slice(-2);
+            var start_day = ("00" + ((start_date.getUTCDate()).toString())).slice(-2);
+            var start_hours = ("00" + (start_date.getUTCHours().toString())).slice(-2);
+            var start_minutes = ("00" + (start_date.getUTCMinutes().toString())).slice(-2);
+            var start_seconds = ("00" + (start_date.getUTCSeconds().toString())).slice(-2);
+
+            var end_year = ("0000" + (end_date.getUTCFullYear().toString())).slice(-4);
+            var end_month = ("00" + ((end_date.getUTCMonth() + 1).toString())).slice(-2);
+            var end_day = ("00" + ((end_date.getUTCDate()).toString())).slice(-2);
+            var end_hours = ("00" + (end_date.getUTCHours().toString())).slice(-2);
+            var end_minutes = ("00" + (end_date.getUTCMinutes().toString())).slice(-2);
+            var end_seconds = ("00" + (end_date.getUTCSeconds().toString())).slice(-2);
 
             var now_year = ("0000" + (now_date.getFullYear().toString())).slice(-4);
             var now_month = ("00" + ((now_date.getMonth() + 1).toString())).slice(-2);
