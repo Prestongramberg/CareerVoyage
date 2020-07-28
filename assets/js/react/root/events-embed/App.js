@@ -32,11 +32,6 @@ class App extends React.Component {
         return (
 
             [
-            <ul className="uk-tab" uk-tab>
-                <li className="uk-active"><a href={Routing.generate('experience_index')}>Calendar</a></li>
-                <li><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
-            </ul>,
-
                 <div className="pintex-calendar pintex-testing">
                     <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                         <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">

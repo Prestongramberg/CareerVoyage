@@ -114,7 +114,7 @@ class App extends React.Component {
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updatePrimaryIndustryQuery}>
                         <option value="">Filter by Industry...</option>
-                        { this.props.industries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+                        { this.props.industries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
@@ -190,10 +190,10 @@ class App extends React.Component {
                     <select onChange={this.props.updateEventTypeQuery}>
                         <option value="">Filter by Event Type...</option>
                         <optgroup label="Company Events">
-                            { companyEventTypes.map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+                            { companyEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
                         </optgroup>
                         <optgroup label="School Events">
-                            { schoolEventTypes.map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+                            { schoolEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
                         </optgroup>
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
