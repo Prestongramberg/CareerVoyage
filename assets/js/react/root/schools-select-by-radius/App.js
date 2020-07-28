@@ -60,8 +60,9 @@ class App extends React.Component {
                                                     onChange={(e) => {
                                                         this.props.schoolToggled(school.id);
                                                     }}
+                                                    key={ school.id }
                                                 />
-                                                <label htmlFor={`${this.props.search.fieldName}_${school.id}`}>{ school.name }</label>
+                                                <label key={`label_${school.id}`} htmlFor={`${this.props.search.fieldName}_${school.id}`}>{ school.name }</label>
                                             </>
                                         ))}
                                         <input type="hidden" name={ this.props.search.geoRadiusName } value={ this.props.search.geoRadiusValue } />
