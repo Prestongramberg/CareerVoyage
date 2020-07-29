@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadEducators, radiusChanged, updateSchoolQuery, updateSearchQuery, zipcodeChanged } from './actions/actionCreators'
+import { loadEducators, updateCourseQuery, radiusChanged, updateSchoolQuery, updateSearchQuery, zipcodeChanged } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import EducatorListing from "../../components/EducatorListing/EducatorListing";
 import Loader from "../../components/Loader/Loader";
@@ -14,7 +14,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["loadEducators", "getRelevantEducators", "renderSchoolDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown"];
+        const methods = ["loadEducators", "getRelevantEducators", "renderCourseDropdown", "renderSchoolDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -40,6 +40,7 @@ class App extends React.Component {
                                 </div>
                             </div>
                             { this.renderSchoolDropdown() }
+                            { this.renderCourseDropdown() }
                             { this.renderIndustryDropdown() }
                             { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
                         </div>
@@ -166,6 +167,26 @@ class App extends React.Component {
         return null;
     }
 
+    renderCourseDropdown() {
+        if ( this.props.courses.length > 0 ) {
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateCourseQuery}>
+                        <option value="">Filter by Course...</option>
+                        { this.props.courses.map( course => <option key={course.id} value={course.id}>{course.title}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        return null;
+    }
+
     renderIndustryDropdown() {
 
         if ( this.props.industries.length > 0 ) {
@@ -223,6 +244,7 @@ class App extends React.Component {
 
 App.propTypes = {
     educators: PropTypes.array,
+    courses: PropTypes.array,
     schools: PropTypes.array,
     search: PropTypes.object,
     userId: PropTypes.number
@@ -230,6 +252,7 @@ App.propTypes = {
 
 App.defaultProps = {
     educators: [],
+    courses: [],
     schools: [],
     search: {},
     userId: 0
@@ -237,6 +260,7 @@ App.defaultProps = {
 
 export const mapStateToProps = (state = {}) => ({
     educators: state.educators,
+    courses: state.courses,
     industries: state.industries,
     schools: state.schools,
     search: state.search
@@ -248,6 +272,7 @@ export const mapDispatchToProps = dispatch => ({
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
     updateSchoolQuery: (event) => dispatch(updateSchoolQuery(event.target.value)),
+    updateCourseQuery: (event) => dispatch(updateCourseQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
     zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode)),
 });

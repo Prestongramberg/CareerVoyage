@@ -17,6 +17,7 @@ if( searchableEducatorListing ) {
         reducers,
         {
             schools: [],
+            courses: [],
             industries: [],
             educators: [],
             search: {

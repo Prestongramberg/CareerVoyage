@@ -34,6 +34,11 @@ export default (state = {}, action) => {
                 ...state,
                 school: action.school
             };
+        case actionTypes.COURSE_QUERY_CHANGED:
+            return {
+                ...state,
+                course: action.course
+            };
         case actionTypes.RADIUS_CHANGED:
             return {
                 ...state,

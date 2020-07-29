@@ -15,6 +15,13 @@ export function updateSchoolQuery(school) {
     };
 }
 
+export function updateCourseQuery(course) {
+    return {
+        type: actionTypes.COURSE_QUERY_CHANGED,
+        course: course
+    }
+}
+
 export function radiusChanged(radius) {
     return {
         type: actionTypes.RADIUS_CHANGED,

@@ -20,5 +20,7 @@ function get_schools_from_request( educators ) {
         }
     });
 
+    console.log(schools);
+
     return schools.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }
