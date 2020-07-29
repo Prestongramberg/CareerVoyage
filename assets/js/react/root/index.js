@@ -3,6 +3,8 @@ require('./calendar-button');
 require('./chat');
 require('./event-user-notify');
 require('./events-calendar');
+require('./events-list');
+require('./events-embed');
 require('./form-choose-all-that-apply');
 require('./form-range');
 require('./form-rating');

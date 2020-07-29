@@ -208,17 +208,23 @@
         var request = $(this).find('[name="request"]').val();
         var element = $(this).find('[name="element"]').val();
         var date = $(this).find('[name="date"]').val();
+        var isFromStudent = $(this).find('[name="isFromStudent"]').val();
         var isFromEducator = $(this).find('[name="isFromEducator"]').val();
+        var isFromProfessional = $(this).find('[name="isFromProfessional"]').val();
         var dateOptionOne = $(this).find('[name="dateOptionOne"]').val();
         var dateOptionTwo = $(this).find('[name="dateOptionTwo"]').val();
         var dateOptionThree = $(this).find('[name="dateOptionThree"]').val();
 
-        $.post( $(this).attr('action'), { request: request, isFromEducator: isFromEducator, date: date, dateOptionOne: dateOptionOne, dateOptionTwo: dateOptionTwo, dateOptionThree: dateOptionThree }, function(data){
+        $.post( $(this).attr('action'), { request: request, isFromStudent: isFromStudent, isFromEducator: isFromEducator, isFromProfessional: isFromProfessional, date: date, dateOptionOne: dateOptionOne, dateOptionTwo: dateOptionTwo, dateOptionThree: dateOptionThree }, function(data){
             var status = JSON.parse(data.status);
             if( status[0].type == "success" && element != undefined){
                 $('#' + element).remove();
             }
             display_message(status[0].type, status[0].message);
+
+            if(UIkit.modal('#student-to-meet-professional-dates')) {
+                UIkit.modal('#student-to-meet-professional-dates').hide();
+            }   
         });
     })
 

@@ -198,11 +198,16 @@ class SchoolController extends AbstractController
         $user = $this->getUser();
         // todo how do we know the users default zipcode? Probably just return all results if zipcode is null right?
         $zipcode = $request->query->get('zipcode',  null);
-        $radius = $request->query->get('radius', 70);
+        $radius = $request->query->get('radius', null);
+
+        if($radius === 'Filter by Radius...') {
+            $radius = null;
+        }
+
         $lng = null;
         $lat = null;
 
-        if($zipcode &&  $coordinates = $this->geocoder->geocode($zipcode)) {
+        if($zipcode && $radius && $coordinates = $this->geocoder->geocode($zipcode)) {
             $lng = $coordinates['lng'];
             $lat = $coordinates['lat'];
             list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);

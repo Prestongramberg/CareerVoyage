@@ -66,6 +66,9 @@ abstract class User implements UserInterface
     /**
      * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER"})
      * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"EDUCATOR_USER", "STUDENT_USER"})
+     *
+     * @CustomAssert\UsernameInvalid(groups={"EDUCATOR_USER", "STUDENT_USER"})
+     *
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $username;

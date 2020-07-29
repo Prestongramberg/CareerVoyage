@@ -50,6 +50,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -492,7 +493,7 @@ class CompanyController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename : '',
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename : $companyResource->getLinkToWebsite(),
                 'id' => $companyResource->getId(),
                 'title' => $title,
                 'description' => $description,
@@ -797,9 +798,29 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
         if($form->isSubmitted() && !$form->isValid()) {
-          $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
-        }
 
+            $errors = $this->getFormErrors($form);
+
+            $showMainError = true;
+            foreach($errors as $fieldName => $error) {
+
+                if($fieldName === 'secondaryIndustries') {
+                    $showMainError = false;
+                    $this->addFlash('error', 'Please choose at least one career field.');
+                }
+
+                if($fieldName === 'schools') {
+                    $showMainError = false;
+                    $this->addFlash('error', 'Please select your volunteer schools.');
+                }
+
+                if($showMainError) {
+                    $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
+                }
+
+            }
+        }
+        
         if($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
@@ -1284,5 +1305,33 @@ class CompanyController extends AbstractController
         $this->addFlash('success', 'Experience has been sent to students!');
 
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
+     * List all errors of a given bound form.
+     *
+     * @param Form $form
+     *
+     * @return array
+     */
+    protected function getFormErrors(Form $form)
+    {
+        $errors = array();
+
+        // Global
+        foreach ($form->getErrors() as $error) {
+            $errors[$form->getName()][] = $error->getMessage();
+        }
+
+        // Fields
+        foreach ($form as $child /** @var Form $child */) {
+            if (!$child->isValid()) {
+                foreach ($child->getErrors() as $error) {
+                    $errors[$child->getName()][] = $error->getMessage();
+                }
+            }
+        }
+
+        return $errors;
     }
 }

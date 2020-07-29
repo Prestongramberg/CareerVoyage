@@ -1,5 +1,4 @@
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
-
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         {% include 'profile/partials/shared/_settings_and_delete_tabs.html.twig' %}
@@ -18,11 +17,11 @@
 
             <div uk-grid>
                 <div class="uk-width-1-1 uk-width-small@m">
-                    <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                    <ul id="test" class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                         <li><a href="#account-details-profile">Personal</a></li>
-                        <li><a href="#account-details-profile-industries">Industry</a></li>
+                        <li><a href="#account-details-profile-industries">Profession</a></li>
                         <li><a href="#account-details-profile-roles">Roles</a></li>
-                        <li><a href="#account-details-profile-schools">Schools</a></li>
+                        <li><a href="#account-details-profile-schools" id="account-details-profile-schools">Schools</a></li>
                         <li><a href="#account-details-profile-account">Account</a></li>
                     </ul>
                 </div>
@@ -75,7 +74,7 @@
                                         {{ form_errors(form.zipcode) }}
                                     </div>
                                     <div class="uk-margin">
-                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="1">Next</button>
                                     </div>
                                 </fieldset>
                             </div>
@@ -84,14 +83,14 @@
                             <div class="uk-width-xlarge">
                                 <fieldset class="uk-fieldset">
                                     <div class="uk-margin">
-                                        {{ form_label(form.primaryIndustry, 'Industry*') }}
+                                        {{ form_label(form.primaryIndustry, 'Career Sector*') }}
                                         {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
                                         {{ form_errors(form.primaryIndustry) }}
                                     </div>
                                     <div class="js-secondary-industry-container">
                                         {% if form.secondaryIndustries is defined %}
                                             <div class="uk-margin">
-                                                {{ form_label(form.secondaryIndustries, 'Career Fields*') }}
+                                                {{ form_label(form.secondaryIndustries, 'Professions*') }}
                                                 {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
                                                 <div class="clear"></div>
                                                 {{ form_errors(form.secondaryIndustries) }}
@@ -99,7 +98,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="uk-margin">
-                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="2">Next</button>
                                     </div>
                                 </fieldset>
                             </div>
@@ -114,7 +113,7 @@
                                         {{ form_errors(form.rolesWillingToFulfill) }}
                                     </div>
                                     <div class="uk-margin">
-                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="3">Next</button>
                                     </div>
                                 </fieldset>
                             </div>
@@ -140,7 +139,7 @@
                                         {{ form_errors(form.schools) }}
                                     </div>
                                     <div class="uk-margin">
-                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button>
                                     </div>
                                 </fieldset>
                             </div>
@@ -211,3 +210,19 @@
         {% include 'profile/partials/shared/_settings_and_delete_content.html.twig' %}
     </div>
 </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $( document ).ready(function() {
+
+        $('.js-navigate').click(function(e) {
+            debugger;
+            let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
+
+            UIkit.tab('#test').show(indexToNavigateTo);
+        })
+
+
+
+    });
+</script>

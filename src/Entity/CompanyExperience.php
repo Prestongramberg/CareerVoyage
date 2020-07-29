@@ -168,10 +168,14 @@ class CompanyExperience extends Experience
     }
 
     /**
-     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @return string
+     * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyEventName() {
-        return 'Company Event';
+    public function getExperienceListTitle() {
+
+        if($this->getCompany()) {
+            return $this->getCompany()->getName();
+        }
+
+        return '';
     }
 }

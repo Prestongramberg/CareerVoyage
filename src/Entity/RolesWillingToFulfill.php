@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RolesWillingToFulfillRepository")
@@ -21,6 +22,8 @@ class RolesWillingToFulfill
     private $id;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a name!", groups={"NEW"})
+     *
      * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255)
      */
@@ -32,6 +35,8 @@ class RolesWillingToFulfill
     private $professionalUsers;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a description!", groups={"NEW"})
+     *
      * @ORM\Column(type="text")
      */
     private $description;
@@ -55,6 +60,11 @@ class RolesWillingToFulfill
      * @ORM\Column(type="boolean")
      */
     private $inSchoolEventDropdown = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $inRoleDropdown = false;
 
     public function __construct()
     {
@@ -187,6 +197,18 @@ class RolesWillingToFulfill
     public function setInSchoolEventDropdown(bool $inSchoolEventDropdown): self
     {
         $this->inSchoolEventDropdown = $inSchoolEventDropdown;
+
+        return $this;
+    }
+
+    public function getInRoleDropdown(): ?bool
+    {
+        return $this->inRoleDropdown;
+    }
+
+    public function setInRoleDropdown(?bool $inRoleDropdown): self
+    {
+        $this->inRoleDropdown = $inRoleDropdown;
 
         return $this;
     }

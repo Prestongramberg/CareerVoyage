@@ -30,55 +30,64 @@ class App extends React.Component {
         const ranges = [ 25, 50, 70, 150 ];
 
         return (
-            <div className="pintex-calendar pintex-testing">
-                <div className="uk-grid-small uk-flex-middle" data-uk-grid>
-                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                        <div className="uk-search uk-search-default uk-width-1-1">
-                            <span data-uk-search-icon></span>
-                            <input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+
+            [
+            <ul className="uk-tab" uk-tab>
+                <li className="uk-active"><a href={Routing.generate('experience_index')}>Calendar</a></li>
+                <li><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
+            </ul>,
+
+                <div className="pintex-calendar pintex-testing">
+                    <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-search uk-search-default uk-width-1-1">
+                                <span data-uk-search-icon></span>
+                                <input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
+                            </div>
+                        </div>
+                        { this.renderIndustryDropdown() }
+                        { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
+                        { this.renderEventTypes() }
+                    </div>
+                    <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-search uk-search-default uk-width-1-1">
+                                <span data-uk-search-icon></span>
+                                <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
+                            </div>
+                        </div>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} >
+                                <option value="">Filter by Radius...</option>
+                                {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
+                            </select>
+                        </div>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
                         </div>
                     </div>
-                    { this.renderIndustryDropdown() }
-                    { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
-                    { this.renderEventTypes() }
-                </div>
-                <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
-                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                        <div className="uk-search uk-search-default uk-width-1-1">
-                            <span data-uk-search-icon></span>
-                            <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
-                        </div>
-                    </div>
-                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                        <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} >
-                            <option value="">Filter by Radius...</option>
-                            {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
-                        </select>
-                    </div>
-                    <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                        <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
+                    <div className="uk-margin">
+                        <FullCalendar
+                            defaultView="dayGridMonth"
+                            eventLimit={true}
+                            events={calendarEvents}
+                            eventClick={(info) => {
+                                info.jsEvent.preventDefault(); // don't let the browser navigate
+                                window.Pintex.openCalendarEventDetails(info.event)
+                            }}
+                            header={{
+                                left: 'prev,next',
+                                center: 'title',
+                                right: 'dayGridDay,dayGridWeek,dayGridMonth'
+                            }}
+                            plugins={[dayGridPlugin]}
+                            timeZone={'America/Chicago'}
+                        />
                     </div>
                 </div>
-                <div className="uk-margin">
-                    <FullCalendar
-                        defaultView="dayGridMonth"
-                        eventLimit={true}
-                        events={calendarEvents}
-                        eventClick={(info) => {
-                            info.jsEvent.preventDefault(); // don't let the browser navigate
-                            window.Pintex.openCalendarEventDetails(info.event)
-                        }}
-                        header={{
-                            left: 'prev,next',
-                            center: 'title',
-                            right: 'dayGridDay,dayGridWeek,dayGridMonth'
-                        }}
-                        plugins={[dayGridPlugin]}
-                        timeZone={'America/Chicago'}
-                    />
-                </div>
-            </div>
-        );
+            ]
+
+                    );
     }
 
     renderIndustryDropdown() {
@@ -88,7 +97,7 @@ class App extends React.Component {
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updatePrimaryIndustryQuery}>
                         <option value="">Filter by Industry...</option>
-                        { this.props.industries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+                        { this.props.industries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
@@ -132,18 +141,43 @@ class App extends React.Component {
 
         if ( this.props.events.length > 0 ) {
 
-            const eventTypes = this.props.events.map( event => {
+            const companyEventTypes = this.props.events.map( event => {
                 if ( !event.friendlyEventName ) {
                     return null
                 }
-                return event.friendlyEventName
+
+                if(event.className !== 'CompanyExperience') {
+                    return null;
+                }
+
+                return event.friendlyEventName;
+
+            } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
+
+
+            const schoolEventTypes = this.props.events.map( event => {
+                if ( !event.friendlyEventName ) {
+                    return null
+                }
+
+                if(event.className !== 'SchoolExperience') {
+                    return null;
+                }
+
+                return event.friendlyEventName;
+
             } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateEventTypeQuery}>
                         <option value="">Filter by Event Type...</option>
-                        { eventTypes.map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+                        <optgroup label="Company Events">
+                            { companyEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+                        </optgroup>
+                        <optgroup label="School Events">
+                            { schoolEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+                        </optgroup>
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
@@ -179,7 +213,7 @@ class App extends React.Component {
             }
 
             // Filter by Event Type
-            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName !== this.props.search.eventType ) ) {
+            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1 ) ) {
                 return false;
             }
 

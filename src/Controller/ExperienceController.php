@@ -135,16 +135,31 @@ class ExperienceController extends AbstractController
         $this->lessonTeachableRepository = $lessonTeachableRepository;
     }
 
+
     /**
-     * @Route("/experiences", name="experience_index", methods={"GET"})
+     * @Route("/experiences", name="experience_index", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request) {
 
+        $user = $this->getUser();
+
+        return $this->render('experience/index.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * @Route("/experiences-list", name="experience_list", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function listAction(Request $request) {
+
 
         $user = $this->getUser();
-        return $this->render('experience/index.html.twig', [
+        return $this->render('experience/list.html.twig', [
             'user' => $user,
         ]);
     }
@@ -153,7 +168,7 @@ class ExperienceController extends AbstractController
      * There are many different types of experiences. this acts as a central router
      * to route to the specific view for each experience.
      *
-     * @Route("/experiences/{id}/view", name="experience_view", methods={"GET"})
+     * @Route("/experiences/{id}/view", name="experience_view", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      * @param Experience $experience
      * @return Response

@@ -1,0 +1,55 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Event Type{% endblock %}
+{% block bodyClass %}page-site-admin{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    <h3>Create A New Event Type</h3>
+
+                    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+                    {% if form_errors(form) %}
+                        <div class="uk-alert-danger" uk-alert>
+                            <a class="uk-alert-close" uk-close></a>
+                            <div>{{ form_errors(form) }}</div>
+                        </div>
+                    {% endif %}
+
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.name, 'Name*') }}
+                            {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.description, 'Description*') }}
+                            {{ form_widget(form.description, {'attr': {'class': 'uk-input' ~ ( form_errors(form.description) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.inEventDropdown, 'In Company Event Dropdown*') }}
+                            {{ form_widget(form.inEventDropdown, {'attr': {'class': 'uk-checkbox' ~ ( form_errors(form.inEventDropdown) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.inEventDropdown) }}
+                        </div>
+                        <div class="uk-margin">
+                            {{ form_label(form.inSchoolEventDropdown, 'In School Event Dropdown*') }}
+                            {{ form_widget(form.inSchoolEventDropdown, {'attr': {'class': 'uk-checkbox' ~ ( form_errors(form.inSchoolEventDropdown) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.inSchoolEventDropdown) }}
+                        </div>
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                        </div>
+                    </fieldset>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -28,6 +28,7 @@ class App extends React.Component {
                     </div>
                     <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                         <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} value={ parseInt( this.props.search.geoRadiusValue ) }>
+                            <option>Filter by Radius...</option>
                             {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
                         </select>
                     </div>
@@ -59,8 +60,9 @@ class App extends React.Component {
                                                     onChange={(e) => {
                                                         this.props.schoolToggled(school.id);
                                                     }}
+                                                    key={ school.id }
                                                 />
-                                                <label htmlFor={`${this.props.search.fieldName}_${school.id}`}>{ school.name }</label>
+                                                <label key={`label_${school.id}`} htmlFor={`${this.props.search.fieldName}_${school.id}`}>{ school.name }</label>
                                             </>
                                         ))}
                                         <input type="hidden" name={ this.props.search.geoRadiusName } value={ this.props.search.geoRadiusValue } />

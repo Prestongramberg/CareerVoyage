@@ -78,7 +78,7 @@
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
-                        <div class="react-events-calendar" data-user-id="{{ user.id }}"></div>
+                        <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
                     </div>
                     <div class="user_preferences_schools">
                         <div class="uk-card uk-card-default">
@@ -92,8 +92,8 @@
                                     </div>
                                     <div class="uk-width-auto">
                                         <div class="uk-align-right">
-                                            <a href="{{ path('profile_edit', {'id': user.id}) }}">
-                                                <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
+                                            <a href="{{ path('profile_edit', {'id': user.id}) }}#account-details-profile-schools">
+                                                Manage Schools <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
                                             </a>
                                         </div>
                                     </div>

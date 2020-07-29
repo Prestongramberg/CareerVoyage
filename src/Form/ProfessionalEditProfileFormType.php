@@ -55,6 +55,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('primaryIndustry', EntityType::class, [
                 'class' => Industry::class,
                 'choice_label' => 'name',
+                'placeholder' => 'Select Industry',
             ])
             ->add('schools', EntityType::class, [
                 'class' => School::class,
@@ -67,6 +68,12 @@ class ProfessionalEditProfileFormType extends AbstractType
             ])
             ->add('rolesWillingToFulfill', EntityType::class, [
                 'class' => RolesWillingToFulfill::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('r')
+                        ->where('r.inRoleDropdown = :true')
+                        ->setParameter('true', true)
+                        ->orderBy('r.name', 'ASC');
+                },
                 'expanded' => true,
                 'multiple' => true,
                 'choice_attr' => function($choice, $key, $value) {

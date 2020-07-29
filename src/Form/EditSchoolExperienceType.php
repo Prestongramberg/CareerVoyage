@@ -80,8 +80,8 @@ class EditSchoolExperienceType extends AbstractType
                 'multiple'  => false,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('r')
-                        ->where('r.inEventDropdown = :inEventDropdown')
-                        ->setParameter('inEventDropdown', true);
+                        ->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')
+                        ->setParameter('inSchoolEventDropdown', true);
                 },
             ])
             ->add('availableStudentSpaces', NumberType::class, [])

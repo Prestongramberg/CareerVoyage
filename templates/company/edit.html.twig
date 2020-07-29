@@ -22,7 +22,7 @@
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
-        <ul class="uk-tab" uk-switcher="connect: #tab-edit-company" uk-tab>
+        <ul id="test" class="uk-tab" uk-switcher="connect: #tab-edit-company" uk-tab>
             <li class="uk-active"><a href="#company-details">Edit Company</a></li>
             <li><a href="#company-industries">Industry</a></li>
             <li><a href="#company-schools">Schools</a></li>
@@ -87,7 +87,7 @@
                             </div>
                         </div>
                         <div class="uk-margin">
-                            {{ form_label(form.emailAddress, 'Email Address*') }}
+                            {{ form_label(form.emailAddress, 'Company Administrator Email*') }}
                             {{ form_widget(form.emailAddress, {'attr': {'class': 'uk-input' ~ ( form_errors(form.emailAddress) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.emailAddress) }}
                         </div>
@@ -155,6 +155,11 @@
                             {{ form_errors(form.owner) }}
                         <p>The company employee responsible for managing and editing your company's page on this platform</p>
                         </div>
+
+                        <div class="uk-margin">
+                            <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="1">Next</button>
+                        </div>
+
                     </fieldset>
                 </div>
             </div>
@@ -162,7 +167,7 @@
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.primaryIndustry, 'Primary Industry*') }}
+                            {{ form_label(form.primaryIndustry, 'My Company\'s Primary Industry*') }}
                             {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.primaryIndustry) }}
                         </div>
@@ -170,12 +175,16 @@
                         <div class="js-secondary-industry-container">
                             {% if form.secondaryIndustries is defined %}
                                 <div class="uk-margin">
-                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }}
+                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }} <a class="uk-link-muted" data-select-all="edit_company_form[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="edit_company_form[secondaryIndustries][]">UnSelect All</a>
                                     {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
                                     <div class="clear"></div>
                                     {{ form_errors(form.secondaryIndustries) }}
                                 </div>
                             {% endif %}
+                        </div>
+
+                        <div class="uk-margin">
+                            <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="2">Next</button>
                         </div>
                     </fieldset>
                 </div>
@@ -191,13 +200,17 @@
                                  data-georadius-name="edit_company_form[geoRadius]"
                                  data-georadius-value="{{ form.geoRadius.vars.value }}"
                                  data-geozipcode-name="edit_company_form[geoZipCode]"
-                                 data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif user.zipcode is defined %}{{ user.zipcode }}{% endif %}">
+                                 data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif company.zipcode is defined %}{{ company.zipcode }}{% endif %}">
                                 {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_widget(form.geoZipCode) }}
                                 {{ form_widget(form.geoRadius) }}
                             </div>
                             <div class="clear"></div>
                             {{ form_errors(form.schools) }}
+                        </div>
+
+                        <div class="uk-margin">
+                            <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="3">Next</button>
                         </div>
                     </fieldset>
                 </div>
@@ -227,6 +240,11 @@
                         {% endfor %}
                     {% endif %}
                 </div>
+
+                <div class="uk-margin">
+                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button>
+                </div>
+
             </div>
             <div class="page-company-edit__videos">
                 <div class="uk-width-xlarge">
@@ -282,6 +300,7 @@
                             <button type="button" data-remove="{{ path('company_video_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
                         </div>
                     </div>
+
                 </div>
                 <div class="uk-margin">
                     {% if company.companyVideos|length %}
@@ -349,6 +368,10 @@
 
 
                 {% endif %}
+
+                <div class="uk-margin">
+                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="5">Next</button>
+                </div>
 
             </div>
             <div class="page-company-edit__resources">
@@ -431,13 +454,15 @@
                             {% endfor %}
                         {% endif %}
                     </div>
+
+                   <div class="uk-margin">
+                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                   </div>
+
                 </div>
             </div>
         </div>
 
-        <div class="uk-margin">
-            <button class="uk-button uk-button-primary uk-button-small">Save</button>
-        </div>
 
         {{ form_end(form) }}
 
@@ -452,6 +477,20 @@
           document.getElementById('edit_company_form_website').value = 'http://' + event.target.value;
         }
       }, true);
+    </script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $( document ).ready(function() {
+
+            $('.js-navigate').click(function(e) {
+                debugger;
+                let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
+
+                UIkit.tab('#test').show(indexToNavigateTo);
+            })
+        });
     </script>
 
 {% endblock %}

@@ -9,7 +9,7 @@
         </div>
     {% endif %}
 
-    <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
+    <ul id="test" class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         <li><a href="#account-career-fields">Career Fields of Interest</a></li>
         <li><a href="#account-account">Account</a></li>
@@ -48,6 +48,8 @@
                             {{ form_errors(form.graduatingYear) }}
                         </div>
                     {% endif %}
+
+                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="1">Next</button>
                 </fieldset>
 
             </div>
@@ -68,6 +70,7 @@
                             </div>
                         </div>
                     {% endif %}
+                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="2">Next</button>
                 </fieldset>
             </div>
         </div>
@@ -95,14 +98,31 @@
                         {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.plainPassword) }}
                     </div>
+
+                    <div class="uk-margin">
+                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                    </div>
                 </fieldset>
             </div>
         </div>
     </div>
 
-    <div class="uk-margin">
-        <button class="uk-button uk-button-primary uk-button-small">Save</button>
-    </div>
+
 
     {{ form_end(form) }}
 </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $( document ).ready(function() {
+
+        $('.js-navigate').click(function(e) {
+            debugger;
+            let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
+
+            UIkit.tab('#test').show(indexToNavigateTo);
+        })
+
+    });
+</script>

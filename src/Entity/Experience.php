@@ -73,7 +73,7 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     protected $briefDescription;
 
@@ -627,4 +627,44 @@ abstract class Experience
 
         return $this;
     }
+
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getFriendlyStartDateAndTime() {
+        if($this->startDateAndTime) {
+            return $this->startDateAndTime->format("m/d/Y h:i A");
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getFriendlyEndDateAndTime() {
+        if($this->endDateAndTime) {
+            return $this->endDateAndTime->format("m/d/Y h:i A");
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getFriendlyEventName() {
+        if($this->getType()) {
+            return $this->getType()->getEventName();
+        }
+        return '';
+    }
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     */
+    public function getExperienceListTitle() {
+
+        return $this->getTitle();
+    }
+
 }

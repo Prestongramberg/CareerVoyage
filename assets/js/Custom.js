@@ -606,6 +606,7 @@ jQuery(document).ready(function($) {
                 const response = serverResponse.responseJSON;
 
                 if (response.success) {
+
                     let _template = $('#companyResourcesTemplate').html();
                     $fields.val('');
                     $('#companyResources').append(
@@ -950,5 +951,15 @@ jQuery(document).ready(function($) {
             $(this).attr('src', $(this).attr('src'));
         });
     });
+
+
+    /**
+     * Load tab if "page" is set
+     */
+    
+    if(window.location.hash) {
+        document.getElementById( window.location.hash.substr(1) ).click();
+        window.scrollTo(0,0);
+    }
 
 });
