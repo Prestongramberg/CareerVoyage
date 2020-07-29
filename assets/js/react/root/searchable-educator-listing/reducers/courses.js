@@ -12,21 +12,20 @@ export default (state = {}, action) => {
 
 function get_courses_from_request( educators ) {
 
-    console.log("Did it enter here?")
     const course_ids = [];
     const courses = [];
 
-    // educators.forEach(educator => {
-    //     if ( educator.lesson.course && educator.lesson.course.id && course_ids.indexOf(educator.lesson.course.id) === -1 ) {
-    //         course_ids.push(educator.lesson.course.id);
-    //         courses.push(educator.lesson.course);
-    //     }
-    // });
-    course_ids[1, 2]
-    courses.push({ id: 1, title: "Something"}, { id: 2, title: "Another"})
+    educators.forEach(educator => {
+        if ( educator.myCourses.length > 0) {
+            educator.myCourses.forEach(course => {
+                course_ids.push(course.id);
+                courses.push(course);
+            })
+        }
+    });
 
-    console.log(courses);
+    console.log(educators);
 
-    return courses;
+    return courses.sort((a, b) => (a.title > b.title) ? 1 : -1);
 
 }

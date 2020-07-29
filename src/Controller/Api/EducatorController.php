@@ -19,6 +19,7 @@ use App\Repository\IndustryRepository;
 use App\Repository\LessonRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\EducatorUserRepository;
+use App\Repository\CourseRepository;
 use App\Repository\SchoolRepository;
 use App\Service\FileUploader;
 use App\Service\Geocoder;
@@ -111,6 +112,11 @@ class EducatorController extends AbstractController
     private $educatorUserRepository;
 
     /**
+     * @var CourseRepository
+     */
+    private $courseRepository;
+
+    /**
      * @var SchoolRepository
      */
     private $schoolRepository;
@@ -134,6 +140,7 @@ class EducatorController extends AbstractController
      * @param LessonRepository $lessonRepository
      * @param ProfessionalUserRepository $professionalUserRepository
      * @param EducatorUserRepository $educatorUserRepository
+     * @param CouseRepository $courseRepository
      * @param SchoolRepository $schoolRepository
      * @param Geocoder $geocoder
      */
@@ -150,6 +157,7 @@ class EducatorController extends AbstractController
         LessonRepository $lessonRepository,
         ProfessionalUserRepository $professionalUserRepository,
         EducatorUserRepository $educatorUserRepository,
+        CourseRepository $courseRepository,
         SchoolRepository $schoolRepository,
         Geocoder $geocoder
     ) {
@@ -165,6 +173,7 @@ class EducatorController extends AbstractController
         $this->lessonRepository = $lessonRepository;
         $this->professionalUserRepository = $professionalUserRepository;
         $this->educatorUserRepository = $educatorUserRepository;
+        $this->courseRepository = $courseRepository;
         $this->schoolRepository = $schoolRepository;
         $this->geocoder = $geocoder;
     }

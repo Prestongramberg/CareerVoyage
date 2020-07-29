@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\EducatorUser;
 use App\Entity\Region;
 use App\Entity\School;
+use App\Entity\Course;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -159,29 +160,6 @@ class EducatorUserRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('u')
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * @param $courseIds
-     * @return mixed
-     */
-    public function findByCourseIds($courseIds) {
-        $query = sprintf("SELECT eu.id, u.first_name, u.last_name, u.email 
-                          FROM educator_user eu 
-                          INNER JOIN lesson l 
-                          ON eu.id = l.user_id 
-                          INNER JOIN course c
-                          ON c.id = l.id
-                          INNER JOIN user u 
-                          ON eu.id = u.id 
-                          WHERE %s 
-                          GROUP BY eu.id", $courseIds);
-
-        $em = $this->getEntityManager();
-        $stmt = $em->
-        getConnection()->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll();
     }
 
     /**
