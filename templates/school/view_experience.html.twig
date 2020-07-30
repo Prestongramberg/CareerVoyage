@@ -268,7 +268,7 @@
             {% endif %}
             {% if user.isEducator or user.isSchoolAdministrator %}
                 <li><a href="#experience-registrations">Registrations</a></li>
-                <li><a href="#available-students-to-register">Available Students To Register</a></li>
+                {% if user.isEducator %}<li><a href="#available-students-to-register">Available Students To Register</a></li>{% endif %}
             {% endif %}
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
