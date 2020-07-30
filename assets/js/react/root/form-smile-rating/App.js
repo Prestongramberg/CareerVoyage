@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 
-import Smile1 from "../../../../images/01_VERY_SAD.svg"
-import Smile1Active from "../../../../images/01_VERY_SAD_CLICKED.svg"
-import Smile2 from "../../../../images/02_SAD.svg"
-import Smile2Active from "../../../../images/02_SAD_CLICKED.svg"
-import Smile3 from "../../../../images/03_NEUTRAL.svg"
-import Smile3Active from "../../../../images/03_NEUTRAL_CLICKED.svg"
-import Smile4 from "../../../../images/04_HAPPY.svg"
-import Smile4Active from "../../../../images/04_HAPPY_CLICKED.svg"
-import Smile5 from "../../../../images/05_VERY_HAPPY.svg"
-import Smile5Active from "../../../../images/05_VERY_HAPPY_CLICKED.svg"
+import Smile1 from "../../../../images/01_VERY_SAD.png"
+import Smile1Active from "../../../../images/01_VERY_SAD_CLICKED.png"
+import Smile2 from "../../../../images/02_SAD.png"
+import Smile2Active from "../../../../images/02_SAD_CLICKED.png"
+import Smile3 from "../../../../images/03_NEUTRAL.png"
+import Smile3Active from "../../../../images/03_NEUTRAL_CLICKED.png"
+import Smile4 from "../../../../images/04_HAPPY.png"
+import Smile4Active from "../../../../images/04_HAPPY_CLICKED.png"
+import Smile5 from "../../../../images/05_VERY_HAPPY.png"
+import Smile5Active from "../../../../images/05_VERY_HAPPY_CLICKED.png"
 
 export class FormSmileRating extends Component {
 

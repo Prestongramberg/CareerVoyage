@@ -31,25 +31,25 @@ class ProfessionalReviewStudentToMeetProfessionalFeedback extends Feedback
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $showUp = true;
+    protected $showUp = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $politeAndProfessional = true;
+    private $politeAndProfessional = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $engagedAndAskedQuestions = true;
+    private $engagedAndAskedQuestions = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $wasOnTime = true;
+    private $wasOnTime = false;
 
     public function getProfessional(): ?ProfessionalUser
     {
