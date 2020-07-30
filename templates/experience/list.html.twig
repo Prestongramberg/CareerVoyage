@@ -60,7 +60,7 @@
                         <a href="{{ path('request_lesson_experience_or_site_visit') }}" class="uk-button uk-button-default uk-button-small">Suggest an Experience</a>
                     {% endif %}
                     {% if user.company is defined and user.company is not null and user.company.owner is not null and user.company.owner.id == user.id %}
-                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Create an Event</a>
+                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Create an Experience</a>
                     {% endif %}
                 </div>
             </div>
