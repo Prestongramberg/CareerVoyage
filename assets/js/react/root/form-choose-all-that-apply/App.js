@@ -6,7 +6,8 @@ export class FormChooseAllThatApply extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+        };
     }
 
     componentWillMount() {
@@ -39,7 +40,7 @@ export class FormChooseAllThatApply extends Component {
                         }}>
                             <div className={`${cb}__image`}>
                                 <img src={ active ? field.activeImage : field.image } />
-                                <input type="hidden" name={field.name} value={this.state[field.name]} />
+                                <input type="hidden" name={field.name} value={this.state[field.name] ? this.state[field.name] : 0} />
                             </div>
                             <div className={`${cb}__label`}>
                                 { field.label }
