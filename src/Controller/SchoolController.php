@@ -1199,7 +1199,7 @@ class SchoolController extends AbstractController
 
         $this->entityManager->flush();
 
-        $this->addFlash('success', sprintf('Event successfully cancelled. Email sent to the following addresses: %s. If a student does not have an email they will not appear on this list.', implode(",", $emailsSentTo)));
+        $this->addFlash('success', sprintf('Experience successfully cancelled. Email sent to the following addresses: %s. If a student does not have an email they will not appear on this list.', implode(",", $emailsSentTo)));
 
         return $this->redirectToRoute('dashboard');
     }
@@ -1232,7 +1232,7 @@ class SchoolController extends AbstractController
 
             $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $message);
         }
-        $this->addFlash('success', 'Companies notified of event.');
+        $this->addFlash('success', 'Companies notified of experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
@@ -1252,7 +1252,7 @@ class SchoolController extends AbstractController
             $professional = $this->professionalUserRepository->find($professionalId);
             $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
         }
-        $this->addFlash('success', 'Professionals notified of event.');
+        $this->addFlash('success', 'Professionals notified of experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
@@ -1297,16 +1297,16 @@ class SchoolController extends AbstractController
             'schoolExperience' => $experience,
         ]);
         if($request) {
-            $this->addFlash('error', 'Registration request already sent for this event.');
+            $this->addFlash('error', 'Registration request already sent for this experience.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
         if($userToRegister->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
-            $this->addFlash('error', 'Could not register for event. 0 spots left.');
+            $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
         if($userToRegister->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
-            $this->addFlash('error', 'Could not register for event. 0 spots left.');
+            $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
         $registerRequest = new UserRegisterForSchoolExperienceRequest();
@@ -1622,7 +1622,7 @@ class SchoolController extends AbstractController
 
         $message = $request->get('message');
 
-        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+        $message = sprintf("Experience: %s Message: %s", $experience->getTitle(), $message);
 
         $students = $request->get('students');
 

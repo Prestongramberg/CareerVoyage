@@ -481,7 +481,7 @@ class RequestController extends AbstractController
                     $teacherRegistration->setUser($request->getCreatedBy());
                     $teacherRegistration->setExperience($experience);
                     $this->entityManager->persist($teacherRegistration);
-                    $this->addFlash('success', 'Request successfully confirmed! This event will be added to yours and the professionals calendar.');
+                    $this->addFlash('success', 'Request successfully confirmed! This experience will be added to yours and the professionals calendar.');
                     // The whole process has been completed successfully. Now you need to open up the line of communication between the student and professional
                     $allowedCommunication = new AllowedCommunication();
                     $allowedCommunication->setStudentUser($student);

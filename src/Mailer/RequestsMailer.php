@@ -131,7 +131,7 @@ class RequestsMailer extends AbstractMailer
 
 
     public function educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
-        $message = (new \Swift_Message("You've Been Registered For a Company Event."))
+        $message = (new \Swift_Message("You've Been Registered For a Company Experience."))
             ->setFrom($this->siteFromEmail)
             ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser()->getEmail())
             ->setBody(
@@ -318,7 +318,7 @@ class RequestsMailer extends AbstractMailer
 
     public function userDeregisterFromEvent(User $deregisteredUser, User $userToSendEmailTo, Experience $experience) {
 
-        $message = (new \Swift_Message(sprintf("User %s %s de-registered from event %s", $deregisteredUser->getFirstName(), $deregisteredUser->getLastName(), $experience->getTitle())))
+        $message = (new \Swift_Message(sprintf("User %s %s de-registered from experience %s", $deregisteredUser->getFirstName(), $deregisteredUser->getLastName(), $experience->getTitle())))
             ->setFrom($this->siteFromEmail)
             ->setTo($userToSendEmailTo->getEmail())
             ->setBody(

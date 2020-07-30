@@ -43,7 +43,7 @@
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
                     {% if school.canCreateExperiences(user) %}
-                        <a href="{{ path('school_experience_create', {id: school.id}) }}" class="uk-button uk-button-default uk-button-small">Create Event</a>
+                        <a href="{{ path('school_experience_create', {id: school.id}) }}" class="uk-button uk-button-default uk-button-small">Create Experience</a>
                     {% endif %}
                     {% if user.isRegionalCoordinator and user.canEditSchool(school) %}
                     <form action="{{ path('school_delete', { "id": school.id }) }}" method="POST">
@@ -57,7 +57,7 @@
 
         <ul data-uk-tab="{connect: '#tab-school-detail'}" uk-switcher>
             <li class="uk-active"><a href="#school-summary">Summary</a></li>
-            <li><a href="#school-events">Events</a></li>
+            <li><a href="#school-events">Experiences</a></li>
             {% if school.latitude and school.longitude %}
                 <li><a href="#school-location">Location</a></li>
             {% endif %}
@@ -127,7 +127,7 @@
             </div>
             <div class="school__events">
                 {% if user.isSchoolAdministrator or user.isAdmin %}
-                    <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_experience_create', {'id': school.id}) }}">Create an Event</a></p>
+                    <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_experience_create', {'id': school.id}) }}">Create an Experience</a></p>
                 {% endif %}
                 <div class="react-events-calendar" data-zipcode="{% if user.zipcode is defined %}{{ user.zipcode }}{% endif %}" data-school-id="{{ school.id }}"></div>
             </div>

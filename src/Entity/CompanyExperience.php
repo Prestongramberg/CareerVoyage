@@ -21,7 +21,7 @@ class CompanyExperience extends Experience
     private $company;
 
     /**
-     * @Assert\NotBlank(message="Don't forget an event coordinator!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget an experience coordinator!", groups={"CREATE", "EDIT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="companyExperiences")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */

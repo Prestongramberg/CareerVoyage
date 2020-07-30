@@ -1,15 +1,15 @@
 <li id="urfser_{{ request.id }}">
     {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to register for school event.</a>
+        <a class="uk-accordion-title" href="#">Request to register for school experience.</a>
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
                 <tr>
                     <td>Request type</td>
-                    <td>Register for school event.</td>
+                    <td>Register for school experience.</td>
                 </tr>
                 <tr>
-                    <td>Event title</td>
+                    <td>Experience title</td>
                     <td>{{ request.schoolExperience.title }}</td>
                 </tr>
                 <tr>
@@ -38,10 +38,10 @@
             </table>
         </div>
     {% else %}
-            <a class="uk-accordion-title" href="#">Request to register user for school event.</a>
+            <a class="uk-accordion-title" href="#">Request to register user for school experience.</a>
             <div class="uk-accordion-content">
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to register for the
-                    following  event: {{ request.schoolExperience.title }}</p>
+                    following  experience: {{ request.schoolExperience.title }}</p>
                 <p>Created On {{ request.createdAt|date("m/d/Y h:i:s A") }}</p>
                 <ul>
                     <li>
