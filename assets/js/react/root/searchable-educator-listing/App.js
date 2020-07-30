@@ -114,6 +114,11 @@ class App extends React.Component {
                 return false;
             }
 
+            // Filter by course
+            if( !!this.props.search.course && educator.myCourses.filter(course => parseInt( course.id) === parseInt(this.props.search.course)).length === 0) {
+                return false;
+            }
+
             // Filter By Industry
             if ( !!this.props.search.industry && educator.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 ) {
                 return false;

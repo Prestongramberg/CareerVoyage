@@ -26,9 +26,6 @@ function get_courses_from_request( educators ) {
         }
     });
 
-    console.log(educators);
-    console.log(courses);
-
     return courses.sort((a, b) => (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1);
 
 }
