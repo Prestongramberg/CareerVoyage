@@ -47,7 +47,7 @@
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">Favorites</a></li>
-                    <li><a href="#user-events">Events</a></li>
+                    <li><a href="#user-events">Experience</a></li>
                     <li><a href="#user-feedback">My Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
@@ -83,7 +83,7 @@
                         <div>
                             <div class="uk-card uk-card-default">
                                 <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Events</h3>
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences</h3>
                                     <ul class="uk-tab" uk-switcher="connect: #tab-events" uk-tab>
                                         <li class="uk-active"><a href="#events-upcoming">Upcoming</a></li>
                                         <li><a href="#events-completed">Completed</a></li>
@@ -101,7 +101,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No upcoming events.</p>
+                                                <p>No upcoming experiences.</p>
                                             {% endif %}
                                         </div>
                                         <div class="tab-events__completed">
@@ -116,7 +116,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No completed events.</p>
+                                                <p>No completed experience.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -152,7 +152,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No experience reviews have been submitted.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -351,7 +351,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No experience reviews have been submitted.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -431,7 +431,7 @@
                                 </ul>
                             {% endif %}
 
-                            <h5>Upcoming Events</h5>
+                            <h5>Upcoming Experiences</h5>
                             {% set noEventsFound = true %}
                             {% if profileUser.school.schoolExperiences|length > 0 %}
                                 <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
@@ -445,7 +445,7 @@
                             {% endif %}
 
                             {% if noEventsFound == true %}
-                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                                <p class="uk-text-meta">There are no upcoming experiences at this time</p>
                             {% endif %}
                         {% else %}
                             <div className="uk-placeholder uk-text-center">

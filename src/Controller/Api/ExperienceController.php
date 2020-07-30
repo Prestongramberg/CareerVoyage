@@ -597,7 +597,7 @@ class ExperienceController extends AbstractController
 
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'Event successfully cancelled. Users will be notified.');
+        $this->addFlash('success', 'Experience successfully cancelled. Users will be notified.');
 
         return $this->redirectToRoute('requests');
     }

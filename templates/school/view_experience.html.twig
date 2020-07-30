@@ -9,7 +9,7 @@
 
         {% if experience.cancelled %}
             <div class="uk-alert-danger" uk-alert>
-                <p>Event has been cancelled.</p>
+                <p>Experience has been cancelled.</p>
             </div>
         {% endif %}
 
@@ -76,22 +76,22 @@
                     {% if not user.student %}
                         <div style="display: inline-block" class="react-global-share"
                              data-user="{{ encode_user(user) }}"
-                             data-message="Check out this upcoming event: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
-                            Share this Event
+                             data-message="Check out this upcoming experience: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                            Share this Experience
                         </div>
                     {% endif %}
 
                     {% if user.isAdmin or user.isSchoolAdministrator %}
-                        <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
-                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Event</a>
+                        <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
+                        <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
 
-                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Event</a>
+                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>
 
                         <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Delete</a>
 
                         <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Delete Event</h3>
+                                <h3>Delete Experience</h3>
                                 <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >
 
                                     <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
@@ -247,7 +247,7 @@
                     {% endif %}
 
                   {#  {% if user.educator and user.school %}
-                        <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Event" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+                        <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Experience" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
                     {% endif %}#}
 
                 </div>
@@ -264,7 +264,7 @@
                 {% endif %}
             {% endif %}
             {% if experience.experienceFiles|length %}
-                <li><a href="#experience-attachments">Event Documents</a></li>
+                <li><a href="#experience-attachments">Experience Documents</a></li>
             {% endif %}
             {% if user.isEducator or user.isSchoolAdministrator %}
                 <li><a href="#experience-registrations">Registrations</a></li>
@@ -492,7 +492,7 @@
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
                     <tr>
-                        <td>Event Coordinator</td>
+                        <td>Experience Coordinator</td>
                         <td>{{ experience.schoolContact.fullName }}</td>
                     </tr>
                     <tr>

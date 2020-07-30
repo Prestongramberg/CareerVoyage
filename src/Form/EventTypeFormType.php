@@ -45,7 +45,7 @@ class EventTypeFormType extends AbstractType
         $builder->add('name', TextType::class)
             ->add('description', TextAreaType::class)
             ->add('inEventDropdown', CheckboxType::class, [
-                'label' => 'In Company Event Dropdown'
+                'label' => 'In Company Experience Dropdown'
             ])
             ->add('inSchoolEventDropdown', CheckboxType::class, []);
     }

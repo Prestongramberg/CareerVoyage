@@ -332,7 +332,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No experiences reviews have been submitted.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -372,7 +372,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No experiences reviews have been submitted.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -408,25 +408,25 @@
 
                         {# Relevant School Events #}
                         <hr>
-                        <h4>New School Events</h4>
+                        <h4>New School Experiences</h4>
                         <hr>
                         <div style="text-align: left">
                         {% for schoolExperience in schoolExperiences %}
                             <p><a href="/dashboard/schools/experiences/{{schoolExperience.id}}/view">{{ schoolExperience.title }}</a></p>
                             {% else %}
-                            <p>No New School Events at this time.</p>
+                            <p>No New School Experiences at this time.</p>
                         {% endfor %}
                         </div>
 
                         {# Relevant Company Events #}
                         <hr>
-                        <h4>New Company Events</h4>
+                        <h4>New Company Experiences</h4>
                         <hr>
                         <div style="text-align: left">
                         {% for companyExperience in companyExperiences %}
                             <p><a href="/dashboard/companies/experiences/{{companyExperience.id}}/view">{{ companyExperience.title }}</a></p>
                         {% else %}
-                            <p>No New Company Events at this time.</p>
+                            <p>No New Company Experiences at this time.</p>
                         {% endfor %}
                         </div>
 
@@ -477,7 +477,7 @@
                     <div class="uk-card-body">
                         {% if user.company is defined and user.company %}
                             <a href="{{ path('company_view', { id: user.company.id }) }}"><h4>{{ user.company.name }}</h4></a>
-                            <h5>Upcoming Events</h5>
+                            <h5>Upcoming Experiences</h5>
                             {% set noEventsFound = true %}
                             {% if user.company.companyExperiences|length > 0 %}
                                 <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
@@ -491,7 +491,7 @@
                             {% endif %}
 
                             {% if noEventsFound == true %}
-                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                                <p class="uk-text-meta">There are no upcoming experiences at this time</p>
                             {% endif %}
 
                             {% if user.isAdmin or user.id == user.company.owner.id %}

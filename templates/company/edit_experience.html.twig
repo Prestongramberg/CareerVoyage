@@ -17,7 +17,7 @@
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-edit-experience" uk-tab>
-            <li class="uk-active"><a href="#experience-details">Edit Event</a></li>
+            <li class="uk-active"><a href="#experience-details">Edit Experience</a></li>
             <li><a href="#experience-availability">Availability</a></li>
             <li><a href="#experience-careers">Careers</a></li>
             <li><a href="#experience-contact">Contact</a></li>
@@ -52,7 +52,7 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.about, 'About*') }}
-                            <div class="uk-text-meta">Describe the event in detail</div>
+                            <div class="uk-text-meta">Describe the experience in detail</div>
                             <div data-wysiwyg="[name='edit_company_experience[about]']" class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
                                 {{ form_widget(form.about) }}
@@ -113,7 +113,7 @@
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
                             {{ form_label(form.employeeContact, 'Employee Coordinator*') }}
-                            <div class="uk-text-meta">This employee will be be able to manage this event</div>
+                            <div class="uk-text-meta">This employee will be be able to manage this experience</div>
                             {{ form_widget(form.employeeContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.employeeContact) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.employeeContact) }}
                         </div>

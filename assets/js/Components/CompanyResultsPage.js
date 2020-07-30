@@ -190,9 +190,9 @@ class CompanyResultsPage {
                 <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l js-filters">
                     <div class="uk-width-1-1 uk-text-truncate" uk-form-custom="target: > * > span:first-child">
                         <select>
-                            <option value="">Filter by Events...</option>
+                            <option value="">Filter by Experiences...</option>
                             <option value="1">Hosting Site Visits</option>
-                            <option value="2">Hosting Events</option>
+                            <option value="2">Hosting Experiences</option>
                             <option value="3">Job Opportunities</option>
                             <option value="4">Externships Available</option>
                             <option value="5">Internships Available</option>
