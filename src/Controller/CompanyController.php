@@ -904,6 +904,9 @@ class CompanyController extends AbstractController
 
             $this->entityManager->flush();
 
+            // Need to send messages to students who are interested in this experience career.
+
+
             $this->addFlash('success', 'Experience successfully created!');
 
             return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
