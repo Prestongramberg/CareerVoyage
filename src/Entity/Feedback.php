@@ -31,25 +31,25 @@ class Feedback
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
-    protected $rating = 4;
+    protected $rating = 0;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $providedCareerInsight = true;
+    protected $providedCareerInsight = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $wasEnjoyableAndEngaging = true;
+    protected $wasEnjoyableAndEngaging = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $learnSomethingNew = true;
+    protected $learnSomethingNew = false;
 
     /**
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})

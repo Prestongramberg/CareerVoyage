@@ -30,7 +30,7 @@ class StudentReviewTeachLessonExperienceFeedback extends Feedback
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
-    private $interestInWorkingInThisIndustry = 4;
+    private $interestInWorkingInThisIndustry = 0;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\TeachLessonExperience", inversedBy="studentReviewTeachLessonExperienceFeedback")
