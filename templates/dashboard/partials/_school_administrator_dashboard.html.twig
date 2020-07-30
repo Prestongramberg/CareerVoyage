@@ -90,8 +90,8 @@
                             <div class="school_{{ school.id }}_tools_participation uk-visible@m">
                                 <div class="uk-card uk-card-default">
                                     <div class="uk-card-body">
-                                        <h3>Company Events in {{ "now"|date("F, Y") }} by Industry</h3>
-                                        <div class="react-horizontal-bar-chart" data-sets='[{"label": "Company Events", "data": [5,8,3,7,12,9,11,9,3,5,8,5,6,9,11,9]},{"label": "Educator Sign Ups", "data": [2,12,4,9,6,4,11,3,6,7,9,2,1,8,4,6]}]' data-labels='["Agriculture, Food &amp; Natural Resources", "Architecture &amp; Construction", "Arts, A/V Technology &amp; Communications", "Business Management &amp; Administration", "Education &amp; Training", "Finance", "Government &amp; Public Administration", "Health Science", "Hospitality &amp; Tourism", "Human Services", "Information Technology", "Law, Public Safety, Corrections &amp; Security", "Manufacturing", "Marketing", "Science, Technology, Engineering &amp; Mathematics", "Transportation, Distribution &amp; Logistics"]'></div>
+                                        <h3>Company Experiences in {{ "now"|date("F, Y") }} by Industry</h3>
+                                        <div class="react-horizontal-bar-chart" data-sets='[{"label": "Company Experiences", "data": [5,8,3,7,12,9,11,9,3,5,8,5,6,9,11,9]},{"label": "Educator Sign Ups", "data": [2,12,4,9,6,4,11,3,6,7,9,2,1,8,4,6]}]' data-labels='["Agriculture, Food &amp; Natural Resources", "Architecture &amp; Construction", "Arts, A/V Technology &amp; Communications", "Business Management &amp; Administration", "Education &amp; Training", "Finance", "Government &amp; Public Administration", "Health Science", "Hospitality &amp; Tourism", "Human Services", "Information Technology", "Law, Public Safety, Corrections &amp; Security", "Manufacturing", "Marketing", "Science, Technology, Engineering &amp; Mathematics", "Transportation, Distribution &amp; Logistics"]'></div>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
 
                                                             <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
                                                                 <div class="uk-modal-dialog uk-modal-body">
-                                                                    <h3>Delete Event</h3>
+                                                                    <h3>Delete Experience</h3>
                                                                     <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >
 
                                                                         <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>

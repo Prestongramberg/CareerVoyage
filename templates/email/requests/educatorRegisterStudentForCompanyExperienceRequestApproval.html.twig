@@ -1,5 +1,5 @@
 {% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
 
-<p>Student <strong>{{ request.studentUser.fullName }}</strong> has been successfully registered for the following event <strong>{{ request.companyExperience.title }}</strong>!</p>
+<p>Student <strong>{{ request.studentUser.fullName }}</strong> has been successfully registered for the following experience <strong>{{ request.companyExperience.title }}</strong>!</p>
 <p>Please login to your <a href="{{ url('dashboard') }}">dashboard</a> for more details.</p>
 {% include 'email/partial/emailFooter.html.twig' %}

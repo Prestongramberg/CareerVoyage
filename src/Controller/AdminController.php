@@ -124,7 +124,7 @@ class AdminController extends AbstractController
 
             $this->entityManager->persist($role);
             $this->entityManager->flush();
-            $this->addFlash('success', 'New event type has been created.');
+            $this->addFlash('success', 'New experience type has been created.');
             return $this->redirectToRoute('admin_role_new');
         }
 
