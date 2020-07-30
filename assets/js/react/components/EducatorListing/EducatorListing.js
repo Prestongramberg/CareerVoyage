@@ -54,7 +54,8 @@ EducatorListing.propTypes = {
     phone: PropTypes.string,
     primaryIndustry: PropTypes.string,
     secondaryIndustry: PropTypes.string,
-    school: PropTypes.object
+    school: PropTypes.object,
+    course: PropTypes.object
 };
 
 EducatorListing.defaultProps = {

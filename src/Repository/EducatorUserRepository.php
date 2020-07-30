@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\EducatorUser;
 use App\Entity\Region;
 use App\Entity\School;
+use App\Entity\Course;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
