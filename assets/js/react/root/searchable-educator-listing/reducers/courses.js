@@ -16,16 +16,19 @@ function get_courses_from_request( educators ) {
     const courses = [];
 
     educators.forEach(educator => {
-        if ( educator.myCourses.length > 0) {
+        if(educator.myCourses) {
             educator.myCourses.forEach(course => {
-                course_ids.push(course.id);
-                courses.push(course);
+                if(course_ids.indexOf(course.id) === -1){
+                    course_ids.push( course.id )
+                    courses.push(course);
+                }
             })
         }
     });
 
     console.log(educators);
+    console.log(courses);
 
-    return courses.sort((a, b) => (a.title > b.title) ? 1 : -1);
+    return courses.sort((a, b) => (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1);
 
 }

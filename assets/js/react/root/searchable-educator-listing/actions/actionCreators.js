@@ -16,7 +16,6 @@ export function updateSchoolQuery(school) {
 }
 
 export function updateCourseQuery(course) {
-    console.log("Course Query Updated")
     return {
         type: actionTypes.COURSE_QUERY_CHANGED,
         course: course
