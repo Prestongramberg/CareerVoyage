@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
 use App\Entity\Image;
+use App\Entity\Course;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
