@@ -904,8 +904,25 @@ class CompanyController extends AbstractController
 
             $this->entityManager->flush();
 
-            // Need to send messages to students who are interested in this experience career.
+            // Send email to students that are interested in the event that was created
+            $items = $experience->getSecondaryIndustries();
+            $loggedInUser = $this->getUser();
+            
+            $chosen_students = [];
+            foreach($items as $k => $v) {
+                $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                foreach($students as $student){
+                    $chosen_students[] = $student;
+                }
+            }
 
+            $message = $request->get('message', '');
+            $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
+            foreach($chosen_students as $student) {
+                $s = $this->studentUserRepository->find($student);
+                $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+            }
 
             $this->addFlash('success', 'Experience successfully created!');
 
