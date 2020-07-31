@@ -4,6 +4,10 @@ import UIkit from 'uikit';
 import Routing from "./Routing";
 
 jQuery(document).ready(function($) {
+    const moment = require('moment-timezone');
+
+    var today = moment().format('MM/DD/YYYY');
+    var tomorrow = moment().add(1,'days').format('MM/DD/YYYY');
 
     var youtubeAPIKey = 'AIzaSyDRsAB-EVUDoPlO2Aq4QdB5fGlFrICJqbw';
 
@@ -811,21 +815,54 @@ jQuery(document).ready(function($) {
     $('.uk-timepicker').each(function( index ) {
         var $elem = $(this);
         var dropDirection = $elem.hasClass('uk-timepicker-up') ? "up" : "down";
-        console.log( dropDirection );
 
-        $elem.daterangepicker({
-            drops: dropDirection,
-            singleDatePicker: true,
-            timePicker: true,
-            timePickerIncrement: 15,
-            linkedCalendars: false,
-            showCustomRangeLabel: false,
-            locale: {
-                format: 'MM/DD/YYYY h:mm A'
+        if($('.end-date-picker').length) {
+
+            console.log('not hi');
+
+            if($elem.closest('form').hasClass('edit-form')) {
+                today = $('.start-date-picker').val();
+                tomorrow = $('.end-date-picker').val();
             }
-        }, function(start, end, label) {
-            console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-        });
+
+            // for selecting a date range
+            $elem.daterangepicker({
+                "drops": dropDirection,
+                "timePicker": true,
+                "timePickerIncrement": 15,
+                "startDate": today,
+                "endDate": tomorrow,
+                "autoApply": true,
+                "locale": {
+                    "format": 'MM/DD/YYYY h:mm A'
+                }
+            }, function(start, end, label) {
+                $('.start-date-picker').val( start.format('MM/DD/YYYY h:mm A') );
+                $('.end-date-picker').val( end.format('MM/DD/YYYY h:mm A') );
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+
+            // $elem.val( $('.start-date-picker').val() + " - " + $('.end-date-picker').val());
+
+        } else {
+
+            console.log("hi");
+
+            // For selecting a single date
+            $elem.daterangepicker({
+                drops: dropDirection,
+                singleDatePicker: true,
+                timePicker: true,
+                timePickerIncrement: 15,
+                linkedCalendars: false,
+                showCustomRangeLabel: false,
+                locale: {
+                    format: 'MM/DD/YYYY h:mm A'
+                }
+            }, function(start, end, label) {
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+        }
     });
 
     /**

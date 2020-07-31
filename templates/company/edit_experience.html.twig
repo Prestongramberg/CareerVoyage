@@ -14,7 +14,7 @@
 
     <div class="uk-container">
 
-        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate', 'class': 'edit-form'}}) }}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-edit-experience" uk-tab>
             <li class="uk-active"><a href="#experience-details">Edit Experience</a></li>
@@ -59,17 +59,28 @@
                             </div>
                             {{ form_errors(form.about) }}
                         </div>
-                        <div class="uk-margin uk-flex uk-child-width-1-2" uk-grid>
+                        <div class="uk-margin">
                             <div>
-                                {{ form_label(form.startDateAndTime, 'Start Date*') }}
-                                {{ form_widget(form.startDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.startDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_label(form.dateRange, 'Choose Date Range*') }}
+                                {{ form_widget(form.dateRange, {'attr': {'class': 'uk-timepicker uk-input' }}) }}
                                 {{ form_errors(form.startDateAndTime) }}
+                                {{ form_errors(form.endDateAndTime) }}
+
+                                {{ form_widget(form.startDateAndTime, { 'attr': { 'class': 'start-date-picker' }}) }}
+                                {{ form_widget(form.endDateAndTime, { 'attr': { 'class': 'end-date-picker' }}) }}
+
+
+                                {# {{ form_label(form.startDateAndTime, 'Start Date*') }}
+                                {{ form_widget(form.startDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.startDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_widget(form.endDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.endDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.startDateAndTime) }}
+                                {{ form_errors(form.endDateAndTime) }} #}
                             </div>
-                            <div>
+                            {# <div>
                                 {{ form_label(form.endDateAndTime, 'End Date*') }}
                                 {{ form_widget(form.endDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.endDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(form.endDateAndTime) }}
-                            </div>
+                            </div> #}
                         </div>
                     </fieldset>
 
