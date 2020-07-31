@@ -342,6 +342,7 @@
                         <p>Please select 3 different date/times that work best for you to meet.</p>
                         <form method="post" class="stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                             <input type="hidden" name="request" value="{{ request.id }}">
+                            <input type="hidden" name="element" value="stmpr_{{ request.id }}">
                             <input type="hidden" name="isFromProfessional" value="true">
                             <div class="uk-margin">
                                 <label for="dateOptionOne" class="required">Date 1*</label>

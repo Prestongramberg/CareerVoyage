@@ -225,6 +225,7 @@
 
                             <form method="post" class="uk-inline tlr-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                <input type="hidden" name="element" value="tlr_{{ request.id }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
                         </td>

@@ -9,7 +9,7 @@
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
             <li class="uk-active"><a href="#requests-mine">My Requests ({{ myCreatedRequests|length }})</a></li>
             {% if requestsThatNeedMyApproval|length > 0 %}
-                <li><a href="#requests-approvals">My Approvals ({{ requestsThatNeedMyApproval|length }})</a></li>
+                <li><a href="#requests-approvals">My Approvals (<span id="approval-count">{{ requestsThatNeedMyApproval|length }}</span>)</a></li>
             {% endif %}
             {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
                 <li><a href="#requests-completed">History</a></li>
@@ -259,6 +259,13 @@
 
     function display_message(type, message) {
         $('.main-content').prepend('<div class="uk-container uk-margin-bottom"><div class="uk-alert-' + type + ' uk-margin" uk-alert><a class="uk-alert-close" uk-close></a><p>' + message + '</p></div></div>');
+    
+        var count = parseInt($('#approval-count').html());
+        $('#approval-count').html( count - 1);
+
+        var count = parseInt($('.main-navigation__meta-requests-num').html());
+        $('.main-navigation__meta-requests-num').html( count - 1);
+
     }
     </script>
 {% endblock %}
