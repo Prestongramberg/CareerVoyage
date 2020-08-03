@@ -44,9 +44,9 @@
 
                     <label>Choose all that apply</label>
                     <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}" data-fields='[
-                        { "name": "student_review_company_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insights", "value": "{{ feedback.providedCareerInsight }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
-                        { "name": "student_review_company_experience_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
-                        { "name": "student_review_company_experience_feedback_form[feedback][learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
+                        { "name": "student_review_company_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insights", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsight : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
+                        { "name": "student_review_company_experience_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
+                        { "name": "student_review_company_experience_feedback_form[feedback][learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew ? feedback.learnSomethingNew : false }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
                     ]'></div>
                 </div>
                 <div class="uk-margin">
