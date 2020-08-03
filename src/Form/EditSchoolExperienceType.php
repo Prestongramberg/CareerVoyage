@@ -124,8 +124,11 @@ class EditSchoolExperienceType extends AbstractType
                 'multiple'  => false,
             ])
             ->add('zipcode', TextType::class, [])
-            ->add('startDateAndTime', TextType::class, [])
-            ->add('endDateAndTime', TextType::class, []);
+            ->add('dateRange', null, array("mapped" => false))
+            ->add('startDateAndTime', hiddenType::class, [])
+            ->add('endDateAndTime', HiddenType::class, []);
+            // ->add('startDateAndTime', TextType::class, [])
+            // ->add('endDateAndTime', TextType::class, []);
 
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,

@@ -42,6 +42,11 @@ class CompanyExperience extends Experience
      */
     private $educatorReviewCompanyExperienceFeedback;
 
+    /**
+     * used to allow the single date-time element to work
+     */
+    // private $dateRange;
+
     public function __construct()
     {
         parent::__construct();
@@ -49,6 +54,18 @@ class CompanyExperience extends Experience
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
     }
+
+
+    // public function getDateRange() 
+    // {
+    //     return $this->dateRange;
+    // }
+
+    // public function setDateRange($dateRange): self 
+    // {
+    //     $this->dateRange = $dateRange;
+    //     return $this;
+    // }
 
     public function getCompany(): ?Company
     {
