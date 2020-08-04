@@ -811,7 +811,7 @@ jQuery(document).ready(function($) {
     $('.uk-timepicker').each(function( index ) {
         var $elem = $(this);
         var dropDirection = $elem.hasClass('uk-timepicker-up') ? "up" : "down";
-        console.log( dropDirection );
+        // console.log( dropDirection );
 
         $elem.daterangepicker({
             drops: dropDirection,
