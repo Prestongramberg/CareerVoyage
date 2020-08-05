@@ -333,16 +333,20 @@
             </table>
             {% if render_request_status_text( request ) == "Pending" %}
 
-                <button data-uk-toggle="target: #student-to-meet-professional-dates" type="button"
+                <button data-uk-toggle="target: #student-to-meet-professional-dates_{{ request.id }}" type="button"
                         class="uk-label uk-label-success">Approve
                 </button>
-                <div id="student-to-meet-professional-dates" data-uk-modal>
+                <div id="student-to-meet-professional-dates_{{ request.id }}" data-uk-modal>
                     <div class="uk-modal-dialog uk-modal-body">
                         <h2 class="uk-modal-title">Request for student to meet professional</h2>
                         <p>Please select 3 different date/times that work best for you to meet.</p>
                         <form method="post" class="stmpr-approval" action="{{ path('approve_request', {'id': request.id}) }}">
                             <input type="hidden" name="request" value="{{ request.id }}">
+<<<<<<< HEAD
                             <input type="hidden" name="element" value="stmpr_{{ request.id }}">
+=======
+                            <input type="hidden" name="element" value="stmpr_{{ request.id}}">
+>>>>>>> B2020073002
                             <input type="hidden" name="isFromProfessional" value="true">
                             <div class="uk-margin">
                                 <label for="dateOptionOne" class="required">Date 1*</label>

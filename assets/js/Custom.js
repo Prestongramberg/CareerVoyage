@@ -846,8 +846,6 @@ jQuery(document).ready(function($) {
 
         } else {
 
-            console.log("hi");
-
             // For selecting a single date
             $elem.daterangepicker({
                 drops: dropDirection,

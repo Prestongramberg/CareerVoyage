@@ -30,7 +30,7 @@ class StudentReviewMeetProfessionalExperienceFeedback extends Feedback
      * @Assert\NotBlank(message="Interest In Working For Company cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
-    public $interestInWorkingForCompany = 4;
+    public $interestInWorkingForCompany = 0;
 
     public function getStudent(): ?StudentUser
     {
