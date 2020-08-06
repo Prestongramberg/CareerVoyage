@@ -558,8 +558,60 @@ class ExperienceController extends AbstractController
         $this->addFlash('success', 'Date successfully changed. Professional will be notified.');
 
         return $this->redirectToRoute('requests');
-
     }
+
+
+    // Request New Dates, this function will cancel the original request and create a new one.
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * 
+     * @Route("/experiences/{id}/teach-lesson-event-request-new-dates", name="experience_teach_lesson_event_request_new_dates", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function experienceTeachLessonEventRequestNewDatesAction(Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+        
+        var_dump($request);
+
+        die();
+
+        $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionOne'));
+        $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionTwo'));
+        $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionThree'));
+        $teachLessonRequest = new TeachLessonRequest();
+        $teachLessonRequest->setDateOptionOne($dateOptionOne);
+        $teachLessonRequest->setDateOptionTwo($dateOptionTwo);
+        $teachLessonRequest->setDateOptionThree($dateOptionThree);
+        $teachLessonRequest->setLesson($lesson);
+        $teachLessonRequest->setCreatedBy($user);
+        $teachLessonRequest->setNeedsApprovalBy($professionalUser);
+        $teachLessonRequest->setSchool($user->getSchool());
+        $this->entityManager->persist($teachLessonRequest);
+        $this->entityManager->flush();
+
+        $this->requestsMailer->teachLessonRequest($teachLessonRequest);
+
+        $this->addFlash('success', 'Request successfully sent!');
+
+     /*   if($redirectUrl) {
+            return $this->redirect($redirectUrl);
+        }*/
+
+        return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
+    }
+
+
+
+
+
+
+
 
     /**
      * @Route("/experiences/{id}/teach_lesson_event_delete", name="experience_teach_lesson_event_delete", options = { "expose" = true }, methods={"POST"})
