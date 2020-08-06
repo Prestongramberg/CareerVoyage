@@ -16,6 +16,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
+use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -576,14 +577,27 @@ class ExperienceController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-        
-        var_dump($request);
 
-        die();
+        $experience = $this->experienceRepository->find( $request->get('id') );
+        $professionalUser = $experience->getOriginalRequest()->getNeedsApprovalBy();
+        $lesson = $experience->getOriginalRequest()->getLesson();
+        $origin_request_id = $experience->getOriginalRequest()->getId();
 
-        $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionOne'));
-        $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionTwo'));
-        $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionThree'));
+        // Cancel existing experience
+        $exp = $this->entityManager->getRepository(Experience::class)->find( $request->get('id') );
+        $exp->setCancelled(true);
+        $this->entityManager->flush();
+
+        // Change status from approved to denied on origin request. (need to call request class this way becuase we are importing another class named "Request" above)
+        $exp2 = $this->entityManager->getRepository('App\\Entity\\Request')->find( $origin_request_id );
+        $exp2->setApproved(false);
+        $exp2->setDenied(true);
+        $this->entityManager->flush();
+
+        // Create new experience request
+        $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('date_option_one'));
+        $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('date_option_two'));
+        $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('date_option_three'));
         $teachLessonRequest = new TeachLessonRequest();
         $teachLessonRequest->setDateOptionOne($dateOptionOne);
         $teachLessonRequest->setDateOptionTwo($dateOptionTwo);
@@ -592,6 +606,7 @@ class ExperienceController extends AbstractController
         $teachLessonRequest->setCreatedBy($user);
         $teachLessonRequest->setNeedsApprovalBy($professionalUser);
         $teachLessonRequest->setSchool($user->getSchool());
+        $teachLessonRequest->setMessage( $request->request->get('customMessage'));
         $this->entityManager->persist($teachLessonRequest);
         $this->entityManager->flush();
 
@@ -603,7 +618,7 @@ class ExperienceController extends AbstractController
             return $this->redirect($redirectUrl);
         }*/
 
-        return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
+        return $this->redirectToRoute('requests');
     }
 
 
