@@ -927,11 +927,27 @@ class CompanyController extends AbstractController
             }
 
             if($_POST['notify_students'] != "none") {
+
+                // Choose teachers who match this profession here.
+                $items = $experience->getSecondaryIndustries();
+                $chosen_teachers = [];
+                foreach($items as $k => $v) {
+                    $teachers = $this->educatorUserRepository->findBySecondaryIndustries(intval($v));
+                    foreach($teachers as $teachers){
+                        $chosen_teachers[] = $teacher;
+                    }
+                }
+
                 $message = $request->get('message', '');
                 $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
 
                 foreach($chosen_students as $student) {
                     $s = $this->studentUserRepository->find($student);
+                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                }
+
+                foreach($chosen_teachers as $teacher) {
+                    $s = $this->educatorUserRepository->find($teacher);
                     $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
                 }
             }
@@ -1026,11 +1042,27 @@ class CompanyController extends AbstractController
             }
 
             if($_POST['notify_students'] != "none") {
+
+                // Choose teachers who match this profession here.
+                $items = $experience->getSecondaryIndustries();
+                $chosen_teachers = [];
+                foreach($items as $k => $v) {
+                    $teachers = $this->educatorUserRepository->findBySecondaryIndustries(intval($v));
+                    foreach($teachers as $teachers){
+                        $chosen_teachers[] = $teacher;
+                    }
+                }
+
                 $message = $request->get('message', '');
                 $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
 
                 foreach($chosen_students as $student) {
                     $s = $this->studentUserRepository->find($student);
+                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                }
+
+                foreach($chosen_teachers as $teacher) {
+                    $s = $this->educatorUserRepository->find($teacher);
                     $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
                 }
             }
