@@ -932,8 +932,8 @@ class CompanyController extends AbstractController
                 $items = $experience->getSecondaryIndustries();
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
-                    $teachers = $this->educatorUserRepository->findBySecondaryIndustries(intval($v));
-                    foreach($teachers as $teachers){
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    foreach($teachers as $teacher){
                         $chosen_teachers[] = $teacher;
                     }
                 }
@@ -1047,8 +1047,8 @@ class CompanyController extends AbstractController
                 $items = $experience->getSecondaryIndustries();
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
-                    $teachers = $this->educatorUserRepository->findBySecondaryIndustries(intval($v));
-                    foreach($teachers as $teachers){
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    foreach($teachers as $teacher){
                         $chosen_teachers[] = $teacher;
                     }
                 }
