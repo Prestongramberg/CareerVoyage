@@ -1272,7 +1272,8 @@ class SchoolController extends AbstractController
             'companies' => $experience->getSchool()->getCompanies(),
             'professionals' => $experience->getSchool()->getProfessionalUsers(),
             'primaryIndustries' => $this->industryRepository->findAll(),
-            'secondaryIndustries' => $this->secondaryIndustryRepository->findAll()
+            'secondaryIndustries' => $this->secondaryIndustryRepository->findAll(),
+            'students' => $experience->getSchool()->getStudentUsers()
 
         ]);
     }
@@ -1284,7 +1285,7 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
-
+        $req = $request;
         $userId = $request->request->get('userId', null);
         if($userId) {
             $userToRegister = $this->userRepository->find($userId);
@@ -1318,7 +1319,13 @@ class SchoolController extends AbstractController
         $this->entityManager->flush();
         $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
         $this->addFlash('success', 'Registration request successfully sent.');
-        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+
+        if($req->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success", "userId" => $userId, 'id' => $experience->getId()]);
+        } else {
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
@@ -1329,14 +1336,18 @@ class SchoolController extends AbstractController
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function schoolExperienceDeregisterAction(Request $request, SchoolExperience $experience) {
+        $req = $request;
         $userIdToDeregister = $request->request->get('userId');
         $userToDeregister = $this->userRepository->find($userIdToDeregister);
 
         $deregisterUserForExperience = $this->userRegisterForSchoolExperienceRequestRepository->getByUserAndExperience($userToDeregister, $experience);
 
         $registration = $this->registrationRepository->getByUserAndExperience($userToDeregister, $experience);
-
-        if($registration) {
+        
+        // var_dump($registration);
+        
+        // die();
+        // if($registration) {
             if ($userToDeregister->isStudent()) {
                 /** @var StudentUser $userToDeregister */
                 $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
@@ -1369,13 +1380,21 @@ class SchoolController extends AbstractController
             }
 
             $this->entityManager->remove($deregisterUserForExperience);
-            $this->entityManager->remove($registration);
+            if($registration){ $this->entityManager->remove($registration); }
             $this->entityManager->persist($experience);
             $this->entityManager->flush();
-        }
 
-        $this->addFlash('success', 'User has been removed from this experience.');
-        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+            $this->addFlash('success', 'User has been removed from this experience.');
+        // } else {
+        //     $this->addFlash('error', 'Problem removing user from this experience');
+        // }
+
+        if($req->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success", "userId" => $userIdToDeregister, 'id' => $experience->getId()]);
+        } else {
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
