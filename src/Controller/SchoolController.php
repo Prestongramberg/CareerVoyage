@@ -1285,7 +1285,7 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
-
+        $req = $request;
         $userId = $request->request->get('userId', null);
         if($userId) {
             $userToRegister = $this->userRepository->find($userId);
@@ -1319,7 +1319,13 @@ class SchoolController extends AbstractController
         $this->entityManager->flush();
         $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
         $this->addFlash('success', 'Registration request successfully sent.');
-        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+
+        if($req->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success", "userId" => $userId, 'id' => $experience->getId()]);
+        } else {
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
@@ -1330,6 +1336,7 @@ class SchoolController extends AbstractController
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function schoolExperienceDeregisterAction(Request $request, SchoolExperience $experience) {
+        $req = $request;
         $userIdToDeregister = $request->request->get('userId');
         $userToDeregister = $this->userRepository->find($userIdToDeregister);
 
@@ -1382,8 +1389,12 @@ class SchoolController extends AbstractController
         //     $this->addFlash('error', 'Problem removing user from this experience');
         // }
 
-       
-        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        if($req->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success", "userId" => $userIdToDeregister, 'id' => $experience->getId()]);
+        } else {
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**

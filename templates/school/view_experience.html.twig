@@ -503,7 +503,7 @@
                         {% for studentUser in students %}
                             <tr>
                                 <td>{{ studentUser.fullName }}</td>
-                                <td>
+                                <td id="student_{{ studentUser.id }}">
                                     {% set showPendingRegisterButton = true %}
                                     {% for request in experience.userRegisterForSchoolExperienceRequests %}
                                         {% if request.user %}
@@ -522,13 +522,13 @@
                                         {% endif %}
                                     {% endfor %}
                                     {% if showPendingRegisterButton == true %}
-                                        <form class="uk-inline" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
+                                        <form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
                                             <input type="hidden" name="userId" value="{{ studentUser.id }}">
                                             <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
                                         </form>
                                     {% endif %}
                                     {% if showPendingRegisterButton == false %}
-                                        <form class="uk-inline" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
+                                        <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
                                             <input type="hidden" name="userId" value="{{ studentUser.id }}">
                                             <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
                                         </form>
@@ -682,6 +682,27 @@
     </script>
 
     <script>
+
+        $(document).on('submit', '.register', function(e){
+          var student_id = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { userId: student_id }, function(data){
+            if(data.status === "success") {
+              $('#student_' + student_id).html( 'Pending <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+            }
+          });
+        });
+
+        $(document).on('submit', '.deregister', function(e){
+          var student_id = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { userId: student_id }, function(data){
+            if(data.status === "success") {
+              $('#student_' + student_id).html( '<form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>' );
+            }
+          });
+        });
+
 
         function fallbackCopyTextToClipboard(text) {
             var textArea = document.createElement("textarea");
