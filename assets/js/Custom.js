@@ -818,8 +818,6 @@ jQuery(document).ready(function($) {
 
         if($('.end-date-picker').length) {
 
-            // console.log('not hi');
-
             if($elem.closest('form').hasClass('edit-form')) {
                 today = $('.start-date-picker').val();
                 tomorrow = $('.end-date-picker').val();
@@ -845,8 +843,6 @@ jQuery(document).ready(function($) {
             // $elem.val( $('.start-date-picker').val() + " - " + $('.end-date-picker').val());
 
         } else {
-
-            // console.log("hi");
 
             // For selecting a single date
             $elem.daterangepicker({
