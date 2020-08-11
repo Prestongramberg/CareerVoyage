@@ -304,41 +304,7 @@
                         {% endif %}
 
                         {# Professional Events with feedback and events missing feedback #}
-                        <div class="uk-margin">
-                            <div class="uk-card uk-card-default">
-                                <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Reviews</h3>
-                                    <ul class="uk-tab" uk-switcher="connect: #tab-reviews" uk-tab>
-                                        <li class="uk-active"><a href="#reviews-todo">Todo</a></li>
-                                        <li><a href="#reviews-submitted">Submitted</a></li>
-                                    </ul>
-                                    <div class="uk-switcher" id="tab-reviews">
-                                        <div class="tab-reviews__todo">
-                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>All reviews are up to date!</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="tab-reviews__submitted">
-                                            {% if dashboards.eventsWithFeedback|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsWithFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>No experiences reviews have been submitted.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
 
                     </div>
 
@@ -357,7 +323,10 @@
                                             {% if dashboards.eventsMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                        <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
+                                                            <span class="uk-position-center-right"><button class="uk-button-danger delete-feedback" data-id="{{ eventProps.event.id }}">X</button></span> 
+                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -508,5 +477,16 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="delete-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Delete Feedback Review Request</h2>  
+            <p>Are you sure you do not want to provide feedback for this experience?</p>
+            <em class="loader"></em>
+            <div id="delete-feedback-request-form-holder">
+            </div>
+        </form>
     </div>
 </div>

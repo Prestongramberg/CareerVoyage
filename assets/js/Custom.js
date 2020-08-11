@@ -975,6 +975,34 @@ jQuery(document).ready(function($) {
     }
 
 
+    $(document).on("click", ".delete-feedback", function(e){
+        e.preventDefault();
+        UIkit.modal('#delete-modal').show();
+        var id = $(this).data("id");
+        $('#delete-feedback-request-form-holder').html('');
+
+        // Get form request
+        $.get('/dashboard/feedback/experiences/' + id + '/delete', {}, function(data){
+            $('#delete-feedback-request-form-holder').append(data);
+            $('#delete-feedback-request-form-holder').append(`<input type="hidden" id="experience_id" value="${id}" />`);
+        
+            $('#delete-feedback-request-form-holder form div').addClass('uk-hidden');
+        });
+        
+    });
+
+    $(document).on('submit', '#delete-feedback-request', function(e){
+        // Post form data back
+
+        var id = $('#experience_id').val();
+        
+        e.preventDefault();
+
+        $.post('/dashboard/feedback/experiences/' + id + '/delete', $("#delete-feedback-request").serialize(), function(){
+            $('#feedback_' + id).remove();
+            UIkit.modal('#delete-modal').hide();
+        });
+    });
 
     /**
      * Stop videos when sidebar is closed

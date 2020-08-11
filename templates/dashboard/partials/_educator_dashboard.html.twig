@@ -168,7 +168,10 @@
                                             {% if dashboards.eventsMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                        <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
+                                                            <span class="uk-position-center-right"><button class="uk-button-danger delete-feedback" data-id="{{ eventProps.event.id }}">X</button></span> 
+                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -327,5 +330,17 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+
+<div id="delete-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Delete Feedback Review Request</h2>  
+            <p>Are you sure you do not want to provide feedback for this experience?</p>
+            <em class="loader"></em>
+            <div id="delete-feedback-request-form-holder">
+            </div>
+        </form>
     </div>
 </div>
