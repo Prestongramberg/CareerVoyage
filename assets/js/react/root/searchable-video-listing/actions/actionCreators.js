@@ -29,6 +29,22 @@ export function updateCareerVideoIndustryQuery(industry) {
     };
 }
 
+export function updateProfessionalVideoSearchQuery(query) {
+    return {
+        type: actionTypes.PROFESSIONAL_VIDEO_SEARCH_QUERY_CHANGED,
+        query: query
+    };
+}
+
+export function updateProfessionalVideoIndustryQuery(industry) {
+
+    debugger;
+    return {
+        type: actionTypes.PROFESSIONAL_VIDEO_INDUSTRY_QUERY_CHANGED,
+        industry: industry
+    };
+}
+
 export function updateCompanyQuery(company) {
     return {
         type: actionTypes.COMPANY_QUERY_CHANGED,

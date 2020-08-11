@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
 import App from "./App";
+import professionalVideoIndustries from "./reducers/professionalVideoIndustries";
 
 const searchableVideoListing = document.getElementById("searchable-video-listing");
 
@@ -16,8 +17,10 @@ if( searchableVideoListing ) {
             companies: [],
             companyVideoIndustries: [],
             careerVideoIndustries: [],
+            professionalVideoIndustries: [],
             companyVideos: [],
             careerVideos: [],
+            professionalVideos: [],
             search: {
                 loading: true,
                 loadingVideos: true,
@@ -29,6 +32,11 @@ if( searchableVideoListing ) {
                 query: ''
             },
             careerVideoSearch: {
+                company: '',
+                industry: 0,
+                query: ''
+            },
+            professionalVideoSearch: {
                 company: '',
                 industry: 0,
                 query: ''

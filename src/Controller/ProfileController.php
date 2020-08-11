@@ -144,7 +144,7 @@ class ProfileController extends AbstractController
     }
 
     /**
-     * @Route("/profiles/{id}/edit", name="profile_edit")
+     * @Route("/profiles/{id}/edit", name="profile_edit", options = { "expose" = true })
      * @param Request $request
      * @param User $user
      * @return JsonResponse|Response
@@ -153,6 +153,13 @@ class ProfileController extends AbstractController
 
         $loggedInUser = $this->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
+
+        $editVideoId = $request->query->get('videoEdit', null);
+        $professionalVideo = null;
+        if($editVideoId) {
+            $professionalVideo = $this->videoRepository->find($editVideoId);
+        }
+
 
         $options = [
             'method' => 'POST',
@@ -235,7 +242,8 @@ class ProfileController extends AbstractController
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,
-            'loggedInUser' => $loggedInUser
+            'loggedInUser' => $loggedInUser,
+            'professionalVideo' => $professionalVideo
         ]);
     }
 
