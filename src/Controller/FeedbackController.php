@@ -7,7 +7,9 @@ use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorReviewCompanyExperienceFeedback;
+use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
+use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Feedback;
@@ -31,6 +33,8 @@ use App\Form\EditCompanyFormType;
 use App\Form\EducatorReviewCompanyExperienceFeedbackFormType;
 use App\Form\EducatorReviewMeetProfessionalExperienceFeedbackFormType;
 use App\Form\EducatorReviewTeachLessonExperienceFeedbackFormType;
+use App\Form\ProfessionalReviewTeachLessonExperienceFeedbackFormType;
+use App\Form\ProfessionalReviewCompanyExperienceFeedbackFormType;
 use App\Form\FeedbackFormType;
 use App\Form\GenericFeedbackFormType;
 use App\Form\NewCompanyFormType;
@@ -248,9 +252,9 @@ class FeedbackController extends AbstractController
                     $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_company_experience_feedback.html.twig';
                 } elseif ($user->isProfessional()) {
-                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewCompanyExperienceFeedback();
-                    $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
-                    $template = 'new_professional_review_student_company_experience_feedback.html.twig';
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewCompanyExperienceFeedback();
+                    $formType = ProfessionalReviewCompanyExperienceFeedbackFormType::class;
+                    $template = 'new_professional_review_company_experience_feedback.html.twig';
                 }
                 break;
             case 'TeachLessonExperience':
@@ -271,7 +275,12 @@ class FeedbackController extends AbstractController
 
                     $studentFeedbackUrl = $scheme . '://' . $host . ($port !== 80 ? ':'. $port : '');
                     $studentFeedbackUrl .= $this->router->generate('experience_feedback', ['id' => $experience->getId()]);
+                } elseif ($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewTeachLessonExperienceFeedback();
+                    $formType = ProfessionalReviewTeachLessonExperienceFeedbackFormType::class;
+                    $template = 'new_professional_review_teach_lesson_experience_feedback.html.twig';
                 }
+
                 break;
             case 'StudentToMeetProfessionalExperience':
                 /** @var StudentToMeetProfessionalExperience $experience */
@@ -313,13 +322,15 @@ class FeedbackController extends AbstractController
             $feedback->setExperience($experience);
 
             $name = $feedback->getClassName();
+
+            // echo $name;
+            // die();
             switch ($feedback->getClassName()) {
                 case 'EducatorReviewCompanyExperienceFeedback':
                     /** @var EducatorReviewCompanyExperienceFeedback $feedback */
                     /** @var CompanyExperience $experience */
                     $feedback->setCompanyExperience($experience);
                     $feedback->setEducator($user);
-
                     break;
                 case 'EducatorReviewTeachLessonExperienceFeedback':
                     /** @var EducatorReviewTeachLessonExperienceFeedback $feedback */
@@ -328,6 +339,32 @@ class FeedbackController extends AbstractController
                     $feedback->setEducator($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
                     break;
+
+                case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
+                    /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setProfessional($user);
+                    $educators = $experience->getOriginalRequest()->getStudent()->getEducatorUsers();
+                    foreach ($educators as $educator) {
+                        $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
+                    }
+                    break;
+                case 'ProfessionalReviewTeachLessonExperienceFeedback':                 
+                    /** @var ProfessionalReviewTeachLessonExperienceFeedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    $feedback->setTeachLessonExperience($experience);
+                    $feedback->setProfessional($user);
+                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                case 'ProfessionalReviewCompanyExperienceFeedback':
+                    /** @var ProfessionalReviewCompanyExperienceFeedback $feedback */
+                    /** @var CompanyExperience $experience */
+                    $feedback->setCompanyExperience($experience);
+                    $feedback->setProfessional($user);
+                    break;
+
+                
                 case 'StudentReviewCompanyExperienceFeedback':
                     /** @var StudentReviewCompanyExperienceFeedback $feedback */
                     /** @var CompanyExperience $experience */
@@ -341,22 +378,13 @@ class FeedbackController extends AbstractController
                     $feedback->setStudent($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
                     break;
-                case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
-                    /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
-                    /** @var StudentToMeetProfessionalExperience $experience */
-                    $feedback->setStudentToMeetProfessionalExperience($experience);
-                    $feedback->setProfessional($user);
-                    $educators = $experience->getOriginalRequest()->getStudent()->getEducatorUsers();
-                    foreach ($educators as $educator) {
-                        $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
-                    }
-                    break;
                 case 'StudentReviewMeetProfessionalExperienceFeedback':
                     /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
                     /** @var StudentToMeetProfessionalExperience $experience */
                     $feedback->setStudentToMeetProfessionalExperience($experience);
                     $feedback->setStudent($user);
                     break;
+
                 default:
                     /** @var Feedback $feedback */
                     /** @var TeachLessonExperience $experience */
@@ -380,6 +408,192 @@ class FeedbackController extends AbstractController
             'studentFeedbackUrl' => $studentFeedbackUrl
         ]);
     }
+
+
+
+    /* ------------------------------------------------------------ */
+    /* This function below is for ajax deleting of requests. It is  */
+    /* basically the same as experienceFeedbackAction in the submit */
+    /* of the form.
+    /* ----------------------------------------------------------- */
+
+    /**
+     * @Route("/experiences/{id}/delete", name="feedback_delete", options ={ "expose" = true})
+     * @param Request $request
+     * @param Experience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function feedbackDeleteAction(Request $request, Experience $experience) {
+
+        $user = $this->getUser();
+
+        $formType = null;
+        $template = null;
+
+        $feedback = $this->feedbackRepository->findOneBy([
+           'user' => $user,
+           'experience' => $experience
+        ]);
+
+        $experienceHasFeedback = $feedback ? true : false;
+
+        // look at the experience object and see which form you should load in
+        switch ($experience->getClassName()) {
+            case 'CompanyExperience':
+                /** @var CompanyExperience $experience */
+                if($user->isStudent()) {
+                    $feedback = $feedback ? $feedback : new StudentReviewCompanyExperienceFeedback();
+                    $formType = StudentReviewCompanyExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_student_review_company_experience_feedback.html.twig';
+                } elseif ($user->isEducator()) {
+                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewCompanyExperienceFeedback();
+                    $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_educator_review_company_experience_feedback.html.twig';
+                } elseif ($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewCompanyExperienceFeedback();
+                    $formType = ProfessionalReviewCompanyExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_professional_review_company_experience_feedback.html.twig';
+                }
+                break;
+            case 'TeachLessonExperience':
+                /** @var TeachLessonExperience $experience */
+                if($user->isStudent()) {
+                    $feedback = $feedback = $feedback ? $feedback : new StudentReviewTeachLessonExperienceFeedback();
+                    $formType = StudentReviewTeachLessonExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_student_review_teach_lesson_experience_feedback.html.twig';
+                } elseif ($user->isEducator()) {
+                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewTeachLessonExperienceFeedback();
+                    $formType = EducatorReviewTeachLessonExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_educator_review_teach_lesson_experience_feedback.html.twig';
+                } elseif ($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewTeachLessonExperienceFeedback();
+                    $formType = ProfessionalReviewTeachLessonExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_professional_review_teach_lesson_experience_feedback.html.twig';
+                }
+
+                break;
+            case 'StudentToMeetProfessionalExperience':
+                /** @var StudentToMeetProfessionalExperience $experience */
+                if($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewStudentToMeetProfessionalFeedback();
+                    $formType = ProfessionalReviewStudentToMeetProfessionalFeedbackFormType::class;
+                    $template = 'delete_forms/new_professional_review_student_to_meet_professional_experience_feedback.html.twig';
+                } else if($user->isStudent()) {
+                    $feedback = $feedback = $feedback ? $feedback : new StudentReviewMeetProfessionalExperienceFeedback();
+                    $formType = StudentReviewMeetProfessionalExperienceFeedbackFormType::class;
+                    $template = 'delete_forms/new_student_review_meet_professional_feedback.html.twig';
+                } else {
+                    $feedback = $feedback = $feedback ? $feedback : new Feedback();
+                    $formType = GenericFeedbackFormType::class;
+                    $template = 'delete_forms/new_generic_feedback.html.twig';
+                }
+                break;
+            default:
+                $feedback = $feedback = $feedback ? $feedback : new Feedback();
+                $formType = GenericFeedbackFormType::class;
+                $template = 'delete_forms/new_generic_feedback.html.twig';
+                break;
+        }
+
+        $form = $this->createForm($formType, $feedback);
+        $form->handleRequest($request);
+
+        
+        if($form->isSubmitted() && $form->isValid()) {
+
+            /** @var Feedback $feedback */
+            $feedback = $form->getData();
+
+            //todo we might not need the user and experience on each subclass of the feedback object
+            $feedback->setUser($user);
+            $feedback->setExperience($experience);
+
+            $name = $feedback->getClassName();
+
+            // echo $feedback->getClassName();
+            //     die();
+            switch ($feedback->getClassName()) {
+
+
+                case 'EducatorReviewCompanyExperienceFeedback':
+                    /** @var EducatorReviewCompanyExperienceFeedback $feedback */
+                    /** @var CompanyExperience $experience */
+                    $feedback->setCompanyExperience($experience);
+                    $feedback->setEducator($user);
+
+                    break;
+                case 'EducatorReviewTeachLessonExperienceFeedback':
+                    /** @var EducatorReviewTeachLessonExperienceFeedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    $feedback->setTeachLessonExperience($experience);
+                    $feedback->setEducator($user);
+                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                
+                case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
+                    /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setProfessional($user);
+                    break;
+                case 'ProfessionalReviewTeachLessonExperienceFeedback':
+                    /** @var ProfessionalReviewTeachLessonExperienceFeedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    $feedback->setTeachLessonExperience($experience);
+                    $feedback->setProfessional($user);
+                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                case 'ProfessionalReviewCompanyExperienceFeedback':
+                    /** @var ProfessionalReviewCompanyExperienceFeedback $feedback */
+                    /** @var CompanyExperience $experience */
+                    $feedback->setCompanyExperience($experience);
+                    $feedback->setProfessional($user);
+                    break;
+                    
+                case 'StudentReviewMeetProfessionalExperienceFeedback':
+                    /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setStudent($user);
+                    break;
+                case 'StudentReviewCompanyExperienceFeedback':
+                    /** @var StudentReviewCompanyExperienceFeedback $feedback */
+                    /** @var CompanyExperience $experience */
+                    $feedback->setStudent($user);
+                    $feedback->setCompanyExperience($experience);
+                    break;
+                case 'StudentReviewTeachLessonExperienceFeedback':
+                    /** @var StudentReviewTeachLessonExperienceFeedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    $feedback->setTeachLessonExperience($experience);
+                    $feedback->setStudent($user);
+                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                
+                default:
+                    /** @var Feedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    // do nothing
+                    break;
+            }
+
+            $this->entityManager->persist($feedback);
+            $this->entityManager->flush();
+
+            return $this->render('feedback/delete_forms/success.html.twig');
+        }
+        
+        
+        return $this->render("feedback/{$template}", [
+            'user' => $user,
+            'form' => $form->createView(),
+            'feedback' => $feedback,
+            'experience' => $experience,
+            'experienceHasFeedback' => $experienceHasFeedback
+        ]);
+    }
+
 
     /**
      * @Route("/{id}/view", name="feedback_view", options = { "expose" = true })
