@@ -1411,6 +1411,7 @@ class SchoolController extends AbstractController
         $resource = $request->files->get('resource');
         $title = $request->request->get('title');
         $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get("linkToWebsite");
 
         if($resource && $title && $description) {
             $mimeType = $resource->getMimeType();
@@ -1430,6 +1431,31 @@ class SchoolController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description,
+
+                ], Response::HTTP_OK
+            );
+        } else if($linkToWebsite && $title) {
+            $mimeType = '';
+            $newFilename = '';
+            $file = new ExperienceFile();
+            $file->setOriginalName($newFilename);
+            $file->setMimeType($mimeType);
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+            $file->setExperience($experience);
+            $file->setDescription($description ? $description : null);
+            $file->setLinkToWebsite($linkToWebsite);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $linkToWebsite,
                     'id' => $file->getId(),
                     'title' => $title,
                     'description' => $description,
