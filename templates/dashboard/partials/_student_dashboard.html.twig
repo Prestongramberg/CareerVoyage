@@ -279,7 +279,7 @@
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
                                                         <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
-                                                            <span class="uk-position-center-right"><button class="uk-button-danger delete-feedback" data-id="{{ eventProps.event.id }}">X</button></span> 
+                                                            <span class="uk-position-center-right"><button class="uk-button uk-button-text delete-feedback uk-text-danger" data-id="{{ eventProps.event.id }}">X</button></span> 
                                                             <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
                                                         </li>
                                                     {% endfor %}
