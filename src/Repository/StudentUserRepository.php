@@ -105,4 +105,14 @@ class StudentUserRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+
+    public function findStudentBySecondaryIndustry(int $secondaryIndustry) {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.secondaryIndustries', 's')
+            ->andWhere('s.id = :secondaryIndustry')
+            ->setParameter('secondaryIndustry', $secondaryIndustry)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -183,4 +183,13 @@ class EducatorUserRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function findEducatorBySecondaryIndustry(int $secondaryIndustry) {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.secondaryIndustries', 's')
+            ->andWhere('s.id = :secondaryIndustry')
+            ->setParameter('secondaryIndustry', $secondaryIndustry)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -97,11 +97,27 @@
             </div>
             <div class="page-company-experience-add__careers">
                 <div class="uk-width-xlarge">
+
+                    <h3>Notify Students of Event</h3>
+                    <ul class="uk-list">
+                        <li><label><input type="radio" name="notify_students" value="none" checked="checked" />Do Not Send Email</label></li>
+                        <li><label><input type="radio" name="notify_students" value="all" />Notify All Students and Teachers</label></li>
+                        <li><label><input type="radio" name="notify_students" value="match" />Notify Students and Teachers Who Selected Career Fields Below</label></li>
+                    </ul>
+
                     <fieldset class="uk-fieldset">
-                        <div id="subscribe-secondary-industries"
-                             data-field-name="new_company_experience[secondaryIndustries]"
-                             data-remove-dom-id="new_company_experience_secondaryIndustries"
-                        ></div>
+                        {% if secondaryIndustries %}
+                            <div id="subscribe-secondary-industries"
+                                data-field-name="new_company_experience[secondaryIndustries]"
+                                data-secondary-industries="{{ encode_secondary_industries(secondaryIndustries) }}"
+                                data-remove-dom-id="new_company_experience_secondaryIndustries"
+                            ></div>
+                        {% else %}
+                            <div id="subscribe-secondary-industries"
+                                data-field-name="new_company_experience[secondaryIndustries]"
+                                data-remove-dom-id="new_company_experience_secondaryIndustries"
+                            ></div>
+                        {% endif %}
                     </fieldset>
                 </div>
             </div>
