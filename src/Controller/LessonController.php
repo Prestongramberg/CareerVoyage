@@ -335,6 +335,7 @@ class LessonController extends AbstractController
         $file = $request->files->get('resource');
         $title = $request->request->get('title');
         $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get('linkToWebsite');
 
         if($file && $title) {
             $mimeType = $file->getMimeType();
@@ -355,6 +356,32 @@ class LessonController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::LESSON_RESOURCE.'/'.$newFilename,
+                    'id' => $lessonResource->getId(),
+                    'title' => $title,
+                    'description' => $description
+
+                ], Response::HTTP_OK
+            );
+        } else if($linkToWebsite && $title) {
+            $mimeType = "";
+            $newFilename = "";
+            $lessonResource = new LessonResource();
+
+            $lessonResource->setOriginalName($newFilename);
+            $lessonResource->setMimeType($mimeType );
+            $lessonResource->setFileName($newFilename);
+            $lessonResource->setFile(null);
+            $lessonResource->setLesson($lesson);
+            $lessonResource->setDescription($description ? $description : null);
+            $lessonResource->setTitle($title);
+            $lessonResource->setLinkToWebsite($linkToWebsite);
+            $this->entityManager->persist($lessonResource);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $linkToWebsite,
                     'id' => $lessonResource->getId(),
                     'title' => $title,
                     'description' => $description

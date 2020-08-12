@@ -32,6 +32,11 @@ class LessonResource extends Image
      */
     private $file;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $linkToWebsite;
+
     public function getLesson()
     {
         return $this->lesson;
@@ -87,6 +92,17 @@ class LessonResource extends Image
     public function getPath()
     {
         return UploaderHelper::LESSON_RESOURCE.'/'.$this->getFileName();
+    }
+
+    public function getLinkToWebsite()
+    {
+        return $this->linkToWebsite;
+    }
+
+    public function setLinkToWebsite($linkToWebsite)
+    {
+        $this->linkToWebsite = $linkToWebsite;
+        return $this;
     }
 
 }
