@@ -252,9 +252,9 @@ class FeedbackController extends AbstractController
                     $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
                     $template = 'new_educator_review_company_experience_feedback.html.twig';
                 } elseif ($user->isProfessional()) {
-                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewCompanyExperienceFeedback();
-                    $formType = EducatorReviewCompanyExperienceFeedbackFormType::class;
-                    $template = 'new_professional_review_student_company_experience_feedback.html.twig';
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewCompanyExperienceFeedback();
+                    $formType = ProfessionalReviewCompanyExperienceFeedbackFormType::class;
+                    $template = 'new_professional_review_company_experience_feedback.html.twig';
                 }
                 break;
             case 'TeachLessonExperience':
@@ -276,8 +276,8 @@ class FeedbackController extends AbstractController
                     $studentFeedbackUrl = $scheme . '://' . $host . ($port !== 80 ? ':'. $port : '');
                     $studentFeedbackUrl .= $this->router->generate('experience_feedback', ['id' => $experience->getId()]);
                 } elseif ($user->isProfessional()) {
-                    $feedback = $feedback = $feedback ? $feedback : new EducatorReviewTeachLessonExperienceFeedback();
-                    $formType = EducatorReviewTeachLessonExperienceFeedbackFormType::class;
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewTeachLessonExperienceFeedback();
+                    $formType = ProfessionalReviewTeachLessonExperienceFeedbackFormType::class;
                     $template = 'new_professional_review_teach_lesson_experience_feedback.html.twig';
                 }
 
@@ -322,13 +322,15 @@ class FeedbackController extends AbstractController
             $feedback->setExperience($experience);
 
             $name = $feedback->getClassName();
+
+            // echo $name;
+            // die();
             switch ($feedback->getClassName()) {
                 case 'EducatorReviewCompanyExperienceFeedback':
                     /** @var EducatorReviewCompanyExperienceFeedback $feedback */
                     /** @var CompanyExperience $experience */
                     $feedback->setCompanyExperience($experience);
                     $feedback->setEducator($user);
-
                     break;
                 case 'EducatorReviewTeachLessonExperienceFeedback':
                     /** @var EducatorReviewTeachLessonExperienceFeedback $feedback */
@@ -337,6 +339,32 @@ class FeedbackController extends AbstractController
                     $feedback->setEducator($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
                     break;
+
+                case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
+                    /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
+                    /** @var StudentToMeetProfessionalExperience $experience */
+                    $feedback->setStudentToMeetProfessionalExperience($experience);
+                    $feedback->setProfessional($user);
+                    $educators = $experience->getOriginalRequest()->getStudent()->getEducatorUsers();
+                    foreach ($educators as $educator) {
+                        $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
+                    }
+                    break;
+                case 'ProfessionalReviewTeachLessonExperienceFeedback':                 
+                    /** @var ProfessionalReviewTeachLessonExperienceFeedback $feedback */
+                    /** @var TeachLessonExperience $experience */
+                    $feedback->setTeachLessonExperience($experience);
+                    $feedback->setProfessional($user);
+                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+                    break;
+                case 'ProfessionalReviewCompanyExperienceFeedback':
+                    /** @var ProfessionalReviewCompanyExperienceFeedback $feedback */
+                    /** @var CompanyExperience $experience */
+                    $feedback->setCompanyExperience($experience);
+                    $feedback->setProfessional($user);
+                    break;
+
+                
                 case 'StudentReviewCompanyExperienceFeedback':
                     /** @var StudentReviewCompanyExperienceFeedback $feedback */
                     /** @var CompanyExperience $experience */
@@ -350,22 +378,13 @@ class FeedbackController extends AbstractController
                     $feedback->setStudent($user);
                     $feedback->setLesson($experience->getOriginalRequest()->getLesson());
                     break;
-                case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
-                    /** @var ProfessionalReviewStudentToMeetProfessionalFeedback $feedback */
-                    /** @var StudentToMeetProfessionalExperience $experience */
-                    $feedback->setStudentToMeetProfessionalExperience($experience);
-                    $feedback->setProfessional($user);
-                    $educators = $experience->getOriginalRequest()->getStudent()->getEducatorUsers();
-                    foreach ($educators as $educator) {
-                        $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
-                    }
-                    break;
                 case 'StudentReviewMeetProfessionalExperienceFeedback':
                     /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
                     /** @var StudentToMeetProfessionalExperience $experience */
                     $feedback->setStudentToMeetProfessionalExperience($experience);
                     $feedback->setStudent($user);
                     break;
+
                 default:
                     /** @var Feedback $feedback */
                     /** @var TeachLessonExperience $experience */
@@ -530,7 +549,6 @@ class FeedbackController extends AbstractController
                     /** @var CompanyExperience $experience */
                     $feedback->setCompanyExperience($experience);
                     $feedback->setProfessional($user);
-
                     break;
                     
                 case 'StudentReviewMeetProfessionalExperienceFeedback':
