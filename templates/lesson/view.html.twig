@@ -154,7 +154,11 @@
                                     <dd>{{ lessonResource.description }}</dd>
                                 </div>
                                 <div class="uk-width-auto">
-                                    <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% if lessonResource.linkToWebsite %}
+                                        <a href="{{ lessonResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% else %}
+                                        <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}

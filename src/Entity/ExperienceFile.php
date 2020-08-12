@@ -35,6 +35,14 @@ class ExperienceFile extends Image
      */
     private $description;
 
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $linkToWebsite;
+    
+
     public function getExperience(): ?Experience
     {
         return $this->experience;
@@ -72,6 +80,17 @@ class ExperienceFile extends Image
     {
         $this->title = $title;
 
+        return $this;
+    }
+
+    public function getLinkToWebsite()
+    {
+        return $this->linkToWebsite;
+    }
+
+    public function setLinkToWebsite($linkToWebsite)
+    {
+        $this->linkToWebsite = $linkToWebsite;
         return $this;
     }
 

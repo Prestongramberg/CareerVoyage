@@ -1247,6 +1247,7 @@ class CompanyController extends AbstractController
 
         /** @var UploadedFile $resource */
         $resource = $request->files->get('resource');
+        $linkToWebsite = $request->request->get("linkToWebsite");
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
@@ -1268,6 +1269,31 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description,
+
+                ], Response::HTTP_OK
+            );
+        } else if($linkToWebsite && $title) {
+            $mimeType = '';
+            $newFilename = '';
+            $file = new ExperienceFile();
+            $file->setOriginalName($newFilename);
+            $file->setMimeType($mimeType);
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+            $file->setExperience($experience);
+            $file->setDescription($description ? $description : null);
+            $file->setLinkToWebsite($linkToWebsite);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $linkToWebsite,
                     'id' => $file->getId(),
                     'title' => $title,
                     'description' => $description,

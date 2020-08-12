@@ -181,8 +181,17 @@
                                 <input type="text" id="edit_company_event_add_resource_description" name="description" class="uk-textarea" />
                             </div>
 
+
+
                             <div class="uk-margin">
-                                <label>Resource File*</label><br />
+                                <label for="edit_company_add_resource_description">Add Link To Website</label>
+                                <input type="text" id="edit_company_event_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
+                            </div>
+
+                            <div>OR</div>
+
+                            <div class="uk-margin">
+                                <label>Upload Resource File</label><br />
                                 <div uk-form-custom="target: true">
                                     <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
@@ -223,7 +232,11 @@
                                         <dd>{{ experienceFile.description }}</dd>
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% if experienceFile.linkToWebsite %}
+                                            <a href="{{ experienceFile.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% else %}
+                                            <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% endif %}                                        
                                     </div>
                                     <button type="button" data-remove="{{ path('company_experience_file_remove', {'id' : experienceFile.id }) }}" uk-close></button>
                                 </div>
@@ -241,6 +254,16 @@
         {{ form_end(form) }}
 
     </div>
+
+    <script>
+      const website = document.getElementById('edit_company_event_add_resource_link_to_website');
+      website.addEventListener('blur', (event) => {
+        const matched = event.target.value.match(/^(http|https):\/\//);
+        if(!matched) {
+          document.getElementById('edit_company_event_add_resource_link_to_website').value = 'http://' + event.target.value;
+        }
+      }, true);
+    </script>
 
 
 {% endblock %}

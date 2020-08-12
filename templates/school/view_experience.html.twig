@@ -337,7 +337,11 @@
                                     <dd>{{ experienceResource.description }}</dd>
                                 </div>
                                 <div class="uk-width-auto">
-                                    <a href="{{ asset(uploaded_asset(experienceResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% if experienceResource.linkToWebsite %}
+                                        <a href="{{ experienceResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% else %}
+                                        <a href="{{ asset(uploaded_asset(experienceResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
