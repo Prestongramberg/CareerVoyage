@@ -76,6 +76,8 @@ class App extends React.Component {
                                     phone: !educator.isPhoneHiddenFromProfile ? educator.phone : null
                                 };
 
+
+
                                 return <div className="uk-width-1-1 uk-width-1-2@l" key={educator.id}>
                                     <EducatorListing
                                         briefBio={educator.briefBio}
@@ -86,6 +88,7 @@ class App extends React.Component {
                                         lastName={educator.lastName}
                                         interests={educator.interests}
                                         school={educator.school}
+                                        courses={educator.myCourses}
                                         { ...hiddenAttributes }
                                     />
                                 </div>
