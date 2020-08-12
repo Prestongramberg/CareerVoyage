@@ -46,6 +46,12 @@ class TeachLessonRequest extends Request
      */
     private $school;
 
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $message;
+
     public function getIsFromProfessional(): ?bool
     {
         return $this->isFromProfessional;
@@ -132,6 +138,18 @@ class TeachLessonRequest extends Request
     public function setSchool(?School $school): self
     {
         $this->school = $school;
+
+        return $this;
+    }
+
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    public function setMessage(?string $message)
+    {
+        $this->message = $message;
 
         return $this;
     }
