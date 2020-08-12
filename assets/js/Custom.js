@@ -979,11 +979,11 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         UIkit.modal('#delete-modal').show();
         var id = $(this).data("id");
-        $('#delete-feedback-request-form-holder').html('');
+        $('#delete-feedback-request-form-holder').html('Loading...');
 
         // Get form request
         $.get('/dashboard/feedback/experiences/' + id + '/delete', {}, function(data){
-            $('#delete-feedback-request-form-holder').append(data);
+            $('#delete-feedback-request-form-holder').html(data);
             $('#delete-feedback-request-form-holder').append(`<input type="hidden" id="experience_id" value="${id}" />`);
         
             $('#delete-feedback-request-form-holder form div').addClass('uk-hidden');
