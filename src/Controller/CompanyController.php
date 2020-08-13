@@ -797,7 +797,7 @@ class CompanyController extends AbstractController
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
-        if($form->isSubmitted() && !$form->isValid()) {
+        if($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
 
             $errors = $this->getFormErrors($form);
 
