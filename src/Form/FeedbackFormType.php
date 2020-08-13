@@ -37,12 +37,13 @@ class FeedbackFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('rating', HiddenType::class, [
-        ])->add('providedCareerInsight', HiddenType::class, [
-        ])->add('wasEnjoyableAndEngaging', HiddenType::class, [
-        ])->add('learnSomethingNew', HiddenType::class, [
-        ])->add('likelihoodToRecommendToFriend', HiddenType::class, [
-        ])->add('additionalFeedback', TextareaType::class, []);
+        $builder->add('rating', HiddenType::class, [])
+                ->add('providedCareerInsight', HiddenType::class, [ 'empty_data' => false])
+                ->add('wasEnjoyableAndEngaging', HiddenType::class, [ 'empty_data' => false])
+                ->add('learnSomethingNew', HiddenType::class, [ "empty_data" => false])
+                ->add('likelihoodToRecommendToFriend', HiddenType::class, [])
+                ->add('additionalFeedback', TextareaType::class, [])
+                ->add('deleted', HiddenType::class, [ "empty_data" => false]);
     }
 
 

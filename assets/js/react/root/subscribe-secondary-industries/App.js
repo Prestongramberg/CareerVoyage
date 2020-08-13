@@ -96,6 +96,8 @@ class App extends React.Component {
                         <ul className="uk-list uk-list-divider">
                             {this.props.subscriptions.subscribed.map((secondaryIndustryId, index) => {
                                 const secondaryIndustry = getSecondaryIndustry(this.props.subscriptions.data, secondaryIndustryId);
+
+
                                 if ( secondaryIndustry !== null ) {
                                     return <li key={secondaryIndustry.id}>
                                         <div className="uk-grid uk-flex-middle uk-margin-remove-vertical" data-uk-grid>

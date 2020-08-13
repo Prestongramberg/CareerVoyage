@@ -44,7 +44,7 @@
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">My Favorites</a></li>
-                    <li><a href="#user-events">My Events</a></li>
+                    <li><a href="#user-events">My Experiences</a></li>
                     <li><a href="#user-feedback">My Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
@@ -105,7 +105,7 @@
                         <div>
                             <div class="uk-card uk-card-default">
                                 <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Events</h3>
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences</h3>
                                     <ul class="uk-tab" uk-switcher="connect: #tab-events" uk-tab>
                                         <li class="uk-active"><a href="#events-upcoming">Upcoming</a></li>
                                         <li><a href="#events-completed">Completed</a></li>
@@ -119,7 +119,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No upcoming events.</p>
+                                                <p>No upcoming experiences.</p>
                                             {% endif %}
                                         </div>
                                         <div class="tab-events__completed">
@@ -130,43 +130,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No completed events.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="uk-margin">
-                            <div class="uk-card uk-card-default">
-                                <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Reviews</h3>
-                                    <ul class="uk-tab" uk-switcher="connect: #tab-reviews" uk-tab>
-                                        <li class="uk-active"><a href="#reviews-todo">Todo</a></li>
-                                        <li><a href="#reviews-submitted">Submitted</a></li>
-                                    </ul>
-                                    <div class="uk-switcher" id="tab-reviews">
-                                        <div class="tab-reviews__todo">
-                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>All reviews are up to date!</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="tab-reviews__submitted">
-                                            {% if dashboards.eventsWithFeedback|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsWithFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No completed experiences.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -314,7 +278,10 @@
                                             {% if dashboards.eventsMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                        <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
+                                                            <span class="uk-position-center-right"><button class="uk-button uk-button-text delete-feedback uk-text-danger" data-id="{{ eventProps.event.id }}">X</button></span> 
+                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -329,7 +296,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No experiences reviews have been submitted.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -371,25 +338,25 @@
 
                         {# Relevant School Events #}
                         <hr>
-                        <h4>New School Events</h4>
+                        <h4>New School Experiences</h4>
                         <hr>
                         <div style="text-align: left">
                         {% for schoolExperience in schoolExperiences %}
                             <p><a href="/dashboard/schools/experiences/{{schoolExperience.id}}/view">{{ schoolExperience.title }}</a></p>
                             {% else %}
-                            <p>No New School Events at this time.</p>
+                            <p>No New School Experiences at this time.</p>
                         {% endfor %}
                         </div>
 
                         {# Relevant Company Events #}
                         <hr>
-                        <h4>New Company Events</h4>
+                        <h4>New Company Experiences</h4>
                         <hr>
                         <div style="text-align: left">
                         {% for companyExperience in companyExperiences %}
                             <p><a href="/dashboard/companies/experiences/{{companyExperience.id}}/view">{{ companyExperience.title }}</a></p>
                         {% else %}
-                            <p>No New Company Events at this time.</p>
+                            <p>No New Company Experiences at this time.</p>
                         {% endfor %}
                         </div>
 
@@ -455,7 +422,7 @@
                                 </ul>
                             {% endif %}
 
-                            <h5>Upcoming Events</h5>
+                            <h5>Upcoming Experiences</h5>
                             {% set noEventsFound = true %}
                             {% if user.school.schoolExperiences|length > 0 %}
                                 <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
@@ -469,7 +436,7 @@
                             {% endif %}
 
                             {% if noEventsFound == true %}
-                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                                <p class="uk-text-meta">There are no upcoming experiences at this time</p>
                             {% endif %}
                         {% else %}
                             <div className="uk-placeholder uk-text-center">
@@ -481,5 +448,15 @@
             </div>
 
         </div>
+    </div>
+</div>
+
+<div id="delete-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Delete Feedback Review Request</h2>  
+            <p>Are you sure you do not want to provide feedback for this experience?</p>
+            <div id="delete-feedback-request-form-holder">
+            </div>
+        </form>
     </div>
 </div>

@@ -1,0 +1,17 @@
+{{ form_start(form, {attr: {'novalidate' : 'novalidate', 'id': 'delete-feedback-request'}}) }}
+  {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-hidden' }}) }}
+
+
+  {{ form_widget(form.feedback.providedCareerInsight, {'attr': {'class': 'uk-hidden' }, 'value': '0'}) }}
+  {{ form_widget(form.feedback.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-hidden' }, 'value': '0'}) }}
+  {{ form_widget(form.feedback.learnSomethingNew, {'attr': {'class': 'uk-hidden' }, 'value': '0'}) }}
+
+  {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': 'uk-hidden' }}) }}
+
+  {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-hidden' }}) }}
+
+  {{ form_widget(form.feedback.deleted, { 'attr': { 'class': 'uk-hidden'}, 'value': true}) }}
+
+  <button class="uk-button uk-button-default uk-modal-close" type="button">No, Go-Back</button>
+  <button class="uk-button uk-button-primary" type="submit">Yes, Delete</button>
+{{ form_end(form) }}

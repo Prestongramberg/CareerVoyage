@@ -166,11 +166,11 @@ class App extends React.Component {
             return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateEventTypeQuery}>
-                        <option value="">Filter by Event Type...</option>
-                        <optgroup label="Company Events">
+                        <option value="">Filter by Experience Type...</option>
+                        <optgroup label="Company Experiences">
                             { companyEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
                         </optgroup>
-                        <optgroup label="School Events">
+                        <optgroup label="School Experiences">
                             { schoolEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
                         </optgroup>
                     </select>

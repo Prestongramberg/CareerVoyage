@@ -169,6 +169,11 @@ class ProfessionalUser extends User
 	 */
     private $geoZipCode;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalVideo", mappedBy="professional")
+     */
+    private $professionalVideos;
+
     
     public function __construct()
     {
@@ -181,6 +186,7 @@ class ProfessionalUser extends User
         $this->studentToMeetProfessionalRequests = new ArrayCollection();
         $this->allowedCommunications = new ArrayCollection();
         $this->professionalReviewMeetStudentExperienceFeedback = new ArrayCollection();
+        $this->professionalVideos = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -630,27 +636,58 @@ class ProfessionalUser extends User
 	 * @return string
 	 */
 	public function getGeoRadius(): ?string {
-		return $this->geoRadius;
-	}
+               		return $this->geoRadius;
+               	}
 
 	/**
 	 * @param string $geoRadius
 	 */
 	public function setGeoRadius( ?string $geoRadius ): void {
-		$this->geoRadius = $geoRadius;
-	}
+               		$this->geoRadius = $geoRadius;
+               	}
 
 	/**
 	 * @return string
 	 */
 	public function getGeoZipCode(): ?string {
-		return $this->geoZipCode;
-	}
+               		return $this->geoZipCode;
+               	}
 
 	/**
 	 * @param string $geoZipCode
 	 */
 	public function setGeoZipCode( ?string $geoZipCode ): void {
-		$this->geoZipCode = $geoZipCode;
-	}
+               		$this->geoZipCode = $geoZipCode;
+               	}
+
+    /**
+     * @return Collection|ProfessionalVideo[]
+     */
+    public function getProfessionalVideos(): Collection
+    {
+        return $this->professionalVideos;
+    }
+
+    public function addProfessionalVideo(ProfessionalVideo $professionalVideo): self
+    {
+        if (!$this->professionalVideos->contains($professionalVideo)) {
+            $this->professionalVideos[] = $professionalVideo;
+            $professionalVideo->setProfessional($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfessionalVideo(ProfessionalVideo $professionalVideo): self
+    {
+        if ($this->professionalVideos->contains($professionalVideo)) {
+            $this->professionalVideos->removeElement($professionalVideo);
+            // set the owning side to null (unless already changed)
+            if ($professionalVideo->getProfessional() === $this) {
+                $professionalVideo->setProfessional(null);
+            }
+        }
+
+        return $this;
+    }
 }

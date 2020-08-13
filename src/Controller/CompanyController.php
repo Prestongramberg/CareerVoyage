@@ -797,7 +797,7 @@ class CompanyController extends AbstractController
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
         }
-        if($form->isSubmitted() && !$form->isValid()) {
+        if($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
 
             $errors = $this->getFormErrors($form);
 
@@ -904,16 +904,85 @@ class CompanyController extends AbstractController
 
             $this->entityManager->flush();
 
+            
+            if($_POST['notify_students'] == "match") {
+                // Send email to students that are interested in the event that was created
+                $items = $experience->getSecondaryIndustries();
+                $loggedInUser = $this->getUser();
+                
+                $chosen_students = [];
+                foreach($items as $k => $v) {
+                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                    foreach($students as $student){
+                        $chosen_students[] = $student;
+                    }
+                }
+            }
+            if($_POST['notify_students'] == "all") {
+                $chosen_students = [];
+                $students = $this->studentUserRepository->findAll();
+                foreach($students as $k => $v) {
+                    $chosen_students[] = $v;
+                }
+            }
+
+            if($_POST['notify_students'] != "none") {
+
+                // Choose teachers who match this profession here.
+                $items = $experience->getSecondaryIndustries();
+                $chosen_teachers = [];
+                foreach($items as $k => $v) {
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    foreach($teachers as $teacher){
+                        $chosen_teachers[] = $teacher;
+                    }
+                }
+
+                $message = $request->get('message', '');
+                $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
+                foreach($chosen_students as $student) {
+                    $s = $this->studentUserRepository->find($student);
+                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                }
+
+                foreach($chosen_teachers as $teacher) {
+                    $s = $this->educatorUserRepository->find($teacher);
+                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                }
+            }
+
             $this->addFlash('success', 'Experience successfully created!');
 
             return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
 
-        return $this->render('company/new_experience.html.twig', [
-            'company' => $company,
-            'form' => $form->createView(),
-            'user' => $user,
-        ]);
+
+        if($_POST && $_POST['new_company_experience'] && $_POST['new_company_experience']['secondaryIndustries']) {
+            
+            $secondary_industries = [];
+            foreach($_POST['new_company_experience']['secondaryIndustries'] as $secondary) {
+
+                $secondaryIndustry = $this->secondaryIndustryRepository->find($secondary);
+
+                array_push($secondary_industries, array("id" => intval($secondary), "name" => $secondaryIndustry->getName(), "url" => $secondaryIndustry->getUrl()));
+            }
+            
+            
+            return $this->render('company/new_experience.html.twig', [
+                'company' => $company,
+                'form' => $form->createView(),
+                'user' => $user,
+                'secondaryIndustries' => $secondary_industries
+            ]);
+        } else {
+            return $this->render('company/new_experience.html.twig', [
+                'company' => $company,
+                'form' => $form->createView(),
+                'user' => $user,
+                'secondaryIndustries' => null
+            ]); 
+        }
     }
 
     /**
@@ -950,6 +1019,55 @@ class CompanyController extends AbstractController
             $this->entityManager->persist($experience);
             $experience->setCompany($company);
             $this->entityManager->flush();
+
+            if($_POST['notify_students'] == "match") {
+                // Send email to students that are interested in the event that was created
+                $items = $experience->getSecondaryIndustries();
+                $loggedInUser = $this->getUser();
+                
+                $chosen_students = [];
+                foreach($items as $k => $v) {
+                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                    foreach($students as $student){
+                        $chosen_students[] = $student;
+                    }
+                }
+            }
+            if($_POST['notify_students'] == "all") {
+                $chosen_students = [];
+                $students = $this->studentUserRepository->findAll();
+                foreach($students as $k => $v) {
+                    $chosen_students[] = $v;
+                }
+            }
+
+            if($_POST['notify_students'] != "none") {
+
+                // Choose teachers who match this profession here.
+                $items = $experience->getSecondaryIndustries();
+                $chosen_teachers = [];
+                foreach($items as $k => $v) {
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    foreach($teachers as $teacher){
+                        $chosen_teachers[] = $teacher;
+                    }
+                }
+
+                $message = $request->get('message', '');
+                $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+
+                foreach($chosen_students as $student) {
+                    $s = $this->studentUserRepository->find($student);
+                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                }
+
+                foreach($chosen_teachers as $teacher) {
+                    $s = $this->educatorUserRepository->find($teacher);
+                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                }
+            }
+
+
             $this->addFlash('success', 'Experience successfully updated!');
 
             return $this->redirectToRoute('company_experience_edit', ['id' => $experience->getId()]);
@@ -1129,6 +1247,7 @@ class CompanyController extends AbstractController
 
         /** @var UploadedFile $resource */
         $resource = $request->files->get('resource');
+        $linkToWebsite = $request->request->get("linkToWebsite");
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
@@ -1150,6 +1269,31 @@ class CompanyController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description,
+
+                ], Response::HTTP_OK
+            );
+        } else if($linkToWebsite && $title) {
+            $mimeType = '';
+            $newFilename = '';
+            $file = new ExperienceFile();
+            $file->setOriginalName($newFilename);
+            $file->setMimeType($mimeType);
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+            $file->setExperience($experience);
+            $file->setDescription($description ? $description : null);
+            $file->setLinkToWebsite($linkToWebsite);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $linkToWebsite,
                     'id' => $file->getId(),
                     'title' => $title,
                     'description' => $description,
@@ -1250,7 +1394,7 @@ class CompanyController extends AbstractController
     public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience) {
         $message = $request->get('message', '');
 
-        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+        $message = sprintf("Experience: %s Message: %s", $experience->getTitle(), $message);
 
         $students = $request->get('students');
 

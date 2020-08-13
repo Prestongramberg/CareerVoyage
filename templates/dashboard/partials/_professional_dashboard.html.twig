@@ -35,6 +35,9 @@
                                         <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span>
                                     </a>
                                 </div>
+                                <div class="uk-align-right">
+                                    <a href="{{ path('profile_index', {'id': user.id}) }}">My Public Profile</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -75,6 +78,7 @@
                         ({{ dashboards.eventsMissingFeedback|length }})
                     {% endif %}
                     </a></li>
+                    <li><a href="#user-videos">My Videos</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -258,7 +262,7 @@
                                                             <div class="uk-align-center">
                                                                 <div class="react-gauge-chart"
                                                                      data-bg-color="#cccccc"
-                                                                     data-label="NPM Score"
+                                                                     data-label="NPS Score"
                                                                      data-max="100"
                                                                      data-min="-100"
                                                                      data-value="{{ npmScore }}"
@@ -280,7 +284,7 @@
 
                                                     <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
                                                         <div class="uk-width-1-3">
-                                                            <div class="uk-text-meta">Linked to Classwork</div>
+                                                            <div class="uk-text-meta">Provider Career Insights</div>
                                                             <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeInsight / experience.feedback|length * 100 )|round(1, 'floor') }}%</h4>
                                                         </div>
                                                         <div class="uk-width-1-3">
@@ -304,41 +308,7 @@
                         {% endif %}
 
                         {# Professional Events with feedback and events missing feedback #}
-                        <div class="uk-margin">
-                            <div class="uk-card uk-card-default">
-                                <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Reviews</h3>
-                                    <ul class="uk-tab" uk-switcher="connect: #tab-reviews" uk-tab>
-                                        <li class="uk-active"><a href="#reviews-todo">Todo</a></li>
-                                        <li><a href="#reviews-submitted">Submitted</a></li>
-                                    </ul>
-                                    <div class="uk-switcher" id="tab-reviews">
-                                        <div class="tab-reviews__todo">
-                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>All reviews are up to date!</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="tab-reviews__submitted">
-                                            {% if dashboards.eventsWithFeedback|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsWithFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>No events reviews have been submitted.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
 
                     </div>
 
@@ -357,7 +327,10 @@
                                             {% if dashboards.eventsMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                        <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
+                                                            <span class="uk-position-center-right"><button class="uk-button uk-button-text delete-feedback uk-text-danger" data-id="{{ eventProps.event.id }}">X</button></span> 
+                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -372,7 +345,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No events reviews have been submitted.</p>
+                                                <p>No experiences reviews have been submitted.</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -380,6 +353,39 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="user_videos">
+
+                        <div class="uk-margin">
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-body">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Videos</h3>
+
+                                    {% if user.professionalVideos|length %}
+                                        <div class="company__videos">
+                                            <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                                                {% for video in user.professionalVideos %}
+                                                    <div>
+                                                        <a class="company-video uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                                            <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
+                                                            <div class="company-video__overlay">
+                                                                <div class="company-video__overlay-title">
+                                                                    {{ video.name }}
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -408,25 +414,25 @@
 
                         {# Relevant School Events #}
                         <hr>
-                        <h4>New School Events</h4>
+                        <h4>New School Experiences</h4>
                         <hr>
                         <div style="text-align: left">
                         {% for schoolExperience in schoolExperiences %}
                             <p><a href="/dashboard/schools/experiences/{{schoolExperience.id}}/view">{{ schoolExperience.title }}</a></p>
                             {% else %}
-                            <p>No New School Events at this time.</p>
+                            <p>No New School Experiences at this time.</p>
                         {% endfor %}
                         </div>
 
                         {# Relevant Company Events #}
                         <hr>
-                        <h4>New Company Events</h4>
+                        <h4>New Company Experiences</h4>
                         <hr>
                         <div style="text-align: left">
                         {% for companyExperience in companyExperiences %}
                             <p><a href="/dashboard/companies/experiences/{{companyExperience.id}}/view">{{ companyExperience.title }}</a></p>
                         {% else %}
-                            <p>No New Company Events at this time.</p>
+                            <p>No New Company Experiences at this time.</p>
                         {% endfor %}
                         </div>
 
@@ -477,7 +483,7 @@
                     <div class="uk-card-body">
                         {% if user.company is defined and user.company %}
                             <a href="{{ path('company_view', { id: user.company.id }) }}"><h4>{{ user.company.name }}</h4></a>
-                            <h5>Upcoming Events</h5>
+                            <h5>Upcoming Experiences</h5>
                             {% set noEventsFound = true %}
                             {% if user.company.companyExperiences|length > 0 %}
                                 <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
@@ -491,7 +497,7 @@
                             {% endif %}
 
                             {% if noEventsFound == true %}
-                                <p class="uk-text-meta">There are no upcoming events at this time</p>
+                                <p class="uk-text-meta">There are no upcoming experiences at this time</p>
                             {% endif %}
 
                             {% if user.isAdmin or user.id == user.company.owner.id %}
@@ -508,5 +514,15 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="delete-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Delete Feedback Review Request</h2>  
+            <p>Are you sure you do not want to provide feedback for this experience?</p>
+            <div id="delete-feedback-request-form-holder">
+            </div>
+        </form>
     </div>
 </div>

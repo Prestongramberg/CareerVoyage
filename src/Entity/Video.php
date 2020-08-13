@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo"})
+ * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo", "professionalVideo" = "ProfessionalVideo"})
  */
 abstract class Video
 {

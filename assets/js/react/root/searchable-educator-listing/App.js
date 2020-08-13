@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadEducators, radiusChanged, updateSchoolQuery, updateSearchQuery, zipcodeChanged } from './actions/actionCreators'
+import { loadEducators, updateCourseQuery, radiusChanged, updateSchoolQuery, updateSearchQuery, zipcodeChanged } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import EducatorListing from "../../components/EducatorListing/EducatorListing";
 import Loader from "../../components/Loader/Loader";
@@ -14,7 +14,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["loadEducators", "getRelevantEducators", "renderSchoolDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown"];
+        const methods = ["loadEducators", "getRelevantEducators", "renderCourseDropdown", "renderSchoolDropdown", "renderIndustryDropdown", "renderSecondaryIndustryDropdown"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -40,6 +40,7 @@ class App extends React.Component {
                                 </div>
                             </div>
                             { this.renderSchoolDropdown() }
+                            { this.renderCourseDropdown() }
                             { this.renderIndustryDropdown() }
                             { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
                         </div>
@@ -75,6 +76,8 @@ class App extends React.Component {
                                     phone: !educator.isPhoneHiddenFromProfile ? educator.phone : null
                                 };
 
+
+
                                 return <div className="uk-width-1-1 uk-width-1-2@l" key={educator.id}>
                                     <EducatorListing
                                         briefBio={educator.briefBio}
@@ -85,6 +88,7 @@ class App extends React.Component {
                                         lastName={educator.lastName}
                                         interests={educator.interests}
                                         school={educator.school}
+                                        courses={educator.myCourses}
                                         { ...hiddenAttributes }
                                     />
                                 </div>
@@ -110,6 +114,11 @@ class App extends React.Component {
                 ( !educator.school ) ||
                 ( educator.school && parseInt(educator.school.id ) !== parseInt( this.props.search.school ) )
             ) ) {
+                return false;
+            }
+
+            // Filter by course
+            if( !!this.props.search.course && educator.myCourses.filter(course => parseInt( course.id) === parseInt(this.props.search.course)).length === 0) {
                 return false;
             }
 
@@ -153,6 +162,26 @@ class App extends React.Component {
                     <select onChange={this.props.updateSchoolQuery}>
                         <option value="">Filter by School...</option>
                         { this.props.schools.map( school => <option key={school.id} value={school.id}>{school.name}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        return null;
+    }
+
+    renderCourseDropdown() {
+        if ( this.props.courses.length > 0 ) {
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateCourseQuery}>
+                        <option value="">Filter by Course...</option>
+                        { this.props.courses.map( course => <option key={course.id} value={course.id}>{course.title}</option> ) }
                     </select>
                     <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
                             tabIndex="-1">
@@ -223,6 +252,7 @@ class App extends React.Component {
 
 App.propTypes = {
     educators: PropTypes.array,
+    courses: PropTypes.array,
     schools: PropTypes.array,
     search: PropTypes.object,
     userId: PropTypes.number
@@ -230,6 +260,7 @@ App.propTypes = {
 
 App.defaultProps = {
     educators: [],
+    courses: [],
     schools: [],
     search: {},
     userId: 0
@@ -237,6 +268,7 @@ App.defaultProps = {
 
 export const mapStateToProps = (state = {}) => ({
     educators: state.educators,
+    courses: state.courses,
     industries: state.industries,
     schools: state.schools,
     search: state.search
@@ -248,6 +280,7 @@ export const mapDispatchToProps = dispatch => ({
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
     updateSchoolQuery: (event) => dispatch(updateSchoolQuery(event.target.value)),
+    updateCourseQuery: (event) => dispatch(updateCourseQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
     zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode)),
 });

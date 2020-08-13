@@ -45,9 +45,9 @@ App\Entity\RolesWillingToFulfill:
     description: 'Companies provide a specific project related to their business for a small team of students to work on and then present their solution to the business  for evaluation and feedback.'
     eventName: 'Student Project'
   role_11:
-    name: 'In School Event'
-    description: 'School event'
-    eventName: 'In School Event'
+    name: 'In School Experience'
+    description: 'School experience'
+    eventName: 'In School Experience'
     inEventDropDown: false
     inSchoolEventDropdown: true
   role_12:

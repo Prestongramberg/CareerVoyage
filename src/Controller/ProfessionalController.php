@@ -8,6 +8,7 @@ use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
+use App\Entity\ProfessionalVideo;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -133,5 +134,117 @@ class ProfessionalController extends AbstractController
             'user' => $user,
             'professionalUsers' => $professionalUsers
         ]);
+    }
+
+    /**
+     * @Route("/professionals/videos/{id}/edit", name="professional_video_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param ProfessionalVideo $video
+     * @return JsonResponse
+     */
+    public function professionalEditVideoAction(Request $request, ProfessionalVideo $video) {
+
+        $this->denyAccessUnlessGranted('edit', $video->getProfessional());
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+        $tags = $request->request->get('tags');
+
+        if($name && $videoId) {
+            $video->setName($name);
+            $video->setVideoId($videoId);
+
+            if($tags) {
+                $video->setTags($tags);
+            }
+
+
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/professionals/{id}/video/add", name="professional_video_add", options = { "expose" = true })
+     * @param Request $request
+     * @param ProfessionalUser $professionalUser
+     * @return JsonResponse
+     */
+    public function professionalAddVideoAction(Request $request, ProfessionalUser $professionalUser) {
+
+        $this->denyAccessUnlessGranted('edit', $professionalUser);
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+        $tags = $request->request->get('tags');
+
+        if($name && $videoId) {
+            $video = new ProfessionalVideo();
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $video->setProfessional($professionalUser);
+
+            if($tags) {
+                $video->setTags($tags);
+            }
+
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/professionals/videos/{id}/remove", name="professional_video_remove", options = { "expose" = true })
+     * @param Request $request
+     * @param ProfessionalVideo $video
+     * @return JsonResponse
+     */
+    public function professionalRemoveVideoAction(Request $request, ProfessionalVideo $video) {
+
+        $this->denyAccessUnlessGranted('edit', $video->getProfessional());
+
+        $this->entityManager->remove($video);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
     }
 }

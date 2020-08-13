@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\EducatorUser;
 use App\Entity\Region;
 use App\Entity\School;
+use App\Entity\Course;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -181,5 +182,14 @@ class EducatorUserRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function findEducatorBySecondaryIndustry(int $secondaryIndustry) {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.secondaryIndustries', 's')
+            ->andWhere('s.id = :secondaryIndustry')
+            ->setParameter('secondaryIndustry', $secondaryIndustry)
+            ->getQuery()
+            ->getResult();
     }
 }

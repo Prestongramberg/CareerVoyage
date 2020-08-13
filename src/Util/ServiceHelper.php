@@ -37,6 +37,7 @@ use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\NewCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
+use App\Repository\ProfessionalVideoRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RegistrationRepository;
 use App\Repository\RolesWillingToFulfillRepository;
@@ -428,6 +429,11 @@ trait ServiceHelper
     private $videoRepository;
 
     /**
+     * @var ProfessionalVideoRepository
+     */
+    private $professionalVideoRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -498,6 +504,7 @@ trait ServiceHelper
      * @param CareerVideoRepository $careerVideoRepository
      * @param VideoFavoriteRepository $videoFavoriteRepository
      * @param VideoRepository $videoRepository
+     * @param ProfessionalVideoRepository $professionalVideoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -568,7 +575,8 @@ trait ServiceHelper
         CompanyVideoRepository $companyVideoRepository,
         CareerVideoRepository $careerVideoRepository,
         VideoFavoriteRepository $videoFavoriteRepository,
-        VideoRepository $videoRepository
+        VideoRepository $videoRepository,
+        ProfessionalVideoRepository $professionalVideoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -639,7 +647,9 @@ trait ServiceHelper
         $this->careerVideoRepository = $careerVideoRepository;
         $this->videoFavoriteRepository = $videoFavoriteRepository;
         $this->videoRepository = $videoRepository;
+        $this->professionalVideoRepository = $professionalVideoRepository;
     }
+
 
     public function getFullQualifiedBaseUrl() {
         $routerContext = $this->router->getContext();

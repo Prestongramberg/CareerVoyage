@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"feedback" = "Feedback", "studentReviewCompanyExperienceFeedback" = "StudentReviewCompanyExperienceFeedback", "studentReviewTeachLessonExperienceFeedback" = "StudentReviewTeachLessonExperienceFeedback", "educatorReviewCompanyExperienceFeedback" = "EducatorReviewCompanyExperienceFeedback", "educatorReviewTeachLessonExperienceFeedback" = "EducatorReviewTeachLessonExperienceFeedback", "professionalReviewStudentToMeetProfessionalFeedback" = "ProfessionalReviewStudentToMeetProfessionalFeedback", "professionalReviewMeetStudentExperienceFeedback" = "ProfessionalReviewMeetStudentExperienceFeedback", "studentReviewMeetProfessionalExperienceFeedback" = "StudentReviewMeetProfessionalExperienceFeedback"})
+ * @ORM\DiscriminatorMap({"feedback" = "Feedback", "studentReviewCompanyExperienceFeedback" = "StudentReviewCompanyExperienceFeedback", "studentReviewTeachLessonExperienceFeedback" = "StudentReviewTeachLessonExperienceFeedback", "educatorReviewCompanyExperienceFeedback" = "EducatorReviewCompanyExperienceFeedback", "educatorReviewTeachLessonExperienceFeedback" = "EducatorReviewTeachLessonExperienceFeedback", "professionalReviewStudentToMeetProfessionalFeedback" = "ProfessionalReviewStudentToMeetProfessionalFeedback", "professionalReviewMeetStudentExperienceFeedback" = "ProfessionalReviewMeetStudentExperienceFeedback", "studentReviewMeetProfessionalExperienceFeedback" = "StudentReviewMeetProfessionalExperienceFeedback", "professionalReviewTeachLessonExperienceFeedback" = "ProfessionalReviewTeachLessonExperienceFeedback", "professionalReviewCompanyExperienceFeedback" = "ProfessionalReviewCompanyExperienceFeedback"})
  *
  */
 class Feedback
@@ -31,25 +31,25 @@ class Feedback
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
-    protected $rating = 4;
+    protected $rating = 0;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $providedCareerInsight = true;
+    protected $providedCareerInsight = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $wasEnjoyableAndEngaging = true;
+    protected $wasEnjoyableAndEngaging = false;
 
     /**
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
-    protected $learnSomethingNew = true;
+    protected $learnSomethingNew = false;
 
     /**
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
@@ -71,6 +71,12 @@ class Feedback
      * @ORM\ManyToOne(targetEntity="App\Entity\Experience", inversedBy="feedback")
      */
     protected $experience;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $deleted = false;
+
 
     public function getId(): ?int
     {
@@ -174,6 +180,19 @@ class Feedback
     public function setExperience(?Experience $experience): self
     {
         $this->experience = $experience;
+
+        return $this;
+    }
+
+
+    public function getDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

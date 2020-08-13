@@ -50,17 +50,19 @@
                                  data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
                             ></div>
 
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-change-date-{{ request.teachLessonExperience.id }}" uk-toggle>Change Date</a>
+                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-change-date-{{ request.teachLessonExperience.id }}" uk-toggle>Request Change of Date</a>
                             <br>
                             <div id="modal-change-date-{{ request.teachLessonExperience.id }}" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
-                                    <h3>Change Date of Event</h3>
-                                    <form class="uk-inline" action="{{ path('experience_teach_lesson_event_change_date', { "id": request.teachLessonExperience.id }) }}" method="POST">
-
-                                        <label class="uk-form-label">Start Date.</label>
-                                        <input class="uk-timepicker uk-input" name="newStartDate" type="text">
-                                        <label class="uk-form-label">End Date.</label>
-                                        <input class="uk-timepicker uk-input" name="newEndDate" type="text">
+                                    <h3>Request to Change Date of Experience</h3>
+                                    <form class="uk-inline" action="{{ path('experience_teach_lesson_event_request_new_dates', { "id": request.teachLessonExperience.id }) }}" method="POST">
+                                        <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
+                                        <label>New Date Choice 1</label>
+                                        <input class="uk-timepicker uk-input" name="date_option_one" type="text"><br /><br />
+                                        <label>New Date Choice 2</label>
+                                        <input class="uk-timepicker uk-input" name="date_option_two" type="text"><br /><br />
+                                        <label>New Date Choice 3</label>
+                                        <input class="uk-timepicker uk-input" name="date_option_three" type="text"><br /><br />
 
                                         <label>Custom Message</label>
                                         <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
@@ -75,11 +77,11 @@
 
                             <br>
 
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Event</a>
+                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Experience</a>
                             <br>
                             <div id="modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
-                                    <h3>Cancel Event</h3>
+                                    <h3>Cancel Experience</h3>
                                     <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
 
                                         <label>Custom Message</label>
@@ -171,11 +173,11 @@
                             ></div>
                         {% endif %}
 
-                                <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Event</a>
+                                <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Experience</a>
                                 <br>
                                 <div id="modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-modal>
                                     <div class="uk-modal-dialog uk-modal-body">
-                                        <h3>Cancel Event</h3>
+                                        <h3>Cancel Experience</h3>
                                         <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
 
                                             <label>Custom Message</label>
@@ -225,6 +227,7 @@
 
                             <form method="post" class="uk-inline tlr-denial" action="{{ path('deny_request', {'id': request.id}) }}">
                                 <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                <input type="hidden" name="element" value="tlr_{{ request.id }}">
                                 <input type="hidden" name="request" value="{{ request.id }}">
                             </form>
                         </td>

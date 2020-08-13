@@ -5,6 +5,7 @@ import { truncate } from "../../utilities/string-utils";
 class EducatorListing extends Component {
 
     render() {
+
         return (
             <div>
                 <div className="uk-card uk-card-default">
@@ -20,7 +21,13 @@ class EducatorListing extends Component {
                                 <p className="uk-text-meta uk-margin-remove-top">
                                     { this.props.school && this.props.school.id && <span>{ this.props.school.name }</span> }
                                     { !this.props.school && <span>Educator</span> }
-                                    { this.props.interests && <span> - { this.props.interests }</span> }
+                                    { this.props.interests && <span><br /> - { this.props.interests }</span> }
+                                    <br />
+                                    { 
+                                        this.props.courses.map((item, i) => (
+                                            <span key={i}> - { item.title }</span>
+                                        ))
+                                    }
                                 </p>
                             </div>
                         </div>
@@ -54,7 +61,8 @@ EducatorListing.propTypes = {
     phone: PropTypes.string,
     primaryIndustry: PropTypes.string,
     secondaryIndustry: PropTypes.string,
-    school: PropTypes.object
+    school: PropTypes.object,
+    course: PropTypes.object
 };
 
 EducatorListing.defaultProps = {

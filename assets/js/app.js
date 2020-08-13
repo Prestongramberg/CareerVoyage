@@ -178,7 +178,7 @@ window.Pintex = {
                             
                             <div id="modal-change-date" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
-                                    <h3>Change Date of Event</h3>
+                                    <h3>Change Date of Experience</h3>
                                     <form class="uk-inline" action="/api/experiences/${eventId}/teach-lesson-event-change-date" method="POST">
 
                                         <label class="uk-form-label">Start Date.</label>
@@ -199,11 +199,11 @@ window.Pintex = {
 
                             
 
-                            <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Event</a>
+                            <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Experience</a>
                             
                             <div id="modal-delete-experience" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
-                                    <h3>Cancel Event</h3>
+                                    <h3>Cancel Experience</h3>
                                     <form class="uk-inline" action="/api/experiences/${eventId}/teach_lesson_event_delete" method="POST">
 
                                         <label>Custom Message</label>

@@ -1199,7 +1199,7 @@ class SchoolController extends AbstractController
 
         $this->entityManager->flush();
 
-        $this->addFlash('success', sprintf('Event successfully cancelled. Email sent to the following addresses: %s. If a student does not have an email they will not appear on this list.', implode(",", $emailsSentTo)));
+        $this->addFlash('success', sprintf('Experience successfully cancelled. Email sent to the following addresses: %s. If a student does not have an email they will not appear on this list.', implode(",", $emailsSentTo)));
 
         return $this->redirectToRoute('dashboard');
     }
@@ -1232,7 +1232,7 @@ class SchoolController extends AbstractController
 
             $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $message);
         }
-        $this->addFlash('success', 'Companies notified of event.');
+        $this->addFlash('success', 'Companies notified of experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
@@ -1252,7 +1252,7 @@ class SchoolController extends AbstractController
             $professional = $this->professionalUserRepository->find($professionalId);
             $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
         }
-        $this->addFlash('success', 'Professionals notified of event.');
+        $this->addFlash('success', 'Professionals notified of experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
@@ -1272,7 +1272,8 @@ class SchoolController extends AbstractController
             'companies' => $experience->getSchool()->getCompanies(),
             'professionals' => $experience->getSchool()->getProfessionalUsers(),
             'primaryIndustries' => $this->industryRepository->findAll(),
-            'secondaryIndustries' => $this->secondaryIndustryRepository->findAll()
+            'secondaryIndustries' => $this->secondaryIndustryRepository->findAll(),
+            'students' => $experience->getSchool()->getStudentUsers()
 
         ]);
     }
@@ -1284,7 +1285,7 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
-
+        $req = $request;
         $userId = $request->request->get('userId', null);
         if($userId) {
             $userToRegister = $this->userRepository->find($userId);
@@ -1297,16 +1298,16 @@ class SchoolController extends AbstractController
             'schoolExperience' => $experience,
         ]);
         if($request) {
-            $this->addFlash('error', 'Registration request already sent for this event.');
+            $this->addFlash('error', 'Registration request already sent for this experience.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
         if($userToRegister->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
-            $this->addFlash('error', 'Could not register for event. 0 spots left.');
+            $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
         if($userToRegister->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
-            $this->addFlash('error', 'Could not register for event. 0 spots left.');
+            $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
         $registerRequest = new UserRegisterForSchoolExperienceRequest();
@@ -1318,7 +1319,13 @@ class SchoolController extends AbstractController
         $this->entityManager->flush();
         $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
         $this->addFlash('success', 'Registration request successfully sent.');
-        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+
+        if($req->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success", "userId" => $userId, 'id' => $experience->getId()]);
+        } else {
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
@@ -1329,14 +1336,18 @@ class SchoolController extends AbstractController
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function schoolExperienceDeregisterAction(Request $request, SchoolExperience $experience) {
+        $req = $request;
         $userIdToDeregister = $request->request->get('userId');
         $userToDeregister = $this->userRepository->find($userIdToDeregister);
 
         $deregisterUserForExperience = $this->userRegisterForSchoolExperienceRequestRepository->getByUserAndExperience($userToDeregister, $experience);
 
         $registration = $this->registrationRepository->getByUserAndExperience($userToDeregister, $experience);
-
-        if($registration) {
+        
+        // var_dump($registration);
+        
+        // die();
+        // if($registration) {
             if ($userToDeregister->isStudent()) {
                 /** @var StudentUser $userToDeregister */
                 $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
@@ -1369,13 +1380,21 @@ class SchoolController extends AbstractController
             }
 
             $this->entityManager->remove($deregisterUserForExperience);
-            $this->entityManager->remove($registration);
+            if($registration){ $this->entityManager->remove($registration); }
             $this->entityManager->persist($experience);
             $this->entityManager->flush();
-        }
 
-        $this->addFlash('success', 'User has been removed from this experience.');
-        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+            $this->addFlash('success', 'User has been removed from this experience.');
+        // } else {
+        //     $this->addFlash('error', 'Problem removing user from this experience');
+        // }
+
+        if($req->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success", "userId" => $userIdToDeregister, 'id' => $experience->getId()]);
+        } else {
+            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        }
     }
 
     /**
@@ -1392,6 +1411,7 @@ class SchoolController extends AbstractController
         $resource = $request->files->get('resource');
         $title = $request->request->get('title');
         $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get("linkToWebsite");
 
         if($resource && $title && $description) {
             $mimeType = $resource->getMimeType();
@@ -1411,6 +1431,31 @@ class SchoolController extends AbstractController
                 [
                     'success' => true,
                     'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'.$newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
+                    'description' => $description,
+
+                ], Response::HTTP_OK
+            );
+        } else if($linkToWebsite && $title) {
+            $mimeType = '';
+            $newFilename = '';
+            $file = new ExperienceFile();
+            $file->setOriginalName($newFilename);
+            $file->setMimeType($mimeType);
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+            $file->setExperience($experience);
+            $file->setDescription($description ? $description : null);
+            $file->setLinkToWebsite($linkToWebsite);
+            $file->setTitle($title);
+            $this->entityManager->persist($file);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $linkToWebsite,
                     'id' => $file->getId(),
                     'title' => $title,
                     'description' => $description,
@@ -1622,7 +1667,7 @@ class SchoolController extends AbstractController
 
         $message = $request->get('message');
 
-        $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
+        $message = sprintf("Experience: %s Message: %s", $experience->getTitle(), $message);
 
         $students = $request->get('students');
 

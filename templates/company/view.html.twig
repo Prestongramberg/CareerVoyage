@@ -53,7 +53,7 @@
                     {% endif %}
 
                     {% if company.owner and user.id == company.owner.id %}
-                        <a href="{{ path('company_experience_create', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Create Event</a>
+                        <a href="{{ path('company_experience_create', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Create Experience</a>
                     {% endif %}
 
                     {% if user.admin or (company.owner and user.id == company.owner.id) %}
@@ -77,7 +77,7 @@
                 <li><a href="#company-videos">Videos</a></li>
             {% endif %}
             {% if company.companyExperiences|length %}
-                <li><a href="#company-events">Events</a></li>
+                <li><a href="#company-events">Experiences</a></li>
             {% endif %}
             {% if company.companyResources|length %}
                 <li><a href="#company-events">Resources</a></li>

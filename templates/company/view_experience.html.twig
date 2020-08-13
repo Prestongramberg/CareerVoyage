@@ -14,7 +14,7 @@
 
         {% if experience.cancelled %}
             <div class="uk-alert-danger" uk-alert>
-                <p>Event has been cancelled.</p>
+                <p>Experience has been cancelled.</p>
             </div>
         {% endif %}
 
@@ -64,18 +64,18 @@
                     {% if not user.student %}
                         <div style="display: inline-block" class="react-global-share"
                              data-user="{{ encode_user(user) }}"
-                             data-message="Check out this upcoming event: <a href='{{ path('company_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
-                            Share this Event
+                             data-message="Check out this upcoming experience: <a href='{{ path('company_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                            Share this Experience
                         </div>
                     {% endif %}
 
                     {% if user.isAdmin or ( user.company is defined and user.company and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
-                        <a href="{{ path('company_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Event</a>
+                        <a href="{{ path('company_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
                         <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Delete</a>
 
                         <div id="modal-remove-company-event" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Delete Event</h3>
+                                <h3>Delete Experience</h3>
                                 <form class="uk-inline" method="get" action="{{ path('company_experience_remove', {'id' : experience.id}) }}">
 
                                     <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
@@ -134,7 +134,7 @@
                 {% endif %}
             {% endif %}
             {% if experience.experienceFiles|length %}
-                <li><a href="#experience-attachments">Event Documents</a></li>
+                <li><a href="#experience-attachments">Experience Documents</a></li>
             {% endif %}
                 <li><a href="#experience-contact">Contact</a></li>
             {% if user.isEducator or user.isStudent %}
@@ -216,7 +216,11 @@
                                     <dd>{{ experienceResource.description }}</dd>
                                 </div>
                                 <div class="uk-width-auto">
-                                    <a href="{{ asset(uploaded_asset(experienceResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% if experienceResource.linkToWebsite %}
+                                        <a href="{{ experienceResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% else %}
+                                        <a href="{{ asset(uploaded_asset(experienceResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
@@ -227,7 +231,7 @@
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
                     <tr>
-                        <td>Event Coordinator</td>
+                        <td>Experience Coordinator</td>
                         <td>
                             {% if experience.employeeContact and experience.employeeContact.fullName %}
                                 {{ experience.employeeContact.fullName }}
@@ -316,14 +320,14 @@
 
                     {% if user.isStudent %}
                         {% if user.educatorUsers|length > 0 %}
-                            <p>Click below to tell your teacher about your interest in this event:</p>
+                            <p>Click below to tell your teacher about your interest in this experience:</p>
                             {% for educator in user.educatorUsers %}
                                 {% if user_can_chat_with_user( user, educator ) %}
                                     <button class="uk-button uk-button-default uk-button-small uk-margin-small-right" data-message-user-id="{{ educator.id }}" data-message="I am interested in {{ experience.title }} on {{ experience.startDateAndTime|date("F jS") }}">Chat with {{ educator.fullName }}</button>
                                 {% endif %}
                             {% endfor %}
                         {% else %}
-                            <p>No educators are linked to you yet.  Please speak directly with them about interest in this event.</p>
+                            <p>No educators are linked to you yet.  Please speak directly with them about interest in this experience.</p>
                         {% endif %}
                     {% endif %}
                 </div>

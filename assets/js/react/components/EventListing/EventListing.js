@@ -26,7 +26,7 @@ class EventListing extends Component {
                     <div className="uk-card-body">
 
                         <div className="uk-margin">
-                            { truncate( this.props.briefDescription ) || "This event doesn't have a description yet." }
+                            { truncate( this.props.briefDescription ) || "This experience doesn't have a description yet." }
                         </div>
                         <div className="uk-margin">Start Date: { this.props.friendlyStartDateAndTime }</div>
                         <div className="uk-margin">End Date: { this.props.friendlyEndDateAndTime }</div>

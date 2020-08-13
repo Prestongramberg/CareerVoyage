@@ -14,10 +14,10 @@
 
     <div class="uk-container">
 
-        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate', 'class': 'edit-form'}}) }}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-edit-experience" uk-tab>
-            <li class="uk-active"><a href="#experience-details">Edit Event</a></li>
+            <li class="uk-active"><a href="#experience-details">Edit Experience</a></li>
             <li><a href="#experience-availability">Availability</a></li>
             <li><a href="#experience-careers">Careers</a></li>
             <li><a href="#experience-contact">Contact</a></li>
@@ -52,24 +52,35 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.about, 'About*') }}
-                            <div class="uk-text-meta">Describe the event in detail</div>
+                            <div class="uk-text-meta">Describe the experience in detail</div>
                             <div data-wysiwyg="[name='edit_company_experience[about]']" class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
                                 {{ form_widget(form.about) }}
                             </div>
                             {{ form_errors(form.about) }}
                         </div>
-                        <div class="uk-margin uk-flex uk-child-width-1-2" uk-grid>
+                        <div class="uk-margin">
                             <div>
-                                {{ form_label(form.startDateAndTime, 'Start Date*') }}
-                                {{ form_widget(form.startDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.startDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_label(form.dateRange, 'Choose Date Range*') }}
+                                {{ form_widget(form.dateRange, {'attr': {'class': 'uk-timepicker uk-input' }}) }}
                                 {{ form_errors(form.startDateAndTime) }}
+                                {{ form_errors(form.endDateAndTime) }}
+
+                                {{ form_widget(form.startDateAndTime, { 'attr': { 'class': 'start-date-picker' }}) }}
+                                {{ form_widget(form.endDateAndTime, { 'attr': { 'class': 'end-date-picker' }}) }}
+
+
+                                {# {{ form_label(form.startDateAndTime, 'Start Date*') }}
+                                {{ form_widget(form.startDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.startDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_widget(form.endDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.endDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.startDateAndTime) }}
+                                {{ form_errors(form.endDateAndTime) }} #}
                             </div>
-                            <div>
+                            {# <div>
                                 {{ form_label(form.endDateAndTime, 'End Date*') }}
                                 {{ form_widget(form.endDateAndTime, {'attr': {'class': 'uk-timepicker uk-input' ~ ( form_errors(form.endDateAndTime) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(form.endDateAndTime) }}
-                            </div>
+                            </div> #}
                         </div>
                     </fieldset>
 
@@ -99,6 +110,14 @@
             </div>
             <div class="page-company-experience-edit__careers">
                 <div class="uk-width-xlarge">
+
+                    <h3>Notify Students of Event</h3>
+                    <ul class="uk-list">
+                        <li><label><input type="radio" name="notify_students" value="none" checked="checked" />Do Not Send Email</label></li>
+                        <li><label><input type="radio" name="notify_students" value="all" />Notify All Students and Teachers</label></li>
+                        <li><label><input type="radio" name="notify_students" value="match" />Notify Students and Teachers Who Selected Career Fields Below</label></li>
+                    </ul>
+
                     <fieldset class="uk-fieldset">
                         <div id="subscribe-secondary-industries"
                              data-field-name="edit_company_experience[secondaryIndustries]"
@@ -113,7 +132,7 @@
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
                             {{ form_label(form.employeeContact, 'Employee Coordinator*') }}
-                            <div class="uk-text-meta">This employee will be be able to manage this event</div>
+                            <div class="uk-text-meta">This employee will be be able to manage this experience</div>
                             {{ form_widget(form.employeeContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.employeeContact) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.employeeContact) }}
                         </div>
@@ -162,8 +181,17 @@
                                 <input type="text" id="edit_company_event_add_resource_description" name="description" class="uk-textarea" />
                             </div>
 
+
+
                             <div class="uk-margin">
-                                <label>Resource File*</label><br />
+                                <label for="edit_company_add_resource_description">Add Link To Website</label>
+                                <input type="text" id="edit_company_event_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
+                            </div>
+
+                            <div>OR</div>
+
+                            <div class="uk-margin">
+                                <label>Upload Resource File</label><br />
                                 <div uk-form-custom="target: true">
                                     <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
                                     <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
@@ -204,7 +232,11 @@
                                         <dd>{{ experienceFile.description }}</dd>
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% if experienceFile.linkToWebsite %}
+                                            <a href="{{ experienceFile.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% else %}
+                                            <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        {% endif %}                                        
                                     </div>
                                     <button type="button" data-remove="{{ path('company_experience_file_remove', {'id' : experienceFile.id }) }}" uk-close></button>
                                 </div>
@@ -222,6 +254,16 @@
         {{ form_end(form) }}
 
     </div>
+
+    <script>
+      const website = document.getElementById('edit_company_event_add_resource_link_to_website');
+      website.addEventListener('blur', (event) => {
+        const matched = event.target.value.match(/^(http|https):\/\//);
+        if(!matched) {
+          document.getElementById('edit_company_event_add_resource_link_to_website').value = 'http://' + event.target.value;
+        }
+      }, true);
+    </script>
 
 
 {% endblock %}

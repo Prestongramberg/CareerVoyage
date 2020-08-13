@@ -92,15 +92,33 @@ class VideoController extends AbstractController
             }
         }
 
+        $professionalVideos = $this->professionalVideoRepository->findAll();
+
+        foreach($professionalVideos as $professionalVideo) {
+
+            $favoriteVideo = $this->videoFavoriteRepository->findOneBy([
+                'video' => $professionalVideo,
+                'user' => $user
+            ]);
+
+            if($favoriteVideo) {
+                $professionalVideo->setIsFavorite(true);
+            } else {
+                $professionalVideo->setIsFavorite(false);
+            }
+        }
+
         $companyVideosJson = $this->serializer->serialize($companyVideos, 'json', ['groups' => ['VIDEO']]);
         $careerVideosJson = $this->serializer->serialize($careerVideos, 'json', ['groups' => ['VIDEO']]);
+        $professionalVideosJson = $this->serializer->serialize($professionalVideos, 'json', ['groups' => ['VIDEO', 'PROFESSIONAL_USER_DATA']]);
 
         return new JsonResponse(
             [
                 'success' => true,
                 'data' => [
                     'companyVideos' => json_decode($companyVideosJson, true),
-                    'careerVideos' => json_decode($careerVideosJson, true)
+                    'careerVideos' => json_decode($careerVideosJson, true),
+                    'professionalVideos' => json_decode($professionalVideosJson, true)
                 ]
             ],
             Response::HTTP_OK

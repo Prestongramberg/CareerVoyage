@@ -4,6 +4,10 @@ import UIkit from 'uikit';
 import Routing from "./Routing";
 
 jQuery(document).ready(function($) {
+    const moment = require('moment-timezone');
+
+    var today = moment().format('MM/DD/YYYY');
+    var tomorrow = moment().add(1,'days').format('MM/DD/YYYY');
 
     var youtubeAPIKey = 'AIzaSyDRsAB-EVUDoPlO2Aq4QdB5fGlFrICJqbw';
 
@@ -367,6 +371,142 @@ jQuery(document).ready(function($) {
     });
 
     /**
+     * Professional Video Form
+     */
+    $(document).on('click', '#modal-add-professional-video [data-action]', function(e) {
+
+        e.preventDefault();
+
+        debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const $professionalField = $modalBody.find('[name="professionalId"]');
+        const professionalId = $professionalField.val();
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-add-professional-video' ).hide();
+                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('profile_edit', {id: professionalId});
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    /**
+     * Professional Edit Video Form
+     */
+    $(document).on('click', '#modal-edit-professional-video [data-action]', function(e) {
+
+        e.preventDefault();
+
+        debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const $professionalField = $modalBody.find('[name="professionalId"]');
+        const professionalId = $professionalField.val();
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-edit-professional-video' ).hide();
+                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('profile_edit', {id: professionalId});
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    /**
      * Edit General Career Video Form
      */
     $(document).on('click', '#modal-edit-career-video [data-action]', function(e) {
@@ -630,12 +770,14 @@ jQuery(document).ready(function($) {
         const $fields = $modalBody.find('[name]');
         const $titleField = $modalBody.find('[name="title"]');
         const $descriptionField = $modalBody.find('[name="description"]');
+        const $linkToWebsiteField = $modalBody.find('[name="linkToWebsite"]');
         const $fileField = $modalBody.find('[name="resource"]');
 
         var formData = new FormData();
         formData.append('title', $titleField.val() );
         formData.append('description', $descriptionField.val() );
         formData.append('resource', $fileField[0].files[0]);
+        formData.append('linkToWebsite', $linkToWebsiteField.val() );
 
         $.ajax({
             url: url,
@@ -672,11 +814,14 @@ jQuery(document).ready(function($) {
         const $titleField = $modalBody.find('[name="title"]');
         const $descriptionField = $modalBody.find('[name="description"]');
         const $fileField = $modalBody.find('[name="resource"]');
+        const $linkToWebsite = $modalBody.find('[name="linkToWebsite"]');
+
 
         var formData = new FormData();
         formData.append('title', $titleField.val() );
         formData.append('description', $descriptionField.val() );
         formData.append('resource', $fileField[0].files[0]);
+        formData.append('linkToWebsite', $linkToWebsite.val() );
 
         $.ajax({
             url: url,
@@ -805,27 +950,100 @@ jQuery(document).ready(function($) {
 
     });
 
+    $(document).on('click', '#modal-add-school-experience-resource [data-action]', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $titleField = $modalBody.find('[name="title"]');
+        const $descriptionField = $modalBody.find('[name="description"]');
+        const $fileField = $modalBody.find('[name="resource"]');
+        const $linkToWebsite = $modalBody.find('[name="linkToWebsite"]');
+
+        var formData = new FormData();
+        formData.append('title', $titleField.val() );
+        formData.append('description', $descriptionField.val() );
+        formData.append('resource', $fileField[0].files[0]);
+        formData.append('linkToWebsite', $linkToWebsite.val() );
+
+        $.ajax({
+            url: url,
+            data: formData,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            complete: function (serverResponse) {
+
+                const response = serverResponse.responseJSON;
+
+                if (response.success) {
+
+                    let _template = $('#schoolExperienceResourcesTemplate').html();
+                    $fields.val('');
+                    $('#schoolExperienceResources').append(
+                        _template.replace(/RESOURCE_ID/g, response.id).replace(/RESOURCE_TITLE/g, response.title).replace(/RESOURCE_DESCRIPTION/g, response.description).replace(/RESOURCE_URL/g, response.url)
+                    );
+                    UIkit.modal('#modal-add-school-experience-resource').hide();
+                    window.Pintex.notification("Resource uploaded.", "success");
+                } else {
+                    window.Pintex.notification("Unable to upload resource. Please try again.", "danger");
+                }
+            }
+        });
+
+    });
+
     /**
      * Time Pickers
      */
     $('.uk-timepicker').each(function( index ) {
         var $elem = $(this);
         var dropDirection = $elem.hasClass('uk-timepicker-up') ? "up" : "down";
-        console.log( dropDirection );
 
-        $elem.daterangepicker({
-            drops: dropDirection,
-            singleDatePicker: true,
-            timePicker: true,
-            timePickerIncrement: 15,
-            linkedCalendars: false,
-            showCustomRangeLabel: false,
-            locale: {
-                format: 'MM/DD/YYYY h:mm A'
+        if($('.end-date-picker').length) {
+
+            if($elem.closest('form').hasClass('edit-form')) {
+                today = $('.start-date-picker').val();
+                tomorrow = $('.end-date-picker').val();
             }
-        }, function(start, end, label) {
-            console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-        });
+
+            // for selecting a date range
+            $elem.daterangepicker({
+                "drops": dropDirection,
+                "timePicker": true,
+                "timePickerIncrement": 15,
+                "startDate": today,
+                "endDate": tomorrow,
+                "autoApply": true,
+                "locale": {
+                    "format": 'MM/DD/YYYY h:mm A'
+                }
+            }, function(start, end, label) {
+                $('.start-date-picker').val( start.format('MM/DD/YYYY h:mm A') );
+                $('.end-date-picker').val( end.format('MM/DD/YYYY h:mm A') );
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+
+            // $elem.val( $('.start-date-picker').val() + " - " + $('.end-date-picker').val());
+
+        } else {
+
+            // For selecting a single date
+            $elem.daterangepicker({
+                drops: dropDirection,
+                singleDatePicker: true,
+                timePicker: true,
+                timePickerIncrement: 15,
+                linkedCalendars: false,
+                showCustomRangeLabel: false,
+                locale: {
+                    format: 'MM/DD/YYYY h:mm A'
+                }
+            }, function(start, end, label) {
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+        }
     });
 
     /**
@@ -942,6 +1160,34 @@ jQuery(document).ready(function($) {
     }
 
 
+    $(document).on("click", ".delete-feedback", function(e){
+        e.preventDefault();
+        UIkit.modal('#delete-modal').show();
+        var id = $(this).data("id");
+        $('#delete-feedback-request-form-holder').html('Loading...');
+
+        // Get form request
+        $.get('/dashboard/feedback/experiences/' + id + '/delete', {}, function(data){
+            $('#delete-feedback-request-form-holder').html(data);
+            $('#delete-feedback-request-form-holder').append(`<input type="hidden" id="experience_id" value="${id}" />`);
+        
+            $('#delete-feedback-request-form-holder form div').addClass('uk-hidden');
+        });
+        
+    });
+
+    $(document).on('submit', '#delete-feedback-request', function(e){
+        // Post form data back
+
+        var id = $('#experience_id').val();
+        
+        e.preventDefault();
+
+        $.post('/dashboard/feedback/experiences/' + id + '/delete', $("#delete-feedback-request").serialize(), function(){
+            $('#feedback_' + id).remove();
+            UIkit.modal('#delete-modal').hide();
+        });
+    });
 
     /**
      * Stop videos when sidebar is closed

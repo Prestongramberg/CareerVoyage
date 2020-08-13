@@ -140,6 +140,7 @@ class DashboardController extends AbstractController
 
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,
+                    'deleted' => false
                 ]);
 
                 /** @var Feedback $feedback */
@@ -154,7 +155,7 @@ class DashboardController extends AbstractController
 
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
-                    'experience' => $event,
+                    'experience' => $event
                 ]);
 
                 if(!$feedback) {
@@ -163,10 +164,12 @@ class DashboardController extends AbstractController
                         'feedback' => $feedback,
                     ];
                 } else {
-                    $dashboards['eventsWithFeedback'][] = [
-                        'event' => $event,
-                        'feedback' => $feedback,
-                    ];
+                    if($feedback->getDeleted() === false){
+                        $dashboards['eventsWithFeedback'][] = [
+                            'event' => $event,
+                            'feedback' => $feedback,
+                        ];
+                    }
                 }
             }
 
@@ -190,6 +193,7 @@ class DashboardController extends AbstractController
 
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,
+                    'deleted' => false
                 ]);
 
                 /** @var Feedback $feedback */
@@ -211,10 +215,12 @@ class DashboardController extends AbstractController
                         'feedback' => $feedback,
                     ];
                 } else {
-                    $dashboards['eventsWithFeedback'][] = [
-                        'event' => $event,
-                        'feedback' => $feedback,
-                    ];
+                    if($feedback->getDeleted() === false ){
+                        $dashboards['eventsWithFeedback'][] = [
+                            'event' => $event,
+                            'feedback' => $feedback,
+                        ];
+                    }
                 }
             }
 
@@ -248,10 +254,12 @@ class DashboardController extends AbstractController
                             'feedback' => $feedback
                         ];
                     } else {
-                        $dashboards['eventsWithFeedback'][] = [
-                            'event' => $event,
-                            'feedback' => $feedback
-                        ];
+                        if($feedback->getDeleted() === false){
+                            $dashboards['eventsWithFeedback'][] = [
+                                'event' => $event,
+                                'feedback' => $feedback
+                            ];
+                        }
                     }
                 }
             }

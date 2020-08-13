@@ -70,7 +70,7 @@ class NotificationsMailer extends AbstractMailer
 
     public function notifyUserOfEventDateChange(User $user, Experience $experience, $message) {
 
-        $message = (new \Swift_Message('Event Date Changed'))
+        $message = (new \Swift_Message('Experience Date Changed'))
             ->setFrom($this->siteFromEmail)
             ->setTo($user->getEmail())
             ->setBody(
@@ -86,7 +86,7 @@ class NotificationsMailer extends AbstractMailer
 
     public function notifyUserOfEventCancellation(User $user, Experience $experience, $message) {
 
-        $message = (new \Swift_Message('Event Cancelled'))
+        $message = (new \Swift_Message('Experience Cancelled'))
             ->setFrom($this->siteFromEmail)
             ->setTo($user->getEmail())
             ->setBody(
