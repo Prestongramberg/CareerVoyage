@@ -67,4 +67,15 @@ class EducatorRegisterStudentForExperienceRequestRepository extends ServiceEntit
             ->getOneOrNullResult();
     }
 
+
+    public function getUnreadCompanyRequests(StudentUser $student) {
+        return $this->createQueryBuilder('e')
+            ->where('e.studentUser = :student')
+            ->andWhere('e.studentHasSeen = :denied')
+            ->setParameter('student', $student)
+            ->setParameter('denied', false)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

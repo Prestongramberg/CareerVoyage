@@ -129,6 +129,34 @@ class RequestController extends AbstractController
 
         $studentRegisterApproval = $qb->getQuery()->getResult();
 
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb
+            ->select('r')
+            ->from('App\Entity\Request', 'r')
+            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+            ->andWhere('e.studentUser = :user')
+            ->andWhere('r.approved = true')
+            ->andWhere('e.studentHasSeen = false')
+            ->setParameter('user', $user)
+            ->groupBy('e.id');
+
+        $studentHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb
+            ->select('r')
+            ->from('App\Entity\Request', 'r')
+            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+            ->andWhere('e.studentUser = :user')
+            ->andWhere('r.approved = false')
+            ->andWhere('e.studentHasSeen = false')
+            ->setParameter('user', $user)
+            ->groupBy('e.id');
+
+        $studentHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
+
+
         $qb = $this->entityManager->createQueryBuilder();
         $qb
             ->select('r')
@@ -152,7 +180,9 @@ class RequestController extends AbstractController
             'approvedByMeRequests' => $approvedByMeRequests,
             'myApprovedAccessRequests' => $myApprovedAccessRequests,
             'studentRegisterApproval' => $studentRegisterApproval,
-            'studentRegisterDenial' => $studentRegisterDenial
+            'studentRegisterDenial' => $studentRegisterDenial,
+            'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
+            'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial)
         ]);
     }
 
@@ -569,4 +599,24 @@ class RequestController extends AbstractController
         $this->addFlash('success', 'Request to meet successfully sent.');
         return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
     }
+
+    /**
+     * @Route("/requests/{id}/student_has_seen_request", name="student_has_seen_request", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function toggleHasStudentSeenRequest(\App\Entity\EducatorRegisterStudentForCompanyExperienceRequest $request) {
+        // $request_id = $request->request->get('id');
+        $request->setStudentHasSeen(true);
+        $this->entityManager->persist($request);
+        $this->entityManager->flush();
+        
+        return new JsonResponse(
+            Response::HTTP_OK
+        );
+    }
+
 }

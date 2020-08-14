@@ -16,7 +16,7 @@
             {% endif %}
 
             {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
-                <li><a href="#student-company-experiences">My Company Experiences</a></li>
+                <li><a href="#student-company-experiences">My Company Experiences (<span id="experience-count">{{ studentHasSeenCompanyRequestsApproval + studentHasSeenCompanyRequestsDenial }}</span>)</a></li>
             {% endif %}
         </ul>
 
@@ -122,12 +122,12 @@
                     <h3>My Company Experiences</h3>
                     <div class="uk-width-xlarge">
                         <ul class="" data-uk-tab="{connect: '#tab-requests-by-me'}" uk-switcher>
-                            <li class="uk-active"><a href="#requests-by-me-approved">Approved</a></li>
-                            <li><a href="#requests-by-me-denied">Denied</a></li>
+                            <li class="uk-active"><a href="#requests-by-me-approved">Approved (<span id="experience-approval-count">{{ studentHasSeenCompanyRequestsApproval }}</span>)</a></li>
+                            <li><a href="#requests-by-me-denied">Denied (<span id="experience-denial-count">{{ studentHasSeenCompanyRequestsDenial }}</span>)</a></li>
                         </ul>
                         <div class="uk-switcher" id="tab-requests-by-me">
                             <div class="requests-landing__requests-by-me-approved">
-                                <ul class="uk-width-xlarge" uk-accordion>
+                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
                                     {% for request in studentRegisterApproval %}
                                         {{ render_request( request, user )|raw }}
                                     {% endfor %}
@@ -137,7 +137,7 @@
                                 </ul>
                             </div>
                             <div class="requests-landing__requests-by-me-denied">
-                                <ul class="uk-width-xlarge" uk-accordion>
+                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
                                     {% for request in studentRegisterDenial %}
                                         {{ render_request( request, user )|raw }}
                                     {% endfor %}
@@ -217,11 +217,15 @@
 
         $.post( $(this).attr('action'), { request: request, isFromStudent: isFromStudent, isFromEducator: isFromEducator, isFromProfessional: isFromProfessional, date: date, dateOptionOne: dateOptionOne, dateOptionTwo: dateOptionTwo, dateOptionThree: dateOptionThree }, function(data){
             var status = JSON.parse(data.status);
-
+            
             if( status[0].type == "success" && element != undefined){
                 $('#' + element).remove();
-                UIkit.modal('#student-to-meet-professional-dates_' + request).hide();
+
+                if( $('#student-to-meet-professional-dates_' + request).length) {
+                    UIkit.modal('#student-to-meet-professional-dates_' + request).hide();
+                }
             }
+
             display_message(status[0].type, status[0].message);
             
         });
@@ -259,12 +263,43 @@
     function display_message(type, message) {
         $('.main-content').prepend('<div class="uk-container uk-margin-bottom"><div class="uk-alert-' + type + ' uk-margin" uk-alert><a class="uk-alert-close" uk-close></a><p>' + message + '</p></div></div>');
     
-        var count = parseInt($('#approval-count').html());
-        $('#approval-count').html( count - 1);
+        $('#approval-count').html( parseInt($('#approval-count').html()) - 1);
 
-        var count = parseInt($('.main-navigation__meta-requests-num').html());
-        $('.main-navigation__meta-requests-num').html( count - 1);
+        if( (parseInt($('.main-navigation__meta-requests-num').html()) - 1) <= 0){
+            $('.main-navigation__meta-requests-num').remove();
+        } else {
+            $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1 );
+        }
 
     }
+
+
+    // Removing request count for items that have been seen
+    $(document).on('click', '.toggle-has-seen', function() {
+        var id = $(this).data('id');
+        var type = $(this).data('approved');
+        var item = $(this);
+
+        // Send ajax request to process counter
+        $.post('/dashboard/requests/' + id + '/student_has_seen_request', { }, function() {
+
+            item.removeClass('toggle-has-seen');
+            item.children("small").remove();
+            
+            if(type == "1") {
+                $('#experience-approval-count').html( parseInt($('#experience-approval-count').html())  - 1 );
+            } else {
+                $('#experience-approval-count').html( parseInt($('#experience-denial-count').html()) - 1 );
+            }
+
+            $('#experience-count').html( parseInt($('#experience-count').html()) - 1 );
+
+            if( (parseInt($('.main-navigation__meta-requests-num').html()) - 1) <= 0){
+                $('.main-navigation__meta-requests-num').remove();
+            } else {
+                $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1 );
+            }
+        });
+    })
     </script>
 {% endblock %}

@@ -23,6 +23,7 @@ use App\Entity\StudentUser;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
+use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\RequestRepository;
@@ -51,6 +52,11 @@ class AppExtension extends AbstractExtension
      * @var SerializerInterface
      */
     private $serializer;
+
+    /**
+     * @var EducatorRegisterStudentForExperienceRequestRepository
+     */
+    private $educatorRegisterStudentForExperienceRequestRepository;
 
     /**
      * @var RequestRepository
@@ -115,7 +121,8 @@ class AppExtension extends AbstractExtension
         Environment $twig,
         SiteRepository $siteRepository,
         RouterInterface $router,
-        Security $security
+        Security $security,
+        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
     ) {
         $this->uploadHelper = $uploadHelper;
         $this->serializer = $serializer;
@@ -127,6 +134,7 @@ class AppExtension extends AbstractExtension
         $this->siteRepository = $siteRepository;
         $this->router = $router;
         $this->security = $security;
+        $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
     }
 
     public function getFunctions(): array
@@ -226,15 +234,12 @@ class AppExtension extends AbstractExtension
 
     public function pendingRequests(User $user) {
 
-     /*   $requests = $this->requestRepository->findBy([
-            'needsApprovalBy' => $user,
-            'approved' => false,
-            'denied' => false
-        ]);*/
+        $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadCompanyRequests($user);
+        $company_experience_total = count($companyExperienceRequests);
 
         $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
-
-        return count($requests);
+        $requests_total = count($requests);
+        return $company_experience_total + $requests_total;
     }
 
     public function ucwords($text) {

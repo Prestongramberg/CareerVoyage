@@ -24,6 +24,12 @@ class EducatorRegisterStudentForCompanyExperienceRequest extends Request
      */
     private $studentUser;
 
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected $studentHasSeen = false;
+
     public function getCompanyExperience(): ?CompanyExperience
     {
         return $this->companyExperience;
@@ -45,6 +51,17 @@ class EducatorRegisterStudentForCompanyExperienceRequest extends Request
     {
         $this->studentUser = $studentUser;
 
+        return $this;
+    }
+
+    public function getStudentHasSeen(): ?bool
+    {
+        return $this->studentHasSeen;
+    }
+
+    public function setStudentHasSeen(?bool $studentHasSeen): self
+    {
+        $this->studentHasSeen = $studentHasSeen;
         return $this;
     }
 }
