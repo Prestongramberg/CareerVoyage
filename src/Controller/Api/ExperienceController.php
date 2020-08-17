@@ -15,6 +15,7 @@ use App\Entity\LessonFavorite;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
+use App\Entity\SchoolExperience;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
