@@ -234,8 +234,11 @@ class AppExtension extends AbstractExtension
 
     public function pendingRequests(User $user) {
 
-        $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadCompanyRequests($user);
-        $company_experience_total = count($companyExperienceRequests);
+        $company_experience_total = 0;
+        if($user->isStudent()) {
+            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadCompanyRequests($user);
+            $company_experience_total = count($companyExperienceRequests);
+        }
 
         $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
         $requests_total = count($requests);
