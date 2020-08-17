@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Chat;
 use App\Entity\ChatMessage;
 use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
@@ -629,7 +630,7 @@ class ExperienceController extends AbstractController
 
 
     /**
-     * @Route("/experiences/{id}/teach_lesson_event_delete", name="experience_teach_lesson_event_delete", options = { "expose" = true }, methods={"POST"})
+     * @Route("/experiences/{id}/teach_lesson_event_delete", name="experience_teach_lesson_event_delete", options = { "expose" = true }, methods={"POST"}, requirements={"id": "\d+"})
      * @param Request $request
      * @param TeachLessonExperience $experience
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
@@ -638,6 +639,11 @@ class ExperienceController extends AbstractController
      * @throws \Twig\Error\SyntaxError
      */
     public function experienceTeachLessonEventDeleteAction(Request $request, TeachLessonExperience $experience) {
+
+
+        var_dump($request);
+        die();
+
 
         /** @var User $user */
         $user = $this->getUser();
@@ -667,5 +673,89 @@ class ExperienceController extends AbstractController
         $this->addFlash('success', 'Experience successfully cancelled. Users will be notified.');
 
         return $this->redirectToRoute('requests');
+    }
+
+
+    /**
+     * @Route("/experiences/{id}/company_event_delete", name="experience_company_event_delete", options = { "expose" = true }, methods={"POST"}, requirements={"id": "\d+"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function experienceCompanyEventDeleteAction(Request $request, CompanyExperience $experience) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $customMessage = $request->request->get('customMessage');
+
+        $registrations = $experience->getRegistrations();
+
+        foreach ($registrations as $registration) {
+
+            if($registration->getUser()->isStudent()) {
+                continue;
+            }
+
+            $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $customMessage);
+        }
+
+        $experience->setCancelled(true);
+        $this->entityManager->persist($experience);
+
+        foreach($experience->getRegistrations() as $registration) {
+            $this->entityManager->remove($registration);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Experience successfully cancelled. Users will be notified.');
+
+        return $this->redirectToRoute('dashboard');
+    }
+
+
+    /**
+     * @Route("/experiences/{id}/school_event_delete", name="experience_school_event_delete", options = { "expose" = true }, methods={"POST"}, requirements={"id": "\d+"})
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function experienceSchoolEventDeleteAction(Request $request, SchoolExperience $experience) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $customMessage = $request->request->get('customMessage');
+
+        $registrations = $experience->getRegistrations();
+
+        foreach ($registrations as $registration) {
+
+            if($registration->getUser()->isStudent()) {
+                continue;
+            }
+
+            $this->experienceMailer->experienceCancellationMessage($experience, $registration->getUser(), $customMessage);
+        }
+
+        $experience->setCancelled(true);
+        $this->entityManager->persist($experience);
+
+        foreach($experience->getRegistrations() as $registration) {
+            $this->entityManager->remove($registration);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Experience successfully cancelled. Users will be notified.');
+
+        return $this->redirectToRoute('dashboard');
     }
 }

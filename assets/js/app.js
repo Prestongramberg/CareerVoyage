@@ -88,8 +88,6 @@ window.Pintex = {
     },
     openCalendarEventDetails: function( event ) {
 
-        console.log(event);
-
         let eventHtml = "";
         const eventPayload = deepObject(event, 'extendedProps.customEventPayload') || { className: "default" };
         const eventStartDate = parseInt( eventPayload.startDateAndTimeTimeStamp );
@@ -102,6 +100,8 @@ window.Pintex = {
         const eventId = parseInt(eventPayload.id);
 
         console.log(eventPayload);
+
+        var this_level = this;
 
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
@@ -117,19 +117,27 @@ window.Pintex = {
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
 
-        // eventHtml += this.generateEditCancelButtons( eventId, eventStartDate, eventEndDate );
+        if( eventPayload.className == "CompanyExperience") {
+            $.post('/dashboard/companies/experiences/' + eventId + '/data', {}, function(data){
+                if(data.allow_edit === true){
+                    eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'companies', 'company_event_delete');
+                }
 
-        this.modal.dynamic_open(`
-            <div class="event-modal-details">
-                <div class="event-modal-details__event-info">
-                    ${eventHtml}
-                </div>
-            </div>
-        `);
+                this_level.openModal(eventHtml);
+            });
+        } else if(eventPayload.className == "SchoolExperience") { 
+            $.post('/dashboard/companies/experiences/' + eventId + '/data', {}, function(data){
+                if(data.allow_edit === true){
+                    eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'schools', 'school_event_delete');
+                }
+
+                this_level.openModal(eventHtml);
+            });
+        }else {
+            this.openModal(eventHtml);
+        }
     },
     generateAddToCalendarButton: function( epochStartTime, epochEndTime, title = '', description = '', location = '' ) {
-
-        console.log
 
         // Get the dates from CST to EPOCH
         const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+00:00').format("YYYYMMDDTHHmmss");
@@ -167,57 +175,63 @@ window.Pintex = {
         );
         cal.download("addToCalendar", undefined );
     },
-    generateEditCancelButtons( eventId, epochStartTime, epochEndTime) {
+    generateEditCancelButtons( eventId, epochStartTime, epochEndTime, location, deleteAction) {
 
         // Get the dates from CST to EPOCH
         const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
         const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
 
         return `
-        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-change-date" uk-toggle>Change Date</a>
-                            
-                            <div id="modal-change-date" uk-modal>
-                                <div class="uk-modal-dialog uk-modal-body">
-                                    <h3>Change Date of Experience</h3>
-                                    <form class="uk-inline" action="/api/experiences/${eventId}/teach-lesson-event-change-date" method="POST">
+        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="/dashboard/${location}/experiences/${eventId}/edit">Change Date</a>               
+        <div id="modal-change-date" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3>Change Date of Experience</h3>
+                <form class="uk-inline" action="/api/experiences/${eventId}/teach-lesson-event-change-date" method="POST">
 
-                                        <label class="uk-form-label">Start Date.</label>
-                                        <input class="uk-timepicker uk-input" name="newStartDate" type="text">
-                                        <label class="uk-form-label">End Date.</label>
-                                        <input class="uk-timepicker uk-input" name="newEndDate" type="text">
+                    <label class="uk-form-label">Start Date.</label>
+                    <input class="uk-timepicker uk-input" name="newStartDate" type="text">
+                    <label class="uk-form-label">End Date.</label>
+                    <input class="uk-timepicker uk-input" name="newEndDate" type="text">
 
-                                        <label>Custom Message</label>
-                                        <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                    <label>Custom Message</label>
+                    <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
 
-                                        <p>
-                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                            <button class="uk-button uk-button-danger" type="submit">Submit</button>
-                                        </p>
-                                    </form>
-                                </div>
-                            </div>
+                    <p>
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                    </p>
+                </form>
+            </div>
+        </div>
 
-                            
+        
+        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Experience</a>
+        <div id="modal-delete-experience" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3>Cancel Experience</h3>
+                <form class="uk-inline" action="/api/experiences/${eventId}/${deleteAction}" method="POST">
 
-                            <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Experience</a>
-                            
-                            <div id="modal-delete-experience" uk-modal>
-                                <div class="uk-modal-dialog uk-modal-body">
-                                    <h3>Cancel Experience</h3>
-                                    <form class="uk-inline" action="/api/experiences/${eventId}/teach_lesson_event_delete" method="POST">
+                    <label>Custom Message</label>
+                    <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
 
-                                        <label>Custom Message</label>
-                                        <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
-
-                                        <p>
-                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                            <button class="uk-button uk-button-danger" type="submit">Submit</button>
-                                        </p>
-                                    </form>
-                                </div>
-                            </div>
+                    <p>
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                    </p>
+                </form>
+            </div>
+        </div>
         `;
     },
+    openModal(eventHtml) {
+        this.modal.dynamic_open(`
+            <div class="event-modal-details">
+                <div class="event-modal-details__event-info">
+                    ${eventHtml}
+                </div>
+            </div>
+        `);
+    }
 };
 
 // React
