@@ -13,7 +13,7 @@
             {% endif %}
             {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
                 {% if user.isEducator() %}
-                    <li id="history-tab"><a href="#requests-completed">{% if (educatorHasSeenCompanyRequestsApproval > 0) or (educatorHasSeenCompanyRequestsDenial > 0) %}<small><em class="fa fa-circle" aria-hidden="true"></em></small> {% endif %}History</a></li>
+                    <li id="history-tab"><a href="#requests-completed">History (<span id="history-count">{{ educatorHasSeenCompanyRequestsApproval + educatorHasSeenCompanyRequestsDenial }}</span>)</a></li>
                 {% else %}
                     <li><a href="#requests-completed">History</a></li>
                 {% endif %}
@@ -315,6 +315,8 @@
                 } else {
                     $('#history_total').val( $('#history_total').val() - 1 );
                 }
+
+                $('#history-count').html( parseInt($('#history-count').html()) - 1 )
             }
         });
     })

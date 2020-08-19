@@ -236,7 +236,12 @@ class AppExtension extends AbstractExtension
 
         $company_experience_total = 0;
         if($user->isStudent()) {
-            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadCompanyRequests($user);
+            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadStudentCompanyRequests($user);
+            $company_experience_total = count($companyExperienceRequests);
+        }
+
+        if($user->isEducator()) {
+            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadEducatorCompanyRequests($user);
             $company_experience_total = count($companyExperienceRequests);
         }
 

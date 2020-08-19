@@ -6,6 +6,8 @@ use App\Entity\CompanyExperience;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\Experience;
 use App\Entity\StudentUser;
+use App\Entity\EducatorUser;
+use App\Entity\Request;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -68,7 +70,7 @@ class EducatorRegisterStudentForExperienceRequestRepository extends ServiceEntit
     }
 
 
-    public function getUnreadCompanyRequests(StudentUser $student) {
+    public function getUnreadStudentCompanyRequests(StudentUser $student) {
         return $this->createQueryBuilder('e')
             ->where('e.studentUser = :student')
             ->andWhere('e.studentHasSeen = :denied')
@@ -76,6 +78,19 @@ class EducatorRegisterStudentForExperienceRequestRepository extends ServiceEntit
             ->setParameter('denied', false)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getUnreadEducatorCompanyRequests(EducatorUser $educator) {
+        $user_id = $educator->getId();
+        $query = sprintf('SELECT * FROM educator_register_student_for_company_experience_request e, request r 
+                          WHERE e.id=r.id 
+                          AND e.educator_has_seen = false
+                          AND r.created_by_id = '.$user_id);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
 }
