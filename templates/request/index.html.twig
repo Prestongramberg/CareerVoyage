@@ -12,7 +12,12 @@
                 <li><a href="#requests-approvals">My Approvals (<span id="approval-count">{{ requestsThatNeedMyApproval|length }}</span>)</a></li>
             {% endif %}
             {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
-                <li><a href="#requests-completed">History</a></li>
+                {% if user.isEducator() %}
+                    <li id="history-tab"><a href="#requests-completed">{% if (educatorHasSeenCompanyRequestsApproval > 0) or (educatorHasSeenCompanyRequestsDenial > 0) %}<small><em class="fa fa-circle" aria-hidden="true"></em></small> {% endif %}History</a></li>
+                {% else %}
+                    <li><a href="#requests-completed">History</a></li>
+                {% endif %}
+                
             {% endif %}
 
             {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
@@ -81,6 +86,9 @@
                     {% endif %}
 
                     {% if myDeniedAccessRequests|length > 0 or myApprovedAccessRequests|length > 0 %}
+                        {% if user.isEducator() %}
+                            <input type="hidden" id="history_total" value="{{ educatorHasSeenCompanyRequestsApproval + educatorHasSeenCompanyRequestsDenial }}" />
+                        {% endif %}
                         <div class="uk-section uk-section-muted uk-padding uk-margin">
                             <h3>Approvals I Requested</h3>
                             <div class="uk-width-xlarge">
@@ -281,7 +289,7 @@
         var item = $(this);
 
         // Send ajax request to process counter
-        $.post('/dashboard/requests/' + id + '/student_has_seen_request', { }, function() {
+        $.post('/dashboard/requests/' + id + '/user_has_seen_request', { }, function() {
 
             item.removeClass('toggle-has-seen');
             item.children("small").remove();
@@ -298,6 +306,15 @@
                 $('.main-navigation__meta-requests-num').remove();
             } else {
                 $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1 );
+            }
+
+            if($("#history_total").length){
+                if( (parseInt($('#history_total').val()) -1 ) <= 0){
+                    $('#history_total').val(0);
+                    $('#history-tab > a > small').remove();
+                } else {
+                    $('#history_total').val( $('#history_total').val() - 1 );
+                }
             }
         });
     })

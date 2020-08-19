@@ -129,46 +129,105 @@ class RequestController extends AbstractController
 
         $studentRegisterApproval = $qb->getQuery()->getResult();
 
-
         $qb = $this->entityManager->createQueryBuilder();
         $qb
             ->select('r')
             ->from('App\Entity\Request', 'r')
             ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
             ->andWhere('e.studentUser = :user')
-            ->andWhere('r.approved = true')
-            ->andWhere('e.studentHasSeen = false')
-            ->setParameter('user', $user)
-            ->groupBy('e.id');
-
-        $studentHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.studentUser = :user')
-            ->andWhere('r.approved = false')
-            ->andWhere('e.studentHasSeen = false')
-            ->setParameter('user', $user)
-            ->groupBy('e.id');
-
-        $studentHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.studentUser = :user')
-            ->andWhere('r.approved = false')
+            ->andWhere('r.denied = true')
             ->setParameter('user', $user)
             ->groupBy('e.id')
             ->orderBy('r.createdAt', 'DESC');
 
         $studentRegisterDenial = $qb->getQuery()->getResult();
+
+
+        $studentHasSeenCompanyRequestsApproval = [];
+        $studentHasSeenCompanyRequestsDenial = [];
+        if($user->isStudent()) {
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb
+                ->select('r')
+                ->from('App\Entity\Request', 'r')
+                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('e.studentUser = :user')
+                ->andWhere('r.approved = true')
+                ->andWhere('e.studentHasSeen = false')
+                ->setParameter('user', $user)
+                ->groupBy('e.id');
+
+            $studentHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
+
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb
+                ->select('r')
+                ->from('App\Entity\Request', 'r')
+                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('e.studentUser = :user')
+                ->andWhere('r.denied = true')
+                ->andWhere('e.studentHasSeen = false')
+                ->setParameter('user', $user)
+                ->groupBy('e.id');
+
+            $studentHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
+        }
+
+        $educatorHasSeenCompanyRequestsApproval = [];
+        $educatorHasSeenCompanyRequestsDenial = [];
+        if($user->isEducator()) {
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb
+                ->select('r')
+                ->from('App\Entity\Request', 'r')
+                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('r.approved = true')
+                ->andWhere('e.educatorHasSeen = false')
+                ->groupBy('e.id');
+
+            $educatorHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
+
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb
+                ->select('r')
+                ->from('App\Entity\Request', 'r')
+                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('r.denied = true')
+                ->andWhere('e.educatorHasSeen = false')
+                ->groupBy('e.id');
+
+            $educatorHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
+        }
+
+        $professionalHasSeenCompanyRequestsApproval = [];
+        $professionalHasSeenCompanyRequestsDenial = [];
+        if($user->isProfessional()) {
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb
+                ->select('r')
+                ->from('App\Entity\Request', 'r')
+                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('e.studentUser = :user')
+                ->andWhere('r.approved = true')
+                ->andWhere('e.professionalHasSeen = false')
+                ->setParameter('user', $user)
+                ->groupBy('e.id');
+
+            $professionalHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
+
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb
+                ->select('r')
+                ->from('App\Entity\Request', 'r')
+                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('e.studentUser = :user')
+                ->andWhere('r.denied = true')
+                ->andWhere('e.professionalHasSeen = false')
+                ->setParameter('user', $user)
+                ->groupBy('e.id');
+
+            $professionalHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
+        }
 
         // todo you could return a different view per user role as well
         return $this->render('request/index.html.twig', [
@@ -182,7 +241,11 @@ class RequestController extends AbstractController
             'studentRegisterApproval' => $studentRegisterApproval,
             'studentRegisterDenial' => $studentRegisterDenial,
             'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
-            'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial)
+            'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial),
+            'educatorHasSeenCompanyRequestsApproval' => count($educatorHasSeenCompanyRequestsApproval),
+            'educatorHasSeenCompanyRequestsDenial' => count($educatorHasSeenCompanyRequestsDenial),
+            'professionalHasSeenCompanyRequestsApproval' => count($professionalHasSeenCompanyRequestsApproval),
+            'professionalHasSeenCompanyRequestsDenial' => count($professionalHasSeenCompanyRequestsDenial)
         ]);
     }
 
@@ -601,16 +664,27 @@ class RequestController extends AbstractController
     }
 
     /**
-     * @Route("/requests/{id}/student_has_seen_request", name="student_has_seen_request", options = { "expose" = true }, methods={"POST"})
+     * @Route("/requests/{id}/user_has_seen_request", name="user_has_seen_request", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function toggleHasStudentSeenRequest(\App\Entity\EducatorRegisterStudentForCompanyExperienceRequest $request) {
-        // $request_id = $request->request->get('id');
-        $request->setStudentHasSeen(true);
+    public function toggleHasUserSeenRequest(\App\Entity\EducatorRegisterStudentForCompanyExperienceRequest $request) {
+        
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if($user->isStudent()) {
+            $request->setStudentHasSeen(true);
+        }
+        if($user->isEducator()) {
+            $request->setEducatorHasSeen(true);
+        }
+        if($user->isProfessional()) {
+            $request->setProfessionalHasSeen(true);
+        }
         $this->entityManager->persist($request);
         $this->entityManager->flush();
         
