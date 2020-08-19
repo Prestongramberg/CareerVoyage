@@ -1,6 +1,14 @@
 <li id="ersfcer_{{ request.id }}">
     {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to register student for company experience. bwap</a>
+
+        {% if user.isEducator() %}
+            {% if request.educatorHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}"><small><em class="fa fa-circle"></em></small> Request to register student for company experience.</a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to register student for company experience.</a>
+            {% endif %}
+        {% endif %}
+        
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -46,11 +54,19 @@
             </table>
         </div>
     {% else %}
-        {% if request.studentHasSeen == false %}
-            <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}"><small><em class="fa fa-circle"></em></small> Request to register students for company experience.</a>
-        {% else %}
+        {% if user.isStudent() %}
+            {% if request.studentHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}"><small><em class="fa fa-circle"></em></small> Request to register students for company experience.</a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+            {% endif %}
+        {% endif %}
+        
+        {% if user.isProfessional() %}
             <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
         {% endif %}
+
+        
         <div class="uk-accordion-content">
             <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested that you register the following students
                 to the experience: {{ request.companyExperience.title }}</p>
