@@ -207,10 +207,8 @@ class RequestController extends AbstractController
                 ->select('r')
                 ->from('App\Entity\Request', 'r')
                 ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                ->andWhere('e.studentUser = :user')
                 ->andWhere('r.approved = true')
                 ->andWhere('e.professionalHasSeen = false')
-                ->setParameter('user', $user)
                 ->groupBy('e.id');
 
             $professionalHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
@@ -220,10 +218,8 @@ class RequestController extends AbstractController
                 ->select('r')
                 ->from('App\Entity\Request', 'r')
                 ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                ->andWhere('e.studentUser = :user')
                 ->andWhere('r.denied = true')
                 ->andWhere('e.professionalHasSeen = false')
-                ->setParameter('user', $user)
                 ->groupBy('e.id');
 
             $professionalHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
