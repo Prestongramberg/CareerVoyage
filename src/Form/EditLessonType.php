@@ -11,6 +11,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
+use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -75,12 +76,18 @@ class EditLessonType extends AbstractType
                 'choice_label' => 'title',
                 'expanded'  => false,
                 'multiple'  => false,
+                'query_builder' => function(CourseRepository $c) {
+                    return $c->createAlphabeticalSearch();
+                }
             ])
             ->add('secondaryCourses', EntityType::class, [
                 'class' => Course::class,
                 'choice_label' => 'title',
                 'expanded'  => true,
                 'multiple'  => true,
+                'query_builder' => function(CourseRepository $c) {
+                    return $c->createAlphabeticalSearch();
+                },
                 'choice_attr' => function($choice, $key, $value) {
                     return ['class' => 'uk-checkbox'];
                 },

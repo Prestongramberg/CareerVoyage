@@ -1,0 +1,40 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Course{% endblock %}
+{% block bodyClass %}page-site-admin{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    <h3>Create a new Course</h3>
+
+                    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+                    {% if form_errors(form) %}
+                        <div class="uk-alert-danger" uk-alert>
+                            <a class="uk-alert-close" uk-close></a>
+                            <div>{{ form_errors(form) }}</div>
+                        </div>
+                    {% endif %}
+
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.title, 'Course Title*') }}
+                            {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Create new Course</button>
+                        </div>
+                    </fieldset>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
