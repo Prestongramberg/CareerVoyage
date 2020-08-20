@@ -80,6 +80,9 @@ class NewLessonType extends AbstractType
                     'choice_label' => 'title',
                     'expanded' => false,
                     'multiple' => false,
+                    'placeholder' => 'Please select a primary course',
+                    'empty_data' => null,
+                    'required' => true
                 ]
             )
             ->add(
