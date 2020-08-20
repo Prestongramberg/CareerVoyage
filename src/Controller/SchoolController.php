@@ -289,7 +289,15 @@ class SchoolController extends AbstractController
 
         $schoolAdminId = $request->request->get('schoolAdminId');
 
-        $this->entityManager->remove($educatorUser);
+        $school = $educatorUser->getSchool();
+        $school->removeEducatorUser($educatorUser);
+        $this->entityManager->persist($school);
+
+        $students = $educatorUser->getStudentUsers();
+        foreach($students as $student) {
+            $student->removeEducatorUser($educatorUser);
+        }
+        
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Educator removed from school');
