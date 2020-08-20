@@ -151,10 +151,19 @@
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
                                             <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
                                         {% endfor %}
+
+                                        <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
                                     </ul>
                                 </div>
                                 <div class="uk-width-1-1 uk-width-expand@m">
                                     <ul id="tab-account-inner" class="uk-switcher">
+
+                                        {% set cumulativeTotalRating = 0 %}
+                                        {% set cumulativeTotalShowedUp = 0 %}
+                                        {% set cumulativeTotalOnTime = 0 %}
+                                        {% set cumulativeTotalPolite = 0 %}
+                                        {% set cumulativeTotalEngaged = 0 %}
+                                        {% set cumulativeTotalFeedback = 0 %} 
 
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
 
@@ -184,13 +193,22 @@
                                                             <tbody>
                                                             {% for feedback in experience.feedback %}
 
-                                                                {{ feedback.id }}
+
 
                                                                 {% if feedback.user.id != user.id %}
 
+                                                                    {% set cumulativeTotalRating = cumulativeTotalRating + feedback.rating %}
+                                                                    {% set cumulativeTotalShowedUp = cumulativeTotalShowedUp + feedback.showUp %}
+                                                                    {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
+                                                                    {% set cumulativeTotalPolite = cumulativeTotalPolite + feedback.politeAndProfessional %}
+                                                                    {% set cumulativeTotalEngaged = cumulativeTotalEngaged + feedback.engagedAndAskedQuestions %}
+                                                                    {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
+
+
+
                                                                     {% set cumulativeRating = cumulativeRating + feedback.rating %}
                                                                     {% set cumulativeShowedUp = cumulativeShowedUp + feedback.showUp %}
-                                                                    {% set cumulativeOnTime = cumulativeOnTime + feedback.wasOnTime %}
+                                                                    {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
                                                                     {% set cumulativePolite = cumulativePolite + feedback.politeAndProfessional %}
                                                                     {% set cumulativeEngaged = cumulativeEngaged + feedback.engagedAndAskedQuestions %}
                                                                     {% set totalFeedback = totalFeedback + 1 %}
@@ -259,6 +277,41 @@
                                                 {% endif %}
                                             </div>
                                         {% endfor %}
+
+                                        <div class="feedback-summary">
+                                            <p><strong>Feedback Summary</strong></p>
+
+                                            <h3>Data Breakdown:</h3>
+                                            <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                <div class="uk-width-1-2 uk-width-1-2@m">
+                                                    <div class="uk-text-meta">Average Rating</div>
+                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalRating / cumulativeTotalFeedback )|round(2, 'floor') }}</h4>
+                                                </div>
+                                                <div class="uk-width-1-2 uk-width-1-2@m">
+                                                    <div class="uk-text-meta">Total Responses</div>
+                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ cumulativeTotalFeedback }}</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                <div class="uk-width-1-2">
+                                                    <div class="uk-text-meta">Turned Up?</div>
+                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalShowedUp / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                </div>
+                                                <div class="uk-width-1-2">
+                                                    <div class="uk-text-meta">On Time?</div>
+                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalOnTime / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                </div>
+                                                <div class="uk-width-1-2">
+                                                    <div class="uk-text-meta">Polite & Professional?</div>
+                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalPolite / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                </div>
+                                                <div class="uk-width-1-2">
+                                                    <div class="uk-text-meta">Engaged & Asked Questions?</div>
+                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalEngaged / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </ul>
                                 </div>
                             </div>
