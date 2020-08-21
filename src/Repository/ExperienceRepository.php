@@ -54,8 +54,10 @@ class ExperienceRepository extends ServiceEntityRepository
             ->innerJoin('e.registrations', 'r')
             ->where('r.user = :user')
             ->andWhere('e.startDateAndTime >= :startDateAndTime')
+            ->andWhere('e.cancelled = :cancelled')
             ->setParameter('user', $user)
             ->setParameter('startDateAndTime' , new \DateTime())
+            ->setParameter('cancelled', false)
             ->getQuery()
             ->getResult();
     }
@@ -64,7 +66,9 @@ class ExperienceRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('e')
             ->innerJoin('e.registrations', 'r')
             ->where('r.user = :user')
+            ->andWhere('e.cancelled = :cancelled')
             ->setParameter('user', $user)
+            ->setParameter('cancelled', false)
             ->getQuery()
             ->getResult();
     }
@@ -74,8 +78,10 @@ class ExperienceRepository extends ServiceEntityRepository
             ->innerJoin('e.registrations', 'r')
             ->where('r.user = :user')
             ->andWhere('e.startDateAndTime <= :startDateAndTime')
+            ->andWhere('e.cancelled = :cancelled')
             ->setParameter('user', $user)
             ->setParameter('startDateAndTime' , new \DateTime())
+            ->setParameter('cancelled', false)
             ->getQuery()
             ->getResult();
     }
@@ -98,8 +104,8 @@ class ExperienceRepository extends ServiceEntityRepository
      */
     public function getAllEventsRegisteredForByUserByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $userId) {
 
-        $query = sprintf('SELECT * from experience e INNER JOIN registration r on r.experience_id = e.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND r.user_id = %s',
-            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $userId
+        $query = sprintf('SELECT * from experience e INNER JOIN registration r on r.experience_id = e.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND r.user_id = %s AND e.cancelled = %s',
+            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $userId, false
         );
 
         $em = $this->getEntityManager();
@@ -115,6 +121,7 @@ class ExperienceRepository extends ServiceEntityRepository
 
         $query = sprintf("SELECT * from experience e where e.start_date_and_time > NOW()
                         AND e.id IN ('$experienceIds')
+                        AND e.cancelled = 'false'
                         ORDER BY e.start_date_and_time ASC");
 
         $em = $this->getEntityManager();
