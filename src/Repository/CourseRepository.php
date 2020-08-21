@@ -22,6 +22,17 @@ class CourseRepository extends ServiceEntityRepository
     // /**
     //  * @return Course[] Returns an array of Course objects
     //  */
+
+
+    public function createAlphabeticalSearch()
+    {
+        return $this->createQueryBuilder('c')
+            ->orderBy('c.title', 'ASC');
+        //     ->getQuery()
+        //     ->getResult()
+        // ;
+    }
+
     /*
     public function findByExampleField($value)
     {
