@@ -667,8 +667,8 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function toggleHasUserSeenRequest(\App\Entity\EducatorRegisterStudentForCompanyExperienceRequest $request) {
-        
+    public function toggleHasUserSeenRequest(\App\Entity\Request $request) {
+
         /** @var User $user */
         $user = $this->getUser();
 

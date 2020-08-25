@@ -65,4 +65,16 @@ class RequestRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+
+    public function getUnreadStudentCompanyRequests(User $student) {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.educatorRegisterStudentForCompanyExperienceRequest', 'e')
+            ->where('e.studentUser = :student')
+            ->andWhere('r.studentHasSeen = :denied')
+            ->setParameter('student', $student)
+            ->setParameter('denied', false)
+            ->getQuery()
+            ->getResult();
+    }
 }

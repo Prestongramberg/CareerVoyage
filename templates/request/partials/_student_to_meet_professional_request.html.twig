@@ -1,7 +1,7 @@
 <li id="stmpr_{{ request.id }}">
     {# start request from student to educator for approval (Show this view to who it needs approval by) #}
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.needsApprovalByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}">Student to meet professional request.</a>
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -59,7 +59,14 @@
 
     {# start request from student to educator for approval (Show this view to who it was created by) #}
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        <small>-- request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.wasCreatedByUser(user) - {{ request.id }}--</small>
+
+        {% if request.studentHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
+
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
