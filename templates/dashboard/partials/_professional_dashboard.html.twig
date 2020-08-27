@@ -156,6 +156,7 @@
                                     <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
                                             <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
+                                            
                                         {% endfor %}
                                         <li style="margin-top:10px"><a href="#feedback-summary">Summary</a></li>
                                     </ul>
@@ -163,37 +164,61 @@
                                 <div class="uk-width-1-1 uk-width-expand@m">
                                     <ul id="tab-account-inner" class="uk-switcher">
 
+                                        {% set cumulativeTotalFeedback = 0 %} 
                                         {% set cumulativeTotalRating = 0 %}
                                         {% set cumulativeTotalInsight = 0 %}
                                         {% set cumulativeTotalEnjoyable = 0 %}
                                         {% set cumulativeTotalLearned = 0 %}
                                         {% set cumulativeTotalRecommendation = 0 %}
-                                        {% set cumulativeTotalFeedback = 0 %} 
                                         {% set cumulativeTotalPromoters = 0 %}
                                         {% set cumulativeTotalPassives = 0 %}
                                         {% set cumulativeTotalDetractors = 0 %}
 
+                                        {% set cumulativeGuestFeedback = 0 %} 
                                         {% set cumulativeGuestRating = 0 %}
                                         {% set cumulativeGuestInsight = 0 %}
                                         {% set cumulativeGuestEnjoyable = 0 %}
                                         {% set cumulativeGuestLearned = 0 %}
                                         {% set cumulativeGuestRecommendation = 0 %}
-                                        {% set cumulativeGuestFeedback = 0 %} 
                                         {% set cumulativeGuestPromoters = 0 %}
                                         {% set cumulativeGuestPassives = 0 %}
                                         {% set cumulativeGuestDetractors = 0 %}
 
+                                        {% set cumulativeMeetingFeedback = 0 %} 
                                         {% set cumulativeMeetingRating = 0 %}
                                         {% set cumulativeMeetingInsight = 0 %}
                                         {% set cumulativeMeetingEnjoyable = 0 %}
                                         {% set cumulativeMeetingLearned = 0 %}
                                         {% set cumulativeMeetingRecommendation = 0 %}
-                                        {% set cumulativeMeetingFeedback = 0 %} 
                                         {% set cumulativeMeetingPromoters = 0 %}
                                         {% set cumulativeMeetingPassives = 0 %}
                                         {% set cumulativeMeetingDetractors = 0 %}
 
+                                        {% set cumulativeSchoolFeedback = 0 %} 
+                                        {% set cumulativeSchoolRating = 0 %}
+                                        {% set cumulativeSchoolInsight = 0 %}
+                                        {% set cumulativeSchoolEnjoyable = 0 %}
+                                        {% set cumulativeSchoolLearned = 0 %}
+                                        {% set cumulativeSchoolRecommendation = 0 %}
+                                        {% set cumulativeSchoolPromoters = 0 %}
+                                        {% set cumulativeSchoolPassives = 0 %}
+                                        {% set cumulativeSchoolDetractors = 0 %}
+
+                                        {% set cumulativeCompanyFeedback = 0 %} 
+                                        {% set cumulativeCompanyRating = 0 %}
+                                        {% set cumulativeCompanyInsight = 0 %}
+                                        {% set cumulativeCompanyEnjoyable = 0 %}
+                                        {% set cumulativeCompanyLearned = 0 %}
+                                        {% set cumulativeCompanyRecommendation = 0 %}
+                                        {% set cumulativeCompanyPromoters = 0 %}
+                                        {% set cumulativeCompanyPassives = 0 %}
+                                        {% set cumulativeCompanyDetractors = 0 %}
+
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
+
+                                            {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %} 
+
+                                            {% set totalFeedback = 0 %}
 
                                             {% set cumulativeRating = 0 %}
                                             {% set cumulativeInsight = 0 %}
@@ -223,17 +248,11 @@
                                                             </thead>
                                                             <tbody>
                                                             {% for feedback in experience.feedback %}
+                                                                {% set role = '' %}
 
                                                                 {% if feedback.user.id != user.id %}
 
-                                                                    {% set cumulativeTotalRating = cumulativeTotalRating + feedback.rating %}
-                                                                    {% set cumulativeTotalInsight = cumulativeTotalInsight + feedback.providedCareerInsight %}
-                                                                    {% set cumulativeTotalEnjoyable = cumulativeTotalEnjoyable + feedback.wasEnjoyableAndEngaging %}
-                                                                    {% set cumulativeTotalLearned = cumulativeTotalLearned + feedback.learnSomethingNew %}
-                                                                    {% set cumulativeTotalRecommendation = cumulativeTotalRecommendation + feedback.likelihoodToRecommendToFriend %}
-                                                                    {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
-
-
+                                                                    {% set totalFeedback = totalFeedback + 1 %}
 
                                                                     {% set cumulativeRating = cumulativeRating + feedback.rating %}
                                                                     {% set cumulativeInsight = cumulativeInsight + feedback.providedCareerInsight %}
@@ -244,17 +263,13 @@
                                                                     {# Determine Promoter, Detractors, and Passives #}
                                                                     {% if feedback.likelihoodToRecommendToFriend > 8 %}
                                                                         {% set cumulativePromoters = cumulativePromoters + 1 %}
-                                                                        {% set cumulativeTotalPromoters = cumulativeTotalPromoters + 1 %}
                                                                     {% elseif feedback.likelihoodToRecommendToFriend < 7 %}
                                                                         {% set cumulativeDetractors = cumulativeDetractors + 1 %}
-                                                                        {% set cumulativeTotalDetractors = cumulativeTotalDetractors + 1 %}
                                                                     {% else %}
                                                                         {% set cumulativePassives = cumulativePassives + 1 %}
-                                                                        {% set cumulativeTotalPassives = cumulativeTotalPassives + 1 %}
                                                                     {% endif %}
 
 
-                                                                    {% set role = '' %}
                                                                     {% if feedback.user.educator %}
                                                                         {% set role = 'Educator' %}
                                                                     {% elseif feedback.user.professional %}
@@ -264,45 +279,6 @@
                                                                     {% else %}
                                                                         {% set role = 'Unknown' %}
                                                                     {% endif %}
-
-
-
-
-
-                                                                    {% if experience.className == 'StudentToMeetProfessionalExperience' %}
-                                                                        {% if role == 'Student' %}
-                                                                            {% set cumulativeMeetingRating = cumulativeMeetingRating + feedback.rating %}
-                                                                            {% set cumulativeMeetingInsight = cumulativeMeetingInsight + feedback.providedCareerInsight %}
-                                                                            {% set cumulativeMeetingEnjoyable = cumulativeMeetingEnjoyable + feedback.wasEnjoyableAndEngaging %}
-                                                                            {% set cumulativeMeetingLearned = cumulativeMeetingLearned + feedback.learnSomethingNew %}
-                                                                            {% set cumulativeMeetingRecommendation = cumulativeMeetingRecommendation + feedback.likelihoodToRecommendToFriend %}
-                                                                            {% set cumulativeMeetingFeedback = cumulativeMeetingFeedback + 1 %}
-
-                                                                            {% if feedback.likelihoodToRecommendToFriend > 8 %}
-                                                                                {% set cumulativeMeetingPromoters = cumulativeMeetingPromoters + 1 %}
-                                                                            {% elseif feedback.likelihoodToRecommendToFriend < 7 %}
-                                                                                {% set cumulativeMeetingPassives = cumulativeMeetingPassives + 1 %}
-                                                                            {% else %}
-                                                                                {% set cumulativeMeetingDetractors = cumulativeMeetingDetractors + 1 %}
-                                                                            {% endif %}
-                                                                        {% endif %}
-                                                                    {% else %}
-                                                                        {% set cumulativeGuestRating = cumulativeGuestRating + feedback.rating %}
-                                                                        {% set cumulativeGuestInsight = cumulativeGuestInsight + feedback.providedCareerInsight %}
-                                                                        {% set cumulativeGuestEnjoyable = cumulativeGuestEnjoyable + feedback.wasEnjoyableAndEngaging %}
-                                                                        {% set cumulativeGuestLearned = cumulativeGuestLearned + feedback.learnSomethingNew %}
-                                                                        {% set cumulativeGuestRecommendation = cumulativeGuestRecommendation + feedback.likelihoodToRecommendToFriend %}
-                                                                        {% set cumulativeGuestFeedback = cumulativeGuestFeedback + 1 %} 
-
-                                                                        {% if feedback.likelihoodToRecommendToFriend > 8 %}
-                                                                            {% set cumulativeGuestPromoters = cumulativeGuestPromoters + 1 %}
-                                                                        {% elseif feedback.likelihoodToRecommendToFriend < 7 %}
-                                                                            {% set cumulativeGuestPassives = cumulativeGuestPassives + 1 %}
-                                                                        {% else %}
-                                                                            {% set cumulativeGuestDetractors = cumulativeGuestDetractors + 1 %}
-                                                                        {% endif %}
-                                                                    {% endif %}
-
 
                                                                     <tr>
                                                                         <td class="uk-text-nowrap">{{ role }}</td>
@@ -322,8 +298,7 @@
                                                     </div>
 
                                                     <h3>Data Breakdown:</h3>
-
-                                                    {% set npmScore = (((cumulativePromoters / experience.feedback|length ) - (cumulativeDetractors / experience.feedback|length )) * 100)|round %}
+                                                    {% set npmScore = (((cumulativePromoters / totalFeedback ) - (cumulativeDetractors / totalFeedback )) * 100)|round %}
 
                                                     <div class="uk-grid-small uk-text-center uk-text-left@m uk-flex-middle" uk-grid>
                                                         <div class="uk-width-1-1 uk-width-expand@m">
@@ -353,28 +328,71 @@
                                                     <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
                                                         <div class="uk-width-1-2 uk-width-1-3@m">
                                                             <div class="uk-text-meta">Average Rating</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeRating / experience.feedback|length ) }}</h4>
+                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeRating / totalFeedback ) }}</h4>
                                                         </div>
                                                         <div class="uk-width-1-2 uk-width-1-3@m">
                                                             <div class="uk-text-meta">Total Responses</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ experience.feedback|length }}</h4>
+                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ totalFeedback }}</h4>
                                                         </div>
                                                     </div>
 
                                                     <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
                                                         <div class="uk-width-1-3">
                                                             <div class="uk-text-meta">Provider Career Insights</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeInsight / experience.feedback|length * 100 )|round(1, 'floor') }}%</h4>
+                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeInsight / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
                                                         </div>
                                                         <div class="uk-width-1-3">
                                                             <div class="uk-text-meta">Enjoyable/Engaging</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeEnjoyable / experience.feedback|length * 100 )|round(1, 'floor') }}%</h4>
+                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeEnjoyable / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
                                                         </div>
                                                         <div class="uk-width-1-3">
                                                             <div class="uk-text-meta">Learned Something</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeLearned / experience.feedback|length * 100 )|round(1, 'floor') }}%</h4>
+                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeLearned / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
                                                         </div>
                                                     </div>
+
+                                                    {# Set specific cumulative totals #}
+                                                    {% if experience.className == "StudentToMeetProfessionalExperience" %}
+                                                        {% set cumulativeMeetingFeedback = cumulativeMeetingFeedback + 1 %}
+                                                        {% set cumulativeMeetingRating = cumulativeMeetingRating + (cumulativeRating / totalFeedback) %}
+                                                        {% set cumulativeMeetingInsight = cumulativeMeetingInsight + (cumulativeInsight / totalFeedback) %}
+                                                        {% set cumulativeMeetingEnjoyable = cumulativeMeetingEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
+                                                        {% set cumulativeMeetingLearned = cumulativeMeetingLearned + (cumulativeLearned / totalFeedback) %}
+                                                        {% set cumulativeMeetingPromoters = cumulativeMeetingPromoters + (cumulativePromoters / totalFeedback) %}
+                                                        {% set cumulativeMeetingDetractors = cumulativeMeetingDetractors + (cumulativeDetractors / totalFeedback) %}
+                                                    {% elseif experience.className == "TeachLessonExperience" %}
+                                                        {% set cumulativeGuestFeedback = cumulativeGuestFeedback + 1 %}
+                                                        {% set cumulativeGuestRating = cumulativeGuestRating + (cumulativeRating / totalFeedback) %}
+                                                        {% set cumulativeGuestInsight = cumulativeGuestInsight + (cumulativeInsight / totalFeedback) %}
+                                                        {% set cumulativeGuestEnjoyable = cumulativeGuestEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
+                                                        {% set cumulativeGuestLearned = cumulativeGuestLearned + (cumulativeLearned / totalFeedback) %}
+                                                        {% set cumulativeGuestPromoters = cumulativeGuestPromoters + (cumulativePromoters / totalFeedback) %}
+                                                        {% set cumulativeGuestDetractors = cumulativeGuestDetractors + (cumulativeDetractors / totalFeedback) %}
+                                                    {% elseif experience.className == "SchoolExperience" %}
+                                                        {% set cumulativeSchoolFeedback = cumulativeSchoolFeedback + 1 %}
+                                                        {% set cumulativeSchoolRating = cumulativeSchoolRating + (cumulativeRating / totalFeedback) %}
+                                                        {% set cumulativeSchoolInsight = cumulativeSchoolInsight + (cumulativeInsight / totalFeedback) %}
+                                                        {% set cumulativeSchoolEnjoyable = cumulativeSchoolEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
+                                                        {% set cumulativeSchoolLearned = cumulativeSchoolLearned + (cumulativeLearned / totalFeedback) %}
+                                                        {% set cumulativeSchoolPromoters = cumulativeSchoolPromoters + (cumulativePromoters / totalFeedback) %}
+                                                        {% set cumulativeSchoolDetractors = cumulativeSchoolDetractors + (cumulativeDetractors / totalFeedback) %}
+                                                    {% elseif experience.className == "CompanyExperience" %}
+                                                        {% set cumulativeCompanyFeedback = cumulativeCompanyFeedback + 1 %}
+                                                        {% set cumulativeCompanyRating = cumulativeCompanyRating + (cumulativeRating / totalFeedback) %}
+                                                        {% set cumulativeCompanyInsight = cumulativeCompanyInsight + (cumulativeInsight / totalFeedback) %}
+                                                        {% set cumulativeCompanyEnjoyable = cumulativeCompanyEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
+                                                        {% set cumulativeCompanyLearned = cumulativeCompanyLearned + (cumulativeLearned / totalFeedback) %}
+                                                        {% set cumulativeCompanyPromoters = cumulativeCompanyPromoters + (cumulativePromoters / totalFeedback) %}
+                                                        {% set cumulativeCompanyDetractors = cumulativeCompanyDetractors + (cumulativeDetractors / totalFeedback) %}
+                                                    {% endif %}
+
+                                                    {# Set overall cumulative total #}
+                                                    {% set cumulativeTotalRating = cumulativeTotalRating + ( cumulativeRating / totalFeedback ) %}
+                                                    {% set cumulativeTotalInsight = cumulativeTotalInsight + (cumulativeInsight / totalFeedback) %}
+                                                    {% set cumulativeTotalEnjoyable = cumulativeTotalEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
+                                                    {% set cumulativeTotalLearned = cumulativeTotalLearned + (cumulativeLearned / totalFeedback) %}
+                                                    {% set cumulativeTotalPromoters = cumulativeTotalPromoters + (cumulativePromoters / totalFeedback) %}
+                                                    {% set cumulativeTotalDetractors = cumulativeTotalDetractors + (cumulativeDetractors / totalFeedback) %}
 
                                                 {% else %}
                                                     <p>No feedback has been submitted yet.</p>
@@ -394,12 +412,19 @@
                                                 {% if cumulativeMeetingFeedback > 0 %}
                                                     <li><a href="#student-meetings">Student Meetings</a></li>
                                                 {% endif %}
+                                                {% if cumulativeSchoolFeedback > 0 %}
+                                                    <li><a href="#school-experience">School Experience</a></li>
+                                                {% endif %}
+                                                {% if cumulativeCompanyFeedback > 0 %}
+                                                    <li><a href="#company-experience">Company Experience</a></li>
+                                                {% endif %}
                                                 <li><a href="#all-feedback">All Feedback</a></li>
                                             </ul>
                                             <ul id="tab-feedback-summary" class="uk-switcher">
                                                 {% if cumulativeGuestFeedback > 0 %}
                                                     <div class="guest-instruction">
-                                                        {% set npmScore = (((cumulativeGuestPromoters / cumulativeGuestFeedback ) - (cumulativeGuestDetractors / cumulativeGuestFeedback )) * 100)|round %}
+                                                        {% set npmScore = (((cumulativeCompanyPromoters - cumulativeCompanyDetractors) / cumulativeCompanyFeedback) * 100)|round %}
+                                                        {% set npmScore = (((cumulativeGuestPromoters - cumulativeGuestDetractors) / cumulativeGuestFeedback) * 100)|round %}
 
                                                         <div class="uk-grid-small uk-text-center uk-text-left@m uk-flex-middle" uk-grid>
                                                             <div class="uk-width-1-1 uk-width-expand@m">
@@ -456,7 +481,7 @@
 
                                                 {% if cumulativeMeetingFeedback > 0 %}
                                                     <div class="student-meetings">
-                                                        {% set npmScore = (((cumulativeMeetingPromoters / cumulativeMeetingFeedback ) - (cumulativeMeetingDetractors / cumulativeMeetingFeedback )) * 100)|round %}
+                                                        {% set npmScore = (((cumulativeMeetingPromoters - cumulativeMeetingDetractors) / cumulativeMeetingFeedback) * 100)|round %}
 
                                                         <div class="uk-grid-small uk-text-center uk-text-left@m uk-flex-middle" uk-grid>
                                                             <div class="uk-width-1-1 uk-width-expand@m">
@@ -511,6 +536,121 @@
                                                     </div>
                                                 {% endif %}
 
+
+                                                {% if cumulativeSchoolFeedback > 0 %}
+                                                    <div class="school-experience">
+                                                        {% set npmScore = (((cumulativeSchoolPromoters - cumulativeSchoolDetractors) / cumulativeSchoolFeedback ) * 100)|round %}
+
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-flex-middle" uk-grid>
+                                                            <div class="uk-width-1-1 uk-width-expand@m">
+                                                                <p>Net Promoter Score (NPS™) is one of the most widely used customer satisfaction tools in business today.</p>
+                                                                <a class="uk-button uk-button-default uk-button-small" href="#modal-nps-score" uk-toggle>More info</a>
+                                                                <div id="modal-nps-score" uk-modal>
+                                                                    <div class="uk-modal-dialog uk-modal-body">
+                                                                        <p>Developed by Bain & Co in 2006, it is based on one question:</p>
+                                                                        <strong>“How likely is it that you would recommend us to a friend?”</strong>
+                                                                        <p>which is then answered on a 0 through 10 scale from “not at all likely” to “extremely likely”. Respondents who reply with a 9 or 10 are viewed as promoters: strong enthusiasts for your product or service. Those answering 7 or 8 are categorized as passives: satisfied customers but not enthusiastic. Those providing a 0 through 6 score are detractors: unhappy customers. To calculate a NPS™, you take the percent of respondents who are promoters and subtract the percent of respondents who are detractors to give you a number between zero and one. NPS range from -100 to +100. Average NPS for guest instructors and site visit hosts in 2018-19 was 68.</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="uk-width-1-1 uk-width-auto@m">
+                                                                <div class="uk-align-center">
+                                                                    <div class="react-gauge-chart"
+                                                                        data-bg-color="#cccccc"
+                                                                        data-label="NPS Score"
+                                                                        data-max="100"
+                                                                        data-min="-100"
+                                                                        data-value="{{ npmScore }}"
+                                                                    ></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                            <div class="uk-width-1-2 uk-width-1-3@m">
+                                                                <div class="uk-text-meta">Average Rating</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeSchoolRating / cumulativeSchoolFeedback )|round(2, 'floor') }}</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-2 uk-width-1-3@m">
+                                                                <div class="uk-text-meta">Total Responses</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ cumulativeSchoolFeedback }}</h4>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                            <div class="uk-width-1-3">
+                                                                <div class="uk-text-meta">Provider Career Insights</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeSchoolInsight / cumulativeSchoolFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-3">
+                                                                <div class="uk-text-meta">Enjoyable/Engaging</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeSchoolEnjoyable / cumulativeSchoolFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-3">
+                                                                <div class="uk-text-meta">Learned Something</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeSchoolLearned / cumulativeSchoolFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+
+                                                {% if cumulativeCompanyFeedback > 0 %}
+                                                    <div class="company-experience">
+                                                        {% set npmScore = (((cumulativeCompanyPromoters - cumulativeCompanyDetractors) / cumulativeCompanyFeedback) * 100)|round %}
+
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-flex-middle" uk-grid>
+                                                            <div class="uk-width-1-1 uk-width-expand@m">
+                                                                <p>Net Promoter Score (NPS™) is one of the most widely used customer satisfaction tools in business today.</p>
+                                                                <a class="uk-button uk-button-default uk-button-small" href="#modal-nps-score" uk-toggle>More info</a>
+                                                                <div id="modal-nps-score" uk-modal>
+                                                                    <div class="uk-modal-dialog uk-modal-body">
+                                                                        <p>Developed by Bain & Co in 2006, it is based on one question:</p>
+                                                                        <strong>“How likely is it that you would recommend us to a friend?”</strong>
+                                                                        <p>which is then answered on a 0 through 10 scale from “not at all likely” to “extremely likely”. Respondents who reply with a 9 or 10 are viewed as promoters: strong enthusiasts for your product or service. Those answering 7 or 8 are categorized as passives: satisfied customers but not enthusiastic. Those providing a 0 through 6 score are detractors: unhappy customers. To calculate a NPS™, you take the percent of respondents who are promoters and subtract the percent of respondents who are detractors to give you a number between zero and one. NPS range from -100 to +100. Average NPS for guest instructors and site visit hosts in 2018-19 was 68.</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="uk-width-1-1 uk-width-auto@m">
+                                                                <div class="uk-align-center">
+                                                                    <div class="react-gauge-chart"
+                                                                        data-bg-color="#cccccc"
+                                                                        data-label="NPS Score"
+                                                                        data-max="100"
+                                                                        data-min="-100"
+                                                                        data-value="{{ npmScore }}"
+                                                                    ></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                            <div class="uk-width-1-2 uk-width-1-3@m">
+                                                                <div class="uk-text-meta">Average Rating</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeCompanyRating / cumulativeCompanyFeedback )|round(2, 'floor') }}</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-2 uk-width-1-3@m">
+                                                                <div class="uk-text-meta">Total Responses</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ cumulativeCompanyFeedback }}</h4>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                            <div class="uk-width-1-3">
+                                                                <div class="uk-text-meta">Provider Career Insights</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeCompanyInsight / cumulativeCompanyFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-3">
+                                                                <div class="uk-text-meta">Enjoyable/Engaging</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeCompanyEnjoyable / cumulativeCompanyFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-3">
+                                                                <div class="uk-text-meta">Learned Something</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeCompanyLearned / cumulativeCompanyFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+
                                                 <div class="all-feedback">
                                                     {% set npmScore = (((cumulativeTotalPromoters / cumulativeTotalFeedback ) - (cumulativeTotalDetractors / cumulativeTotalFeedback )) * 100)|round %}
 
@@ -527,6 +667,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="uk-width-1-1 uk-width-auto@m">
+
                                                             <div class="uk-align-center">
                                                                 <div class="react-gauge-chart"
                                                                      data-bg-color="#cccccc"
