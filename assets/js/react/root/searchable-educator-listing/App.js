@@ -107,7 +107,7 @@ class App extends React.Component {
 
         return this.props.educators.filter(educator => {
             // Set Searchable Fields
-            const searchableFields = ["firstName", "lastName"];
+            const searchableFields = ["firstName", "lastName", "briefBio"];
 
             // Filter By School
             if ( !!this.props.search.school && (

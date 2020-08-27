@@ -52,7 +52,6 @@ export function zipcodeChanged(zipcode) {
 
 export function loadProfessionals(url) {
     return (dispatch, getState) => {
-
         dispatch({type: actionTypes.PROFESSIONALS_LOADING})
 
         return api.get(url)
