@@ -207,6 +207,7 @@ class DashboardController extends AbstractController
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
                     'experience' => $event,
+                    'deleted' => false
                 ]);
 
                 if(!$feedback) {
