@@ -234,20 +234,40 @@ class AppExtension extends AbstractExtension
 
     public function pendingRequests(User $user) {
 
-        $company_experience_total = 0;
+        $requests_total = 0;
         if($user->isStudent()) {
-            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadStudentCompanyRequests($user);
-            $company_experience_total = count($companyExperienceRequests);
+            $my_requests = $this->requestRepository->getUnreadMyRequestsStudent($user);
+            $requests_total = $requests_total + count($my_requests);
+
+            $my_company_experiences = $this->requestRepository->getUnreadErsfceStudent($user);
+            $requests_total = $requests_total + count($my_company_experiences);
         }
 
         if($user->isEducator()) {
-            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadEducatorCompanyRequests($user);
-            $company_experience_total = count($companyExperienceRequests);
+
+            $my_requests = $this->requestRepository->getUnreadMyRequestsEducator($user);
+            $requests_total = $requests_total + count($my_requests);
+
+            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeEducator($user);
+            $requests_total = $requests_total + count($my_approvals);
+            
+
+            // $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadEducatorCompanyRequests($user);
+            // $addtl_total = $addtl_total + count($companyExperienceRequests);
         }
 
-        $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
-        $requests_total = count($requests);
-        return $company_experience_total + $requests_total;
+        if($user->isProfessional()) {
+            $my_requests = $this->requestRepository->getUnreadMyRequestsProfessional($user);
+            $requests_total = $requests_total + count($my_requests);
+
+            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeProfessional($user);
+            $requests_total = $requests_total + count($my_approvals);
+        }
+
+        // $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        // $requests_total = count($requests);
+        // echo $requests_total;
+        return $requests_total;
     }
 
     public function ucwords($text) {
@@ -268,7 +288,7 @@ class AppExtension extends AbstractExtension
         return count($unreadMessages);
     }
 
-    public function renderRequest( $request, $user ) {
+    public function renderRequest( $request, $user, $location = "", $parentTab = "" ) {
 
         switch ($request->getClassName()) {
             case "JoinCompanyRequest":
@@ -285,6 +305,8 @@ class AppExtension extends AbstractExtension
                 return $this->twig->render('request/partials/_join_companies.html.twig', [
                     'request' => $request,
                     'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab
                 ]);
                 break;
             case "NewCompanyRequest":
@@ -299,6 +321,8 @@ class AppExtension extends AbstractExtension
                 return $this->twig->render('request/partials/_new_companies.html.twig', [
                     'request' => $request,
                     'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab
                 ]);
                 break;
             case "TeachLessonRequest":
@@ -314,6 +338,8 @@ class AppExtension extends AbstractExtension
                 return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab
                 ]);
                 break;
             case "EducatorRegisterStudentForCompanyExperienceRequest":
@@ -334,6 +360,8 @@ class AppExtension extends AbstractExtension
                 return $this->twig->render('request/partials/_educator_register_student_for_company_experience_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab
                 ]);
                 break;
             case "StudentToMeetProfessionalRequest":
@@ -352,6 +380,8 @@ class AppExtension extends AbstractExtension
                 return $this->twig->render('request/partials/_student_to_meet_professional_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab
                 ]);
                 break;
             case "UserRegisterForSchoolExperienceRequest":
@@ -369,6 +399,8 @@ class AppExtension extends AbstractExtension
                 return $this->twig->render('request/partials/_user_register_for_school_experience_request.html.twig', [
                     'request' => $request,
                     'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab
                 ]);
                 break;
             default:
