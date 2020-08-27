@@ -74,7 +74,7 @@
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
             <li class="uk-active"><a href="#requests-mine" id="my-requests_pending">{% if myRequests_pending > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}My Requests {% if myRequests_pending > 0 %}(<span>{{ myRequests_pending }}</span>){% endif %}</a></li>
             {% if requestsThatNeedMyApproval|length > 0 %}
-                <li><a href="#requests-approvals">{% if myApprovals_requests > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}My Approvals {% if myApprovals_requests > 0 %}(<span>{{ myApprovals_requests }}</span>){% endif %}</a></li>
+                <li><a href="#requests-approvals" id="my-requests-approval">{% if myApprovals_requests > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}My Approvals {% if myApprovals_requests > 0 %}(<span>{{ myApprovals_requests }}</span>){% endif %}</a></li>
             {% endif %}
             <li>
                 <a href="#requests-completed" id="history-tab">
@@ -156,9 +156,7 @@
                     {% endif %}
 
                     {% if myDeniedAccessRequests|length > 0 or myApprovedAccessRequests|length > 0 %}
-                        {% if user.isEducator() %}
-                            <input type="hidden" id="history_total" value="{{ educatorHasSeenCompanyRequestsApproval + educatorHasSeenCompanyRequestsDenial }}" />
-                        {% endif %}
+                        
                         <div class="uk-section uk-section-muted uk-padding uk-margin">
                             <h3>Approvals I Requested</h3>
                             <div class="uk-width-xlarge">
@@ -341,13 +339,13 @@
     function display_message(type, message) {
         $('.main-content').prepend('<div class="uk-container uk-margin-bottom"><div class="uk-alert-' + type + ' uk-margin" uk-alert><a class="uk-alert-close" uk-close></a><p>' + message + '</p></div></div>');
     
-        $('#approval-count').html( parseInt($('#approval-count').html()) - 1);
+        // $('#approval-count').html( parseInt($('#approval-count').html()) - 1);
 
-        if( (parseInt($('.main-navigation__meta-requests-num').html()) - 1) <= 0){
-            $('.main-navigation__meta-requests-num').remove();
-        } else {
-            $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1 );
-        }
+        // if( (parseInt($('.main-navigation__meta-requests-num').html()) - 1) <= 0){
+        //     $('.main-navigation__meta-requests-num').remove();
+        // } else {
+        //     $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1 );
+        // }
 
     }
 
@@ -384,6 +382,16 @@
                 // Check if the value is now zero and if so remove the red dot
                 if(parseInt($('#' + parentTab + " > span").html()) == 0){
                     $('#' + parentTab + " > small").remove();
+                }
+            }
+
+            // Decrement top menu counter value by 1
+            if( parseInt( $('.main-navigation__meta-requests-num').html()) > 0) {
+                $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1);
+
+                // Check if the value is now zero and if so remove the red dot
+                if( parseInt($('.main-navigation__meta-requests-num').html()) == 0 ) {
+                    $('.main-navigation__meta-requests-num').remove();
                 }
             }
 

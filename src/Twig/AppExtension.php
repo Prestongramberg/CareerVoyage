@@ -234,20 +234,40 @@ class AppExtension extends AbstractExtension
 
     public function pendingRequests(User $user) {
 
-        $company_experience_total = 0;
+        $requests_total = 0;
         if($user->isStudent()) {
-            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadStudentCompanyRequests($user);
-            $company_experience_total = count($companyExperienceRequests);
+            $my_requests = $this->requestRepository->getUnreadMyRequestsStudent($user);
+            $requests_total = $requests_total + count($my_requests);
+
+            $my_company_experiences = $this->requestRepository->getUnreadErsfceStudent($user);
+            $requests_total = $requests_total + count($my_company_experiences);
         }
 
         if($user->isEducator()) {
-            $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadEducatorCompanyRequests($user);
-            $company_experience_total = count($companyExperienceRequests);
+
+            $my_requests = $this->requestRepository->getUnreadMyRequestsEducator($user);
+            $requests_total = $requests_total + count($my_requests);
+
+            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeEducator($user);
+            $requests_total = $requests_total + count($my_approvals);
+            
+
+            // $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadEducatorCompanyRequests($user);
+            // $addtl_total = $addtl_total + count($companyExperienceRequests);
         }
 
-        $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
-        $requests_total = count($requests);
-        return $company_experience_total + $requests_total;
+        if($user->isProfessional()) {
+            $my_requests = $this->requestRepository->getUnreadMyRequestsProfessional($user);
+            $requests_total = $requests_total + count($my_requests);
+
+            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeProfessional($user);
+            $requests_total = $requests_total + count($my_approvals);
+        }
+
+        // $requests= $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        // $requests_total = count($requests);
+        // echo $requests_total;
+        return $requests_total;
     }
 
     public function ucwords($text) {

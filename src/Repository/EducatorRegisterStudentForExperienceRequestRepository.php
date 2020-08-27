@@ -80,11 +80,13 @@ class EducatorRegisterStudentForExperienceRequestRepository extends ServiceEntit
             ->getResult();
     }
 
+    
+
     public function getUnreadEducatorCompanyRequests(EducatorUser $educator) {
         $user_id = $educator->getId();
         $query = sprintf('SELECT * FROM educator_register_student_for_company_experience_request e, request r 
                           WHERE e.id=r.id 
-                          AND e.educator_has_seen = false
+                          AND r.educator_has_seen = false
                           AND r.created_by_id = '.$user_id);
 
         $em = $this->getEntityManager();

@@ -1,4 +1,5 @@
 <li id="ersfcer_{{ request.id }}">
+    <small>-- {{ request.id }} --</small>
     {% if request.wasCreatedByUser(user) %}
 
         {% if user.isEducator() %}
@@ -63,7 +64,11 @@
         {% endif %}
         
         {% if user.isProfessional() %}
-            <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+            {% if request.professionalHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}"><small><em class="fa fa-circle"></em></small> Request to register students for company experience.</a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+            {% endif %}
         {% endif %}
 
         

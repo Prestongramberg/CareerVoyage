@@ -1,4 +1,6 @@
 <li id="urfser_{{ request.id }}">
+
+    <small>-- {{ request.id }} --</small>
     {% if request.wasCreatedByUser(user) %}
         <a class="uk-accordion-title" href="#">Request to register for school experience.</a>
         <div class="uk-accordion-content">
