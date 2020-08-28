@@ -12,8 +12,8 @@ class CompanyListing extends Component {
         return (
             <div className="uk-card uk-card-default uk-grid-collapse uk-flex-left uk-margin" data-uk-grid>
                 <div className="uk-card-media-left uk-width-1-1 uk-width-medium@m uk-visible@m">
-                    <div className="company-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
-                        style={{backgroundImage: `url(${this.props.image})`, minHeight: '150px'}}>
+                    <div className="company-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+                        style={{backgroundImage: `url(${this.props.image})`}}>
                         <div className="uk-inline uk-padding-small">
                             <FavoriteCompany
                                 boundByProps={true}
@@ -30,7 +30,7 @@ class CompanyListing extends Component {
                 <div className="uk-grid-collapse uk-flex-left uk-hidden@m" data-uk-grid>
                     <div className="uk-card-media-left uk-width-auto">
                         <div className="company-listing__image uk-width-1-1 uk-width-small uk-height-small uk-height-max-small uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
-                            style={{backgroundImage: `url(${this.props.image})`, height: '150px'}}>
+                            style={{backgroundImage: `url(${this.props.image})`}}>
                             <div className="uk-inline uk-padding-small">
                                 <FavoriteCompany
                                     boundByProps={true}
