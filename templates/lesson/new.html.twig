@@ -61,15 +61,22 @@
                     </div>
                 </fieldset>
             </div>
+            <div class="uk-margin">
+                <a href="#" uk-switcher-item="1" class="uk-button uk-button-primary uk-button-small">Next</a>
+            </div>
         </div>
         <div class="page-lesson-add__industries">
             <div class="uk-width-xlarge">
+                <div class="uk-alert uk-alert-warning"><span class="fa fa-warning"></span> Be sure to choose at least one industry and secondary industry below.</div>
                 <fieldset class="uk-fieldset">
                     <div id="subscribe-secondary-industries"
                          data-field-name="new_lesson[secondaryIndustries]"
                          data-remove-dom-id="new_lesson_secondaryIndustries"
                     ></div>
                 </fieldset>
+            </div>
+            <div class="uk-margin">
+                <a href="#" uk-switcher-item="2" class="uk-button uk-button-primary uk-button-small">Next</a>
             </div>
         </div>
         <div class="page-lesson-add__courses">
@@ -88,6 +95,9 @@
                     </div><br />
                     <a href="{{ path('request_to_add_course') }}" target="_blank">Don't see a course you are looking for? Let us know</a>
                 </fieldset>
+            </div>
+            <div class="uk-margin">
+                <a href="#" uk-switcher-item="3" class="uk-button uk-button-primary uk-button-small">Next</a>
             </div>
         </div>
         <div class="page-lesson-add__outcomes">
@@ -122,12 +132,13 @@ After describing learning outcomes, feel free to share additional resources whic
                     {{ form_errors(form.educationalStandards) }}
                 </div>
             </fieldset>
+            <div class="uk-margin">
+                <button class="uk-button uk-button-primary uk-button-small">Create Lesson</button>
+            </div>
         </div>
     </div>
 
-    <div class="uk-margin">
-        <button class="uk-button uk-button-primary uk-button-small">Create Lesson</button>
-    </div>
+    
 
     {{ form_end(form) }}
 
