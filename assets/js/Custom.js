@@ -1208,4 +1208,14 @@ jQuery(document).ready(function($) {
         window.scrollTo(0,0);
     }
 
+
+
+    /**
+     * Determine if career fields are filled in on event creation / edit
+     */
+
+     $('#filled-career-fields').on('click', function(){
+
+     });
+
 });
