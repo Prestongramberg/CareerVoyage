@@ -1,6 +1,10 @@
 <li id="ersfcer_{{ request.id }}">
     {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to register student for company experience.</a>
+        <a class="uk-accordion-title" href="#">
+            Request to register student for company experience.
+            <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+            <br /><strong>{{ request.companyExperience.title }}</strong> {% if request.studentUser %} - Student: {{ request.studentUser.fullName }}{% endif %}</small>
+        </a>
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -46,7 +50,11 @@
             </table>
         </div>
         {% else %}
-            <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+            <a class="uk-accordion-title" href="#">
+                Request to register students for company experience.
+                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                <br /><strong>{{ request.companyExperience.title }}</strong> {% if request.studentUser %} - ({{ request.studentUser.fullName }}){% endif %}</small>
+            </a>
             <div class="uk-accordion-content">
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested that you register the following students
                     to the experience: {{ request.companyExperience.title }}</p>
