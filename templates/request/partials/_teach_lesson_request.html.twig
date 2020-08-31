@@ -5,9 +5,17 @@
 
         {% if request.wasCreatedByUser(user) %}
             {% if request.createdBy.isEducator and request.educatorHasSeen == false %}
-                <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Request to teach a lesson</a>
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
+                    <small><em class="fa fa-circle"></em></small> Request to teach a lesson
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                    <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.needsApprovalBy.fullName }}</small>
+                </a>
             {% else %}
-                <a class="uk-accordion-title" href="#">Request to teach a lesson</a>
+                <a class="uk-accordion-title" href="#">
+                    Request to teach a lesson
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                    <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.needsApprovalBy.fullName }}</small>
+                </a>
             {% endif %}
             
             <div class="uk-accordion-content">
@@ -116,9 +124,17 @@
             </div>
         {% else %}
             {% if request.professionalHasSeen == false %}
-                <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Request to teach a lesson</a>
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
+                    <small><em class="fa fa-circle"></em></small> Request to teach a lesson
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                    <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</small>
+                </a>
             {% else %}
-                <a class="uk-accordion-title" href="#">Request to teach a lesson</a>
+                <a class="uk-accordion-title" href="#">
+                    Request to teach a lesson
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                    <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</small>
+                </a>
             {% endif %}
             <div class="uk-accordion-content">
                 <table class="uk-table uk-table-small uk-table-divider">
