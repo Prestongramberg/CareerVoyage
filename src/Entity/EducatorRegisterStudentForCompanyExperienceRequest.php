@@ -24,6 +24,7 @@ class EducatorRegisterStudentForCompanyExperienceRequest extends Request
      */
     private $studentUser;
 
+
     public function getCompanyExperience(): ?CompanyExperience
     {
         return $this->companyExperience;

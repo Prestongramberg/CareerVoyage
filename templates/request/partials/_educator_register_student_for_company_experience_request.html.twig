@@ -1,6 +1,14 @@
 <li id="ersfcer_{{ request.id }}">
     {% if request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Request to register student for company experience.</a>
+
+        {% if user.isEducator() %}
+            {% if request.educatorHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}" data-location="{{ location }}"  data-parent="{{ parentTab }}" ><small><em class="fa fa-circle"></em></small> Request to register student for company experience.</a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to register student for company experience.</a>
+            {% endif %}
+        {% endif %}
+        
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -45,35 +53,51 @@
                 </tbody>
             </table>
         </div>
-        {% else %}
-            <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
-            <div class="uk-accordion-content">
-                <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested that you register the following students
-                    to the experience: {{ request.companyExperience.title }}</p>
-                <p>Created On {{ request.createdAt|date("m/d/Y h:i:s A") }}</p>
-                <ul>
-                    <li>
-                        {% if request.studentUser %}
-                            {{ request.studentUser.fullName }}
-                        {% endif %}
-                    </li>
-                </ul>
-                {% if render_request_status_text( request ) == "Pending" %}
-                    <form method="post" class="uk-inline ersfcer-approval" action="{{ path('approve_request', {'id': request.id}) }}">
-                        <input class="uk-label uk-label-success" type="submit" value="Approve">
-                        <input type="hidden" name="request" value="{{ request.id }}">
-                        <input type="hidden" name="element" value="ersfcer_{{ request.id }}">
-                    </form>
-                    <form method="post" class="uk-inline ersfcer-denial" action="{{ path('deny_request', {'id': request.id}) }}">
-                        <input class="uk-label uk-label-danger" type="submit" value="Deny">
-                        <input type="hidden" name="request" value="{{ request.id }}">
-                        <input type="hidden" name="element" value="ersfcer_{{ request.id }}">
-                    </form>
-                {% endif %}
-                {% if user_can_chat_with_user( user, request.createdBy ) %}
-                    <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
-                {% endif %}
-            </div>
+    {% else %}
+        {% if user.isStudent() %}
+            {% if request.studentHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}"><small><em class="fa fa-circle"></em></small> Request to register students for company experience.</a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+            {% endif %}
+        {% endif %}
+        
+        {% if user.isProfessional() %}
+            {% if request.professionalHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}"><small><em class="fa fa-circle"></em></small> Request to register students for company experience.</a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+            {% endif %}
+        {% endif %}
+
+        
+        <div class="uk-accordion-content">
+            <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested that you register the following students
+                to the experience: {{ request.companyExperience.title }}</p>
+            <p>Created On {{ request.createdAt|date("m/d/Y h:i:s A") }}</p>
+            <ul>
+                <li>
+                    {% if request.studentUser %}
+                        {{ request.studentUser.fullName }}
+                    {% endif %}
+                </li>
+            </ul>
+            {% if render_request_status_text( request ) == "Pending" %}
+                <form method="post" class="uk-inline ersfcer-approval" action="{{ path('approve_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-success" type="submit" value="Approve">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                    <input type="hidden" name="element" value="ersfcer_{{ request.id }}">
+                </form>
+                <form method="post" class="uk-inline ersfcer-denial" action="{{ path('deny_request', {'id': request.id}) }}">
+                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                    <input type="hidden" name="request" value="{{ request.id }}">
+                    <input type="hidden" name="element" value="ersfcer_{{ request.id }}">
+                </form>
+            {% endif %}
+            {% if user_can_chat_with_user( user, request.createdBy ) %}
+                <button class="uk-label uk-label-success" data-message-user-id="{{ request.createdBy.id }}">Chat with {{ request.createdBy.fullName }}</button>
+            {% endif %}
+        </div>
     {% endif %}
 
 </li>

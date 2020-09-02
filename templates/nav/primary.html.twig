@@ -70,7 +70,7 @@
                             <div uk-dropdown="pos: bottom-right">
                                 <ul class="uk-nav uk-dropdown-nav">
                                     {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
-                                        You are impersonating {{ app.user.email ? app.user.email : app.user.username }}
+                                        You are impersonating<br /><em>{{ app.user.firstName }} {{ app.user.lastName }}</em><br />{{ app.user.email ? app.user.email : app.user.username }}<br />
                                         <a href="{{ path('dashboard', {'_switch_user': '_exit'}) }}">Exit impersonation</a>
                                         <li class="uk-nav-divider"></li>
                                     {% endif %}
