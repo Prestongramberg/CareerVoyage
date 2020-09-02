@@ -168,7 +168,7 @@ class EducatorUserRepository extends ServiceEntityRepository
      */
     public function fetchAll() {
 
-        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, eu.phone, sc.name as school_name,
+        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, eu.phone, sc.name, eu.brief_bio as school_name,
           sc.street as street,
           sc.city as city,
           s.name as state,

@@ -11,6 +11,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
+use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -80,6 +81,12 @@ class NewLessonType extends AbstractType
                     'choice_label' => 'title',
                     'expanded' => false,
                     'multiple' => false,
+                    'placeholder' => 'Please select a primary course',
+                    'empty_data' => null,
+                    'required' => true,
+                    'query_builder' => function(CourseRepository $c) {
+                        return $c->createAlphabeticalSearch();
+                    }
                 ]
             )
             ->add(
@@ -90,9 +97,12 @@ class NewLessonType extends AbstractType
                     'choice_label' => 'title',
                     'expanded' => true,
                     'multiple' => true,
+                    'query_builder' => function(CourseRepository $c) {
+                        return $c->createAlphabeticalSearch();
+                    },
                     'choice_attr' => function ($choice, $key, $value) {
                         return ['class' => 'uk-checkbox'];
-                    },
+                    }
                 ]
             )->add('shortDescription', TextareaType::class, [])
             ->add('summary', TextType::class, [])

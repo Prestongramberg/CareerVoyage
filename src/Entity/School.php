@@ -57,7 +57,7 @@ class School
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\EducatorUser", mappedBy="school")
-     * @OrderBy({"lastName" = "ASC"})
+     * @ORM\OrderBy({"lastName" = "ASC"})
      */
     private $educatorUsers;
 

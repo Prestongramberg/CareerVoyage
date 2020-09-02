@@ -15,6 +15,10 @@
                                 </a>
                                 <p class="uk-text-meta uk-margin-remove-top">
                                     <a href="#">{{ profileUser.school.name }}</a> - Educator
+                                    <br />
+                                    {% for course in profileUser.myCourses %}
+                                        - {{ course.title }}
+                                    {% endfor %}
                                 </p>
                             </div>
                         </div>

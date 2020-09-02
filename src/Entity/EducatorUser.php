@@ -45,6 +45,7 @@ class EducatorUser extends User
     private $phoneExt;
 
     /**
+     * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $briefBio;

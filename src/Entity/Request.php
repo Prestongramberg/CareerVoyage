@@ -77,6 +77,24 @@ abstract class Request
      */
     private $requestPossibleApprovers;
 
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected $studentHasSeen = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected $educatorHasSeen = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected $professionalHasSeen = false;
+
+
+
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
@@ -172,6 +190,41 @@ abstract class Request
         return $this;
     }
 
+
+    public function getStudentHasSeen(): ?bool
+    {
+        return $this->studentHasSeen;
+    }
+
+    public function setStudentHasSeen(?bool $studentHasSeen): self
+    {
+        $this->studentHasSeen = $studentHasSeen;
+        return $this;
+    }
+
+    public function getEducatorHasSeen(): ?bool
+    {
+        return $this->educatorHasSeen;
+    }
+
+    public function setEducatorHasSeen(?bool $educatorHasSeen): self
+    {
+        $this->educatorHasSeen = $educatorHasSeen;
+        return $this;
+    }
+
+    public function getProfessionalHasSeen(): ?bool
+    {
+        return $this->professionalHasSeen;
+    }
+
+    public function setProfessionalHasSeen(?bool $professionalHasSeen): self
+    {
+        $this->professionalHasSeen = $professionalHasSeen;
+        return $this;
+    }
+
+
     public function initializeRequest()
     {
         $activationCode = bin2hex(random_bytes(32));
@@ -208,5 +261,4 @@ abstract class Request
 
         return $this;
     }
-
 }

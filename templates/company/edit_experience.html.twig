@@ -85,6 +85,9 @@
                     </fieldset>
 
                 </div>
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="1" class="uk-button uk-button-primary uk-button-small">Next</a>
+                </div>
             </div>
             <div class="page-company-experience-edit__availability">
                 <div class="uk-width-xlarge">
@@ -107,6 +110,9 @@
                         </div>
                     </fieldset>
                 </div>
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="2" class="uk-button uk-button-primary uk-button-small">Next</a>
+                </div>
             </div>
             <div class="page-company-experience-edit__careers">
                 <div class="uk-width-xlarge">
@@ -118,6 +124,8 @@
                         <li><label><input type="radio" name="notify_students" value="match" />Notify Students and Teachers Who Selected Career Fields Below</label></li>
                     </ul>
 
+                    <div class="uk-alert uk-alert-warning"><span class="fa fa-warning"></span> Be sure to choose at least one industry and secondary industry below.</div>
+
                     <fieldset class="uk-fieldset">
                         <div id="subscribe-secondary-industries"
                              data-field-name="edit_company_experience[secondaryIndustries]"
@@ -125,6 +133,9 @@
                              data-remove-dom-id="edit_company_experience_secondaryIndustries"
                         ></div>
                     </fieldset>
+                </div>
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="3" class="uk-button uk-button-primary uk-button-small">Next</a>
                 </div>
             </div>
             <div class="page-company-experience-edit__contact">
@@ -162,6 +173,9 @@
                             {{ form_errors(form.zipcode) }}
                         </div>
                     </fieldset>
+                </div>
+                <div class="uk-margin">
+                    <button class="uk-button uk-button-primary uk-button-small">Save</button>
                 </div>
             </div>
             <div class="page-company-experience-edit__files">
@@ -247,9 +261,7 @@
             </div>
         </div>
 
-        <div class="uk-margin">
-            <button class="uk-button uk-button-primary uk-button-small">Save</button>
-        </div>
+        
 
         {{ form_end(form) }}
 

@@ -72,6 +72,9 @@
                     </fieldset>
 
                 </div>
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="1" class="uk-button uk-button-primary uk-button-small">Next</a>
+                </div>
             </div>
             <div class="page-company-experience-add__availability">
                 <div class="uk-width-xlarge">
@@ -94,16 +97,21 @@
                         </div>
                     </fieldset>
                 </div>
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="2" class="uk-button uk-button-primary uk-button-small">Next</a>
+                </div>
             </div>
             <div class="page-company-experience-add__careers">
                 <div class="uk-width-xlarge">
 
-                    <h3>Notify Students of Event</h3>
+                    <h4>Notify Students of Event</h4>
                     <ul class="uk-list">
                         <li><label><input type="radio" name="notify_students" value="none" checked="checked" />Do Not Send Email</label></li>
                         <li><label><input type="radio" name="notify_students" value="all" />Notify All Students and Teachers</label></li>
                         <li><label><input type="radio" name="notify_students" value="match" />Notify Students and Teachers Who Selected Career Fields Below</label></li>
                     </ul>
+
+                    <div class="uk-alert uk-alert-warning"><span class="fa fa-warning"></span> Be sure to choose at least one industry and secondary industry below.</div>
 
                     <fieldset class="uk-fieldset">
                         {% if secondaryIndustries %}
@@ -119,6 +127,9 @@
                             ></div>
                         {% endif %}
                     </fieldset>
+                </div>
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="3" class="uk-button uk-button-primary uk-button-small" id="filled-career-fields">Next</a>
                 </div>
             </div>
             <div class="page-company-experience-add__contact">
@@ -157,14 +168,16 @@
                         </div>
                     </fieldset>
                 </div>
+                <div class="uk-margin">
+                    <input type="submit" class="uk-button uk-button-primary uk-button-small" value="Save" />
+                </div>
             </div>
         </div>
 
-        <div class="uk-margin">
-            <button class="uk-button uk-button-primary uk-button-small">Save</button>
-        </div>
+        
 
         {{ form_end(form) }}
 
     </div>
+
 {% endblock %}
