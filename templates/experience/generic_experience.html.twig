@@ -44,16 +44,19 @@
                     <tbody>
                     <tr>
                         <td>Address</td>
-                        <td>
-                            <p>
-                                {{ experience.street }}<br />
-                                {{ experience.city }} {{ experience.state.name }}, {{ experience.zipcode }}
-                            </p>
-                        </td>
+                        {% if experience.state %}
+                            <td>
+                                <p>
+                                    {{ experience.street }}<br />
+                                    {{ experience.city }} {{ experience.state.name }}, {{ experience.zipcode }}
+                                </p>
+                            </td>
+                        {% endif %}
                     </tr>
                     </tbody>
                 </table>
             </div>
+            
         </div>
     </div>
 
