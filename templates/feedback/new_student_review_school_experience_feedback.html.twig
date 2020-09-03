@@ -5,7 +5,8 @@
 
 {% block body %}
 
-    <div class="uk-container">
+    <div class="uk-container js-form">
+
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
         {% if form_errors(form) %}
@@ -19,6 +20,7 @@
 
             {% if experienceHasFeedback %}
                 <h3>Viewing your feedback for {{ experience.title }}</h3>
+                <p>Your responses are now locked.  This is for viewing only.</p>
             {% else %}
                 <h3>Giving feedback for {{ experience.title }}</h3>
             {% endif %}
@@ -27,7 +29,7 @@
                 <div>
                     {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
                     {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-hidden' }}) }}
-                    <div class="react-form-smile-rating" data-disabled="{{ experienceHasFeedback }}" data-name="student_review_meet_professional_experience_feedback_form[feedback][rating]" data-value="{{ feedback.rating }}"></div>
+                    <div class="react-form-smile-rating" data-disabled="{{ experienceHasFeedback }}" data-name="student_review_school_experience_feedback_form[feedback][rating]" data-value="{{ feedback.rating }}"></div>
                     {% if form_errors(form.feedback.rating) %}
                         <div class="uk-form-danger">
                             {{ form_errors(form.feedback.rating) }}
@@ -42,15 +44,15 @@
 
                     <label>Choose all that apply</label>
                     <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}" data-fields='[
-                        { "name": "student_review_meet_professional_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insight", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsight : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
-                        { "name": "student_review_meet_professional_experience_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
-                        { "name": "student_review_meet_professional_experience_feedback_form[feedback][learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew ? feedback.learnSomethingNew : false }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
+                        { "name": "student_review_school_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insights", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsight : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
+                        { "name": "student_review_school_experience_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
+                        { "name": "student_review_school_experience_feedback_form[feedback][learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew ? feedback.learnSomethingNew : false }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
                     ]'></div>
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.interestInWorkingForCompany, 'After this experience, my interest in working for this company or industry is*') }}
+                    {{ form_label(form.interestInWorkingForCompany, 'After this experience, my awareness of career opportunities for this industry is*') }}
                     {{ form_widget(form.interestInWorkingForCompany, {'attr': {'class': 'uk-hidden' }}) }}
-                    <div class="react-form-rating" data-disabled="{{ experienceHasFeedback }}" data-name="student_review_meet_professional_experience_feedback_form[interestInWorkingForCompany]" data-value="{{ feedback.interestInWorkingForCompany }}"></div>
+                    <div class="react-form-rating" data-disabled="{{ experienceHasFeedback }}" data-name="student_review_school_experience_feedback_form[interestInWorkingForCompany]" data-value="{{ feedback.interestInWorkingForCompany }}"></div>
                     {% if form_errors(form.interestInWorkingForCompany) %}
                         <div class="uk-form-danger">
                             {{ form_errors(form.interestInWorkingForCompany) }}
@@ -59,13 +61,13 @@
                     {{ form_errors(form.interestInWorkingForCompany) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a friend?*') }}
+                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a fellow student*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
-                    <div class="react-form-range" data-name="student_review_meet_professional_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
+                    <div class="react-form-range" data-name="student_review_school_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.additionalFeedback, 'Any specific thoughts, feedback?') }}
+                    {{ form_label(form.feedback.additionalFeedback, 'Additional Feedback (Optional)') }}
                     {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.feedback.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
                     {{ form_errors(form.feedback.additionalFeedback) }}
                 </div>
@@ -74,6 +76,7 @@
             <div class="uk-margin">
                 <button class="uk-button uk-button-primary uk-button-small">Submit</button>
             </div>
+
         </fieldset>
 
         {{ form_end(form) }}

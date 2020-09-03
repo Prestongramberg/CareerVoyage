@@ -45,7 +45,10 @@
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">My Favorites</a></li>
                     <li><a href="#user-events">My Experiences</a></li>
-                    <li><a href="#user-feedback">My Feedback</a></li>
+                    {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
+                        <li><a href="#user-feedback">My Feedback</a></li>
+                    {% endif %}
+                    <li><a href="#user-reviews">My Reviews</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -141,18 +144,25 @@
 
 
 
-
-                    <div class="user_preferences_feedback">
-
-                        {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
+                    {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
+                        {% set showSummary = false %}
+                        <div class="user_preferences_feedback">
                             <div uk-grid>
                                 <div class="uk-width-1-1 uk-width-small@m">
                                     <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
-                                            <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
+                                            {% if experience.getClassName() == "StudentToMeetProfessionalExperience" %}
+                                                <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
+                                                {% if experience.feedback|length > 0 %}
+                                                    {% if feedback.user.id != user.id %}
+                                                        {% set showSummary = true %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
                                         {% endfor %}
-
-                                        <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
+                                        {% if showSummary == true %}
+                                            <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                                 <div class="uk-width-1-1 uk-width-expand@m">
@@ -167,156 +177,164 @@
 
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
 
-                                            {% set cumulativeRating = 0 %}
-                                            {% set cumulativeShowedUp = 0 %}
-                                            {% set cumulativeOnTime = 0 %}
-                                            {% set cumulativePolite = 0 %}
-                                            {% set cumulativeEngaged = 0 %}
-                                            {% set totalFeedback = 0 %}
-
-                                            <div class="feedback-{{ experience.id }}">
-                                                <strong>Feedback for {{ experience.title }}</strong>
-                                                {% if experience.feedback|length > 0 %}
-                                                    <div class="uk-overflow-auto">
-                                                        <table class="uk-table uk-table-divider">
-                                                            <thead>
-                                                            <tr>
-                                                                <th>Role</th>
-                                                                <th>Rating</th>
-                                                                <th>Turned Up?</th>
-                                                                <th>On Time?</th>
-                                                                <th>Polite & Professional?</th>
-                                                                <th>Engaged & Asked Questions?</th>
-                                                                <th>Feedback</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {% for feedback in experience.feedback %}
+                                            {% if experience.getClassName() == "StudentToMeetProfessionalExperience" %}
 
 
+                                                {% set cumulativeRating = 0 %}
+                                                {% set cumulativeShowedUp = 0 %}
+                                                {% set cumulativeOnTime = 0 %}
+                                                {% set cumulativePolite = 0 %}
+                                                {% set cumulativeEngaged = 0 %}
+                                                {% set totalFeedback = 0 %}
 
-                                                                {% if feedback.user.id != user.id %}
-
-                                                                    {% set cumulativeTotalRating = cumulativeTotalRating + feedback.rating %}
-                                                                    {% set cumulativeTotalShowedUp = cumulativeTotalShowedUp + feedback.showUp %}
-                                                                    {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
-                                                                    {% set cumulativeTotalPolite = cumulativeTotalPolite + feedback.politeAndProfessional %}
-                                                                    {% set cumulativeTotalEngaged = cumulativeTotalEngaged + feedback.engagedAndAskedQuestions %}
-                                                                    {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
+                                                <div class="feedback-{{ experience.id }}">
+                                                    <strong>Feedback for {{ experience.title }}</strong>
+                                                    {% if experience.feedback|length > 0 %}
+                                                        <div class="uk-overflow-auto">
+                                                            <table class="uk-table uk-table-divider">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Role</th>
+                                                                    <th>Rating</th>
+                                                                    <th>Turned Up?</th>
+                                                                    <th>On Time?</th>
+                                                                    <th>Polite & Professional?</th>
+                                                                    <th>Engaged & Asked Questions?</th>
+                                                                    <th>Feedback</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                {% for feedback in experience.feedback %}
 
 
 
-                                                                    {% set cumulativeRating = cumulativeRating + feedback.rating %}
-                                                                    {% set cumulativeShowedUp = cumulativeShowedUp + feedback.showUp %}
-                                                                    {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
-                                                                    {% set cumulativePolite = cumulativePolite + feedback.politeAndProfessional %}
-                                                                    {% set cumulativeEngaged = cumulativeEngaged + feedback.engagedAndAskedQuestions %}
-                                                                    {% set totalFeedback = totalFeedback + 1 %}
+                                                                    {% if feedback.user.id != user.id %}
 
-                                                                    {% set role = '' %}
-                                                                    {% if feedback.user.educator %}
-                                                                        {% set role = 'Educator' %}
-                                                                    {% elseif feedback.user.professional %}
-                                                                        {% set role = 'Professional' %}
-                                                                    {% elseif feedback.user.educator %}
-                                                                        {% set role = 'Educator' %}
-                                                                    {% else %}
-                                                                        {% set role = 'Unknown' %}
+                                                                        {% set cumulativeTotalRating = cumulativeTotalRating + feedback.rating %}
+                                                                        {% set cumulativeTotalShowedUp = cumulativeTotalShowedUp + feedback.showUp %}
+                                                                        {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
+                                                                        {% set cumulativeTotalPolite = cumulativeTotalPolite + feedback.politeAndProfessional %}
+                                                                        {% set cumulativeTotalEngaged = cumulativeTotalEngaged + feedback.engagedAndAskedQuestions %}
+                                                                        {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
+
+
+
+                                                                        {% set cumulativeRating = cumulativeRating + feedback.rating %}
+                                                                        {% set cumulativeShowedUp = cumulativeShowedUp + feedback.showUp %}
+                                                                        {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
+                                                                        {% set cumulativePolite = cumulativePolite + feedback.politeAndProfessional %}
+                                                                        {% set cumulativeEngaged = cumulativeEngaged + feedback.engagedAndAskedQuestions %}
+                                                                        {% set totalFeedback = totalFeedback + 1 %}
+
+                                                                        {% set role = '' %}
+                                                                        {% if feedback.user.educator %}
+                                                                            {% set role = 'Educator' %}
+                                                                        {% elseif feedback.user.professional %}
+                                                                            {% set role = 'Professional' %}
+                                                                        {% elseif feedback.user.educator %}
+                                                                            {% set role = 'Educator' %}
+                                                                        {% else %}
+                                                                            {% set role = 'Unknown' %}
+                                                                        {% endif %}
+
+                                                                        <tr>
+                                                                            <td class="uk-text-nowrap">{{ role }}</td>
+                                                                            <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+                                                                            <td class="uk-text-nowrap">{{ feedback.showUp == 1 ? "YES" : "NO" }}</td>
+                                                                            <td class="uk-text-nowrap">{{ feedback.wasOnTime == 1 ? "YES" : "NO" }}</td>
+                                                                            <td class="uk-text-nowrap">{{ feedback.politeAndProfessional == 1 ? "YES" : "NO" }}</td>
+                                                                            <td class="uk-text-nowrap">{{ feedback.engagedAndAskedQuestions == 1 ? "YES" : "NO" }}</td>
+                                                                            <td>{{ feedback.additionalFeedback }}</td>
+                                                                        </tr>
+
                                                                     {% endif %}
 
-                                                                    <tr>
-                                                                        <td class="uk-text-nowrap">{{ role }}</td>
-                                                                        <td class="uk-text-nowrap">{{ feedback.rating }}</td>
-                                                                        <td class="uk-text-nowrap">{{ feedback.showUp == 1 ? "YES" : "NO" }}</td>
-                                                                        <td class="uk-text-nowrap">{{ feedback.wasOnTime == 1 ? "YES" : "NO" }}</td>
-                                                                        <td class="uk-text-nowrap">{{ feedback.politeAndProfessional == 1 ? "YES" : "NO" }}</td>
-                                                                        <td class="uk-text-nowrap">{{ feedback.engagedAndAskedQuestions == 1 ? "YES" : "NO" }}</td>
-                                                                        <td>{{ feedback.additionalFeedback }}</td>
-                                                                    </tr>
+                                                                {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
 
-                                                                {% endif %}
+                                                        <h3>Data Breakdown:</h3>
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                            <div class="uk-width-1-2 uk-width-1-2@m">
+                                                                <div class="uk-text-meta">Average Rating</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeRating / totalFeedback ) }}</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-2 uk-width-1-2@m">
+                                                                <div class="uk-text-meta">Total Responses</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ totalFeedback|length }}</h4>
+                                                            </div>
+                                                        </div>
 
-                                                            {% endfor %}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
+                                                        <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                            <div class="uk-width-1-2">
+                                                                <div class="uk-text-meta">Turned Up?</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeShowedUp / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-2">
+                                                                <div class="uk-text-meta">On Time?</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeOnTime / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-2">
+                                                                <div class="uk-text-meta">Polite & Professional?</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativePolite / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                            <div class="uk-width-1-2">
+                                                                <div class="uk-text-meta">Engaged & Asked Questions?</div>
+                                                                <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeEngaged / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                            </div>
+                                                        </div>
 
-                                                    <h3>Data Breakdown:</h3>
-                                                    <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
-                                                        <div class="uk-width-1-2 uk-width-1-2@m">
-                                                            <div class="uk-text-meta">Average Rating</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeRating / totalFeedback ) }}</h4>
-                                                        </div>
-                                                        <div class="uk-width-1-2 uk-width-1-2@m">
-                                                            <div class="uk-text-meta">Total Responses</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ totalFeedback|length }}</h4>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
-                                                        <div class="uk-width-1-2">
-                                                            <div class="uk-text-meta">Turned Up?</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeShowedUp / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                        </div>
-                                                        <div class="uk-width-1-2">
-                                                            <div class="uk-text-meta">On Time?</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeOnTime / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                        </div>
-                                                        <div class="uk-width-1-2">
-                                                            <div class="uk-text-meta">Polite & Professional?</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativePolite / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                        </div>
-                                                        <div class="uk-width-1-2">
-                                                            <div class="uk-text-meta">Engaged & Asked Questions?</div>
-                                                            <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeEngaged / totalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                        </div>
-                                                    </div>
-
-                                                {% else %}
-                                                    <p>No feedback has been submitted yet.</p>
-                                                {% endif %}
-                                            </div>
+                                                    {% else %}
+                                                        <p>No feedback has been submitted yet.</p>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
 
-                                        <div class="feedback-summary">
-                                            <p><strong>Feedback Summary</strong></p>
+                                        {% if cumulativeTotalFeedback > 0 %}
+                                            <div class="feedback-summary">
+                                                <p><strong>Feedback Summary</strong></p>
 
-                                            <h3>Data Breakdown:</h3>
-                                            <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
-                                                <div class="uk-width-1-2 uk-width-1-2@m">
-                                                    <div class="uk-text-meta">Average Rating</div>
-                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalRating / cumulativeTotalFeedback )|round(2, 'floor') }}</h4>
+                                                <h3>Data Breakdown:</h3>
+                                                <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                    <div class="uk-width-1-2 uk-width-1-2@m">
+                                                        <div class="uk-text-meta">Average Rating</div>
+                                                        <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalRating / cumulativeTotalFeedback )|round(2, 'floor') }}</h4>
+                                                    </div>
+                                                    <div class="uk-width-1-2 uk-width-1-2@m">
+                                                        <div class="uk-text-meta">Total Responses</div>
+                                                        <h4 class="uk-heading-small uk-margin-remove-top">{{ cumulativeTotalFeedback }}</h4>
+                                                    </div>
                                                 </div>
-                                                <div class="uk-width-1-2 uk-width-1-2@m">
-                                                    <div class="uk-text-meta">Total Responses</div>
-                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ cumulativeTotalFeedback }}</h4>
+
+                                                <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+                                                    <div class="uk-width-1-2">
+                                                        <div class="uk-text-meta">Turned Up?</div>
+                                                        <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalShowedUp / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                    </div>
+                                                    <div class="uk-width-1-2">
+                                                        <div class="uk-text-meta">On Time?</div>
+                                                        <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalOnTime / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                    </div>
+                                                    <div class="uk-width-1-2">
+                                                        <div class="uk-text-meta">Polite & Professional?</div>
+                                                        <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalPolite / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                    </div>
+                                                    <div class="uk-width-1-2">
+                                                        <div class="uk-text-meta">Engaged & Asked Questions?</div>
+                                                        <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalEngaged / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            <div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
-                                                <div class="uk-width-1-2">
-                                                    <div class="uk-text-meta">Turned Up?</div>
-                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalShowedUp / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                </div>
-                                                <div class="uk-width-1-2">
-                                                    <div class="uk-text-meta">On Time?</div>
-                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalOnTime / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                </div>
-                                                <div class="uk-width-1-2">
-                                                    <div class="uk-text-meta">Polite & Professional?</div>
-                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalPolite / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                </div>
-                                                <div class="uk-width-1-2">
-                                                    <div class="uk-text-meta">Engaged & Asked Questions?</div>
-                                                    <h4 class="uk-heading-small uk-margin-remove-top">{{ ( cumulativeTotalEngaged / cumulativeTotalFeedback * 100 )|round(1, 'floor') }}%</h4>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {% endif %}
                                     </ul>
                                 </div>
                             </div>
-                        {% endif %}
+                        </div>
+                    {% endif %}
 
+                    <div class="user_preferences_reviews">
                         {# Professional Events with feedback and events missing feedback #}
                         <div class="uk-margin">
                             <div class="uk-card uk-card-default">
@@ -332,6 +350,7 @@
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
                                                         <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
+                                                            {# <small>{{ eventProps.event.getClassName() }}</small><br /> #}
                                                             <span class="uk-position-center-right"><button class="uk-button uk-button-text delete-feedback uk-text-danger" data-id="{{ eventProps.event.id }}">X</button></span> 
                                                             <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
                                                         </li>
@@ -345,7 +364,10 @@
                                             {% if dashboards.eventsWithFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsWithFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                        <li>
+                                                            {# <small>{{ eventProps.event.getClassName() }}</small><br /> #}
+                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -356,13 +378,7 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
-
-
-
-
-
                 </div>
             </div>
         </div>

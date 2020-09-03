@@ -73,6 +73,19 @@ class ExperienceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+
+    public function getEventsBySchool($school) {
+        $query = sprintf("select * from experience e
+          inner join school_experience se on se.id = e.id
+          inner join feedback f on f.id = e.id
+          WHERE (e.cancelled IS NULL OR e.cancelled = %d) AND se.school_id = %d GROUP BY e.id", false, $school->getId());
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     public function getCompletedEventsRegisteredForByUser(User $user) {
         return $this->createQueryBuilder('e')
             ->innerJoin('e.registrations', 'r')
