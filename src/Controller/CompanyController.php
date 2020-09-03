@@ -1109,12 +1109,10 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $created_user = $experience->getEmployeeContact();
-        
-        if($user->getId() == $created_user->getId()){
-            return new JsonResponse( ['user_id' => $created_user->getId(), 'allow_edit' => true] );
+        if($experience->getEmployeeContact() && $user->getId() === $experience->getEmployeeContact()->getId()){
+            return new JsonResponse( ['user_id' => $experience->getEmployeeContact()->getId(), 'allow_edit' => true] );
         } else {
-            return new JsonResponse( ['user_id' => $created_user->getId(), 'allow_edit' => false] );
+            return new JsonResponse( ['user_id' => $experience->getEmployeeContact()->getId(), 'allow_edit' => false] );
         }
     }
 

@@ -92,11 +92,11 @@ HERE;
             left join school_experience se on se.id = e.id
             left join school s on se.school_id = s.id
             where se.school_id = school.id
-            and s.region_id = 1
+            and s.region_id = '%s'
             and MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
             AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
             ) as num_of_school_events
-            from school
+            from school ORDER BY school.name ASC
 HERE;
 
         $query = sprintf($query, $region->getId());

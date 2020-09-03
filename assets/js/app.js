@@ -38,6 +38,8 @@ window.Pintex = {
     },
     modal: {
         dynamic_open: function(html) {
+
+            debugger;
             const $modal = $('#global-modal');
             $modal.find('.uk-modal-body').html( html );
             
@@ -88,6 +90,8 @@ window.Pintex = {
     },
     openCalendarEventDetails: function( event ) {
 
+        debugger;
+
         let eventHtml = "";
         const eventPayload = deepObject(event, 'extendedProps.customEventPayload') || { className: "default" };
         const eventStartDate = parseInt( eventPayload.startDateAndTimeTimeStamp );
@@ -102,6 +106,8 @@ window.Pintex = {
         console.log(eventPayload);
 
         var this_level = this;
+
+        debugger;
 
         eventHtml += `
                 <h2>${eventPayload.title}</h2>
@@ -126,7 +132,7 @@ window.Pintex = {
                 this_level.openModal(eventHtml);
             });
         } else if(eventPayload.className == "SchoolExperience") { 
-            $.post('/dashboard/companies/experiences/' + eventId + '/data', {}, function(data){
+            $.post('/dashboard/schools/experiences/' + eventId + '/data', {}, function(data){
                 if(data.allow_edit === true){
                     eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'schools', 'school_event_delete');
                 }

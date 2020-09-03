@@ -1122,6 +1122,23 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/experiences/{id}/data", name="school_experience_data", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function dataExperienceAction(Request $request, SchoolExperience $experience) {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if($experience->getSchoolContact() && $user->getId() === $experience->getSchoolContact()->getId()){
+            return new JsonResponse( ['user_id' => $experience->getSchoolContact()->getId(), 'allow_edit' => true] );
+        } else {
+            return new JsonResponse( ['user_id' => $experience->getSchoolContact()->getId(), 'allow_edit' => false] );
+        }
+    }
+
+    /**
      * @Route("/schools/experiences/{id}/edit", name="school_experience_edit", options = { "expose" = true })
      * @param Request $request
      * @param SchoolExperience $experience
