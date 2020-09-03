@@ -24,6 +24,8 @@ class UploaderHelper
     const EXPERIENCE_FILE = 'experience_file';
     const LESSON_RESOURCE = 'lesson_resource';
     const SCHOOL_PHOTO = 'school_photo';
+    const STUDENT_IMPORT = 'student_import';
+    const EDUCATOR_IMPORT = 'educator_import';
 
 
     private $uploadsPath;
@@ -45,6 +47,32 @@ class UploaderHelper
         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
 
         $file->move(
+            $destination,
+            $newFilename
+        );
+
+        return $newFilename;
+    }
+
+    public function uploadStudentImport(UploadedFile $uploadedFile): string
+    {
+        $destination = $this->uploadsPath.'/' . self::STUDENT_IMPORT;
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->getClientOriginalExtension();
+        $uploadedFile->move(
+            $destination,
+            $newFilename
+        );
+
+        return $newFilename;
+    }
+
+    public function uploadEducatorImport(UploadedFile $uploadedFile): string
+    {
+        $destination = $this->uploadsPath.'/' . self::EDUCATOR_IMPORT;
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->getClientOriginalExtension();
+        $uploadedFile->move(
             $destination,
             $newFilename
         );
