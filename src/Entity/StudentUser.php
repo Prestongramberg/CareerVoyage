@@ -112,6 +112,11 @@ class StudentUser extends User
      */
     private $careerStatement;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $archived = false;
+
     public function __construct()
     {
         parent::__construct();
@@ -505,6 +510,18 @@ class StudentUser extends User
                 $allowedCommunication->setStudentUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getArchived(): ?bool
+    {
+        return $this->archived;
+    }
+
+    public function setArchived(?bool $archived): self
+    {
+        $this->archived = $archived;
 
         return $this;
     }

@@ -115,4 +115,14 @@ class StudentUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findStudentByGraduatingYear($graduatingYear) {
+        return $this->createQueryBuilder('su')
+            ->andWhere('su.graduatingYear = :graduatingYear')
+            ->andWhere('su.archived = :archived')
+            ->setParameter('graduatingYear', $graduatingYear)
+            ->setParameter('archived', false)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -1,0 +1,39 @@
+<li id="urfser_{{ request.id }}">
+        <a class="uk-accordion-title" href="#">Request to register for school experience.</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                    <td>Request type</td>
+                    <td>Register for school experience.</td>
+                </tr>
+                <tr>
+                    <td>Experience title</td>
+                    <td>{{ request.schoolExperience.title }}</td>
+                </tr>
+                <tr>
+                    <td>User</td>
+                    <td>{{ request.user.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Sent to</td>
+                    {% if request.needsApprovalBy is not null %}
+                        <td>{{ request.needsApprovalBy.fullName }} | {{ request.needsApprovalBy.email }}</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="uk-label">
+                            {{ render_request_status_text( request ) }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Created On</td>
+                    <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+</li>

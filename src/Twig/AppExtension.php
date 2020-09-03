@@ -396,12 +396,25 @@ class AppExtension extends AbstractExtension
                     return '';
                 }
 
-                return $this->twig->render('request/partials/_user_register_for_school_experience_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab
-                ]);
+                if($location === "my-requests_pending") {
+                    return $this->twig->render('request/partials/my_created/_user_register_for_school_experience_request.html.twig', [
+                        'request' => $request,
+                        'user' => $user,
+                        'location' => $location,
+                        'parentTab' => $parentTab
+                    ]);
+                }
+
+                if($location === "my-requests_approval") {
+                    return $this->twig->render('request/partials/need_my_approval/_user_register_for_school_experience_request.html.twig', [
+                        'request' => $request,
+                        'user' => $user,
+                        'location' => $location,
+                        'parentTab' => $parentTab
+                    ]);
+                }
+
+
                 break;
             default:
                 return null;
