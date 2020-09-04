@@ -8,7 +8,11 @@
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
         {% else %}
-            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+            <a class="uk-accordion-title" href="#">
+                Student to meet professional request.
+                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
+            </a>
         {% endif %}
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
