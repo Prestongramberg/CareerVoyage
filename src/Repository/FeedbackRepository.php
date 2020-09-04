@@ -47,4 +47,17 @@ class FeedbackRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findByEvent($event)
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.experience = :event')
+            ->andWhere('f.deleted = :false')
+            ->setParameter('event', $event['id'])
+            ->setParameter('false', false)
+            ->orderBy('f.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

@@ -151,12 +151,13 @@
 
                     <div class="user_preferences_feedback">
                         {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
+
+                            
                             <div uk-grid>
                                 <div class="uk-width-1-1 uk-width-small@m">
                                     <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
                                             <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
-                                            
                                         {% endfor %}
                                         <li style="margin-top:10px"><a href="#feedback-summary">Summary</a></li>
                                     </ul>
@@ -213,6 +214,8 @@
                                         {% set cumulativeCompanyPromoters = 0 %}
                                         {% set cumulativeCompanyPassives = 0 %}
                                         {% set cumulativeCompanyDetractors = 0 %}
+
+                                        {% set isCompanyAdmin = false %}
 
                                         {% for experience in dashboards['eventsWithFeedbackFromOthers'] %}
 
@@ -377,13 +380,17 @@
                                                         {% set cumulativeSchoolPromoters = cumulativeSchoolPromoters + (cumulativePromoters / totalFeedback) %}
                                                         {% set cumulativeSchoolDetractors = cumulativeSchoolDetractors + (cumulativeDetractors / totalFeedback) %}
                                                     {% elseif experience.className == "CompanyExperience" %}
-                                                        {% set cumulativeCompanyFeedback = cumulativeCompanyFeedback + 1 %}
-                                                        {% set cumulativeCompanyRating = cumulativeCompanyRating + (cumulativeRating / totalFeedback) %}
-                                                        {% set cumulativeCompanyInsight = cumulativeCompanyInsight + (cumulativeInsight / totalFeedback) %}
-                                                        {% set cumulativeCompanyEnjoyable = cumulativeCompanyEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
-                                                        {% set cumulativeCompanyLearned = cumulativeCompanyLearned + (cumulativeLearned / totalFeedback) %}
-                                                        {% set cumulativeCompanyPromoters = cumulativeCompanyPromoters + (cumulativePromoters / totalFeedback) %}
-                                                        {% set cumulativeCompanyDetractors = cumulativeCompanyDetractors + (cumulativeDetractors / totalFeedback) %}
+                                                        {% if experience.company.owner.getId() == user.getId() %}
+                                                            {% set isCompanyAdmin = true %}
+                                                        
+                                                            {% set cumulativeCompanyFeedback = cumulativeCompanyFeedback + 1 %}
+                                                            {% set cumulativeCompanyRating = cumulativeCompanyRating + (cumulativeRating / totalFeedback) %}
+                                                            {% set cumulativeCompanyInsight = cumulativeCompanyInsight + (cumulativeInsight / totalFeedback) %}
+                                                            {% set cumulativeCompanyEnjoyable = cumulativeCompanyEnjoyable + (cumulativeEnjoyable / totalFeedback) %}
+                                                            {% set cumulativeCompanyLearned = cumulativeCompanyLearned + (cumulativeLearned / totalFeedback) %}
+                                                            {% set cumulativeCompanyPromoters = cumulativeCompanyPromoters + (cumulativePromoters / totalFeedback) %}
+                                                            {% set cumulativeCompanyDetractors = cumulativeCompanyDetractors + (cumulativeDetractors / totalFeedback) %}
+                                                        {% endif %}
                                                     {% endif %}
 
                                                     {# Set overall cumulative total #}
@@ -415,7 +422,7 @@
                                                 {% if cumulativeSchoolFeedback > 0 %}
                                                     <li><a href="#school-experience">School Experience</a></li>
                                                 {% endif %}
-                                                {% if cumulativeCompanyFeedback > 0 %}
+                                                {% if cumulativeCompanyFeedback > 0 and isCompanyAdmin == true %}
                                                     <li><a href="#company-experience">Company Experience</a></li>
                                                 {% endif %}
                                                 <li><a href="#all-feedback">All Feedback</a></li>
@@ -594,7 +601,7 @@
                                                     </div>
                                                 {% endif %}
 
-                                                {% if cumulativeCompanyFeedback > 0 %}
+                                                {% if cumulativeCompanyFeedback > 0 and isCompanyAdmin == true %}
                                                     <div class="company-experience">
                                                         {% set npmScore = (((cumulativeCompanyPromoters - cumulativeCompanyDetractors) / cumulativeCompanyFeedback) * 100)|round %}
 

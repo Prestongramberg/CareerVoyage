@@ -51,7 +51,7 @@
 
                 {% endif %}
 
-                {% if user.educator %}
+                {% if user.educator or user.schoolAdministrator %}
                     <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Live Feedback URL</a>
                     <br>
                     <div id="modal-remove-company-event" uk-modal>

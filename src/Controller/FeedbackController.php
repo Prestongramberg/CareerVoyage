@@ -17,6 +17,7 @@ use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalReviewMeetStudentExperienceFeedback;
+use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SecondaryIndustry;
@@ -24,6 +25,7 @@ use App\Entity\StateCoordinator;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewMeetProfessionalExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
+use App\Entity\StudentReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalReviewStudentToMeetProfessionalFeedback;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentUser;
@@ -35,6 +37,7 @@ use App\Form\EducatorReviewMeetProfessionalExperienceFeedbackFormType;
 use App\Form\EducatorReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewCompanyExperienceFeedbackFormType;
+use App\Form\ProfessionalReviewSchoolExperienceFeedbackFormType;
 use App\Form\FeedbackFormType;
 use App\Form\GenericFeedbackFormType;
 use App\Form\NewCompanyFormType;
@@ -45,6 +48,7 @@ use App\Form\StateCoordinatorFormType;
 use App\Form\StudentReviewCompanyExperienceFeedbackFormType;
 use App\Form\StudentReviewMeetProfessionalExperienceFeedbackFormType;
 use App\Form\StudentReviewTeachLessonExperienceFeedbackFormType;
+use App\Form\StudentReviewSchoolExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewStudentToMeetProfessionalFeedbackFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -298,6 +302,18 @@ class FeedbackController extends AbstractController
                     $template = 'new_generic_feedback.html.twig';
                 }
                 break;
+            case 'SchoolExperience' :
+                if($user->isStudent()) {
+                    $feedback = $feedback = $feedback ? $feedback : new StudentReviewSchoolExperienceFeedback();
+                    $formType = StudentReviewSchoolExperienceFeedbackFormType::class;
+                    $template = 'new_student_review_school_experience_feedback.html.twig';
+                }
+                if($user->isProfessional()) {
+                    $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewSchoolExperienceFeedback();
+                    $formType = ProfessionalReviewSchoolExperienceFeedbackFormType::class;
+                    $template = 'new_professional_review_school_experience_feedback.html.twig';
+                }
+                break;
             default:
                 $feedback = $feedback = $feedback ? $feedback : new Feedback();
                 $formType = GenericFeedbackFormType::class;
@@ -363,6 +379,12 @@ class FeedbackController extends AbstractController
                     $feedback->setCompanyExperience($experience);
                     $feedback->setProfessional($user);
                     break;
+                case 'ProfessionalReviewSchoolExperienceFeedback':
+                    /** @var ProfessionalReviewSchoolExperienceFeedback $feedback */
+                    /** @var SchoolExperience $experience */
+                    $feedback->setProfessional($user);
+                    $feedback->setSchoolExperience($experience);
+                    break;
 
                 
                 case 'StudentReviewCompanyExperienceFeedback':
@@ -384,6 +406,13 @@ class FeedbackController extends AbstractController
                     $feedback->setStudentToMeetProfessionalExperience($experience);
                     $feedback->setStudent($user);
                     break;
+                case 'StudentReviewSchoolExperienceFeedback':
+                    /** @var StudentReviewSchoolExperienceFeedback $feedback */
+                    /** @var SchoolExperience $experience */
+                    $feedback->setStudent($user);
+                    $feedback->setSchoolExperience($experience);
+                    break;
+                    
 
                 default:
                     /** @var Feedback $feedback */

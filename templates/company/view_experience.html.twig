@@ -38,7 +38,7 @@
                 {% endfor %}
 
 
-                {% if user.educator %}
+                {% if user.professional and experience.company.owner.id == user.id %}
                     <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-remove-company-event" uk-toggle>Live Feedback URL</a>
                     <br>
                     <div id="modal-remove-company-event" uk-modal>
