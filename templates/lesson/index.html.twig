@@ -10,7 +10,7 @@
 
         <div class="uk-margin uk-width-1-1">
             <div class="uk-flex uk-flex-right@m">
-                {% if (user.isEducator or user.isProfessional) %}
+                {% if (user.isEducator or user.isProfessional or user.isSchoolAdministrator) %}
                     <a href="{{ path('request_lesson_experience_or_site_visit') }}" class="uk-button uk-button-default uk-button-small uk-margin-small-right">Suggest a Lesson</a>
                 {% endif %}
                 <a href="{{ path('lesson_new') }}" class="uk-button uk-button-primary uk-button-small">Create a Lesson</a>
