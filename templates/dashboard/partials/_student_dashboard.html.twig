@@ -154,9 +154,11 @@
                                             {% if experience.getClassName() == "StudentToMeetProfessionalExperience" %}
                                                 <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
                                                 {% if experience.feedback|length > 0 %}
-                                                    {% if feedback.user.id != user.id %}
-                                                        {% set showSummary = true %}
-                                                    {% endif %}
+                                                    {% for feedback in experience.feedback %}
+                                                        {% if feedback.user.id != user.id %}
+                                                            {% set showSummary = true %}
+                                                        {% endif %}
+                                                    {% endfor %}
                                                 {% endif %}
                                             {% endif %}
                                         {% endfor %}
