@@ -50,7 +50,7 @@
                     ]'></div>
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.interestInWorkingForCompany, 'After this experience, my awareness of career opportunities for this company or industry is*') }}
+                    {{ form_label(form.interestInWorkingForCompany, 'After this experience, my awareness of career opportunities at this company is*') }}
                     {{ form_widget(form.interestInWorkingForCompany, {'attr': {'class': 'uk-hidden' }}) }}
                     <div class="react-form-rating" data-disabled="{{ experienceHasFeedback }}" data-name="student_review_company_experience_feedback_form[interestInWorkingForCompany]" data-value="{{ feedback.interestInWorkingForCompany }}"></div>
                     {% if form_errors(form.interestInWorkingForCompany) %}

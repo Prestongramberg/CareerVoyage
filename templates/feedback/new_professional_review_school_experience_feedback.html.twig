@@ -19,10 +19,10 @@
         <fieldset class="uk-padding" {% if experienceHasFeedback %}disabled="disabled"{% endif %}>
 
             {% if experienceHasFeedback %}
-                <h3>Viewing your feedback for {{ experience.title }}</h3>
+                <h3>Viewing your feedback for {{ experience.title }} on {{ experience.startDateAndTime|date("m/d/Y") }}</h3>
                 <p>Your responses are now locked.  This is for viewing only.</p>
             {% else %}
-                <h3>Giving feedback for {{ experience.title }}</h3>
+                <h3>Giving feedback for {{ experience.title }} on {{ experience.startDateAndTime|date("m/d/Y") }}</h3>
             {% endif %}
 
             <div class="uk-width-xlarge">
@@ -47,13 +47,13 @@
                 </div>
                 
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a fellow professional*') }}
+                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this school experience to a fellow professional*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
                     <div class="react-form-range" data-name="professional_review_school_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.additionalFeedback, 'Additional Feedback (Optional)') }}
+                    {{ form_label(form.feedback.additionalFeedback, 'Any specific thoughts, feedback to improve this experience? (Optional)') }}
                     {{ form_widget(form.feedback.additionalFeedback, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.feedback.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
                     {{ form_errors(form.feedback.additionalFeedback) }}
                 </div>
