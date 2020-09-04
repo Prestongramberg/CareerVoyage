@@ -96,8 +96,6 @@ class DashboardController extends AbstractController
                 $schoolEvents = $this->experienceRepository->getEventsBySchool($school);
                 $schoolFeedback = [];
 
-                echo sizeof($schoolEvents);
-
                 foreach($schoolEvents as $event) {
 
                     $allFeedback = $this->feedbackRepository->findByEvent($event);
