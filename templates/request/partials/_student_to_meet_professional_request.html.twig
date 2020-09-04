@@ -2,7 +2,7 @@
     {# start request from student to educator for approval (Show this view to who it needs approval by) #}
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.needsApprovalByUser(user) %}
         <a class="uk-accordion-title" href="#">
-            Student to meet professional request.
+            Student to meet professional request. 
             <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
             <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
         </a>
