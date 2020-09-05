@@ -2,69 +2,78 @@
     {% if request.isFromCompany == true%}
 
         {% if request.wasCreatedByUser(user) %}
-            <a class="uk-accordion-title" href="#">Join company request</a>
+            <a class="uk-accordion-title" href="#">
+                Join company request
+                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br />{{ request.company.name }}</small>
+            </a>
             <div class="uk-accordion-content">
                 <p>You have requested {{ request.needsApprovalBy.fullName}} to join your company {{ request.company.name }}.</p>
                 <p>Status: <span class="uk-label">{{ render_request_status_text( request ) }}</span></p>
             </div>
-            {% else %}
-                <a class="uk-accordion-title" href="#">You have requested {{ request.needsApprovalBy.fullName}} to join your company {{ request.company.name }}</a>
-                <div class="uk-accordion-content">
-                    <table class="uk-table uk-table-small uk-table-divider">
-                        <tbody>
-                        <tr>
-                            <td>Request Type</td>
-                            <td>INVITED BY COMPANY</td>
-                        </tr>
-                        <tr>
-                            <td>Company Name</td>
-                            <td>{{ request.company.name }}</td>
-                        </tr>
-                        <tr>
-                            <td>Website</td>
-                            <td>{{ request.company.website }}</td>
-                        </tr>
-                        <tr>
-                            <td>Email</td>
-                            <td>{{ request.company.emailAddress }}</td>
-                        </tr>
-                        <tr>
-                            <td>Phone</td>
-                            <td>{{ request.company.phone }}</td>
-                        </tr>
-                        <tr>
-                            <td>Status</td>
-                            <td>
-                                <span class="uk-label">
-                                    {{ render_request_status_text( request ) }}
-                                </span>
-                                {% if render_request_status_text( request ) == "Pending" %}
-                                    <form method="post" class="uk-inline jc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
-                                        <input class="uk-label uk-label-success" type="submit" value="Approve">
-                                        <input type="hidden" name="element" value="jc_{{ request.id}}">
-                                        <input type="hidden" name="request" value="{{ request.id }}">
-                                    </form>
-                                    <form method="post" class="uk-inline jc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
-                                        <input class="uk-label uk-label-danger" type="submit" value="Deny">
-                                        <input type="hidden" name="element" value="jc_{{ request.id}}">
-                                        <input type="hidden" name="request" value="{{ request.id }}">
-                                    </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Created On</td>
-                            <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+        {% else %}
+            <a class="uk-accordion-title" href="#">
+                You have requested {{ request.needsApprovalBy.fullName}} to join your company {{ request.company.name }}
+                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}</small>
+            </a>
+            <div class="uk-accordion-content">
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
+                    <tr>
+                        <td>Request Type</td>
+                        <td>INVITED BY COMPANY</td>
+                    </tr>
+                    <tr>
+                        <td>Company Name</td>
+                        <td>{{ request.company.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Website</td>
+                        <td>{{ request.company.website }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ request.company.emailAddress }}</td>
+                    </tr>
+                    <tr>
+                        <td>Phone</td>
+                        <td>{{ request.company.phone }}</td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>
+                            <span class="uk-label">
+                                {{ render_request_status_text( request ) }}
+                            </span>
+                            {% if render_request_status_text( request ) == "Pending" %}
+                                <form method="post" class="uk-inline jc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
+                                    <input class="uk-label uk-label-success" type="submit" value="Approve">
+                                    <input type="hidden" name="element" value="jc_{{ request.id}}">
+                                    <input type="hidden" name="request" value="{{ request.id }}">
+                                </form>
+                                <form method="post" class="uk-inline jc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
+                                    <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                    <input type="hidden" name="element" value="jc_{{ request.id}}">
+                                    <input type="hidden" name="request" value="{{ request.id }}">
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Created On</td>
+                        <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
 
     {% elseif request.isFromCompany == false %}
 
         {% if request.wasCreatedByUser(user) %}
-            <a class="uk-accordion-title" href="#">Join company request</a>
+            <a class="uk-accordion-title" href="#">
+                Join company request
+                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong></small>
+            </a>
             <div class="uk-accordion-content">
                 <p>You've sent a request to join company {{ request.company.name }}</p>
                 <table class="uk-table uk-table-small uk-table-divider">
@@ -100,26 +109,29 @@
                     </tbody>
                 </table>
             </div>
-            {% else %}
-                <a class="uk-accordion-title" href="#">Join company request</a>
-                <div class="uk-accordion-content">
-                    <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
-                    {% if render_request_status_text( request ) == "Pending" %}
-                        <form method="post" class="uk-inline jc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
-                            <input class="uk-label uk-label-success" type="submit" value="Approve">
-                            <input type="hidden" name="request" value="{{ request.id }}">
-                            <input type="hidden" name="element" value="jc_{{ request.id}}">
-                        </form>
-                        <form method="post" class="uk-inline jc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
-                            <input class="uk-label uk-label-danger" type="submit" value="Deny">
-                            <input type="hidden" name="request" value="{{ request.id }}">
-                            <input type="hidden" name="element" value="jc_{{ request.id}}">
-                        </form>
-                    {% endif %}
-                    <div>
-                        Status:  <span class="uk-label">{{ render_request_status_text( request ) }}</span>
-                    </div>
+        {% else %}
+            <a class="uk-accordion-title" href="#">
+                Join company request
+                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong> - ({{ request.createdBy.firstName }} {{ request.createdBy.lastName }})</small>
+            </a>
+            <div class="uk-accordion-content">
+                <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
+                {% if render_request_status_text( request ) == "Pending" %}
+                    <form method="post" class="uk-inline jc-approval" action="{{ path('approve_request', {'id': request.id}) }}">
+                        <input class="uk-label uk-label-success" type="submit" value="Approve">
+                        <input type="hidden" name="request" value="{{ request.id }}">
+                        <input type="hidden" name="element" value="jc_{{ request.id}}">
+                    </form>
+                    <form method="post" class="uk-inline jc-denial" action="{{ path('deny_request', {'id': request.id}) }}">
+                        <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                        <input type="hidden" name="request" value="{{ request.id }}">
+                        <input type="hidden" name="element" value="jc_{{ request.id}}">
+                    </form>
+                {% endif %}
+                <div>
+                    Status:  <span class="uk-label">{{ render_request_status_text( request ) }}</span>
                 </div>
+            </div>
         {% endif %}
 
     {% endif %}
