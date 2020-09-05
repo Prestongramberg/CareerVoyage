@@ -92,11 +92,25 @@ class DashboardController extends AbstractController
 
                 $numberOfRegistrationsGroupedByPrimaryIndustryForSchool = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForSchool($school);
 
+                // Get experiences for each school
+                $schoolEvents = $this->experienceRepository->getEventsBySchool($school);
+                $schoolFeedback = [];
+
+                foreach($schoolEvents as $event) {
+
+                    $allFeedback = $this->feedbackRepository->findByEvent($event);
+                    $schoolFeedback[$event['id']]['events'] = $allFeedback;
+                }
+
                 $dashboards['registrationsGroupedByPrimaryIndustryInSchool'][$school->getId()] = [
                     'schoolName' => $school->getName(),
                     'school_id' => $school->getId(),
                     'registrationsGroupedByPrimaryIndustryInSchool' => $numberOfRegistrationsGroupedByPrimaryIndustryForSchool,
+                    'schoolEvents' => $schoolEvents,
+                    'schoolFeedback' => $schoolFeedback
                 ];
+
+
             }
 
             $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getNumberOfEventsGroupedByPrimaryIndustry();
@@ -105,6 +119,7 @@ class DashboardController extends AbstractController
                 'numberOfStudentsInSchoolNetwork' => $numberOfStudentsInSchoolNetwork,
                 'numberOfEducatorsInSchoolNetwork' => $numberOfEducatorsInSchoolNetwork,
                 'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
+                'events' => $dashboards['registrationsGroupedByPrimaryIndustryInSchool']
             ];
 
         } elseif ($user->isStudent() || $user->isEducator()) {
@@ -134,9 +149,11 @@ class DashboardController extends AbstractController
             // let's see which events have feedback from the user and which don't
             foreach($completedEventsRegisteredForByUser as $event) {
 
-                if($user->isStudent() && !$event instanceof StudentToMeetProfessionalExperience) {
-                    continue;
-                }
+
+                // if($user->isStudent() && !$event instanceof StudentToMeetProfessionalExperience) {
+                //     continue;
+                // }
+                // Commented out ER - 9/2/20
 
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,
@@ -150,8 +167,6 @@ class DashboardController extends AbstractController
                         break;
                     }
                 }
-
-
 
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
@@ -207,6 +222,7 @@ class DashboardController extends AbstractController
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
                     'experience' => $event,
+                    'deleted' => false
                 ]);
 
                 if(!$feedback) {

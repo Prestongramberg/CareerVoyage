@@ -44,7 +44,7 @@
 
                     <label>Choose all that apply</label>
                     <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}" data-fields='[
-                        { "name": "educator_review_company_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insights", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsigh : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
+                        { "name": "educator_review_company_experience_feedback_form[feedback][providedCareerInsight]", "label": "Provided Career Insights", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsight : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
                         { "name": "educator_review_company_experience_feedback_form[feedback][wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
                         { "name": "educator_review_company_experience_feedback_form[feedback][learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew ? feedback.learnSomethingNew : false }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
                     ]'></div>
@@ -61,7 +61,7 @@
                     {{ form_errors(form.awarenessOfCareerOpportunities) }}
                 </div>
                 <div class="uk-margin">
-                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to a fellow teacher?*') }}
+                    {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this experience to your students?*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
                     <div class="react-form-range" data-name="educator_review_company_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
