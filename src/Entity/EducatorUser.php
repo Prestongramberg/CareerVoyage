@@ -45,6 +45,7 @@ class EducatorUser extends User
     private $phoneExt;
 
     /**
+     * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $briefBio;
@@ -289,6 +290,15 @@ class EducatorUser extends User
         }
 
         return $this;
+    }
+
+    public function hasStudentUser(StudentUser $studentUserToCheck) {
+        foreach($this->getStudentUsers() as $studentUser) {
+            if($studentUserToCheck->getId() === $studentUser->getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

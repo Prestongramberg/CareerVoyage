@@ -26,6 +26,10 @@
             <li><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
             <li><a href="{{ path('knowledge-base') }}">Search Resources</a></li>
             <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
+            {% if user.isAdmin == true %}
+                <li class="uk-nav-divider"></li>
+                <li><a href="{{ path('add_course')}}">Add Course</a></li>
+            {% endif %}
 
             <li class="uk-nav-divider"></li>
 
@@ -66,7 +70,7 @@
                             <div uk-dropdown="pos: bottom-right">
                                 <ul class="uk-nav uk-dropdown-nav">
                                     {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
-                                        You are impersonating {{ app.user.email ? app.user.email : app.user.username }}
+                                        You are impersonating<br /><em>{{ app.user.firstName }} {{ app.user.lastName }}</em><br />{{ app.user.email ? app.user.email : app.user.username }}<br />
                                         <a href="{{ path('dashboard', {'_switch_user': '_exit'}) }}">Exit impersonation</a>
                                         <li class="uk-nav-divider"></li>
                                     {% endif %}

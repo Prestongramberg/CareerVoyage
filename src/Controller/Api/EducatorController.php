@@ -239,18 +239,10 @@ class EducatorController extends AbstractController
         $json = $this->serializer->serialize($educators, 'json', ['groups' => ['EDUCATOR_USER_DATA']]);
         $educators = json_decode($json, true);
 
-        $educatorArray = [];
-        foreach($educators as $educator) {
-            $educatorObj = $educator;
-            $educator = $this->educatorUserRepository->find($educatorObj['id']);
-            $educatorArray[] = $educatorObj;
-
-        }
-        
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $educatorArray
+                'data' => $educators
             ],
             Response::HTTP_OK
         );

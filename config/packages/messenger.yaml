@@ -6,3 +6,5 @@ framework:
     routing:
       # async is whatever name you gave your transport above
       'App\Message\RecapMessage':  async
+      'App\Message\EducatorImportMessage':  async
+      'App\Message\StudentImportMessage':  async

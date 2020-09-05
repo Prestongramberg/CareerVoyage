@@ -39,6 +39,9 @@
                         <th>School</th>
                         {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
                         <th>Edit/Delete</th>
+                        {% if user.admin or user.siteAdmin %}
+                            <th>Account Status</th>
+                        {% endif %}
                     </tr>
 
                     {# table body #}
@@ -66,6 +69,15 @@
                                 </th>
                             {% endif %}
                             <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>
+
+                            {% if user.admin or user.siteAdmin %}
+                                {% if paginatedUser.activated %}
+                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_professionals">Deactivate</a></td>
+                                {% else %}
+                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_professionals">Activate</a></td>
+                                {% endif %}
+                            {% endif %}
+
                         </tr>
                     {% endfor %}
                 </table>

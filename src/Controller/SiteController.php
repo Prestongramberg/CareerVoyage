@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\Course;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -18,8 +19,10 @@ use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\SiteAdminFormType;
 use App\Form\StateCoordinatorFormType;
+use App\Form\CourseFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Repository\CourseRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
@@ -105,4 +108,42 @@ class SiteController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+
+     /**
+     * @IsGranted("ROLE_ADMIN_USER")
+     * @Route("/admin/new_course", name="add_course")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function newCourse(Request $request) {
+
+        $user = $this->getUser();
+        $course = new Course();
+
+        $form = $this->createForm(CourseFormType::class, $course, [
+            'method' => 'POST'
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var Course $course */
+            $course = $form->getData();
+
+            // $course->setupAsSiteAdminUser();
+            $this->entityManager->persist($course);
+
+
+            $this->entityManager->flush();
+            $this->addFlash('success', 'New course added');
+            return $this->redirectToRoute('dashboard');
+        }
+
+        return $this->render('site/addNewCourse.html.twig', [
+            'user' => $user,
+            'form' => $form->createView()
+        ]);
+    }
+
 }

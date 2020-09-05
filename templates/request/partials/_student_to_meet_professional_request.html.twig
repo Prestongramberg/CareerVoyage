@@ -1,7 +1,11 @@
 <li id="stmpr_{{ request.id }}">
     {# start request from student to educator for approval (Show this view to who it needs approval by) #}
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.needsApprovalByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% if request.educatorHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -59,7 +63,12 @@
 
     {# start request from student to educator for approval (Show this view to who it was created by) #}
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% if request.studentHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
+
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -102,7 +111,13 @@
 
     {# start request from professional to student for approval (Show this view to who it needs approval by) #}
     {% if request.createdBy.isProfessional and  request.needsApprovalBy.isStudent and request.needsApprovalByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% if user.isStudent and request.studentHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}" data-location="{{ location }}"  data-parent="{{ parentTab }}" ><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% elseif user.isProfessional and request.professionalHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}" data-location="{{ location }}"  data-parent="{{ parentTab }}" ><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -199,7 +214,11 @@
 
     {# start request from professional to student for approval (Show this view to who it was created by) #}
     {% if request.createdBy.isProfessional and request.needsApprovalBy.isStudent and request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% if user.isProfessional and request.professionalHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -252,7 +271,13 @@
 
     {# start request from student to professional for approval  (Show this view to who it was created by) #}
     {% if (request.createdBy.isStudent or request.createdBy.isEducator) and request.needsApprovalBy.isProfessional and request.wasCreatedByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% if user.isStudent and request.studentHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% elseif user.isEducator and request.educatorHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>
@@ -297,7 +322,11 @@
 
     {# start request from teacher to professional for approval (Show this view to who it needs approval by) #}
     {% if (request.createdBy.isStudent or request.createdBy.isEducator) and request.needsApprovalBy.isProfessional and request.needsApprovalByUser(user) %}
-        <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% if user.isProfessional and request.professionalHasSeen == false %}
+            <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}"><small><em class="fa fa-circle"></em></small> Student to meet professional request.</a>
+        {% else %}
+            <a class="uk-accordion-title" href="#">Student to meet professional request.</a>
+        {% endif %}
         <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-table-divider">
                 <tbody>

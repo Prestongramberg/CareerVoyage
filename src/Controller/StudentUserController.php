@@ -11,11 +11,13 @@ use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
+use App\Form\ManageStudentsFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -158,4 +160,72 @@ class StudentUserController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/schools/{id}/manage", name="students_manage", methods={"GET"})
+     * @param School $school
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function manageAction(School $school, Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->buildFilterForm(StudentUser::class, $this->generateUrl('students_manage', ['id' => $school->getId()]), $school
+        );
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
+        $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
+
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+
+        $studentUsers = $this->studentUserRepository->findBy([
+            'school' => $school
+        ]);
+
+        $user = $this->getUser();
+        return $this->render('students/manage.html.twig', [
+            'user' => $user,
+            'studentUsers' => $studentUsers,
+            'school' => $school,
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('students_manage', ['id' => $school->getId()])
+        ]);
+    }
+
+    /**
+     * Builds the manage users filter form
+     *
+     * @param $filterType
+     * @param $action
+     * @param School $school
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function buildFilterForm($filterType, $action, School $school)
+    {
+        $form = $this->createForm(ManageStudentsFilterType::class, null, [
+            'action' => $action,
+            'method' => 'GET',
+            'filter_type' => $filterType,
+            'school' => $school
+        ]);
+
+        return $form;
+    }
 }

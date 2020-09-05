@@ -1100,6 +1100,23 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * @Route("/companies/experiences/{id}/data", name="company_experience_data", options = { "expose" = true })
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function dataExperienceAction(Request $request, CompanyExperience $experience) {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if($experience->getEmployeeContact() && $user->getId() === $experience->getEmployeeContact()->getId()){
+            return new JsonResponse( ['user_id' => $experience->getEmployeeContact()->getId(), 'allow_edit' => true] );
+        } else {
+            return new JsonResponse( ['user_id' => $experience->getEmployeeContact()->getId(), 'allow_edit' => false] );
+        }
+    }
+
+    /**
      * @IsGranted("ROLE_EDUCATOR_USER")
      * @Route("/companies/experiences/{id}/students/register", name="company_experience_student_register", options = { "expose" = true }, methods={"POST"})
      * @param Request $request

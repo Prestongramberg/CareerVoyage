@@ -106,24 +106,7 @@
                                 {% if school.educatorUsers|length %}
                                     <div class="school__educators">
                                         <dl class="uk-description-list uk-description-list-divider">
-                                            {% for educatorUser in school.educatorUsers %}
-                                                <div class="uk-grid uk-flex-middle" uk-grid>
-                                                    <div class="uk-width-auto">
-                                                        <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                                                    </div>
-                                                    <div class="uk-width-expand">
-                                                        <dt>{{ educatorUser.lastName }}, {{ educatorUser.firstName }}</dt>
-                                                        <dd>{{ excerpt_length( educatorUser.briefBio, 100 ) }}</dd>
-                                                    </div>
-                                                    <div class="uk-width-1-1 uk-width-auto@m">
-                                                        <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                                                        <form class="uk-inline" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST">
-                                                            <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                                                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
+                                            <iframe src="{{ path('educator_manage', {id: school.id}) }}" style="border:none;" width="100%" height="800px"></iframe>
                                         </dl>
                                     </div>
                                 {% endif %}
@@ -139,25 +122,7 @@
                                 {% if school.studentUsers|length %}
                                     <div class="school__educators">
                                         <dl class="uk-description-list uk-description-list-divider">
-                                            {% for studentUser in school.studentUsers %}
-                                                <div class="uk-grid uk-flex-middle" uk-grid>
-                                                    <div class="uk-width-auto">
-                                                        <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                                                    </div>
-                                                    <div class="uk-width-expand">
-                                                        <dt>{{ studentUser.lastName }}, {{ studentUser.firstName }}</dt>
-                                                        <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
-                                                    </div>
-                                                    <div class="uk-width-1-1 uk-width-auto@m">
-                                                        <a href="{{ path('profile_edit', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">Edit</a>
-                                                        <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                                                        <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
-                                                            <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                                                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
+                                            <iframe src="{{ path('students_manage', {id: school.id}) }}" style="border:none;" width="100%" height="800px"></iframe>
                                         </dl>
                                     </div>
                                 {% endif %}
