@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <style>
+        body .wrapper {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+    </style>
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+</head>
+<body class="authenticated {% block bodyClass %}{% endblock %} {% if get_env('APP_ENV') == "dev" %}development{% endif %}">
+
+    <div class="wrapper">
+        {% include 'partials/help-center-logged-in.html.twig' %}
+
+        {% set successMessage = '' %}
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            {% set successMessage = flashMessage %}
+        {% endfor %}
+
+        {% set errorMessage = '' %}
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            {% set errorMessage = flashMessage %}
+        {% endfor %}
+
+        <div class="main-content">
+            {% block flashMessage %}
+                <div class="uk-container uk-margin-bottom">
+                    {% include 'flash/messages.html.twig' %}
+                </div>
+            {% endblock %}
+            {% block body %}{% endblock %}
+        </div>
+        <div id="global-modal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <!-- dynamically populated by JS -->
+            </div>
+        </div>
+
+    </div>
+
+    {% block javascripts %}
+
+        <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+        <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
+        <script>
+            /**
+             * Global constants
+             *
+             * TODO: ideally these values would be filled in from the server side
+             *
+             * @class SETTINGS
+             * @static
+             */
+            window.SETTINGS = {};
+
+            /**
+             * Root path for all JavaScript files
+             *
+             * @property SCRIPT_PATH
+             * @type String
+             * @final
+             */
+            SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
+
+            /**
+             * LOGGED in User
+             */
+            SETTINGS.LOGGED_IN_USER_ID = {{ user.id }};
+
+            /**
+             * Photo of User
+             */
+            SETTINGS.LOGGED_IN_USER_PHOTO = "{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}";
+            SETTINGS.DEFAULT_USER_PHOTO = "{{ asset('build/images/avatar.png') }}"
+        </script>
+
+        {{ encore_entry_script_tags('app') }}
+
+    {% endblock %}
+</body>
+</html>

@@ -32,6 +32,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -245,6 +246,37 @@ class ProfileController extends AbstractController
             'loggedInUser' => $loggedInUser,
             'professionalVideo' => $professionalVideo
         ]);
+    }
+
+    /**
+     * @Route("/profiles/{id}/activate-deactivate", name="profile_activate_deactivate", options = { "expose" = true })
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse|Response
+     */
+    public function activateDeactivateAction(Request $request, User $user) {
+
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
+
+        $route = $request->query->get('route');
+
+        if(!$loggedInUser->isAdmin() && !$loggedInUser->isSiteAdmin()) {
+            throw new AccessDeniedException("You do not have user permissions to activate or deactivate accounts.");
+        }
+
+        if($user->getActivated()) {
+            $user->setActivated(false);
+            $this->addFlash('success', 'User account deactivated');
+        } else {
+            $user->setActivated(true);
+            $this->addFlash('success', 'User account activated');
+        }
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute($route);
     }
 
     /**

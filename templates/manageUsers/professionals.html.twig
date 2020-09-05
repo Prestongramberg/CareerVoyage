@@ -9,8 +9,6 @@
         <div class="uk-grid" uk-grid>
             <div class="uk-width-1-1">
 
-                {% include 'flash/messages.html.twig' %}
-
                 <ul class="uk-breadcrumb">
                     <li><a href="{{ path('manage_users') }}">Manage Users</a></li>
                     <li><span>Professionals</span></li>
@@ -40,6 +38,10 @@
                         {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
                         <th>Is Owner</th>
                         <th>Edit/Delete</th>
+
+                        {% if user.admin or user.siteAdmin %}
+                            <th>Account Status</th>
+                        {% endif %}
                     </tr>
 
                     {# table body #}
@@ -72,6 +74,15 @@
                             </td>
 
                             <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>
+
+                            {% if user.admin or user.siteAdmin %}
+                                {% if paginatedUser.activated %}
+                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_professionals">Deactivate</a></td>
+                                {% else %}
+                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_professionals">Activate</a></td>
+                                {% endif %}
+                            {% endif %}
+
                         </tr>
                     {% endfor %}
                 </table>

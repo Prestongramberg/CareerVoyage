@@ -292,6 +292,15 @@ class EducatorUser extends User
         return $this;
     }
 
+    public function hasStudentUser(StudentUser $studentUserToCheck) {
+        foreach($this->getStudentUsers() as $studentUser) {
+            if($studentUserToCheck->getId() === $studentUser->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @return Collection|EducatorReviewCompanyExperienceFeedback[]
      */

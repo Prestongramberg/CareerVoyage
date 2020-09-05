@@ -1,0 +1,92 @@
+{% extends 'baseAuthenticatedIframe.html.twig' %}
+
+{% block title %}Students{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+<div class="uk-container">
+    <div class="uk-grid" uk-grid>
+        <div class="uk-width-1-1">
+
+            {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+            <div class="uk-width-1-4">
+                {{ form_widget(form.firstName, {'attr': {'class': 'uk-input', 'placeholder': 'First Name'}}) }}
+            </div>
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.lastName, {'attr': {'class': 'uk-input', 'placeholder': 'Last Name'}}) }}
+            </div>
+
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.educatorUsers, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Supervising Educator'}}) }}
+            </div>
+
+            <div class="uk-width-1-4@s">
+                <button class="uk-button uk-button-default">Search</button>
+                <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
+            </div>
+            {{ form_end(form) }}
+
+            <div class="uk-grid uk-flex-middle" uk-grid>
+                <div class="uk-width-auto">
+                </div>
+                <div class="uk-width-expand" style="margin-left: -50px">
+                    <dt>Student</dt>
+                </div>
+                <div class="uk-width-expand" style="margin-left: -150px">
+                    <dt>Supervising Teacher(s)</dt>
+                </div>
+                <div class="uk-width-1-1 uk-width-auto@m">
+                </div>
+            </div>
+
+            {% for studentUser in pagination %}
+
+                {% if studentUser.archived != true %}
+
+                    <div class="uk-grid uk-flex-middle" uk-grid>
+                        <div class="uk-width-auto">
+                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                        </div>
+                        <div class="uk-width-expand">
+                            <dt>{{ studentUser.lastName }}, {{ studentUser.firstName }}</dt>
+                            <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
+                        </div>
+                        <div class="uk-width-expand">
+                            {% for educator in studentUser.educatorUsers %}
+                                <dt>{{ educator.lastName }}, {{ educator.firstName }}</dt>
+                                {% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="uk-width-1-1 uk-width-auto@m">
+                            <a href="{{ path('profile_edit', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">Edit</a>
+                            <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                            <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
+                                <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# <script src="{{ asset('build/educators.js') }}"></script> #}
+{% endblock %}
+
