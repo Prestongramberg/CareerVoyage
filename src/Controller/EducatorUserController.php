@@ -199,10 +199,13 @@ class EducatorUserController extends AbstractController
             10 /*limit per page*/
         );
 
-
         $educatorUsers = $this->educatorUserRepository->findBy([
             'school' => $school
         ]);
+
+        usort($educatorUsers, function($a, $b) {
+            return strcmp($a->getFirstName(), $b->getFirstName());
+        });
 
         $user = $this->getUser();
         return $this->render('educators/manage.html.twig', [
@@ -254,7 +257,7 @@ class EducatorUserController extends AbstractController
 
         foreach($educators as $educator) {
             foreach($students as $student) {
-                if(!$educator->hasStudentUser($student)) {
+                if(!$educator->hasStudentUserInClass($student)) {
                     $educator->addStudentUser($student);
                 }
             }
