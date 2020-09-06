@@ -96,10 +96,14 @@ HERE;
             and MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
             AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
             ) as num_of_school_events
-            from school ORDER BY school.name ASC
+            from school 
+            
+            inner join region r on school.region_id = r.id
+            where r.id =  '%s'
+            ORDER BY school.name ASC
 HERE;
 
-        $query = sprintf($query, $region->getId());
+        $query = sprintf($query, $region->getId(), $region->getId());
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();

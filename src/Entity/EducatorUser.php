@@ -266,6 +266,22 @@ class EducatorUser extends User
         return $this;
     }
 
+
+    /**
+     * @return Collection|StudentUser[]
+     */
+    public function getAlphabeticallySortedStudentUsers(): Collection
+    {
+
+        $students = $this->studentUsers->toArray();
+
+        usort($students, function($a, $b) {
+            return strcmp($a->firstName, $b->firstName);
+        });
+
+        return new ArrayCollection($students);
+    }
+
     /**
      * @return Collection|StudentUser[]
      */
@@ -292,7 +308,7 @@ class EducatorUser extends User
         return $this;
     }
 
-    public function hasStudentUser(StudentUser $studentUserToCheck) {
+    public function hasStudentUserInClass(StudentUser $studentUserToCheck) {
         foreach($this->getStudentUsers() as $studentUser) {
             if($studentUserToCheck->getId() === $studentUser->getId()) {
                 return true;
