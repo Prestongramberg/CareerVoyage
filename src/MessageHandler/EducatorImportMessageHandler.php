@@ -36,8 +36,8 @@ class EducatorImportMessageHandler implements MessageHandlerInterface
             die("school id or file name missing");
         }
 
-        $filePath = $this->uploaderHelper->getPublicPath(UploaderHelper::EDUCATOR_IMPORT . '/' . $fileName);
-
+        $filePath = $this->uploaderHelper->getUploadsPath() . '/'. UploaderHelper::EDUCATOR_IMPORT . '/' . $fileName;
+        
         $school = $this->schoolRepository->find($schoolId);
         $site = $this->siteRepository->find($siteId);
 
