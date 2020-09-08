@@ -103,6 +103,17 @@ class RequestRepository extends ServiceEntityRepository
                 ->getResult();
         }
 
+        public function getUndreadSchoolExperiencesStudent($user) {
+            return $this->createQueryBuilder('r')
+            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                ->andWhere('e.user = :user')    
+                ->andWhere('r.studentHasSeen = :false')
+                ->setParameter('user', $user)
+                ->setParameter('false', false)
+                ->getQuery()
+                ->getResult();
+        }
+
     // Educators
         public function getUnreadMyRequestsEducator($user) {
             return $this->createQueryBuilder('r')
@@ -151,7 +162,18 @@ class RequestRepository extends ServiceEntityRepository
         }
 
 
-
+    // School Admin
+        public function getUnreadApprovalsByMeSchoolAdmin($user) {
+            return $this->createQueryBuilder('r')
+                ->leftJoin('r.requestPossibleApprovers', 'rpa')
+                ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+                ->andWhere('r.schoolAdministratorHasSeen = :false')
+                ->setParameter('needsApprovalBy', $user)
+                ->setParameter('possibleApprover', $user)
+                ->setParameter('false', false)
+                ->getQuery()
+                ->getResult();
+        }
 
         // $deniedByMeRequests = $this->requestRepository->findBy([
         //     'needsApprovalBy' => $user,
