@@ -224,6 +224,8 @@ class ProfileController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Profile successfully updated');
+
+            
             return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
         }
 
