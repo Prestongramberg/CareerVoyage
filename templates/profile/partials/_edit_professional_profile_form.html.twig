@@ -357,7 +357,7 @@
         $('#submit-form').on('click', function(e){
             var myForm = $(this).parents('form');
             $('input[name="professional_edit_profile_form[rolesWillingToFulfill][]"]:checked').each(function(){
-                if( $(this).val() == 20){
+                if( $(this).val() == 1){
                     e.preventDefault();
                     swal('You chose guest instructor as a role. Would you like to add lessons you can teach?', {
                        buttons: {
