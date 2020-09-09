@@ -223,8 +223,10 @@ class App extends React.Component {
             const searchableFields = ["name", "shortDescription"];
 
             // Filter Category
-            if ( !!this.props.search.industry && parseInt(company.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
-                return false;
+            if(company.primaryIndustry){
+                if ( !!this.props.search.industry && parseInt(company.primaryIndustry.id ) !== parseInt( this.props.search.industry ) ) {
+                    return false;
+                }
             }
 
             // Filter By Search Term

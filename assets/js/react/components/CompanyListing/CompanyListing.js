@@ -43,7 +43,7 @@ class CompanyListing extends Component {
                         </div>
                     </div>
 
-                    <div class="uk-width-expand">
+                    <div className="uk-width-expand">
                         <div className="uk-card-body">
                             <a href={ window.Routing.generate('company_view', { id: this.props.id }) }>
                                 <h4 className="uk-card-title-small">{ this.props.name }</h4>
