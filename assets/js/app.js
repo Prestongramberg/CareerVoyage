@@ -11,6 +11,7 @@ import Icons from 'uikit/dist/js/uikit-icons';
 import {deepObject} from "./react/utilities/object-utils";
 import {secondsToHHMM} from "./react/utilities/string-utils";
 import { saveAs } from 'file-saver';
+import swal from 'sweetalert';
 
 // loads the Icon plugin
 UIkit.use(Icons);
