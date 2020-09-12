@@ -20,6 +20,7 @@ const $ = require('jquery');
 // const moment = require('./vendor/moment.js');
 require('./vendor/jquery-datetimepicker.js');
 require('./vendor/fontawesome.js');
+require('./vendor/jquery-ui.min.js');
 const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
 
