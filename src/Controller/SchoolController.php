@@ -354,10 +354,23 @@ class SchoolController extends AbstractController
 
         $schoolAdminId = $request->request->get('schoolAdminId');
 
-        $this->entityManager->remove($studentUser);
+        $studentUser->setArchived(true);
+        $this->entityManager->persist($studentUser);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('dashboard');
+        if( $request->request->get('iframe')) {
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $studentUser->getId()
+
+                ], Response::HTTP_OK
+            );
+
+        } else {
+            return $this->redirectToRoute('dashboard');
+        }
     }
 
     /**
