@@ -9,6 +9,7 @@ use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
@@ -22,6 +23,7 @@ use App\Form\SiteAdminProfileFormType;
 use App\Form\StateCoordinatorEditProfileFormType;
 use App\Form\StudentEditProfileFormType;
 use App\Repository\RegionalCoordinatorRepository;
+use App\Repository\SchoolRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -161,7 +163,6 @@ class ProfileController extends AbstractController
             $professionalVideo = $this->videoRepository->find($editVideoId);
         }
 
-
         $options = [
             'method' => 'POST',
         ];
@@ -219,6 +220,26 @@ class ProfileController extends AbstractController
                 $encodedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
                 $user->setPassword($encodedPassword);
             }
+
+            if($user->isSchoolAdministrator()) {
+                // Loop through all school ids, if current list does not contain the school remove it, else add it.
+                $data = $request->request->all(); // Saves post data as an array
+
+                $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
+                foreach($schools as $school) {
+                    if( $user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools']) ) {
+                        echo $school->getName().' - Do Nothing - Already Exists<br />';
+                    } else if( !$user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools']) ) {
+                        echo $school->getName().' - Add School<br />';
+                    } else {
+                        echo $school->getName().' - Remove School<br />';
+                    }
+                }
+                foreach($user->getSchools() as $school) {
+                    $user->addSchool($school);
+                }
+            }
+            die();
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();

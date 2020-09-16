@@ -44,6 +44,15 @@
                         {{ form_errors(form.plainPassword) }}
                     </div>
 
+
+                    <div class="uk-margin">
+                        {{ form_label(form.schools, 'Schools*') }}
+                        {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                        <div class="clear"></div>
+                        {{ form_errors(form.schools) }}
+                    </div>
+
+
                     <div class="uk-margin">
                         <button class="uk-button uk-button-primary uk-button-small">Save</button>
                     </div>
