@@ -923,7 +923,7 @@
                             {% endif %}
 
                             {% if user.isAdmin or user.id == user.company.owner.id %}
-                                <a href="{{ path('company_experience_create', { id: user.company.id }) }}" class="uk-button uk-button-primary uk-button-small uk-inline">Create an Experience</a>
+                                <a href="{{ path('company_experience_create', { id: user.company.id }) }}" class="uk-button uk-button-primary uk-button-small uk-inline" style="margin-top: 10px">Create an Experience</a>
                             {% endif %}
                         {% else %}
                             <div className="uk-placeholder uk-text-center">

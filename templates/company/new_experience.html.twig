@@ -45,6 +45,11 @@
                             {{ form_errors(form.type) }}
                         </div>
                         <div class="uk-margin">
+                            {{ form_label(form.requireApproval, 'I want to approve all registrations*') }}
+                            {{ form_widget(form.requireApproval, { 'attr': { 'class': 'uk-select' ~ ( form_errors(form.requireApproval) ? 'uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.requireApproval) }}
+                        </div>
+                        <div class="uk-margin">
                             {{ form_label(form.briefDescription, 'Brief Description*') }}
                             {{ form_widget(form.briefDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.briefDescription) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.briefDescription) }}

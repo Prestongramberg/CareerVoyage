@@ -39,6 +39,11 @@ abstract class Experience
         'Year' => 'YEAR',
     ];
 
+    public static $requireApprovalChoices = [
+        'No' => false,
+        'Yes' => true
+    ];
+
     /**
      * @Assert\Callback(groups={"CREATE"})
      * @param ExecutionContextInterface $context
@@ -220,6 +225,12 @@ abstract class Experience
      * @ORM\Column(type="boolean", nullable=true)
      */
     protected $cancelled = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $requireApproval = false;
+
 
     public function __construct()
     {
@@ -666,6 +677,19 @@ abstract class Experience
     public function getExperienceListTitle() {
 
         return $this->getTitle();
+    }
+
+
+    public function getRequireApproval(): ?bool
+    {
+        return $this->requireApproval;
+    }
+
+    public function setRequireApproval(?bool $requireApproval): self
+    {
+        $this->requireApproval = $requireApproval;
+
+        return $this;
     }
 
 }

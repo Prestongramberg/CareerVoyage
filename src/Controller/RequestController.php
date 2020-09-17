@@ -261,7 +261,7 @@ class RequestController extends AbstractController
         $session = new Session();
 
 
-        $this->denyAccessUnlessGranted('edit', $request);
+        // $this->denyAccessUnlessGranted('edit', $request);
 
         /** @var User $user */
         $user = $this->getUser();
