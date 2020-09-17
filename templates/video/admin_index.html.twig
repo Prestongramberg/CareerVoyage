@@ -1,0 +1,183 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Videos{% endblock %}
+
+{% block body %}
+
+<div class="uk-container">
+
+    {% if (user.isSiteAdmin or user.isAdmin) %}
+
+        <div class="uk-margin uk-width-1-1">
+            <div class="uk-flex uk-flex-right@m">
+                <a class="uk-button uk-button-primary uk-button-small" href="#modal-add-help-video" uk-toggle>Add a Video</a>
+            </div>
+        </div>
+
+        <div id="modal-add-help-video" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3>Add a Video</h3>
+
+                <div class="uk-margin">
+                    <label for="help_video_add_video_name" class="required">Name*</label>
+                    <input type="text" id="help_video_add_video_name" name="name" required="required" class="uk-input" />
+                </div>
+
+                <div class="uk-margin">
+                    <label for="help_video_add_video_id" class="required">Youtube Video ID*</label>
+                    <div class="uk-position-relative">
+                        <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                        <input class="uk-input" id="help_video_add_video_id" name="videoId" required="required" />
+                    </div>
+                    <small>Please make sure your video is open to public.</small>
+
+                </div>
+
+                <div class="uk-margin">
+                    <label for="help_video_add_video_role" class="required">Choose a User Role</label>
+                    <div class="uk-position-relative">
+                        <select class="uk-input" id="help_video_add_video_role" name="userRole">
+                          {% for role in roles %}
+                            <option value="{{ role[0] }}">{{ role[1] }}</option>
+                          {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <p class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('admin_videos_add') }}" />
+                </p>
+            </div>
+        </div>
+
+
+        <div id="modal-edit-help-video" uk-modal>
+            <input type="hidden" name="id" value="" id="editVideoId" />
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3>Edit Video</h3>
+
+                <div class="uk-margin">
+                    <label for="help_video_edit_video_name" class="required">Name*</label>
+                    <input type="text" id="help_video_edit_video_name" name="name" required="required" class="uk-input" />
+                </div>
+
+                <div class="uk-margin">
+                    <label for="help_video_edit_video_id" class="required">Youtube Video ID*</label>
+                    <div class="uk-position-relative">
+                        <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                        <input class="uk-input" id="help_video_edit_video_id" name="videoId" required="required" type="text" />
+                    </div>
+                    <small>Please make sure your video is open to public.</small>
+
+                </div>
+
+                <div class="uk-margin">
+                  <label for="help_video_edit_video_role" class="required">Choose a User Role</label>
+                  <div class="uk-position-relative">
+                      <select class="uk-input" id="help_video_edit_video_role" name="userRole">
+                        {% for role in roles %}
+                          <option value="{{ role[0] }}">{{ role[1] }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+              </div>
+
+                <p class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <input class="uk-button uk-button-primary" id="edit-save-button" type="submit" value="Save" data-action="#" />
+                </p>
+            </div>
+        </div>
+
+    {% endif %}
+    <h3>Help Videos</h3>
+    <hr />
+    <div class="uk-child-width-1@s" uk-grid>
+      <div>
+        <div class="uk-grid">
+          <div class="uk-width-auto@m">
+            <ul class="uk-tab-left" uk-tab="connect: #nav-tab-left; animation: uk-animation-fade">
+              {% for role in roles %}
+                <li><a href="#">{{ role[1] }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="uk-width-expand@m">
+            <ul id="nav-tab-left" class="uk-switcher">
+              {% for role in roles %}
+                <li>
+                  <div class="uk-alert">Drag and drop videos to set the order they will display.</div>
+                  <ul id="{{ role[0] }}_videos" class="ui-sortable uk-list" data-url="{{ path('admin_videos_sort', {role: role[0]}) }}">
+                    {% if videos[role[0]] %}
+                      {% for video in videos[role[0]] %}
+                        <li id="item_{{ video.id }}">
+                          <div class="uk-grid">
+                            <div class="uk-width-auto@m">
+                              <em class="fa fa-arrows" style="margin-right: 10px"></em>
+                            </div>
+                            <div class="uk-width-auto@m">
+                              {{ video.name }}
+                            </div>
+                            <div class="uk-width-expand@m uk-text-right">
+                              <a href="#modal-edit-help-video" class="edit-help-video" uk-toggle data-name="{{ video.name }}" data-role="{{ role[0] }}" data-video="{{ video.videoId }}" data-path="{{ path('admin_videos_edit', {id: video.id}) }}">[Edit]</a> 
+                              <a href="{{ path('admin_videos_delete', { id: video.id }) }}" class="delete-help-video uk-text-danger">[Delete]</a>
+                            </div>
+                        </li>
+                      {% endfor %}
+                    {% endif %}
+                  </ul>
+
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
+
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function(){
+        $('.edit-help-video').on('click', function(){
+          $('#help_video_edit_video_name').val( $(this).data('name') );
+          $('#help_video_edit_video_id').val( $(this).data('video') );
+          $('#help_video_edit_video_role').val( $(this).data('role') );
+          $('#edit-save-button').attr('data-action', $(this).data('path') );
+
+          UIkit.modal('#modal-edit-help-video').show();
+        });
+
+        $('.delete-help-video').on('click', function(e){
+          var item = $(this);
+          e.preventDefault();
+          var ans = confirm("Are you sure you want to delete this video?");
+          if(ans){
+            $.post( $(item).attr('href'), {}, function(data){
+              if(data.success) {
+                window.location = "/dashboard/admin-videos";
+              } else {
+                alert("Error deleting video");
+              }
+            });
+          }
+        });
+
+      }); 
+    </script>
+
+{% endblock %}

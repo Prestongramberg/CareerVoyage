@@ -293,6 +293,75 @@ jQuery(document).ready(function($) {
         window.Pintex.modal.dynamic_open( sourceHTML );
     });
 
+    /**
+     * Super Admin - Add Help Video
+     */
+    $(document).on('click', '#modal-add-help-video [data-action], #modal-edit-help-video [data-action]', function(e) {
+
+        e.preventDefault();
+  
+        // debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const $userRoleField = $modalBody.find('[name="userRole"]');
+        const userRole = $userRoleField.val();
+  
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+  
+        // Smart Set
+        $videoField.val( videoId );
+  
+        $videoField.removeClass('uk-form-success uk-form-error');
+  
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId,
+                            userRole: userRole
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+  
+                            const response = serverResponse.responseJSON;
+  
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+                                // UIkit.modal( '#modal-add-help-video' ).hide();
+                                // UIkit.modal( '#modal-edit-help-video' ).hide();
+  
+                                setTimeout(function() {
+                                    window.location = Routing.generate('admin_videos');
+                                }, 1000);
+                            } else {
+                                alert("Unable to upload video. Please try again.");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    alert("Please enter a valid Youtube Video ID.");
+                }
+            } else {
+                alert("Something went wrong. Please try again later.");
+            }
+        });
+  
+    });
+
+
+
 
     /**
      * Edit Company Video Form
@@ -1218,4 +1287,20 @@ jQuery(document).ready(function($) {
 
      });
 
+
+    /**
+     * Sortable Lists
+     */
+    $('.ui-sortable').sortable({
+        axis: 'y',
+        update: function(event, ui) {
+            var data = $(this).sortable('serialize');
+            var url = $(this).data('url');
+            $.post(url, { data: data}, function(data){
+                if(data.success === false){
+                    alert("Sorting failed to save. Please try again");
+                }
+            });
+        }
+    });
 });

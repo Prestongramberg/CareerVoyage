@@ -30,6 +30,7 @@ use App\Repository\EducatorReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\EducatorUserRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\FeedbackRepository;
+use App\Repository\HelpVideoRepository;
 use App\Repository\IndustryRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\LessonFavoriteRepository;
@@ -434,6 +435,11 @@ trait ServiceHelper
     private $professionalVideoRepository;
 
     /**
+     * @var HelpVideoRepository 
+     */
+    private $helpVideoRepository;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -505,6 +511,7 @@ trait ServiceHelper
      * @param VideoFavoriteRepository $videoFavoriteRepository
      * @param VideoRepository $videoRepository
      * @param ProfessionalVideoRepository $professionalVideoRepository
+     * @param HelpVideoRepository $helpVideoRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -576,7 +583,8 @@ trait ServiceHelper
         CareerVideoRepository $careerVideoRepository,
         VideoFavoriteRepository $videoFavoriteRepository,
         VideoRepository $videoRepository,
-        ProfessionalVideoRepository $professionalVideoRepository
+        ProfessionalVideoRepository $professionalVideoRepository,
+        HelpVideoRepository $helpVideoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -648,6 +656,7 @@ trait ServiceHelper
         $this->videoFavoriteRepository = $videoFavoriteRepository;
         $this->videoRepository = $videoRepository;
         $this->professionalVideoRepository = $professionalVideoRepository;
+        $this->helpVideoRepository = $helpVideoRepository;
     }
 
 
