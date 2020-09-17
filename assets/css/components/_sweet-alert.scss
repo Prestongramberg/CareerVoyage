@@ -1,0 +1,32 @@
+.swal-modal {
+  border-radius: 0px !important;
+  -webkit-transform: inherit !important;
+  -moz-transform: inherit !important;
+  -o-transform: inherit !important;
+  transform: inherit !important;
+}
+
+.swal-button {
+  border-radius: 0px !important;
+  padding: 0 15px;
+  font-size: 0.875rem;
+  line-height: 28px;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-weight: normal;
+  vertical-align: middle;
+  text-align: center;
+  background-color: #1e87f0;
+}
+
+.swal-button--cancel {
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid #e5e5e5;
+}
+
+
+.swal-text {
+  color: rgba(34, 34, 34, 1.0);
+  font-weight: normal !important;
+}
