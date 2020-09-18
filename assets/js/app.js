@@ -11,6 +11,7 @@ import Icons from 'uikit/dist/js/uikit-icons';
 import {deepObject} from "./react/utilities/object-utils";
 import {secondsToHHMM} from "./react/utilities/string-utils";
 import { saveAs } from 'file-saver';
+import swal from 'sweetalert';
 
 // loads the Icon plugin
 UIkit.use(Icons);
@@ -20,6 +21,7 @@ const $ = require('jquery');
 // const moment = require('./vendor/moment.js');
 require('./vendor/jquery-datetimepicker.js');
 require('./vendor/fontawesome.js');
+require('./vendor/jquery-ui.min.js');
 const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
 

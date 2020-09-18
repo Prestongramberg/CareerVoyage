@@ -20,6 +20,11 @@ class SchoolRepository extends ServiceEntityRepository
         parent::__construct($registry, School::class);
     }
 
+
+    public function findAll() {
+        return $this->findBy(array(), array("name" => "ASC"));
+    }
+
     // /**
     //  * @return School[] Returns an array of School objects
     //  */
@@ -82,6 +87,7 @@ class SchoolRepository extends ServiceEntityRepository
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
+
         $stmt->execute();
         return $stmt->fetchAll();
     }
@@ -95,6 +101,7 @@ class SchoolRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('s')
             ->where('s.id IN (:ids)')
             ->setParameter('ids', $schoolIds)
+            ->orderBy('s.name', 'ASC')
             ->getQuery()
             ->getResult();
     }

@@ -506,7 +506,13 @@
           e.preventDefault();
           $.post( $(this).attr('action'), { studentId: student_id }, function(data){
             if(data.status === "success") {
-              $('#student_' + student_id).html( 'Pending <form class="uk-inline deregister" action="{{ path('company_experience_student_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.student_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                if(data.approval === true) {
+                    $('#student_' + student_id).html( 'Pending <form class="uk-inline deregister" action="{{ path('company_experience_student_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.student_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                } else {
+                    $('#student_' + student_id).html( 'Approved <form class="uk-inline deregister" action="{{ path('company_experience_student_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.student_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                    // send completion request
+                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){});
+                }
             }
           });
         });

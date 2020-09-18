@@ -127,7 +127,13 @@ class NewSchoolExperienceType extends AbstractType
             ->add('zipcode', TextType::class, [])
             ->add('dateRange', null, array("mapped" => false))
             ->add('startDateAndTime', hiddenType::class, [])
-            ->add('endDateAndTime', HiddenType::class, []);
+            ->add('endDateAndTime', HiddenType::class, [])
+            ->add('requireApproval', ChoiceType::class, [
+                'choices'  => Experience::$requireApprovalChoices,
+                'expanded'  => false,
+                'multiple'  => false,
+                'required' => true
+            ]);
             // ->add('startDateAndTime', TextType::class, [])
             // ->add('endDateAndTime', TextType::class, []);
 

@@ -8,10 +8,12 @@
 
 namespace App\EventListener;
 
-
+use App\Entity\HelpVideo;
 use App\Entity\Site;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Entity\Video;
+use App\Repository\HelpVideoRepository;
 use App\Repository\SiteRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,17 +26,22 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class RequestListener
 {
 
+    protected $twig;
+
     private $entityManager;
     private $router;
     private $siteRepository;
+    private $helpVideoRepository;
     private $tokenStorage;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router,  SiteRepository $siteRepository, TokenStorageInterface $tokenStorage)
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router,  SiteRepository $siteRepository, TokenStorageInterface $tokenStorage, HelpVideoRepository $helpVideoRepository, \Twig_Environment $twig)
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
         $this->siteRepository = $siteRepository;
         $this->tokenStorage = $tokenStorage;
+        $this->helpVideoRepository = $helpVideoRepository;
+        $this->twig = $twig;
     }
 
     public function onKernelRequest(RequestEvent $event)
@@ -43,6 +50,22 @@ class RequestListener
             // don't do anything if it's not the master request
             return;
         }
+
+        // Load all help videos
+        $default_help_videos = $this->helpVideoRepository->findBy(
+            ['userRole' => 'ANY'],
+            ['position' => 'ASC']
+        );
+        $this->twig->addGlobal('defaultHelpVideos', $default_help_videos);
+
+        // Get help videos by user permission
+        $user_help_videos['ProfessionalUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_PROFESSIONAL_USER'],['position' => 'ASC']);
+        $user_help_videos['EducatorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_EDUCATOR_USER'],['position' => 'ASC']);
+        $user_help_videos['StudentUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_STUDENT_USER'],['position' => 'ASC']);
+        $user_help_videos['SchoolAdministratorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'AROLE_SCHOOL_ADMINISTRATOR_USERNY'],['position' => 'ASC']);
+        $user_help_videos['RegionalCoordinatorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_REGIONAL_COORDINATOR_USER'],['position' => 'ASC']);
+        $user_help_videos['StateCoordinatorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_STATE_COORDINATOR_USER'],['position' => 'ASC']);
+        $this->twig->addGlobal('userHelpVideos', $user_help_videos);
 
         // This is used to map the JSON to the request object
         $request = $event->getRequest();
@@ -56,6 +79,7 @@ class RequestListener
             if(empty($user) || !$user instanceof User) {
                 return;
             }
+
             if($user->isStudent()) {
                 /** @var StudentUser $user */
                 if($user->getGraduatingYear()) {
