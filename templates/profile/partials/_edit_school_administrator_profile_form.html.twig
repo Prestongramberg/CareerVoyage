@@ -44,14 +44,27 @@
                         {{ form_errors(form.plainPassword) }}
                     </div>
 
-
-                    <div class="uk-margin">
-                        {{ form_label(form.schools, 'Schools*') }}
-                        {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
-                        <div class="clear"></div>
-                        {{ form_errors(form.schools) }}
-                    </div>
-
+                    {% if app.user.isRegionalCoordinator or app.user.isSiteAdmin or app.user.isAdmin %}
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.schools) }}
+                        </div>
+                    {% else %}
+                        <!--
+                        This needs to be here so that we hide the schools from the form, otherwise because 
+                        of how symfony works we'd still see these records for some odd reason.
+                        
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.schools) }}
+                        </div>
+                        
+                        -->
+                    {% endif %}
 
                     <div class="uk-margin">
                         <button class="uk-button uk-button-primary uk-button-small">Save</button>

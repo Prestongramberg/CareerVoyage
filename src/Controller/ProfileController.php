@@ -225,16 +225,19 @@ class ProfileController extends AbstractController
                 // Loop through all school ids, if current user does not contain the school remove it, else add it.
                 $data = $request->request->all(); // Saves post data as an array
 
-                $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
-                foreach($schools as $school) {
+                if( array_key_exists('schools', $data['school_administrator_edit_profile_form']) )
+                {
+                    $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
+                    foreach($schools as $school) {
 
-                    if( !$school->isUserSchoolAdministrator($user) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
-                    {
-                        $school->addSchoolAdministrator($user);
-                    }
-                    else if( $school->isUserSchoolAdministrator($user) && !in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
-                    {
-                        $school->removeSchoolAdministrator($user);
+                        if( !$school->isUserSchoolAdministrator($user) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
+                        {
+                            $school->addSchoolAdministrator($user);
+                        }
+                        else if( $school->isUserSchoolAdministrator($user) && !in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
+                        {
+                            $school->removeSchoolAdministrator($user);
+                        }
                     }
                 }
             }
