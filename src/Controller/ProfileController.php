@@ -225,24 +225,37 @@ class ProfileController extends AbstractController
                 // Loop through all school ids, if current list does not contain the school remove it, else add it.
                 $data = $request->request->all(); // Saves post data as an array
 
-                $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
-                foreach($schools as $school) {
-                    if( $user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools']) ) {
-                        echo $school->getName().' - Do Nothing - Already Exists<br />';
-                    } else if( !$user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools']) ) {
-                        echo $school->getName().' - Add School<br />';
-                    } else {
-                        echo $school->getName().' - Remove School<br />';
-                    }
-                }
-                foreach($user->getSchools() as $school) {
-                    $user->addSchool($school);
-                }
+                // Remove all schools for specific user
+                $user->removeSchools();
+
+
+                // Add schools selected by user
+
+                // $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
+
+                // $school_list = $user->getSchools();
+                // foreach($school_list as $s) {
+                //     echo $s->getName().'<br />';
+                // }
+                // // die();
+                // echo '<hr />';
+
+                // foreach($schools as $school) {
+                //     if( ($user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) ||  !$user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) {
+                //         echo $school->getName().' - Do Nothing - Already Exists<br />';
+                //         $user->addSchool($school);
+                //     } else {
+                //         echo $school->getName().' - Remove School<br />';
+                //         $user->removeSchool($school);
+                //     }
+                // }
             }
-            die();
+
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            die();
 
             $this->addFlash('success', 'Profile successfully updated');
             return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
