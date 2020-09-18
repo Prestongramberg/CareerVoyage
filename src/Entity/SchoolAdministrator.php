@@ -66,6 +66,12 @@ class SchoolAdministrator extends User
         return $this;
     }
 
+    public function removeAllSchools(): self
+    {
+        $this->schools->removeAll();
+        return $this;
+    }
+
     /**
      * @return Collection|SchoolExperience[]
      */

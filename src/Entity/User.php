@@ -1243,10 +1243,8 @@ abstract class User implements UserInterface
         return $this;
     }
 
-
     public function getClassName()
     {
         return (new \ReflectionClass($this))->getShortName();
     }
-
 }
