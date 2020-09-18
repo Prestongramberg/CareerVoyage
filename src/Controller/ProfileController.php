@@ -222,40 +222,25 @@ class ProfileController extends AbstractController
             }
 
             if($user->isSchoolAdministrator()) {
-                // Loop through all school ids, if current list does not contain the school remove it, else add it.
+                // Loop through all school ids, if current user does not contain the school remove it, else add it.
                 $data = $request->request->all(); // Saves post data as an array
 
-                // Remove all schools for specific user
-                $user->removeSchools();
+                $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
+                foreach($schools as $school) {
 
-
-                // Add schools selected by user
-
-                // $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
-
-                // $school_list = $user->getSchools();
-                // foreach($school_list as $s) {
-                //     echo $s->getName().'<br />';
-                // }
-                // // die();
-                // echo '<hr />';
-
-                // foreach($schools as $school) {
-                //     if( ($user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) ||  !$user->getSchools()->contains($school) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) {
-                //         echo $school->getName().' - Do Nothing - Already Exists<br />';
-                //         $user->addSchool($school);
-                //     } else {
-                //         echo $school->getName().' - Remove School<br />';
-                //         $user->removeSchool($school);
-                //     }
-                // }
+                    if( !$school->isUserSchoolAdministrator($user) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
+                    {
+                        $school->addSchoolAdministrator($user);
+                    }
+                    else if( $school->isUserSchoolAdministrator($user) && !in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
+                    {
+                        $school->removeSchoolAdministrator($user);
+                    }
+                }
             }
-
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
-
-            die();
 
             $this->addFlash('success', 'Profile successfully updated');
             return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
