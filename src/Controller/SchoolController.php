@@ -304,7 +304,19 @@ class SchoolController extends AbstractController
 
         $this->addFlash('success', 'Educator removed from school');
 
-        return $this->redirectToRoute('dashboard');
+        if( $request->request->get('iframe')) {
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $educatorUser->getId()
+
+                ], Response::HTTP_OK
+            );
+
+        } else {
+            return $this->redirectToRoute('dashboard');
+        }
 
     }
 
