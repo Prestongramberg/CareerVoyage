@@ -746,6 +746,10 @@ class SchoolController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
+
+            $errors = 'Duplicate Educators: ';
+            $error_emails = [];
+
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
@@ -784,29 +788,31 @@ class SchoolController extends AbstractController
                     ->getResult();
                 $similarUsernames = count($similarUsernames);
 
-                if($existingUser) {
-                    $this->addFlash('error', sprintf('Error importing educators. Email %s already exists in the system and belongs to another educator', $existingUser->getEmail()));
-                    return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+                if($existingUser ) {
+                    $error_emails[] = $existingUser->getEmail();
+                } else {
+                    $educatorObj = new EducatorUser();
+                    $educatorObj->setFirstName($educator['First Name']);
+                    $educatorObj->setLastName($educator['Last Name']);
+                    $educatorObj->setSchool($school);
+                    $educatorObj->setupAsEducator();
+                    $educatorObj->setSite($user->getSite());
+                    $educatorObj->initializeNewUser();
+                    $educatorObj->setActivated(true);
+                    $educatorObj->setEmail($educator['Email']);
+                    $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername($similarUsernames++)));
+                    $tempPassword = $this->determinePassword();
+                    $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
+                    $educatorObj->setTempPassword($tempPassword);
+                    $educatorObj->setPassword($encodedPassword);
+                    $this->entityManager->persist($educatorObj);
+                    $educatorObjs[] = $educatorObj;
+
+                    $this->entityManager->flush();
                 }
-                $educatorObj = new EducatorUser();
-                $educatorObj->setFirstName($educator['First Name']);
-                $educatorObj->setLastName($educator['Last Name']);
-                $educatorObj->setSchool($school);
-                $educatorObj->setupAsEducator();
-                $educatorObj->setSite($user->getSite());
-                $educatorObj->initializeNewUser();
-                $educatorObj->setActivated(true);
-                $educatorObj->setEmail($educator['Email']);
-                $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername($similarUsernames++)));
-                $tempPassword = $this->determinePassword();
-                $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
-                $educatorObj->setTempPassword($tempPassword);
-                $educatorObj->setPassword($encodedPassword);
-                $this->entityManager->persist($educatorObj);
-                $educatorObjs[] = $educatorObj;
             }
 
-            $this->entityManager->flush();
+            // $this->entityManager->flush();
 
             $data = $this->serializer->serialize($educatorObjs, 'json', ['groups' => ['EDUCATOR_USER']]);
             $data = json_decode($data, true);
@@ -820,6 +826,9 @@ class SchoolController extends AbstractController
                 $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
             }
 
+            if(sizeof($error_emails) > 0){
+                $this->addFlash('error', $errors.join($error_emails, ', ').' they were not importred.');
+            }
             $this->addFlash('success', sprintf('Educators successfully imported.'));
             return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
         }
