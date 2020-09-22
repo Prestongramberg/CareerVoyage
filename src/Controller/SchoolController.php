@@ -570,7 +570,113 @@ class SchoolController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $file */
+            /** @var UploadedFile $uploadedFile */
+            $file = $form->get('file')->getData();
+            $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            // capitalize each word in each item in array so we can assure a proper comparision
+            $columns = array_map('ucwords', $columns);
+            $expectedColumns = ['First Name', 'Last Name', 'Graduating Year',  'Educator Number'];
+            if($columns != $expectedColumns) {
+                $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
+                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+            }
+            $rows = $this->phpSpreadsheetHelper->getAllRows($file);
+            $columns = array_shift($rows);
+            $columns = array_map('ucwords', $columns);
+            $students = [];
+            for($i = 0; $i < count($rows); $i++) {
+                $students[] = array_combine($columns, $rows[$i]);
+            }
+            foreach($students as $student) {
+
+                // if any column in the student array is null let's assume they were not setup properly and skip adding them
+                if(in_array(null, $student)) {
+                    continue;
+                }
+
+                $usernameToFind = strtolower($student['First Name'] . '.' . $student['Last Name']);
+                $similarUsernames = $this->userRepository->createQueryBuilder('u')
+                    ->where('u.username LIKE :username')
+                    ->setParameter('username', '%'.$usernameToFind.'%')
+                    ->getQuery()
+                    ->getResult();
+                $similarUsernames = count($similarUsernames);
+
+                $studentObj = new StudentUser();
+                $studentObj->setFirstName($student['First Name']);
+                $studentObj->setLastName($student['Last Name']);
+                $studentObj->setGraduatingYear($student['Graduating Year']);
+                // add the educator to the user if the educator id is included in the import
+                if(!empty($student['Educator Number'])) {
+                    $educator = $this->educatorUserRepository->findOneBy([
+                        'id' => $student['Educator Number'],
+                        'school' => $school,
+                    ]);
+                    if($educator) {
+                        $studentObj->addEducatorUser($educator);
+                    } else {
+                        $this->addFlash('error', sprintf('Error importing students. Educator Number %s does not belong to an educator for school %s. Check educator Number list below', $student['Educator Number'], $school->getName()));
+                        return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+                    }
+                }
+
+                $studentObj->setSchool($school);
+                $studentObj->setSite($user->getSite());
+                $studentObj->setupAsStudent();
+                $studentObj->initializeNewUser();
+                $studentObj->setActivated(true);
+                $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername($similarUsernames++)));
+                $tempPassword = $this->determinePassword();
+                $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
+                $studentObj->setTempPassword($tempPassword);
+                $studentObj->setPassword($encodedPassword);
+
+                $this->entityManager->persist($studentObj);
+                $studentObjs[] = $studentObj;
+            }
+
+            $this->entityManager->flush();
+
+            $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
+            $data = json_decode($data, true);
+            $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
+            file_put_contents(
+                $attachmentFilePath,
+                $this->serializer->encode($data, 'csv')
+            );
+
+            foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
+                $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
+            }
+
+            $this->addFlash('success', sprintf('Students successfully imported.'));
+            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+        }
+
+        return $this->render('school/student_import.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'school' => $school,
+        ]);
+
+
+
+
+        // TODO UNCOMMENT AND FIX THIS ISSUE EVENTUALLY. THIS CODE HANDLES
+        //  UPLOADING THE FILES BEHIND THE SCENES. WAS HAVING TOO MANY ISSUES WITH IT
+
+    /*    $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        $form = $this->createForm(StudentImportType::class, null, [
+            'method' => 'POST',
+            'school' => $school,
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
             $file = $form->get('file')->getData();
 
             $fileName = $this->uploaderHelper->uploadStudentImport($file);
@@ -590,7 +696,7 @@ class SchoolController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
             'school' => $school,
-        ]);
+        ]);*/
     }
 
     /**
@@ -601,6 +707,7 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function educatorImportAction(Request $request, School $school) {
+
 
         $this->denyAccessUnlessGranted('edit', $school);
 
@@ -615,6 +722,105 @@ class SchoolController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $uploadedFile */
+            $file = $form->get('file')->getData();
+            $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            // capitalize each word in each item in array so we can assure a proper comparision
+            $columns = array_map('ucwords', $columns);
+            $expectedColumns = ['First Name', 'Last Name', 'Email'];
+            if($columns != $expectedColumns) {
+                $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
+                return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+            }
+            $rows = $this->phpSpreadsheetHelper->getAllRows($file);
+            $columns = array_shift($rows);
+            $columns = array_map('ucwords', $columns);
+            $educators = [];
+            for($i = 0; $i < count($rows); $i++) {
+                $educators[] = array_combine($columns, $rows[$i]);
+            }
+            $educatorObjs = [];
+            foreach($educators as $educator) {
+
+                // if any column in the student array is null let's assume they were not setup properly and skip adding them
+                if(in_array(null, $educator)) {
+                    continue;
+                }
+
+                $email = $educator['Email'];
+                $existingUser = $this->userRepository->findOneBy([
+                    'email' => $email,
+                ]);
+
+                $usernameToFind = strtolower($educator['First Name'] . '.' . $educator['Last Name']);
+                $similarUsernames = $this->userRepository->createQueryBuilder('u')
+                    ->where('u.username LIKE :username')
+                    ->setParameter('username', '%'.$usernameToFind.'%')
+                    ->getQuery()
+                    ->getResult();
+                $similarUsernames = count($similarUsernames);
+
+                if($existingUser) {
+                    $this->addFlash('error', sprintf('Error importing educators. Email %s already exists in the system and belongs to another educator', $existingUser->getEmail()));
+                    return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+                }
+                $educatorObj = new EducatorUser();
+                $educatorObj->setFirstName($educator['First Name']);
+                $educatorObj->setLastName($educator['Last Name']);
+                $educatorObj->setSchool($school);
+                $educatorObj->setupAsEducator();
+                $educatorObj->setSite($user->getSite());
+                $educatorObj->initializeNewUser();
+                $educatorObj->setActivated(true);
+                $educatorObj->setEmail($educator['Email']);
+                $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername($similarUsernames++)));
+                $tempPassword = $this->determinePassword();
+                $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
+                $educatorObj->setTempPassword($tempPassword);
+                $educatorObj->setPassword($encodedPassword);
+                $this->entityManager->persist($educatorObj);
+                $educatorObjs[] = $educatorObj;
+            }
+
+            $this->entityManager->flush();
+
+            $data = $this->serializer->serialize($educatorObjs, 'json', ['groups' => ['EDUCATOR_USER']]);
+            $data = json_decode($data, true);
+            $attachmentFilePath = sys_get_temp_dir() . '/educators.csv';
+            file_put_contents(
+                $attachmentFilePath,
+                $this->serializer->encode($data, 'csv')
+            );
+
+            foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
+                $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
+            }
+
+            $this->addFlash('success', sprintf('Educators successfully imported.'));
+            return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+        }
+
+        return $this->render('school/educator_import.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'school' => $school,
+        ]);
+
+        
+        // TODO UNCOMMENT AND FIX THIS ISSUE EVENTUALLY. THIS CODE HANDLES
+        //  UPLOADING THE FILES BEHIND THE SCENES. WAS HAVING TOO MANY ISSUES WITH IT
+
+
+      /*  $this->denyAccessUnlessGranted('edit', $school);
+
+        $user = $this->getUser();
+
+        $form = $this->createForm(EducatorImportType::class, null, [
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
             $file = $form->get('file')->getData();
 
             $fileName = $this->uploaderHelper->uploadEducatorImport($file);
@@ -634,7 +840,7 @@ class SchoolController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
             'school' => $school,
-        ]);
+        ]);*/
     }
 
     /**
