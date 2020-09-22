@@ -65,6 +65,7 @@ class RequestListener
         $user_help_videos['SchoolAdministrator'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_SCHOOL_ADMINISTRATOR_USER'],['position' => 'ASC']);
         $user_help_videos['RegionalCoordinator'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_REGIONAL_COORDINATOR_USER'],['position' => 'ASC']);
         $user_help_videos['StateCoordinator'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_STATE_COORDINATOR_USER'],['position' => 'ASC']);
+
         $this->twig->addGlobal('userHelpVideos', $user_help_videos);
 
         // This is used to map the JSON to the request object
