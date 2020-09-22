@@ -209,7 +209,8 @@ class WelcomeController extends AbstractController
             [
                 'success' => false,
                 'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                    'form' => $form->createView()
+                    'form' => $form->createView(),
+                    'fieldName' => 'professional_registration_form' 
                 ])
             ], Response::HTTP_BAD_REQUEST
         );
