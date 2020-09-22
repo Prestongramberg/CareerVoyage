@@ -3,7 +3,7 @@
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.needsApprovalByUser(user) %}
         {% if request.educatorHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
@@ -73,7 +73,7 @@
     {% if request.createdBy.isStudent and request.needsApprovalBy.isEducator and request.wasCreatedByUser(user) %}
         {% if request.studentHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
@@ -129,13 +129,13 @@
     {% if request.createdBy.isProfessional and  request.needsApprovalBy.isStudent and request.needsApprovalByUser(user) %}
         {% if user.isStudent and request.studentHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}" data-location="{{ location }}"  data-parent="{{ parentTab }}" >
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
         {% elseif user.isProfessional and request.professionalHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}" data-location="{{ location }}"  data-parent="{{ parentTab }}" >
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
@@ -244,7 +244,7 @@
     {% if request.createdBy.isProfessional and request.needsApprovalBy.isStudent and request.wasCreatedByUser(user) %}
         {% if user.isProfessional and request.professionalHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.createdBy.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
@@ -309,13 +309,13 @@
     {% if (request.createdBy.isStudent or request.createdBy.isEducator) and request.needsApprovalBy.isProfessional and request.wasCreatedByUser(user) %}
         {% if user.isStudent and request.studentHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.student.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
         {% elseif user.isEducator and request.educatorHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.student.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
@@ -372,7 +372,7 @@
     {% if (request.createdBy.isStudent or request.createdBy.isEducator) and request.needsApprovalBy.isProfessional and request.needsApprovalByUser(user) %}
         {% if user.isProfessional and request.professionalHasSeen == false %}
             <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                <small><em class="fa fa-circle"></em></small> Student to meet professional request.
+                <small class="icon"><em class="fa fa-circle"></em></small> Student to meet professional request.
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                 <br /><strong>{{ request.reasonToMeet.Name }}</strong> - Student: {{ request.student.fullName }} - Professional: {{ request.professional.fullName }}</small>
             </a>
