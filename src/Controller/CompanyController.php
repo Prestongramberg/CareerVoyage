@@ -795,7 +795,11 @@ class CompanyController extends AbstractController
 
             $this->addFlash('success', 'Company successfully updated');
 
-            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
+            if($company->getOwner() == $this->get('security.token_storage')->getToken()->getUser()) {
+                return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
+            } else {
+                return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
+            }
         }
         if($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
 
