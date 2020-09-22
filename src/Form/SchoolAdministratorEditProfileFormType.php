@@ -33,6 +33,9 @@ class SchoolAdministratorEditProfileFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $site = '';
+
+        $site = $options['data']->getSite()->getId();
 
         $builder
             ->add('firstName', TextType::class, [
@@ -43,7 +46,22 @@ class SchoolAdministratorEditProfileFormType extends AbstractType
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
             ])
-            ->add('phone', TextType::class);
+            ->add('phone', TextType::class)
+            ->add('schools', EntityType::class, [
+                'class' => School::class,
+                'choice_label' => 'name',
+                'expanded'  => true,
+                'multiple'  => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                },
+                'query_builder' => function (EntityRepository $er) use ($site) {
+                    return $er->createQueryBuilder('s')
+                        ->where('s.site = :site')
+                        ->setParameter('site', $site)
+                        ->orderBy('s.name', 'ASC');
+                },
+            ]);
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {

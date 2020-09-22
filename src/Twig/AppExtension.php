@@ -241,6 +241,9 @@ class AppExtension extends AbstractExtension
 
             $my_company_experiences = $this->requestRepository->getUnreadErsfceStudent($user);
             $requests_total = $requests_total + count($my_company_experiences);
+
+            $my_school_experiences = $this->requestRepository->getUndreadSchoolExperiencesStudent($user);
+            $requests_total = $requests_total + count($my_school_experiences);
         }
 
         if($user->isEducator()) {
@@ -261,6 +264,11 @@ class AppExtension extends AbstractExtension
             $requests_total = $requests_total + count($my_requests);
 
             $my_approvals = $this->requestRepository->getUnreadApprovalsByMeProfessional($user);
+            $requests_total = $requests_total + count($my_approvals);
+        }
+
+        if($user->isSchoolAdministrator()) {
+            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeSchoolAdmin($user);
             $requests_total = $requests_total + count($my_approvals);
         }
 
@@ -396,7 +404,7 @@ class AppExtension extends AbstractExtension
                     return '';
                 }
 
-                if($location === "my-requests_pending") {
+                if($location === "my-requests_pending" or $location === "history_approval-i-requested_approved" or $location === "history_approval-i-requested_denied" or $location === "school-experience_approval" or $location === "school-experience_denial") {
                     return $this->twig->render('request/partials/my_created/_user_register_for_school_experience_request.html.twig', [
                         'request' => $request,
                         'user' => $user,
@@ -405,7 +413,7 @@ class AppExtension extends AbstractExtension
                     ]);
                 }
 
-                if($location === "my-requests_approval") {
+                if($location === "my-requests_approval" or $location === "history_approval-needed-by-me_approved" or $location === "history_approval-needed-by-me_denied") {
                     return $this->twig->render('request/partials/need_my_approval/_user_register_for_school_experience_request.html.twig', [
                         'request' => $request,
                         'user' => $user,
@@ -413,8 +421,6 @@ class AppExtension extends AbstractExtension
                         'parentTab' => $parentTab
                     ]);
                 }
-
-
                 break;
             default:
                 return null;

@@ -142,6 +142,31 @@ class RequestController extends AbstractController
 
         $studentRegisterDenial = $qb->getQuery()->getResult();
 
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb
+            ->select('r')
+            ->from('App\Entity\Request', 'r')
+            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+            ->andWhere('e.user = :user')
+            ->andWhere('r.approved = true')
+            ->setParameter('user', $user)
+            ->groupBy('e.id')
+            ->orderBy('r.createdAt', 'DESC');
+
+        $userRegisterSchoolApproval = $qb->getQuery()->getResult();
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb
+            ->select('r')
+            ->from('App\Entity\Request', 'r')
+            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+            ->andWhere('e.user = :user')
+            ->andWhere('r.denied = true')
+            ->setParameter('user', $user)
+            ->groupBy('e.id')
+            ->orderBy('r.createdAt', 'DESC');
+
+        $userRegisterSchoolDenial = $qb->getQuery()->getResult();
 
         // $studentHasSeenCompanyRequestsApproval = [];
         // $studentHasSeenCompanyRequestsDenial = [];
@@ -236,6 +261,8 @@ class RequestController extends AbstractController
             'myDeniedAccessRequests' => $myDeniedAccessRequests,
             'studentRegisterApproval' => $studentRegisterApproval,
             'studentRegisterDenial' => $studentRegisterDenial,
+            'userRegisterSchoolApproval' => $userRegisterSchoolApproval,
+            'userRegisterSchoolDenial' => $userRegisterSchoolDenial
             // 'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
             // 'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial),
             // 'educatorHasSeenCompanyRequestsApproval' => count($educatorHasSeenCompanyRequestsApproval),
@@ -261,7 +288,7 @@ class RequestController extends AbstractController
         $session = new Session();
 
 
-        $this->denyAccessUnlessGranted('edit', $request);
+        // $this->denyAccessUnlessGranted('edit', $request);
 
         /** @var User $user */
         $user = $this->getUser();
@@ -685,6 +712,10 @@ class RequestController extends AbstractController
         if($user->isProfessional()) {
             $request->setProfessionalHasSeen(true);
         }
+        if($user->isSchoolAdministrator()) {
+            $request->setSchoolAdministratorHasSeen(true);
+        }
+
         $this->entityManager->persist($request);
         $this->entityManager->flush();
         
