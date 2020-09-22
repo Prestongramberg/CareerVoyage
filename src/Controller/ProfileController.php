@@ -9,6 +9,7 @@ use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
@@ -22,6 +23,7 @@ use App\Form\SiteAdminProfileFormType;
 use App\Form\StateCoordinatorEditProfileFormType;
 use App\Form\StudentEditProfileFormType;
 use App\Repository\RegionalCoordinatorRepository;
+use App\Repository\SchoolRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -161,7 +163,6 @@ class ProfileController extends AbstractController
             $professionalVideo = $this->videoRepository->find($editVideoId);
         }
 
-
         $options = [
             'method' => 'POST',
         ];
@@ -218,6 +219,27 @@ class ProfileController extends AbstractController
             if($user->getPlainPassword()) {
                 $encodedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
                 $user->setPassword($encodedPassword);
+            }
+
+            if($user->isSchoolAdministrator()) {
+                // Loop through all school ids, if current user does not contain the school remove it, else add it.
+                $data = $request->request->all(); // Saves post data as an array
+
+                if( array_key_exists('schools', $data['school_administrator_edit_profile_form']) )
+                {
+                    $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
+                    foreach($schools as $school) {
+
+                        if( !$school->isUserSchoolAdministrator($user) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
+                        {
+                            $school->addSchoolAdministrator($user);
+                        }
+                        else if( $school->isUserSchoolAdministrator($user) && !in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) 
+                        {
+                            $school->removeSchoolAdministrator($user);
+                        }
+                    }
+                }
             }
 
             $this->entityManager->persist($user);

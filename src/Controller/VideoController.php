@@ -13,6 +13,7 @@ use App\Entity\CompanyVideo;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
+use App\Entity\HelpVideo;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
@@ -35,6 +36,7 @@ use App\Mailer\ExperienceMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\HelpVideoRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\UserRepository;
@@ -243,6 +245,202 @@ class VideoController extends AbstractController
 
         return $this->redirectToRoute('video_index');
     }
+
+
+    /**
+     * @Route("/admin-videos", name="admin_videos", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function adminVideosAction(Request $request) {
+
+        $userRoles = [
+            ["ANY", "Any User Role"],
+            ["ROLE_PROFESSIONAL_USER", "Professional"],
+            ["ROLE_EDUCATOR_USER", "Educator"],
+            ["ROLE_STUDENT_USER", "Student"],
+            ["ROLE_SCHOOL_ADMINISTRATOR_USER", "School Administrator"],
+            ["ROLE_REGIONAL_COORDINATOR_USER", "Region Coordinator"],
+            ["ROLE_STATE_COORDINATOR_USER", "State Coordinator"]
+        ];
+
+        $editVideoId = $request->query->get('editVideo', null);
+        $helpVideo = null;
+        if($editVideoId) {
+            $helpVideo = $this->helpVideoRepository->find($editVideoId);
+        }
+
+        $videos = [];
+        foreach($userRoles as $k => $v){
+            $videos[$v[0]] = $this->helpVideoRepository->findBy(
+                ['userRole' => $v[0]],
+                ['position' => 'ASC']
+            );
+        }
+
+        $user = $this->getUser();
+        return $this->render('video/admin_index.html.twig', [
+            'user' => $user,
+            'helpVideo' => $helpVideo,
+            'roles' => $userRoles,
+            'videos' => $videos
+        ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/admin-videos/add", name="admin_videos_add", options = { "expose" = true })
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function adminAddVideoAction(Request $request) {
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+        $userRole = $request->request->get('userRole');
+
+        if($name && $videoId) {
+            $video = new HelpVideo();
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $video->setUserRole($userRole);
+
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/admin-videos/{id}/edit", name="admin_videos_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param Video $video
+     * @return JsonResponse
+     */
+    public function adminEditVideoAction(Request $request, Video $video) {
+
+        $name = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+        $userRole = $request->request->get('userRole');
+
+        if($name && $videoId) {
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $video->setUserRole($userRole);
+
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $video->getId(),
+                    'name' => $name,
+                    'videoId' => $videoId,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+
+    }
+
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/admin-videos/{id}/delete", name="admin_videos_delete", options = { "expose" = true })
+     * @param Request $request
+     * @param Video $video
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function adminDeleteVideoAction(Request $request, Video $video) {
+        if($video) {
+            $this->entityManager->remove($video);
+            $this->entityManager->flush();
+
+            // $this->addFlash('success', 'Video successfully removed');
+
+            // return $this->redirectToRoute('video_index');
+            return new JsonResponse(
+                [
+                    'success' => true,
+
+                ], Response::HTTP_OK
+            );
+        }
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/admin-videos/{role}/sort", name="admin_videos_sort", options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function adminSortVideosAction(Request $request) {
+        
+        $list = $request->request->get('data');
+        if($list) {
+            parse_str($list, $list_array);
+
+            foreach($list_array['item'] as $k => $v){
+
+                $em = $this->getDoctrine()->getManager();
+                $video = $em->getRepository('App:HelpVideo')->find($v);
+
+                if($video) {
+                    $video->setPosition($k);
+
+                    $em->persist($video);
+                    $em->flush();
+                }
+                
+            }
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+
+                ], Response::HTTP_OK
+            );
+        }
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
 
 
 }

@@ -1128,6 +1128,8 @@ class CompanyController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience) {
+        // We need to check if the experience requires approval from the event creator. If so follow the
+        // current flow, otherwise, bypass sending emails and mark the registration as complete.
         $studentIdToRegister = $request->request->get('studentId');
         $studentToRegister = $this->studentUserRepository->find($studentIdToRegister);
 
@@ -1148,14 +1150,26 @@ class CompanyController extends AbstractController
         $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
         $registerRequest->setCompanyExperience($experience);
         $registerRequest->setStudentUser($studentToRegister);
-        $this->entityManager->persist($registerRequest);
-        $this->entityManager->flush();
-        $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
-        $this->addFlash('success', 'Registration request successfully sent.');
 
+        if( $experience->getRequireApproval()) {
+            // Requires approval
+            $this->entityManager->persist($registerRequest);
+            $this->entityManager->flush();
+            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
+            $this->addFlash('success', 'Registration request successfully sent.');
+        } else {
+            // Does not require approval
+            $registerRequest->setApproved(true);
+            $registerRequest->setProfessionalHasSeen(true);
+            $registerRequest->setEducatorHasSeen(true);
+            $this->entityManager->persist($registerRequest);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Student has been registered.');
+        }
+        
         if($request->isXmlHttpRequest()){
           // AJAX request
-          return new JsonResponse( ["status" => "success", "student_id" => $studentIdToRegister, 'id' => $experience->getId()]);
+          return new JsonResponse( ["status" => "success", "student_id" => $studentIdToRegister, 'id' => $experience->getId(), "approval" => $experience->getRequireApproval(), "request_id" => $registerRequest->getId()]);
         } else {
           return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }

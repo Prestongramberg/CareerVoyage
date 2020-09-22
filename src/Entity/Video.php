@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo", "professionalVideo" = "ProfessionalVideo"})
+ * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo", "professionalVideo" = "ProfessionalVideo", "helpVideo" = "HelpVideo"})
  */
 abstract class Video
 {
@@ -59,6 +59,9 @@ abstract class Video
      * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="video", orphanRemoval=true)
      */
     private $videoFavorites;
+
+    
+
 
     public function __construct()
     {
@@ -106,7 +109,6 @@ abstract class Video
         return $this;
     }
 
-
     /**
      * @Groups({"VIDEO"})
      * @return bool
@@ -123,6 +125,7 @@ abstract class Video
     {
         $this->isFavorite = $isFavorite;
     }
+
 
     /**
      * @return Collection|VideoFavorite[]
