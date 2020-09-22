@@ -39,7 +39,7 @@
             </div>
 
             {% for educatorUser in pagination %}
-                <div class="uk-grid uk-flex-middle" uk-grid>
+                <div class="uk-grid uk-flex-middle" uk-grid id="educator_{{ educatorUser.id }}">
                     <div class="uk-width-auto">
                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                     </div>
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                        <form class="uk-inline" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST">
+                        <form class="uk-inline remove-educator-form" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST">
                             <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
                             <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
                         </form>
@@ -101,5 +101,24 @@
 {% block javascripts %}
     {{ parent() }}
     {# <script src="{{ asset('build/educators.js') }}"></script> #}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $('.remove-educator-form').on('submit', function(e){
+            e.preventDefault();
+            var item = $(this);
+            
+            var ans = confirm('Are you sure you want to remove this educator?');
+            if(ans) {  
+                $.post($(item).attr('action'), { iframe: true,  schoolAdminId: $(item).find("input[name='schoolAdminId']").val() }, function(data) {
+                    if(data.success) {
+                        $('#educator_' + data.id).remove();
+                    } else {
+                        alert('Error deleting user');
+                    }
+                });
+            }
+        })
+    </script>
 {% endblock %}
 
