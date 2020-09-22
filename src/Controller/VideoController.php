@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AdminUser;
 use App\Entity\CareerVideo;
 use App\Entity\Chat;
 use App\Entity\ChatMessage;
@@ -11,6 +12,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\HelpVideo;
@@ -18,8 +20,12 @@ use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
 use App\Entity\RequestPossibleApprovers;
+use App\Entity\SchoolAdministrator;
+use App\Entity\SiteAdminUser;
+use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\Video;

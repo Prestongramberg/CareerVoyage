@@ -2,7 +2,13 @@
 <div class="js-secondary-industry-container">
     {% if form.secondaryIndustries is defined %}
         <div class="uk-margin">
-            {{ form_label(form.secondaryIndustries, 'Professions*') }}  &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="edit_company_form[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="edit_company_form[secondaryIndustries][]">UnSelect All</a>
+
+            {% set field = "edit_company_form" %}
+            {% if fieldName is defined %}
+                {% set field = fieldName %}
+            {% endif %}
+
+            {{ form_label(form.secondaryIndustries, 'Professions*') }}  &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="{{ field }}[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="{{ field }}[secondaryIndustries][]">UnSelect All</a>
             {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
             <div class="clear"></div>
             {{ form_errors(form.secondaryIndustries) }}

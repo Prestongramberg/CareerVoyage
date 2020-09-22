@@ -21,6 +21,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
     {% endfor %}
 
     {# HISTORY TAB #}
@@ -29,6 +30,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set history_approvedByMe_denied = 0 %}
@@ -36,6 +38,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
     {% endfor %}
 
     {% set history_approvalIRequested_approved = 0 %}
@@ -43,6 +46,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set history_approvalIRequested_denied= 0 %}
@@ -50,6 +54,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
     {% endfor %}
 
     {% set myCompanyExperience_approved = 0 %}
@@ -57,6 +62,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set myCompanyExperience_denied = 0 %}
@@ -64,6 +70,23 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
+    {% endfor %}
+
+    {% set mySchoolExperience_approved = 0 %}
+    {% for request in userRegisterSchoolApproval %}
+        {% if user.isStudent() and request.studentHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
+        {% if user.isEducator() and request.educatorHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
+        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
+    {% endfor %}
+
+    {% set mySchoolExperience_denied = 0 %}
+    {% for request in userRegisterSchoolDenial %}
+        {% if user.isStudent() and request.studentHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
+        {% if user.isEducator() and request.educatorHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
+        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
     {% endfor %}
 
 
@@ -76,6 +99,8 @@
             {% if requestsThatNeedMyApproval|length > 0 %}
                 <li><a href="#requests-approvals" id="my-requests-approval">{% if myApprovals_requests > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}My Approvals {% if myApprovals_requests > 0 %}(<span>{{ myApprovals_requests }}</span>){% endif %}</a></li>
             {% endif %}
+            
+            {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
             <li>
                 <a href="#requests-completed" id="history-tab">
                     {% if history_approvedByMe_approved > 0 or history_approvedByMe_denied > 0 or history_approvalIRequested_approved > 0 or history_approvalIRequested_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}
@@ -83,6 +108,7 @@
                     {% if history_approvedByMe_approved > 0 or history_approvedByMe_denied > 0 or history_approvalIRequested_approved > 0 or history_approvalIRequested_denied > 0 %}(<span>{{ history_approvedByMe_approved + history_approvedByMe_denied + history_approvalIRequested_approved + history_approvalIRequested_denied }}</span>){% endif %}
                 </a>
             </li>
+            {% endif %}
 
             {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
                 <li>
@@ -93,6 +119,17 @@
                     </a>
                 </li>
             {% endif %}
+
+            {% if (userRegisterSchoolApproval|length > 0 or userRegisterSchoolDenial|length > 0) and (user.isStudent() or user.isProfessional()) %}
+                <li>
+                    <a href="#student-school-experiences" id="my-school-experience-tab">
+                        {% if mySchoolExperience_approved > 0 or mySchoolExperience_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}
+                        My School Experiences
+                        {% if mySchoolExperience_approved > 0 or mySchoolExperience_denied > 0 %}(<span>{{ mySchoolExperience_approved + mySchoolExperience_denied }}</span>){% endif %}
+                    </a>
+                </li>
+            {% endif %}
+
         </ul>
 
         <div class="uk-switcher" id="tab-requests">
@@ -119,6 +156,7 @@
                 </div>
             {% endif %}
             {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
+                {# History Tab #}
                 <div class="requests-landing__my-completed-approvals">
 
                     {% if deniedByMeRequests|length > 0 or approvedByMeRequests|length > 0  %}
@@ -194,6 +232,7 @@
             {% endif %}
 
             {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
+                {# Company experience tab #}
                 <div class="uk-section uk-section-muted uk-padding">
                     <h3>My Company Experiences</h3>
                     <div class="uk-width-xlarge">
@@ -218,6 +257,41 @@
                                         {{ render_request( request, user, 'company-experience_denial', 'my-company-experience-tab' )|raw }}
                                     {% endfor %}
                                     {% if studentRegisterDenial|length == 0 %}
+                                        <p>No requests found.</p>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if (userRegisterSchoolApproval|length > 0 or userRegisterSchoolDenial|length > 0) and (user.isStudent() or user.isProfessional()) %}
+                {# School Experiences #}
+                <div class="uk-section uk-section-muted uk-padding">
+                    <h3>My School Experiences</h3>
+                    <div class="uk-width-xlarge">
+                        <ul class="" data-uk-tab="{connect: '#tab-school-requests-by-me'}" uk-switcher>
+                            <li class="uk-active"><a href="#requests-by-me-approved" id="school-experience_approval">{% if mySchoolExperience_approved > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Approved {% if mySchoolExperience_approved > 0 %}(<span>{{ mySchoolExperience_approved }}</span>){% endif %}</a></li>
+                            <li><a href="#requests-by-me-denied" id="school-experience_denial">{% if mySchoolExperience_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Denied {% if mySchoolExperience_denied > 0 %}(<span>{{ mySchoolExperience_denied }}</span>){% endif %}</a></li>
+                        </ul>
+                        <div class="uk-switcher" id="tab-school-requests-by-me">
+                            <div class="requests-landing__requests-by-me-approved">
+                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
+                                    {% for request in userRegisterSchoolApproval %}
+                                        {{ render_request( request, user, 'school-experience_approval', 'my-school-experience-tab' )|raw }}
+                                    {% endfor %}
+                                    {% if userRegisterSchoolApproval|length == 0 %}
+                                        <p>No requests found.</p>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="requests-landing__requests-by-me-denied">
+                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
+                                    {% for request in userRegisterSchoolDenial %}
+                                        {{ render_request( request, user, 'school-experience_denial', 'my-school-experience-tab' )|raw }}
+                                    {% endfor %}
+                                    {% if userRegisterSchoolDenial|length == 0 %}
                                         <p>No requests found.</p>
                                     {% endif %}
                                 </ul>
@@ -363,7 +437,7 @@
         $.post('/dashboard/requests/' + id + '/user_has_seen_request', { }, function() {
 
             item.removeClass('toggle-has-seen');
-            item.children("small").remove();
+            item.children("small.icon").remove();
 
             // Decrement local value by 1
             if( parseInt( $('#' + location + " > span").html() ) > 0 ) {

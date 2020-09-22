@@ -62,9 +62,9 @@ class RequestListener
         $user_help_videos['ProfessionalUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_PROFESSIONAL_USER'],['position' => 'ASC']);
         $user_help_videos['EducatorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_EDUCATOR_USER'],['position' => 'ASC']);
         $user_help_videos['StudentUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_STUDENT_USER'],['position' => 'ASC']);
-        $user_help_videos['SchoolAdministratorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'AROLE_SCHOOL_ADMINISTRATOR_USERNY'],['position' => 'ASC']);
-        $user_help_videos['RegionalCoordinatorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_REGIONAL_COORDINATOR_USER'],['position' => 'ASC']);
-        $user_help_videos['StateCoordinatorUser'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_STATE_COORDINATOR_USER'],['position' => 'ASC']);
+        $user_help_videos['SchoolAdministrator'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_SCHOOL_ADMINISTRATOR_USER'],['position' => 'ASC']);
+        $user_help_videos['RegionalCoordinator'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_REGIONAL_COORDINATOR_USER'],['position' => 'ASC']);
+        $user_help_videos['StateCoordinator'] = $this->helpVideoRepository->findBy(['userRole' => 'ROLE_STATE_COORDINATOR_USER'],['position' => 'ASC']);
         $this->twig->addGlobal('userHelpVideos', $user_help_videos);
 
         // This is used to map the JSON to the request object
