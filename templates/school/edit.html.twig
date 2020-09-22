@@ -45,6 +45,11 @@
                             {{ form_errors(form.email) }}
                         </div>
                         <div class="uk-margin">
+                            {{ form_label(form.allowEventCreation, 'Allow Educators to Create School Events?') }}
+                            {{ form_widget(form.allowEventCreation, {'attr': {'class': 'uk-input' ~ ( form_errors(form.allowEventCreation) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.allowEventCreation) }}
+                        </div>
+                        <div class="uk-margin">
                             {{ form_label(form.overviewAndBackground, 'Overview and Background*') }}
                             <div data-wysiwyg="[name='edit_school[overviewAndBackground]']" class="{{ ( form_errors(form.overviewAndBackground) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
