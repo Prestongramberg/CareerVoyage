@@ -34,20 +34,23 @@
                     {% endif %}
                   {% endfor %}
 
-                  <form class="uk-inline" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
-                      {% if experience.isRegistered(user) %}
-                          <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit">Already Registered</button>
-                      {% else %}
-                          <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register</button>
-                      {% endif %}
-                  </form>
+                  <div id="register-buttons">
+                    <form class="uk-inline register" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
+                        <input type="hidden" name="userId" value="{{ user.id }}" />
+                        {% if experience.isRegistered(user) %}
+                            <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit">Already Registered</button>
+                        {% else %}
+                            <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register</button>
+                        {% endif %}
+                    </form>
 
-                  <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                      <input type="hidden" name="userId" value="{{ user.id }}">
-                      {% if experience.isRegistered(user) %}
-                          <button class="uk-button uk-button-danger uk-button-small disabled uk-margin-small-bottom" type="submit">Cancel Registration</button>
-                      {% endif %}
-                  </form>
+                    <form class="uk-inline deregister" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                        <input type="hidden" name="userId" value="{{ user.id }}">
+                        {% if experience.isRegistered(user) %}
+                            <button class="uk-button uk-button-danger uk-button-small disabled uk-margin-small-bottom" type="submit">Cancel Registration</button>
+                        {% endif %}
+                    </form>
+                  </div>
 
                 {% endif %}
 
@@ -688,25 +691,24 @@
     <script>
 
         $(document).on('submit', '.register', function(e){
-          var student_id = $(this).children().first().val();
+          var userId = $(this).children().first().val();
           e.preventDefault();
-          $.post( $(this).attr('action'), { userId: student_id }, function(data){
+
+          $.post( $(this).attr('action'), { userId: userId }, function(data){
             if(data.status === "success") {
-              $('#student_' + student_id).html( 'Pending <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                if(data.approval === true) {
+                    window.location.assign(window.location.href);
+                } else {
+                    // send completion request
+                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){
+                        window.location.assign(window.location.href);
+                    });
+                }
+            } else {
+                alert("Error registering for experience.");
             }
           });
         });
-
-        $(document).on('submit', '.deregister', function(e){
-          var student_id = $(this).children().first().val();
-          e.preventDefault();
-          $.post( $(this).attr('action'), { userId: student_id }, function(data){
-            if(data.status === "success") {
-              $('#student_' + student_id).html( '<form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>' );
-            }
-          });
-        });
-
 
         function fallbackCopyTextToClipboard(text) {
             var textArea = document.createElement("textarea");

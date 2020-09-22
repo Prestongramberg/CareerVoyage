@@ -106,7 +106,13 @@ class NewCompanyExperienceType extends AbstractType
             ->add('zipcode', TextType::class, [])
             ->add('dateRange', null, array("mapped" => false))
             ->add('startDateAndTime', hiddenType::class, [])
-            ->add('endDateAndTime', HiddenType::class, []);
+            ->add('endDateAndTime', HiddenType::class, [])
+            ->add('requireApproval', ChoiceType::class, [
+                'choices'  => Experience::$requireApprovalChoices,
+                'expanded'  => false,
+                'multiple'  => false,
+                'required' => true
+            ]);
 
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,

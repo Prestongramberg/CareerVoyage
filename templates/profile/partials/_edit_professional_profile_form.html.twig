@@ -326,7 +326,7 @@
                                         {{ form_errors(form.isPhoneHiddenFromProfile) }}
                                     </div>
                                     <div class="uk-margin">
-                                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                                        <button class="uk-button uk-button-primary uk-button-small" id="submit-form">Save</button>
                                     </div>
                                 </fieldset>
                             </div>
@@ -334,7 +334,7 @@
                     </ul>
                 </div>
             </div>
-
+            <input type="hidden" name="guestInstructor" id="guest_instructor" value="0" />
             <input type="hidden" name="formType" value="professionalRegistrationForm">
 
             {{ form_end(form) }}
@@ -349,13 +349,37 @@
     $( document ).ready(function() {
 
         $('.js-navigate').click(function(e) {
-            debugger;
             let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
 
             UIkit.tab('#test').show(indexToNavigateTo);
         })
 
-
+        $('#submit-form').on('click', function(e){
+            var myForm = $(this).parents('form');
+            $('input[name="professional_edit_profile_form[rolesWillingToFulfill][]"]:checked').each(function(){
+                if( $(this).val() == 1){
+                    e.preventDefault();
+                    swal('You chose Expert Presenter as a role. Would you like to add lessons you can teach?', {
+                       buttons: {
+                           cancel: "Not at this time",
+                           success: "Yes I would"
+                       } 
+                    })
+                    .then((value) => {
+                        switch(value) {
+                            case "success":
+                                $("#guest_instructor").val(1);
+                                myForm.submit();
+                                break;
+                            
+                            default:
+                                myForm.submit();
+                                break;
+                        }
+                    });
+                }
+            });
+        });
 
     });
 </script>

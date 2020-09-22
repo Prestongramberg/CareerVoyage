@@ -47,7 +47,7 @@
 
                 {% if studentUser.archived != true %}
 
-                    <div class="uk-grid uk-flex-middle" uk-grid>
+                    <div class="uk-grid uk-flex-middle" uk-grid id="user_{{ studentUser.id }}">
                         <div class="uk-width-auto">
                             <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                         </div>
@@ -66,7 +66,7 @@
                             <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                             <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
                                 <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right iframe-remove-user" type="submit">Remove</button>
                             </form>
                         </div>
                     </div>
@@ -83,10 +83,31 @@
     </div>
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+/**
+ * Fix iframe reloading issue when deleting users
+ */
+$('.iframe-remove-user').on('click', function(e) {
+    e.preventDefault();
+    var item = $(this).parents("form:first");
+    $.post( $(item).attr('action'), { 'iframe': true, 'schoolAdminId': $(item).find("input[name='schoolAdminId']").val() }, function(data){
+
+        if(data.success) {
+            $('#user_' + data.id).remove();
+        } else {
+            alert('Error deleting user');
+        }
+    });
+});
+</script>
+
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     {# <script src="{{ asset('build/educators.js') }}"></script> #}
 {% endblock %}
+
+
 

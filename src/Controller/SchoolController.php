@@ -354,10 +354,23 @@ class SchoolController extends AbstractController
 
         $schoolAdminId = $request->request->get('schoolAdminId');
 
-        $this->entityManager->remove($studentUser);
+        $studentUser->setArchived(true);
+        $this->entityManager->persist($studentUser);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('dashboard');
+        if( $request->request->get('iframe')) {
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $studentUser->getId()
+
+                ], Response::HTTP_OK
+            );
+
+        } else {
+            return $this->redirectToRoute('dashboard');
+        }
     }
 
     /**
@@ -1389,6 +1402,8 @@ class SchoolController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience) {
+        // We need to check if the experience requires approval from the event creator. If so follow the
+        // current flow, otherwise, bypass sending emails and mark the registration as complete.
         $req = $request;
         $userId = $request->request->get('userId', null);
         if($userId) {
@@ -1401,6 +1416,7 @@ class SchoolController extends AbstractController
             'user' => $userToRegister,
             'schoolExperience' => $experience,
         ]);
+
         if($request) {
             $this->addFlash('error', 'Registration request already sent for this experience.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
@@ -1414,19 +1430,33 @@ class SchoolController extends AbstractController
             $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
+
+
         $registerRequest = new UserRegisterForSchoolExperienceRequest();
         $registerRequest->setCreatedBy($this->getUser());
         $registerRequest->setNeedsApprovalBy($experience->getSchoolContact());
         $registerRequest->setSchoolExperience($experience);
         $registerRequest->setUser($userToRegister);
-        $this->entityManager->persist($registerRequest);
-        $this->entityManager->flush();
-        $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
-        $this->addFlash('success', 'Registration request successfully sent.');
+
+        if( $experience->getRequireApproval()) {
+            // Requires approval
+            $this->entityManager->persist($registerRequest);
+            $this->entityManager->flush();
+            $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
+            $this->addFlash('success', 'Registration request successfully sent.');
+        } else {
+            // Does not require approval
+            $registerRequest->setApproved(true);
+            // $registerRequest->setSchoolAdministratorHasSeen(true);
+            $registerRequest->setStudentHasSeen(true);
+            $this->entityManager->persist($registerRequest);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Registration has been approved.');
+        }
 
         if($req->isXmlHttpRequest()){
             // AJAX request
-            return new JsonResponse( ["status" => "success", "userId" => $userId, 'id' => $experience->getId()]);
+            return new JsonResponse( ["status" => "success", "userId" => $userId, 'id' => $experience->getId(), "approval" => $experience->getRequireApproval(), "request_id" => $registerRequest->getId()]);
         } else {
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
