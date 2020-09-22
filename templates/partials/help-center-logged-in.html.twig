@@ -17,6 +17,7 @@
                 {% include 'partials/users/school-admins-educators-shared.html.twig' %}
             {% endif %}
 
+<<<<<<< HEAD
             {% if user.isProfessional %}
                 {% include 'partials/users/professionals.html.twig' %}
             {% elseif user.isSchoolAdministrator %}
@@ -25,6 +26,19 @@
                 {% include 'partials/users/educators.html.twig' %}
             {% elseif user.isStudent %}
                 {% include 'partials/users/students.html.twig' %}
+=======
+            {% if userHelpVideos[user.getClassName] is defined and userHelpVideos[user.getClassName]|length > 0 %}
+                {% for video in userHelpVideos[user.getClassName] %}
+                    <li>
+                        <a class="uk-accordion-title" href="#">{{ video.name }}</a>
+                        <div class="uk-accordion-content uk-video">
+                            <div style="position: relative; padding-bottom: 62.5%; height: 0;">
+                                <iframe src="https://www.youtube.com/embed/{{ video.videoId }}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+>>>>>>> 8c6bda41d2ed7be9a37de1a2ab84267371c3c09a
             {% endif %}
         </ul>
     </div>
