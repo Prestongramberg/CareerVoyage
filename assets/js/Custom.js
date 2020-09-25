@@ -1303,4 +1303,68 @@ jQuery(document).ready(function($) {
             });
         }
     });
+
+
+    /** 
+     * Mass User Actions (Delete / Deactivate)
+     */
+    $('.select-all-users').on('click', function() { 
+        var checked = $(this).prop('checked');
+        $('.select-users').prop("checked", checked);
+
+        toggle_mass_action_button();
+    });
+
+    $('.select-users').on('click', function(){
+        toggle_mass_action_button();
+    });
+
+    $('#mass-delete').on('click', function(){
+        var ans = confirm('Are you sure you want to delete these users?');
+        if(ans) {
+            create_mass_action_form('/dashboard/profiles/mass-delete');
+        }
+    });
+
+    $('#mass-deactivate').on('click', function(){
+        var ans = confirm('Are you sure you want to deactivate these users?');
+        if(ans) {
+            create_mass_action_form('/dashboard/profiles/mass-deactivate');
+        }
+    });
+
+    function create_mass_action_form(action) {
+        var form = document.createElement('form');
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', action);
+        
+        $('.select-users:checked').each( function(){
+            var field = document.createElement('input');
+            field.setAttribute('type', 'hidden');
+            field.setAttribute('name', 'user_id[]');
+            field.setAttribute('value', $(this).val() );
+            
+            form.appendChild(field);
+        });
+
+        var field = document.createElement('input');
+        field.setAttribute('type', 'hidden');
+        field.setAttribute('name', 'user_role');
+        field.setAttribute('value', $('.select-users-role').val() );
+        
+        form.appendChild(field);
+        
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function toggle_mass_action_button() {
+        var length = $('.select-users:checked').length;
+        if(length > 0) {
+            $('#mass-actions').show();
+        } else {
+            $('#mass-actions').hide();
+        }
+    }
 });
