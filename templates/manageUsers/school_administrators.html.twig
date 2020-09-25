@@ -30,6 +30,7 @@
                 </div>
                 <table class="uk-table uk-table-small uk-table-divider">
                     <tr>
+                        <th><input type="checkbox" class="select-all-users" /></th>
                         <th>ID</th>
                         <th>First Name</th>
                         <th>Last Name</th>
@@ -47,6 +48,7 @@
                     {# table body #}
                     {% for paginatedUser in pagination %}
                         <tr>
+                            <td><input type="checkbox" class="select-users" value="{{ paginatedUser.id }}" /></td>
                             <td>{{ paginatedUser.id }}</td>
                             <td>{{ paginatedUser.firstName }}</td>
                             <td>{{ paginatedUser.lastName }}</td>
@@ -72,15 +74,22 @@
 
                             {% if user.admin or user.siteAdmin %}
                                 {% if paginatedUser.activated %}
-                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_professionals">Deactivate</a></td>
+                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_school_administrators">Deactivate</a></td>
                                 {% else %}
-                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_professionals">Activate</a></td>
+                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_school_administrators">Activate</a></td>
                                 {% endif %}
                             {% endif %}
 
                         </tr>
                     {% endfor %}
                 </table>
+
+                <input type="hidden" class='select-users-role' value="manage_school_administrators" />
+                <div id="mass-actions" class="uk-margin-bottom">
+                    <button id="mass-deactivate" class="uk-button uk-button-warning" value="deactivate">Deactivate Selected</button>
+                    <button id="mass-delete" class="uk-button uk-button-danger" value="delete">Delete Selected</button>
+                </div>
+
                 {# display navigation #}
                 <div class="navigation">
                     {{ knp_pagination_render(pagination) }}

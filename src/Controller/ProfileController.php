@@ -403,4 +403,49 @@ class ProfileController extends AbstractController
         return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
     }
 
+    /**
+     * @Route("/profiles/mass-delete", name="profiles_mass_delete")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+     public function massDeleteAction(Request $request, UserRepository $userRepository) {
+
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $this->denyAccessUnlessGranted('edit', $user);
+
+        foreach($_POST['user_id'] as $k => $v){
+            $user = $userRepository->find($v);
+
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
+        }
+        
+        $this->addFlash('success', 'Users successfully removed');
+
+        return $this->redirectToRoute( $_POST['user_role'] );        
+     }
+
+    /**
+     * @Route("/profiles/mass-deactivate", name="profiles_mass_deactivate")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+     public function massDeactivateAction(Request $request, UserRepository $userRepository) {
+
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $this->denyAccessUnlessGranted('edit', $user);
+
+        foreach($_POST['user_id'] as $k => $v){
+            $user = $userRepository->find($v);
+
+            $user->setActivated(false);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+        
+        $this->addFlash('success', 'Users successfully deactivated');
+
+        return $this->redirectToRoute( $_POST['user_role'] );        
+     }
+
 }
