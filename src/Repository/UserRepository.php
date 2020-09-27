@@ -126,8 +126,6 @@ class UserRepository extends ServiceEntityRepository implements  UserLoaderInter
         return $this->createQueryBuilder('u')
             ->where('u.passwordResetToken = :token')
             ->setParameter('token', $token)
-            ->andWhere('u.passwordResetTokenTimestamp >= :timestamp')
-            ->setParameter('timestamp', new \DateTime('-23 hours 59 minutes 59 seconds'))
             ->getQuery()
             ->getOneOrNullResult();
     }
