@@ -309,7 +309,7 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $educatorUser->getId()
+                    'id' => $educatorUser->getId(),
 
                 ], Response::HTTP_OK
             );
@@ -375,7 +375,7 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $studentUser->getId()
+                    'id' => $studentUser->getId(),
 
                 ], Response::HTTP_OK
             );
@@ -605,76 +605,121 @@ class SchoolController extends AbstractController
                 $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
                 return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
-            $rows = $this->phpSpreadsheetHelper->getAllRows($file);
-            $columns = array_shift($rows);
-            $columns = array_map('ucwords', $columns);
-            $students = [];
-            for($i = 0; $i < count($rows); $i++) {
-                $students[] = array_combine($columns, $rows[$i]);
+
+            try {
+                $reader = $this->phpSpreadsheetHelper->getReader($file);
+            } catch (\Exception $exception) {
+                $this->addFlash('error', sprintf('Error loading spreadsheet reader. (%s).', $exception->getMessage()));
+                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
-            foreach($students as $student) {
 
-                // if any column in the student array is null let's assume they were not setup properly and skip adding them
-                if(in_array(null, $student)) {
-                    continue;
-                }
+            /**
+             * Generating passwords inside a loop is extremely expensive and uses up too much cpu/ram. Create initial temp
+             * shared password for all users being imported
+             */
+            $tempPassword = sprintf('student.%s', $this->generateRandomString(5));
+            $encodedPassword = $this->generateStudentTemporaryPassword($tempPassword);
 
-                $usernameToFind = strtolower($student['First Name'] . '.' . $student['Last Name']);
-                $similarUsernames = $this->userRepository->createQueryBuilder('u')
-                    ->where('u.username LIKE :username')
-                    ->setParameter('username', '%'.$usernameToFind.'%')
-                    ->getQuery()
-                    ->getResult();
-                $similarUsernames = count($similarUsernames);
+            try {
+                $this->entityManager->beginTransaction();
+                $studentObjs = [];
+                $previousEducator = null;
 
-                $studentObj = new StudentUser();
-                $studentObj->setFirstName($student['First Name']);
-                $studentObj->setLastName($student['Last Name']);
-                $studentObj->setGraduatingYear($student['Graduating Year']);
-                // add the educator to the user if the educator id is included in the import
-                if(!empty($student['Educator Number'])) {
-                    $educator = $this->educatorUserRepository->findOneBy([
-                        'id' => $student['Educator Number'],
-                        'school' => $school,
-                    ]);
-                    if($educator) {
-                        $studentObj->addEducatorUser($educator);
-                    } else {
-                        $this->addFlash('error', sprintf('Error importing students. Educator Number %s does not belong to an educator for school %s. Check educator Number list below', $student['Educator Number'], $school->getName()));
-                        return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
+                /** @var \Box\Spout\Reader\SheetInterface $sheet */
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    /** @var \Box\Spout\Common\Entity\Row $row */
+                    $columns = [];
+                    $batchSize = 20;
+                    foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+                        $values = [];
+
+                        $cells = $row->getCells();
+                        foreach ($cells as $cell) {
+                            $value = $cell->getValue();
+                            if($rowIndex === 1) {
+                                $columns[] = $value;
+
+                            } else {
+                                $values[] = $value;
+                            }
+                        }
+
+                        if($rowIndex > 1) {
+
+                            // Normalizing empty cell possibilities https://github.com/box/spout/issues/332
+                            if(count($columns) !== count($values)) {
+                                $values = $values + array_fill(count($values), count($columns) - count($values), '');
+                            }
+                            $student = array_combine($columns, $values);
+
+                            $username = sprintf("%s.%s",
+                                strtolower($student['First Name'] . '.' . $student['Last Name']),
+                                $this->generateRandomString(5));
+
+                            $studentObj = new StudentUser();
+                            $studentObj->setFirstName($student['First Name']);
+                            $studentObj->setLastName($student['Last Name']);
+                            $studentObj->setGraduatingYear($student['Graduating Year']);
+
+                            if(!empty($student['Educator Number'])) {
+
+                                if($previousEducator instanceof EducatorUser && $previousEducator->getId() === $student['Educator Number']) {
+                                    $studentObj->addEducatorUser($previousEducator);
+                                } else {
+
+                                    $educator = $this->educatorUserRepository->findOneBy([
+                                        'id' => $student['Educator Number'],
+                                        'school' => $school,
+                                    ]);
+                                    if($educator) {
+                                        $studentObj->addEducatorUser($educator);
+                                        $previousEducator = $educator;
+                                    }
+                                }
+                            }
+
+                            $studentObj->setSchool($school);
+                            $studentObj->setSite($user->getSite());
+                            $studentObj->setupAsStudent();
+                            $studentObj->initializeNewUser();
+                            $studentObj->setTempPassword($tempPassword);
+                            $studentObj->setActivated(true);
+                            $studentObj->setUsername($username);
+                            $studentObj->setPassword($encodedPassword);
+
+                            $this->entityManager->persist($studentObj);
+                            $studentObjs[] = $studentObj;
+                        }
+
                     }
                 }
 
-                $studentObj->setSchool($school);
-                $studentObj->setSite($user->getSite());
-                $studentObj->setupAsStudent();
-                $studentObj->initializeNewUser();
-                $studentObj->setActivated(true);
-                $studentObj->setUsername($this->determineUsername($studentObj->getTempUsername($similarUsernames++)));
-                $tempPassword = $this->determinePassword();
-                $encodedPassword = $this->passwordEncoder->encodePassword($studentObj, $tempPassword);
-                $studentObj->setTempPassword($tempPassword);
-                $studentObj->setPassword($encodedPassword);
+                // make sure any final records that came after the (($rowIndex % $batchSize) === 0) are flushed
+                $this->entityManager->flush();
+                $this->entityManager->commit();
 
-                $this->entityManager->persist($studentObj);
-                $studentObjs[] = $studentObj;
+            } catch (\Exception $exception) {
+                $this->entityManager->rollback();
+                $this->addFlash('error', sprintf('Error importing spreadsheet. (%s).', $exception->getMessage()));
+                return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
             }
 
-            $this->entityManager->flush();
+            if(!empty($studentObjs)) {
 
-            $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
-            $data = json_decode($data, true);
-            $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
-            file_put_contents(
-                $attachmentFilePath,
-                $this->serializer->encode($data, 'csv')
-            );
+                $data = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
+                $data = json_decode($data, true);
+                $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
+                file_put_contents(
+                    $attachmentFilePath,
+                    $this->serializer->encode($data, 'csv')
+                );
 
-            foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
-                $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
+                foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
+                    $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
+                }
             }
 
-            $this->addFlash('success', sprintf('Students successfully imported.'));
+            $this->addFlash('success', sprintf('(%s) Students successfully imported.', count($studentObjs)));
             return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
         }
 
@@ -683,45 +728,6 @@ class SchoolController extends AbstractController
             'form' => $form->createView(),
             'school' => $school,
         ]);
-
-
-
-
-        // TODO UNCOMMENT AND FIX THIS ISSUE EVENTUALLY. THIS CODE HANDLES
-        //  UPLOADING THE FILES BEHIND THE SCENES. WAS HAVING TOO MANY ISSUES WITH IT
-
-    /*    $this->denyAccessUnlessGranted('edit', $school);
-
-        $user = $this->getUser();
-
-        $form = $this->createForm(StudentImportType::class, null, [
-            'method' => 'POST',
-            'school' => $school,
-        ]);
-
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-            $file = $form->get('file')->getData();
-
-            $fileName = $this->uploaderHelper->uploadStudentImport($file);
-
-            $siteId = null;
-            if($user->getSite()) {
-                $siteId = $user->getSite()->getId();
-            }
-
-            $this->bus->dispatch(new StudentImportMessage($school->getId(), $fileName, $siteId));
-
-            $this->addFlash('success', sprintf('Students successfully queued for import. Check back shortly.'));
-            return $this->redirectToRoute('school_student_import', ['id' => $school->getId()]);
-        }
-
-        return $this->render('school/student_import.html.twig', [
-            'user' => $user,
-            'form' => $form->createView(),
-            'school' => $school,
-        ]);*/
     }
 
     /**
@@ -730,6 +736,7 @@ class SchoolController extends AbstractController
      * @param Request $request
      * @param School $school
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function educatorImportAction(Request $request, School $school) {
 
@@ -752,7 +759,13 @@ class SchoolController extends AbstractController
 
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
-            $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
+            $columns = [];
+            try {
+                $columns = $this->phpSpreadsheetHelper->getColumns($file);
+            } catch (\Exception $exception) {
+                return;
+            }
+
             // capitalize each word in each item in array so we can assure a proper comparision
             $columns = array_map('ucwords', $columns);
             $expectedColumns = ['First Name', 'Last Name', 'Email'];
@@ -760,70 +773,126 @@ class SchoolController extends AbstractController
                 $this->addFlash('error', sprintf('Column names need to be exactly: %s', implode(",", $expectedColumns)));
                 return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
             }
-            $rows = $this->phpSpreadsheetHelper->getAllRows($file);
-            $columns = array_shift($rows);
-            $columns = array_map('ucwords', $columns);
-            $educators = [];
-            for($i = 0; $i < count($rows); $i++) {
-                $educators[] = array_combine($columns, $rows[$i]);
-            }
-            $educatorObjs = [];
-            foreach($educators as $educator) {
 
-                // if any column in the student array is null let's assume they were not setup properly and skip adding them
-                if(in_array(null, $educator)) {
-                    continue;
-                }
-
-                $email = $educator['Email'];
-                $existingUser = $this->userRepository->findOneBy([
-                    'email' => $email,
-                ]);
-
-                $usernameToFind = strtolower($educator['First Name'] . '.' . $educator['Last Name']);
-                $similarUsernames = $this->userRepository->createQueryBuilder('u')
-                    ->where('u.username LIKE :username')
-                    ->setParameter('username', '%'.$usernameToFind.'%')
-                    ->getQuery()
-                    ->getResult();
-                $similarUsernames = count($similarUsernames);
-
-                if($existingUser ) {
-                    $error_emails[] = $existingUser->getEmail();
-                } else {
-                    $educatorObj = new EducatorUser();
-                    $educatorObj->setFirstName($educator['First Name']);
-                    $educatorObj->setLastName($educator['Last Name']);
-                    $educatorObj->setSchool($school);
-                    $educatorObj->setupAsEducator();
-                    $educatorObj->setSite($user->getSite());
-                    $educatorObj->initializeNewUser();
-                    $educatorObj->setActivated(true);
-                    $educatorObj->setEmail($educator['Email']);
-                    $educatorObj->setUsername($this->determineUsername($educatorObj->getTempUsername($similarUsernames++)));
-                    $tempPassword = $this->determinePassword();
-                    $encodedPassword = $this->passwordEncoder->encodePassword($educatorObj, $tempPassword);
-                    $educatorObj->setTempPassword($tempPassword);
-                    $educatorObj->setPassword($encodedPassword);
-                    $this->entityManager->persist($educatorObj);
-                    $educatorObjs[] = $educatorObj;
-
-                    $this->entityManager->flush();
-                }
+            try {
+                $reader = $this->phpSpreadsheetHelper->getReader($file);
+            } catch (\Exception $exception) {
+                $this->addFlash('error', sprintf('Error loading spreadsheet reader. (%s).', $exception->getMessage()));
+                return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
             }
 
-            // $this->entityManager->flush();
 
-            $data = $this->serializer->serialize($educatorObjs, 'json', ['groups' => ['EDUCATOR_USER']]);
-            $data = json_decode($data, true);
-            $attachmentFilePath = sys_get_temp_dir() . '/educators.csv';
-            file_put_contents(
-                $attachmentFilePath,
-                $this->serializer->encode($data, 'csv')
-            );
+            /**
+             * Generating passwords inside a loop is extremely expensive and uses up too much cpu/ram. Create initial temp
+             * shared password for all users being imported
+             */
+            $tempPassword = sprintf('educator.%s', $this->generateRandomString(5));
+            $encodedPassword = $this->generateEducatorTemporaryPassword($tempPassword);
 
-            foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
-                $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
+            try {
+                $this->entityManager->beginTransaction();
+                $educatorObjs = [];
+                $existingEducatorObjs = [];
+
+                /** @var \Box\Spout\Reader\SheetInterface $sheet */
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    /** @var \Box\Spout\Common\Entity\Row $row */
+                    $columns = [];
+                    $batchSize = 20;
+                    foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+                        $values = [];
+
+                        $cells = $row->getCells();
+                        foreach ($cells as $cell) {
+                            $value = $cell->getValue();
+                            if($rowIndex === 1) {
+                                $columns[] = $value;
+
+                            } else {
+                                $values[] = $value;
+                            }
+                        }
+
+                        if($rowIndex > 1) {
+
+                            // Normalizing empty cell possibilities https://github.com/box/spout/issues/332
+                            if(count($columns) !== count($values)) {
+                                $values = $values + array_fill(count($values), count($columns) - count($values), '');
+                            }
+                            $educator = array_combine($columns, $values);
+
+                            $email = $educator['Email'];
+                            $existingUser = $this->userRepository->findOneBy([
+                                'email' => $email,
+                            ]);
+
+                            if($existingUser) {
+                                // setup a temp password even for the existing user as odds are
+                                // they won't remember their current password and this will help
+                                // the school admin facilitate their login
+                                $existingUser->setTempPassword($tempPassword);
+                                $existingUser->setPassword($encodedPassword);
+                                $this->entityManager->persist($existingUser);
+                                $existingEducatorObjs[] = $existingUser;
+                            } else {
+                                $username = sprintf("%s.%s",
+                                    strtolower($educator['First Name'] . '.' . $educator['Last Name']),
+                                    $this->generateRandomString(5));
+
+                                $educatorObj = new EducatorUser();
+                                $educatorObj->setFirstName($educator['First Name']);
+                                $educatorObj->setLastName($educator['Last Name']);
+                                $educatorObj->setSchool($school);
+                                $educatorObj->setupAsEducator();
+                                $educatorObj->setSite($user->getSite());
+                                $educatorObj->initializeNewUser();
+                                $educatorObj->setActivated(true);
+                                $educatorObj->setEmail($educator['Email']);
+                                $educatorObj->setUsername($username);
+                                $educatorObj->setTempPassword($tempPassword);
+                                $educatorObj->setPassword($encodedPassword);
+                                $this->entityManager->persist($educatorObj);
+                                $educatorObjs[] = $educatorObj;
+                            }
+                        }
+                    }
+                }
+
+                // make sure any final records that came after the (($rowIndex % $batchSize) === 0) are flushed
+                $this->entityManager->flush();
+                $this->entityManager->commit();
+
+            } catch (\Exception $exception) {
+                $this->entityManager->rollback();
+                $this->addFlash('error', sprintf('Error importing spreadsheet. (%s).', $exception->getMessage()));
+                return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
+            }
+
+            $allEducators = array_merge($existingEducatorObjs, $educatorObjs);
+
+            // send password reset emails
+            /** @var EducatorUser $anEducator */
+            foreach ($allEducators as $anEducator) {
+                $anEducator->setPasswordResetToken();
+                $this->entityManager->persist($anEducator);
+                $this->securityMailer->sendPasswordReset($anEducator);
+            }
+
+            $this->entityManager->flush();
+
+            if(!empty($allEducators)) {
+
+                $data = $this->serializer->serialize($allEducators, 'json', ['groups' => ['EDUCATOR_USER']]);
+                $data = json_decode($data, true);
+                $attachmentFilePath = sys_get_temp_dir() . '/educators.csv';
+                file_put_contents(
+                    $attachmentFilePath,
+                    $this->serializer->encode($data, 'csv')
+                );
+
+                foreach($school->getSchoolAdministrators() as $schoolAdministrator) {
+                    $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
+                }
             }
 
             if(sizeof($error_emails) > 0){
@@ -1411,7 +1480,7 @@ class SchoolController extends AbstractController
             'professionals' => $experience->getSchool()->getProfessionalUsers(),
             'primaryIndustries' => $this->industryRepository->findAll(),
             'secondaryIndustries' => $this->secondaryIndustryRepository->findAll(),
-            'students' => $experience->getSchool()->getStudentUsers()
+            'students' => $experience->getSchool()->getStudentUsers(),
 
         ]);
     }
@@ -1718,6 +1787,24 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @param $tempPassword
+     * @return string
+     */
+    private function generateStudentTemporaryPassword($tempPassword) {
+
+        return $this->passwordEncoder->encodePassword(new StudentUser(), $tempPassword);
+    }
+
+    /**
+     * @param $tempPassword
+     * @return string
+     */
+    private function generateEducatorTemporaryPassword($tempPassword) {
+
+        return $this->passwordEncoder->encodePassword(new EducatorUser(), $tempPassword);
+    }
+
+    /**
      * @Route("/schools/{id}/featured/add", name="school_featured_add", options = { "expose" = true })
      * @param Request $request
      * @param School $school
@@ -1844,13 +1931,13 @@ class SchoolController extends AbstractController
 
             $chat = $this->chatRepository->findOneBy([
                 'userOne' => $loggedInUser,
-                'userTwo' => $student
+                'userTwo' => $student,
             ]);
 
             if(!$chat) {
                 $chat = $this->chatRepository->findOneBy([
                     'userOne' => $student,
-                    'userTwo' => $loggedInUser
+                    'userTwo' => $loggedInUser,
                 ]);
             }
 

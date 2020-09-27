@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -22,6 +23,79 @@ class PhpSpreadsheetHelper
     }
 
     /**
+     * @param File $uploadedFile
+     * @return array
+     * @throws \Box\Spout\Common\Exception\IOException
+     * @throws \Box\Spout\Reader\Exception\ReaderNotOpenedException
+     */
+    public function getColumns(File $uploadedFile) {
+
+        $fileExtension = $this->uploadHelper->guessExtension($uploadedFile);
+        $path = $uploadedFile->getRealPath();
+
+        $columns = [];
+
+        switch ($fileExtension) {
+            case 'xlsx':
+                $reader = ReaderEntityFactory::createXLSXReader();
+                break;
+            case 'ods':
+                $reader = ReaderEntityFactory::createODSReader();
+                break;
+            case 'csv':
+                $reader = ReaderEntityFactory::createCSVReader();
+                break;
+            default:
+                throw new \Exception("Error reading file. Make sure file is a valid CSV, ODD, or XLSX. File extension %s being used.", $fileExtension);
+                break;
+        }
+
+        $reader->open($path);
+
+        /** @var \Box\Spout\Reader\SheetInterface $sheet */
+        foreach ($reader->getSheetIterator() as $sheet) {
+            /** @var \Box\Spout\Common\Entity\Row $row */
+            foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+                $columns = $row->toArray();
+                break 2;
+            }
+        }
+
+        $reader->close();
+
+        return $columns;
+    }
+
+    /**
+     * @param File $uploadedFile
+     * @return \Box\Spout\Reader\CSV\Reader|\Box\Spout\Reader\ODS\Reader|\Box\Spout\Reader\XLSX\Reader
+     * @throws \Exception
+     */
+    public function getReader(File $uploadedFile) {
+        $fileExtension = $this->uploadHelper->guessExtension($uploadedFile);
+        $path = $uploadedFile->getRealPath();
+        switch ($fileExtension) {
+            case 'xlsx':
+                $reader = ReaderEntityFactory::createXLSXReader();
+                break;
+            case 'ods':
+                $reader = ReaderEntityFactory::createODSReader();
+                break;
+            case 'csv':
+                $reader = ReaderEntityFactory::createCSVReader();
+                break;
+            default:
+                throw new \Exception("Reader could not be created from file extension: %s", $fileExtension);
+                break;
+        }
+
+        $reader->open($path);
+
+        return $reader;
+    }
+
+    /**
+     * @deprecated Using box/sprout due to performance issues with phpoffice
      * Return the column names from the CSV
      * @param UploadedFile $uploadedFile
      * @return array|bool
@@ -69,6 +143,7 @@ class PhpSpreadsheetHelper
     }
 
     /**
+     * @deprecated Using box/sprout due to performance issues with phpoffice
      * Return all the spreadsheet rows
      * @param File $uploadedFile
      * @return array|bool

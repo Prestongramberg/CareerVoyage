@@ -35,6 +35,27 @@ class SecurityMailer extends AbstractMailer
         $this->mailer->send($message);
     }
 
+    public function sendPasswordSetup(User $user) {
+
+        $setPasswordUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
+                'set_password',
+                array('token' => $user->getPasswordResetToken())
+            );
+
+        $message = (new \Swift_Message('Password Setup'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/passwordSetEmail.html.twig',
+                    ['user' => $user, 'resetPasswordUrl' => $setPasswordUrl]
+                ),
+                'text/html'
+            );
+
+        $this->mailer->send($message);
+    }
+
     public function sendAccountActivation(User $user) {
 
         $accountActivationUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
