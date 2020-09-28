@@ -1,0 +1,7 @@
+
+{% if user.tempPassword %}
+<div class="uk-alert-warning" uk-alert>
+    <a class="uk-alert-close" uk-close></a>
+    <p>Your account still uses a temporary password. Setup your password <a href="{{ path('profile_edit', {id: user.id}) }}">here</a> </p>
+</div>
+{% endif %}

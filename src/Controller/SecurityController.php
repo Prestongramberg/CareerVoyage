@@ -86,7 +86,9 @@ class SecurityController extends AbstractController
 
                 // If the forgot-email function was used within the last 24 hours for
                 // this user, render the form with an appropriate validation message.
-                $currentTokenTimestamp = $user->getPasswordResetTokenTimestamp();
+                // TODO COMMENTING OUT FOR NOW UNTIL WE CAN REFACTOR THE SET PASSWORD TIMESTAMP LOGIC FOR IMPORTS OF EDUCATORS TO HAVE NO
+                //  TIME LIMIT
+            /*    $currentTokenTimestamp = $user->getPasswordResetTokenTimestamp();
                 if ($currentTokenTimestamp && $currentTokenTimestamp >= new \DateTime('-23 hours 59 minutes 59 seconds')) {
                     $errorMessage = 'Sorry, an email containing password reset instructions has been sent to this email address within the last 24 hours';
                     $form->addError(new FormError($errorMessage));
@@ -94,7 +96,7 @@ class SecurityController extends AbstractController
                     return $this->render('security/forgot_password.html.twig', [
                         'form' => $form->createView()
                     ]);
-                }
+                }*/
 
                 $user->setPasswordResetToken();
 
@@ -180,6 +182,8 @@ class SecurityController extends AbstractController
                     $resetPassword->getPassword()
                 ));
 
+                $user->setTempPassword(null);
+
                 $user->clearPasswordResetToken();
 
                 $this->entityManager->persist($user);
@@ -237,6 +241,8 @@ class SecurityController extends AbstractController
                     $user,
                     $resetPassword->getPassword()
                 ));
+
+                $user->setTempPassword(null);
 
                 $user->clearPasswordResetToken();
 

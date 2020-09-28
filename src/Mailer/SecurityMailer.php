@@ -39,7 +39,7 @@ class SecurityMailer extends AbstractMailer
 
         $setPasswordUrl = $this->getFullyQualifiedBaseUrl().$this->router->generate(
                 'set_password',
-                array('token' => $user->getPasswordResetToken())
+                array('token' => $user->getInvitationCode())
             );
 
         $message = (new \Swift_Message('Password Setup'))
