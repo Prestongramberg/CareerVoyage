@@ -199,7 +199,7 @@
                             {% if user.studentUsers|length > 0 %}
                                 {% for studentUser in user.studentUsers %}
 
-                                    {% if studentUser.archived != true %}
+                                    {% if studentUser.activated != false and studentUser.deleted != true %}
 
                                         <div class="uk-grid uk-flex-middle" uk-grid>
                                             <div class="uk-width-auto">

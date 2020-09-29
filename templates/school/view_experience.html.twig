@@ -357,37 +357,40 @@
                     {% for request in experience.userRegisterForSchoolExperienceRequests %}
                     {% set showPendingRegisterButton = true %}
                         {% if request.user.student %}
-                            {% if request.approved %}
-                                Approved
-                                {% set showPendingRegisterButton = false %}
-                            {% elseif request.denied %}
-                                Denied
-                                {% set showPendingRegisterButton = false %}
-                            {% else %}
-                                Pending
-                                {% set showPendingRegisterButton = false %}
-                            {% endif %}
 
-                            <div class="uk-grid uk-flex-middle" uk-grid>
-                                <div class="uk-width-expand">
-                                    <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
-                                </div>
-                                <div class="uk-width-auto">
-                                    {% if is_granted('view', request.user) %}
-                                            <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                                    {% endif %}
+                            {% if request.user.activated != false and request.user.deleted != true %}
+                                {% if request.approved %}
+                                    Approved
+                                    {% set showPendingRegisterButton = false %}
+                                {% elseif request.denied %}
+                                    Denied
+                                    {% set showPendingRegisterButton = false %}
+                                {% else %}
+                                    Pending
+                                    {% set showPendingRegisterButton = false %}
+                                {% endif %}
 
-                                    {% if showPendingRegisterButton == false %}
-                                        {% if is_granted('edit', request.user) %}
-                                                <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                                                    <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                                    <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
-                                                </form>
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        {% if is_granted('view', request.user) %}
+                                                <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                         {% endif %}
-                                    {% endif %}
+
+                                        {% if showPendingRegisterButton == false %}
+                                            {% if is_granted('edit', request.user) %}
+                                                    <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                        <input type="hidden" name="userId" value="{{ request.user.id }}">
+                                                        <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                                    </form>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            <hr>
+                                <hr>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -397,37 +400,40 @@
                     {% for request in experience.userRegisterForSchoolExperienceRequests %}
                         {% if request.user.professional %}
 
-                            {% if request.approved %}
-                                Approved
-                                {% set showPendingRegisterButton = false %}
-                            {% elseif request.denied %}
-                                Denied
-                                {% set showPendingRegisterButton = false %}
-                            {% else %}
-                                Pending
-                                {% set showPendingRegisterButton = false %}
-                            {% endif %}
+                            {% if request.user.activated != false and request.user.deleted != true %}
+
+                                {% if request.approved %}
+                                    Approved
+                                    {% set showPendingRegisterButton = false %}
+                                {% elseif request.denied %}
+                                    Denied
+                                    {% set showPendingRegisterButton = false %}
+                                {% else %}
+                                    Pending
+                                    {% set showPendingRegisterButton = false %}
+                                {% endif %}
 
 
 
-                            <div class="uk-grid uk-flex-middle" uk-grid>
-                                <div class="uk-width-expand">
-                                    <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
-                                </div>
-                                <div class="uk-width-auto">
-                                    <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
 
-                                    {% if showPendingRegisterButton == false %}
-                                        {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
-                                            <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                                                <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                                <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
-                                            </form>
+                                        {% if showPendingRegisterButton == false %}
+                                            {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
+                                                <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                    <input type="hidden" name="userId" value="{{ request.user.id }}">
+                                                    <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                                </form>
+                                            {% endif %}
                                         {% endif %}
-                                    {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            <hr>
+                                <hr>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -449,40 +455,42 @@
                                 </th>
                             </tr>
                             {% for studentUser in user.studentUsers %}
-                                <tr>
-                                    <td>{{ studentUser.fullName }}</td>
-                                    <td>
-                                        {% set showPendingRegisterButton = true %}
-                                        {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                                            {% if request.user %}
-                                            {% if request.user.id == studentUser.id %}
-                                                {% if request.approved %}
-                                                    Approved
-                                                    {% set showPendingRegisterButton = false %}
-                                                {% elseif request.denied %}
-                                                    Denied
-                                                    {% set showPendingRegisterButton = false %}
-                                                {% else %}
-                                                    Pending
-                                                    {% set showPendingRegisterButton = false %}
+                                {% if studentUser.activated != false and studentUser.deleted != true %}
+                                    <tr>
+                                        <td>{{ studentUser.fullName }}</td>
+                                        <td>
+                                            {% set showPendingRegisterButton = true %}
+                                            {% for request in experience.userRegisterForSchoolExperienceRequests %}
+                                                {% if request.user %}
+                                                {% if request.user.id == studentUser.id %}
+                                                    {% if request.approved %}
+                                                        Approved
+                                                        {% set showPendingRegisterButton = false %}
+                                                    {% elseif request.denied %}
+                                                        Denied
+                                                        {% set showPendingRegisterButton = false %}
+                                                    {% else %}
+                                                        Pending
+                                                        {% set showPendingRegisterButton = false %}
+                                                    {% endif %}
                                                 {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if showPendingRegisterButton == true %}
+                                                <form class="uk-inline" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
+                                                    <input type="hidden" name="userId" value="{{ studentUser.id }}">
+                                                    <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
+                                                </form>
                                             {% endif %}
+                                            {% if showPendingRegisterButton == false %}
+                                                <form class="uk-inline" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
+                                                    <input type="hidden" name="userId" value="{{ studentUser.id }}">
+                                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
+                                                </form>
                                             {% endif %}
-                                        {% endfor %}
-                                        {% if showPendingRegisterButton == true %}
-                                            <form class="uk-inline" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
-                                                <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                                <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
-                                            </form>
-                                        {% endif %}
-                                        {% if showPendingRegisterButton == false %}
-                                            <form class="uk-inline" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
-                                                <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
                             </tbody>
                         </table>
@@ -508,40 +516,42 @@
                             </th>
                         </tr>
                         {% for studentUser in students %}
-                            <tr>
-                                <td>{{ studentUser.fullName }}</td>
-                                <td id="student_{{ studentUser.id }}">
-                                    {% set showPendingRegisterButton = true %}
-                                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                                        {% if request.user %}
-                                        {% if request.user.id == studentUser.id %}
-                                            {% if request.approved %}
-                                                Approved
-                                                {% set showPendingRegisterButton = false %}
-                                            {% elseif request.denied %}
-                                                Denied
-                                                {% set showPendingRegisterButton = false %}
-                                            {% else %}
-                                                Pending
-                                                {% set showPendingRegisterButton = false %}
+                            {% if studentUser.activated != false and studentUser.deleted != true %}
+                                <tr>
+                                    <td>{{ studentUser.fullName }}</td>
+                                    <td id="student_{{ studentUser.id }}">
+                                        {% set showPendingRegisterButton = true %}
+                                        {% for request in experience.userRegisterForSchoolExperienceRequests %}
+                                            {% if request.user %}
+                                            {% if request.user.id == studentUser.id %}
+                                                {% if request.approved %}
+                                                    Approved
+                                                    {% set showPendingRegisterButton = false %}
+                                                {% elseif request.denied %}
+                                                    Denied
+                                                    {% set showPendingRegisterButton = false %}
+                                                {% else %}
+                                                    Pending
+                                                    {% set showPendingRegisterButton = false %}
+                                                {% endif %}
                                             {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if showPendingRegisterButton == true %}
+                                            <form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
+                                                <input type="hidden" name="userId" value="{{ studentUser.id }}">
+                                                <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
+                                            </form>
                                         {% endif %}
+                                        {% if showPendingRegisterButton == false %}
+                                            <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
+                                                <input type="hidden" name="userId" value="{{ studentUser.id }}">
+                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
+                                            </form>
                                         {% endif %}
-                                    {% endfor %}
-                                    {% if showPendingRegisterButton == true %}
-                                        <form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
-                                            <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                            <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
-                                        </form>
-                                    {% endif %}
-                                    {% if showPendingRegisterButton == false %}
-                                        <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
-                                            <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
-                                        </form>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                         </tbody>
                         </table>

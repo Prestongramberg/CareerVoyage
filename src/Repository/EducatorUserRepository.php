@@ -15,7 +15,6 @@ use Doctrine\ORM\Query\Expr\Join;
 /**
  * @method EducatorUser|null find($id, $lockMode = null, $lockVersion = null)
  * @method EducatorUser|null findOneBy(array $criteria, array $orderBy = null)
- * @method EducatorUser[]    findAll()
  * @method EducatorUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class EducatorUserRepository extends ServiceEntityRepository
@@ -53,6 +52,16 @@ class EducatorUserRepository extends ServiceEntityRepository
         ;
     }
     */
+
+
+    public function findAll() {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.deleted = 0')
+            ->andWhere('u.activated = 1')
+            ->getQuery()
+            ->getResult();
+    }
+
 
     /**
      * @param string[] $criteria format: array('user' => <user_id>, 'name' => <name>)

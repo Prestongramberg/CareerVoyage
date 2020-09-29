@@ -354,7 +354,9 @@ class ProfileController extends AbstractController
 
         //$this->denyAccessUnlessGranted('edit', $user);
 
-        $this->entityManager->remove($user);
+        $user->setDeleted(true);
+        $user->setActivated(false);
+        $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         // if the user being deleted is you then log the user out
@@ -413,16 +415,21 @@ class ProfileController extends AbstractController
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
 
-        foreach($_POST['user_id'] as $k => $v){
+        $user_list = $request->request->get('user_id', array() );
+        $user_role = $request->request->get('user_role', 'manage_users');
+
+        foreach( $user_list as $k => $v){
             $user = $userRepository->find($v);
 
-            $this->entityManager->remove($user);
+            $user->setDeleted(true);
+            $user->setActivated(false);
+            $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
         
         $this->addFlash('success', 'Users successfully removed');
 
-        return $this->redirectToRoute( $_POST['user_role'] );        
+        return $this->redirectToRoute( $user_role );        
      }
 
     /**
