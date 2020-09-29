@@ -247,7 +247,8 @@ class ProfileController extends AbstractController
 
             $this->addFlash('success', 'Profile successfully updated');
 
-            if($_POST['guestInstructor'] == 1){ 
+            $isGuestInstructor = $request->request->get('guestInstructor', null);
+            if($isGuestInstructor){ 
                 return $this->redirectToRoute('lesson_index');
             } else {
                 return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);

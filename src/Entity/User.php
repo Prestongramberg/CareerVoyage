@@ -58,7 +58,7 @@ abstract class User implements UserInterface
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "STUDENT_USER", "EDUCATOR_USER"})
+     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER"})
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $email;
