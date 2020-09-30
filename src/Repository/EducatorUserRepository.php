@@ -15,6 +15,7 @@ use Doctrine\ORM\Query\Expr\Join;
 /**
  * @method EducatorUser|null find($id, $lockMode = null, $lockVersion = null)
  * @method EducatorUser|null findOneBy(array $criteria, array $orderBy = null)
+ * @method EducatorUser[]    findAll()
  * @method EducatorUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class EducatorUserRepository extends ServiceEntityRepository
@@ -52,15 +53,6 @@ class EducatorUserRepository extends ServiceEntityRepository
         ;
     }
     */
-
-
-    public function findAll() {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.deleted = 0')
-            ->andWhere('u.activated = 1')
-            ->getQuery()
-            ->getResult();
-    }
 
 
     /**
@@ -160,6 +152,8 @@ class EducatorUserRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('e')
             ->where('e.id IN (:ids)')
+            ->andWhere('e.deleted = 0')
+            ->andWhere('e.activated = 1')
             ->setParameter('ids', $educatorIds)
             ->getQuery()
             ->getResult();
@@ -167,6 +161,8 @@ class EducatorUserRepository extends ServiceEntityRepository
 
     public function getAll() {
         return $this->createQueryBuilder('u')
+            ->andWhere('u.deleted = 0')
+            ->andWhere('u.activated = 1')
             ->getQuery()
             ->getResult();
     }
@@ -185,7 +181,8 @@ class EducatorUserRepository extends ServiceEntityRepository
           FROM user u 
           INNER JOIN educator_user eu on u.id = eu.id 
           LEFT JOIN school sc on eu.school_id = sc.id
-          LEFT JOIN state s on sc.state_id = s.id');
+          LEFT JOIN state s on sc.state_id = s.id
+          AND u.deleted = 0');
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
@@ -201,4 +198,5 @@ class EducatorUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
 }

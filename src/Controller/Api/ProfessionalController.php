@@ -199,7 +199,7 @@ class ProfessionalController extends AbstractController
             }
             $professionals = $this->professionalUserRepository->getByArrayOfIds($professionalIds);
         } else {
-            $professionals = $this->professionalUserRepository->findAll();
+            $professionals = $this->professionalUserRepository->getAll();
         }
 
         $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);

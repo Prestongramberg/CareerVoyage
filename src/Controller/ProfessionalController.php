@@ -127,7 +127,7 @@ class ProfessionalController extends AbstractController
      */
     public function indexAction(Request $request) {
 
-        $professionalUsers = $this->professionalUserRepository->findAll();
+        $professionalUsers = $this->professionalUserRepository->getAll();
 
         $user = $this->getUser();
         return $this->render('professionals/index.html.twig', [
