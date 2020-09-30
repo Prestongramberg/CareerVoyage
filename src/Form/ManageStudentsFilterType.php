@@ -31,6 +31,8 @@ class ManageStudentsFilterType extends AbstractType
 
         $builder->add('firstName', Filters\TextFilterType::class);
         $builder->add('lastName', Filters\TextFilterType::class);
+        $builder->add('email', Filters\TextFilterType::class);
+        $builder->add('username', Filters\TextFilterType::class);
 
         $builder->add('educatorUsers', Filters\EntityFilterType::class, array(
             'class' => EducatorUser::class,

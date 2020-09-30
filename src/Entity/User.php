@@ -234,6 +234,8 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"STUDENT_USER", "EDUCATOR_USER"})
+     *
+     * @ORM\Column(type="string", nullable=true)
      */
     protected $tempPassword;
 
