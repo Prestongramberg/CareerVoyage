@@ -219,6 +219,7 @@ class ProfileController extends AbstractController
             if($user->getPlainPassword()) {
                 $encodedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
                 $user->setPassword($encodedPassword);
+                $user->setTempPassword(null);
             }
 
             if($user->isSchoolAdministrator()) {
@@ -249,6 +250,7 @@ class ProfileController extends AbstractController
 
             $isGuestInstructor = $request->request->get('guestInstructor', null);
             if($isGuestInstructor){ 
+
                 return $this->redirectToRoute('lesson_index');
             } else {
                 return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);

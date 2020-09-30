@@ -665,6 +665,7 @@ class SchoolController extends AbstractController
 
                                 if($previousEducator instanceof EducatorUser && $previousEducator->getId() === $student['Educator Number']) {
                                     $studentObj->addEducatorUser($previousEducator);
+                                    $studentObj->setEducatorNumber($previousEducator->getId());
                                 } else {
 
                                     $educator = $this->educatorUserRepository->findOneBy([
@@ -673,6 +674,7 @@ class SchoolController extends AbstractController
                                     ]);
                                     if($educator) {
                                         $studentObj->addEducatorUser($educator);
+                                        $studentObj->setEducatorNumber($educator->getId());
                                         $previousEducator = $educator;
                                     }
                                 }
@@ -871,11 +873,18 @@ class SchoolController extends AbstractController
             $allEducators = array_merge($existingEducatorObjs, $educatorObjs);
 
             // send password reset emails
-            /** @var EducatorUser $anEducator */
-            foreach ($allEducators as $anEducator) {
-                $anEducator->setPasswordResetToken();
-                $this->entityManager->persist($anEducator);
-                $this->securityMailer->sendPasswordReset($anEducator);
+            /** @var EducatorUser $existingEducatorOb */
+            foreach ($existingEducatorObjs as $existingEducatorObj) {
+                $existingEducatorObj->setPasswordResetToken();
+                $this->entityManager->persist($existingEducatorObj);
+                $this->securityMailer->sendPasswordReset($existingEducatorObj);
+            }
+
+            /** @var EducatorUser $educatorObj */
+            foreach ($educatorObjs as $educatorObj) {
+                $educatorObj->initializeNewUser(false, true);
+                $this->entityManager->persist($educatorObj);
+                $this->securityMailer->sendPasswordSetup($educatorObj);
             }
 
             $this->entityManager->flush();
@@ -907,43 +916,6 @@ class SchoolController extends AbstractController
             'form' => $form->createView(),
             'school' => $school,
         ]);
-
-        
-        // TODO UNCOMMENT AND FIX THIS ISSUE EVENTUALLY. THIS CODE HANDLES
-        //  UPLOADING THE FILES BEHIND THE SCENES. WAS HAVING TOO MANY ISSUES WITH IT
-
-
-      /*  $this->denyAccessUnlessGranted('edit', $school);
-
-        $user = $this->getUser();
-
-        $form = $this->createForm(EducatorImportType::class, null, [
-            'method' => 'POST',
-        ]);
-
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-            $file = $form->get('file')->getData();
-
-            $fileName = $this->uploaderHelper->uploadEducatorImport($file);
-
-            $siteId = null;
-            if($user->getSite()) {
-                $siteId = $user->getSite()->getId();
-            }
-
-            $this->bus->dispatch(new EducatorImportMessage($school->getId(), $fileName, $siteId));
-
-            $this->addFlash('success', sprintf('Educator successfully queued for import. Check back shortly.'));
-            return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
-        }
-
-        return $this->render('school/educator_import.html.twig', [
-            'user' => $user,
-            'form' => $form->createView(),
-            'school' => $school,
-        ]);*/
     }
 
     /**
