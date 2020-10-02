@@ -65,7 +65,14 @@ class EditSchoolType extends AbstractType
             ->add('schoolFacebookPage', TextType::class, [])
             ->add('schoolInstagramPage', TextType::class, [])
             ->add('schoolTwitterPage', TextType::class, [])
-            ->add('shortDescription', TextareaType::class, []);
+            ->add('shortDescription', TextareaType::class, [])
+            ->add('allowEventCreation', ChoiceType::class, [
+                'choices'  => [
+                    'Yes' => true,
+
+                    'No' => false,
+                ],
+            ]);
 
 	    $builder->get('phone')->addModelTransformer(new CallbackTransformer(
 		    function ($phone) {
