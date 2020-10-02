@@ -209,6 +209,60 @@ class StudentUserController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/{id}/update_educators", name="update_student_educators", methods={"POST"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function updateStudentEducators(Request $request, StudentUser $studentUser) {
+        $school_id = $request->request->get('schoolId');
+        $new_educators = $request->request->get('educatorUser');
+
+        $new_educator_array = array();
+
+        // Remove current student / educator association
+        $educators = $studentUser->getEducatorUsers();
+        if(sizeof($educators) > 0) {
+            foreach($educators as $educator) {
+                $studentUser->removeEducatorUser($educator);
+                $educator->removeStudentUser($studentUser);
+            }
+
+            $this->entityManager->persist($studentUser);
+            $this->entityManager->persist($educator);
+            $this->entityManager->flush();
+        }
+
+        // Create new student / educator associations
+        foreach($new_educators as $educator) {
+            $educatorUser = $this->educatorUserRepository->findById($educator);
+            $educatorUser[0]->addStudentUser($studentUser);
+            $studentUser->addEducatorUser($educatorUser[0]);
+
+            $new_educator_array[] = array('id' => $educatorUser[0]->getId(), 'name' => $educatorUser[0]->getLastName().', '.$educatorUser[0]->getfirstName());
+
+            $this->entityManager->persist($studentUser);
+            $this->entityManager->persist($educatorUser[0]);
+            $this->entityManager->flush();
+        }
+
+        // $this->addFlash('success', 'Students successfully re-assigned');
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'student_id' => $studentUser->getId(),
+                'student_name' => $studentUser->getFirstName().' '.$studentUser->getLastName(),
+                'educators' => $new_educator_array
+            ],
+            Response::HTTP_OK
+        );
+
+    }
+
+
+
     /**
      * Builds the manage users filter form
      *
