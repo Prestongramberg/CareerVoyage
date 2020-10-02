@@ -82,7 +82,7 @@
             {% if company.companyResources|length %}
                 <li><a href="#company-events">Resources</a></li>
             {% endif %}
-            {% if company.professionalUsers|length %}
+            {% if professionalUsers|length %}
                 <li><a href="#company-employees">Employees</a></li>
             {% endif %}
         </ul>
@@ -197,7 +197,7 @@
                     </dl>
                 </div>
             {% endif %}
-            {% if company.professionalUsers|length %}
+            {% if professionalUsers|length %}
                 <div class="company__employees">
                     <dl class="uk-description-list uk-description-list-divider">
                         {% for professionalUser in company.professionalUsers %}

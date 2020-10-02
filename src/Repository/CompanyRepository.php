@@ -122,4 +122,23 @@ class CompanyRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+
+    /**
+     * @param $company_id
+     * @return mixed
+     */
+    public function getActiveProfessionalUsers($company_id) {
+        
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.professionalUsers', 'professionalUsers')
+            ->where('c.id = :id')
+            ->andWhere('professionalUsers.activated = :activated')
+            ->andWhere('professionalUsers.deleted = :deleted')
+            ->setParameter('id', $company_id)
+            ->setParameter('activated', true)
+            ->setParameter('deleted', false)
+            ->getQuery()
+            ->getResult();
+    }
+
 }
