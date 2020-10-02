@@ -35,7 +35,7 @@
             </div>
             {{ form_end(form) }}
 
-            <div class="uk-overflow-auto">
+            <div class="uk-overflow-auto" style="font-size: 0.8em">
                 <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
                     <tr>
                         <th>Student</th>
@@ -52,7 +52,7 @@
 
                         <tr>
                             <td>
-                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                <img class="uk-border-circle" width="25" height="25" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                 {{ studentUser.lastName }}, {{ studentUser.firstName }}<br>
                                 {{ excerpt_length( studentUser.briefBio, 100 ) }}
                             </td>
@@ -61,10 +61,15 @@
 
                             <td>{{ studentUser.username ? studentUser.username : "N/A"}}</td>
 
-                            <td>
+                            <td id="student_{{ studentUser.id }}">
+                                {% set educatorIds = [] %}
+                                {% for educator in studentUser.educatorUsers %}
+                                    {% set educatorIds = educatorIds|merge([{ id: educator.id }]) %}
+                                {% endfor %}
+                                <span class="fa fa-pencil edit-supervising-teacher" style="float: right; cursor: pointer" data-id="{{ studentUser.id }}" data-name="{{ studentUser.firstName }} {{ studentUser.lastName }}" data-educators="{{ educatorIds|json_encode() }}" uk-tooltip="Edit Supervising Teacher(s)"></span>
+
                                 {% for educator in studentUser.educatorUsers %}
                                     <dt>{{ educator.lastName }}, {{ educator.firstName }}</dt>
-                                    {% if not loop.last %},{% endif %}
                                 {% endfor %}
                             </td>
 
@@ -95,6 +100,32 @@
     </div>
 </div>
 
+
+<div id="individual-student-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        {# <div class="loader-area">
+            <p>Loading... Please wait</p>
+            <div class="loader fa-spin"></div>
+        </div> #}
+        <div class="users">
+            <h2 class="uk-modal-title">Update List of Supervising Teachers</h2>
+            <p>Please select the teacher(s) you would like to assign to <span id="student_name"></span></p>
+            <form method="post" enctype="multipart/form-data" action="" id="individual-student-form">
+                <input type="hidden" name="schoolId" value="{{ school.getId() }}" />
+                {% for educator in school.educatorUsers %}
+                    <label><input type="checkbox" class="individual-educators" id="individual_educator_{{ educator.id }}" name="educatorUser[]" value="{{ educator.id }}" /> {{ educator.lastName }}, {{ educator.firstName }}</label><br />
+                {% endfor %}
+            
+                <p class="uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button class="uk-button uk-button-primary" type="submit">Save</button>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 /**
@@ -110,6 +141,49 @@ $('.iframe-remove-user').on('click', function(e) {
         } else {
             alert('Error deleting user');
         }
+    });
+});
+
+$(document).on('click', '.edit-supervising-teacher', function() {
+    var studentId = $(this).data('id');
+    var studentName = $(this).data('name');
+    var educatorIds = $(this).data('educators');
+
+    $('#individual-student-form').attr('action', "/dashboard/students/" + studentId + "/update_educators");
+    $('#student_name').html( studentName );
+
+
+    // Clear out all checked users
+    $(".individual-educators").prop('checked', false);
+
+    // Loop through educators and check selected educators
+    console.log(educatorIds);
+    $.each(educatorIds, function(key, user) {
+        $("#individual_educator_" + user.id).prop('checked', true);
+    })
+
+    UIkit.modal("#individual-student-modal").show();
+});
+
+$('#individual-student-form').on('submit', function(e){
+    e.preventDefault();
+    var form = $(this);
+
+    $.post( $(form).attr('action'), $(form).serialize(), function(data){
+        if(data.success === true) {
+
+            var ids = [];
+            var names = '';
+            $.each(data.educators, function(id, user){
+                ids.push({ 'id': user.id });
+                names += '<dt>' + user.name + '</dt>';
+            });
+
+            var html = "<span class=\"fa fa-pencil edit-supervising-teacher\" style=\"float: right; cursor: pointer\" data-id=\"" + data.student_id + "\" data-name=\"" + data.student_name + "\" data-educators=" + JSON.stringify(ids).replace(/ /g, '') + " uk-tooltip=\"Edit Supervising Teacher(s)\"></span>" + names;
+            $('#student_' + data.student_id ).html(html);
+        }
+
+        UIkit.modal("#individual-student-modal").hide();
     });
 });
 </script>
