@@ -92,6 +92,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->professionalUserRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -130,6 +131,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->siteAdminRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
@@ -173,6 +175,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->stateCoordinatorRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
@@ -216,6 +219,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->regionalCoordinatorRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
@@ -265,6 +269,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->schoolAdministratorRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
@@ -320,6 +325,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
@@ -380,6 +386,7 @@ class ManageUsersController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if($user->isSiteAdmin()) {
@@ -515,6 +522,7 @@ class ManageUsersController extends AbstractController
         $user = $this->getUser();
 
         $professionals = $this->professionalUserRepository->createQueryBuilder('u')
+            ->andWhere('u.deleted = 0')
             ->addOrderBy('u.firstName', 'ASC')
             ->getQuery()
             ->getResult();;

@@ -158,7 +158,7 @@ class EducatorUserController extends AbstractController
      */
     public function indexAction(Request $request) {
 
-        $educatorUsers = $this->educatorUserRepository->findAll();
+        $educatorUsers = $this->educatorUserRepository->getAll();
 
         $user = $this->getUser();
         return $this->render('educators/index.html.twig', [
@@ -183,6 +183,7 @@ class EducatorUserController extends AbstractController
 
         $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
+        $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
 
 

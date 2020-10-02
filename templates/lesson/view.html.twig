@@ -169,7 +169,7 @@
                 {% if lesson.lessonTeachables|length > 0 %}
                     <dl class="uk-description-list uk-description-list-divider">
                         {% for lessonTeachable in lesson.lessonTeachables %}
-                            {% if lessonTeachable.user.isProfessional %}
+                            {% if lessonTeachable.user.isProfessional and lessonTeachable.user.deleted == false and lessonTeachable.user.activated == true %}
                                 <div class="uk-grid uk-flex-middle" uk-grid>
                                     <div class="uk-width-auto">
                                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
@@ -228,7 +228,7 @@
                 {% if lesson.lessonTeachables|length > 0 %}
                     <dl class="uk-description-list uk-description-list-divider">
                         {% for lessonTeachable in lesson.lessonTeachables %}
-                            {% if lessonTeachable.user.isEducator or lessonTeachable.user.isSchoolAdministrator %}
+                            {% if (lessonTeachable.user.isEducator or lessonTeachable.user.isSchoolAdministrator) and lessonTeachable.user.deleted == false and lessonTeachable.user.activated == true %}
                                 <div class="uk-grid uk-flex-middle" uk-grid>
                                     <div class="uk-width-auto">
                                         <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(lessonTeachable.user, 'photo') is defined and lessonTeachable.user.photo ) ? asset(uploaded_asset(lessonTeachable.user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
