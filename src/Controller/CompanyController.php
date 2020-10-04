@@ -84,7 +84,7 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
         return $this->render('company/index.html.twig', [
-            'user' => $user,
+            'user' => $user
         ]);
     }
 
@@ -184,10 +184,12 @@ class CompanyController extends AbstractController
     public function viewAction(Request $request, Company $company) {
 
         $user = $this->getUser();
+        $professional_users = $this->companyRepository->getActiveProfessionalUsers($company->getId());
 
         return $this->render('company/view.html.twig', [
             'user' => $user,
             'company' => $company,
+            'professionalUsers' => $professional_users
         ]);
     }
 

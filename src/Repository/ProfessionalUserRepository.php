@@ -119,6 +119,17 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $professionalIds)
+            ->andWhere('p.deleted = 0')
+            ->andWhere('p.activated = 1')
+            ->getQuery()
+            ->getResult();
+    }
+
+
+    public function getAll() {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.deleted = 0')
+            ->andWhere('p.activated = 1')
             ->getQuery()
             ->getResult();
     }
@@ -128,7 +139,6 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      * @throws \Doctrine\DBAL\DBALException
      */
     public function fetchAll() {
-
         $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, pu.phone, c.name as company,
           IF(c.owner_id = u.id, "YES", "NO") as company_owner,
           CASE WHEN c.owner_id = u.id THEN c.street ELSE NULL END as street,
@@ -138,7 +148,8 @@ class ProfessionalUserRepository extends ServiceEntityRepository
           FROM user u 
           INNER JOIN professional_user pu on u.id = pu.id 
           LEFT JOIN company c on pu.company_id = c.id
-          LEFT JOIN state s on c.state_id = s.id');
+          LEFT JOIN state s on c.state_id = s.id
+          WHERE u.deleted = 0');
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
