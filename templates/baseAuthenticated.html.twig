@@ -73,6 +73,11 @@
                     {% include 'flash/messages.html.twig' %}
                 </div>
             {% endblock %}
+
+            <div class="uk-container uk-margin-bottom">
+                {% include 'flash/notifications.html.twig' %}
+            </div>
+
             {% block body %}{% endblock %}
         </div>
         <div id="global-modal" uk-modal>

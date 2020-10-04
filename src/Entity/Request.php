@@ -93,6 +93,11 @@ abstract class Request
      */
     protected $professionalHasSeen = false;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected $schoolAdministratorHasSeen = false;
+
 
 
     public function __construct()
@@ -221,6 +226,17 @@ abstract class Request
     public function setProfessionalHasSeen(?bool $professionalHasSeen): self
     {
         $this->professionalHasSeen = $professionalHasSeen;
+        return $this;
+    }
+
+    public function getSchoolAdministratorHasSeen(): ?bool
+    {
+        return $this->schoolAdministratorHasSeen;
+    }
+
+    public function setSchoolAdministratorHasSeen(?bool $schoolAdministratorHasSeen): self
+    {
+        $this->schoolAdministratorHasSeen = $schoolAdministratorHasSeen;
         return $this;
     }
 

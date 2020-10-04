@@ -76,13 +76,13 @@
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
 
-                    {% if not user.student %}
+                   {# {% if not user.student %}
                         <div style="display: inline-block" class="react-global-share"
                              data-user="{{ encode_user(user) }}"
                              data-message="Check out this upcoming experience: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
                             Share this Experience
                         </div>
-                    {% endif %}
+                    {% endif %}#}
 
                     {% if user.isAdmin or user.isSchoolAdministrator %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Experience</a>

@@ -19,7 +19,12 @@
             <div class="uk-width-1-4@s">
                 {{ form_widget(form.lastName, {'attr': {'class': 'uk-input', 'placeholder': 'Last Name'}}) }}
             </div>
-
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.email, {'attr': {'class': 'uk-input', 'placeholder': 'Email'}}) }}
+            </div>
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.username, {'attr': {'class': 'uk-input', 'placeholder': 'Username'}}) }}
+            </div>
             <div class="uk-width-1-4@s">
                 {{ form_widget(form.educatorUsers, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Supervising Educator'}}) }}
             </div>
@@ -30,50 +35,57 @@
             </div>
             {{ form_end(form) }}
 
-            <div class="uk-grid uk-flex-middle" uk-grid>
-                <div class="uk-width-auto">
-                </div>
-                <div class="uk-width-expand" style="margin-left: -50px">
-                    <dt>Student</dt>
-                </div>
-                <div class="uk-width-expand" style="margin-left: -150px">
-                    <dt>Supervising Teacher(s)</dt>
-                </div>
-                <div class="uk-width-1-1 uk-width-auto@m">
-                </div>
+            <div class="uk-overflow-auto">
+                <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
+                    <tr>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Supervising Teacher(s)</th>
+                        <th>Temp Password</th>
+                        <th colspan="3"></th>
+                    </tr>
+
+                {% for studentUser in pagination %}
+
+                    {% if studentUser.archived != true %}
+
+                        <tr>
+                            <td>
+                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                {{ studentUser.lastName }}, {{ studentUser.firstName }}<br>
+                                {{ excerpt_length( studentUser.briefBio, 100 ) }}
+                            </td>
+
+                            <td>{{ studentUser.email ? studentUser.email : "N/A"}}</td>
+
+                            <td>{{ studentUser.username ? studentUser.username : "N/A"}}</td>
+
+                            <td>
+                                {% for educator in studentUser.educatorUsers %}
+                                    <dt>{{ educator.lastName }}, {{ educator.firstName }}</dt>
+                                    {% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            </td>
+
+                            <td>{{ studentUser.tempPassword ?  studentUser.tempPassword : "N/A"}}</td>
+
+                            <td colspan="3">
+                                <a target="_parent" href="{{ path('profile_edit', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small" style="margin-bottom: 8px;">Edit</a>
+                                <a target="_parent" href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small" style="margin-bottom: 8px;">View</a>
+                                <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST" style="margin-bottom: 8px;">
+                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right iframe-remove-user" type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+
+                    {% endif %}
+
+                {% endfor %}
+
+                </table>
             </div>
-
-            {% for studentUser in pagination %}
-
-                {% if studentUser.archived != true %}
-
-                    <div class="uk-grid uk-flex-middle" uk-grid>
-                        <div class="uk-width-auto">
-                            <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                        </div>
-                        <div class="uk-width-expand">
-                            <dt>{{ studentUser.lastName }}, {{ studentUser.firstName }}</dt>
-                            <dd>{{ excerpt_length( studentUser.briefBio, 100 ) }}</dd>
-                        </div>
-                        <div class="uk-width-expand">
-                            {% for educator in studentUser.educatorUsers %}
-                                <dt>{{ educator.lastName }}, {{ educator.firstName }}</dt>
-                                {% if not loop.last %},{% endif %}
-                            {% endfor %}
-                        </div>
-                        <div class="uk-width-1-1 uk-width-auto@m">
-                            <a href="{{ path('profile_edit', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">Edit</a>
-                            <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                            <form class="uk-inline" action="{{ path('remove_student', { "id": studentUser.id }) }}" method="POST">
-                                <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
-                            </form>
-                        </div>
-                    </div>
-
-                {% endif %}
-
-            {% endfor %}
 
             <div class="navigation">
                 {{ knp_pagination_render(pagination) }}
@@ -83,10 +95,31 @@
     </div>
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+/**
+ * Fix iframe reloading issue when deleting users
+ */
+$('.iframe-remove-user').on('click', function(e) {
+    e.preventDefault();
+    var item = $(this).parents("form:first");
+    $.post( $(item).attr('action'), { 'iframe': true, 'schoolAdminId': $(item).find("input[name='schoolAdminId']").val() }, function(data){
+
+        if(data.success) {
+            $('#user_' + data.id).remove();
+        } else {
+            alert('Error deleting user');
+        }
+    });
+});
+</script>
+
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     {# <script src="{{ asset('build/educators.js') }}"></script> #}
 {% endblock %}
+
+
 

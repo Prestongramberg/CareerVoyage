@@ -117,6 +117,11 @@ class StudentUser extends User
      */
     private $archived = false;
 
+    /**
+     * @var string
+     */
+    private $educatorNumber;
+
     public function __construct()
     {
         parent::__construct();
@@ -524,5 +529,18 @@ class StudentUser extends User
         $this->archived = $archived;
 
         return $this;
+    }
+
+    /**
+     * @Groups({"STUDENT_USER"})
+     */
+    public function getEducatorNumber()
+    {
+        return $this->educatorNumber;
+    }
+
+    public function setEducatorNumber($educatorNumber)
+    {
+        $this->educatorNumber = $educatorNumber;
     }
 }

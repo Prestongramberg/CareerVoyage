@@ -21,72 +21,87 @@
             </div>
 
             <div class="uk-width-1-4@s">
+                {{ form_widget(form.email, {'attr': {'class': 'uk-input', 'placeholder': 'Email'}}) }}
+            </div>
+
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.username, {'attr': {'class': 'uk-input', 'placeholder': 'Username'}}) }}
+            </div>
+
+            <div class="uk-width-1-4@s">
                 <button class="uk-button uk-button-default">Search</button>
                 <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
             </div>
             {{ form_end(form) }}
 
-            <div class="uk-grid uk-flex-middle" uk-grid>
-                <div class="uk-width-auto">
-                </div>
-                <div class="uk-width-expand" style="margin-left: -50px">
-                    <dt>Educators</dt>
-                </div>
-                <div class="uk-width-expand" style="margin-left: -150px">
-                </div>
-                <div class="uk-width-1-1 uk-width-auto@m">
-                </div>
-            </div>
+            <div class="uk-overflow-auto">
+                <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
+                    <tr>
+                        <th>Educators</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Temp Password</th>
+                        <th colspan="3"></th>
+                    </tr>
 
-            {% for educatorUser in pagination %}
-                <div class="uk-grid uk-flex-middle" uk-grid>
-                    <div class="uk-width-auto">
-                        <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                    </div>
-                    <div class="uk-width-expand">
-                        <dt>{{ educatorUser.lastName }}, {{ educatorUser.firstName }}</dt>
-                        <dd>{{ excerpt_length( educatorUser.briefBio, 100 ) }}</dd>
-                    </div>
-                    <div class="uk-width-1-1 uk-width-auto@m">
-                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-view-supervised-students-{{ educatorUser.id }}" uk-toggle>View Supervised Students</a>
-                        <div id="modal-view-supervised-students-{{ educatorUser.id }}" uk-modal>
-                            <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Reassign Supervising Educator</h3>
+                    {% for educatorUser in pagination %}
 
-                                <form method="post" action="{{ path('educator_students_reassign', {id: school.id}) }}">
-                                    <div class="uk-grid" uk-grid>
-                                        <div class="uk-width-expand">
-                                            <h3>Students</h3>
-                                            {% for student in educatorUser.alphabeticallySortedStudentUsers %}
-                                                <input type="checkbox" value="{{ student.id }}" name="students[]"> {{ student.fullName }}<br>
-                                            {% endfor %}
-                                        </div>
-                                        <div class="uk-width-1-1 uk-width-auto@m">
-                                            <h3>Educators</h3>
-                                            {% for educator in educatorUsers %}
-                                                <input type="checkbox" value="{{ educator.id }}" name="educators[]"> {{ educator.fullName }} <br>
-                                            {% endfor %}
-                                        </div>
+                        <tr>
+                            <td>
+                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                {{ educatorUser.lastName }}, {{ educatorUser.firstName }}<br>
+                                {{ excerpt_length( educatorUser.briefBio, 100 ) }}
+                            </td>
+
+                            <td>
+                                {{ educatorUser.email ? educatorUser.email : "N/A"}}
+                            </td>
+
+                            <td>{{ educatorUser.username ? educatorUser.username : "N/A" }}</td>
+
+                            <td>{{ educatorUser.tempPassword ? educatorUser.tempPassword : "N/A"}}</td>
+
+                            <td>
+                                <div id="modal-view-supervised-students-{{ educatorUser.id }}" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        <h3>Reassign Supervising Educator</h3>
+
+                                        <form method="post" action="{{ path('educator_students_reassign', {id: school.id}) }}">
+                                            <div class="uk-grid" uk-grid>
+                                                <div class="uk-width-expand">
+                                                    <h3>Students</h3>
+                                                    {% for student in educatorUser.alphabeticallySortedStudentUsers %}
+                                                        <input type="checkbox" value="{{ student.id }}" name="students[]"> {{ student.fullName }}<br>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="uk-width-1-1 uk-width-auto@m">
+                                                    <h3>Educators</h3>
+                                                    {% for educator in educatorUsers %}
+                                                        <input type="checkbox" value="{{ educator.id }}" name="educators[]"> {{ educator.fullName }} <br>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+
+                                            <input name="school" type="hidden" value="{{ school.id }}">
+                                            <input name="originalEducator" type="hidden" value="{{ educatorUser.id }}">
+
+                                            <br>
+                                            <br>
+                                            <button class="uk-button uk-button-danger uk-width-1-1" type="submit">Submit</button>
+                                        </form>
                                     </div>
-
-                                    <input name="school" type="hidden" value="{{ school.id }}">
-                                    <input name="originalEducator" type="hidden" value="{{ educatorUser.id }}">
-
-                                    <br>
-                                    <br>
-                                    <button class="uk-button uk-button-danger uk-width-1-1" type="submit">Submit</button>
-
+                                </div>
+                                <a class="uk-button uk-button-danger uk-button-small" href="#modal-view-supervised-students-{{ educatorUser.id }}" uk-toggle style="margin-bottom: 8px;">View Supervised Students</a>
+                                <a target="_parent" href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small uk-inline" style="margin-bottom: 8px;">View</a>
+                                <form class="uk-inline remove-educator-form" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST" style="margin-bottom: 8px;">
+                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
+                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
                                 </form>
-                            </div>
-                        </div>
-                        <a href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                        <form class="uk-inline" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST">
-                            <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
-                        </form>
-                    </div>
-                </div>
-            {% endfor %}
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
 
             <div class="navigation">
                 {{ knp_pagination_render(pagination) }}
@@ -101,5 +116,24 @@
 {% block javascripts %}
     {{ parent() }}
     {# <script src="{{ asset('build/educators.js') }}"></script> #}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $('.remove-educator-form').on('submit', function(e){
+            e.preventDefault();
+            var item = $(this);
+            
+            var ans = confirm('Are you sure you want to remove this educator?');
+            if(ans) {  
+                $.post($(item).attr('action'), { iframe: true,  schoolAdminId: $(item).find("input[name='schoolAdminId']").val() }, function(data) {
+                    if(data.success) {
+                        $('#educator_' + data.id).remove();
+                    } else {
+                        alert('Error deleting user');
+                    }
+                });
+            }
+        })
+    </script>
 {% endblock %}
 

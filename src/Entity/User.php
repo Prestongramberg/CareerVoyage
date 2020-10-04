@@ -58,7 +58,7 @@ abstract class User implements UserInterface
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "STUDENT_USER", "EDUCATOR_USER"})
+     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER"})
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $email;
@@ -100,7 +100,7 @@ abstract class User implements UserInterface
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      *
-     * @ORM\Column(type="string", length=24, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $firstName;
 
@@ -108,7 +108,7 @@ abstract class User implements UserInterface
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
      * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      *
-     * @ORM\Column(type="string", length=24, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $lastName;
 
@@ -234,6 +234,8 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"STUDENT_USER", "EDUCATOR_USER"})
+     *
+     * @ORM\Column(type="string", nullable=true)
      */
     protected $tempPassword;
 
@@ -1243,4 +1245,8 @@ abstract class User implements UserInterface
         return $this;
     }
 
+    public function getClassName()
+    {
+        return (new \ReflectionClass($this))->getShortName();
+    }
 }
