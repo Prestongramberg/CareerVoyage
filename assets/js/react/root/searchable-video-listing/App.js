@@ -19,6 +19,8 @@ class App extends React.Component {
 
     render() {
 
+        debugger;
+
         const relevantCompanyVideos = this.getRelevantCompanyVideos();
         const relevantCareerVideos = this.getRelevantCareerVideos();
         const relevantProfessionalVideos = this.getRelevantProfessionalVideos();
@@ -61,6 +63,7 @@ class App extends React.Component {
                                     videoId={video.videoId}
                                     isFavorite={video.favorite}
                                     name={video.name}
+                                    user={this.props.user}
                                     favoriteVideo={this.props.favoriteVideo}
                                     unfavoriteVideo={this.props.unfavoriteVideo}
                                 />
@@ -167,6 +170,7 @@ class App extends React.Component {
                                 id={video.id}
                                 videoId={video.videoId}
                                 isFavorite={video.favorite}
+                                user={this.props.user}
                                 name={video.name}
                                 favoriteVideo={this.props.favoriteVideo}
                                 unfavoriteVideo={this.props.unfavoriteVideo}
