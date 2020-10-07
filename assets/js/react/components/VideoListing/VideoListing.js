@@ -15,6 +15,7 @@ class VideoListing extends Component {
     }
 
     render() {
+        debugger;
         return (
             <div>
 
@@ -29,7 +30,7 @@ class VideoListing extends Component {
                                     unfavoriteVideo={this.props.unfavoriteVideo}
                                 />
 
-                                { this.props.careerVideoPage && this.props.user && this.props.user.roles && (this.props.user.roles.indexOf("ROLE_ADMIN_USER") !== -1 || this.props.user.roles.indexOf("ROLE_SITE_ADMIN_USER") !== -1) &&
+                                { this.props.careerVideoPage && this.props.user && this.props.user.roles && (Object.values(this.props.user.roles).indexOf("ROLE_ADMIN_USER") !== -1 || Object.values(this.props.user.roles).indexOf("ROLE_SITE_ADMIN_USER") !== -1) &&
 
                                     [
                                         <a style={{marginLeft: "20px"}} className="uk-link-text" href={Routing.generate('video_index') + "?editVideo=" + this.props.id }>Edit</a>,
