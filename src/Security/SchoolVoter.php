@@ -5,6 +5,7 @@ namespace App\Security;
 use App\Entity\AdminUser;
 use App\Entity\Company;
 use App\Entity\Lesson;
+use App\Entity\EducatorUser;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\School;
@@ -74,6 +75,11 @@ class SchoolVoter extends Voter
         /** @var RegionalCoordinator $user */
         if ( $user->isRegionalCoordinator() ) {
             return $user->getSite() && $user->getSite()->getId() === $school->getSite()->getId() && $user->getRegion()->getId() === $school->getRegion()->getId();
+        }
+
+        /** @var EducatorUser $user */
+        if ( $user->isEducator() ) {
+            return $school->getAllowEventCreation();
         }
 
         return $school->isUserSchoolAdministrator($user);

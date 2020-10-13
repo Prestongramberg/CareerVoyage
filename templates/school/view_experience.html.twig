@@ -84,7 +84,7 @@
                         </div>
                     {% endif %}#}
 
-                    {% if user.isAdmin or user.isSchoolAdministrator %}
+                    {% if user.isAdmin or user.isSchoolAdministrator or ( user.isEducator and experience.school.getAllowEventCreation() and experience.getSchoolContact().getId() == user.id ) %}
                         <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
                         <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
 

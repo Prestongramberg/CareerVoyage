@@ -238,6 +238,11 @@ class School
      */
     private $communicationType = self::COMMUNICATION_TYPE_DEFAULT;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private $allowEventCreation = false;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -914,6 +919,18 @@ class School
     public function setSchoolTwitterPage(?string $schoolTwitterPage)
     {
         $this->schoolTwitterPage = $schoolTwitterPage;
+
+        return $this;
+    }
+
+    public function getAllowEventCreation(): ?bool
+    {
+        return $this->allowEventCreation;
+    }
+
+    public function setAllowEventCreation(?bool $allowEventCreation): self
+    {
+        $this->allowEventCreation = $allowEventCreation;
 
         return $this;
     }
