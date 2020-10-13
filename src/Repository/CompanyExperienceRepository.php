@@ -73,7 +73,7 @@ class CompanyExperienceRepository extends ServiceEntityRepository
     select e.id, e.title, e.brief_description from experience e 
     inner join experience_secondary_industry esi on e.id = esi.experience_id 
     inner join company_experience ce on ce.id = e.id 
-    WHERE e.start_date_and_time >= CURDATE() and (%s) 
+    WHERE e.start_date_and_time >= CURDATE() and e.cancelled = 0 and (%s) 
     GROUP BY ce.id order by e.start_date_and_time ASC LIMIT %s
 HERE;
 
@@ -205,7 +205,7 @@ HERE;
     public function findAllFutureEvents() {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
-                WHERE e.start_date_and_time >= DATE(NOW())
+                WHERE e.start_date_and_time >= DATE(NOW()) AND e.cancelled = 0
                 GROUP BY ce.id order by e.start_date_and_time ASC");
 
         $em = $this->getEntityManager();
@@ -222,7 +222,7 @@ HERE;
     public function findAllFromPastDays($days = 7) {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
-          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY GROUP BY e.id order by e.created_at DESC", $days);
+          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = %s GROUP BY e.id order by e.created_at DESC", $days, 0);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
@@ -247,8 +247,8 @@ HERE;
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
 
-        $query = sprintf('SELECT * from company_experience ce INNER JOIN experience e on e.id = ce.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s)',
-            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+        $query = sprintf('SELECT * from company_experience ce INNER JOIN experience e on e.id = ce.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND e.cancelled = %s',
+            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, 0
         );
 
         $em = $this->getEntityManager();
@@ -256,4 +256,5 @@ HERE;
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
 }
