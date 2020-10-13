@@ -846,10 +846,7 @@ class Company
      */
     public function getCompanyExperiences(): Collection
     {
-        $criteria = Criteria::create();
-        $criteria->where(Criteria::expr()->eq('cancelled', false));
-
-        return $this->companyExperiences->matching($criteria);
+        return $this->companyExperiences;
     }
 
     public function addCompanyExperience(CompanyExperience $companyExperience): self
@@ -873,6 +870,14 @@ class Company
         }
 
         return $this;
+    }
+
+    public function getActiveCompanyExperiences(): Collection
+    {
+        $criteria = Criteria::create();
+        $criteria->where(Criteria::expr()->eq('cancelled', false));
+
+        return $this->companyExperiences->matching($criteria);
     }
 
     public function isFavoritedByUser(User $user)
