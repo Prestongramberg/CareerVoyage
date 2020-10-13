@@ -272,6 +272,7 @@ class EducatorUserController extends AbstractController
         return $this->redirectToRoute('educator_manage', ['id' => $schoolId]);
     }
 
+
     /**
      * Builds the manage users filter form
      *
