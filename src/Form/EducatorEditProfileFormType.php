@@ -61,16 +61,8 @@ class EducatorEditProfileFormType extends AbstractType
         $educator = $options['educator'];
 
         $builder
-            ->add('firstName', TextType::class, [
-                'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('lastName', TextType::class, [
-                'attr' => [
-                    'disabled' => true
-                ]
-            ])
+            ->add('firstName', TextType::class)
+            ->add('lastName', TextType::class)
             ->add('displayName', TextType::class)
             ->add('educatorId', TextType::class, [
                 'attr' => [
@@ -178,8 +170,6 @@ class EducatorEditProfileFormType extends AbstractType
 
         $this->
         setupImmutableFields($builder, $options, [
-            'firstName',
-            'lastName',
             'educatorId'
         ]);
     }

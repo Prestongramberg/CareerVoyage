@@ -93,6 +93,7 @@
                                 </div>
                                 <a class="uk-button uk-button-danger uk-button-small" href="#modal-view-supervised-students-{{ educatorUser.id }}" uk-toggle style="margin-bottom: 8px;">View Supervised Students</a>
                                 <a target="_parent" href="{{ path('profile_index', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small uk-inline" style="margin-bottom: 8px;">View</a>
+                                <a target="_parent" href="{{ path('profile_edit', { "id": educatorUser.id }) }}" class="uk-button uk-button-default uk-button-small uk-inline" style="margin-bottom: 8px;">Edit</a>
                                 <form class="uk-inline remove-educator-form" action="{{ path('remove_educator', { "id": educatorUser.id }) }}" method="POST" style="margin-bottom: 8px;">
                                     <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
                                     <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
