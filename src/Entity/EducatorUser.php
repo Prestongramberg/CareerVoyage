@@ -276,7 +276,7 @@ class EducatorUser extends User
         $students = $this->studentUsers->toArray();
 
         usort($students, function($a, $b) {
-            return strcmp($a->firstName, $b->firstName);
+            return strcmp($a->lastName, $b->lastName);
         });
 
         return new ArrayCollection($students);

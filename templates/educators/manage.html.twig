@@ -71,13 +71,13 @@
                                                 <div class="uk-width-expand">
                                                     <h3>Students</h3>
                                                     {% for student in educatorUser.alphabeticallySortedStudentUsers %}
-                                                        <input type="checkbox" value="{{ student.id }}" name="students[]"> {{ student.fullName }}<br>
+                                                        <input type="checkbox" value="{{ student.id }}" name="students[]"> {{ student.lastName }}, {{ student.firstName }}<br>
                                                     {% endfor %}
                                                 </div>
                                                 <div class="uk-width-1-1 uk-width-auto@m">
                                                     <h3>Educators</h3>
                                                     {% for educator in educatorUsers %}
-                                                        <input type="checkbox" value="{{ educator.id }}" name="educators[]"> {{ educator.fullName }} <br>
+                                                        <input type="checkbox" value="{{ educator.id }}" name="educators[]"> {{ educator.lastName }}, {{ educator.firstName }} <br>
                                                     {% endfor %}
                                                 </div>
                                             </div>
