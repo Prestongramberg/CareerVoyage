@@ -185,6 +185,7 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
         $professional_users = $this->companyRepository->getActiveProfessionalUsers($company->getId());
+        $company_experiences = $this->companyExperienceRepository->findBy(['cancelled' => 0]);
 
         return $this->render('company/view.html.twig', [
             'user' => $user,
