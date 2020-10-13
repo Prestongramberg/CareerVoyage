@@ -66,16 +66,8 @@ class StudentEditProfileFormType extends AbstractType
     {
 
         $builder
-            ->add('firstName', TextType::class, [
-                'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('lastName', TextType::class, [
-                'attr' => [
-                    'disabled' => true
-                ]
-            ])
+            ->add('firstName', TextType::class)
+            ->add('lastName', TextType::class)
             ->add('displayName', TextType::class)
             ->add('careerStatement', TextareaType::class, [
                 'attr' => [
@@ -134,8 +126,6 @@ class StudentEditProfileFormType extends AbstractType
 
 
         $this->setupImmutableFields($builder, $options, [
-            'firstName',
-            'lastName',
             'studentId'
         ]);
     }
