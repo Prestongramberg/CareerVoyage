@@ -205,7 +205,7 @@ HERE;
     public function findAllFutureEvents() {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
-                WHERE e.start_date_and_time >= DATE(NOW()) AND (e.cancelled IS NULL OR e.cancelled = 0)
+                WHERE e.start_date_and_time >= DATE(NOW()) AND e.cancelled = 0
                 GROUP BY ce.id order by e.start_date_and_time ASC");
 
         $em = $this->getEntityManager();
@@ -222,7 +222,7 @@ HERE;
     public function findAllFromPastDays($days = 7) {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
-          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND (c.cancelled IS NULL OR e.cancelled = %s) GROUP BY e.id order by e.created_at DESC", $days, 0);
+          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = %s GROUP BY e.id order by e.created_at DESC", $days, 0);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
@@ -247,19 +247,9 @@ HERE;
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
 
-        $query = sprintf('SELECT * from company_experience ce INNER JOIN experience e on e.id = ce.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND (e.cancelled IS NULL OR e.cancelled = %s)',
+        $query = sprintf('SELECT * from company_experience ce INNER JOIN experience e on e.id = ce.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND e.cancelled = %s',
             $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, 0
         );
-
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-
-
-    public function getActiveExperiences() {
-        $query = sprintf('SELECT * FROM company_experience ce INNER JOIN experience e on e.id = ce.id WHERE e.cancelled = %s OR e.cancelled IS NULL', 0);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

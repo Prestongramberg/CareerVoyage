@@ -70,7 +70,7 @@ class SchoolExperienceRepository extends ServiceEntityRepository
     select e.id, e.title, e.brief_description from experience e 
     inner join experience_secondary_industry esi on e.id = esi.experience_id 
     inner join school_experience se on se.id = e.id 
-    WHERE (e.cancelled IS NULL OR e.cancelled = 0) AND e.start_date_and_time >= CURDATE() and (%s) 
+    WHERE e.cancelled = 0 AND e.start_date_and_time >= CURDATE() and (%s) 
     GROUP BY se.id order by e.start_date_and_time ASC LIMIT %s
 HERE;
 
@@ -117,7 +117,7 @@ HERE;
     public function findAllFutureEvents() {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join school_experience se on se.id = e.id
-                WHERE e.start_date_and_time >= DATE(NOW()) AND (e.cancelled IS NULL OR e.cancelled = 0)
+                WHERE e.start_date_and_time >= DATE(NOW()) AND e.cancelled = 0
                 GROUP BY se.id order by e.start_date_and_time ASC");
 
         $em = $this->getEntityManager();
@@ -134,7 +134,7 @@ HERE;
     public function findAllFromPastDays($days = 7) {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
           inner join school_experience se on se.id = e.id
-          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND (e.cancelled IS NULL OR e.cancelled = 0) GROUP BY e.id order by e.created_at DESC", $days);
+          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = 0 GROUP BY e.id order by e.created_at DESC", $days);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
@@ -160,7 +160,7 @@ HERE;
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId = null) {
 
-        $query = sprintf('SELECT * from school_experience se INNER JOIN experience e on e.id = se.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND (e.cancelled IS NULL OR e.cancelled = %s)',
+        $query = sprintf('SELECT * from school_experience se INNER JOIN experience e on e.id = se.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND e.cancelled = %s',
             $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, 0
         );
 

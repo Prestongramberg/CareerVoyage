@@ -39,9 +39,9 @@
 
 
                 {% if user.professional and experience.company.owner.id == user.id %}
-                    <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-remove-company-event" uk-toggle>Live Feedback URL</a>
+                    <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#live-feedback-url" uk-toggle>Live Feedback URL</a>
                     <br>
-                    <div id="modal-remove-company-event" uk-modal>
+                    <div id="live-feedback-url" uk-modal>
                         <div class="uk-modal-dialog uk-modal-body">
                             <h3>Live Feedback URL</h3>
                             <p>{{ url('experience_feedback', {'id' : experience.id}) }}</p>
