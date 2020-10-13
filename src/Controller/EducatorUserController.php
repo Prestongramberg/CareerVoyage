@@ -182,6 +182,7 @@ class EducatorUserController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
+        $filterBuilder->addOrderBy('u.lastName', 'ASC');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
         $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
@@ -205,7 +206,7 @@ class EducatorUserController extends AbstractController
         ]);
 
         usort($educatorUsers, function($a, $b) {
-            return strcmp($a->getFirstName(), $b->getFirstName());
+            return strcmp($a->getLastName(), $b->getLastName());
         });
 
         $user = $this->getUser();
