@@ -229,7 +229,8 @@ class ExperienceController extends AbstractController
                 $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
             } else {
                 // Everyone sees all company events
-                $companyExperiences = $this->companyExperienceRepository->findAll();
+                // $companyExperiences = $this->companyExperienceRepository->findAll();
+                $companyExperiences = $this->companyExperienceRepository->getActiveExperiences();
 
                 if ( $loggedInUser->isSchoolAdministrator() ) {
                     /** @var SchoolAdministrator $loggedInUser **/
