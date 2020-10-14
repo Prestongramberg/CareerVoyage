@@ -1,0 +1,65 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Manage Companies{% endblock %}
+{% block bodyClass %}page-companies-manage{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" integrity="sha256-e47xOkXs1JXFbjjpoRr1/LhVcqSzRmGmPqsrUQeVs+g=" crossorigin="anonymous" />
+ {% endblock %}
+
+{% block body %}
+
+
+    <div class="uk-container">
+      <h1>Manage Companies</h1>
+      <hr />
+    {% if companies|length %}
+      <table class="uk-table">
+        <thead>
+          <tr>
+            <th>Company Name</th>
+            <th>Address</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for company in companies %}
+            <tr id="company_{{ company.id }}">
+              <td>{{ company.name }}</td>
+              <td>{{ company.street }}<br />{{ company.city }}, {{ company.state ? company.state.abbreviation : "" }}  {{ company.zipCode }}</td>
+              <td>
+                {% if company.approved %}
+                  <button class="uk-button uk-button-small uk-label-success" data-id="{{ company.id }}" data-newstatus="0">Approved</button>
+                {% else %}
+                  <button class="uk-button uk-button-small uk-label-warning" data-id="{{ company.id }}" data-newstatus="1">Denied</button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    {% else %}
+      <p>No companies available.</p>
+    {% endif %} 
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    $(document).on('click', '.uk-label-success, .uk-label-warning', function() {
+      var item = $(this);
+      var ans = confirm('Are you sure you want to toggle the status of this company?');
+      if(ans) {
+        $.post("/dashboard/companies/" + $(item).data('id') + "/toggle-status", { newStatus: $(item).data('newstatus') }, function(data){
+          var res = data;
+          if(res.status == "success") {
+            $("#company_" + $(item).data("id") ).html( res.html );
+          } else {
+            alert("Error saving content");
+          }
+        });
+      }
+    });
+  </script>
+{% endblock %}

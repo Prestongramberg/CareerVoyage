@@ -141,4 +141,13 @@ class CompanyRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getAllCompaniesByName() {
+        return $this->createQueryBuilder('c')
+                     ->where("c.deleted = :deleted")
+                     ->orderBy("c.name")
+                     ->setParameter('deleted', false)
+                     ->getQuery()
+                     ->getResult();
+    }
+
 }
