@@ -11,6 +11,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Validator\Constraints as CustomAssert;
+use Doctrine\Common\Collections\Criteria;
 
 /**
  * @CustomAssert\ProfessionalAlreadyOwnsCompany(groups={"CREATE"})
@@ -869,6 +870,14 @@ class Company
         }
 
         return $this;
+    }
+
+    public function getActiveCompanyExperiences(): Collection
+    {
+        $criteria = Criteria::create();
+        $criteria->where(Criteria::expr()->eq('cancelled', false));
+
+        return $this->companyExperiences->matching($criteria);
     }
 
     public function isFavoritedByUser(User $user)
