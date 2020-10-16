@@ -863,8 +863,13 @@ class CompanyController extends AbstractController
         $this->entityManager->remove($company);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'Company deleted');
-        return $this->redirectToRoute('company_index');
+        if($request->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success"]);
+        } else {
+            $this->addFlash('success', 'Company deleted');
+            return $this->redirectToRoute('company_index');
+        }
     }
 
     /**
@@ -1521,6 +1526,7 @@ class CompanyController extends AbstractController
             $button = '<button class="uk-button uk-button-small uk-label-success" data-id="'.$company->getId().'" data-newstatus="0">Approved</button>';
         } else {
             $button = '<button class="uk-button uk-button-small uk-label-warning" data-id="'.$company->getId().'" data-newstatus="1">Denied</button>';
+            $button .= '<button class="uk-button uk-button-small uk-label-danger" data-id="'.$company->getId().'">Delete</button>';
         }
 
 
