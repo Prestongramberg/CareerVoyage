@@ -86,3 +86,17 @@ export function loadUser(url) {
             }))
     }
 }
+
+export function updateExpertPresenterQuery(presenter) {
+    return {
+        type: actionTypes.EXPERT_PRESENTER_CHANGED,
+        presenter: presenter
+    };
+}
+
+export function updateEducatorRequestedQuery(educator) {
+    return {
+        type: actionTypes.EDUCATOR_REQUESTED_CHANGED,
+        educator: educator
+    };
+}

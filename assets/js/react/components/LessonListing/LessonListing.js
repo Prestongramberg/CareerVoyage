@@ -54,7 +54,9 @@ LessonListing.propTypes = {
     lessonUnfavorited: PropTypes.func,
     lessonTeach: PropTypes.func,
     lessonUnteach: PropTypes.func,
-    title: PropTypes.string
+    title: PropTypes.string,
+    expertPresenters: PropTypes.bool,
+    educatorRequestors: PropTypes.bool
 };
 
 LessonListing.defaultProps = {

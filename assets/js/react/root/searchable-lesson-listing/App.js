@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { lessonFavorited, lessonUnfavorited, lessonTeach, lessonUnteach, loadLessons, loadUser, updateCourseQuery, updateSearchQuery } from './actions/actionCreators'
+import { lessonFavorited, lessonUnfavorited, lessonTeach, lessonUnteach, loadLessons, loadUser, updateCourseQuery, updateSearchQuery, updateExpertPresenterQuery, updateEducatorRequestedQuery } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import LessonListing from "../../components/LessonListing/LessonListing";
 import Loader from "../../components/Loader/Loader";
@@ -36,13 +36,19 @@ class App extends React.Component {
                     <div className="lessons__all">
                         <div>
                             <div className="uk-grid-small uk-flex-middle" data-uk-grid>
-                                <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-4@l">
                                     <div className="uk-search uk-search-default uk-width-1-1">
                                         <span data-uk-search-icon></span>
                                         <input className="uk-search-input" type="search" placeholder="Search by Name..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                                     </div>
                                 </div>
                                 { this.renderCourseDropdown() }
+                                <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-4@l">
+                                    <label><input type="checkbox" value={ this.props.search.presenter } onClick={ this.props.updateExpertPresenterQuery } /> Expert Presenter Available</label>
+                                </div>
+                                <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-4@l">
+                                    <label><input type="checkbox" value={ this.props.search.educator } onClick={ this.props.updateEducatorRequestedQuery } /> Educator Requested</label>
+                                </div>
                             </div>
 
                             <div className="lesson-listings" data-uk-grid="masonry: true">
@@ -106,7 +112,7 @@ class App extends React.Component {
     renderCourseDropdown() {
 
         if ( this.props.courses.length > 0 ) {
-            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-4@l">
                 <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
                     <select onChange={this.props.updateCourseQuery}>
                         <option value="">Filter by Course...</option>
@@ -147,6 +153,7 @@ class App extends React.Component {
 
             // Filter By Search Term
             if( this.props.search.query ) {
+                console.log("Search Term");
                 // basic search fields
                 const basicSearchFieldsFound = searchableFields.some((field) => ( lesson[field] && lesson[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
 
@@ -156,7 +163,23 @@ class App extends React.Component {
                 // secondary course field
                 const secondaryCourseFound = lessonSecondaryCourseNames.some((courseName) => ( courseName.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
 
-                return basicSearchFieldsFound || primaryCourseFound || secondaryCourseFound
+                const expertPresenterFound = lesson['hasExpertPresenters'] && this.props.search.presenter
+
+                const educatorRequestedFound = lesson['hasEducatorRequestors'] && this.props.search.educator
+
+                return basicSearchFieldsFound || primaryCourseFound || secondaryCourseFound || expertPresenterFound || educatorRequestedFound
+            }
+
+            // Filter by Educator Requested
+            if(this.props.search.educator) {
+                const educatorRequestedFound = lesson['hasEducatorRequestors']
+                return educatorRequestedFound
+            }
+
+            // Filter by Expert Presenter
+            if(this.props.search.presenter) {
+                const expertPresenterFound = lesson['hasExpertPresenters']
+                return expertPresenterFound
             }
 
             return true;
@@ -182,7 +205,9 @@ class App extends React.Component {
             lessonUnfavorited={this.props.lessonUnfavorited}
             lessonTeach={this.props.lessonTeach}
             lessonUnteach={this.props.lessonUnteach}
-            title={lesson.title} />
+            title={lesson.title}
+            expertPresenters={lesson.hasExpertPresenters}
+            educatorRequestors={lesson.hasEducatorRequestors} />
     }
 
     componentDidMount() {
@@ -227,6 +252,8 @@ export const mapDispatchToProps = dispatch => ({
     loadUser: (url) => dispatch(loadUser(url)),
     updateCourseQuery: (event) => dispatch(updateCourseQuery(event.target.value)),
     updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
+    updateEducatorRequestedQuery: (event) => dispatch(updateEducatorRequestedQuery(event.target.checked)),
+    updateExpertPresenterQuery: (event) => dispatch(updateExpertPresenterQuery(event.target.checked)),
 });
 
 const ConnectedApp = connect(
