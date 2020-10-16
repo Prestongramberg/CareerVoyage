@@ -864,9 +864,13 @@ class CompanyController extends AbstractController
         $this->entityManager->remove($company);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'Company deleted');
-
-        return $this->redirectToRoute('company_index');
+        if($request->isXmlHttpRequest()){
+            // AJAX request
+            return new JsonResponse( ["status" => "success"]);
+        } else {
+            $this->addFlash('success', 'Company deleted');
+            return $this->redirectToRoute('company_index');
+        }
     }
 
     /**
@@ -1487,6 +1491,52 @@ class CompanyController extends AbstractController
         $this->addFlash('success', 'Experience has been sent to students!');
 
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+    }
+
+
+    /**
+     * @Route("/companies/manage", name="manage_companies", options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function manageAction(Request $request) {
+
+        $user = $this->getUser();
+        $companies = $this->companyRepository->getAllCompaniesByName();
+
+        return $this->render('company/manage.html.twig', [
+            'companies' => $companies,
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * @Route("/companies/{id}/toggle-status", name="toggle_company_status", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function toggleCompanyStatus(Request $request, Company $company) {
+
+        $company->setApproved( $request->request->get('newStatus'));
+
+        $this->entityManager->persist($company);
+        $this->entityManager->flush();
+
+        if($request->request->get('newStatus') == 1){
+            $button = '<button class="uk-button uk-button-small uk-label-success" data-id="'.$company->getId().'" data-newstatus="0">Approved</button>';
+        } else {
+            $button = '<button class="uk-button uk-button-small uk-label-warning" data-id="'.$company->getId().'" data-newstatus="1">Denied</button>';
+            $button .= '<button class="uk-button uk-button-small uk-label-danger" data-id="'.$company->getId().'">Delete</button>';
+        }
+
+
+        $html  =    "<td><a href='/companies/".$company->getId()."/edit'>".$company->getName()."</a></td>";
+        $html .=    "<td>".$company->getOwner()->getFullName()."</td>";
+        $html .=    "<td>".$company->getStreet()."<br />".$company->getCity().", ".($company->getState() ? $company->getState()->getAbbreviation() : "")." ".$company->getZipCode()."</td>";
+        $html .=    "<td>".$button."</td>";
+
+        return new JsonResponse( ["status" => "success", "html" => $html ]);
     }
 
     /**

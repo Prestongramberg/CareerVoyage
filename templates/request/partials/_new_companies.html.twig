@@ -92,6 +92,10 @@
                                 <input type="hidden" name="request" value="{{ request.id }}">
                                 <input type="hidden" name="element" value="nc_{{ request.id }}">
                             </form>
+                        {% elseif render_request_status_text( request ) == "Approved" %}
+                            Approved
+                        {% elseif render_request_status_text( request ) == "Denied" %}
+                            Denied
                         {% endif %}
                     </td>
                 </tr>
