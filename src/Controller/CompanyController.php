@@ -1530,7 +1530,8 @@ class CompanyController extends AbstractController
         }
 
 
-        $html  =    "<td>".$company->getName()."</td>";
+        $html  =    "<td><a href='/companies/".$company->getId()."/edit'>".$company->getName()."</a></td>";
+        $html .=    "<td>".$company->getOwner()->getFullName()."</td>";
         $html .=    "<td>".$company->getStreet()."<br />".$company->getCity().", ".($company->getState() ? $company->getState()->getAbbreviation() : "")." ".$company->getZipCode()."</td>";
         $html .=    "<td>".$button."</td>";
 
