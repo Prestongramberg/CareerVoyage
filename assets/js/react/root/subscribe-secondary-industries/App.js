@@ -38,7 +38,14 @@ class App extends React.Component {
                     <div className="uk-grid" data-uk-grid>
                         <div className="uk-width-1-1">
                             <h4>{ this.props.currentTitle || "Add Relevant Career Fields" }</h4>
-                            <p>Add Relevant Career Fields that you are interested in so that you can be notified when experiences related to those career fields are posted.</p>
+                            { this.props.userKind == "educator" && (
+                                <p>Add Relevant Career Fields that you or your students are interested in or relate to the subjects you teach. Then you can be notified when experiences related to those career fields are posted and professionals from those careers will be able to reach out to you.</p>
+                            )}
+
+                            { this.props.userKind == "student" && (
+                                <p>Add Relevant Career Fields that you are interested in so that you can be notified when experiences related to those career fields are posted.</p>
+                            )}
+                            
                             <p>Start by selecting an industry that you are interested in. Then select specific career fields in that industry or use “Add all career Fields” if applicable. Then, if you wish to select multiple industries, select the next industry from the industry dropdown menu and repeat the process of adding career fields.</p>
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-2">
@@ -174,6 +181,7 @@ App.propTypes = {
     removeDomId: PropTypes.string,
     subscriptions: PropTypes.object,
     uiState: PropTypes.object,
+    userKind: PropTypes.string
 };
 
 App.defaultProps = {
