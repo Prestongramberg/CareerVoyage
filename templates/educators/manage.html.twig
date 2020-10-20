@@ -46,7 +46,7 @@
 
                     {% for educatorUser in pagination %}
 
-                        <tr>
+                        <tr id="user_{{ educatorUser.id }}">
                             <td>
                                 <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                 {{ educatorUser.lastName }}, {{ educatorUser.firstName }}<br>
@@ -128,7 +128,7 @@
             if(ans) {  
                 $.post($(item).attr('action'), { iframe: true,  schoolAdminId: $(item).find("input[name='schoolAdminId']").val() }, function(data) {
                     if(data.success) {
-                        $('#educator_' + data.id).remove();
+                        $('#user_' + data.id).remove();
                     } else {
                         alert('Error deleting user');
                     }
