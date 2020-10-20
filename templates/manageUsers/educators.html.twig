@@ -40,7 +40,7 @@
                         <th>State</th>
                         <th>Site</th>
                         {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
-                        <th>Edit/Delete</th>
+                        <th>Edit</th>
                         {% if user.admin or user.siteAdmin %}
                             <th>Account Status</th>
                         {% endif %}
@@ -48,7 +48,7 @@
 
                     {# table body #}
                     {% for paginatedUser in pagination %}
-                        <tr>
+                        <tr id="user_{{ paginatedUser.id }}">
                             <td><input type="checkbox" class="select-users" value="{{ paginatedUser.id }}" /></td>
                             <td>{{ paginatedUser.id }}</td>
                             <td>{{ paginatedUser.firstName }}</td>
@@ -71,17 +71,22 @@
                                 {% endif %}
                             </td>
                             {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
-                                <th>
-                                    <a class="uk-button uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email ? paginatedUser.email|url_encode : paginatedUser.username|url_encode }}">Login</a>
-                                </th>
+                                <td>
+                                    <a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email ? paginatedUser.email|url_encode : paginatedUser.username|url_encode }}">Login</a>
+                                </td>
                             {% endif %}
-                            <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a> | <a href="{{ path('profile_delete', {'id': paginatedUser.id}) }}">Delete</a></td>
+                            <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a></td>
 
                             {% if user.admin or user.siteAdmin %}
                                 {% if paginatedUser.activated %}
-                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_educators">Deactivate</a></td>
+                                    <td>
+                                        <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}" data-id="{{ paginatedUser.id }}" class="uk-button uk-button-small uk-label-success">Active</a>
+                                    </td>
                                 {% else %}
-                                    <td> <a href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}?route=manage_educators">Activate</a></td>
+                                    <td> 
+                                        <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}" data-id="{{ paginatedUser.id }}" class="uk-button uk-button-small uk-label-warning">Inactive</a>
+                                        <button data-href="{{ path('profile_delete', {'id': paginatedUser.id}) }}" data-id="{{ paginatedUser.id }}" class="uk-button uk-button-small uk-label-danger">Delete</button>
+                                    </td>
                                 {% endif %}
                             {% endif %}
 
@@ -103,6 +108,6 @@
             </div>
         </div>
     </div>
-
+    {% include 'manageUsers/partials/_ajax_actions.html.twig' %}
 
 {% endblock %}

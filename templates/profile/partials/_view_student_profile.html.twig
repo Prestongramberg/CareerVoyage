@@ -33,7 +33,7 @@
                             <p class="uk-text-large">My Career Statement</p>
                             <p>{{ profileUser.careerStatement }}</p>
                         {% else %}
-                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief career interests bio</a> so others know more about you.</p>
+                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': profileUser.id}) }}">Add a brief career interests bio</a> so others know more about you.</p>
                         {% endif %}
 
                         <div class="professional-links">
