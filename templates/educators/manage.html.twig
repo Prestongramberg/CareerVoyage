@@ -34,10 +34,11 @@
             </div>
             {{ form_end(form) }}
 
-            <div class="uk-overflow-auto">
+            <div class="uk-overflow-auto" style="font-size: 0.8em">
                 <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
                     <tr>
                         <th>Educators</th>
+                        <th>ID</th>
                         <th>Email</th>
                         <th>Username</th>
                         <th>Temp Password</th>
@@ -48,11 +49,13 @@
 
                         <tr>
                             <td>
-                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                <img class="uk-border-circle" width="25" height="25" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                 {{ educatorUser.lastName }}, {{ educatorUser.firstName }}<br>
                                 {{ excerpt_length( educatorUser.briefBio, 100 ) }}
                             </td>
-
+                            <td>
+                                {{ educatorUser.id }}
+                            </td>
                             <td>
                                 {{ educatorUser.email ? educatorUser.email : "N/A"}}
                             </td>
