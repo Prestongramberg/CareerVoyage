@@ -297,16 +297,153 @@ class ProfileController extends AbstractController
 
         if($user->getActivated()) {
             $user->setActivated(false);
-            $this->addFlash('success', 'User account deactivated');
+            if($request->isXmlHttpRequest()){
+                $button  = '<button class="uk-button uk-button-small uk-label-warning" data-href="/dashboard/profiles/'.$user->getId().'/activate-deactivate" data-id="'.$user->getId().'">Inactive</button>';
+                $button .= '<button class="uk-button uk-button-small uk-label-danger" data-href="/dashboard/profile/'.$user->getId().'/delete" data-id="'.$user->getId().'">Delete</button>';
+            } else {
+                $this->addFlash('success', 'User account deactivated');
+            }
         } else {
             $user->setActivated(true);
-            $this->addFlash('success', 'User account activated');
+            if($request->isXmlHttpRequest()){
+                $button = '<button class="uk-button uk-button-small uk-label-success" data-href="/dashboard/profiles/'.$user->getId().'/activate-deactivate" data-id="'.$user->getId().'">Active</button>';        
+
+            } else {
+                $this->addFlash('success', 'User account activated');
+            }
         }
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute($route);
+        if($request->isXmlHttpRequest()){
+            // AJAX request
+            $login =    '<td><a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user='.urlencode($user->getEmail()).'">Login</a></td>';
+
+            $html  =    '<td><input type="checkbox" class="select-users" value="'.$user->getId().'" /></td>';
+            $html .=    '<td>'.$user->getId().'</td>';
+            $html .=    '<td>'.$user->getFirstName().'</td>';
+            $html .=    '<td>'.$user->getLastName().'</td>';
+            $html .=    '<td>'.$user->getEmail().'</td>';
+            $html .=    '<td>'.$user->getUsername().'</td>';
+
+            if($user->isProfessional()) {
+                if($user->getCompany() != NULL) {
+                    $html .= '<td><a href="/dashboard/companies'.$user->getCompany()->getId().'/edit">'.$user->getCompany()->getName().'</a></td>';
+                } else {
+                    $html .= '<td>User does not belong to a company</td>';
+                }
+
+                if($loggedInUser->canLoginAsAnotherUser()) { $html .= $login; }
+
+                if($user->getCompany() != NULL && $user->getCompany()->getOwner()->getId() == $user->getId()) {
+                    $html .= '<td>Yes</td>';
+                } else {
+                    $html .= '<td>No</td>';
+                }                
+            }
+
+            if($user->isEducator() || $user->isStudent()) {
+                if($user->getSchool() != NULL) {
+                    $html .= '<td><a href="/dashboard/schools'.$user->getSchool()->getId().'/edit">'.$user->getSchool()->getName().'</a></td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($user->getSchool() != NULL && $user->getSchool()->getState() != NULL) {
+                    $html .= '<td>'.$user->getSchool()->getState()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($user->getSite() != NULL) {
+                    $html .= '<td>'.$user->getSite()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($user->isStudent()){
+                    $login =    '<td><a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user='.urlencode($user->getUsername()).'">Login</a></td>';                
+                }
+
+                if($loggedInUser->canLoginAsAnotherUser()) { $html .= $login; }
+            }
+
+            
+            if($user->isRegionalCoordinator()) {                
+                if($user->getRegion() != NULL) {
+                    $html .= '<td>'.$user->getRegion()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($user->getRegion() != NULL && $user->getRegion()->getState() != NULL) {
+                    $html .= '<td>'.$user->getRegion()->getState()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($user->getSite() != NULL) {
+                    $html .= '<td>'.$user->getSite()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($loggedInUser->canLoginAsAnotherUser()) { $html .= $login; }
+            }
+
+            if($user->isSchoolAdministrator()) {                
+                if($user->getSite() != NULL) {
+                    $html .= '<td>'.$user->getSite()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                $html .=    '<td>';
+
+                $schools = [];
+                foreach($user->getSchools() as $school) {
+                    $schools[] = '<a href="/dashboard/schools/'.$school->getId().'/edit">'.$school->getName().'</a>';
+                }
+
+                $html .=    join($schools,'|');
+                $html .=    '</td>';
+                if($loggedInUser->canLoginAsAnotherUser()) { $html .= $login; }
+            }
+
+            if($user->isStateCoordinator()) {                
+                
+                if($user->getSite() != NULL) {
+                    $html .= '<td>'.$user->getSite()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+
+                if($user->getState() != NULL) {
+                    $html .= '<td>'.$user->getState()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+                if($loggedInUser->canLoginAsAnotherUser()) { $html .= $login; }
+            }
+
+            if($user->isSiteAdmin()) {
+                if($user->getSite() != NULL) {
+                    $html .= '<td>'.$user->getSite()->getName().'</td>';
+                } else {
+                    $html .= '<td></td>';
+                }
+                if($loggedInUser->canLoginAsAnotherUser()) { $html .= $login; }
+            }
+
+            $html .=    '<td><a href="/dashboard/profiles/'.$user->getId().'/edit">Edit</a></td>';
+            $html .=    "<td>".$button."</td>";
+
+
+            return new JsonResponse( ["status" => "success", "html" => $html]);
+        } else {
+            return $this->redirectToRoute($route);
+        }
     }
 
     /**
@@ -369,9 +506,13 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('welcome');
         }
 
-        $this->addFlash('success', 'User successfully removed');
-
-        return $this->redirectToRoute('manage_users');
+        if($request->isXmlHttpRequest()){
+            return new JsonResponse( ["status" => "success"]);
+        } else {
+            $this->addFlash('success', 'User successfully removed');
+            return $this->redirectToRoute('manage_users');
+        }
+        
     }
 
     /**
