@@ -54,6 +54,12 @@
                             <a href="{{ path('manage_educators') }}">Educators</a>
                         </li>
                     {%  endif %}
+
+                    {% if user.isAdmin %}
+                        <li>
+                            <a href="{{ path('manage_companies') }}">Companies</a>
+                        </li>
+                    {%  endif %}
                 </ul>
             </div>
         </div>

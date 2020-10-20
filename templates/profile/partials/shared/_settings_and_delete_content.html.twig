@@ -3,11 +3,11 @@
         <h3>Profile Status: <span class="uk-label">{{ user.activated ? "Active" : "Deactivated" }}</span></h3>
         <p>Your profile status determines whether you show up in search results on the Platform.  When "Deactivated", you will no longer appear in search results, but you will still be able to access your account.</p>
         {% if user.activated %}
-            <form method="post" action="{{ path('profile_deactivate', {id: user.id}) }}">
+            <form method="post" action="{{ path('profile_deactivate', {id: user.id}) }}" onSubmit="return confirm('Are you sure you want to deactivate your account?')">
                 <button type="submit" class="uk-button uk-button-danger uk-button-small">Deactivate</button>
             </form>
         {% else %}
-            <form method="post" action="{{ path('profile_reactivate', {id: user.id}) }}">
+            <form method="post" action="{{ path('profile_reactivate', {id: user.id}) }}" onSubmit="return confirm('Are you sure you want to reactivate your account?')">
                 <button type="submit" class="uk-button uk-button-primary uk-button-small">Reactivate</button>
             </form>
         {% endif %}
@@ -17,7 +17,7 @@
     <div class="uk-width-xlarge">
         <h3>Delete Account</h3>
         <p>If you would no longer like to use our Platform, you can delete your account by using the button below.</p>
-        <form method="post" action="{{ path('profile_delete', {id: user.id}) }}">
+        <form method="post" action="{{ path('profile_delete', {id: user.id}) }}" onSubmit="return confirm('Are you sure you want to delete your account? This action is NOT recoverable.')">
             <button type="submit" class="uk-button uk-button-secondary uk-button-small">Delete</button>
         </form>
     </div>

@@ -12,7 +12,11 @@
 
 
     <div class="uk-container">
-      <h1>Manage Companies</h1>
+      <ul class="uk-breadcrumb">
+          <li><a href="{{ path('manage_users') }}">Manage Users</a></li>
+          <li><span>Companies</span></li>
+      </ul>
+      <h3>Manage Companies</h3>
       <hr />
     {% if companies|length %}
       <table class="uk-table">
