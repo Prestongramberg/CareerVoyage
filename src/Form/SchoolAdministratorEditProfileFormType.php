@@ -9,12 +9,14 @@ use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
+use App\Service\NotificationPreferencesManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -31,11 +33,26 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 class SchoolAdministratorEditProfileFormType extends AbstractType
 {
+    /**
+     * @var NotificationPreferencesManager $notificationPreferenceManager
+     */
+    private $notificationPreferenceManager;
+
+    /**
+     * SchoolAdministratorEditProfileFormType constructor.
+     * @param NotificationPreferencesManager $notificationPreferenceManager
+     */
+    public function __construct(NotificationPreferencesManager $notificationPreferenceManager)
+    {
+        $this->notificationPreferenceManager = $notificationPreferenceManager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $site = '';
-
         $site = $options['data']->getSite()->getId();
+
+        /** @var User $loggedInUser */
+        $loggedInUser = $options['user'];
 
         $builder
             ->add('firstName', TextType::class, [
@@ -61,7 +78,45 @@ class SchoolAdministratorEditProfileFormType extends AbstractType
                         ->setParameter('site', $site)
                         ->orderBy('s.name', 'ASC');
                 },
-            ]);
+            ])->add('notificationPreferences', ChoiceType::class, [
+                'expanded' => true,
+                'multiple' => true,
+                'choices'  => NotificationPreferencesManager::$choices,
+                'mapped' => false
+            ])->add('notificationPreferenceMask', HiddenType::class);
+
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($loggedInUser) {
+
+            $data = $event->getData();
+
+            $notificationPreferences = [];
+            foreach(NotificationPreferencesManager::$choices as $label => $bit) {
+
+                if($this->notificationPreferenceManager->isNotificationDisabled($bit, $loggedInUser)) {
+                    $notificationPreferences[] = $bit;
+                }
+            }
+
+            if(!empty($notificationPreferences)) {
+                $this->modifyNotificationPreferencesField($event->getForm(), $notificationPreferences);
+            }
+        });
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+
+            $notificationPreferenceMask = !empty($data['notificationPreferences']) ? array_sum($data['notificationPreferences']) : null;
+
+            if($notificationPreferenceMask) {
+                $data['notificationPreferenceMask'] = $notificationPreferenceMask;
+            } else {
+                $data['notificationPreferenceMask'] = null;
+            }
+
+            $event->setData($data);
+        });
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {
@@ -83,9 +138,26 @@ class SchoolAdministratorEditProfileFormType extends AbstractType
         ]);
 
         $resolver->setRequired([
-            'skip_validation'
+            'skip_validation',
+            'user'
         ]);
     }
+
+    private function modifyNotificationPreferencesField(FormInterface $form, $notificationPreferences) {
+
+        if(!empty($notificationPreferences)) {
+            $form->remove('notificationPreferences');
+
+            $form->add('notificationPreferences', ChoiceType::class, [
+                'expanded' => true,
+                'multiple' => true,
+                'choices'  => NotificationPreferencesManager::$choices,
+                'mapped' => false,
+                'data' => $notificationPreferences
+            ]);
+        }
+    }
+
 
     private function localize_us_number($phone) {
         $numbers_only = preg_replace("/[^\d]/", "", $phone);

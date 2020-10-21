@@ -326,6 +326,12 @@
                                         {{ form_errors(form.isPhoneHiddenFromProfile) }}
                                     </div>
                                     <div class="uk-margin">
+
+                                        {{ form_label(form.notificationPreferences, 'Notification Preferences') }}
+                                        {{ form_widget(form.notificationPreferences, {'attr': {'class': ( form_errors(form.notificationPreferences) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.notificationPreferences) }}
+                                    </div>
+                                    <div class="uk-margin">
                                         <button class="uk-button uk-button-primary uk-button-small" id="submit-form">Save</button>
                                     </div>
                                 </fieldset>

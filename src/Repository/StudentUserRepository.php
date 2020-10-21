@@ -107,7 +107,7 @@ class StudentUserRepository extends ServiceEntityRepository
     }
 
 
-    public function findStudentBySecondaryIndustry(int $secondaryIndustry) {
+    public function findStudentBySecondaryIndustry($secondaryIndustry) {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.secondaryIndustries', 's')
             ->andWhere('s.id = :secondaryIndustry')

@@ -13,6 +13,7 @@ use App\Entity\SecondaryIndustry;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
+use App\Service\NotificationPreferencesManager;
 use App\Util\FormHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
@@ -47,18 +48,27 @@ class EducatorEditProfileFormType extends AbstractType
     private $secondaryIndustryRepository;
 
     /**
-     * EditCompanyExperienceType constructor.
-     * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     * @var NotificationPreferencesManager $notificationPreferenceManager
      */
-    public function __construct(SecondaryIndustryRepository $secondaryIndustryRepository)
-    {
+    private $notificationPreferenceManager;
+
+    /**
+     * EducatorEditProfileFormType constructor.
+     * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     * @param NotificationPreferencesManager $notificationPreferenceManager
+     */
+    public function __construct(
+        SecondaryIndustryRepository $secondaryIndustryRepository,
+        NotificationPreferencesManager $notificationPreferenceManager
+    ) {
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+        $this->notificationPreferenceManager = $notificationPreferenceManager;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         /** @var EducatorUser $educator */
-        $educator = $options['educator'];
+        $educator = $loggedInUser = $options['educator'];
 
         $builder
             ->add('firstName', TextType::class)
@@ -102,9 +112,45 @@ class EducatorEditProfileFormType extends AbstractType
             'entry_type' => HiddenType::class,
             'label' => false,
             'allow_add' => true,
-        ]);
+        ])->add('notificationPreferences', ChoiceType::class, [
+            'expanded' => true,
+            'multiple' => true,
+            'choices'  => NotificationPreferencesManager::$choices,
+            'mapped' => false
+        ])->add('notificationPreferenceMask', HiddenType::class);
 
 
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($loggedInUser) {
+
+            $data = $event->getData();
+
+            $notificationPreferences = [];
+            foreach(NotificationPreferencesManager::$choices as $label => $bit) {
+
+                if($this->notificationPreferenceManager->isNotificationDisabled($bit, $loggedInUser)) {
+                    $notificationPreferences[] = $bit;
+                }
+            }
+
+            if(!empty($notificationPreferences)) {
+                $this->modifyNotificationPreferencesField($event->getForm(), $notificationPreferences);
+            }
+        });
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+
+            $notificationPreferenceMask = !empty($data['notificationPreferences']) ? array_sum($data['notificationPreferences']) : null;
+
+            if($notificationPreferenceMask) {
+                $data['notificationPreferenceMask'] = $notificationPreferenceMask;
+            } else {
+                $data['notificationPreferenceMask'] = null;
+            }
+
+            $event->setData($data);
+        });
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {
@@ -172,6 +218,21 @@ class EducatorEditProfileFormType extends AbstractType
         setupImmutableFields($builder, $options, [
             'educatorId'
         ]);
+    }
+
+    private function modifyNotificationPreferencesField(FormInterface $form, $notificationPreferences) {
+
+        if(!empty($notificationPreferences)) {
+            $form->remove('notificationPreferences');
+
+            $form->add('notificationPreferences', ChoiceType::class, [
+                'expanded' => true,
+                'multiple' => true,
+                'choices'  => NotificationPreferencesManager::$choices,
+                'mapped' => false,
+                'data' => $notificationPreferences
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)

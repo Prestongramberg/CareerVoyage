@@ -1,15 +1,16 @@
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
+    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
+        <li><a href="#account-account">Account</a></li>
     </ul>
     <div class="uk-switcher" id="tab-account">
         <div class="account_details">
             <div class="uk-width-xlarge">
 
                 <h3>Edit Profile</h3>
-
-                {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
                 {% if form_errors(form) %}
                     <div class="uk-alert-danger" uk-alert>
@@ -46,8 +47,30 @@
                     </div>
                 </fieldset>
 
-                {{ form_end(form) }}
             </div>
         </div>
+
+        <div class="account_account">
+            <div class="uk-width-xlarge">
+                <fieldset class="uk-fieldset">
+                    <div class="uk-margin">
+                        <h4 class="uk-heading-divider">Contact Preferences</h4>
+                    </div>
+                    <div class="uk-margin">
+                        {{ form_label(form.notificationPreferences, 'Notification Preferences') }}
+                        {{ form_widget(form.notificationPreferences, {'attr': {'class': ( form_errors(form.notificationPreferences) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.notificationPreferences) }}
+                    </div>
+
+                    <div class="uk-margin">
+                        <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
     </div>
+
+    {{ form_end(form) }}
+
 </div>
