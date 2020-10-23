@@ -171,14 +171,17 @@ class ProfileController extends AbstractController
             $form = $this->createForm(AdminProfileFormType::class, $user, $options);
             /** @var AdminUser $user */
         } elseif (($user->isSiteAdmin())) {
+            $options['user'] = $user;
             $form = $this->createForm(SiteAdminProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isProfessional())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $options['user'] = $user;
             $form = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isSchoolAdministrator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $options['user'] = $user;
             $form = $this->createForm(SchoolAdministratorEditProfileFormType::class, $user, $options);
             /** @var SchoolAdministrator $user */
         } elseif (($user->isEducator())) {
@@ -188,14 +191,17 @@ class ProfileController extends AbstractController
             /** @var EducatorUser $user */
         } elseif (($user->isStudent())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $options['user'] = $user;
             $form = $this->createForm(StudentEditProfileFormType::class, $user, $options);
             /** @var StudentUser $user */
         } elseif (($user->isStateCoordinator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $options['user'] = $user;
             $form = $this->createForm(StateCoordinatorEditProfileFormType::class, $user, $options);
             /** @var StateCoordinator $user */
         } elseif (($user->isRegionalCoordinator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
+            $options['user'] = $user;
             $form = $this->createForm(RegionalCoordinatorEditProfileFormType::class, $user, $options);
             /** @var RegionalCoordinator $user */
         }

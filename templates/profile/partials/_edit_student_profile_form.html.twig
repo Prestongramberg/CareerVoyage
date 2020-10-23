@@ -101,6 +101,16 @@
                     </div>
 
                     <div class="uk-margin">
+                        <h4 class="uk-heading-divider">Contact Preferences</h4>
+                    </div>
+                    <div class="uk-margin">
+
+                        {{ form_label(form.notificationPreferences, 'Notification Preferences') }}
+                        {{ form_widget(form.notificationPreferences, {'attr': {'class': ( form_errors(form.notificationPreferences) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(form.notificationPreferences) }}
+                    </div>
+
+                    <div class="uk-margin">
                         <button class="uk-button uk-button-primary uk-button-small">Save</button>
                     </div>
                 </fieldset>
@@ -124,6 +134,11 @@
 
             UIkit.tab('#test').show(indexToNavigateTo);
         })
+
+        var hash = location.hash.substr(1);
+        if (hash === 'account') {
+            UIkit.tab('#test').show(2);
+        }
 
     });
 </script>

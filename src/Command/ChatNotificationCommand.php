@@ -14,7 +14,6 @@ use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Mailer\ChatNotificationMailer;
 use App\Message\RecapMessage;
-use App\Message\UnseenMessagesMessage;
 use App\Repository\ChatMessageRepository;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CourseRepository;
@@ -201,7 +200,12 @@ class ChatNotificationCommand extends Command
                 $unreadMessageCountsForUser = array_filter($unreadMessageCounts['results'], function($array) use($userSentToId) {
                     return $array['user_sent_to_id'] === $userSentToId;
                 });
-                $this->chatNotificationMailer->send($totalUnreadMessageCount, $unreadMessageCountsForUser);
+
+                $user = $this->userRepository->find($userSentToId);
+
+                if($user) {
+                    $this->chatNotificationMailer->send($totalUnreadMessageCount, $unreadMessageCountsForUser, $user);
+                }
             }
         }
 

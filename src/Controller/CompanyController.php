@@ -878,12 +878,16 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \ReflectionException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function createExperienceAction(Request $request, Company $company) {
 
         $this->denyAccessUnlessGranted('edit', $company);
 
-        $user = $this->getUser();
+        $user = $loggedInUser =$this->getUser();
         $experience = new CompanyExperience();
 
         $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
@@ -916,34 +920,37 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
 
             
-            if($_POST['notify_students'] == "match") {
+            if($request->request->get('notify_students') === "match") {
                 // Send email to students that are interested in the event that was created
                 $items = $experience->getSecondaryIndustries();
                 $loggedInUser = $this->getUser();
                 
                 $chosen_students = [];
                 foreach($items as $k => $v) {
-                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry($v->getId());
                     foreach($students as $student){
                         $chosen_students[] = $student;
                     }
                 }
             }
-            if($_POST['notify_students'] == "all") {
+            if($request->request->get('notify_students') === "all") {
                 $chosen_students = [];
-                $students = $this->studentUserRepository->findAll();
+                $students = $this->studentUserRepository->createQueryBuilder('s')
+                    ->setMaxResults(20)
+                    ->getQuery()
+                    ->getResult();
                 foreach($students as $k => $v) {
                     $chosen_students[] = $v;
                 }
             }
 
-            if($_POST['notify_students'] != "none") {
+            if($request->request->get('notify_students') !== "none") {
 
                 // Choose teachers who match this profession here.
                 $items = $experience->getSecondaryIndustries();
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
-                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry($v->getId());
                     foreach($teachers as $teacher){
                         $chosen_teachers[] = $teacher;
                     }
@@ -954,12 +961,12 @@ class CompanyController extends AbstractController
 
                 foreach($chosen_students as $student) {
                     $s = $this->studentUserRepository->find($student);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
                 }
 
                 foreach($chosen_teachers as $teacher) {
                     $s = $this->educatorUserRepository->find($teacher);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
                 }
             }
 
@@ -969,22 +976,15 @@ class CompanyController extends AbstractController
         }
 
 
-        if($_POST && $_POST['new_company_experience'] && $_POST['new_company_experience']['secondaryIndustries']) {
-            
-            $secondary_industries = [];
-            foreach($_POST['new_company_experience']['secondaryIndustries'] as $secondary) {
+        $secondaryIndustries = $form->get('secondaryIndustries')->getData();
 
-                $secondaryIndustry = $this->secondaryIndustryRepository->find($secondary);
+        if(!empty($secondaryIndustries)) {
 
-                array_push($secondary_industries, array("id" => intval($secondary), "name" => $secondaryIndustry->getName(), "url" => $secondaryIndustry->getUrl()));
-            }
-            
-            
             return $this->render('company/new_experience.html.twig', [
                 'company' => $company,
                 'form' => $form->createView(),
                 'user' => $user,
-                'secondaryIndustries' => $secondary_industries
+                'secondaryIndustries' => $secondaryIndustries
             ]);
         } else {
             return $this->render('company/new_experience.html.twig', [
@@ -1069,12 +1069,12 @@ class CompanyController extends AbstractController
 
                 foreach($chosen_students as $student) {
                     $s = $this->studentUserRepository->find($student);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
                 }
 
                 foreach($chosen_teachers as $teacher) {
                     $s = $this->educatorUserRepository->find($teacher);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
                 }
             }
 
@@ -1447,7 +1447,7 @@ class CompanyController extends AbstractController
 
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
-            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
+            $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
 
 
             $chat = $this->chatRepository->findOneBy([

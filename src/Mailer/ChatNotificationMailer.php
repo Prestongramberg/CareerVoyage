@@ -9,6 +9,7 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\SiteAdminUser;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Service\NotificationPreferencesManager;
 use Swift_Attachment;
 
 /**
@@ -20,11 +21,12 @@ class ChatNotificationMailer extends AbstractMailer
     /**
      * @param $totalUnreadMessageCount
      * @param $unreadMessageCountsForUser
+     * @param User $user
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function send($totalUnreadMessageCount, $unreadMessageCountsForUser) {
+    private function send($totalUnreadMessageCount, $unreadMessageCountsForUser, User $user) {
         $context = $this->router->getContext();
         $context->setHost($this->baseHost);
         $context->setScheme($this->baseScheme);
@@ -40,12 +42,41 @@ class ChatNotificationMailer extends AbstractMailer
                     [
                         'totalUnreadMessageCount' => $totalUnreadMessageCount,
                         'unreadMessageCountsForUser' => $unreadMessageCountsForUser,
-                        'baseUrl' => $baseUrl
+                        'baseUrl' => $baseUrl,
+                        'user' => $user
                     ]
                 ),
                 'text/html'
             );
 
         $this->mailer->send($message);
+    }
+
+    /**
+     * We need to run notification preference checks on every email call prior to actually sending any mail
+     * @param $method
+     * @param $arguments
+     * @return mixed
+     */
+    public function __call($method,$arguments) {
+
+        if(method_exists($this, $method)) {
+
+            if(empty($arguments[2]) || !$arguments[2] instanceof User) {
+                return;
+            }
+
+            $user = $arguments[2];
+
+            if($this->notificationPreferencesManager->isNotificationDisabled(NotificationPreferencesManager::MASK_DISABLE_CHAT_NOTIFICATION_EMAILS, $user)) {
+                return;
+            }
+
+            if($this->notificationPreferencesManager->isNotificationDisabled(NotificationPreferencesManager::MASK_DISABLE_ALL_NOTIFICATION_EMAILS, $user)) {
+                return;
+            }
+
+            return call_user_func_array(array($this,$method),$arguments);
+        }
     }
 }

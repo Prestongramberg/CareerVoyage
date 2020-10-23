@@ -363,7 +363,7 @@ class FeedbackController extends AbstractController
                     $feedback->setProfessional($user);
                     $educators = $experience->getOriginalRequest()->getStudent()->getEducatorUsers();
                     foreach ($educators as $educator) {
-                        $this->notificationsMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($educator, $experience, $feedback);
+                        $this->experienceMailer->notifyTeacherOfProfessionalFeedbackForStudentMeeting($experience, $educator, $feedback);
                     }
                     break;
                 case 'ProfessionalReviewTeachLessonExperienceFeedback':                 

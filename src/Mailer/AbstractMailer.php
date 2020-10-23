@@ -3,6 +3,7 @@
 namespace App\Mailer;
 
 use App\Repository\UserRepository;
+use App\Service\NotificationPreferencesManager;
 use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -39,6 +40,10 @@ class AbstractMailer
      */
     protected $userRepository;
 
+    /**
+     * @var NotificationPreferencesManager $notificationPreferencesManager
+     */
+    protected $notificationPreferencesManager;
 
     /**
      * @var string
@@ -57,6 +62,7 @@ class AbstractMailer
      * @param Environment $templating
      * @param string $siteFromEmail
      * @param UserRepository $userRepository
+     * @param NotificationPreferencesManager $notificationPreferencesManager
      * @param string $baseHost
      * @param string $baseScheme
      */
@@ -66,6 +72,7 @@ class AbstractMailer
         Environment $templating,
         string $siteFromEmail,
         UserRepository $userRepository,
+        NotificationPreferencesManager $notificationPreferencesManager,
         string $baseHost,
         string $baseScheme
     ) {
@@ -74,6 +81,7 @@ class AbstractMailer
         $this->templating = $templating;
         $this->siteFromEmail = $siteFromEmail;
         $this->userRepository = $userRepository;
+        $this->notificationPreferencesManager = $notificationPreferencesManager;
         $this->baseHost = $baseHost;
         $this->baseScheme = $baseScheme;
     }

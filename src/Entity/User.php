@@ -255,6 +255,11 @@ abstract class User implements UserInterface
      */
     protected $videoFavorites;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $notificationPreferenceMask;
+
     public function __construct()
     {
         $this->lessonFavorites = new ArrayCollection();
@@ -1249,5 +1254,17 @@ abstract class User implements UserInterface
     public function getClassName()
     {
         return (new \ReflectionClass($this))->getShortName();
+    }
+
+    public function getNotificationPreferenceMask(): ?int
+    {
+        return $this->notificationPreferenceMask;
+    }
+
+    public function setNotificationPreferenceMask(?int $notificationPreferenceMask): self
+    {
+        $this->notificationPreferenceMask = $notificationPreferenceMask;
+
+        return $this;
     }
 }

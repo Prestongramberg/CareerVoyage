@@ -515,7 +515,7 @@ class ExperienceController extends AbstractController
             $this->entityManager->persist($chatMessage);
             $this->entityManager->flush();
 
-            $this->notificationsMailer->genericShareNotification($user, $customMessage);
+            $this->experienceMailer->genericShareNotification($customMessage, $user);
         }
 
         return new JsonResponse(
@@ -551,11 +551,11 @@ class ExperienceController extends AbstractController
         $this->entityManager->flush();
 
         if($experience->getTeacher()) {
-            $this->notificationsMailer->notifyUserOfEventDateChange($experience->getTeacher(), $experience, $customMessage);
+            $this->experienceMailer->notifyUserOfEventDateChange($experience, $experience->getTeacher(), $customMessage);
         }
 
         if($user->getEmail()) {
-            $this->notificationsMailer->notifyUserOfEventDateChange($user, $experience, $customMessage);
+            $this->experienceMailer->notifyUserOfEventDateChange($experience, $user, $customMessage);
         }
 
         $this->addFlash('success', 'Date successfully changed. Professional will be notified.');
