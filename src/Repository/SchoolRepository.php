@@ -25,6 +25,13 @@ class SchoolRepository extends ServiceEntityRepository
         return $this->findBy(array(), array("name" => "ASC"));
     }
 
+
+    public function createAlphabeticalSearch()
+    {
+        return $this->createQueryBuilder('s')
+            ->orderBy('s.name', 'ASC');
+    }
+
     // /**
     //  * @return School[] Returns an array of School objects
     //  */
