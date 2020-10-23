@@ -10,6 +10,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
@@ -84,7 +85,7 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
         return $this->render('company/index.html.twig', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -190,7 +191,7 @@ class CompanyController extends AbstractController
         return $this->render('company/view.html.twig', [
             'user' => $user,
             'company' => $company,
-            'professionalUsers' => $professional_users
+            'professionalUsers' => $professional_users,
         ]);
     }
 
@@ -843,7 +844,7 @@ class CompanyController extends AbstractController
             'company' => $company,
             'form' => $form->createView(),
             'user' => $user,
-            'companyVideo' => $companyVideo
+            'companyVideo' => $companyVideo,
         ]);
     }
 
@@ -928,8 +929,9 @@ class CompanyController extends AbstractController
                 $chosen_students = [];
                 foreach($items as $k => $v) {
                     $students = $this->studentUserRepository->findStudentBySecondaryIndustry($v->getId());
+                    /** @var StudentUser $student */
                     foreach($students as $student){
-                        $chosen_students[] = $student;
+                        $chosen_students[$student->getId()] = $student;
                     }
                 }
             }
@@ -939,8 +941,9 @@ class CompanyController extends AbstractController
                     ->setMaxResults(20)
                     ->getQuery()
                     ->getResult();
-                foreach($students as $k => $v) {
-                    $chosen_students[] = $v;
+                /** @var StudentUser $student */
+                foreach($students as $student) {
+                    $chosen_students[$student->getId()] = $student;
                 }
             }
 
@@ -951,22 +954,23 @@ class CompanyController extends AbstractController
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
                     $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry($v->getId());
+                    /** @var EducatorUser $teacher */
                     foreach($teachers as $teacher){
-                        $chosen_teachers[] = $teacher;
+                        $chosen_teachers[$teacher->getId()] = $teacher;
                     }
                 }
 
                 $message = $request->get('message', '');
                 $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
 
+                /** @var StudentUser $student */
                 foreach($chosen_students as $student) {
-                    $s = $this->studentUserRepository->find($student);
-                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
                 }
 
+                /** @var EducatorUser $teacher */
                 foreach($chosen_teachers as $teacher) {
-                    $s = $this->educatorUserRepository->find($teacher);
-                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $teacher, $message, $loggedInUser);
                 }
             }
 
@@ -984,14 +988,14 @@ class CompanyController extends AbstractController
                 'company' => $company,
                 'form' => $form->createView(),
                 'user' => $user,
-                'secondaryIndustries' => $secondaryIndustries
+                'secondaryIndustries' => $secondaryIndustries,
             ]);
         } else {
             return $this->render('company/new_experience.html.twig', [
                 'company' => $company,
                 'form' => $form->createView(),
                 'user' => $user,
-                'secondaryIndustries' => null
+                'secondaryIndustries' => null,
             ]); 
         }
     }
@@ -1031,53 +1035,58 @@ class CompanyController extends AbstractController
             $experience->setCompany($company);
             $this->entityManager->flush();
 
-            if($_POST['notify_students'] == "match") {
+            if($request->request->get('notify_students') === "match") {
                 // Send email to students that are interested in the event that was created
                 $items = $experience->getSecondaryIndustries();
                 $loggedInUser = $this->getUser();
-                
+
                 $chosen_students = [];
                 foreach($items as $k => $v) {
-                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry($v->getId());
+                    /** @var StudentUser $student */
                     foreach($students as $student){
-                        $chosen_students[] = $student;
+                        $chosen_students[$student->getId()] = $student;
                     }
                 }
             }
-            if($_POST['notify_students'] == "all") {
+            if($request->request->get('notify_students') === "all") {
                 $chosen_students = [];
-                $students = $this->studentUserRepository->findAll();
-                foreach($students as $k => $v) {
-                    $chosen_students[] = $v;
+                $students = $this->studentUserRepository->createQueryBuilder('s')
+                    ->setMaxResults(20)
+                    ->getQuery()
+                    ->getResult();
+                /** @var StudentUser $student */
+                foreach($students as $student) {
+                    $chosen_students[$student->getId()] = $student;
                 }
             }
 
-            if($_POST['notify_students'] != "none") {
+            if($request->request->get('notify_students') !== "none") {
 
                 // Choose teachers who match this profession here.
                 $items = $experience->getSecondaryIndustries();
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
-                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry($v->getId());
+                    /** @var EducatorUser $teacher */
                     foreach($teachers as $teacher){
-                        $chosen_teachers[] = $teacher;
+                        $chosen_teachers[$teacher->getId()] = $teacher;
                     }
                 }
 
                 $message = $request->get('message', '');
                 $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
 
+                /** @var StudentUser $student */
                 foreach($chosen_students as $student) {
-                    $s = $this->studentUserRepository->find($student);
-                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
                 }
 
+                /** @var EducatorUser $teacher */
                 foreach($chosen_teachers as $teacher) {
-                    $s = $this->educatorUserRepository->find($teacher);
-                    $this->experienceMailer->experienceForward($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $teacher, $message, $loggedInUser);
                 }
             }
-
 
             $this->addFlash('success', 'Experience successfully updated!');
 
@@ -1106,7 +1115,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
-            'experience' => $experience
+            'experience' => $experience,
         ]);
     }
 
@@ -1452,13 +1461,13 @@ class CompanyController extends AbstractController
 
             $chat = $this->chatRepository->findOneBy([
                 'userOne' => $loggedInUser,
-                'userTwo' => $student
+                'userTwo' => $student,
             ]);
 
             if(!$chat) {
                 $chat = $this->chatRepository->findOneBy([
                     'userOne' => $student,
-                    'userTwo' => $loggedInUser
+                    'userTwo' => $loggedInUser,
                 ]);
             }
 
@@ -1506,7 +1515,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/manage.html.twig', [
             'companies' => $companies,
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
