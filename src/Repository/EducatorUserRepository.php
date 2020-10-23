@@ -190,7 +190,7 @@ class EducatorUserRepository extends ServiceEntityRepository
         return $stmt->fetchAll();
     }
 
-    public function findEducatorBySecondaryIndustry(int $secondaryIndustry) {
+    public function findEducatorBySecondaryIndustry($secondaryIndustry) {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.secondaryIndustries', 's')
             ->andWhere('s.id = :secondaryIndustry')

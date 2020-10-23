@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -30,18 +31,28 @@ use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
+use App\Service\NotificationPreferencesManager;
 
 class ProfessionalEditProfileFormType extends AbstractType
 {
+    /**
+     * @var NotificationPreferencesManager $notificationPreferenceManager
+     */
+    private $notificationPreferenceManager;
+
+    /**
+     * ProfessionalEditProfileFormType constructor.
+     * @param NotificationPreferencesManager $notificationPreferenceManager
+     */
+    public function __construct(NotificationPreferencesManager $notificationPreferenceManager)
+    {
+        $this->notificationPreferenceManager = $notificationPreferenceManager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
-        /*if (!$professionalUser->getPhoto()) {
-            $imageConstraints[] = new NotNull([
-                'message' => 'Please upload an image',
-                'groups'  => ['EDIT']
-            ]);
-        }*/
+        /** @var User $loggedInUser */
+        $loggedInUser = $options['user'];
 
         $builder
             ->add('firstName', TextType::class, [
@@ -112,7 +123,14 @@ class ProfessionalEditProfileFormType extends AbstractType
                 ],
             ])
             ->add('geoRadius', HiddenType::class, [])
-	        ->add('geoZipCode', HiddenType::class, []);
+	        ->add('geoZipCode', HiddenType::class, [])
+            ->add('notificationPreferences', ChoiceType::class, [
+                'expanded' => true,
+                'multiple' => true,
+                'choices'  => NotificationPreferencesManager::$choices,
+                'mapped' => false
+            ])
+            ->add('notificationPreferenceMask', HiddenType::class);
 
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
@@ -124,9 +142,22 @@ class ProfessionalEditProfileFormType extends AbstractType
             }
         ));
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($loggedInUser) {
 
             $data = $event->getData();
+
+            $notificationPreferences = [];
+            foreach(NotificationPreferencesManager::$choices as $label => $bit) {
+
+                if($this->notificationPreferenceManager->isNotificationDisabled($bit, $loggedInUser)) {
+                    $notificationPreferences[] = $bit;
+                }
+            }
+
+            if(!empty($notificationPreferences)) {
+                $this->modifyNotificationPreferencesField($event->getForm(), $notificationPreferences);
+            }
+
             if(!$data->getPrimaryIndustry()) {
                 return;
             }
@@ -142,6 +173,21 @@ class ProfessionalEditProfileFormType extends AbstractType
             }
 
             $this->modifyForm($event->getForm()->getParent(), $industry);
+        });
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+
+            $notificationPreferenceMask = !empty($data['notificationPreferences']) ? array_sum($data['notificationPreferences']) : null;
+
+            if($notificationPreferenceMask) {
+                $data['notificationPreferenceMask'] = $notificationPreferenceMask;
+            } else {
+                $data['notificationPreferenceMask'] = null;
+            }
+
+            $event->setData($data);
         });
     }
 
@@ -163,6 +209,21 @@ class ProfessionalEditProfileFormType extends AbstractType
             }
         ]);
 
+    }
+
+    private function modifyNotificationPreferencesField(FormInterface $form, $notificationPreferences) {
+
+        if(!empty($notificationPreferences)) {
+            $form->remove('notificationPreferences');
+
+            $form->add('notificationPreferences', ChoiceType::class, [
+                'expanded' => true,
+                'multiple' => true,
+                'choices'  => NotificationPreferencesManager::$choices,
+                'mapped' => false,
+                'data' => $notificationPreferences
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -192,7 +253,8 @@ class ProfessionalEditProfileFormType extends AbstractType
         ]);
 
         $resolver->setRequired([
-            'skip_validation'
+            'skip_validation',
+            'user'
         ]);
     }
 

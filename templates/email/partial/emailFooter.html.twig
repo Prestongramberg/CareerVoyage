@@ -12,6 +12,14 @@
                     {{ get_site().signature|raw }}
                     </td>
                 </tr>
+
+                {% if user is defined and user is not null %}
+                    <tr>
+                        <td colspan="2" width="640" height="40" style="font-family: Helvetica, Arial, sans-serif; color: #636466; text-align: center; font-size: 14px;">
+                            <a href="{{ email_path('profile_edit', {'id':  user.id}) }}#account">Manage Notification Preferences</a>
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
         </td>
     </tr>

@@ -1391,18 +1391,7 @@ class SchoolController extends AbstractController
         foreach($companies as $companyId) {
             $company = $this->companyRepository->find($companyId);
 
-            /*$professionals = $this->professionalUserRepository->findBy([
-                'company' => $company
-            ]);*/
-
-            /** @var ProfessionalUser $professional */
-           /* foreach($professionals as $professionalId) {
-                $professional = $this->professionalUserRepository->find($professionalId);
-                $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
-            }*/
-
-
-            $this->notificationsMailer->notifyCompanyOwnerOfSchoolEvent($company->getOwner(), $experience, $message);
+            $this->experienceMailer->notifyCompanyOwnerOfSchoolEvent($experience, $company->getOwner(), $message);
         }
         $this->addFlash('success', 'Companies notified of experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
@@ -1422,7 +1411,7 @@ class SchoolController extends AbstractController
         /** @var ProfessionalUser $professional */
         foreach($professionals as $professionalId) {
             $professional = $this->professionalUserRepository->find($professionalId);
-            $this->notificationsMailer->notifyProfessionalOfSchoolEvent($professional, $experience, $message);
+            $this->experienceMailer->notifyProfessionalOfSchoolEvent($experience, $professional, $message);
         }
         $this->addFlash('success', 'Professionals notified of experience.');
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
@@ -1891,7 +1880,7 @@ class SchoolController extends AbstractController
             }
 
             if($student->getEmail()) {
-                $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
+                $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
             }
 
             $chat = $this->chatRepository->findOneBy([

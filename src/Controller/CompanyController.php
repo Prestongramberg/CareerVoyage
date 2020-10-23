@@ -10,6 +10,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
@@ -84,7 +85,7 @@ class CompanyController extends AbstractController
 
         $user = $this->getUser();
         return $this->render('company/index.html.twig', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -190,7 +191,7 @@ class CompanyController extends AbstractController
         return $this->render('company/view.html.twig', [
             'user' => $user,
             'company' => $company,
-            'professionalUsers' => $professional_users
+            'professionalUsers' => $professional_users,
         ]);
     }
 
@@ -843,7 +844,7 @@ class CompanyController extends AbstractController
             'company' => $company,
             'form' => $form->createView(),
             'user' => $user,
-            'companyVideo' => $companyVideo
+            'companyVideo' => $companyVideo,
         ]);
     }
 
@@ -878,12 +879,16 @@ class CompanyController extends AbstractController
      * @param Request $request
      * @param Company $company
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \ReflectionException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function createExperienceAction(Request $request, Company $company) {
 
         $this->denyAccessUnlessGranted('edit', $company);
 
-        $user = $this->getUser();
+        $user = $loggedInUser =$this->getUser();
         $experience = new CompanyExperience();
 
         $form = $this->createForm(NewCompanyExperienceType::class, $experience, [
@@ -916,50 +921,56 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
 
             
-            if($_POST['notify_students'] == "match") {
+            if($request->request->get('notify_students') === "match") {
                 // Send email to students that are interested in the event that was created
                 $items = $experience->getSecondaryIndustries();
                 $loggedInUser = $this->getUser();
                 
                 $chosen_students = [];
                 foreach($items as $k => $v) {
-                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry($v->getId());
+                    /** @var StudentUser $student */
                     foreach($students as $student){
-                        $chosen_students[] = $student;
+                        $chosen_students[$student->getId()] = $student;
                     }
                 }
             }
-            if($_POST['notify_students'] == "all") {
+            if($request->request->get('notify_students') === "all") {
                 $chosen_students = [];
-                $students = $this->studentUserRepository->findAll();
-                foreach($students as $k => $v) {
-                    $chosen_students[] = $v;
+                $students = $this->studentUserRepository->createQueryBuilder('s')
+                    ->setMaxResults(20)
+                    ->getQuery()
+                    ->getResult();
+                /** @var StudentUser $student */
+                foreach($students as $student) {
+                    $chosen_students[$student->getId()] = $student;
                 }
             }
 
-            if($_POST['notify_students'] != "none") {
+            if($request->request->get('notify_students') !== "none") {
 
                 // Choose teachers who match this profession here.
                 $items = $experience->getSecondaryIndustries();
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
-                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry($v->getId());
+                    /** @var EducatorUser $teacher */
                     foreach($teachers as $teacher){
-                        $chosen_teachers[] = $teacher;
+                        $chosen_teachers[$teacher->getId()] = $teacher;
                     }
                 }
 
                 $message = $request->get('message', '');
                 $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
 
+                /** @var StudentUser $student */
                 foreach($chosen_students as $student) {
-                    $s = $this->studentUserRepository->find($student);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
                 }
 
+                /** @var EducatorUser $teacher */
                 foreach($chosen_teachers as $teacher) {
-                    $s = $this->educatorUserRepository->find($teacher);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $teacher, $message, $loggedInUser);
                 }
             }
 
@@ -969,29 +980,22 @@ class CompanyController extends AbstractController
         }
 
 
-        if($_POST && $_POST['new_company_experience'] && $_POST['new_company_experience']['secondaryIndustries']) {
-            
-            $secondary_industries = [];
-            foreach($_POST['new_company_experience']['secondaryIndustries'] as $secondary) {
+        $secondaryIndustries = $form->get('secondaryIndustries')->getData();
 
-                $secondaryIndustry = $this->secondaryIndustryRepository->find($secondary);
+        if(!empty($secondaryIndustries)) {
 
-                array_push($secondary_industries, array("id" => intval($secondary), "name" => $secondaryIndustry->getName(), "url" => $secondaryIndustry->getUrl()));
-            }
-            
-            
             return $this->render('company/new_experience.html.twig', [
                 'company' => $company,
                 'form' => $form->createView(),
                 'user' => $user,
-                'secondaryIndustries' => $secondary_industries
+                'secondaryIndustries' => $secondaryIndustries,
             ]);
         } else {
             return $this->render('company/new_experience.html.twig', [
                 'company' => $company,
                 'form' => $form->createView(),
                 'user' => $user,
-                'secondaryIndustries' => null
+                'secondaryIndustries' => null,
             ]); 
         }
     }
@@ -1031,53 +1035,58 @@ class CompanyController extends AbstractController
             $experience->setCompany($company);
             $this->entityManager->flush();
 
-            if($_POST['notify_students'] == "match") {
+            if($request->request->get('notify_students') === "match") {
                 // Send email to students that are interested in the event that was created
                 $items = $experience->getSecondaryIndustries();
                 $loggedInUser = $this->getUser();
-                
+
                 $chosen_students = [];
                 foreach($items as $k => $v) {
-                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry(intval($v->getId()));
+                    $students = $this->studentUserRepository->findStudentBySecondaryIndustry($v->getId());
+                    /** @var StudentUser $student */
                     foreach($students as $student){
-                        $chosen_students[] = $student;
+                        $chosen_students[$student->getId()] = $student;
                     }
                 }
             }
-            if($_POST['notify_students'] == "all") {
+            if($request->request->get('notify_students') === "all") {
                 $chosen_students = [];
-                $students = $this->studentUserRepository->findAll();
-                foreach($students as $k => $v) {
-                    $chosen_students[] = $v;
+                $students = $this->studentUserRepository->createQueryBuilder('s')
+                    ->setMaxResults(20)
+                    ->getQuery()
+                    ->getResult();
+                /** @var StudentUser $student */
+                foreach($students as $student) {
+                    $chosen_students[$student->getId()] = $student;
                 }
             }
 
-            if($_POST['notify_students'] != "none") {
+            if($request->request->get('notify_students') !== "none") {
 
                 // Choose teachers who match this profession here.
                 $items = $experience->getSecondaryIndustries();
                 $chosen_teachers = [];
                 foreach($items as $k => $v) {
-                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry(intval($v->getId()));
+                    $teachers = $this->educatorUserRepository->findEducatorBySecondaryIndustry($v->getId());
+                    /** @var EducatorUser $teacher */
                     foreach($teachers as $teacher){
-                        $chosen_teachers[] = $teacher;
+                        $chosen_teachers[$teacher->getId()] = $teacher;
                     }
                 }
 
                 $message = $request->get('message', '');
                 $message = sprintf("Event: %s Message: %s", $experience->getTitle(), $message);
 
+                /** @var StudentUser $student */
                 foreach($chosen_students as $student) {
-                    $s = $this->studentUserRepository->find($student);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
                 }
 
+                /** @var EducatorUser $teacher */
                 foreach($chosen_teachers as $teacher) {
-                    $s = $this->educatorUserRepository->find($teacher);
-                    $this->experienceMailer->experienceForwardToStudent($experience, $s, $message, $loggedInUser);
+                    $this->experienceMailer->experienceForward($experience, $teacher, $message, $loggedInUser);
                 }
             }
-
 
             $this->addFlash('success', 'Experience successfully updated!');
 
@@ -1106,7 +1115,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/view_experience.html.twig', [
             'user' => $user,
-            'experience' => $experience
+            'experience' => $experience,
         ]);
     }
 
@@ -1447,18 +1456,18 @@ class CompanyController extends AbstractController
 
             /** @var StudentUser $student */
             $student = $this->studentUserRepository->find($student);
-            $this->experienceMailer->experienceForwardToStudent($experience, $student, $message, $loggedInUser);
+            $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
 
 
             $chat = $this->chatRepository->findOneBy([
                 'userOne' => $loggedInUser,
-                'userTwo' => $student
+                'userTwo' => $student,
             ]);
 
             if(!$chat) {
                 $chat = $this->chatRepository->findOneBy([
                     'userOne' => $student,
-                    'userTwo' => $loggedInUser
+                    'userTwo' => $loggedInUser,
                 ]);
             }
 
@@ -1506,7 +1515,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/manage.html.twig', [
             'companies' => $companies,
-            'user' => $user
+            'user' => $user,
         ]);
     }
 

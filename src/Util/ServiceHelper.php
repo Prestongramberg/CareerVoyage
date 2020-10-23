@@ -8,7 +8,6 @@ use App\Entity\CompanyExperience;
 use App\Entity\RolesWillingToFulfill;
 use App\Mailer\FeedbackMailer;
 use App\Mailer\ImportMailer;
-use App\Mailer\NotificationsMailer;
 use App\Mailer\RecapMailer;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
@@ -380,11 +379,6 @@ trait ServiceHelper
     private $geocoder;
 
     /**
-     * @var NotificationsMailer
-     */
-    private $notificationsMailer;
-
-    /**
      * @var NewCompanyRequestRepository
      */
     private $newCompanyRequestRepository;
@@ -500,7 +494,6 @@ trait ServiceHelper
      * @param TokenStorageInterface $securityToken
      * @param FilterBuilderUpdaterInterface $filterBuilder
      * @param Geocoder $geocoder
-     * @param NotificationsMailer $notificationsMailer
      * @param NewCompanyRequestRepository $newCompanyRequestRepository
      * @param RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
      * @param AllowedCommunicationRepository $allowedCommunicationsRepository
@@ -573,7 +566,6 @@ trait ServiceHelper
         TokenStorageInterface $securityToken,
         FilterBuilderUpdaterInterface $filterBuilder,
         Geocoder $geocoder,
-        NotificationsMailer $notificationsMailer,
         NewCompanyRequestRepository $newCompanyRequestRepository,
         RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
         AllowedCommunicationRepository $allowedCommunicationsRepository,
@@ -645,7 +637,6 @@ trait ServiceHelper
         $this->securityToken = $securityToken;
         $this->filterBuilder = $filterBuilder;
         $this->geocoder = $geocoder;
-        $this->notificationsMailer = $notificationsMailer;
         $this->newCompanyRequestRepository = $newCompanyRequestRepository;
         $this->rolesWillingToFulfillRepository = $rolesWillingToFulfillRepository;
         $this->allowedCommunicationsRepository = $allowedCommunicationsRepository;
@@ -658,7 +649,6 @@ trait ServiceHelper
         $this->professionalVideoRepository = $professionalVideoRepository;
         $this->helpVideoRepository = $helpVideoRepository;
     }
-
 
     public function getFullQualifiedBaseUrl() {
         $routerContext = $this->router->getContext();
