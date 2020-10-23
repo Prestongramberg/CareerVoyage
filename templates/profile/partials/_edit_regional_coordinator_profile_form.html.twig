@@ -2,7 +2,7 @@
 
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
-    <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
+    <ul id="test" class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         <li><a href="#account-account">Account</a></li>
     </ul>
@@ -74,3 +74,16 @@
     {{ form_end(form) }}
 
 </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $( document ).ready(function() {
+
+        debugger;
+        var hash = location.hash.substr(1);
+        if (hash === 'account') {
+            UIkit.tab('#test').show(1);
+        }
+
+    });
+</script>

@@ -14,7 +14,7 @@
         <li><a href="#account-career-fields">Career Fields of Interest</a></li>
         <li><a href="#account-courses">Courses</a></li>
         <li><a href="#account-students">Students</a></li>
-        <li><a href="#account-account">Account</a></li>
+        <li id="account-account"><a href="#account-account">Account</a></li>
     </ul>
 
     <div class="uk-switcher" id="tab-account">
@@ -181,12 +181,18 @@
 <script>
     $( document ).ready(function() {
 
+        debugger;
         $('.js-navigate').click(function(e) {
             debugger;
             let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
 
             UIkit.tab('#test').show(indexToNavigateTo);
         })
+
+        var hash = location.hash.substr(1);
+        if (hash === 'account') {
+            UIkit.tab('#test').show(4);
+        }
 
     });
 </script>

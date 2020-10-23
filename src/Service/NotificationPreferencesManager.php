@@ -18,7 +18,7 @@ class NotificationPreferencesManager
     const MASK_DISABLE_ALL_NOTIFICATION_EMAILS = 4;
 
     public static $choices = [
-        'Disable Event Notification Emails' => self::MASK_DISABLE_EVENT_NOTIFICATION_EMAILS,
+        'Disable Experience Notification Emails' => self::MASK_DISABLE_EVENT_NOTIFICATION_EMAILS,
         'Disable Chat Notification Emails' => self::MASK_DISABLE_CHAT_NOTIFICATION_EMAILS,
         'Disable All Notification Emails' => self::MASK_DISABLE_ALL_NOTIFICATION_EMAILS
     ];

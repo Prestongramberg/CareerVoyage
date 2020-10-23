@@ -387,6 +387,11 @@
             });
         });
 
+        var hash = location.hash.substr(1);
+        if (hash === 'account') {
+            UIkit.tab('#test').show(5);
+        }
+
     });
 </script>
 
