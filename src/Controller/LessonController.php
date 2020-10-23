@@ -114,7 +114,13 @@ class LessonController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Lesson successfully created');
-            return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId() ]);
+
+            if($request->request->get('add_resource') == 'Yes') {
+                return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId(), 'tab' => 'resources']);
+            } else {
+                return $this->redirectToRoute('lesson_index');
+            }
+            
         }
 
         return $this->render('lesson/new.html.twig', [

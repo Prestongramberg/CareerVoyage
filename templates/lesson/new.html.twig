@@ -133,15 +133,35 @@ After describing learning outcomes, feel free to share additional resources whic
                 </div>
             </fieldset>
             <div class="uk-margin">
-                <button class="uk-button uk-button-primary uk-button-small">Create Lesson</button>
+                <a href="#" class="uk-button uk-button-primary uk-button-small" id="create-lesson">Create Lesson</a>
+            </div>
+
+            <div class="action-modal" style="display:none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #d8d8d8;">
+                <p><strong><em class="fa fa-warning"></em> Would you like to add additional resource files to this lesson or a thumbnail and banner image?</strong></p>
+                <input type="submit" class="uk-button uk-button-primary uk-button-small" name="add_resource" value="Yes" />
+                <input type="submit" class="uk-button uk-button-danger uk-button-small" name="add_resource" value="No" />
             </div>
         </div>
     </div>
 
-    
 
     {{ form_end(form) }}
+    
 
 </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+
+        $('#create-lesson').on('click', function(e){
+            e.preventDefault();
+
+            $('.action-modal').fadeIn(500);
+
+        })
+    });
+</script>
+
 
 {% endblock %}
