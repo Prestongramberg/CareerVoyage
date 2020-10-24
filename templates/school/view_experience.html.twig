@@ -90,19 +90,19 @@
 
                         <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>
 
-                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Delete</a>
+                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
 
                         <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Delete Experience</h3>
+                                <h3>Cancel Experience</h3>
                                 <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >
 
                                     <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
                                     <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
                                     <textarea class="uk-textarea" name="cancellationMessage" style="width: 100%"></textarea>
                                     <p>
-                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                        <button class="uk-button uk-button-danger" type="submit">Remove</button>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Close Window</button>
+                                        <button class="uk-button uk-button-danger" type="submit">Cancel Experience</button>
                                     </p>
                                 </form>
                             </div>
