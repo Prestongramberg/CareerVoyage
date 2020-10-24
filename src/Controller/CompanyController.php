@@ -1361,6 +1361,44 @@ class CompanyController extends AbstractController
         );
     }
 
+
+    /**
+     * @Route("/companies/experiences/file/{id}/get", name="company_experience_file_get", options = { "expose" = true })
+     * @param Request $request
+     * @param ExperienceFile $file
+     * @return JsonResponse
+     */
+    public function experienceGetFileAction(Request $request, ExperienceFile $file) {
+        $this->denyAccessUnlessGranted('edit', $file->getExperience()->getCompany());
+
+
+        if($file->getFile() != NULL){
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        }
+
+        
+    }
+
     /**
      * @Route("/companies/experiences/file/{id}/edit", name="company_experience_file_edit", options = { "expose" = true })
      * @param Request $request
@@ -1371,10 +1409,13 @@ class CompanyController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $file->getExperience()->getCompany());
 
+
+        
         /** @var UploadedFile $resource */
         $resource = $request->files->get('resource');
         $title = $request->request->get('title');
         $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get('linkToWebsite');
 
         if($title) {
             $file->setTitle($title);
@@ -1384,6 +1425,12 @@ class CompanyController extends AbstractController
             $file->setDescription($description);
         }
 
+        if($linkToWebsite) {
+            $file->setLinkToWebsite($linkToWebsite);
+        } else {
+            $file->setLinkToWebsite(NULL);
+        }
+
         if($resource) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
@@ -1391,22 +1438,39 @@ class CompanyController extends AbstractController
             $file->setMimeType($mimeType ?? 'application/octet-stream');
             $file->setFileName($newFilename);
             $file->setFile(null);
+        } else {
+            $file->setOriginalName(NULL);
+            $file->setMimeType(NULL);
+            $file->setFileName(NULL);
         }
 
         $this->entityManager->persist($file);
         $this->entityManager->flush();
 
 
-        return new JsonResponse(
-            [
-                'success' => true,
-                'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
-                'id' => $file->getId(),
-                'title' => $file->getTitle(),
-                'description' => $file->getDescription(),
+        if($file->getFileName() != NULL) {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
 
-            ], Response::HTTP_OK
-        );
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+
+                ], Response::HTTP_OK
+            );
+        }
     }
 
     /**
