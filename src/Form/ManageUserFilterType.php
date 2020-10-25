@@ -95,7 +95,10 @@ class ManageUserFilterType extends AbstractType
                     'choice_label' => 'name',
                     'expanded'  => false,
                     'multiple'  => false,
-                    'placeholder' => 'School'
+                    'placeholder' => 'School',
+                    'query_builder' => function(\App\Repository\SchoolRepository $s) {
+                        return $s->createAlphabeticalSearch();
+                    }
                 ]);
 
                 $builder->add('site', SiteFilterType::class, array(
@@ -115,7 +118,10 @@ class ManageUserFilterType extends AbstractType
                     'choice_label' => 'name',
                     'expanded'  => false,
                     'multiple'  => false,
-                    'placeholder' => 'School'
+                    'placeholder' => 'School',
+                    'query_builder' => function(\App\Repository\SchoolRepository $s) {
+                        return $s->createAlphabeticalSearch();
+                    }
                 ]);
 
                 $builder->add('site', SiteFilterType::class, array(

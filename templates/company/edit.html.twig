@@ -113,7 +113,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 <label>Company Thumbnail (300x300)</label>
-                                <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.  Will auto resize to 300x300.</div>
+                                <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.  Will auto resize to 300x300.<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
                                 <div data-upload-url="{{ path('company_thumbnail_add', { id: company.id }) }}" data-type="image:companyThumbnailImage"></div>
                             </div>
                         </div>
@@ -125,7 +125,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 <label>Company Featured Image (1680x300)</label>
-                                <div class="uk-text-meta">Ideal size for company banner is <strong>1680x300</strong> with central focal point.</div>
+                                <div class="uk-text-meta">Ideal size for company banner is <strong>1680x300</strong> with central focal point.<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
                                 <div data-upload-url="{{ path('company_featured_add', { id: company.id }) }}" data-type="image:companyFeaturedImage"></div>
                             </div>
                         </div>
