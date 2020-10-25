@@ -425,7 +425,7 @@ class FeedbackController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Feedback successfully submitted.');
-            return $this->redirectToRoute('dashboard');
+            return $this->redirectToRoute('dashboard', array("tab" => "user-reviews"));
         }
 
         return $this->render("feedback/{$template}", [

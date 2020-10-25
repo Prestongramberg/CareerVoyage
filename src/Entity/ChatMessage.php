@@ -43,6 +43,8 @@ class ChatMessage
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Chat", inversedBy="messages")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     * 
      */
     private $chat;
 
