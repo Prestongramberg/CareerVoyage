@@ -970,40 +970,88 @@ class SchoolController extends AbstractController
         /** @var UploadedFile $file */
         $file = $request->files->get('resource');
         $title = $request->request->get('title');
+        $linkToWebsite = $request->request->get('linkToWebsite');
         $description = $request->request->get('description');
 
-        if($file && $title) {
+        if(!$file && !$linkToWebsite) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        if(!$title) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $schoolResource = new SchoolResource();
+
+        if($file) {
             $mimeType = $file->getMimeType();
             $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
-            $schoolResource = new SchoolResource();
             $schoolResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
             $schoolResource->setMimeType($mimeType ?? 'application/octet-stream');
             $schoolResource->setFileName($newFilename);
             $schoolResource->setFile(null);
-            $schoolResource->setSchool($school);
-            $schoolResource->setDescription($description ? $description : null);
-            $schoolResource->setTitle($title);
-            $this->entityManager->persist($schoolResource);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename,
-                    'id' => $schoolResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
-
-                ], Response::HTTP_OK
-            );
         }
+
+        if($linkToWebsite) {
+            $schoolResource->setLinkToWebsite($linkToWebsite);
+        }
+
+        $schoolResource->setSchool($school);
+        $schoolResource->setDescription($description ? $description : null);
+        $schoolResource->setTitle($title);
+        $this->entityManager->persist($schoolResource);
+        $this->entityManager->flush();
 
         return new JsonResponse(
             [
-                'success' => false,
+                'success' => true,
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename : $schoolResource->getLinkToWebsite(),
+                'id' => $schoolResource->getId(),
+                'title' => $title,
+                'description' => $description,
 
-            ], Response::HTTP_BAD_REQUEST
+            ], Response::HTTP_OK
         );
+
+        // $file = $request->files->get('resource');
+        // $title = $request->request->get('title');
+        // $description = $request->request->get('description');
+
+        // if($file && $title) {
+        //     $mimeType = $file->getMimeType();
+        //     $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
+        //     $schoolResource = new SchoolResource();
+        //     $schoolResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+        //     $schoolResource->setMimeType($mimeType ?? 'application/octet-stream');
+        //     $schoolResource->setFileName($newFilename);
+        //     $schoolResource->setFile(null);
+        //     $schoolResource->setSchool($school);
+        //     $schoolResource->setDescription($description ? $description : null);
+        //     $schoolResource->setTitle($title);
+        //     $this->entityManager->persist($schoolResource);
+        //     $this->entityManager->flush();
+
+        //     return new JsonResponse(
+        //         [
+        //             'success' => true,
+        //             'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename,
+        //             'id' => $schoolResource->getId(),
+        //             'title' => $title,
+        //             'description' => $description,
+
+        //         ], Response::HTTP_OK
+        //     );
+        // }
     }
 
     /**
@@ -1028,50 +1076,141 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @Route("/schools/resources/{id}/edit", name="school_resource_edit", options = { "expose" = true })
+     * @Route("/schools/resource/{id}/get", name="school_resource_get", options = { "expose" = true })
      * @param Request $request
-     * @param SchoolResource $schoolResource
+     * @param schoolResource $schoolResource
      * @return JsonResponse
      */
-    public function schoolEditResourceAction(Request $request, SchoolResource $schoolResource) {
+    public function schoolGetResourceAction(Request $request, SchoolResource $schoolResource) {
 
         $this->denyAccessUnlessGranted('edit', $schoolResource->getSchool());
 
-        /** @var UploadedFile $file */
-        $file = $request->files->get('resource');
-        $title = $request->request->get('title');
-        $description = $request->request->get('description');
-
-        if($file && $title && $description) {
-            $mimeType = $file->getMimeType();
-            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
-            $schoolResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-            $schoolResource->setMimeType($mimeType ?? 'application/octet-stream');
-            $schoolResource->setFileName($newFilename);
-            $schoolResource->setFile(null);
-            $schoolResource->setDescription($description);
-            $schoolResource->setTitle($title);
-            $this->entityManager->persist($schoolResource);
-            $this->entityManager->flush();
-
+        if($schoolResource->getFile() != NULL){
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'. $schoolResource->getFileName(),
                     'id' => $schoolResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
+                    'title' => $schoolResource->getTitle(),
+                    'description' => $schoolResource->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'website' => $schoolResource->getLinkToWebsite(),
+                    'id' => $schoolResource->getId(),
+                    'title' => $schoolResource->getTitle(),
+                    'description' => $schoolResource->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        }
+    }
+
+    /**
+     * @Route("/schools/resources/{id}/edit", name="school_resource_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolResource $file
+     * @return JsonResponse
+     */
+    public function schoolEditResourceAction(Request $request, SchoolResource $file) {
+
+        $this->denyAccessUnlessGranted('edit', $file->getSchool());
+
+        /** @var UploadedFile $file */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get('linkToWebsite');
+
+        if($title) {
+            $file->setTitle($title);
+        }
+
+        if($description) {
+            $file->setDescription($description);
+        }
+
+        if($linkToWebsite && $linkToWebsite != "http://") {
+            $file->setLinkToWebsite($linkToWebsite);
+        } else {
+            $file->setLinkToWebsite(NULL);
+        }
+
+        if($resource) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::SCHOOL_RESOURCE);
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+        } else {
+            $file->setOriginalName(NULL);
+            $file->setMimeType(NULL);
+            $file->setFileName(NULL);
+        }
+
+        $this->entityManager->persist($file);
+        $this->entityManager->flush();
+
+        if($file->getFileName() != NULL) {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
             );
         }
 
-        return new JsonResponse(
-            [
-                'success' => false,
 
-            ], Response::HTTP_BAD_REQUEST
-        );
+        // if($file && $title && $description) {
+        //     $mimeType = $file->getMimeType();
+        //     $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::SCHOOL_RESOURCE);
+        //     $schoolResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+        //     $schoolResource->setMimeType($mimeType ?? 'application/octet-stream');
+        //     $schoolResource->setFileName($newFilename);
+        //     $schoolResource->setFile(null);
+        //     $schoolResource->setDescription($description);
+        //     $schoolResource->setTitle($title);
+        //     $this->entityManager->persist($schoolResource);
+        //     $this->entityManager->flush();
+
+        //     return new JsonResponse(
+        //         [
+        //             'success' => true,
+        //             'url' => 'uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename,
+        //             'id' => $schoolResource->getId(),
+        //             'title' => $title,
+        //             'description' => $description,
+
+        //         ], Response::HTTP_OK
+        //     );
+        // }
+
+        // return new JsonResponse(
+        //     [
+        //         'success' => false,
+
+        //     ], Response::HTTP_BAD_REQUEST
+        // );
     }
 
     /**
@@ -1651,6 +1790,41 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/experience/file/{id}/get", name="school_experience_resource_get", options = { "expose" = true })
+     * @param Request $request
+     * @param ExperienceFile $file
+     * @return JsonResponse
+     */
+    public function schoolExperienceGetResourceAction(Request $request, ExperienceFile $file) {
+
+        $this->denyAccessUnlessGranted('edit', $file->getExperience()->getSchool());
+
+        if($file->getFile() != NULL){
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        }
+    }
+
+    /**
      * @Route("/schools/experiences/file/{id}/edit", name="school_experience_file_edit", options = { "expose" = true })
      * @param Request $request
      * @param ExperienceFile $file
@@ -1664,6 +1838,7 @@ class SchoolController extends AbstractController
         $resource = $request->files->get('resource');
         $title = $request->request->get('title');
         $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get('linkToWebsite');
 
         if($title) {
             $file->setTitle($title);
@@ -1673,6 +1848,12 @@ class SchoolController extends AbstractController
             $file->setDescription($description);
         }
 
+        if($linkToWebsite && $linkToWebsite != "http://") {
+            $file->setLinkToWebsite($linkToWebsite);
+        } else {
+            $file->setLinkToWebsite(NULL);
+        }
+
         if($resource) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
@@ -1680,21 +1861,61 @@ class SchoolController extends AbstractController
             $file->setMimeType($mimeType ?? 'application/octet-stream');
             $file->setFileName($newFilename);
             $file->setFile(null);
+        } else {
+            $file->setOriginalName(NULL);
+            $file->setMimeType(NULL);
+            $file->setFileName(NULL);
         }
 
         $this->entityManager->persist($file);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
-                'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
-                'id' => $file->getId(),
-                'title' => $file->getTitle(),
-                'description' => $file->getDescription(),
+        if($file->getFileName() != NULL) {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
 
-            ], Response::HTTP_OK
-        );
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        // if($resource) {
+        //     $mimeType = $resource->getMimeType();
+        //     $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+        //     $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+        //     $file->setMimeType($mimeType ?? 'application/octet-stream');
+        //     $file->setFileName($newFilename);
+        //     $file->setFile(null);
+        // }
+
+        // $this->entityManager->persist($file);
+        // $this->entityManager->flush();
+
+        // return new JsonResponse(
+        //     [
+        //         'success' => true,
+        //         'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+        //         'id' => $file->getId(),
+        //         'title' => $file->getTitle(),
+        //         'description' => $file->getDescription(),
+
+        //     ], Response::HTTP_OK
+        // );
     }
 
     /**

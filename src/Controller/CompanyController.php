@@ -504,55 +504,150 @@ class CompanyController extends AbstractController
 
             ], Response::HTTP_OK
         );
-
     }
 
     /**
-     * @Route("/companies/resources/{id}/edit", name="company_resource_edit", options = { "expose" = true })
+     * @Route("/companies/resource/{id}/get", name="company_resource_get", options = { "expose" = true })
      * @param Request $request
      * @param CompanyResource $companyResource
      * @return JsonResponse
      */
-    public function companyEditResourceAction(Request $request, CompanyResource $companyResource) {
+    public function companyGetResourceAction(Request $request, CompanyResource $companyResource) {
 
         $this->denyAccessUnlessGranted('edit', $companyResource->getCompany());
 
-        /** @var UploadedFile $file */
-        $file = $request->files->get('resource');
-        $title = $request->request->get('title');
-        $description = $request->request->get('description');
-
-        if($file && $title && $description) {
-            $mimeType = $file->getMimeType();
-            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
-            $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-            $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
-            $companyResource->setFileName($newFilename);
-            $companyResource->setFile(null);
-            $companyResource->setDescription($description);
-            $companyResource->setTitle($title);
-            $this->entityManager->persist($companyResource);
-            $this->entityManager->flush();
-
+        if($companyResource->getFile() != NULL){
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $companyResource->getFileName(),
                     'id' => $companyResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
+                    'title' => $companyResource->getTitle(),
+                    'description' => $companyResource->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'website' => $companyResource->getLinkToWebsite(),
+                    'id' => $companyResource->getId(),
+                    'title' => $companyResource->getTitle(),
+                    'description' => $companyResource->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        }
+    }
+
+    /**
+     * @Route("/companies/resource/{id}/edit", name="company_resource_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param CompanyResource $companyResource
+     * @return JsonResponse
+     */
+    public function companyEditResourceAction(Request $request, CompanyResource $file) {
+
+        $this->denyAccessUnlessGranted('edit', $file->getCompany());
+        
+        /** @var UploadedFile $resource */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get('linkToWebsite');
+
+        if($title) {
+            $file->setTitle($title);
+        }
+
+        if($description) {
+            $file->setDescription($description);
+        }
+
+        if($linkToWebsite && $linkToWebsite != "http://") {
+            $file->setLinkToWebsite($linkToWebsite);
+        } else {
+            $file->setLinkToWebsite(NULL);
+        }
+
+        if($resource) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+        } else {
+            $file->setOriginalName(NULL);
+            $file->setMimeType(NULL);
+            $file->setFileName(NULL);
+        }
+
+        $this->entityManager->persist($file);
+        $this->entityManager->flush();
+
+        if($file->getFileName() != NULL) {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
             );
         }
 
-        return new JsonResponse(
-            [
-                'success' => false,
+        // /** @var UploadedFile $file */
+        // $file = $request->files->get('resource');
+        // $title = $request->request->get('title');
+        // $description = $request->request->get('description');
 
-            ], Response::HTTP_BAD_REQUEST
-        );
+        // if($file && $title && $description) {
+        //     $mimeType = $file->getMimeType();
+        //     $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::COMPANY_RESOURCE);
+        //     $companyResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
+        //     $companyResource->setMimeType($mimeType ?? 'application/octet-stream');
+        //     $companyResource->setFileName($newFilename);
+        //     $companyResource->setFile(null);
+        //     $companyResource->setDescription($description);
+        //     $companyResource->setTitle($title);
+        //     $this->entityManager->persist($companyResource);
+        //     $this->entityManager->flush();
+
+        //     return new JsonResponse(
+        //         [
+        //             'success' => true,
+        //             'url' => 'uploads/'.UploaderHelper::COMPANY_RESOURCE.'/'.$newFilename,
+        //             'id' => $companyResource->getId(),
+        //             'title' => $title,
+        //             'description' => $description,
+
+        //         ], Response::HTTP_OK
+        //     );
+        // }
+
+        // return new JsonResponse(
+        //     [
+        //         'success' => false,
+
+        //     ], Response::HTTP_BAD_REQUEST
+        // );
     }
+
 
     /**
      * @Route("/companies/videos/{id}/edit", name="company_video_edit", options = { "expose" = true })
@@ -1302,6 +1397,11 @@ class CompanyController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
+        // Validate linkToWebsite variable
+        if($linkToWebsite == "http://") {
+            $linkToWebsite = NULL;
+        }
+
         if($resource && $title) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
@@ -1395,8 +1495,6 @@ class CompanyController extends AbstractController
                 ], Response::HTTP_OK
             );
         }
-
-        
     }
 
     /**
@@ -1408,8 +1506,6 @@ class CompanyController extends AbstractController
     public function experienceEditFileAction(Request $request, ExperienceFile $file) {
 
         $this->denyAccessUnlessGranted('edit', $file->getExperience()->getCompany());
-
-
         
         /** @var UploadedFile $resource */
         $resource = $request->files->get('resource');
@@ -1425,7 +1521,7 @@ class CompanyController extends AbstractController
             $file->setDescription($description);
         }
 
-        if($linkToWebsite) {
+        if($linkToWebsite && $linkToWebsite != "http://") {
             $file->setLinkToWebsite($linkToWebsite);
         } else {
             $file->setLinkToWebsite(NULL);
