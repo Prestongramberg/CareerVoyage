@@ -41,7 +41,7 @@
             </div>
 
             <div class="uk-margin">
-                <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
+                <ul class="uk-tab" id="user-nav" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">My Favorites</a></li>
                     <li><a href="#user-events">My Experiences</a></li>
@@ -209,24 +209,38 @@
                                                                 {% for feedback in experience.feedback %}
 
 
-
                                                                     {% if feedback.user.id != user.id %}
+                                                                        {% if feedback.getClassName() == 'ProfessionalReviewStudentToMeetProfessionalFeedback' %}
+                                                                            {% set cumulativeTotalRating = cumulativeTotalRating + feedback.rating %}
+                                                                            {% set cumulativeTotalShowedUp = cumulativeTotalShowedUp + feedback.showUp %}
+                                                                            {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
+                                                                            {% set cumulativeTotalPolite = cumulativeTotalPolite + feedback.politeAndProfessional %}
+                                                                            {% set cumulativeTotalEngaged = cumulativeTotalEngaged + feedback.engagedAndAskedQuestions %}
+                                                                            {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
+                                                                        {% else %}
+                                                                            {% set cumulativeTotalRating = cumulativeTotalRating + 0 %}
+                                                                            {% set cumulativeTotalShowedUp = cumulativeTotalShowedUp + 0 %}
+                                                                            {% set cumulativeTotalOnTime = cumulativeTotalOnTime + 0 %}
+                                                                            {% set cumulativeTotalPolite = cumulativeTotalPolite + 0 %}
+                                                                            {% set cumulativeTotalEngaged = cumulativeTotalEngaged + 0 %}
+                                                                            {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
+                                                                        {% endif %}
 
-                                                                        {% set cumulativeTotalRating = cumulativeTotalRating + feedback.rating %}
-                                                                        {% set cumulativeTotalShowedUp = cumulativeTotalShowedUp + feedback.showUp %}
-                                                                        {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
-                                                                        {% set cumulativeTotalPolite = cumulativeTotalPolite + feedback.politeAndProfessional %}
-                                                                        {% set cumulativeTotalEngaged = cumulativeTotalEngaged + feedback.engagedAndAskedQuestions %}
-                                                                        {% set cumulativeTotalFeedback = cumulativeTotalFeedback + 1 %}
-
-
-
-                                                                        {% set cumulativeRating = cumulativeRating + feedback.rating %}
-                                                                        {% set cumulativeShowedUp = cumulativeShowedUp + feedback.showUp %}
-                                                                        {% set cumulativeTotalOnTime = cumulativeTotalOnTime + feedback.wasOnTime %}
-                                                                        {% set cumulativePolite = cumulativePolite + feedback.politeAndProfessional %}
-                                                                        {% set cumulativeEngaged = cumulativeEngaged + feedback.engagedAndAskedQuestions %}
-                                                                        {% set totalFeedback = totalFeedback + 1 %}
+                                                                        
+                                                                        {% if feedback.getClassName() == 'ProfessionalReviewStudentToMeetProfessionalFeedback' %}
+                                                                            {% set cumulativeRating = cumulativeRating + feedback.rating %}
+                                                                            {% set cumulativeShowedUp = cumulativeShowedUp + feedback.showUp %}
+                                                                            {% set cumulativeOnTime = cumulativeOnTime + feedback.wasOnTime %}
+                                                                            {% set cumulativePolite = cumulativePolite + feedback.politeAndProfessional %}
+                                                                            {% set cumulativeEngaged = cumulativeEngaged + feedback.engagedAndAskedQuestions %}
+                                                                            {% set totalFeedback = totalFeedback + 1 %}
+                                                                        {% else %}
+                                                                            {% set cumulativeShowedUp = cumulativeShowedUp + 0 %}
+                                                                            {% set cumulativeOnTime = cumulativeOnTime + 0 %}
+                                                                            {% set cumulativePolite = cumulativePolite + 0 %}
+                                                                            {% set cumulativeEngaged = cumulativeEngaged + 0 %}
+                                                                            {% set totalFeedback = totalFeedback + 1 %}
+                                                                        {% endif %}
 
                                                                         {% set role = '' %}
                                                                         {% if feedback.user.educator %}
@@ -239,18 +253,28 @@
                                                                             {% set role = 'Unknown' %}
                                                                         {% endif %}
 
-                                                                        <tr>
-                                                                            <td class="uk-text-nowrap">{{ role }}</td>
-                                                                            <td class="uk-text-nowrap">{{ feedback.rating }}</td>
-                                                                            <td class="uk-text-nowrap">{{ feedback.showUp == 1 ? "YES" : "NO" }}</td>
-                                                                            <td class="uk-text-nowrap">{{ feedback.wasOnTime == 1 ? "YES" : "NO" }}</td>
-                                                                            <td class="uk-text-nowrap">{{ feedback.politeAndProfessional == 1 ? "YES" : "NO" }}</td>
-                                                                            <td class="uk-text-nowrap">{{ feedback.engagedAndAskedQuestions == 1 ? "YES" : "NO" }}</td>
-                                                                            <td>{{ feedback.additionalFeedback }}</td>
-                                                                        </tr>
-
+                                                                        {% if feedback.getClassName() == 'ProfessionalReviewStudentToMeetProfessionalFeedback' %}
+                                                                            <tr>
+                                                                                <td class="uk-text-nowrap">{{ role }}</td>
+                                                                                <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+                                                                                <td class="uk-text-nowrap">{{ feedback.showUp == 1 ? "YES" : "NO" }}</td>
+                                                                                <td class="uk-text-nowrap">{{ feedback.wasOnTime == 1 ? "YES" : "NO" }}</td>
+                                                                                <td class="uk-text-nowrap">{{ feedback.politeAndProfessional == 1 ? "YES" : "NO" }}</td>
+                                                                                <td class="uk-text-nowrap">{{ feedback.engagedAndAskedQuestions == 1 ? "YES" : "NO" }}</td>
+                                                                                <td>{{ feedback.additionalFeedback }}</td>
+                                                                            </tr>
+                                                                        {% else %}
+                                                                             <tr>
+                                                                                <td class="uk-text-nowrap">{{ role }}</td>
+                                                                                <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+                                                                                <td class="uk-text-nowrap">N/A</td>
+                                                                                <td class="uk-text-nowrap">N/A</td>
+                                                                                <td class="uk-text-nowrap">N/A</td>
+                                                                                <td class="uk-text-nowrap">N/A</td>
+                                                                                <td>{{ feedback.additionalFeedback }}</td>
+                                                                            </tr>
+                                                                        {% endif %}
                                                                     {% endif %}
-
                                                                 {% endfor %}
                                                                 </tbody>
                                                             </table>
@@ -531,3 +555,27 @@
         </form>
     </div>
 </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        var tab = GetURLParameter('tab');
+        if(tab) {
+            UIkit.switcher('#user-nav').show(4);
+        }
+    });
+
+    function GetURLParameter(sParam)
+    {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+    }
+</script>

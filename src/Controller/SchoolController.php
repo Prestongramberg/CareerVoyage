@@ -755,6 +755,10 @@ class SchoolController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
+
+            $errors = 'Duplicate Educators: ';
+            $error_emails = [];
+
             /** @var UploadedFile $uploadedFile */
             $file = $form->get('file')->getData();
             $columns = [];
@@ -900,6 +904,9 @@ class SchoolController extends AbstractController
                 }
             }
 
+            if(sizeof($error_emails) > 0){
+                $this->addFlash('error', $errors.join($error_emails, ', ').' they were not importred.');
+            }
             $this->addFlash('success', sprintf('Educators successfully imported.'));
             return $this->redirectToRoute('school_educator_import', ['id' => $school->getId()]);
         }

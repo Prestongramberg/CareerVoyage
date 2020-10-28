@@ -7,6 +7,7 @@ use App\Util\RandomStringGenerator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -42,11 +43,13 @@ class Chat
     /**
      * @Groups({"CHAT"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @JoinColumn(name="user_one_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $userOne;
 
     /**
      * @Groups({"CHAT"})
+     * @JoinColumn(name="user_two_id", referencedColumnName="id", onDelete="CASCADE")
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      */
     private $userTwo;

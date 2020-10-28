@@ -90,19 +90,19 @@
 
                         <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>
 
-                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Delete</a>
+                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
 
                         <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Delete Experience</h3>
+                                <h3>Cancel Experience</h3>
                                 <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >
 
                                     <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
                                     <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
                                     <textarea class="uk-textarea" name="cancellationMessage" style="width: 100%"></textarea>
                                     <p>
-                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                        <button class="uk-button uk-button-danger" type="submit">Remove</button>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Close Window</button>
+                                        <button class="uk-button uk-button-danger" type="submit">Cancel Experience</button>
                                     </p>
                                 </form>
                             </div>
@@ -458,7 +458,7 @@
                                 {% if studentUser.activated != false and studentUser.deleted != true %}
                                     <tr>
                                         <td>{{ studentUser.fullName }}</td>
-                                        <td>
+                                        <td id="student_{{ studentUser.id }}">
                                             {% set showPendingRegisterButton = true %}
                                             {% for request in experience.userRegisterForSchoolExperienceRequests %}
                                                 {% if request.user %}
@@ -477,13 +477,13 @@
                                                 {% endif %}
                                             {% endfor %}
                                             {% if showPendingRegisterButton == true %}
-                                                <form class="uk-inline" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
+                                                <form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
                                                     <input type="hidden" name="userId" value="{{ studentUser.id }}">
                                                     <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
                                                 </form>
                                             {% endif %}
                                             {% if showPendingRegisterButton == false %}
-                                                <form class="uk-inline" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
+                                                <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
                                                     <input type="hidden" name="userId" value="{{ studentUser.id }}">
                                                     <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
                                                 </form>
@@ -703,19 +703,31 @@
         $(document).on('submit', '.register', function(e){
           var userId = $(this).children().first().val();
           e.preventDefault();
-
           $.post( $(this).attr('action'), { userId: userId }, function(data){
             if(data.status === "success") {
+
+                console.log(data.status);
+                console.log(data.approval);
+
                 if(data.approval === true) {
-                    window.location.assign(window.location.href);
+                    $('#student_' + data.userId).html( 'Pending <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
                 } else {
+                    $('#student_' + data.userId).html( 'Approved <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
                     // send completion request
-                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){
-                        window.location.assign(window.location.href);
-                    });
+                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){});
                 }
             } else {
                 alert("Error registering for experience.");
+            }
+          });
+        });
+
+        $(document).on('submit', '.deregister', function(e){
+          var userId = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { userId: userId }, function(data){
+            if(data.status === "success") {
+              $('#student_' + data.userId).html( '<form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>' );
             }
           });
         });

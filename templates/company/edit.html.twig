@@ -113,7 +113,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 <label>Company Thumbnail (300x300)</label>
-                                <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.  Will auto resize to 300x300.</div>
+                                <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.  Will auto resize to 300x300.<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
                                 <div data-upload-url="{{ path('company_thumbnail_add', { id: company.id }) }}" data-type="image:companyThumbnailImage"></div>
                             </div>
                         </div>
@@ -125,7 +125,7 @@
                             {% endif %}
                             <div class="uk-width-expand">
                                 <label>Company Featured Image (1680x300)</label>
-                                <div class="uk-text-meta">Ideal size for company banner is <strong>1680x300</strong> with central focal point.</div>
+                                <div class="uk-text-meta">Ideal size for company banner is <strong>1680x300</strong> with central focal point.<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
                                 <div data-upload-url="{{ path('company_featured_add', { id: company.id }) }}" data-type="image:companyFeaturedImage"></div>
                             </div>
                         </div>
@@ -157,7 +157,8 @@
                         </div>
 
                         <div class="uk-margin">
-                            <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="1">Next</button>
+                            <button class="uk-button uk-button-primary uk-button-small">Save</button> or <a href="#" uk-switcher-item="1" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                            {# <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="1">Next</button> #}
                         </div>
 
                     </fieldset>
@@ -184,7 +185,8 @@
                         </div>
 
                         <div class="uk-margin">
-                            <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="2">Next</button>
+                            <button class="uk-button uk-button-primary uk-button-small">Save</button> or <a href="#" uk-switcher-item="2" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                            {# <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="2">Next</button> #}
                         </div>
                     </fieldset>
                 </div>
@@ -210,7 +212,8 @@
                         </div>
 
                         <div class="uk-margin">
-                            <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="3">Next</button>
+                            <button class="uk-button uk-button-primary uk-button-small">Save</button> or <a href="#" uk-switcher-item="3" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                            {# <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="3">Next</button> #}
                         </div>
                     </fieldset>
                 </div>
@@ -242,7 +245,8 @@
                 </div>
 
                 <div class="uk-margin">
-                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button>
+                    <button class="uk-button uk-button-primary uk-button-small">Save</button> or <a href="#" uk-switcher-item="4" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                    {# <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button> #}
                 </div>
 
             </div>
