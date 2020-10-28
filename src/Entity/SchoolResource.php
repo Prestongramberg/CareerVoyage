@@ -34,6 +34,12 @@ class SchoolResource extends Image
      */
     private $description;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $link_to_website;
+
+
     public function getSchool(): ?School
     {
         return $this->school;
@@ -89,5 +95,18 @@ class SchoolResource extends Image
     public function getPath()
     {
         return UploaderHelper::SCHOOL_RESOURCE.'/'.$this->getFileName();
+    }
+
+
+    public function getLinkToWebsite(): ?string
+    {
+        return $this->link_to_website;
+    }
+
+    public function setLinkToWebsite(?string $link_to_website): self
+    {
+        $this->link_to_website = $link_to_website;
+
+        return $this;
     }
 }
