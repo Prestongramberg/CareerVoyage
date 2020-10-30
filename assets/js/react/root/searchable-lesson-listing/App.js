@@ -153,33 +153,44 @@ class App extends React.Component {
 
             // Filter By Search Term
             if( this.props.search.query ) {
-                console.log("Search Term");
+
                 // basic search fields
                 const basicSearchFieldsFound = searchableFields.some((field) => ( lesson[field] && lesson[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
 
                 // primary course field
-                const primaryCourseFound = lesson['primaryCourse'] && lesson['primaryCourse']['title'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
+                // const primaryCourseFound = lesson['primaryCourse'] && lesson['primaryCourse']['title'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
 
                 // secondary course field
-                const secondaryCourseFound = lessonSecondaryCourseNames.some((courseName) => ( courseName.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+                // const secondaryCourseFound = lessonSecondaryCourseNames.some((courseName) => ( courseName.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
 
                 const expertPresenterFound = lesson['hasExpertPresenters'] && this.props.search.presenter
-
                 const educatorRequestedFound = lesson['hasEducatorRequestors'] && this.props.search.educator
 
-                return basicSearchFieldsFound || primaryCourseFound || secondaryCourseFound || expertPresenterFound || educatorRequestedFound
+                var pass = false;
+
+                if(basicSearchFieldsFound && expertPresenterFound && educatorRequestedFound  && this.props.search.presenter && this.props.search.educator) {
+                    pass = true;
+                } else if(basicSearchFieldsFound && expertPresenterFound && this.props.search.presenter && !this.props.search.educator) {
+                    pass = true;
+                } else if(basicSearchFieldsFound && educatorRequestedFound && this.props.search.educator && !this.props.search.presenter) {
+                    pass = true
+                } else if(basicSearchFieldsFound && !this.props.search.educator && !this.props.search.presenter) {
+                    pass = true;
+                }
+            
+                return pass;
             }
 
             // Filter by Educator Requested
             if(this.props.search.educator) {
                 const educatorRequestedFound = lesson['hasEducatorRequestors']
-                return educatorRequestedFound
+                return educatorRequestedFound;
             }
 
             // Filter by Expert Presenter
             if(this.props.search.presenter) {
                 const expertPresenterFound = lesson['hasExpertPresenters']
-                return expertPresenterFound
+                return expertPresenterFound;
             }
 
             return true;

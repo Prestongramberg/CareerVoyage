@@ -63,6 +63,8 @@ LessonListing.defaultProps = {
     isFavorite: false,
     isTeachable: false,
     isTeacher: false,
+    expertPresenters: false,
+    educatorRequestors: false,
     lessonFavorited: () => {},
     lessonUnfavorited: () => {},
     lessonTeach: () => {},
