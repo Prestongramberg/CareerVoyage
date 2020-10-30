@@ -185,111 +185,15 @@
                     <button class="uk-button uk-button-primary uk-button-small">Save</button>
                 </div>
             </div>
+
+
+            <!-- ####################################################################################### -->
+            <!-- ############################### RESOURCES / FILES ##################################### -->
+            <!-- ####################################################################################### -->
             <div class="page-company-experience-edit__files">
                 <div class="uk-text-center uk-placeholder">
                     <a class="uk-button uk-button-default uk-button-small" href="#modal-add-company-event-resource" uk-toggle>Add a Resource</a>
-                    <div id="modal-add-company-event-resource" uk-modal>
-                        <div class="uk-modal-dialog uk-modal-body">
-                            <h3>Add a Resource</h3>
-
-                            <div class="uk-margin">
-                                <label for="add_company_event_add_resource_title" class="required">Name*</label>
-                                <input type="text" id="edit_company_event_add_resource_title" name="title" required="required" class="uk-input" />
-                            </div>
-
-                            <div class="uk-margin">
-                                <label for="edit_company_event_add_resource_description" class="required">Description</label>
-                                <input type="text" id="edit_company_event_add_resource_description" name="description" class="uk-textarea" />
-                            </div>
-
-
-
-                            <div class="uk-margin">
-                                <label for="edit_company_add_resource_description">Add Link To Website</label>
-                                <input type="text" id="edit_company_event_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="ex: http://www.google.com" />
-                            </div>
-
-                            <div>OR</div>
-
-                            <div class="uk-margin">
-                                <label>Upload Resource File</label><br />
-                                <div uk-form-custom="target: true">
-                                    <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
-                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
-                                </div>
-                            </div>
-
-                            <p class="uk-text-right">
-                                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('company_experience_file_add', {'id' : experience.id}) }}" />
-                            </p>
-                        </div>
-                    </div>
-
-
-                    <div id="modal-edit-company-event-resource" uk-modal>
-                        <div class="uk-modal-dialog uk-modal-body">
-                            <h3>Edit Resource</h3>
-                            <div class="uk-margin">
-                                <label for="edit_company_event_edit_resource_title" class="required">Name*</label>
-                                <input type="text" id="edit_company_event_edit_resource_title" name="title" required="required" class="uk-input" />
-                            </div>
-
-                            <div class="uk-margin">
-                                <label for="edit_company_event_edit_resource_description" class="required">Description</label>
-                                <input type="text" id="edit_company_event_edit_resource_description" name="description" class="uk-textarea" />
-                            </div>
-
-                            <div class="uk-margin">
-                                <label for="edit_company_event_edit_resource_link_to_website">Add Link To Website</label>
-                                <input type="text" id="edit_company_event_edit_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="ex: http://www.google.com" />
-                            </div>
-
-                            <div>OR</div>
-
-                            <div class="uk-margin">
-                                <label>Upload Resource File</label><br />
-                                <div uk-form-custom="target: true">
-                                    <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
-                                    <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
-                                </div>
-                            </div>
-
-                            <input type="hidden" name="resource_id" id="edit_company_event_edit_resource_id" />
-
-                            <p class="uk-text-right">
-                                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                <input class="uk-button uk-button-primary" type="submit" value="Save" id="edit-submit-button" data-action="" />
-                            </p>
-                        </div>
-                    </div>
-
-
                 </div>
-
-                
-
-
-
-
-
-
-                <div id="companyEventResourcesTemplate" style="display: none;">
-                    <div class="uk-grid uk-flex-middle" uk-grid id="resource_RESOURCE_ID">
-                        <div class="uk-width-expand">
-                            <dt>RESOURCE_TITLE</dt>
-                            <dd>RESOURCE_DESCRIPTION</dd>
-                        </div>
-                        <div class="uk-width-auto">
-                            <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
-                        </div>
-                        <div class="uk-width-auto">
-                            <a href="#modal-edit-company-event-resource" uk-toggle class="uk-button uk-button-default uk-button-small" data-id="{{ 'RESOURCE_ID' }}">Edit</a>
-                        </div>
-                        <button type="button" data-remove="{{ path('company_experience_file_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
-                    </div>
-                </div>
-
 
                 <div class="uk-margin">
                     {% if experience.experienceFiles|length %}
@@ -307,11 +211,11 @@
                                         {% if experienceFile.linkToWebsite %}
                                             <a href="{{ experienceFile.linkToWebsite }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
                                         {% else %}
-                                            <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                            <a href="{{ asset(uploaded_asset(experienceFile.path)) }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
                                         {% endif %}                                        
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="#" class="uk-button uk-button-default uk-button-small edit-resource" data-id="{{ experienceFile.id }}">Edit</a>
+                                        <a href="#" class="uk-button uk-button-default uk-button-small company-edit-experience-resource" data-id="{{ experienceFile.id }}">Edit</a>
                                     </div>
                                     <button type="button" data-remove="{{ path('company_experience_file_remove', {'id' : experienceFile.id }) }}" uk-close></button>
                                 </div>
@@ -319,6 +223,98 @@
                         {% endif %}
                     </div>
                 </div>
+
+                <!-- Start Modal Section -->
+                <div id="modal-add-company-event-resource" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h3>Add a Resource</h3>
+
+                        <div class="uk-margin">
+                            <label for="add_company_event_add_resource_title" class="required">Name*</label>
+                            <input type="text" id="edit_company_event_add_resource_title" name="title" required="required" class="uk-input" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_event_add_resource_description" class="required">Description</label>
+                            <input type="text" id="edit_company_event_add_resource_description" name="description" class="uk-textarea" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_add_resource_description">Add Link To Website</label>
+                            <input type="text" id="edit_company_event_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="ex: http://www.google.com" />
+                        </div>
+
+                        <div>OR</div>
+
+                        <div class="uk-margin">
+                            <label>Upload Resource File</label><br />
+                            <div uk-form-custom="target: true">
+                                <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                            </div>
+                        </div>
+
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('company_experience_file_add', {'id' : experience.id}) }}" />
+                        </p>
+                    </div>
+                </div>
+
+
+                <div id="modal-edit-company-event-resource" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h3>Edit Resource</h3>
+                        <div class="uk-margin">
+                            <label for="edit_company_event_edit_resource_title" class="required">Name*</label>
+                            <input type="text" id="edit_company_event_edit_resource_title" name="title" required="required" class="uk-input" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_event_edit_resource_description" class="required">Description</label>
+                            <input type="text" id="edit_company_event_edit_resource_description" name="description" class="uk-textarea" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_event_edit_resource_link_to_website">Add Link To Website</label>
+                            <input type="text" id="edit_company_event_edit_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="ex: http://www.google.com" />
+                        </div>
+
+                        <div>OR</div>
+
+                        <div class="uk-margin">
+                            <label>Upload Resource File</label><br />
+                            <div uk-form-custom="target: true">
+                                <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="resource_id" id="edit_company_event_edit_resource_id" />
+
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <input class="uk-button uk-button-primary" type="submit" value="Save" id="edit-submit-button" data-action="" />
+                        </p>
+                    </div>
+                </div>
+
+                <div id="companyEventResourcesTemplate" style="display: none;">
+                    <div class="uk-grid uk-flex-middle" uk-grid id="resource_RESOURCE_ID">
+                        <div class="uk-width-expand">
+                            <dt>RESOURCE_TITLE</dt>
+                            <dd>RESOURCE_DESCRIPTION</dd>
+                        </div>
+                        <div class="uk-width-auto">
+                            <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
+                        </div>
+                        <div class="uk-width-auto">
+                            <a href="#" class="uk-button uk-button-default uk-button-small company-edit-experience-resource" data-id="{{ 'RESOURCE_ID' }}">Edit</a>
+                        </div>
+                        <button type="button" data-remove="{{ path('company_experience_file_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
+                    </div>
+                </div>
+
             </div>
         </div>
 

@@ -39,7 +39,7 @@
             <li><a href="#lesson-industries">Industries</a></li>
             <li><a href="#lesson-courses">Courses</a></li>
             <li><a href="#lesson-outcomes">Outcomes</a></li>
-            <li><a href="#lesson-resources">Resources</a></li>
+            <li><a href="#lesson-resources" style="background-color: #e8e8e8">Resources</a></li>
         </ul>
 
         <div class="uk-switcher" id="tab-edit-lesson">
@@ -166,6 +166,10 @@ After describing learning outcomes, feel free to share additional resources whic
                     <button class="uk-button uk-button-primary uk-button-small">Save</button>
                 </div>
             </div>
+
+            <!-- ####################################################################################### -->
+            <!-- ############################### RESOURCES / FILES ##################################### -->
+            <!-- ####################################################################################### -->
             <div class="page-lesson-edit__resources">
                 <div class="uk-width-xlarge">
                     <p>Resources are meant to provide help to understand more about the lesson</p>
@@ -173,53 +177,6 @@ After describing learning outcomes, feel free to share additional resources whic
                 <div class="uk-margin">
                     <div class="uk-text-center uk-placeholder">
                         <a class="uk-button uk-button-default uk-button-small" href="#modal-add-lesson-resource" uk-toggle>Add a Resource</a>
-                        <div id="modal-add-lesson-resource" uk-modal>
-                            <div class="uk-modal-dialog uk-modal-body">
-                                <h3>Add a Resource</h3>
-
-                                <div class="uk-margin">
-                                    <label for="edit_lesson_add_resource_title" class="required">Name*</label>
-                                    <input type="text" id="edit_lesson_add_resource_title" name="title" required="required" class="uk-input" />
-                                </div>
-
-                                <div class="uk-margin">
-                                    <label for="edit_lesson_add_resource_description" class="required">Description</label>
-                                    <input type="text" id="edit_lesson_add_resource_title" name="description" class="uk-textarea" />
-                                </div>
-
-                                <div class="uk-margin">
-                                    <label for="edit_lesson_add_resource_description">Add Link To Website</label>
-                                    <input type="text" id="edit_lesson_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="ex: http://www.google.com" />
-                                </div>
-
-                                <div>OR</div>
-
-                                <div class="uk-margin">
-                                    <label>Upload Resource File</label><br />
-                                    <div uk-form-custom="target: true">
-                                        <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
-                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
-                                    </div>
-                                </div>
-
-                                <p class="uk-text-right">
-                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('lesson_resource_add', {'id' : lesson.id}) }}" />
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="lessonResourcesTemplate" style="display: none;">
-                        <div class="uk-grid uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <dt>RESOURCE_TITLE</dt>
-                                <dd>RESOURCE_DESCRIPTION</dd>
-                            </div>
-                            <div class="uk-width-auto">
-                                <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
-                            </div>
-                            <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
-                        </div>
                     </div>
                 </div>
                 <div class="uk-margin">
@@ -229,22 +186,119 @@ After describing learning outcomes, feel free to share additional resources whic
                     <div id="lessonResources">
                         {% if lesson.lessonResources|length %}
                             {% for lessonResource in lesson.lessonResources %}
-                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-grid uk-flex-middle" uk-grid id="resource_{{ lessonResource.id }}">
                                     <div class="uk-width-expand">
                                         <dt>{{ lessonResource.title }}</dt>
                                         <dd>{{ lessonResource.description }}</dd>
                                     </div>
                                     <div class="uk-width-auto">
                                         {% if lessonResource.linkToWebsite %}
-                                            <a href="{{ lessonResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                            <a href="{{ lessonResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
                                         {% else %}
-                                            <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                            <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
                                         {% endif %}    
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        <a href="#" class="uk-button uk-button-default uk-button-small lesson-edit-resource" data-id="{{ lessonResource.id }}">Edit</a>
                                     </div>
                                     <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : lessonResource.id }) }}" uk-close></button>
                                 </div>
                             {% endfor %}
                         {% endif %}
+                    </div>
+                </div>
+
+                <!-- Begin Modal Section -->
+
+                <div id="modal-add-lesson-resource" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h3>Add a Resource</h3>
+
+                        <div class="uk-margin">
+                            <label for="edit_lesson_add_resource_title" class="required">Name*</label>
+                            <input type="text" id="edit_lesson_add_resource_title" name="title" required="required" class="uk-input" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_lesson_add_resource_description" class="required">Description</label>
+                            <input type="text" id="edit_lesson_add_resource_title" name="description" class="uk-textarea" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_lesson_add_resource_description">Add Link To Website</label>
+                            <input type="text" id="edit_lesson_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
+                        </div>
+
+                        <div>OR</div>
+
+                        <div class="uk-margin">
+                            <label>Upload Resource File</label><br />
+                            <div uk-form-custom="target: true">
+                                <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                            </div>
+                        </div>
+
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('lesson_resource_add', {'id' : lesson.id}) }}" />
+                        </p>
+                    </div>
+                </div>
+
+                <div id="modal-edit-lesson-resource" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h3>Edit Resource</h3>
+                        <div class="uk-margin">
+                            <label for="edit_lesson_edit_resource_title" class="required">Name*</label>
+                            <input type="text" id="edit_lesson_edit_resource_title" name="title" required="required" class="uk-input" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_lesson_edit_resource_description" class="required">Description</label>
+                            <input type="text" id="edit_lesson_edit_resource_description" name="description" class="uk-textarea" />
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_lesson_edit_resource_link_to_website">Add Link To Website</label>
+                            <input type="text" id="edit_lesson_edit_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
+                        </div>
+
+                        <div>OR</div>
+
+                        <div class="uk-margin">
+                            <label>Upload Resource File</label><br />
+                            <div uk-form-custom="target: true">
+                                <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="resource_id" id="edit_lesson_edit_resource_id" />
+
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <input class="uk-button uk-button-primary" type="submit" value="Save" id="edit-submit-button" data-action="" />
+                        </p>
+                    </div>
+                </div>
+
+                <div id="lessonResourcesTemplate" style="display: none;">
+                    <div class="uk-grid uk-flex-middle" uk-grid id="resource_RESOURCE_ID">
+                        <div class="uk-width-expand">
+                            <dt>RESOURCE_TITLE</dt>
+                            <dd>RESOURCE_DESCRIPTION</dd>
+                        </div>
+
+
+                        <div class="uk-width-auto">
+                            <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
+                        </div>
+                        <div class="uk-width-auto">
+                            <a href="#" class="uk-button uk-button-default uk-button-small lesson-edit-resource" data-id="{{ 'RESOURCE_ID' }}">Edit</a>
+                        </div>
+
+                        <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
                     </div>
                 </div>
             </div>
@@ -255,11 +309,18 @@ After describing learning outcomes, feel free to share additional resources whic
     </div>
 
     <script>
-      const website = document.getElementById('edit_lesson_add_resource_link_to_website');
-      website.addEventListener('blur', (event) => {
+
+        document.getElementById('edit_lesson_add_resource_link_to_website').addEventListener('blur', (event) => {
         const matched = event.target.value.match(/^(http|https):\/\//);
         if(!matched) {
           document.getElementById('edit_lesson_add_resource_link_to_website').value = 'http://' + event.target.value;
+        }
+      }, true);
+
+      document.getElementById('edit_lesson_edit_resource_link_to_website').addEventListener('blur', (event) => {
+        const matched = event.target.value.match(/^(http|https):\/\//);
+        if(!matched) {
+          document.getElementById('edit_lesson_edit_resource_link_to_website').value = 'http://' + event.target.value;
         }
       }, true);
     </script>
