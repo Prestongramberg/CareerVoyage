@@ -47,4 +47,45 @@ class LessonTeachableRepository extends ServiceEntityRepository
         ;
     }
     */
+
+
+    /**
+     * @param $lesson []
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByEducatorRequestors($lesson) {
+        $query = sprintf("SELECT l.id FROM lesson l, lesson_teachable lt, educator_user e WHERE l.id = %s AND lt.lesson_id = l.id AND lt.user_id = e.id", $lesson['lesson']);
+        
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $total = $stmt->fetchAll();
+
+        if( sizeof($total) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param $lesson []
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findByExpertPresenters($lesson) {
+        $query = sprintf("SELECT l.id FROM lesson l, lesson_teachable lt, professional_user p WHERE l.id = %s AND lt.lesson_id = l.id AND lt.user_id = p.id", $lesson['lesson']);
+        
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $total = $stmt->fetchAll();
+
+        if( sizeof($total) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
