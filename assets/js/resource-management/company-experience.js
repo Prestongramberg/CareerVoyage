@@ -50,7 +50,7 @@ jQuery(document).ready(function($) {
         $('#edit_company_event_edit_resource_title').val(ret.title);
         $('#edit_company_event_edit_resource_description').val(ret.description);
         $('#edit_company_event_edit_resource_link_to_website').val(ret.website);
-        $('#edit-submit-button').attr("data-action", "/dashboard/companies/experiences/resources/" + ret.id + "/edit");
+        $('#edit-submit-button').attr("data-action", "/dashboard/companies/experiences/file/" + ret.id + "/edit");
         $('#edit_company_event_edit_resource_id').val(ret.id);
         UIkit.modal('#modal-edit-company-event-resource').show();
       } else {
