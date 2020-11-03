@@ -247,3 +247,10 @@ require('./react/root');
 
 // Custom
 require('./Custom');
+
+// Resource Management (files, etc)
+require('./resource-management/companies');
+require('./resource-management/company-experience');
+require('./resource-management/lessons');
+require('./resource-management/schools');
+require('./resource-management/school-experience');

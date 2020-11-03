@@ -183,6 +183,7 @@
 <script>
     $( document ).ready(function() {
 
+        debugger;
         $('.js-navigate').click(function(e) {
             debugger;
             let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
@@ -194,6 +195,7 @@
         if (hash === 'account') {
             UIkit.tab('#test').show(4);
         }
+
 
         $('#filter_courses').on('keyup', function(){
             var txt = $(this).val();
@@ -209,6 +211,5 @@
                 }
             });
         });
-
     });
 </script>
