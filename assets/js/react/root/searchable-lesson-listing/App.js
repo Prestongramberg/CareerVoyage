@@ -181,6 +181,17 @@ class App extends React.Component {
                 return pass;
             }
 
+            if(this.props.search.educator && this.props.search.presenter) {
+                const expertPresenterFound = lesson['hasExpertPresenters'] && this.props.search.presenter
+                const educatorRequestedFound = lesson['hasEducatorRequestors'] && this.props.search.educator
+
+                console.log(lesson.id + ': ' + educatorRequestedFound + " -- " + expertPresenterFound);
+                console.log("");
+                if(expertPresenterFound && educatorRequestedFound){
+                    return true;
+                }
+            }
+
             // Filter by Educator Requested
             if(this.props.search.educator) {
                 const educatorRequestedFound = lesson['hasEducatorRequestors']
