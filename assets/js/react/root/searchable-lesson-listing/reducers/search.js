@@ -12,6 +12,16 @@ export default (state = {}, action) => {
                 ...state,
                 course: action.course
             };
+        case actionTypes.EXPERT_PRESENTER_CHANGED:
+            return {
+                ...state,
+                presenter: action.presenter
+            };
+        case actionTypes.EDUCATOR_REQUESTED_CHANGED:
+            return {
+                ...state,
+                educator: action.educator
+            };
         case actionTypes.USER_LOADING_SUCCESS:
         case actionTypes.USER_LOADING_FAILURE:
             return {

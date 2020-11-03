@@ -115,6 +115,18 @@ class Lesson
     private $isTeachable;
 
     /**
+     * @var boolean
+     * @Groups({"LESSON_DATA"})
+     */
+    private $hasEducatorRequestors;
+
+    /**
+     * @var boolean
+     * @Groups({"LESSON_DATA"})
+     */
+    private $hasExpertPresenters;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="lesson", orphanRemoval=true)
      */
     private $lessonTeachables;
@@ -423,6 +435,40 @@ class Lesson
     public function setIsTeachable($isTeachable)
     {
         $this->isTeachable = $isTeachable;
+    }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     * @return bool
+     */
+    public function hasEducatorRequestors()
+    {
+        return $this->hasEducatorRequestors;
+    }
+
+    /**
+     * @param bool $hasEducatorRequestors
+     */
+    public function setHasEducatorRequestors($hasEducatorRequestors) 
+    {
+        $this->hasEducatorRequestors = $hasEducatorRequestors;
+    }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     * @return bool
+     */
+    public function hasExpertPresenters()
+    {
+        return $this->hasExpertPresenters;
+    }
+
+    /**
+     * @param bool $hasExpertPresenters
+     */
+    public function setHasExpertPresenters($hasExpertPresenters) 
+    {
+        $this->hasExpertPresenters = $hasExpertPresenters;
     }
 
     /**
