@@ -79,9 +79,11 @@
         </div>
         <div class="account_courses">
             <div class="uk-width-xlarge">
+                <p><input type="text" id="filter_courses" placeholder="Type to filter course results" class="uk-input" /></p>
                 <fieldset class="uk-fieldset">
                     <div class="uk-margin">
-                        {{ form_label(form.myCourses, 'My Courses*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[myCourses][]">Select All</a>
+                        <p>{{ form_label(form.myCourses, 'My Courses*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[myCourses][]">Select All</a></p>
+                        
                         {{ form_widget(form.myCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.myCourses) ? ' uk-form-danger' : '' ) }}) }}
                         <div class="clear"></div>
                         {{ form_errors(form.myCourses) }}
@@ -194,5 +196,20 @@
             UIkit.tab('#test').show(4);
         }
 
+
+        $('#filter_courses').on('keyup', function(){
+            var txt = $(this).val();
+            $("#educator_edit_profile_form_myCourses label").each(function(){
+                $(this).show();
+                $('#' + $(this).attr('for')).show();
+            });
+
+            $("#educator_edit_profile_form_myCourses label").each(function(){
+                if($(this).text().toUpperCase().indexOf(txt.toUpperCase()) == -1){
+                    $(this).hide();
+                    $('#' + $(this).attr('for')).hide();
+                }
+            });
+        });
     });
 </script>
