@@ -31,7 +31,7 @@ class ExperienceFile extends Image
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
