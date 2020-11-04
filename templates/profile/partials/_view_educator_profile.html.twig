@@ -31,6 +31,10 @@
                         {% else %}
                             <p>This educator has not added a bio yet.</p>
                         {% endif %}
+                        {% if profileUser.interests %}
+                            <div class="uk-margin">
+                                <strong>Interests:</strong> {{ profileUser.interests }}
+                        {% endif %}
                         <div class="professional-links">
                             <a href="mailto:{{ profileUser.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                             {% if user_can_chat_with_user( user, profileUser ) %}
