@@ -405,6 +405,114 @@ class LessonController extends AbstractController
     }
 
     /**
+     * @Route("/lessons/file/{id}/get", name="lesson_file_get", options = { "expose" = true })
+     * @param Request $request
+     * @param LessonResource $file
+     * @return JsonResponse
+     */
+    public function lessonGetFileAction(Request $request, LessonResource $file) {
+        $this->denyAccessUnlessGranted('edit', $file->getLesson());
+
+
+        if($file->getFile() != NULL){
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+    
+                ], Response::HTTP_OK
+            );
+        }
+    }
+
+    /**
+     * @Route("/lessons/file/{id}/edit", name="lesson_file_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param LessonResource $file
+     * @return JsonResponse
+     */
+    public function lessonEditFileAction(Request $request, LessonResource $file) {
+
+        $this->denyAccessUnlessGranted('edit', $file->getLesson());
+        
+        /** @var UploadedFile $resource */
+        $resource = $request->files->get('resource');
+        $title = $request->request->get('title');
+        $description = $request->request->get('description');
+        $linkToWebsite = $request->request->get('linkToWebsite');
+
+        if($title) {
+            $file->setTitle($title);
+        }
+
+        if($description) {
+            $file->setDescription($description);
+        }
+
+        if($linkToWebsite && $linkToWebsite != "http://") {
+            $file->setLinkToWebsite($linkToWebsite);
+        } else {
+            $file->setLinkToWebsite(NULL);
+        }
+
+        if($resource) {
+            $mimeType = $resource->getMimeType();
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
+            $file->setMimeType($mimeType ?? 'application/octet-stream');
+            $file->setFileName($newFilename);
+            $file->setFile(null);
+        } else {
+            $file->setOriginalName(NULL);
+            $file->setMimeType(NULL);
+            $file->setFileName(NULL);
+        }
+
+        $this->entityManager->persist($file);
+        $this->entityManager->flush();
+
+
+        if($file->getFileName() != NULL) {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+
+                ], Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
+                    'description' => $file->getDescription(),
+
+                ], Response::HTTP_OK
+            );
+        }
+    }
+
+
+    /**
      * @Route("/lessons/resources/{id}/edit", name="lesson_resource_edit", options = { "expose" = true })
      * @param Request $request
      * @param LessonResource $lessonResource
