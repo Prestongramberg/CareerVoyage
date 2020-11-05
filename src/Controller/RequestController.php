@@ -304,11 +304,11 @@ class RequestController extends AbstractController
         $flash = [];
         foreach($flashbag as $type => $messages){
             foreach($messages as $message){
-                array_push($flash, ["type" => $type, "message" => $message]);
+                $flash = ["type" => $type, "message" => $message];
             }
         }
         
-        return new JsonResponse( ["status" => json_encode($flash) ]);
+        return new JsonResponse( ["status" => $flash ]);
 
         // if(sizeof($flashbag->get('success')) > 0){
         //     return new JsonResponse( ["status" => $flashbag->peek('success') ]);
