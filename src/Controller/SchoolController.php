@@ -1479,6 +1479,30 @@ class SchoolController extends AbstractController
         ]);
     }
 
+    
+    /**
+     * @Route("/schools/experiences/{id}/delete", name="school_experience_delete", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function experienceDeleteAction(Request $request, SchoolExperience $experience) {
+
+        $this->denyAccessUnlessGranted('edit', $experience->getSchool());
+
+        
+        $this->entityManager->remove($experience);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Experience successfully deleted.');
+
+        return $this->redirectToRoute('dashboard');
+    }
+
+
     /**
      * @Route("/schools/experiences/{id}/remove", name="school_experience_remove", options = { "expose" = true })
      * @param Request $request
