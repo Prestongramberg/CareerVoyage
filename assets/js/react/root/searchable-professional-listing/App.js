@@ -94,6 +94,7 @@ class App extends React.Component {
                                         lastName={professional.lastName}
                                         primaryIndustry={primaryIndustry}
                                         secondaryIndustry={secondaryIndustry}
+                                        interests={professional.interests}
                                         { ...hiddenAttributes }
                                     />
                                 </div>

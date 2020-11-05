@@ -62,6 +62,7 @@ class EducatorUser extends User
     private $secondaryIndustries;
 
     /**
+     * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $interests;

@@ -85,10 +85,10 @@ class App extends React.Component {
                                         key={educator.id}
                                         id={educator.id}
                                         image={educator.photo}
-                                        lastName={educator.lastName}
-                                        interests={educator.interests}
+                                        lastName={educator.lastName} 
                                         school={educator.school}
                                         courses={educator.myCourses}
+                                        interests={educator.interests}
                                         { ...hiddenAttributes }
                                     />
                                 </div>
