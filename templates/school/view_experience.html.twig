@@ -34,11 +34,11 @@
                     {% endif %}
                   {% endfor %}
 
-                  <div id="register-buttons">
+                  <div id="student_{{ user.id }}">
                     <form class="uk-inline register" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
                         <input type="hidden" name="userId" value="{{ user.id }}" />
                         {% if experience.isRegistered(user) %}
-                            <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit">Already Registered</button>
+                            <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
                         {% else %}
                             <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register</button>
                         {% endif %}
