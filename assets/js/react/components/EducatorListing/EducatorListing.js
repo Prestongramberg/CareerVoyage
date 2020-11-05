@@ -21,7 +21,6 @@ class EducatorListing extends Component {
                                 <p className="uk-text-meta uk-margin-remove-top">
                                     { this.props.school && this.props.school.id && <span>{ this.props.school.name }</span> }
                                     { !this.props.school && <span>Educator</span> }
-                                    { this.props.interests && <span><br /> - { this.props.interests }</span> }
                                     <br />
                                     { 
                                         this.props.courses.map((item, i) => (
@@ -36,6 +35,12 @@ class EducatorListing extends Component {
                         <div className="uk-margin">
                             { truncate( this.props.briefBio ) || "This educator hasn't added a description yet." }
                         </div>
+                        { this.props.interests && (
+                            <div class="uk-margin">
+                                <strong>Interests:</strong> { truncate(this.props.interests) }
+                            </div>
+                        )}
+
                         <div className="professional-links">
                             {this.props.email && (
                                 <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>

@@ -29,6 +29,11 @@ class ProfessionalListing extends Component {
                         <div className="uk-margin">
                             { truncate( this.props.briefBio ) || "This professional hasn't added a description yet." }
                         </div>
+                        { this.props.interests && (
+                            <div className="uk-margin">
+                                <strong>Interests:</strong> { this.props.interests }
+                            </div>
+                        )}
                         <div className="professional-links">
                             {this.props.email && (
                                 <a href={`mailto:${this.props.email}`} className="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>

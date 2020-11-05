@@ -71,6 +71,11 @@
                         {% else %}
                             <p>This user has not added a bio yet.</p>
                         {% endif %}
+
+                        {% if profileUser.interests %}
+                            <div class="uk-margin">
+                                <strong>Interests:</strong> {{ profileUser.interests }}
+                        {% endif %}
                         <div class="professional-links">
                             {% if user_can_chat_with_user( user, profileUser ) %}
                                 {% if profileUser.emailAfterPrivacySettingsApplied %}
