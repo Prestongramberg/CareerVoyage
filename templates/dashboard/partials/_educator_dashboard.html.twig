@@ -48,6 +48,7 @@
                     <li><a href="#user-favorites">Favorites</a></li>
                     <li><a href="#user-events">Experiences</a></li>
                     <li><a href="#user-students">My Students</a></li>
+                    <li><a href="#user-feedback">My Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -201,7 +202,35 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="user_students">
+                        <dl class="uk-description-list uk-description-list-divider">
+                            {% if user.studentUsers|length > 0 %}
+                                {% for studentUser in user.alphabeticallySortedStudentUsers %}
 
+                                    {% if studentUser.activated != false and studentUser.deleted != true %}
+
+                                        <div class="uk-grid uk-flex-middle" uk-grid>
+                                            <div class="uk-width-auto">
+                                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                            </div>
+                                            <div class="uk-width-expand">
+                                                <dt>{{ studentUser.lastName }},  {{ studentUser.firstName }}</dt>
+                                            </div>
+                                            <div class="uk-width-auto">
+                                                <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                            </div>
+                                        </div>
+
+                                    {% endif %}
+
+                                {% endfor %}
+                            {% else %}
+                                <p>You currently do not have any students assigned to you.  You can change this in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a>.</p>
+                            {% endif %}
+                        </dl>
+                    </div>
+                    <div class="feedback">
                         <div class="uk-margin">
                             <div class="uk-card uk-card-default">
                                 <div class="uk-card-body">
@@ -240,33 +269,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="user_students">
-                        <dl class="uk-description-list uk-description-list-divider">
-                            {% if user.studentUsers|length > 0 %}
-                                {% for studentUser in user.alphabeticallySortedStudentUsers %}
-
-                                    {% if studentUser.activated != false and studentUser.deleted != true %}
-
-                                        <div class="uk-grid uk-flex-middle" uk-grid>
-                                            <div class="uk-width-auto">
-                                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                                            </div>
-                                            <div class="uk-width-expand">
-                                                <dt>{{ studentUser.lastName }},  {{ studentUser.firstName }}</dt>
-                                            </div>
-                                            <div class="uk-width-auto">
-                                                <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
-                                            </div>
-                                        </div>
-
-                                    {% endif %}
-
-                                {% endfor %}
-                            {% else %}
-                                <p>You currently do not have any students assigned to you.  You can change this in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a>.</p>
-                            {% endif %}
-                        </dl>
                     </div>
                 </div>
             </div>
