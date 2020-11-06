@@ -4,7 +4,6 @@
 {% block bodyClass %}page-feedback{% endblock %}
 
 {% block body %}
-
     <div class="uk-container js-form">
 
         {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
@@ -75,6 +74,8 @@
 
             <div class="uk-margin">
                 <button class="uk-button uk-button-primary uk-button-small">Submit</button>
+
+                <a class="uk-button uk-button-primary uk-button-small" id="copyFeedbackUrl" data-url="{{ studentFeedbackUrl }}"><span uk-icon="icon: forward"></span> Share URL With Students</a>
             </div>
 
         </fieldset>
