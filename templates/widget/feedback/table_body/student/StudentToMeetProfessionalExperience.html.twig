@@ -1,0 +1,17 @@
+<tbody>
+{% for feedback in feedbacks %}
+    <tr>
+        <td class="uk-text-nowrap">{{ feedback.user.friendlyRoleName }}</td>
+        <td class="uk-text-nowrap">{{ feedback.rating }}</td>
+        <td class="uk-text-nowrap">{{ feedback.showUp == 1 ? "YES" : "NO" }}</td>
+        <td class="uk-text-nowrap">{{ feedback.wasOnTime == 1 ? "YES" : "NO" }}</td>
+        <td class="uk-text-nowrap">{{ feedback.politeAndProfessional == 1 ? "YES" : "NO" }}</td>
+        <td class="uk-text-nowrap">{{ feedback.engagedAndAskedQuestions == 1 ? "YES" : "NO" }}</td>
+        <td>{{ feedback.additionalFeedback }}</td>
+    </tr>
+{% else %}
+    <tr>
+        <td colspan="7">No feedback has been submitted yet.</td>
+    </tr>
+{% endfor %}
+</tbody>

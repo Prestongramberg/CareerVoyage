@@ -5,8 +5,7 @@
 
 {% block body %}
     <div class="uk-container">
-        {% for feedback in feedback %}
-            {{ feedback.rating }}
-        {% endfor %}
+        {# FEEDBACK WIDGET #}
+        {{ feedback_widget(user)|raw }}
     </div>
 {% endblock %}

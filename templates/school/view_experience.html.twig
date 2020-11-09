@@ -272,6 +272,7 @@
             {% if user.isEducator or user.isSchoolAdministrator %}
                 <li><a href="#experience-registrations">Registrations</a></li>
                 <li><a href="#available-students-to-register">Available Students To Register</a></li>
+                {#<li><a href="#feedback">Feedback</a></li>#}
             {% endif %}
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
@@ -560,6 +561,12 @@
                 </div>
             {% endif %}
 
+          {#  {% if user.isEducator or user.isSchoolAdministrator %}
+                <div class="experience_feedback">
+                    #}{# FEEDBACK WIDGET #}{#
+                    {{ feedback_widget(user, experience)|raw }}
+                </div>
+            {% endif %}#}
 
             <div class="experience_contact">
                 <table class="uk-table uk-table-justify uk-table-divider">
@@ -584,6 +591,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 
