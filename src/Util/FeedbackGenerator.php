@@ -135,7 +135,11 @@ class FeedbackGenerator implements \Iterator
                 /** @var EducatorUser $educator */
                 $educator = $this->userContext;
 
-                foreach($educator->getStudentUsers() as $studentUser) {
+                if(!$educator->getSchool()) {
+                    return false;
+                }
+
+                foreach($educator->getSchool()->getStudentUsers() as $studentUser) {
                     $possibleStudentRegistrations[] = $studentUser->getId();
                 }
             }
@@ -238,6 +242,11 @@ class FeedbackGenerator implements \Iterator
 
             $filteredFeedback = $experience->getFeedback()->filter(function(Feedback $feedback) use($possibleStudentRegistrations) {
 
+                // some of the legacy code still has direct feedback classes attached to events which we aren't using here
+                if(get_class($feedback) === Feedback::class) {
+                    return false;
+                }
+
                 if($feedback->getDeleted()) {
                     return false;
                 }
@@ -322,8 +331,13 @@ class FeedbackGenerator implements \Iterator
             $cumulativeShowUp += (int) $feedback->getShowUp();
         }
 
-        return floor($cumulativeShowUp / $this->totalFeedback()) . '%';
+        $totalFeedback = $this->totalFeedback();
 
+        if($totalFeedback > 0) {
+            return floor($cumulativeShowUp / $this->totalFeedback()) . '%';
+        }
+
+        return "0%";
     }
 
     /**
@@ -397,7 +411,13 @@ class FeedbackGenerator implements \Iterator
             $cumulativeOnTime += (int) $feedback->getWasOnTime();
         }
 
-        return floor($cumulativeOnTime / $this->totalFeedback());
+        $totalFeedback = $this->totalFeedback();
+
+        if($totalFeedback > 0) {
+            return floor($cumulativeOnTime / $this->totalFeedback());
+        }
+
+        return 0;
     }
 
     /**
@@ -412,7 +432,14 @@ class FeedbackGenerator implements \Iterator
             $cumulativePolite += (int) $feedback->getPoliteAndProfessional();
         }
 
-        return floor($cumulativePolite / $this->totalFeedback());
+        $totalFeedback = $this->totalFeedback();
+
+        if($totalFeedback > 0) {
+            return floor($cumulativePolite / $this->totalFeedback());
+        }
+
+        return 0;
+
     }
 
     /**
@@ -481,8 +508,14 @@ class FeedbackGenerator implements \Iterator
 
             $cumulativeEngaged += (int) $feedback->getEngagedAndAskedQuestions();
         }
-        return floor($cumulativeEngaged / $this->totalFeedback());
 
+        $totalFeedback = $this->totalFeedback();
+
+        if($totalFeedback > 0) {
+            return floor($cumulativeEngaged / $this->totalFeedback());
+        }
+
+        return 0;
     }
 
     /**
@@ -566,6 +599,8 @@ class FeedbackGenerator implements \Iterator
      */
     public function renderDataBreakdown() {
 
+        // TODO StudentToMeetProfessionalExperience can have different feedback classes.
+        //  is there a way to render based off of that instead of the experience?
         $experience = $this->current();
 
         $template = sprintf(

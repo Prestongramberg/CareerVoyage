@@ -24,3 +24,29 @@
         </div>
     </div>
 </div>
+
+<div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+    <div class="uk-width-1-2 uk-width-1-3@m">
+        <div class="uk-text-meta">Average Rating</div>
+        <h4 class="uk-heading-small uk-margin-remove-top">{{ feedbackGenerator.cumulativeRating }}</h4>
+    </div>
+    <div class="uk-width-1-2 uk-width-1-3@m">
+        <div class="uk-text-meta">Total Responses</div>
+        <h4 class="uk-heading-small uk-margin-remove-top">{{ feedbackGenerator.totalFeedback }}</h4>
+    </div>
+</div>
+
+<div class="uk-grid-small uk-text-center uk-text-left@m uk-margin" uk-grid>
+    <div class="uk-width-1-3">
+        <div class="uk-text-meta">Provider Career Insights</div>
+        <h4 class="uk-heading-small uk-margin-remove-top">{{ feedbackGenerator.cumulativeInsight }}</h4>
+    </div>
+    <div class="uk-width-1-3">
+        <div class="uk-text-meta">Enjoyable/Engaging</div>
+        <h4 class="uk-heading-small uk-margin-remove-top">{{ feedbackGenerator.cumulativeEnjoyable }}</h4>
+    </div>
+    <div class="uk-width-1-3">
+        <div class="uk-text-meta">Learned Something</div>
+        <h4 class="uk-heading-small uk-margin-remove-top">{{ feedbackGenerator.cumulativeLearned }}</h4>
+    </div>
+</div>
