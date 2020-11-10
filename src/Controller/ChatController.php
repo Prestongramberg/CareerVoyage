@@ -307,6 +307,14 @@ class ChatController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $body = $data["message"];
+
+        // Check content of message and look for links. If found generate <a> tag
+        preg_match_all('#[-a-zA-Z0-9@:%_\+.~\#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~\#?&//=]*)?#si', $body, $result);
+        foreach($result as $url) {
+            $link = generateUrlForChat($url);
+            $body = str_replace($url, $link, $body);
+        }
+
         $message = new ChatMessage();
         $message->setBody($body);
         $message->setSentFrom($loggedInUser);
@@ -341,7 +349,7 @@ class ChatController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $payload,
+                'data' => $payload
             ],
             Response::HTTP_OK
         );
@@ -427,5 +435,19 @@ class ChatController extends AbstractController
         }
 
         return $users;
+    }
+
+
+
+    private function generateUrlForChat($string) {
+        $link = "";
+        
+        if(preg_match("@^http|https://@i",$string)) {
+            $link = '<a href="'.$string.'" target="_blank">'.$string.'</a>';
+        } else {
+            $link = '<a href="http://'.$string.'" target="_blank">'.$string.'</a>';
+        }
+        
+        return $link;
     }
 }
