@@ -80,7 +80,7 @@ class ExperienceRepository extends ServiceEntityRepository
         //   inner join feedback f on f.id = e.id
         //   WHERE (e.cancelled IS NULL OR e.cancelled = %d) AND se.school_id = %d GROUP BY e.id", false, $school->getId());
 
-        $query = sprintf("select DISTINCT(e.id), title, start_date_and_time from experience e
+        $query = sprintf("select DISTINCT(e.id), title, e.start_date_and_time from experience e
             inner join school_experience se on se.id = e.id
             inner join feedback f on f.experience_id = e.id
             WHERE (e.cancelled IS NULL OR e.cancelled = %d) AND se.school_id = %d ORDER BY e.start_date_and_time", false, $school->getId());
@@ -97,7 +97,7 @@ class ExperienceRepository extends ServiceEntityRepository
         //   inner join feedback f on f.id = e.id
         //   WHERE (e.cancelled IS NULL OR e.cancelled = %d) AND se.school_id = %d GROUP BY e.id", false, $school->getId());
 
-        $query = sprintf("select DISTINCT(e.id) from experience e
+        $query = sprintf("select DISTINCT(e.id), e.start_date_and_time from experience e
             inner join school_experience se on se.id = e.id
             inner join feedback f on f.experience_id = e.id
             WHERE (e.cancelled IS NULL OR e.cancelled = %d) AND se.school_id = %d ORDER BY e.start_date_and_time", false, $school->getId());
