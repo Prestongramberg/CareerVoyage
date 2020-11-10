@@ -26,8 +26,14 @@ class App extends React.Component {
             <div className="uk-container">
                 <ul className="" data-uk-tab="{connect: '#tab-lessons'}" data-uk-switcher>
                     <li className="uk-active"><a href="#all-lessons">All Lessons</a></li>
-                    <li><a href="#teachable-lessons">{user.educator ? 'Lessons I want taught' : user.schoolAdministrator ? 'Lessons I want taught' : 'Lessons I can teach'}</a></li>
+
+                    { user.schoolAdministrator || user.professional && (
+                        <li><a href="#teachable-lessons">Lessons I can teach</a></li>
+                    )}
                     
+                    { user.educator && (
+                        <li><a href="#taught-lessons">Lessons I want taught</a></li>
+                    )}
                     <li><a href="#my-lessons">My Created Lessons</a></li>
 
                 </ul>
@@ -72,22 +78,46 @@ class App extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="lessons_teachable">
-                        { teachableLessons.length > 0 && (
-                            <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
-                                { teachableLessons.map(lesson => (
-                                    <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
-                                        { this.renderLesson( lesson ) }
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        { teachableLessons.length === 0 && (
-                            <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
-                                <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
-                            </div>
-                        )}
-                    </div>
+
+                    { user.schoolAdministrator || user.professional && (
+                        <div className="lessons_teachable">
+                            { teachableLessons.length > 0 && (
+                                <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
+                                    { teachableLessons.map(lesson => (
+                                        <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                                            { this.renderLesson( lesson ) }
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            { teachableLessons.length === 0 && (
+                                <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
+                                    <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    { user.educator && (
+                        <div className="lessons_teachable">
+                            { teachableLessons.length > 0 && (
+                                <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">
+                                    { teachableLessons.map(lesson => (
+                                        <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m" key={lesson.id}>
+                                            { this.renderLesson( lesson ) }
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            { teachableLessons.length === 0 && (
+                                <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
+                                    <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+
                     <div className="lessons_mine">
                         { ownerLessons.length > 0 && (
                             <div className="lesson-listings uk-margin" data-uk-grid="masonry: true">

@@ -65,9 +65,9 @@
                                 </ul>
                                 <div class="uk-switcher" id="tab-favorites">
                                     <div class="tab-favorites__lessons">
-                                        {% if user.lessonFavorites|length > 0 %}
+                                        {% if user.lessonTeachables|length > 0 %}
                                             <ul class="uk-list uk-list-divider">
-                                                {% for favorite in user.lessonFavorites %}
+                                                {% for favorite in user.lessonTeachables %}
                                                     <li>
                                                         <a class="uk-link-text" href="{{ path('lesson_view', {'id': favorite.lesson.id}) }}">{{ favorite.lesson.title }}</a>
                                                     </li>
