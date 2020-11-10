@@ -1,0 +1,36 @@
+<div uk-grid>
+    <div class="uk-width-1-1 uk-width-small@m">
+        <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+            {% for experience in feedbackGenerator %}
+                <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
+            {% endfor %}
+            <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
+        </ul>
+    </div>
+    <div class="uk-width-1-1 uk-width-expand@m">
+        <ul id="tab-account-inner" class="uk-switcher">
+
+            {% for experience in feedbackGenerator%}
+                    <div class="feedback-{{ experience.id }}">
+                        <strong>Feedback for {{ experience.title }}</strong>
+
+                            <div class="uk-overflow-auto">
+                                <table class="uk-table uk-table-divider">
+                                    {{ feedbackGenerator.renderTableHeader|raw }}
+                                    {{ feedbackGenerator.renderTableBody|raw }}
+                                </table>
+                            </div>
+
+                        {{ feedbackGenerator.renderDataBreakdown|raw }}
+                    </div>
+            {% else %}
+                <p>No feedback has been submitted yet.</p>
+            {% endfor %}
+
+            <div class="feedback-summary">
+                <p><strong>Feedback Summary</strong></p>
+                {{ feedbackGenerator.renderAggregateDataBreakdown|raw }}
+            </div>
+        </ul>
+    </div>
+</div>
