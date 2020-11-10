@@ -28,7 +28,6 @@ class CompanyResource extends Image
 
     /**
      * @Groups({"COMPANY_RESOURCE"})
-     * @Assert\NotBlank(message="Don't forget a description for your resource!", groups={"EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
