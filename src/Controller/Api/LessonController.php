@@ -189,6 +189,29 @@ class LessonController extends AbstractController
             } else {
                 $lesson->setIsTeachable(false);
             }
+
+            // Add whether or not the lesson has presenters available
+            $presenters = $this->lessonTeachableRepository->findByExpertPresenters([
+                'lesson' => $lesson->getId()
+            ]);
+
+            if($presenters) {
+                $lesson->setHasExpertPresenters(true);
+            } else {
+                $lesson->setHasExpertPresenters(false);
+            }
+
+
+            // Add whether or not the lesson has educators who requested this course be taught
+            $requestors = $this->lessonTeachableRepository->findByEducatorRequestors([
+                'lesson' => $lesson->getId()
+            ]);
+
+            if($requestors) {
+                $lesson->setHasEducatorRequestors(true);
+            } else {
+                $lesson->setHasEducatorRequestors(false);
+            }
         }
 
         $json = $this->serializer->serialize($lessons, 'json', ['groups' => ['LESSON_DATA']]);

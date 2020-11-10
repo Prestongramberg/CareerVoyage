@@ -34,11 +34,11 @@
                     {% endif %}
                   {% endfor %}
 
-                  <div id="register-buttons">
+                  <div id="student_{{ user.id }}">
                     <form class="uk-inline register" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
                         <input type="hidden" name="userId" value="{{ user.id }}" />
                         {% if experience.isRegistered(user) %}
-                            <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit">Already Registered</button>
+                            <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
                         {% else %}
                             <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register</button>
                         {% endif %}
@@ -272,6 +272,7 @@
             {% if user.isEducator or user.isSchoolAdministrator %}
                 <li><a href="#experience-registrations">Registrations</a></li>
                 <li><a href="#available-students-to-register">Available Students To Register</a></li>
+                {#<li><a href="#feedback">Feedback</a></li>#}
             {% endif %}
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
@@ -560,6 +561,12 @@
                 </div>
             {% endif %}
 
+          {#  {% if user.isEducator or user.isSchoolAdministrator %}
+                <div class="experience_feedback">
+                    #}{# FEEDBACK WIDGET #}{#
+                    {{ feedback_widget(user, experience)|raw }}
+                </div>
+            {% endif %}#}
 
             <div class="experience_contact">
                 <table class="uk-table uk-table-justify uk-table-divider">
@@ -584,6 +591,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 
