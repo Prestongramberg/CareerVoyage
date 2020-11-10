@@ -20,6 +20,8 @@
                             {{ feedbackGenerator.renderTableBody|raw }}
                         </table>
                     </div>
+
+                    {{ feedbackGenerator.renderDataBreakdown|raw }}
                 </div>
             {% else %}
                 <p>No feedback has been submitted yet.</p>
