@@ -28,7 +28,9 @@
             <div class="uk-width-1-4@s">
                 {{ form_widget(form.educatorUsers, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Supervising Educator'}}) }}
             </div>
-
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.graduatingYear, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Graduating Year'}}) }}
+            </div>
             <div class="uk-width-1-4@s">
                 <button class="uk-button uk-button-default">Search</button>
                 <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
