@@ -89,11 +89,18 @@ class ManageUsersController extends AbstractController
 
         $form = $this->buildFilterForm(ProfessionalUser::class, $this->generateUrl('manage_professionals'));
 
+        $profile_status = $request->query->get("status");
+
         $form->handleRequest($request);
 
         $filterBuilder = $this->professionalUserRepository->createQueryBuilder('u');
         $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
+        if($profile_status == 'complete'){
+            $filterBuilder->andWhere('u.city IS NOT NULL');
+        } elseif($profile_status == 'incomplete') {
+            $filterBuilder->andWhere('u.city IS NULL');
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             // build the query from the given form object
@@ -112,7 +119,8 @@ class ManageUsersController extends AbstractController
             'user' => $user,
             'pagination' => $pagination,
             'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('manage_professionals')
+            'clearFormUrl' => $this->generateUrl('manage_professionals'),
+            'profile_status' => $profile_status
         ]);
     }
 
