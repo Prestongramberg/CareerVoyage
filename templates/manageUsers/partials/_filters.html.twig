@@ -48,6 +48,17 @@
     </div>
 {% endif %}
 
+{% if user.isAdmin %}
+    <div class="uk-width-1-4@s">
+        <select name="status" class="uk-input" placeholder="Filter By Status">
+            <option value="">Filter by Status</option>
+            <option value="complete" {% if profile_status == "complete" %}selected="selected"{% endif %}>Profile Complete</option>
+            <option value="incomplete" {% if profile_status == "incomplete" %}selected="selected"{% endif %}>Profile Incomplete</option>
+        </select>
+    </div>
+{% endif %}
+
+
 <div class="uk-width-1-4@s">
     <button class="uk-button uk-button-default">Search</button>
     <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
