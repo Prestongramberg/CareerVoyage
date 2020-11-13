@@ -311,8 +311,10 @@ class ChatController extends AbstractController
         // Check content of message and look for links. If found generate <a> tag
         preg_match_all('#[-a-zA-Z0-9@:%_\+.~\#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~\#?&//=]*)?#si', $body, $result);
         foreach($result as $url) {
-            $link = generateUrlForChat($url);
-            $body = str_replace($url, $link, $body);
+            foreach($url as $u) {
+                $link = $this->generateUrlForChat($u);
+                $body = str_replace($u, $link, $body);
+            }
         }
 
         $message = new ChatMessage();
