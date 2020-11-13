@@ -79,9 +79,17 @@
         
         {% if user.isProfessional() %}
             {% if request.professionalHasSeen == false %}
-                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}"><small><em class="fa fa-circle"></em></small> Request to register students for company experience.</a>
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}">
+                    <small><em class="fa fa-circle"></em></small> Request to register students for company experience.
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                    <br /><strong>{{ request.companyExperience.title }}</strong> {% if request.studentUser %} - ({{ request.studentUser.fullName }}){% endif %}</small>
+                </a>
             {% else %}
-                <a class="uk-accordion-title" href="#">Request to register students for company experience.</a>
+                <a class="uk-accordion-title" href="#">
+                    Request to register students for company experience.
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                    <br /><strong>{{ request.companyExperience.title }}</strong> {% if request.studentUser %} - ({{ request.studentUser.fullName }}){% endif %}</small>
+                </a>
             {% endif %}
         {% endif %}
 
