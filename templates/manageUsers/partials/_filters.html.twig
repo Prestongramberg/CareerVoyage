@@ -48,12 +48,12 @@
     </div>
 {% endif %}
 
-{% if user.isAdmin %}
+{% if user.isAdmin and app.request.attributes.get("_route") == "manage_professionals" %}
     <div class="uk-width-1-4@s">
         <select name="status" class="uk-input" placeholder="Filter By Status">
             <option value="">Filter by Status</option>
-            <option value="complete" {% if profile_status == "complete" %}selected="selected"{% endif %}>Complete</option>
-            <option value="incomplete" {% if profile_status == "incomplete" %}selected="selected"{% endif %}>Incomplete</option>
+            <option value="complete" {% if profile_status is defined and profile_status == "complete" %}selected="selected"{% endif %}>Profile Complete</option>
+            <option value="incomplete" {% if profile_status is defined and profile_status == "incomplete" %}selected="selected"{% endif %}>Profile Incomplete</option>
         </select>
     </div>
 {% endif %}
