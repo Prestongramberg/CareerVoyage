@@ -368,12 +368,22 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">Salary Exploration</h3>
+                                <h3 class="uk-card-title uk-margin-remove-bottom">Exploration</h3>
                             </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Explore Salaries by Industry</a>
+                        <ul class="uk-list">
+                            <li>
+                                <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Learn about Careers</a>
+                            </li>
+                            <li>
+                                <a class="uk-link" href="{{ path('company_index') }}">Learn about Companies</a>
+                            </li>
+                            <li>
+                                <a class="uk-link" href="{{ path('experience_index') }}">Career Experiences</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
