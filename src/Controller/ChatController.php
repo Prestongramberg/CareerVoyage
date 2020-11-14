@@ -307,15 +307,7 @@ class ChatController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $body = $data["message"];
-
-        // Check content of message and look for links. If found generate <a> tag
-        preg_match_all('#[-a-zA-Z0-9@:%_\+.~\#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~\#?&//=]*)?#si', $body, $result);
-        foreach($result as $url) {
-            foreach($url as $u) {
-                $link = $this->generateUrlForChat($u);
-                $body = str_replace($u, $link, $body);
-            }
-        }
+        $body = $this->generateUrlForChat($body);
 
         $message = new ChatMessage();
         $message->setBody($body);
@@ -441,7 +433,33 @@ class ChatController extends AbstractController
 
 
 
-    private function generateUrlForChat($string) {
+    private function generateUrlForChat($text)
+    {     
+        // https://stackoverflow.com/questions/1925455/how-to-mimic-stack-overflow-auto-link-behavior 
+        // a more readably-formatted version of the pattern is on http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+        $pattern  = '~(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))~';
+
+        return preg_replace_callback($pattern, function ($matches) {
+
+            $url       = array_shift($matches);
+            $url_parts = parse_url($url);
+
+            $text = parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH);
+            $text = preg_replace("/^www./", "", $text);
+
+            // If we want to show everything but the last /folder change 30 to $last and uncomment
+            // $last = -(strlen(strrchr($text, "/"))) + 1;
+            // if ($last < 0) {
+                $text = substr($text, 0, 30) . "&hellip;";
+            // }
+
+            return sprintf('<a href="%s" target="_blank">%s</a>', $url, $text);
+
+        }, $text);
+    }
+
+
+    private function generateUrlForChat_OLD($string) {
         $link = "";
         
         if(preg_match("@^http|https://@i",$string)) {
