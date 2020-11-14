@@ -307,19 +307,7 @@ class ChatController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $body = $data["message"];
-
-        // Check content of message and look for links. If found generate <a> tag
-        // preg_match_all('#[-a-zA-Z0-9@:%_\+.~\#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~\#?&//=]*)?#si', $body, $result);
-        // foreach($result as $url) {
-        //     foreach($url as $u) {
-        //         $link = $this->generateUrlForChat($u);
-        //         $body = str_replace($u, $link, $body);
-        //     }
-        // }
-
-        print_r($this->generateUrlForChat($body));
-
-        die();
+        $body = $this->generateUrlForChat($body);
 
         $message = new ChatMessage();
         $message->setBody($body);
@@ -459,10 +447,10 @@ class ChatController extends AbstractController
             $text = parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH);
             $text = preg_replace("/^www./", "", $text);
 
-            // If we want to show everything but the last /folder change 25 to $last and uncomment
+            // If we want to show everything but the last /folder change 30 to $last and uncomment
             // $last = -(strlen(strrchr($text, "/"))) + 1;
             // if ($last < 0) {
-                $text = substr($text, 0, 25) . "&hellip;";
+                $text = substr($text, 0, 30) . "&hellip;";
             // }
 
             return sprintf('<a href="%s" target="_blank">%s</a>', $url, $text);
