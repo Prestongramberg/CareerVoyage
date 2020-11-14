@@ -71,7 +71,7 @@
 
         {% if request.wasCreatedByUser(user) %}
             <a class="uk-accordion-title" href="#">
-                Join company request
+                Join company request Y
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong></small>
             </a>
             <div class="uk-accordion-content">
@@ -110,10 +110,17 @@
                 </table>
             </div>
         {% else %}
-            <a class="uk-accordion-title" href="#">
-                Join company request
-                <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong> - ({{ request.createdBy.firstName }} {{ request.createdBy.lastName }})</small>
-            </a>
+            {% if request.professionalHasSeen == false %}
+                <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-location="{{ location }}" data-parent="{{ parentTab }}">
+                    <small class="icon"><em class="fa fa-circle"></em></small> Join company request
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong> - ({{ request.createdBy.firstName }} {{ request.createdBy.lastName }})</small>
+                </a>
+            {% else %}
+                <a class="uk-accordion-title" href="#">
+                    Join company request
+                    <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong> - ({{ request.createdBy.firstName }} {{ request.createdBy.lastName }})</small>
+                </a>
+            {% endif %}
             <div class="uk-accordion-content">
                 <p>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }} has requested to join your company</p>
                 {% if render_request_status_text( request ) == "Pending" %}
