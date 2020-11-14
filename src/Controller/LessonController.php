@@ -138,10 +138,20 @@ class LessonController extends AbstractController
     public function viewAction(Request $request, Lesson $lesson) {
 
         $user = $this->getUser();
+        $primaryIndustries = [];
+
+        if( sizeof($lesson->getSecondaryIndustries()) > 0){
+            foreach($lesson->getSecondaryIndustries() as $secondaryIndustry){
+                if(!in_array($secondaryIndustry->getPrimaryIndustry()->getId(), $primaryIndustries)){
+                    $primaryIndustries[$secondaryIndustry->getPrimaryIndustry()->getId()] = $secondaryIndustry->getPrimaryIndustry()->getName();
+                }
+            }
+        }
 
         return $this->render('lesson/view.html.twig', [
             'user' => $user,
-            'lesson' => $lesson
+            'lesson' => $lesson,
+            'primary_industries' => $primaryIndustries
         ]);
     }
 

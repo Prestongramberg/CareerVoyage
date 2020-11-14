@@ -96,11 +96,13 @@
                                     {% endfor %}
                                 </td>
                             </tr>
-                            {% if lesson.primaryIndustry %}
+                            {% if primary_industries %}
                                 <tr>
                                     <td>Industries</td>
                                     <td>
-                                        {{ lesson.primaryIndustry.name }}
+                                        {% for industry in primary_industries %}
+                                            {{ industry }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
                                     </td>
                                 </tr>
                             {% endif %}
@@ -110,7 +112,7 @@
                                     <td>
                                         <div style="max-height: 100px; overflow-y: scroll">
                                             {% for industry in lesson.secondaryIndustries %}
-                                                {{ industry.name }}{% if not loop.last %},{% endif %}
+                                                {{ industry.name }}{% if not loop.last %}, {% endif %}
                                             {% endfor %}
                                         </div>
                                     </td>
