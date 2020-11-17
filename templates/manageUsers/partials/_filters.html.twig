@@ -48,7 +48,7 @@
     </div>
 {% endif %}
 
-{% if (user.isAdmin or user.isRegionalCoordinator) and app.request.attributes.get("_route") == "manage_professionals" %}
+{% if (user.isAdmin or user.isRegionalCoordinator) and (app.request.attributes.get("_route") == "manage_professionals" or app.request.attributes.get("_route") == "manage_students" or app.request.attributes.get("_route") == "manage_educators") %}
     <div class="uk-width-1-4@s">
         <select name="status" class="uk-input" placeholder="Filter By Status">
             <option value="">Filter by Status</option>
