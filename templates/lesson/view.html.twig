@@ -83,8 +83,8 @@
                     <table class="uk-table uk-table-small uk-table-divider">
                         <thead>
                             <tr>
-                                <th>Info</th>
-                                <th>Detail</th>
+                                <th width="15%">Info</th>
+                                <th width="85%">Detail</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,21 +96,25 @@
                                     {% endfor %}
                                 </td>
                             </tr>
-                            {% if lesson.primaryIndustry %}
+                            {% if primary_industries %}
                                 <tr>
-                                    <td>Primary Industry</td>
+                                    <td>Industries</td>
                                     <td>
-                                        {{ lesson.primaryIndustry.name }}
+                                        {% for industry in primary_industries %}
+                                            {{ industry }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
                                     </td>
                                 </tr>
                             {% endif %}
                             {% if lesson.secondaryIndustries|length %}
                                 <tr>
-                                    <td>Secondary Industry</td>
+                                    <td>Careers</td>
                                     <td>
-                                        {% for industry in lesson.secondaryIndustries %}
-                                            {{ industry.name }}{% if not loop.last %},{% endif %}
-                                        {% endfor %}
+                                        <div style="max-height: 100px; overflow-y: scroll">
+                                            {% for industry in lesson.secondaryIndustries %}
+                                                {{ industry.name }}{% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
                                     </td>
                                 </tr>
                             {% endif %}
