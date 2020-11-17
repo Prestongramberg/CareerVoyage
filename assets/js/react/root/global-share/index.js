@@ -6,17 +6,56 @@ import thunk from 'redux-thunk';
 import reducers from "./reducers";
 import App from "./App";
 
-const globalShares = document.getElementsByClassName("react-global-share");
-for( let i = 0; i < globalShares.length; i++) {
+const globalShare = document.getElementById("react-global-share");
 
-    const user = JSON.parse( globalShares[i].getAttribute("data-user") ) || {};
-    const message = globalShares[i].getAttribute("data-message");
-    const title = globalShares[i].textContent;
+if(globalShare) {
+
+    debugger;
+    const user = JSON.parse( globalShare.getAttribute("data-user") ) || {};
+    const message = globalShare.getAttribute("data-message");
+    const title = globalShare.textContent;
 
     const store = createStore(
         reducers,
         {
-            users: []
+            users: {
+                professionals: [],
+                educators: [],
+                students: [],
+                school_admins: [],
+                all: []
+            },
+            filters: {
+                roles: [],
+                user_roles: [
+                    { label: 'Professional', value: 'professional' },
+                    { label: 'Student', value: 'student' },
+                    { label: 'Educator', value: 'educator' },
+                    { label: 'School Administrator', value: 'school_administrator' }
+                ],
+                companies: [],
+                primary_industries: [],
+                secondary_industries: [],
+                interests: [],
+                company_admins: [],
+                schools: [],
+                courses_taught: [],
+            },
+            search: {
+                roles: [],
+                companies: [],
+                user_roles: [],
+                query: '',
+                interests: '',
+                company_admins: [],
+                schools: [],
+                courses_taught: [],
+                primary_industries: [],
+                secondary_industries: [],
+            },
+            ui: {
+                users: []
+            }
         },
         compose(
             applyMiddleware(thunk),
@@ -30,12 +69,12 @@ for( let i = 0; i < globalShares.length; i++) {
                 <App message={message}
                      title={title}
                      user={user}
-                     uniqueId={i}
                 />
             </Provider>,
-            globalShares[i]
+            globalShare
         );
     };
     render();
     store.subscribe(render);
+
 }
