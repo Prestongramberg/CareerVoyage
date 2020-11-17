@@ -40,7 +40,7 @@
                     </div>
                     {% include 'profile/partials/shared/_edit_profile_image.html.twig' %}
                     <div class="uk-margin">
-                        {{ form_label(form.briefBio, 'Brief Bio') }}
+                        {{ form_label(form.briefBio, 'Brief Bio *') }}
                         <div class="uk-text-meta">Tell us a little about yourself to be featured on our platform</div>
                         {{ form_widget(form.briefBio, {'attr': {'class': 'uk-textarea uk-height-small' ~ ( form_errors(form.briefBio) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.briefBio) }}

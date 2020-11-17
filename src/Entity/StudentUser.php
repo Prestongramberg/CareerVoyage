@@ -9,6 +9,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StudentUserRepository")
@@ -53,6 +55,11 @@ class StudentUser extends User
     private $displayName;
 
     /**
+     * @Assert\Count(
+     *      min = 1,
+     *      minMessage = "Please select at least one career field",
+     *     groups={"EDIT"}
+     * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="studentUsers", cascade={"persist", "remove"})
      */
     private $secondaryIndustries;
