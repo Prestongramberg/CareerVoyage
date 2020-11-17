@@ -89,7 +89,8 @@ class ManageUsersController extends AbstractController
 
         $form = $this->buildFilterForm(ProfessionalUser::class, $this->generateUrl('manage_professionals'));
 
-        $profile_status = $request->query->get("status");
+        $profile_status = $request->query->get("item_filter")['status'];
+        $request->query->remove("item_filter")['status'];
 
         $form->handleRequest($request);
 
@@ -329,7 +330,8 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $profile_status = $request->query->get("status");
+        $profile_status = $request->query->get("item_filter")['status'];
+        $request->query->remove("item_filter")['status'];
 
         $form = $this->buildFilterForm(StudentUser::class, $this->generateUrl('manage_students'));
         $form->handleRequest($request);
@@ -402,7 +404,8 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $profile_status = $request->query->get("status");
+        $profile_status = $request->query->get("item_filter")['status'];
+        $request->query->remove("item_filter")['status'];
 
         $form = $this->buildFilterForm(EducatorUser::class, $this->generateUrl('manage_educators'));
         $form->handleRequest($request);
