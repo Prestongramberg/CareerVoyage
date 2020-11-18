@@ -59,8 +59,10 @@ use App\Repository\UserRepository;
 use App\Repository\VideoFavoriteRepository;
 use App\Repository\VideoRepository;
 use App\Security\LoginFormAuthenticator;
+use App\Service\ChatHelper;
 use App\Service\FileUploader;
 use App\Service\Geocoder;
+use App\Service\GlobalShare;
 use App\Service\ImageCacheGenerator;
 use App\Service\PhpSpreadsheetHelper;
 use App\Service\UploaderHelper;
@@ -434,6 +436,16 @@ trait ServiceHelper
     private $helpVideoRepository;
 
     /**
+     * @var ChatHelper
+     */
+    private $chatHelper;
+
+    /**
+     * @var GlobalShare
+     */
+    private $globalShare;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -505,6 +517,8 @@ trait ServiceHelper
      * @param VideoRepository $videoRepository
      * @param ProfessionalVideoRepository $professionalVideoRepository
      * @param HelpVideoRepository $helpVideoRepository
+     * @param ChatHelper $chatHelper
+     * @param GlobalShare $globalShare
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -576,7 +590,9 @@ trait ServiceHelper
         VideoFavoriteRepository $videoFavoriteRepository,
         VideoRepository $videoRepository,
         ProfessionalVideoRepository $professionalVideoRepository,
-        HelpVideoRepository $helpVideoRepository
+        HelpVideoRepository $helpVideoRepository,
+        ChatHelper $chatHelper,
+        GlobalShare $globalShare
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -648,6 +664,8 @@ trait ServiceHelper
         $this->videoRepository = $videoRepository;
         $this->professionalVideoRepository = $professionalVideoRepository;
         $this->helpVideoRepository = $helpVideoRepository;
+        $this->chatHelper = $chatHelper;
+        $this->globalShare = $globalShare;
     }
 
     public function getFullQualifiedBaseUrl() {

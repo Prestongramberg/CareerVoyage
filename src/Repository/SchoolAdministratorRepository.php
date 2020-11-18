@@ -149,4 +149,27 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * @param array $userIds
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getDataForGlobalShare(array $userIds) {
+
+        $ids = implode("','", $userIds);
+
+        $query = "SELECT u.id, CONCAT(\"/media/cache/squared_thumbnail_small/uploads/profile_photo/\", u.photo) as photoImageURL, 'school_administrator' as user_role, u.first_name, u.last_name, u.email, s.id as school_id, 
+			s.name as school_name FROM user u
+          INNER JOIN school_administrator sa ON u.id = sa.id
+          LEFT JOIN school_school_administrator ssa on ssa.school_administrator_id = sa.id
+          LEFT JOIN school s on s.id = ssa.school_id
+          WHERE u.id IN('$ids')";
+
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

@@ -138,7 +138,7 @@ class ChatController extends AbstractController
 
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
-        $users = $this->getChattableUsers($loggedInUser, $request->query->get('search', ''));
+        $users = $this->chatHelper->getChattableUsers($loggedInUser, $request->query->get('search', ''));
         $payload = json_decode($this->serializer->serialize($users, 'json', ['groups' => ['ALL_USER_DATA']]), true);
 
         return new JsonResponse(
@@ -168,7 +168,7 @@ class ChatController extends AbstractController
         $userId = $data["userId"];
         $user = $this->userRepository->find($userId);
 
-        $chattableUsers = $this->getChattableUsers($loggedInUser);
+        $chattableUsers = $this->chatHelper->getChattableUsers($loggedInUser);
 
         $userWishingToChatWith = array_filter($chattableUsers, function($chattableUser) use($user) {
             return $user->getId() == $chattableUser['id'];
@@ -348,7 +348,7 @@ class ChatController extends AbstractController
             Response::HTTP_OK
         );
     }
-
+    
     /**
      * @param User $loggedInUser
      * @param string $search
