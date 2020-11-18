@@ -138,6 +138,7 @@ export function sendNotifications() {
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {
                     window.Pintex.notification("Notifications Sent!");
+                    UIkit.modal('#global-share').hide();
                     dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS });
                 }  else {
                     dispatch({
