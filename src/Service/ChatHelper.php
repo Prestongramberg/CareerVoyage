@@ -149,7 +149,7 @@ class ChatHelper
             // find users just for their school
             foreach($loggedInUser->getSchools() as $school) {
                 $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $school);
-                $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $school);
+                $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
                 $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $school);
                 $users = array_merge($users, $studentUsers, $educatorUsers, $schoolAdministrators);
             }

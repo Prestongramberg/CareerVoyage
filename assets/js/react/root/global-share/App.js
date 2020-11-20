@@ -118,6 +118,7 @@ export class App extends Component {
 
     renderUser(user) {
 
+        debugger;
         let loggedInUser = this.props.user;
         let row = '';
         let photoImageURL = user.photoImageURL ? user.photoImageURL : '/build/images/avatar.ec6ae432.png';
@@ -132,8 +133,9 @@ export class App extends Component {
             case 'student':
 
                 // if the logged in user is a professional then don't show the student name
-                if(loggedInUser.roles && loggedInUser.roles.indexOf("ROLE_PROFESSIONAL") !== -1 ) {
+                if(loggedInUser.roles && loggedInUser.roles.indexOf("ROLE_PROFESSIONAL_USER") !== -1 ) {
                     row = 'Student, ' + user.school_name;
+                    photoImageURL = '/build/images/avatar.ec6ae432.png';
                 } else {
                     row = user.first_name + ' ' +  user.last_name + ', Student, ' + user.school_name;
                 }
@@ -412,11 +414,15 @@ export class App extends Component {
             // courses taught search
             if(this.props.search.courses_taught.length > 0) {
 
-                if(!user.courses_taught) {
+                debugger;
+
+                if(!user.courses) {
                     return false;
                 }
 
-                let coursesTaught = Object.keys(user.courses_taught);
+                debugger;
+
+                let coursesTaught = Object.keys(user.courses);
 
                 let selectedCoursesTaught = this.props.search.courses_taught.map((x)=>x.value);
                 let hasMatchingCoursesTaught = selectedCoursesTaught.filter(value => coursesTaught.includes(value))
