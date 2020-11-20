@@ -201,6 +201,7 @@ class ChatController extends AbstractController
             $chat = new Chat();
             $chat->setUserOne($user);
             $chat->setUserTwo($loggedInUser);
+            $chat->setUpdatedAt(new \DateTime('now'));
             $this->entityManager->persist($chat);
             $this->entityManager->flush();
         }
@@ -320,6 +321,10 @@ class ChatController extends AbstractController
         $message->setSentTo($userToMessage);
 
         $this->entityManager->persist($message);
+
+        $chat->setUpdatedAt(new \DateTime('now'));
+        $this->entityManager->persist($chat);
+        
         $this->entityManager->flush();
 
         $options = array(
