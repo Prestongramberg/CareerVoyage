@@ -20,7 +20,7 @@
                 <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
                 
-                {% if user.isProfessional or user.isStudent %}
+                {% if user.isProfessional or user.isStudent or user.isEducator %}
 
                   {% for registration in user.getRegistrations %}
                     {% if registration.experience.id == experience.id %}

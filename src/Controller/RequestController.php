@@ -622,7 +622,7 @@ class RequestController extends AbstractController
                 if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
-                if($user->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+                if(($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
 
@@ -630,7 +630,7 @@ class RequestController extends AbstractController
                     $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() - 1);
 
                 }
-                if($user->isStudent() && $experience->getAvailableStudentSpaces() !== 0) {
+                if(($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() !== 0) {
                     $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() - 1);
                 }
 

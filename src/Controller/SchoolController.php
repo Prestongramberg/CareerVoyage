@@ -1640,7 +1640,7 @@ class SchoolController extends AbstractController
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
-        if($userToRegister->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+        if(($userToRegister->isStudent() || $userToRegister->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
             $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
