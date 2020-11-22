@@ -58,6 +58,7 @@ class ChatRepository extends ServiceEntityRepository
             ->andWhere('c.userOne = :userOne OR c.userTwo = :userTwo')
             ->setParameter('userOne', $user->getId())
             ->setParameter('userTwo', $user->getId())
+            ->orderBy('c.updatedAt', 'desc')
             ->getQuery()
             ->getResult();
     }
