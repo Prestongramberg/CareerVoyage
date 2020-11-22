@@ -15,6 +15,7 @@ use App\Entity\StudentUser;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderExecuterInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Lexik\Bundle\FormFilterBundle\Filter\Form\Type as Filters;
 use Doctrine\ORM\Query\Expr;
@@ -22,6 +23,10 @@ use Doctrine\ORM\QueryBuilder;
 
 class ManageUserFilterType extends AbstractType
 {
+
+    public function __construct() {
+        $this->status = [];
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -41,6 +46,16 @@ class ManageUserFilterType extends AbstractType
                         $qbe->addOnce($qbe->getAlias().'.company', 'c', $closure);
                     }
                 ));
+                $builder->add('status', ChoiceType::class, [
+                    'expanded' => false,
+                    'multiple' => false,
+                    'required' => false,
+                    'choices'  => [
+                        'Filter by Status' => '',
+                        'Profile Complete' => 'complete',
+                        'Profile Incomplete' => 'incomplete'
+                    ]
+                ]);
                 break;
             case SiteAdminUser::class:
                 $builder->add('site', SiteFilterType::class, array(
@@ -133,6 +148,17 @@ class ManageUserFilterType extends AbstractType
                         $qbe->addOnce($qbe->getAlias().'.site', 's', $closure);
                     }
                 ));
+
+                $builder->add('status', ChoiceType::class, [
+                    'expanded' => false,
+                    'multiple' => false,
+                    'required' => false,
+                    'choices'  => [
+                        'Filter by Status' => '',
+                        'Profile Complete' => 'complete',
+                        'Profile Incomplete' => 'incomplete'
+                    ]
+                ]);
                 break;
         }
     }
