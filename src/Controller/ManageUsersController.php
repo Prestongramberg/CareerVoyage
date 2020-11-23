@@ -89,24 +89,19 @@ class ManageUsersController extends AbstractController
 
         $form = $this->buildFilterForm(ProfessionalUser::class, $this->generateUrl('manage_professionals'));
 
-        $profile_status = "";
-        if($request->query->get("item_filter")['status']){
-            $profile_status = $request->query->get("item_filter")['status'];
-            $request->query->remove("item_filter")['status'];
-        }
-
         $form->handleRequest($request);
 
         $filterBuilder = $this->professionalUserRepository->createQueryBuilder('u');
         $filterBuilder->andWhere('u.deleted = 0');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
-        if($profile_status == 'complete'){
-            $filterBuilder->andWhere('u.city IS NOT NULL');
-        } elseif($profile_status == 'incomplete') {
-            $filterBuilder->andWhere('u.city IS NULL');
-        }
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if($form->get('status')->getData() == 'complete'){
+                $filterBuilder->andWhere('u.city IS NOT NULL');
+            } elseif($form->get('status')->getData() == 'incomplete') {
+                $filterBuilder->andWhere('u.city IS NULL');
+            }
+
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
@@ -123,8 +118,7 @@ class ManageUsersController extends AbstractController
             'user' => $user,
             'pagination' => $pagination,
             'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('manage_professionals'),
-            'profile_status' => $profile_status
+            'clearFormUrl' => $this->generateUrl('manage_professionals')
         ]);
     }
 
@@ -333,12 +327,6 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $profile_status = "";
-        if($request->query->get("item_filter")['status']){
-            $profile_status = $request->query->get("item_filter")['status'];
-            $request->query->remove("item_filter")['status'];
-        }
-
         $form = $this->buildFilterForm(StudentUser::class, $this->generateUrl('manage_students'));
         $form->handleRequest($request);
 
@@ -368,16 +356,15 @@ class ManageUsersController extends AbstractController
                 ->setParameter('school', $user->getSchool());
         }
 
-        if($profile_status == 'complete'){
-            $filterBuilder->innerJoin('u.secondaryIndustries','si')
-            ->andWhere('si.id IS NOT NULL');
-        } elseif($profile_status == 'incomplete') {
-            $filterBuilder->leftJoin('u.secondaryIndustries','si')
-            ->andWhere('si.id IS NULL');
-        }
-
-
         if ($form->isSubmitted() && $form->isValid()) {
+            if($form->get('status')->getData() == 'complete'){
+                $filterBuilder->innerJoin('u.secondaryIndustries','si')
+                ->andWhere('si.id IS NOT NULL');
+            } elseif($form->get('status')->getData() == 'incomplete') {
+                $filterBuilder->leftJoin('u.secondaryIndustries','si')
+                ->andWhere('si.id IS NULL');
+            }
+
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
@@ -395,7 +382,6 @@ class ManageUsersController extends AbstractController
             'pagination' => $pagination,
             'form' => $form->createView(),
             'clearFormUrl' => $this->generateUrl('manage_students'),
-            'profile_status' => $profile_status
         ]);
     }
 
@@ -409,12 +395,6 @@ class ManageUsersController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-
-        $profile_status = "";
-        if($request->query->get("item_filter")['status']){
-            $profile_status = $request->query->get("item_filter")['status'];
-            $request->query->remove("item_filter")['status'];
-        }
 
         $form = $this->buildFilterForm(EducatorUser::class, $this->generateUrl('manage_educators'));
         $form->handleRequest($request);
@@ -445,13 +425,14 @@ class ManageUsersController extends AbstractController
                 ->setParameter('school', $user->getSchool());
         }
 
-        if($profile_status == 'complete'){
-            $filterBuilder->andWhere('u.briefBio IS NOT NULL');
-        } elseif($profile_status == 'incomplete') {
-            $filterBuilder->andWhere('u.briefBio IS NULL');
-        }
-
         if ($form->isSubmitted() && $form->isValid()) {
+
+            if($form->get('status')->getData() == 'complete'){
+                $filterBuilder->andWhere('u.briefBio IS NOT NULL');
+            } elseif($form->get('status')->getData() == 'incomplete') {
+                $filterBuilder->andWhere('u.briefBio IS NULL');
+            }
+
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
@@ -469,7 +450,6 @@ class ManageUsersController extends AbstractController
             'pagination' => $pagination,
             'form' => $form->createView(),
             'clearFormUrl' => $this->generateUrl('manage_educators'),
-            'profile_status' => $profile_status
         ]);
     }
 

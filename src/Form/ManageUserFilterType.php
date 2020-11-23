@@ -15,7 +15,6 @@ use App\Entity\StudentUser;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderExecuterInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Lexik\Bundle\FormFilterBundle\Filter\Form\Type as Filters;
 use Doctrine\ORM\Query\Expr;
@@ -46,10 +45,12 @@ class ManageUserFilterType extends AbstractType
                         $qbe->addOnce($qbe->getAlias().'.company', 'c', $closure);
                     }
                 ));
-                $builder->add('status', ChoiceType::class, [
+                $builder->add('status', Filters\ChoiceFilterType::class, [
+                    'apply_filter' => false,
                     'expanded' => false,
                     'multiple' => false,
                     'required' => false,
+                    'mapped'   => false,
                     'choices'  => [
                         'Filter by Status' => '',
                         'Profile Complete' => 'complete',
@@ -149,7 +150,9 @@ class ManageUserFilterType extends AbstractType
                     }
                 ));
 
-                $builder->add('status', ChoiceType::class, [
+                $builder->add('status', Filters\ChoiceFilterType::class, [
+                    'apply_filter' => false,
+                    'mapped' => false,
                     'expanded' => false,
                     'multiple' => false,
                     'required' => false,
