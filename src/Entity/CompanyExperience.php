@@ -33,6 +33,11 @@ class CompanyExperience extends Experience
     private $educatorRegisterStudentForCompanyExperienceRequests;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest", mappedBy="companyExperience", orphanRemoval=true)
+     */
+    private $educatorRegisterEducatorForCompanyExperienceRequests;
+
+    /**
      * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
      */
     private $studentReviewExperienceFeedback;
@@ -51,6 +56,7 @@ class CompanyExperience extends Experience
     {
         parent::__construct();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
+        $this->educatorRegisterEducatorForCompanyExperienceRequests = new ArrayCollection(); 
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
     }
@@ -116,6 +122,37 @@ class CompanyExperience extends Experience
             // set the owning side to null (unless already changed)
             if ($educatorRegisterStudentForCompanyExperienceRequest->getCompanyExperience() === $this) {
                 $educatorRegisterStudentForCompanyExperienceRequest->setCompanyExperience(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorRegisterEducatorForCompanyExperienceRequest[]
+     */
+    public function getEducatorRegisterEducatorForCompanyExperienceRequests(): Collection
+    {
+        return $this->EducatorRegisterEducatorForCompanyExperienceRequests;
+    }
+
+    public function addEducatorRegisterEducatorForCompanyExperienceRequest(EducatorRegisterEducatorForCompanyExperienceRequest $educatorRegisterEducatorForCompanyExperienceRequest): self
+    {
+        if (!$this->educatorRegisterEducatorForCompanyExperienceRequests->contains($educatorRegisterEducatorForCompanyExperienceRequests)) {
+            $this->educatorRegisterEducatorForCompanyExperienceRequests[] = $educatorRegisterEducatorForCompanyExperienceRequests;
+            $educatorRegisterEducatorForCompanyExperienceRequests->setCompanyExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorRegisterEducatorForCompanyExperienceRequest(EducatorRegisterEducatorForCompanyExperienceRequest $educatorRegisterEducatorForCompanyExperienceRequest): self
+    {
+        if ($this->educatorRegisterEducatorForCompanyExperienceRequests->contains($educatorRegisterEducatorForCompanyExperienceRequest)) {
+            $this->educatorRegisterEducatorForCompanyExperienceRequests->removeElement($educatorRegisterEducatorForCompanyExperienceRequest);
+            // set the owning side to null (unless already changed)
+            if ($educatorRegisterEducatorForCompanyExperienceRequest->getCompanyExperience() === $this) {
+                $educatorRegisterEducatorForCompanyExperienceRequest->setCompanyExperience(null);
             }
         }
 

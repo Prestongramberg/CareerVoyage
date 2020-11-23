@@ -10,6 +10,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
@@ -1230,6 +1231,100 @@ class CompanyController extends AbstractController
             return new JsonResponse( ['user_id' => $experience->getEmployeeContact()->getId(), 'allow_edit' => false] );
         }
     }
+
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/companies/experiences/{id}/educator/register", name="company_experience_educator_register", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceEducatorRegisterAction(Request $request, CompanyExperience $experience) {
+        // We will mark any educator as approved for this event.
+        $educatorIdToRegister = $request->request->get('educatorId');
+        $educatorToRegister = $this->educatorUserRepository->find($educatorIdToRegister);
+
+        
+        
+        $user = $this->getUser();
+        $registerRequest = new EducatorRegisterEducatorForCompanyExperienceRequest();
+        $registerRequest->setCreatedBy($user);
+        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
+        $registerRequest->setCompanyExperience($experience);
+        $registerRequest->setEducatorUser($educatorToRegister);
+
+        // Does not require approval
+        $registerRequest->setApproved(true);
+        $registerRequest->setProfessionalHasSeen(true);
+        $registerRequest->setEducatorHasSeen(true);
+        $this->entityManager->persist($registerRequest);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'You has been registered.');
+
+        if($request->isXmlHttpRequest()){
+        // AJAX request
+            return new JsonResponse( ["status" => "success", "educator_id" => $user->getId(), 'id' => $experience->getId(), "approval" => $experience->getRequireApproval(), "request_id" => $registerRequest->getId()]);
+        } else {
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
+    }
+
+
+    /**
+     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @Route("/companies/experiences/{id}/educator/deregister", name="company_experience_educator_deregister", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function companyExperienceEducatorDeregisterAction(Request $request, CompanyExperience $experience) {
+        $educatorIdToDeregister = $request->request->get('educatorId');
+        $educatorToDeregister = $this->educatorUserRepository->find($educatorIdToDeregister);
+
+        $deregisterEducatorForExperience = $this->educatorRegisterEducatorForExperienceRequestRepository->getByEducatorAndExperience($educatorToDeregister, $experience);
+
+
+// START HERE ------ 11/22/20
+
+        $deregisterRequest = $this->requestRepository->find($deregisterStudentForExperience);
+        $registration = $this->registrationRepository->getByUserAndExperience($educatorToDeregister, $experience);
+
+        /** @var ProfessionalUser $companyOwner */
+        $companyOwner = $experience->getCompany()->getOwner();
+
+        
+
+        $educators = $educatorToDeregister->getEducatorUsers();
+
+        foreach($educators as $educator) {
+            if($educator->getEmail()) {
+                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
+            }
+        }
+
+        if($studentToDeregister->getEmail()) {
+            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
+        }
+
+        $this->entityManager->remove($deregisterStudentForExperience);
+        $this->entityManager->remove($deregisterRequest);
+        if ($registration) {
+            $this->entityManager->remove($registration);
+        }
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'Student has been removed from this experience.');
+
+        if($request->isXmlHttpRequest()){
+          // AJAX request
+          return new JsonResponse( ["status" => "success", "student_id" => $studentIdToDeregister, 'id' => $experience->getId()]);
+        } else {
+          return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
+    }
+
 
     /**
      * @IsGranted("ROLE_EDUCATOR_USER")

@@ -37,6 +37,26 @@
                   {% endif %}
                 {% endfor %}
 
+                {% if user.educator %}
+                    My ID: {{ user.id }} --
+                    <div id="educator_id">
+                        <form class="uk-inline register_educator" method="post" action="{{ path('company_experience_educator_register', {'id' : experience.id}) }}">
+                            <input type="hidden" name="userId" value="{{ user.id }}" />
+                            {% if experience.isRegistered(user) %}
+                                <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
+                            {% else %}
+                                <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register Myself</button>
+                            {% endif %}
+                        </form>
+
+                        <form class="uk-inline deregister_educator" method="post" action="{{ path('company_experience_educator_deregister', {'id' : experience.id}) }}">
+                            <input type="hidden" name="userId" value="{{ user.id }}">
+                            {% if experience.isRegistered(user) %}
+                                <button class="uk-button uk-button-danger uk-button-small disabled uk-margin-small-bottom" type="submit">Cancel Registration</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                {% endif %}
 
                 {% if user.professional and experience.company.owner.id == user.id %}
                     <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#live-feedback-url" uk-toggle>Live Feedback URL</a>
@@ -384,6 +404,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
 
+        // Student Registering
+
         $(document).on('submit', '.register', function(e){
           var student_id = $(this).children().first().val();
           e.preventDefault();
@@ -406,6 +428,35 @@
           $.post( $(this).attr('action'), { studentId: student_id }, function(data){
             if(data.status === "success") {
               $('#student_' + student_id).html( '<form class="uk-inline register" action="{{ path('company_experience_student_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.student_id + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>' );
+            }
+          });
+        });
+
+
+        // Educator Registering
+
+        $(document).on('submit', '.register_educator', function(e){
+          var educator_id = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { educatorId: educator_id }, function(data){
+            if(data.status === "success") {
+                if(data.approval === true) {
+                    $('#educator_id').html( 'Pending <form class="uk-inline deregister_educator" action="{{ path('company_experience_educator_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="educatorId" value="' + data.educator_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                } else {
+                    $('#educator_id').html( 'Approved <form class="uk-inline deregister_educator" action="{{ path('company_experience_educator_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="educatorId" value="' + data.educator_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                    // send completion request
+                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){});
+                }
+            }
+          });
+        });
+
+        $(document).on('submit', '.deregister_educator', function(e){
+          var educator_id = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { educatorId: educator_id }, function(data){
+            if(data.status === "success") {
+              $('#educator_id').html( '<form class="uk-inline register_educator" action="{{ path('company_experience_educator_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="educatorId" value="' + data.educator_id + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register Myself</button></form>' );
             }
           });
         });

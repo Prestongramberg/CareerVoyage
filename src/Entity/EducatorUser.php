@@ -98,6 +98,11 @@ class EducatorUser extends User
     private $educatorReviewTeachLessonExperienceFeedback;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest", mappedBy="educatorUser")
+     */
+    private $educatorRegisterEducatorForCompanyExperienceRequests;
+
+    /**
      * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="educatorUsers")
      */
