@@ -96,13 +96,6 @@ class ManageUsersController extends AbstractController
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if($form->get('status')->getData() == 'complete'){
-                $filterBuilder->andWhere('u.city IS NOT NULL');
-            } elseif($form->get('status')->getData() == 'incomplete') {
-                $filterBuilder->andWhere('u.city IS NULL');
-            }
-
-            // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
 

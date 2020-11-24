@@ -12,7 +12,9 @@ use App\Entity\SiteAdminUser;
 use App\Entity\State;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
+use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderExecuterInterface;
+use Lexik\Bundle\FormFilterBundle\Filter\Query\QueryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -46,7 +48,24 @@ class ManageUserFilterType extends AbstractType
                     }
                 ));
                 $builder->add('status', Filters\ChoiceFilterType::class, [
-                    'apply_filter' => false,
+                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
+                        if (empty($values['value'])) {
+                            return null;
+                        }
+
+                        $status = $values['value'];
+
+                        $queryBuilder = $filterQuery->getQueryBuilder();
+
+                        if($status === 'complete'){
+                            $queryBuilder->andWhere('u.city IS NOT NULL');
+                        } elseif($status === 'incomplete') {
+                            $queryBuilder->andWhere('u.city IS NULL');
+                        }
+
+                        $newFilterQuery = new ORMQuery($queryBuilder);
+                        return $newFilterQuery->getExpr();
+                    },
                     'expanded' => false,
                     'multiple' => false,
                     'required' => false,
