@@ -14,9 +14,6 @@ use Doctrine\ORM\Mapping\JoinTable;
 class EducatorRegisterEducatorForCompanyExperienceRequest extends Request
 {
 
-
-
-
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\CompanyExperience", inversedBy="educatorRegisterEducatorForCompanyExperienceRequests")
      * @ORM\JoinColumn(nullable=true)
@@ -27,12 +24,6 @@ class EducatorRegisterEducatorForCompanyExperienceRequest extends Request
      * @ORM\ManyToOne(targetEntity="App\Entity\EducatorUser", inversedBy="educatorRegisterEducatorForCompanyExperienceRequests")
      */
     private $educatorUser;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
 
     public function getCompanyExperience(): ?CompanyExperience
     {

@@ -1244,8 +1244,6 @@ class CompanyController extends AbstractController
         // We will mark any educator as approved for this event.
         $educatorIdToRegister = $request->request->get('educatorId');
         $educatorToRegister = $this->educatorUserRepository->find($educatorIdToRegister);
-
-        
         
         $user = $this->getUser();
         $registerRequest = new EducatorRegisterEducatorForCompanyExperienceRequest();
@@ -1264,7 +1262,7 @@ class CompanyController extends AbstractController
 
         if($request->isXmlHttpRequest()){
         // AJAX request
-            return new JsonResponse( ["status" => "success", "educator_id" => $user->getId(), 'id' => $experience->getId(), "approval" => $experience->getRequireApproval(), "request_id" => $registerRequest->getId()]);
+            return new JsonResponse( ["status" => "success", "educator_id" => $educatorToRegister->getId(), 'id' => $experience->getId(), "approval" => $experience->getRequireApproval(), "request_id" => $registerRequest->getId()]);
         } else {
             return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
@@ -1283,12 +1281,12 @@ class CompanyController extends AbstractController
         $educatorIdToDeregister = $request->request->get('educatorId');
         $educatorToDeregister = $this->educatorUserRepository->find($educatorIdToDeregister);
 
-        $deregisterEducatorForExperience = $this->educatorRegisterEducatorForExperienceRequestRepository->getByEducatorAndExperience($educatorToDeregister, $experience);
+        $deregisterEducatorForExperience = $this->educatorRegisterEducatorForCompanyExperienceRequestRepository->getByEducatorAndExperience($educatorToDeregister, $experience);
 
 
 // START HERE ------ 11/22/20
 
-        $deregisterRequest = $this->requestRepository->find($deregisterStudentForExperience);
+        $deregisterRequest = $this->requestRepository->find($deregisterEducatorForExperience);
         $registration = $this->registrationRepository->getByUserAndExperience($educatorToDeregister, $experience);
 
         /** @var ProfessionalUser $companyOwner */
@@ -1296,30 +1294,30 @@ class CompanyController extends AbstractController
 
         
 
-        $educators = $educatorToDeregister->getEducatorUsers();
+        // $educators = $educatorToDeregister->getEducatorUsers();
 
-        foreach($educators as $educator) {
-            if($educator->getEmail()) {
-                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
-            }
-        }
+        // foreach($educators as $educator) {
+        //     if($educator->getEmail()) {
+        //         $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
+        //     }
+        // }
 
-        if($studentToDeregister->getEmail()) {
-            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
-        }
+        // if($studentToDeregister->getEmail()) {
+        //     $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
+        // }
 
-        $this->entityManager->remove($deregisterStudentForExperience);
+        $this->entityManager->remove($deregisterEducatorForExperience);
         $this->entityManager->remove($deregisterRequest);
         if ($registration) {
             $this->entityManager->remove($registration);
         }
         $this->entityManager->persist($experience);
         $this->entityManager->flush();
-        $this->addFlash('success', 'Student has been removed from this experience.');
+        $this->addFlash('success', 'You have been removed from this experience.');
 
         if($request->isXmlHttpRequest()){
           // AJAX request
-          return new JsonResponse( ["status" => "success", "student_id" => $studentIdToDeregister, 'id' => $experience->getId()]);
+          return new JsonResponse( ["status" => "success", "educator_id" => $educatorIdToDeregister, 'id' => $experience->getId()]);
         } else {
           return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }

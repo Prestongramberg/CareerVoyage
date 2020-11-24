@@ -531,6 +531,23 @@ class RequestController extends AbstractController
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();
                 break;
+            case 'EducatorRegisterEducatorForCompanyExperienceRequest':
+                /** @var EducatorRegisterEducatorForCompanyExperienceRequest $request */
+                $educatorUser = $request->getEducatorUser();
+                $experience = $request->getCompanyExperience();
+
+                $this->entityManager->persist($experience);
+                $request->setApproved(true);
+                $this->entityManager->persist($request);
+                $registration = new Registration();
+                $registration->setUser($educatorUser);
+                $registration->setExperience($request->getCompanyExperience());
+                $this->entityManager->persist($registration);
+                // make sure the teacher has a registration as well
+
+                $this->addFlash('success', 'You have been registered for this event!');
+                $this->entityManager->flush();
+                break;
             case 'StudentToMeetProfessionalRequest':
                 /** @var StudentToMeetProfessionalRequest $request */
                 $student = $request->getStudent();
