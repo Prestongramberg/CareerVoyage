@@ -96,13 +96,6 @@ class ManageUsersController extends AbstractController
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if($form->get('status')->getData() == 'complete'){
-                $filterBuilder->andWhere('u.city IS NOT NULL');
-            } elseif($form->get('status')->getData() == 'incomplete') {
-                $filterBuilder->andWhere('u.city IS NULL');
-            }
-
-            // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
 
@@ -357,14 +350,6 @@ class ManageUsersController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if($form->get('status')->getData() == 'complete'){
-                $filterBuilder->innerJoin('u.secondaryIndustries','si')
-                ->andWhere('si.id IS NOT NULL');
-            } elseif($form->get('status')->getData() == 'incomplete') {
-                $filterBuilder->leftJoin('u.secondaryIndustries','si')
-                ->andWhere('si.id IS NULL');
-            }
-
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
@@ -426,13 +411,6 @@ class ManageUsersController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            if($form->get('status')->getData() == 'complete'){
-                $filterBuilder->andWhere('u.briefBio IS NOT NULL');
-            } elseif($form->get('status')->getData() == 'incomplete') {
-                $filterBuilder->andWhere('u.briefBio IS NULL');
-            }
-
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
         }
