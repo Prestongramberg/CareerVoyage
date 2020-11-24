@@ -1696,23 +1696,23 @@ class SchoolController extends AbstractController
         
         // die();
         // if($registration) {
-            if ($userToDeregister->isStudent()) {
+            if ($userToDeregister->isStudent() || $userToDeregister->isEducator()) {
                 /** @var StudentUser $userToDeregister */
                 $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
 
-                if($userToDeregister->getEmail()) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
+                if($userToDeregister->isStudent()) {
+                    if($userToDeregister->getEmail()) {
+                        $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
+                    }
+
+                    foreach($userToDeregister->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
+                        $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
+                    }
+
+                    foreach($userToDeregister->getEducatorUsers() as $educatorUser) {
+                        $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $educatorUser, $experience);
+                    }
                 }
-
-                foreach($userToDeregister->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
-                }
-
-                foreach($userToDeregister->getEducatorUsers() as $educatorUser) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $educatorUser, $experience);
-                }
-
-
 
             } else if ($userToDeregister->isProfessional()) {
 
