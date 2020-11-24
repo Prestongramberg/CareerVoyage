@@ -147,6 +147,59 @@ class ManageUserFilterType extends AbstractType
                 ));
                 break;
             case StudentUser::class:
+                $builder->add('school', Filters\EntityFilterType::class, [
+                    'class' => School::class,
+                    'choice_label' => 'name',
+                    'expanded'  => false,
+                    'multiple'  => false,
+                    'placeholder' => 'School',
+                    'query_builder' => function(\App\Repository\SchoolRepository $s) {
+                        return $s->createAlphabeticalSearch();
+                    }
+                ]);
+
+                $builder->add('site', SiteFilterType::class, array(
+                    'add_shared' => function (FilterBuilderExecuterInterface $qbe) {
+                        $closure = function (QueryBuilder $filterBuilder, $alias, $joinAlias, Expr $expr) {
+                            $filterBuilder->leftJoin($alias . '.site', $joinAlias);
+                        };
+
+                        $qbe->addOnce($qbe->getAlias().'.site', 's', $closure);
+                    }
+                ));
+
+                $builder->add('status', Filters\ChoiceFilterType::class, [
+                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
+                        if (empty($values['value'])) {
+                            return null;
+                        }
+
+                        $status = $values['value'];
+
+                        $queryBuilder = $filterQuery->getQueryBuilder();
+
+                        if($status === 'complete'){
+                            $queryBuilder->innerJoin('u.secondaryIndustries','si')
+                                         ->andWhere('si.id IS NOT NULL');
+                        } elseif($status === 'incomplete') {
+                            $queryBuilder->leftJoin('u.secondaryIndustries','si')
+                                         ->andWhere('si.id IS NULL');
+                        }
+
+                        $newFilterQuery = new ORMQuery($queryBuilder);
+                        return $newFilterQuery->getExpr();
+                    },
+                    'mapped' => false,
+                    'expanded' => false,
+                    'multiple' => false,
+                    'required' => false,
+                    'choices'  => [
+                        'Filter by Status' => '',
+                        'Profile Complete' => 'complete',
+                        'Profile Incomplete' => 'incomplete'
+                    ]
+                ]);
+                break;
             case EducatorUser::class:
                 $builder->add('school', Filters\EntityFilterType::class, [
                     'class' => School::class,
@@ -170,7 +223,24 @@ class ManageUserFilterType extends AbstractType
                 ));
 
                 $builder->add('status', Filters\ChoiceFilterType::class, [
-                    'apply_filter' => false,
+                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
+                        if (empty($values['value'])) {
+                            return null;
+                        }
+
+                        $status = $values['value'];
+
+                        $queryBuilder = $filterQuery->getQueryBuilder();
+
+                        if($status === 'complete'){
+                            $queryBuilder->andWhere('u.briefBio IS NOT NULL');
+                        } elseif($status === 'incomplete') {
+                            $queryBuilder->andWhere('u.briefBio IS NULL');
+                        }
+
+                        $newFilterQuery = new ORMQuery($queryBuilder);
+                        return $newFilterQuery->getExpr();
+                    },
                     'mapped' => false,
                     'expanded' => false,
                     'multiple' => false,
