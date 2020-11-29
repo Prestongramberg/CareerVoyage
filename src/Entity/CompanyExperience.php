@@ -133,14 +133,14 @@ class CompanyExperience extends Experience
      */
     public function getEducatorRegisterEducatorForCompanyExperienceRequests(): Collection
     {
-        return $this->EducatorRegisterEducatorForCompanyExperienceRequests;
+        return $this->educatorRegisterEducatorForCompanyExperienceRequests;
     }
 
     public function addEducatorRegisterEducatorForCompanyExperienceRequest(EducatorRegisterEducatorForCompanyExperienceRequest $educatorRegisterEducatorForCompanyExperienceRequest): self
     {
-        if (!$this->educatorRegisterEducatorForCompanyExperienceRequests->contains($educatorRegisterEducatorForCompanyExperienceRequests)) {
-            $this->educatorRegisterEducatorForCompanyExperienceRequests[] = $educatorRegisterEducatorForCompanyExperienceRequests;
-            $educatorRegisterEducatorForCompanyExperienceRequests->setCompanyExperience($this);
+        if (!$this->educatorRegisterEducatorForCompanyExperienceRequests->contains($educatorRegisterEducatorForCompanyExperienceRequest)) {
+            $this->educatorRegisterEducatorForCompanyExperienceRequests[] = $educatorRegisterEducatorForCompanyExperienceRequest;
+            $educatorRegisterEducatorForCompanyExperienceRequest->setCompanyExperience($this);
         }
 
         return $this;

@@ -1241,10 +1241,21 @@ class CompanyController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function companyExperienceEducatorRegisterAction(Request $request, CompanyExperience $experience) {
-        // We will mark any educator as approved for this event.
+        
         $educatorIdToRegister = $request->request->get('educatorId');
         $educatorToRegister = $this->educatorUserRepository->find($educatorIdToRegister);
+
+
+        // We need to delete any previous "registration" for the educator. This fixes the issue of an educator
+        // trying to cancel a registration from an older non-educatorRegisterEducatorForCompanyExperienceRequest.
         
+        $registration = $this->registrationRepository->getByUserAndExperience($educatorToRegister, $experience);
+        if ($registration) {
+            $this->entityManager->remove($registration);
+            $this->entityManager->flush();
+        }
+
+        // We will mark any educator as approved for this event.
         $user = $this->getUser();
         $registerRequest = new EducatorRegisterEducatorForCompanyExperienceRequest();
         $registerRequest->setCreatedBy($user);
@@ -1283,28 +1294,11 @@ class CompanyController extends AbstractController
 
         $deregisterEducatorForExperience = $this->educatorRegisterEducatorForCompanyExperienceRequestRepository->getByEducatorAndExperience($educatorToDeregister, $experience);
 
-
-// START HERE ------ 11/22/20
-
         $deregisterRequest = $this->requestRepository->find($deregisterEducatorForExperience);
         $registration = $this->registrationRepository->getByUserAndExperience($educatorToDeregister, $experience);
 
         /** @var ProfessionalUser $companyOwner */
         $companyOwner = $experience->getCompany()->getOwner();
-
-        
-
-        // $educators = $educatorToDeregister->getEducatorUsers();
-
-        // foreach($educators as $educator) {
-        //     if($educator->getEmail()) {
-        //         $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
-        //     }
-        // }
-
-        // if($studentToDeregister->getEmail()) {
-        //     $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
-        // }
 
         $this->entityManager->remove($deregisterEducatorForExperience);
         $this->entityManager->remove($deregisterRequest);
@@ -1313,12 +1307,13 @@ class CompanyController extends AbstractController
         }
         $this->entityManager->persist($experience);
         $this->entityManager->flush();
-        $this->addFlash('success', 'You have been removed from this experience.');
+        // 
 
         if($request->isXmlHttpRequest()){
           // AJAX request
           return new JsonResponse( ["status" => "success", "educator_id" => $educatorIdToDeregister, 'id' => $experience->getId()]);
         } else {
+          $this->addFlash('success', 'You have been removed from this experience.');
           return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
         }
     }
