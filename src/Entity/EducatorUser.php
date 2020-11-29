@@ -281,8 +281,13 @@ class EducatorUser extends User
      */
     public function getAlphabeticallySortedStudentUsers(): Collection
     {
-
-        $students = $this->studentUsers->toArray();
+        $students = array();
+        $student_list = $this->studentUsers->toArray();
+        foreach($student_list as $student){
+            if($student->activated == 1){
+                array_push($students, $student);
+            }
+        }
 
         usort($students, function($a, $b) {
             return strcmp($a->lastName, $b->lastName);
