@@ -76,7 +76,7 @@
                                 <img id="lessonThumbnailImage" src="{{ lesson.thumbnailImage ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
                             </div>
                             <div class="uk-width-expand">
-                                <label>Lesson Thumbnail</label>
+                                <label>Lesson Thumbnail (300x300)</label>
                                 <div data-upload-url="{{ path('lesson_thumbnail_add', { id: lesson.id }) }}" data-type="image:lessonThumbnailImage"></div>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                                 <img id="lessonFeaturedImage" src="{{ lesson.featuredImage ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
                             </div>
                             <div class="uk-width-expand">
-                                <label>Lesson Featured Image</label>
+                                <label>Lesson Featured Image (1680x300)</label>
                                 <div data-upload-url="{{ path('lesson_featured_add', { id: lesson.id }) }}" data-type="image:lessonFeaturedImage"></div>
                             </div>
                         </div>
