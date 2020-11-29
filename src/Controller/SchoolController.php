@@ -1761,7 +1761,7 @@ class SchoolController extends AbstractController
         $description = $request->request->get('description');
         $linkToWebsite = $request->request->get("linkToWebsite");
 
-        if($resource && $title && $description) {
+        if($resource && $title) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
             $file = new ExperienceFile();
