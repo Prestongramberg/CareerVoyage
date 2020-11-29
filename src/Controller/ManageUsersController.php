@@ -320,6 +320,8 @@ class ManageUsersController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $profile_status = $request->query->get("status");
+
         $form = $this->buildFilterForm(StudentUser::class, $this->generateUrl('manage_students'));
         $form->handleRequest($request);
 
@@ -349,6 +351,15 @@ class ManageUsersController extends AbstractController
                 ->setParameter('school', $user->getSchool());
         }
 
+        if($profile_status == 'complete'){
+            $filterBuilder->innerJoin('u.secondaryIndustries','si')
+            ->andWhere('si.id IS NOT NULL');
+        } elseif($profile_status == 'incomplete') {
+            $filterBuilder->leftJoin('u.secondaryIndustries','si')
+            ->andWhere('si.id IS NULL');
+        }
+
+
         if ($form->isSubmitted() && $form->isValid()) {
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
@@ -366,7 +377,7 @@ class ManageUsersController extends AbstractController
             'user' => $user,
             'pagination' => $pagination,
             'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('manage_students'),
+            'clearFormUrl' => $this->generateUrl('manage_students')
         ]);
     }
 
@@ -380,6 +391,8 @@ class ManageUsersController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $profile_status = $request->query->get("status");
 
         $form = $this->buildFilterForm(EducatorUser::class, $this->generateUrl('manage_educators'));
         $form->handleRequest($request);
@@ -410,6 +423,12 @@ class ManageUsersController extends AbstractController
                 ->setParameter('school', $user->getSchool());
         }
 
+        if($profile_status == 'complete'){
+            $filterBuilder->andWhere('u.briefBio IS NOT NULL');
+        } elseif($profile_status == 'incomplete') {
+            $filterBuilder->andWhere('u.briefBio IS NULL');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             // build the query from the given form object
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
@@ -427,7 +446,7 @@ class ManageUsersController extends AbstractController
             'user' => $user,
             'pagination' => $pagination,
             'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('manage_educators'),
+            'clearFormUrl' => $this->generateUrl('manage_educators')
         ]);
     }
 

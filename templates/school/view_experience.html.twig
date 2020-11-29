@@ -20,7 +20,7 @@
                 <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
                 
-                {% if user.isProfessional or user.isStudent %}
+                {% if user.isProfessional or user.isStudent or user.isEducator %}
 
                   {% for registration in user.getRegistrations %}
                     {% if registration.experience.id == experience.id %}
@@ -40,7 +40,7 @@
                         {% if experience.isRegistered(user) %}
                             <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
                         {% else %}
-                            <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register</button>
+                            <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register Myself</button>
                         {% endif %}
                     </form>
 
@@ -76,13 +76,11 @@
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
 
-                   {# {% if not user.student %}
-                        <div style="display: inline-block" class="react-global-share"
-                             data-user="{{ encode_user(user) }}"
-                             data-message="Check out this upcoming experience: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
-                            Share this Experience
-                        </div>
-                    {% endif %}#}
+                    <div style="display: inline-block" id="react-global-share"
+                         data-user="{{ encode_user(user) }}"
+                         data-message="Check out this upcoming experience: <a href='{{ path('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                        Share this Experience
+                    </div>
 
                     {% if user.isAdmin or user.isSchoolAdministrator or ( user.isEducator and experience.school.getAllowEventCreation() and experience.getSchoolContact().getId() == user.id ) %}
                         
@@ -106,9 +104,9 @@
                         {% else %}
                         
                             <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
-                            <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
+                     {#       <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
 
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>
+                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>#}
 
                             <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
                             

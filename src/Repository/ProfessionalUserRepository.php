@@ -183,4 +183,34 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * @param array $userIds
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getDataForGlobalShare(array $userIds) {
+
+        $ids = implode("','", $userIds);
+
+        $query = "SELECT u.id, CONCAT(\"/media/cache/squared_thumbnail_small/uploads/profile_photo/\", u.photo) as photoImageURL, 'professional' as user_role, u.first_name, u.last_name, u.email, c.id as company_id, 
+			c.name as company_name, c.email_address as company_administrator, pu.interests,
+			si.id as secondary_industry_id, si.name as secondary_industry_name,
+			i.id as primary_industry_id, i.name as primary_industry_name,
+			 rwtf.id role_id, rwtf.name as role_name FROM user u
+          INNER JOIN professional_user pu ON u.id = pu.id
+          LEFT JOIN company c on c.id = pu.company_id
+          LEFT JOIN professional_user_secondary_industry pusi on pusi.professional_user_id = pu.id
+          LEFT JOIN secondary_industry si on pusi.secondary_industry_id = si.id
+          LEFT JOIN industry i on si.primary_industry_id = i.id
+          LEFT JOIN professional_user_roles_willing_to_fulfill purwtf on purwtf.professional_user_id = pu.id
+          LEFT JOIN roles_willing_to_fulfill rwtf on purwtf.roles_willing_to_fulfill_id = rwtf.id
+          WHERE u.id IN('$ids')";
+
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

@@ -7,6 +7,7 @@ use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
@@ -32,6 +33,7 @@ use App\Mailer\RequestsMailer;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
+use App\Repository\EducatorRegisterEducatorForExperienceRequestRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\NewCompanyRequestRepository;
 use App\Repository\RegistrationRepository;
@@ -529,6 +531,23 @@ class RequestController extends AbstractController
                 $this->addFlash('success', 'Students have been registered in event!');
                 $this->entityManager->flush();
                 break;
+            case 'EducatorRegisterEducatorForCompanyExperienceRequest':
+                /** @var EducatorRegisterEducatorForCompanyExperienceRequest $request */
+                $educatorUser = $request->getEducatorUser();
+                $experience = $request->getCompanyExperience();
+
+                $this->entityManager->persist($experience);
+                $request->setApproved(true);
+                $this->entityManager->persist($request);
+                $registration = new Registration();
+                $registration->setUser($educatorUser);
+                $registration->setExperience($request->getCompanyExperience());
+                $this->entityManager->persist($registration);
+                // make sure the teacher has a registration as well
+
+                $this->addFlash('success', 'You have been registered for this event!');
+                $this->entityManager->flush();
+                break;
             case 'StudentToMeetProfessionalRequest':
                 /** @var StudentToMeetProfessionalRequest $request */
                 $student = $request->getStudent();
@@ -622,7 +641,7 @@ class RequestController extends AbstractController
                 if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
-                if($user->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+                if(($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
 
@@ -630,7 +649,7 @@ class RequestController extends AbstractController
                     $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() - 1);
 
                 }
-                if($user->isStudent() && $experience->getAvailableStudentSpaces() !== 0) {
+                if(($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() !== 0) {
                     $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() - 1);
                 }
 
