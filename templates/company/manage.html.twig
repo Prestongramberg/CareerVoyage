@@ -17,6 +17,9 @@
           <li><span>Companies</span></li>
       </ul>
       <h3>Manage Companies</h3>
+      <div class="count">
+          Total Companies: {{ companies|length }}
+      </div>
       <hr />
     {% if companies|length %}
       <table class="uk-table">
