@@ -1640,7 +1640,7 @@ class SchoolController extends AbstractController
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
 
-        if($userToRegister->isStudent() && $experience->getAvailableStudentSpaces() === 0) {
+        if(($userToRegister->isStudent() || $userToRegister->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
             $this->addFlash('error', 'Could not register for experience. 0 spots left.');
             return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
         }
@@ -1696,23 +1696,23 @@ class SchoolController extends AbstractController
         
         // die();
         // if($registration) {
-            if ($userToDeregister->isStudent()) {
+            if ($userToDeregister->isStudent() || $userToDeregister->isEducator()) {
                 /** @var StudentUser $userToDeregister */
                 $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
 
-                if($userToDeregister->getEmail()) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
+                if($userToDeregister->isStudent()) {
+                    if($userToDeregister->getEmail()) {
+                        $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
+                    }
+
+                    foreach($userToDeregister->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
+                        $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
+                    }
+
+                    foreach($userToDeregister->getEducatorUsers() as $educatorUser) {
+                        $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $educatorUser, $experience);
+                    }
                 }
-
-                foreach($userToDeregister->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
-                }
-
-                foreach($userToDeregister->getEducatorUsers() as $educatorUser) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $educatorUser, $experience);
-                }
-
-
 
             } else if ($userToDeregister->isProfessional()) {
 
@@ -1761,7 +1761,7 @@ class SchoolController extends AbstractController
         $description = $request->request->get('description');
         $linkToWebsite = $request->request->get("linkToWebsite");
 
-        if($resource && $title && $description) {
+        if($resource && $title) {
             $mimeType = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
             $file = new ExperienceFile();

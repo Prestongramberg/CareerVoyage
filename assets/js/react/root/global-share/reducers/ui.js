@@ -34,11 +34,7 @@ export default (state = { ...initialState }, action) => {
             }
 
         case actionTypes.NOTIFICATIONS_SENDING_SUCCESS:
-            return {
-                ...state,
-                query: '',
-                users: []
-            }
+            return state;
 
         default:
             return state;

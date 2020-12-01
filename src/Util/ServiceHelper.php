@@ -24,6 +24,7 @@ use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\CompanyVideoRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
+use App\Repository\EducatorRegisterEducatorForCompanyExperienceRequestRepository;
 use App\Repository\EducatorReviewCompanyExperienceFeedbackRepository;
 use App\Repository\EducatorReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\EducatorUserRepository;
@@ -59,8 +60,10 @@ use App\Repository\UserRepository;
 use App\Repository\VideoFavoriteRepository;
 use App\Repository\VideoRepository;
 use App\Security\LoginFormAuthenticator;
+use App\Service\ChatHelper;
 use App\Service\FileUploader;
 use App\Service\Geocoder;
+use App\Service\GlobalShare;
 use App\Service\ImageCacheGenerator;
 use App\Service\PhpSpreadsheetHelper;
 use App\Service\UploaderHelper;
@@ -309,6 +312,11 @@ trait ServiceHelper
     private $educatorRegisterStudentForExperienceRequestRepository;
 
     /**
+     * @var EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository
+     */
+    private $educatorRegisterEducatorForCompanyExperienceRequestRepository;
+
+    /**
      * @var SchoolRepository
      */
     private $schoolRepository;
@@ -434,6 +442,16 @@ trait ServiceHelper
     private $helpVideoRepository;
 
     /**
+     * @var ChatHelper
+     */
+    private $chatHelper;
+
+    /**
+     * @var GlobalShare
+     */
+    private $globalShare;
+
+    /**
      * ServiceHelper constructor.
      * @param EntityManagerInterface $entityManager
      * @param FileUploader $fileUploader
@@ -480,6 +498,7 @@ trait ServiceHelper
      * @param LoginFormAuthenticator $authenticator
      * @param ChatMessageRepository $chatMessageRepository
      * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+     * @param EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository
      * @param SchoolRepository $schoolRepository
      * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
      * @param CompanyFavoriteRepository $companyFavoriteRepository
@@ -505,6 +524,8 @@ trait ServiceHelper
      * @param VideoRepository $videoRepository
      * @param ProfessionalVideoRepository $professionalVideoRepository
      * @param HelpVideoRepository $helpVideoRepository
+     * @param ChatHelper $chatHelper
+     * @param GlobalShare $globalShare
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -552,6 +573,7 @@ trait ServiceHelper
         LoginFormAuthenticator $authenticator,
         ChatMessageRepository $chatMessageRepository,
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
+        EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository,
         SchoolRepository $schoolRepository,
         TeachLessonExperienceRepository $teachLessonExperienceRepository,
         CompanyFavoriteRepository $companyFavoriteRepository,
@@ -576,7 +598,9 @@ trait ServiceHelper
         VideoFavoriteRepository $videoFavoriteRepository,
         VideoRepository $videoRepository,
         ProfessionalVideoRepository $professionalVideoRepository,
-        HelpVideoRepository $helpVideoRepository
+        HelpVideoRepository $helpVideoRepository,
+        ChatHelper $chatHelper,
+        GlobalShare $globalShare
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploader = $fileUploader;
@@ -623,6 +647,7 @@ trait ServiceHelper
         $this->authenticator = $authenticator;
         $this->chatMessageRepository = $chatMessageRepository;
         $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
+        $this->educatorRegisterEducatorForCompanyExperienceRequestRepository = $educatorRegisterEducatorForCompanyExperienceRequestRepository;
         $this->schoolRepository = $schoolRepository;
         $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
         $this->companyFavoriteRepository = $companyFavoriteRepository;
@@ -648,6 +673,8 @@ trait ServiceHelper
         $this->videoRepository = $videoRepository;
         $this->professionalVideoRepository = $professionalVideoRepository;
         $this->helpVideoRepository = $helpVideoRepository;
+        $this->chatHelper = $chatHelper;
+        $this->globalShare = $globalShare;
     }
 
     public function getFullQualifiedBaseUrl() {

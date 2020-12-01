@@ -125,4 +125,31 @@ class StudentUserRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param array $userIds
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getDataForGlobalShare(array $userIds) {
+
+        $ids = implode("','", $userIds);
+
+        $query = "SELECT u.id, CONCAT(\"/media/cache/squared_thumbnail_small/uploads/profile_photo/\", u.photo) as photoImageURL, 'student' as user_role, u.first_name, u.last_name, u.email, u.username, s.id as school_id, 
+			s.name as school_name, su.career_statement as interests,
+			si.id as secondary_industry_id, si.name as secondary_industry_name,
+			i.id as primary_industry_id, i.name as primary_industry_name FROM user u
+          INNER JOIN student_user su ON u.id = su.id
+          LEFT JOIN school s on s.id = su.school_id
+          LEFT JOIN student_user_secondary_industry susi on susi.student_user_id = su.id
+          LEFT JOIN secondary_industry si on susi.secondary_industry_id = si.id
+          LEFT JOIN industry i on si.primary_industry_id = i.id
+          WHERE u.id IN('$ids')";
+
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

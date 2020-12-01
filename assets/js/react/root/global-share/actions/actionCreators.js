@@ -22,10 +22,83 @@ export function updateMessage( message ) {
     }
 }
 
+export function queryByRole(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_ROLE,
+        roles: options
+    }
+}
+
+export function queryByUserRole(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_USER_ROLE,
+        user_roles: options
+    }
+}
+
+export function queryByCompany(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_COMPANY,
+        companies: options
+    }
+}
+
+export function queryByInterests(search) {
+
+    return {
+        type: actionTypes.QUERY_BY_INTERESTS,
+        interests: search
+    }
+}
+
+export function queryByCompanyAdministrators(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_COMPANY_ADMINISTRATORS,
+        company_admins: options
+    }
+}
+
+export function queryByCourseTaught(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_COURSE_TAUGHT,
+        courses_taught: options
+    }
+}
+
+export function queryBySchool(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_SCHOOL,
+        schools: options
+    }
+}
+
+export function queryByPrimaryIndustry(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_PRIMARY_INDUSTRY,
+        primary_industries: options
+    }
+}
+
+export function queryBySecondaryIndustry(options) {
+
+    return {
+        type: actionTypes.QUERY_BY_SECONDARY_INDUSTRY,
+        secondary_industries: options
+    }
+}
+
+
 export function searchChattableUsers( search ) {
     return (dispatch, getState) => {
 
-        const url = window.Routing.generate("search_chat_users", { search: search } )
+        const url = window.Routing.generate("global_share_data", { search: search } )
 
         dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS, searchQuery: search})
 
@@ -64,8 +137,9 @@ export function sendNotifications() {
             })
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS });
                     window.Pintex.notification("Notifications Sent!");
+                    UIkit.modal('#global-share').hide();
+                    dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS });
                 }  else {
                     dispatch({
                         type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
@@ -73,7 +147,8 @@ export function sendNotifications() {
                     window.Pintex.notification("Something went wrong, please try again.");
                 }
             })
-            .catch(()=> {
+            .catch((response)=> {
+                debugger;
                 dispatch({
                     type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
                 })
