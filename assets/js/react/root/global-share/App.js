@@ -125,7 +125,12 @@ export class App extends Component {
 
         switch (user.user_role) {
             case 'professional':
-                row = user.first_name + ' ' +  user.last_name + ', Professional, ' + user.company_name;
+                row = user.first_name + ' ' +  user.last_name + ', Professional';
+
+                if(user.company_name) {
+                    row += ', ' + user.company_name;
+                }
+
                 break;
             case 'educator':
                 row = user.first_name + ' ' +  user.last_name + ', Educator, ' + user.school_name;
@@ -331,6 +336,8 @@ export class App extends Component {
 
         return this.props.users.all.filter(user => {
 
+            debugger;
+
             // roles search
             if(this.props.search.roles.length > 0) {
 
@@ -338,9 +345,14 @@ export class App extends Component {
                     return false;
                 }
 
+                debugger;
+
                 let roles = Object.keys(user.roles);
+
                 let selectedRoles = this.props.search.roles.map((x)=>x.value);
                 let matchingRoles = selectedRoles.filter(value => roles.includes(value))
+
+                debugger;
 
                 if(matchingRoles.length === 0) {
                     return false;
@@ -357,6 +369,10 @@ export class App extends Component {
                 let userRole = user.user_role;
                 let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
                 let hasMatchingUserRoles = selectedUserRoles.includes(userRole);
+
+                if(user.company_administrator && selectedUserRoles.includes('company_administrator')) {
+                    hasMatchingUserRoles = true;
+                }
 
                 if(!hasMatchingUserRoles) {
                     return false;
