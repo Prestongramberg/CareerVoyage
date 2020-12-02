@@ -31,7 +31,8 @@ if(globalShare) {
                     { label: 'Professional', value: 'professional' },
                     { label: 'Student', value: 'student' },
                     { label: 'Educator', value: 'educator' },
-                    { label: 'School Administrator', value: 'school_administrator' }
+                    { label: 'School Administrator', value: 'school_administrator' },
+                    { label: 'Company Administrator', value: 'company_administrator' }
                 ],
                 companies: [],
                 primary_industries: [],
