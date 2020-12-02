@@ -107,7 +107,15 @@ function get_company_admins( users ) {
             });
 
             if(!exists) {
-                filters.push({label: user.company_administrator, value: user.company_administrator});
+
+                let value = user.first_name + user.last_name;
+
+                if(user.company_name) {
+                    value += ', ' + user.company_name;
+                }
+
+
+                filters.push({label: value, value: value});
             }
         }
     });
