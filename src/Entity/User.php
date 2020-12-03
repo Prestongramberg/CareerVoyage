@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser"})
+ * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser", "systemUser" = "SystemUser"})
  *
  */
 abstract class User implements UserInterface

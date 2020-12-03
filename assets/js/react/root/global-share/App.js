@@ -69,23 +69,25 @@ export class App extends Component {
                         <div className="uk-margin">
                             <div className="uk-grid">
                                 <div className="uk-width-1-2">
-                                    <div className={`${cb}__heading`}>Sending to Users:</div>
-                                    {this.props.ui.users.map((user) => {
-                                        return (
-                                            <div key={user.id}
-                                                className={`${cb}__user-remove`}
-                                                onClick={() => { this.props.removeUser( user ) }}>
-                                                <div className="uk-grid">
-                                                    <div className="uk-width-expand">
-                                                        { user.first_name } { user.last_name }
-                                                    </div>
-                                                    <div className="uk-width-auto">
-                                                        <span uk-icon="icon: close"></span>
+                                    <div className={`${cb}__heading`}>Sending to Users: ({this.props.ui.users.length} results)</div>
+                                    <div className={`${cb}__scrollable`}>
+                                        {this.props.ui.users.map((user) => {
+                                            return (
+                                                <div key={user.id}
+                                                     className={`${cb}__user-remove`}
+                                                     onClick={() => { this.props.removeUser( user ) }}>
+                                                    <div className="uk-grid">
+                                                        <div className="uk-width-expand">
+                                                            {this.renderUser(user)}
+                                                        </div>
+                                                        <div className="uk-width-auto">
+                                                            <span uk-icon="icon: close"></span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )
-                                    })}
+                                            )
+                                        })}
+                                    </div>
                                 </div>
                                 <div className="uk-width-1-2">
                                     <div className={`${cb}__heading`}>Search Found: ({userCount} results)</div>
