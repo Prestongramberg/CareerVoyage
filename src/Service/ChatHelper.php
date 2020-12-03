@@ -13,6 +13,7 @@ use App\Repository\SchoolAdministratorRepository;
 use App\Repository\SiteAdminUserRepository;
 use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentUserRepository;
+use App\Repository\SystemUserRepository;
 use App\Repository\UserRepository;
 
 class ChatHelper
@@ -53,31 +54,36 @@ class ChatHelper
     private $stateCoordinatorRepository;
 
     /**
+     * @var SystemUserRepository
+     */
+    private $systemUserRepository;
+
+    /**
      * ChatHelper constructor.
-     * @param ProfessionalUserRepository $professionalUserRepository
-     * @param UserRepository $userRepository
-     * @param StudentUserRepository $studentUserRepository
-     * @param EducatorUserRepository $educatorUserRepository
-     * @param SiteAdminUserRepository $siteAdminRepository
+     *
+     * @param ProfessionalUserRepository    $professionalUserRepository
+     * @param UserRepository                $userRepository
+     * @param StudentUserRepository         $studentUserRepository
+     * @param EducatorUserRepository        $educatorUserRepository
+     * @param SiteAdminUserRepository       $siteAdminRepository
      * @param SchoolAdministratorRepository $schoolAdministratorRepository
-     * @param StateCoordinatorRepository $stateCoordinatorRepository
+     * @param StateCoordinatorRepository    $stateCoordinatorRepository
+     * @param SystemUserRepository          $systemUserRepository
      */
     public function __construct(
-        ProfessionalUserRepository $professionalUserRepository,
-        UserRepository $userRepository,
-        StudentUserRepository $studentUserRepository,
-        EducatorUserRepository $educatorUserRepository,
-        SiteAdminUserRepository $siteAdminRepository,
-        SchoolAdministratorRepository $schoolAdministratorRepository,
-        StateCoordinatorRepository $stateCoordinatorRepository
+        ProfessionalUserRepository $professionalUserRepository, UserRepository $userRepository,
+        StudentUserRepository $studentUserRepository, EducatorUserRepository $educatorUserRepository,
+        SiteAdminUserRepository $siteAdminRepository, SchoolAdministratorRepository $schoolAdministratorRepository,
+        StateCoordinatorRepository $stateCoordinatorRepository, SystemUserRepository $systemUserRepository
     ) {
-        $this->professionalUserRepository = $professionalUserRepository;
-        $this->userRepository = $userRepository;
-        $this->studentUserRepository = $studentUserRepository;
-        $this->educatorUserRepository = $educatorUserRepository;
-        $this->siteAdminRepository = $siteAdminRepository;
+        $this->professionalUserRepository    = $professionalUserRepository;
+        $this->userRepository                = $userRepository;
+        $this->studentUserRepository         = $studentUserRepository;
+        $this->educatorUserRepository        = $educatorUserRepository;
+        $this->siteAdminRepository           = $siteAdminRepository;
         $this->schoolAdministratorRepository = $schoolAdministratorRepository;
-        $this->stateCoordinatorRepository = $stateCoordinatorRepository;
+        $this->stateCoordinatorRepository    = $stateCoordinatorRepository;
+        $this->systemUserRepository          = $systemUserRepository;
     }
 
     /**
@@ -158,6 +164,10 @@ class ChatHelper
 
             $users = array_merge($users, $professionalUsers);
         }
+
+        $systemUsers = $this->systemUserRepository->findBySearchTerm($search);
+
+        $users = array_merge($users, $systemUsers);
 
         return $users;
     }

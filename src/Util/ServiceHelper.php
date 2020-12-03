@@ -53,6 +53,7 @@ use App\Repository\StateCoordinatorRepository;
 use App\Repository\StudentReviewCompanyExperienceFeedbackRepository;
 use App\Repository\StudentReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\StudentUserRepository;
+use App\Repository\SystemUserRepository;
 use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
@@ -452,229 +453,205 @@ trait ServiceHelper
     private $globalShare;
 
     /**
+     * @var SystemUserRepository
+     */
+    private $systemUserRepository;
+
+    /**
      * ServiceHelper constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param FileUploader $fileUploader
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param ImageCacheGenerator $imageCacheGenerator
-     * @param UploaderHelper $uploaderHelper
-     * @param Packages $assetsManager
-     * @param CompanyRepository $companyRepository
-     * @param CompanyPhotoRepository $companyPhotoRepository
-     * @param AdminUserRepository $adminUserRepository
-     * @param RequestsMailer $requestsMailer
-     * @param SecurityMailer $securityMailer
-     * @param ExperienceMailer $experienceMailer
-     * @param ProfessionalUserRepository $professionalUserRepository
-     * @param JoinCompanyRequestRepository $joinCompanyRequestRepository
-     * @param UserRepository $userRepository
-     * @param CacheManager $cacheManager
-     * @param RouterInterface $router
-     * @param LessonFavoriteRepository $lessonFavoriteRepository
-     * @param LessonTeachableRepository $lessonTeachableRepository
-     * @param StudentUserRepository $studentUserRepository
-     * @param EducatorUserRepository $educatorUserRepository
-     * @param SerializerInterface $serializer
-     * @param ImportMailer $importMailer
-     * @param ValidatorInterface $validator
-     * @param IndustryRepository $industryRepository
-     * @param SecondaryIndustryRepository $secondaryIndustryRepository
-     * @param RegionalCoordinatorRepository $regionalCoordinatorRepository
-     * @param TeachLessonRequestRepository $teachLessonRequestRepository
-     * @param SchoolExperienceRepository $schoolExperienceRepository
-     * @param RequestRepository $requestRepository
-     * @param ChatRepository $chatRepository
-     * @param PaginatorInterface $paginator
-     * @param SiteAdminUserRepository $siteAdminRepository
-     * @param SchoolAdministratorRepository $schoolAdministratorRepository
-     * @param StateCoordinatorRepository $stateCoordinatorRepository
-     * @param FeedbackMailer $feedbackMailer
-     * @param MessageBusInterface $bus
-     * @param LessonRepository $lessonRepository
-     * @param RecapMailer $recapMailer
-     * @param ExperienceRepository $experienceRepository
-     * @param CompanyExperienceRepository $companyExperienceRepository
-     * @param GuardAuthenticatorHandler $guardHandler
-     * @param LoginFormAuthenticator $authenticator
-     * @param ChatMessageRepository $chatMessageRepository
-     * @param EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+     *
+     * @param EntityManagerInterface                                        $entityManager
+     * @param FileUploader                                                  $fileUploader
+     * @param UserPasswordEncoderInterface                                  $passwordEncoder
+     * @param ImageCacheGenerator                                           $imageCacheGenerator
+     * @param UploaderHelper                                                $uploaderHelper
+     * @param Packages                                                      $assetsManager
+     * @param CompanyRepository                                             $companyRepository
+     * @param CompanyPhotoRepository                                        $companyPhotoRepository
+     * @param AdminUserRepository                                           $adminUserRepository
+     * @param RequestsMailer                                                $requestsMailer
+     * @param SecurityMailer                                                $securityMailer
+     * @param ExperienceMailer                                              $experienceMailer
+     * @param ProfessionalUserRepository                                    $professionalUserRepository
+     * @param JoinCompanyRequestRepository                                  $joinCompanyRequestRepository
+     * @param UserRepository                                                $userRepository
+     * @param CacheManager                                                  $cacheManager
+     * @param RouterInterface                                               $router
+     * @param LessonFavoriteRepository                                      $lessonFavoriteRepository
+     * @param LessonTeachableRepository                                     $lessonTeachableRepository
+     * @param StudentUserRepository                                         $studentUserRepository
+     * @param EducatorUserRepository                                        $educatorUserRepository
+     * @param SerializerInterface                                           $serializer
+     * @param ImportMailer                                                  $importMailer
+     * @param ValidatorInterface                                            $validator
+     * @param IndustryRepository                                            $industryRepository
+     * @param SecondaryIndustryRepository                                   $secondaryIndustryRepository
+     * @param RegionalCoordinatorRepository                                 $regionalCoordinatorRepository
+     * @param TeachLessonRequestRepository                                  $teachLessonRequestRepository
+     * @param SchoolExperienceRepository                                    $schoolExperienceRepository
+     * @param RequestRepository                                             $requestRepository
+     * @param ChatRepository                                                $chatRepository
+     * @param PaginatorInterface                                            $paginator
+     * @param SiteAdminUserRepository                                       $siteAdminRepository
+     * @param SchoolAdministratorRepository                                 $schoolAdministratorRepository
+     * @param StateCoordinatorRepository                                    $stateCoordinatorRepository
+     * @param FeedbackMailer                                                $feedbackMailer
+     * @param MessageBusInterface                                           $bus
+     * @param LessonRepository                                              $lessonRepository
+     * @param RecapMailer                                                   $recapMailer
+     * @param ExperienceRepository                                          $experienceRepository
+     * @param CompanyExperienceRepository                                   $companyExperienceRepository
+     * @param GuardAuthenticatorHandler                                     $guardHandler
+     * @param LoginFormAuthenticator                                        $authenticator
+     * @param ChatMessageRepository                                         $chatMessageRepository
+     * @param EducatorRegisterStudentForExperienceRequestRepository         $educatorRegisterStudentForExperienceRequestRepository
      * @param EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository
-     * @param SchoolRepository $schoolRepository
-     * @param TeachLessonExperienceRepository $teachLessonExperienceRepository
-     * @param CompanyFavoriteRepository $companyFavoriteRepository
-     * @param RegistrationRepository $registrationRepository
-     * @param EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository
-     * @param EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository
-     * @param StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository
-     * @param StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository
-     * @param FeedbackRepository $feedbackRepository
-     * @param Environment $twig
-     * @param SiteRepository $siteRepository
-     * @param TokenStorageInterface $securityToken
-     * @param FilterBuilderUpdaterInterface $filterBuilder
-     * @param Geocoder $geocoder
-     * @param NewCompanyRequestRepository $newCompanyRequestRepository
-     * @param RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
-     * @param AllowedCommunicationRepository $allowedCommunicationsRepository
-     * @param UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository
-     * @param PhpSpreadsheetHelper $phpSpreadsheetHelper
-     * @param CompanyVideoRepository $companyVideoRepository
-     * @param CareerVideoRepository $careerVideoRepository
-     * @param VideoFavoriteRepository $videoFavoriteRepository
-     * @param VideoRepository $videoRepository
-     * @param ProfessionalVideoRepository $professionalVideoRepository
-     * @param HelpVideoRepository $helpVideoRepository
-     * @param ChatHelper $chatHelper
-     * @param GlobalShare $globalShare
+     * @param SchoolRepository                                              $schoolRepository
+     * @param TeachLessonExperienceRepository                               $teachLessonExperienceRepository
+     * @param CompanyFavoriteRepository                                     $companyFavoriteRepository
+     * @param RegistrationRepository                                        $registrationRepository
+     * @param EducatorReviewCompanyExperienceFeedbackRepository             $educatorReviewCompanyExperienceFeedbackRepository
+     * @param EducatorReviewTeachLessonExperienceFeedbackRepository         $educatorReviewTeachLessonExperienceFeedbackRepository
+     * @param StudentReviewCompanyExperienceFeedbackRepository              $studentReviewCompanyExperienceFeedbackRepository
+     * @param StudentReviewTeachLessonExperienceFeedbackRepository          $studentReviewTeachLessonExperienceFeedbackRepository
+     * @param FeedbackRepository                                            $feedbackRepository
+     * @param Environment                                                   $twig
+     * @param SiteRepository                                                $siteRepository
+     * @param TokenStorageInterface                                         $securityToken
+     * @param FilterBuilderUpdaterInterface                                 $filterBuilder
+     * @param Geocoder                                                      $geocoder
+     * @param NewCompanyRequestRepository                                   $newCompanyRequestRepository
+     * @param RolesWillingToFulfillRepository                               $rolesWillingToFulfillRepository
+     * @param AllowedCommunicationRepository                                $allowedCommunicationsRepository
+     * @param UserRegisterForSchoolExperienceRequestRepository              $userRegisterForSchoolExperienceRequestRepository
+     * @param PhpSpreadsheetHelper                                          $phpSpreadsheetHelper
+     * @param CompanyVideoRepository                                        $companyVideoRepository
+     * @param CareerVideoRepository                                         $careerVideoRepository
+     * @param VideoFavoriteRepository                                       $videoFavoriteRepository
+     * @param VideoRepository                                               $videoRepository
+     * @param ProfessionalVideoRepository                                   $professionalVideoRepository
+     * @param HelpVideoRepository                                           $helpVideoRepository
+     * @param ChatHelper                                                    $chatHelper
+     * @param GlobalShare                                                   $globalShare
+     * @param SystemUserRepository                                          $systemUserRepository
      */
     public function __construct(
-        EntityManagerInterface $entityManager,
-        FileUploader $fileUploader,
-        UserPasswordEncoderInterface $passwordEncoder,
-        ImageCacheGenerator $imageCacheGenerator,
-        UploaderHelper $uploaderHelper,
-        Packages $assetsManager,
-        CompanyRepository $companyRepository,
-        CompanyPhotoRepository $companyPhotoRepository,
-        AdminUserRepository $adminUserRepository,
-        RequestsMailer $requestsMailer,
-        SecurityMailer $securityMailer,
-        ExperienceMailer $experienceMailer,
+        EntityManagerInterface $entityManager, FileUploader $fileUploader,
+        UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator,
+        UploaderHelper $uploaderHelper, Packages $assetsManager, CompanyRepository $companyRepository,
+        CompanyPhotoRepository $companyPhotoRepository, AdminUserRepository $adminUserRepository,
+        RequestsMailer $requestsMailer, SecurityMailer $securityMailer, ExperienceMailer $experienceMailer,
         ProfessionalUserRepository $professionalUserRepository,
-        JoinCompanyRequestRepository $joinCompanyRequestRepository,
-        UserRepository $userRepository,
-        CacheManager $cacheManager,
-        RouterInterface $router,
-        LessonFavoriteRepository $lessonFavoriteRepository,
-        LessonTeachableRepository $lessonTeachableRepository,
-        StudentUserRepository $studentUserRepository,
-        EducatorUserRepository $educatorUserRepository,
-        SerializerInterface $serializer,
-        ImportMailer $importMailer,
-        ValidatorInterface $validator,
-        IndustryRepository $industryRepository,
+        JoinCompanyRequestRepository $joinCompanyRequestRepository, UserRepository $userRepository,
+        CacheManager $cacheManager, RouterInterface $router, LessonFavoriteRepository $lessonFavoriteRepository,
+        LessonTeachableRepository $lessonTeachableRepository, StudentUserRepository $studentUserRepository,
+        EducatorUserRepository $educatorUserRepository, SerializerInterface $serializer, ImportMailer $importMailer,
+        ValidatorInterface $validator, IndustryRepository $industryRepository,
         SecondaryIndustryRepository $secondaryIndustryRepository,
         RegionalCoordinatorRepository $regionalCoordinatorRepository,
         TeachLessonRequestRepository $teachLessonRequestRepository,
-        SchoolExperienceRepository $schoolExperienceRepository,
-        RequestRepository $requestRepository,
-        ChatRepository $chatRepository,
-        PaginatorInterface $paginator,
-        SiteAdminUserRepository $siteAdminRepository,
+        SchoolExperienceRepository $schoolExperienceRepository, RequestRepository $requestRepository,
+        ChatRepository $chatRepository, PaginatorInterface $paginator, SiteAdminUserRepository $siteAdminRepository,
         SchoolAdministratorRepository $schoolAdministratorRepository,
-        StateCoordinatorRepository $stateCoordinatorRepository,
-        FeedbackMailer $feedbackMailer,
-        MessageBusInterface $bus,
-        LessonRepository $lessonRepository,
-        RecapMailer $recapMailer,
-        ExperienceRepository $experienceRepository,
-        CompanyExperienceRepository $companyExperienceRepository,
-        GuardAuthenticatorHandler $guardHandler,
-        LoginFormAuthenticator $authenticator,
+        StateCoordinatorRepository $stateCoordinatorRepository, FeedbackMailer $feedbackMailer,
+        MessageBusInterface $bus, LessonRepository $lessonRepository, RecapMailer $recapMailer,
+        ExperienceRepository $experienceRepository, CompanyExperienceRepository $companyExperienceRepository,
+        GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator,
         ChatMessageRepository $chatMessageRepository,
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
         EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository,
-        SchoolRepository $schoolRepository,
-        TeachLessonExperienceRepository $teachLessonExperienceRepository,
-        CompanyFavoriteRepository $companyFavoriteRepository,
-        RegistrationRepository $registrationRepository,
+        SchoolRepository $schoolRepository, TeachLessonExperienceRepository $teachLessonExperienceRepository,
+        CompanyFavoriteRepository $companyFavoriteRepository, RegistrationRepository $registrationRepository,
         EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
         EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository,
         StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository,
         StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository,
-        FeedbackRepository $feedbackRepository,
-        Environment $twig,
-        SiteRepository $siteRepository,
-        TokenStorageInterface $securityToken,
-        FilterBuilderUpdaterInterface $filterBuilder,
-        Geocoder $geocoder,
+        FeedbackRepository $feedbackRepository, Environment $twig, SiteRepository $siteRepository,
+        TokenStorageInterface $securityToken, FilterBuilderUpdaterInterface $filterBuilder, Geocoder $geocoder,
         NewCompanyRequestRepository $newCompanyRequestRepository,
         RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
         AllowedCommunicationRepository $allowedCommunicationsRepository,
         UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository,
-        PhpSpreadsheetHelper $phpSpreadsheetHelper,
-        CompanyVideoRepository $companyVideoRepository,
-        CareerVideoRepository $careerVideoRepository,
-        VideoFavoriteRepository $videoFavoriteRepository,
-        VideoRepository $videoRepository,
-        ProfessionalVideoRepository $professionalVideoRepository,
-        HelpVideoRepository $helpVideoRepository,
-        ChatHelper $chatHelper,
-        GlobalShare $globalShare
+        PhpSpreadsheetHelper $phpSpreadsheetHelper, CompanyVideoRepository $companyVideoRepository,
+        CareerVideoRepository $careerVideoRepository, VideoFavoriteRepository $videoFavoriteRepository,
+        VideoRepository $videoRepository, ProfessionalVideoRepository $professionalVideoRepository,
+        HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
+        SystemUserRepository $systemUserRepository
     ) {
-        $this->entityManager = $entityManager;
-        $this->fileUploader = $fileUploader;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->imageCacheGenerator = $imageCacheGenerator;
-        $this->uploaderHelper = $uploaderHelper;
-        $this->assetsManager = $assetsManager;
-        $this->companyRepository = $companyRepository;
-        $this->companyPhotoRepository = $companyPhotoRepository;
-        $this->adminUserRepository = $adminUserRepository;
-        $this->requestsMailer = $requestsMailer;
-        $this->securityMailer = $securityMailer;
-        $this->experienceMailer = $experienceMailer;
-        $this->professionalUserRepository = $professionalUserRepository;
-        $this->joinCompanyRequestRepository = $joinCompanyRequestRepository;
-        $this->userRepository = $userRepository;
-        $this->cacheManager = $cacheManager;
-        $this->router = $router;
-        $this->lessonFavoriteRepository = $lessonFavoriteRepository;
-        $this->lessonTeachableRepository = $lessonTeachableRepository;
-        $this->studentUserRepository = $studentUserRepository;
-        $this->educatorUserRepository = $educatorUserRepository;
-        $this->serializer = $serializer;
-        $this->importMailer = $importMailer;
-        $this->validator = $validator;
-        $this->industryRepository = $industryRepository;
-        $this->secondaryIndustryRepository = $secondaryIndustryRepository;
-        $this->regionalCoordinatorRepository = $regionalCoordinatorRepository;
-        $this->teachLessonRequestRepository = $teachLessonRequestRepository;
-        $this->schoolExperienceRepository = $schoolExperienceRepository;
-        $this->requestRepository = $requestRepository;
-        $this->chatRepository = $chatRepository;
-        $this->paginator = $paginator;
-        $this->siteAdminRepository = $siteAdminRepository;
-        $this->schoolAdministratorRepository = $schoolAdministratorRepository;
-        $this->stateCoordinatorRepository = $stateCoordinatorRepository;
-        $this->feedbackMailer = $feedbackMailer;
-        $this->bus = $bus;
-        $this->lessonRepository = $lessonRepository;
-        $this->recapMailer = $recapMailer;
-        $this->experienceRepository = $experienceRepository;
-        $this->companyExperienceRepository = $companyExperienceRepository;
-        $this->guardHandler = $guardHandler;
-        $this->authenticator = $authenticator;
-        $this->chatMessageRepository = $chatMessageRepository;
-        $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
+        $this->entityManager                                                 = $entityManager;
+        $this->fileUploader                                                  = $fileUploader;
+        $this->passwordEncoder                                               = $passwordEncoder;
+        $this->imageCacheGenerator                                           = $imageCacheGenerator;
+        $this->uploaderHelper                                                = $uploaderHelper;
+        $this->assetsManager                                                 = $assetsManager;
+        $this->companyRepository                                             = $companyRepository;
+        $this->companyPhotoRepository                                        = $companyPhotoRepository;
+        $this->adminUserRepository                                           = $adminUserRepository;
+        $this->requestsMailer                                                = $requestsMailer;
+        $this->securityMailer                                                = $securityMailer;
+        $this->experienceMailer                                              = $experienceMailer;
+        $this->professionalUserRepository                                    = $professionalUserRepository;
+        $this->joinCompanyRequestRepository                                  = $joinCompanyRequestRepository;
+        $this->userRepository                                                = $userRepository;
+        $this->cacheManager                                                  = $cacheManager;
+        $this->router                                                        = $router;
+        $this->lessonFavoriteRepository                                      = $lessonFavoriteRepository;
+        $this->lessonTeachableRepository                                     = $lessonTeachableRepository;
+        $this->studentUserRepository                                         = $studentUserRepository;
+        $this->educatorUserRepository                                        = $educatorUserRepository;
+        $this->serializer                                                    = $serializer;
+        $this->importMailer                                                  = $importMailer;
+        $this->validator                                                     = $validator;
+        $this->industryRepository                                            = $industryRepository;
+        $this->secondaryIndustryRepository                                   = $secondaryIndustryRepository;
+        $this->regionalCoordinatorRepository                                 = $regionalCoordinatorRepository;
+        $this->teachLessonRequestRepository                                  = $teachLessonRequestRepository;
+        $this->schoolExperienceRepository                                    = $schoolExperienceRepository;
+        $this->requestRepository                                             = $requestRepository;
+        $this->chatRepository                                                = $chatRepository;
+        $this->paginator                                                     = $paginator;
+        $this->siteAdminRepository                                           = $siteAdminRepository;
+        $this->schoolAdministratorRepository                                 = $schoolAdministratorRepository;
+        $this->stateCoordinatorRepository                                    = $stateCoordinatorRepository;
+        $this->feedbackMailer                                                = $feedbackMailer;
+        $this->bus                                                           = $bus;
+        $this->lessonRepository                                              = $lessonRepository;
+        $this->recapMailer                                                   = $recapMailer;
+        $this->experienceRepository                                          = $experienceRepository;
+        $this->companyExperienceRepository                                   = $companyExperienceRepository;
+        $this->guardHandler                                                  = $guardHandler;
+        $this->authenticator                                                 = $authenticator;
+        $this->chatMessageRepository                                         = $chatMessageRepository;
+        $this->educatorRegisterStudentForExperienceRequestRepository         = $educatorRegisterStudentForExperienceRequestRepository;
         $this->educatorRegisterEducatorForCompanyExperienceRequestRepository = $educatorRegisterEducatorForCompanyExperienceRequestRepository;
-        $this->schoolRepository = $schoolRepository;
-        $this->teachLessonExperienceRepository = $teachLessonExperienceRepository;
-        $this->companyFavoriteRepository = $companyFavoriteRepository;
-        $this->registrationRepository = $registrationRepository;
-        $this->educatorReviewCompanyExperienceFeedbackRepository = $educatorReviewCompanyExperienceFeedbackRepository;
-        $this->educatorReviewTeachLessonExperienceFeedbackRepository = $educatorReviewTeachLessonExperienceFeedbackRepository;
-        $this->studentReviewCompanyExperienceFeedbackRepository = $studentReviewCompanyExperienceFeedbackRepository;
-        $this->studentReviewTeachLessonExperienceFeedbackRepository = $studentReviewTeachLessonExperienceFeedbackRepository;
-        $this->feedbackRepository = $feedbackRepository;
-        $this->twig = $twig;
-        $this->siteRepository = $siteRepository;
-        $this->securityToken = $securityToken;
-        $this->filterBuilder = $filterBuilder;
-        $this->geocoder = $geocoder;
-        $this->newCompanyRequestRepository = $newCompanyRequestRepository;
-        $this->rolesWillingToFulfillRepository = $rolesWillingToFulfillRepository;
-        $this->allowedCommunicationsRepository = $allowedCommunicationsRepository;
-        $this->userRegisterForSchoolExperienceRequestRepository = $userRegisterForSchoolExperienceRequestRepository;
-        $this->phpSpreadsheetHelper = $phpSpreadsheetHelper;
-        $this->companyVideoRepository = $companyVideoRepository;
-        $this->careerVideoRepository = $careerVideoRepository;
-        $this->videoFavoriteRepository = $videoFavoriteRepository;
-        $this->videoRepository = $videoRepository;
-        $this->professionalVideoRepository = $professionalVideoRepository;
-        $this->helpVideoRepository = $helpVideoRepository;
-        $this->chatHelper = $chatHelper;
-        $this->globalShare = $globalShare;
+        $this->schoolRepository                                              = $schoolRepository;
+        $this->teachLessonExperienceRepository                               = $teachLessonExperienceRepository;
+        $this->companyFavoriteRepository                                     = $companyFavoriteRepository;
+        $this->registrationRepository                                        = $registrationRepository;
+        $this->educatorReviewCompanyExperienceFeedbackRepository             = $educatorReviewCompanyExperienceFeedbackRepository;
+        $this->educatorReviewTeachLessonExperienceFeedbackRepository         = $educatorReviewTeachLessonExperienceFeedbackRepository;
+        $this->studentReviewCompanyExperienceFeedbackRepository              = $studentReviewCompanyExperienceFeedbackRepository;
+        $this->studentReviewTeachLessonExperienceFeedbackRepository          = $studentReviewTeachLessonExperienceFeedbackRepository;
+        $this->feedbackRepository                                            = $feedbackRepository;
+        $this->twig                                                          = $twig;
+        $this->siteRepository                                                = $siteRepository;
+        $this->securityToken                                                 = $securityToken;
+        $this->filterBuilder                                                 = $filterBuilder;
+        $this->geocoder                                                      = $geocoder;
+        $this->newCompanyRequestRepository                                   = $newCompanyRequestRepository;
+        $this->rolesWillingToFulfillRepository                               = $rolesWillingToFulfillRepository;
+        $this->allowedCommunicationsRepository                               = $allowedCommunicationsRepository;
+        $this->userRegisterForSchoolExperienceRequestRepository              = $userRegisterForSchoolExperienceRequestRepository;
+        $this->phpSpreadsheetHelper                                          = $phpSpreadsheetHelper;
+        $this->companyVideoRepository                                        = $companyVideoRepository;
+        $this->careerVideoRepository                                         = $careerVideoRepository;
+        $this->videoFavoriteRepository                                       = $videoFavoriteRepository;
+        $this->videoRepository                                               = $videoRepository;
+        $this->professionalVideoRepository                                   = $professionalVideoRepository;
+        $this->helpVideoRepository                                           = $helpVideoRepository;
+        $this->chatHelper                                                    = $chatHelper;
+        $this->globalShare                                                   = $globalShare;
+        $this->systemUserRepository                                          = $systemUserRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
