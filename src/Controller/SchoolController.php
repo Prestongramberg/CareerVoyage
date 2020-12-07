@@ -654,7 +654,7 @@ class SchoolController extends AbstractController
 
                             $username = sprintf("%s.%s",
                                 strtolower($student['First Name'] . '.' . $student['Last Name']),
-                                $this->generateRandomString(5));
+                                $this->generateRandomString(1));
 
                             $studentObj = new StudentUser();
                             $studentObj->setFirstName($student['First Name']);
@@ -839,7 +839,7 @@ class SchoolController extends AbstractController
                             } else {
                                 $username = sprintf("%s.%s",
                                     strtolower($educator['First Name'] . '.' . $educator['Last Name']),
-                                    $this->generateRandomString(5));
+                                    $this->generateRandomString(1));
 
                                 $educatorObj = new EducatorUser();
                                 $educatorObj->setFirstName($educator['First Name']);
