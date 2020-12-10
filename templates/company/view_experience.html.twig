@@ -41,7 +41,7 @@
                     <div id="educator_id">
                         <form class="uk-inline register_educator" method="post" action="{{ path('company_experience_educator_register', {'id' : experience.id}) }}">
                             <input type="hidden" name="userId" value="{{ user.id }}" />
-                            {% if experience.isRegistered(user) %}
+                            {% if experience.isRegistered(user) and experience.educatorRegisterEducatorForCompanyExperienceRequests|length > 0 %}
                                 <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
                             {% else %}
                                 <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register Myself</button>
@@ -50,7 +50,7 @@
 
                         <form class="uk-inline deregister_educator" method="post" action="{{ path('company_experience_educator_deregister', {'id' : experience.id}) }}">
                             <input type="hidden" name="userId" value="{{ user.id }}">
-                            {% if experience.isRegistered(user) %}
+                            {% if experience.isRegistered(user) and experience.educatorRegisterEducatorForCompanyExperienceRequests|length > 0 %}
                                 <button class="uk-button uk-button-danger uk-button-small disabled uk-margin-small-bottom" type="submit">Cancel Registration</button>
                             {% endif %}
                         </form>
