@@ -13,6 +13,12 @@ export default (state = {}, action) => {
                 ...state,
                 primaryIndustrySelected: parseInt( action.industryId )
             };
+// TODO: This may need fixing
+        case actionTypes.SECONDARY_INDUSTRY_SEARCHED:
+            return {
+                ...state,
+                secondaryIndustrySearched: action.secondaryIndustrySearched
+            }
         case actionTypes.SUBSCRIBE:
             return {
                 ...state,

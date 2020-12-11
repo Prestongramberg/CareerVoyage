@@ -8,6 +8,14 @@ export function primaryIndustryChanged(industryId) {
     };
 }
 
+// TODO: This needs to be updated / ER
+export function secondaryIndustrySearched(searchPhrase) {
+    return {
+        type: actionTypes.SECONDARY_INDUSTRY_SEARCHED,
+        searchPhrase: searchPhrase
+    }
+}
+
 export function subscribe(industryId) {
     return {
         type: actionTypes.SUBSCRIBE,
