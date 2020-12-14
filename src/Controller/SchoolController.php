@@ -652,7 +652,7 @@ class SchoolController extends AbstractController
                             }
                             $student = array_combine($columns, $values);
 
-                            if($student['First Name'] != '' && $student['Last Name'] != ''){
+                            if(!empty($student['First Name']) && !empty($student['Last Name'])){
 
                                 $username = sprintf("%s.%s",
                                     strtolower($student['First Name'] . '.' . $student['Last Name']),
