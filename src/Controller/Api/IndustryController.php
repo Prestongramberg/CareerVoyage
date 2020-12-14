@@ -17,6 +17,7 @@ use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\CourseRepository;
 use App\Repository\IndustryRepository;
+use App\Repository\SecondaryIndustryRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -57,6 +58,25 @@ class IndustryController extends AbstractController
         $industries = $this->industryRepository->findAll();
 
         $json = $this->serializer->serialize($industries, 'json', ['groups' => ['RESULTS_PAGE']]);
+
+        $payload = json_decode($json, true);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $payload
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/secondary_industries", name="get_secondary_industries", methods={"GET"}, options = { "expose" = true })
+     */
+    public function getSecondaryIndustries() {
+        $secondaryIndustries = $this->secondaryIndustryRepository->findAll();
+        
+        $json = $this->serializer->serialize($secondaryIndustries, 'json', ['groups' => ['RESULTS_PAGE']]);
 
         $payload = json_decode($json, true);
 

@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadIndustries, primaryIndustryChanged, subscribe, unsubscribe, unsubscribeAll } from './actions/actionCreators'
+import { loadIndustries, loadSecondaryIndustries, primaryIndustryChanged, secondaryIndustrySearched, subscribe, unsubscribe, unsubscribeAll } from './actions/actionCreators'
 import PropTypes from "prop-types";
 import { getSecondaryIndustry } from "./helpers/industries"
 import Loader from "../../components/Loader/Loader";
@@ -25,7 +25,14 @@ class App extends React.Component {
     renderFields() {
 
         const secondaryIndustries = this.relevantSecondaryIndustries();
+        const allSecondaryIndustries = this.allSecondaryIndustries();
         const currentPrimaryIndustry = !!this.props.uiState.primaryIndustrySelected ? this.props.subscriptions.data.find( event => event.id === this.props.uiState.primaryIndustrySelected ) : {};
+
+        let filteredIndustries = allSecondaryIndustries.filter(
+            (secondaryIndustry) => {
+                return secondaryIndustry.name.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1;
+            }
+        );
 
         if ( this.props.subscriptions.data.length === 0 ) {
             return <p>Something went wrong, please contact support.</p>
@@ -50,10 +57,12 @@ class App extends React.Component {
                             
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-1">
-                                    <input type="text" placeholder="Search for Career Field" className="uk-input" onChange="" />
+                                    {/* TODO - this needs to be fixed to allow searching from this field. */}
+                                    <input type="text" placeholder="Search for Career Field" className="uk-input" value={this.state.search} onChange={this.props.secondaryIndustrySearched} />
                                     <div uk-dropdown="mode: click; pos: bottom-justify">
                                         <ul>
-                                            { this.props.subscriptions.data.map(industry => <li key={industry.id} data-value={industry.id}>{ industry.name }</li>) }
+                                            {/* { this.props.subscriptions.data.map(industry => <li key={industry.id} data-value={industry.id}>{ industry.name }</li>) } */}
+                                            { filteredIndustries.map( industry => <li key={industry.id} data-value={industry.id}>{ industry.name }</li> )}
                                         </ul>
                                     </div>
 
@@ -155,6 +164,12 @@ class App extends React.Component {
         return secondaryIndustries;
     }
 
+    allSecondaryIndustries() {
+        const secondaryIndustries = [];
+
+        return secondaryIndustries;
+    }
+
     subscribeToAllSecondaryIndustries() {
         const currentPrimaryIndustry = !!this.props.uiState.primaryIndustrySelected ? this.props.subscriptions.data.find( event => event.id === this.props.uiState.primaryIndustrySelected ) : {};
 
@@ -183,6 +198,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.props.loadIndustries( window.Routing.generate('get_industries'), this.props.removeDomId );
+        this.props.loadSecondaryIndustries( window.Routing.generate('get_secondary_industries'), this.props.removeDomId );
     }
 }
 
@@ -194,21 +210,25 @@ App.propTypes = {
     removeDomId: PropTypes.string,
     subscriptions: PropTypes.object,
     uiState: PropTypes.object,
-    userKind: PropTypes.string
+    userKind: PropTypes.string,
+    search: PropTypes.string
 };
 
 App.defaultProps = {
     subscriptions: {},
     uiState: {},
+    search: 'RDS'
 };
 
 export const mapStateToProps = (state = {}) => ({
     subscriptions: state.subscriptions,
-    uiState: state.uiState
+    uiState: state.uiState,
+    search: state.search
 });
 
 export const mapDispatchToProps = dispatch => ({
     loadIndustries: (url, removeDomId) => dispatch(loadIndustries(url, removeDomId)),
+    loadSecondaryIndustries: (url, removeDomId) => dispatch(loadSecondaryIndustries(url, removeDomId)),
     primaryIndustryChanged: (event) => dispatch(primaryIndustryChanged(event.target.value)),
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
     removeIndustry: (industryId) => dispatch(unsubscribe(industryId)),

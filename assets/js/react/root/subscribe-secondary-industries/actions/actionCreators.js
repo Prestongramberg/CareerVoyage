@@ -59,3 +59,26 @@ export function loadIndustries(url, removeDomId) {
             }))
     }
 }
+
+export function loadSecondaryIndustries(url, removeDomId) {
+    return (dispatch, getState) => {
+        dispatch({ type: actionTypes.LOAD_SECONDARY_INDUSTRIES })
+
+        return api.get(url)
+            .then((response) => {
+                if (response.statusCode < 300) {
+                    dispatch({ type: actionTypes.LOAD_SECONDARY_INDUSTRIES_SUCCESS, resposne: response.responseBody});
+                    $(`#${removeDomId}`).remove();
+                } else {
+                    dispatch({
+                        type: actionTypes.LOAD_SECONDARY_INDUSTRIES_FAILURE,
+                        error: "Something went wrong, please try refreshing the page."
+                    })
+                }
+            })
+            .catch(() => dispatch({
+                type: actionTypes.LOAD_SECONDARY_INDUSTRIES_FAILURE,
+                error: "Something went wrong, please try refreshing the page."
+            }))
+    }
+}
