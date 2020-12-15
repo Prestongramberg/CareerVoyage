@@ -199,6 +199,11 @@ class SchoolController extends AbstractController
         // todo how do we know the users default zipcode? Probably just return all results if zipcode is null right?
         $zipcode = $request->query->get('zipcode',  null);
         $radius = $request->query->get('radius', null);
+        $regions = $request->query->get('regions', []);
+
+        if(!empty($regions)) {
+            $regions = json_decode($regions);
+        }
 
         if($radius === 'Filter by Radius...') {
             $radius = null;
@@ -221,7 +226,14 @@ class SchoolController extends AbstractController
             $schools = $this->schoolRepository->findAll();
         }
 
-        $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $schoolsArray = [];
+        foreach($schools as $school) {
+            if(in_array($school->getRegion()->getId(), $regions)) {
+                $schoolsArray[] = $school;
+            }
+        }
+
+        $json = $this->serializer->serialize($schoolsArray, 'json', ['groups' => ['RESULTS_PAGE']]);
         $payload = json_decode($json, true);
 
         return new JsonResponse(

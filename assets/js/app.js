@@ -66,7 +66,7 @@ window.Pintex = {
                                     drops: dropDirection,
                                     singleDatePicker: true,
                                     timePicker: true,
-                                    timePickerIncrement: 15,
+                                    timePickerIncrement: 5,
                                     linkedCalendars: false,
                                     showCustomRangeLabel: false,
                                     locale: {

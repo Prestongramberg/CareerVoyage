@@ -174,6 +174,11 @@ class ProfessionalUser extends User
      */
     private $professionalVideos;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Region", inversedBy="professionalUsers")
+     */
+    private $regions;
+
     
     public function __construct()
     {
@@ -187,6 +192,7 @@ class ProfessionalUser extends User
         $this->allowedCommunications = new ArrayCollection();
         $this->professionalReviewMeetStudentExperienceFeedback = new ArrayCollection();
         $this->professionalVideos = new ArrayCollection();
+        $this->regions = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -636,29 +642,29 @@ class ProfessionalUser extends User
 	 * @return string
 	 */
 	public function getGeoRadius(): ?string {
-               		return $this->geoRadius;
-               	}
+                                       		return $this->geoRadius;
+                                       	}
 
 	/**
 	 * @param string $geoRadius
 	 */
 	public function setGeoRadius( ?string $geoRadius ): void {
-               		$this->geoRadius = $geoRadius;
-               	}
+                                       		$this->geoRadius = $geoRadius;
+                                       	}
 
 	/**
 	 * @return string
 	 */
 	public function getGeoZipCode(): ?string {
-               		return $this->geoZipCode;
-               	}
+                                       		return $this->geoZipCode;
+                                       	}
 
 	/**
 	 * @param string $geoZipCode
 	 */
 	public function setGeoZipCode( ?string $geoZipCode ): void {
-               		$this->geoZipCode = $geoZipCode;
-               	}
+                                       		$this->geoZipCode = $geoZipCode;
+                                       	}
 
     /**
      * @return Collection|ProfessionalVideo[]
@@ -701,4 +707,29 @@ class ProfessionalUser extends User
         }
     }
 
+    /**
+     * @return Collection|Region[]
+     */
+    public function getRegions(): Collection
+    {
+        return $this->regions;
+    }
+
+    public function addRegion(Region $region): self
+    {
+        if (!$this->regions->contains($region)) {
+            $this->regions[] = $region;
+        }
+
+        return $this;
+    }
+
+    public function removeRegion(Region $region): self
+    {
+        if ($this->regions->contains($region)) {
+            $this->regions->removeElement($region);
+        }
+
+        return $this;
+    }
 }

@@ -189,65 +189,68 @@ class ExperienceController extends AbstractController
          * START THE LOGIC FOR FINDING EXPERIENCES BY ZIPCODE
          */
         if ($zipcode && $coordinates = $this->geocoder->geocode($zipcode)) {
-            $lng = $coordinates['lng'];
-            $lat = $coordinates['lat'];
-            list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
 
-            /** @var User $user */
-            if ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-                $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
-            } else {
-                if ($userId) {
-                    /** @var User $user */
-                    $user            = $userId ? $this->userRepository->find($userId) : $this->getUser();
-                    $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $userId);
-                    if ($user && $user->isStudent() && $user->getSchool()) {
-                        $schoolId = $user->getSchool()->getId();
-                        // get any school experiences that are part of your school
-                        $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
-                    }
-                } else {
-                    // Everyone sees all company events
-                    $schoolExperiences  = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
-                    $companyExperiences = $this->companyExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
 
-                    if ($loggedInUser->isSchoolAdministrator()) {
-                        /** @var SchoolAdministrator $loggedInUser * */
-                        // School Administrator will see all school events that they manage
-                        foreach ($loggedInUser->getSchools() as $school) {
-                            $schoolId          = $school->getId();
-                            $experiences       = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
-                            $schoolExperiences = array_merge($schoolExperiences, $experiences);
-                        }
-                    } else {
-                        if ($loggedInUser->isEducator() || $loggedInUser->isStudent()) {
-                            // Educator & students will see their school events
-                            /** @var StudentUser|EducatorUser $loggedInUser * */
-                            $school            = $loggedInUser->getSchool();
-                            $schoolId          = $school->getId();
-                            $schoolExperiences = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
-                        } else {
-                            if ($loggedInUser->isProfessional()) {
-                                // Professional will see all school events that they VOLUNTEER AT
-                                /** @var ProfessionalUser $loggedInUser * */
-                                foreach ($loggedInUser->getSchools() as $school) {
-                                    $schoolId          = $school->getId();
-                                    $experiences       = $this->schoolExperienceRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId);
-                                    $schoolExperiences = array_merge($schoolExperiences, $experiences);
-                                }
-                            }
-                        }
+            $experiences = $this->experienceRepository->findBy(['id' => ['194']]);
+
+            //$experiences   = $this->experienceRepository->findBy(['id' => $experienceIds]);
+
+            $useRegionFiltering = false;
+            $regions = [];
+            if($loggedInUser->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($loggedInUser->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
                     }
+
+                    $regions[] = $school->getRegion()->getId();
                 }
             }
 
-            $experiences   = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
-            $experienceIds = array_map(
-                function ($experience) {
-                    return $experience['id'];
-                }, $experiences
-            );
-            $experiences   = $this->experienceRepository->findBy(['id' => $experienceIds]);
+            if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $experiences = array_filter($experiences, function(Experience $experience) use($regions) {
+
+                    if($experience instanceof CompanyExperience) {
+
+                        /** @var ProfessionalUser $owner */
+                        if($experience->getCompany() && $owner = $experience->getCompany()->getOwner()) {
+
+                            $hasMatch = false;
+                            foreach($owner->getRegions() as $region) {
+                                if(in_array($region->getId(), $regions)) {
+                                    $hasMatch = true;
+                                }
+                            }
+                        }
+
+                        if(!$hasMatch) {
+                            return false;
+                        }
+
+                    }
+
+                    return true;
+                });
+            }
+
             $json          = $this->serializer->serialize(
                 $experiences, 'json', [
                                 'groups' => [
@@ -259,67 +262,65 @@ class ExperienceController extends AbstractController
             $payload       = json_decode($json, true);
 
         } else {
-            /**
-             * START THE LOGIC FOR FINDING EXPERIENCES WITHOUT ZIPCODE
-             */
 
-            /** @var User $user */
-            if ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-                $schoolExperiences = $this->schoolExperienceRepository->findBy(
-                    [
-                        'school' => $school,
-                    ]
-                );
-                // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
-            } else {
-                if ($userId) {
-                    /** @var User $user */
-                    $user            = $userId ? $this->userRepository->find($userId) : $this->getUser();
-                    $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
-                } else {
-                    // Everyone sees all company events
-                    $companyExperiences = $this->companyExperienceRepository->findBy(['cancelled' => 0]);
+            $experiences = $this->experienceRepository->findBy(['id' => ['194']]);
 
-                    if ($loggedInUser->isSchoolAdministrator()) {
-                        /** @var SchoolAdministrator $loggedInUser * */
-                        // School Administrator will see all school events that they manage
-                        foreach ($loggedInUser->getSchools() as $school) {
-                            $experiences       = $this->schoolExperienceRepository->findBy(
-                                [
-                                    'school' => $school,
-                                ]
-                            );
-                            $schoolExperiences = array_merge($schoolExperiences, $experiences);
-                        }
-                    } else {
-                        if ($loggedInUser->isEducator() || $loggedInUser->isStudent()) {
-                            // Educator & students will see their school events
-                            /** @var StudentUser|EducatorUser $loggedInUser * */
-                            $school            = $loggedInUser->getSchool();
-                            $schoolExperiences = $this->schoolExperienceRepository->findBy(
-                                [
-                                    'school' => $school,
-                                ]
-                            );
-                        } else {
-                            if ($loggedInUser->isProfessional()) {
-                                // Professional will see all school events that they VOLUNTEER AT
-                                /** @var ProfessionalUser $loggedInUser * */
-                                foreach ($loggedInUser->getSchools() as $school) {
-                                    $experiences       = $this->schoolExperienceRepository->findBy(
-                                        [
-                                            'school' => $school,
-                                        ]
-                                    );
-                                    $schoolExperiences = array_merge($schoolExperiences, $experiences);
-                                }
-                            }
-                        }
+            $useRegionFiltering = false;
+            $regions = [];
+            if($loggedInUser->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($loggedInUser->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
                     }
+
+                    $regions[] = $school->getRegion()->getId();
                 }
             }
 
-            $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
+            if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $experiences = array_filter($experiences, function(Experience $experience) use($regions) {
+
+                    if($experience instanceof CompanyExperience) {
+
+                        /** @var ProfessionalUser $owner */
+                        if($experience->getCompany() && $owner = $experience->getCompany()->getOwner()) {
+
+                            $hasMatch = false;
+                            foreach($owner->getRegions() as $region) {
+                                if(in_array($region->getId(), $regions)) {
+                                    $hasMatch = true;
+                                }
+                            }
+
+                            if(!$hasMatch) {
+                                return false;
+                            }
+                        }
+                    }
+
+
+                    return true;
+                });
+            }
+
             $json        = $this->serializer->serialize(
                 $experiences, 'json', [
                                 'groups' => [

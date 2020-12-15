@@ -4,6 +4,7 @@ namespace App\Mailer;
 
 use App\Entity\Company;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
+use App\Entity\EmailLog;
 use App\Entity\Experience;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
@@ -42,7 +43,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Join Company Request Approval.");
+        $log->setToEmail($joinCompanyRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
 
     }
 
@@ -62,8 +73,19 @@ class RequestsMailer extends AbstractMailer
                     'text/html'
                 );
 
-            $this->mailer->send($message);
+            $status = $this->mailer->send($message);
+
+            $log = new EmailLog();
+            $log->setFromEmail($this->siteFromEmail);
+            $log->setSubject('New Company Needs Approval!');
+            $log->setToEmail($adminUser->getEmail());
+            $log->setStatus($status);
+            $log->setBody($message->getBody());
+
+            $this->entityManager->persist($log);
         }
+
+        $this->entityManager->flush();
     }
 
     public function companyAwaitingApproval(NewCompanyRequest $newCompanyRequest) {
@@ -79,7 +101,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Your company is waiting approval!');
+        $log->setToEmail($newCompanyRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function newCompanyRequestApproval(NewCompanyRequest $newCompanyRequest) {
@@ -95,7 +127,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Your company has been approved!');
+        $log->setToEmail($newCompanyRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest) {
@@ -111,7 +153,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Register Student Request.");
+        $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getNeedsApprovalBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
 
     }
 
@@ -126,7 +178,17 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Register Student Request Approval.");
+        $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
 
@@ -141,7 +203,17 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("You've Been Registered For a Company Experience.");
+        $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function userRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest  $userRegisterForSchoolExperienceRequest) {
@@ -156,7 +228,17 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Register User Request.");
+        $log->setToEmail($userRegisterForSchoolExperienceRequest->getNeedsApprovalBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function userRegisterForSchoolExperienceRequestApproval(UserRegisterForSchoolExperienceRequest  $userRegisterForSchoolExperienceRequest) {
@@ -171,7 +253,17 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Register User Request Approval.");
+        $log->setToEmail($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -195,7 +287,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Join Company Request.");
+        $log->setToEmail($joinCompanyRequest->getNeedsApprovalBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -219,7 +321,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Teach Lesson Request.");
+        $log->setToEmail($teachLessonRequest->getNeedsApprovalBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -243,7 +355,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Teach Lesson Request Approval.");
+        $log->setToEmail($teachLessonRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
 
     }
 
@@ -268,7 +390,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Teach Lesson Request Denied.");
+        $log->setToEmail($teachLessonRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
 
     }
 
@@ -291,7 +423,17 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Student To Meet Professional Approval.");
+        $log->setToEmail($request->getNeedsApprovalBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -313,12 +455,23 @@ class RequestsMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Student To Meet Final Date Approved.");
+        $log->setToEmail($request->getProfessional()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function userDeregisterFromEvent(User $deregisteredUser, User $userToSendEmailTo, Experience $experience) {
 
-        $message = (new \Swift_Message(sprintf("User %s %s de-registered from experience %s", $deregisteredUser->getFirstName(), $deregisteredUser->getLastName(), $experience->getTitle())))
+        $subject = sprintf("User %s %s de-registered from experience %s", $deregisteredUser->getFirstName(), $deregisteredUser->getLastName(), $experience->getTitle());
+        $message = (new \Swift_Message($subject))
             ->setFrom($this->siteFromEmail)
             ->setTo($userToSendEmailTo->getEmail())
             ->setBody(
@@ -329,7 +482,17 @@ class RequestsMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject($subject);
+        $log->setToEmail($userToSendEmailTo->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
 
     }
 }

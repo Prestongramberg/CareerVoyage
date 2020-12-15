@@ -2,6 +2,7 @@
 
 namespace App\Mailer;
 
+use App\Entity\EmailLog;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\User;
@@ -39,7 +40,19 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("An Experience you are signed up for has been cancelled.");
+        $log->setToEmail($userToSendMessageTo->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+
 
     }
 
@@ -84,7 +97,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("You have been invited to an Experience!");
+        $log->setToEmail($userToSendMessageTo->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
 
     }
 
@@ -102,7 +125,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('School Event You Might Be Interested In!');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     private function notifyProfessionalOfSchoolEvent(SchoolExperience $schoolExperience, User $user, $userMessage) {
@@ -119,7 +152,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('School Event You Might Be Interested In!');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     private function notifyTeacherOfProfessionalFeedbackForStudentMeeting(StudentToMeetProfessionalExperience $experience, User $user, $feedback) {
@@ -135,7 +178,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('A Professional Has Provided Feedback On One Of Your Students');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     private function notifyUserOfEventDateChange(Experience $experience, User $user, $message) {
@@ -151,7 +204,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Experience Date Changed');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     private function notifyUserOfEventCancellation(Experience $experience, User $user, $message) {
@@ -167,7 +230,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Experience Cancelled');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     private function genericShareNotification($message, User $user) {
@@ -183,7 +256,17 @@ class ExperienceMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Shared with you.');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**

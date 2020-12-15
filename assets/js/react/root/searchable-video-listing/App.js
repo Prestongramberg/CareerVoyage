@@ -50,7 +50,10 @@ class App extends React.Component {
                             { this.renderCompanyVideoIndustryDropdown() }
                             { this.renderCompanyDropdown() }
                         </div>
-
+                        <div className="uk-grid-small uk-flex-left" data-uk-grid>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Videos: { relevantCompanyVideos.length + relevantProfessionalVideos.length + relevantCareerVideos.length }</div>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Local Company Videos: { relevantCompanyVideos.length } </div>
+                        </div>
                         <div className="videos-listings" data-uk-grid="masonry: true">
                             { this.props.search.loading && (
                                 <div className="uk-width-1-1 uk-align-center">
@@ -86,7 +89,10 @@ class App extends React.Component {
 
                             { this.renderCareerVideoIndustryDropdown() }
                         </div>
-
+                        <div className="uk-grid-small uk-flex-left" data-uk-grid>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Videos: { relevantCompanyVideos.length + relevantProfessionalVideos.length + relevantCareerVideos.length }</div>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Local Company Videos: { relevantCareerVideos.length } </div>
+                        </div>
                         <div className="videos-listings" data-uk-grid="masonry: true">
                             { this.props.search.loading && (
                                 <div className="uk-width-1-1 uk-align-center">
@@ -129,7 +135,10 @@ class App extends React.Component {
 
                             { this.renderProfessionalVideoIndustryDropdown() }
                         </div>
-
+                        <div className="uk-grid-small uk-flex-left" data-uk-grid>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Videos: { relevantCompanyVideos.length + relevantProfessionalVideos.length + relevantCareerVideos.length }</div>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Local Company Videos: { relevantProfessionalVideos.length } </div>
+                        </div>
                         <div className="videos-listings" data-uk-grid="masonry: true">
                             { this.props.search.loading && (
                                 <div className="uk-width-1-1 uk-align-center">
@@ -159,26 +168,29 @@ class App extends React.Component {
                         </div>
                     </div>
 
-                    <div className="favorite_videos" data-uk-grid="masonry: true">
-                        { this.props.search.loading && (
-                            <div className="uk-width-1-1 uk-align-center">
-                                <Loader />
-                            </div>
-                        )}
-                        { !this.props.search.loading && favoritedVideos.map(video => (
-                            <VideoListing
-                                id={video.id}
-                                videoId={video.videoId}
-                                isFavorite={video.favorite}
-                                user={this.props.user}
-                                name={video.name}
-                                favoriteVideo={this.props.favoriteVideo}
-                                unfavoriteVideo={this.props.unfavoriteVideo}
-                            />
-                        ))}
-                        { !this.props.search.loading && favoritedVideos.length === 0 && (
-                            <p>No videos match your selection</p>
-                        )}
+                    <div className="favorite_videos">
+                        <p className="uk-width-1-1">My Favorite Videos: { favoritedVideos.length }</p>
+                        <div data-uk-grid="masonry: true">
+                            { this.props.search.loading && (
+                                <div className="uk-width-1-1 uk-align-center">
+                                    <Loader />
+                                </div>
+                            )}
+                            { !this.props.search.loading && favoritedVideos.map(video => (
+                                <VideoListing
+                                    id={video.id}
+                                    videoId={video.videoId}
+                                    isFavorite={video.favorite}
+                                    user={this.props.user}
+                                    name={video.name}
+                                    favoriteVideo={this.props.favoriteVideo}
+                                    unfavoriteVideo={this.props.unfavoriteVideo}
+                                />
+                            ))}
+                            { !this.props.search.loading && favoritedVideos.length === 0 && (
+                                <p>No videos match your selection</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
