@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Company;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
+use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\State;
@@ -69,6 +70,12 @@ class EditCompanyFormType extends AbstractType
                 'class' => Industry::class,
                 'choice_label' => 'name',
                 'placeholder' => 'Select Industry',
+            ])
+            ->add('regions', EntityType::class, [
+                'class' => Region::class,
+                'expanded' => true,
+                'multiple' => true,
+                'choice_label' => 'friendlyName',
             ])
             ->add('schools', EntityType::class, [
                 'class' => School::class,
