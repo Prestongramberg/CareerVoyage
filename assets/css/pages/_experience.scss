@@ -1,0 +1,32 @@
+
+
+// Phone layout
+@media only screen and (max-width: 640px) {
+
+  .uk-tab {
+    li {
+      a {
+        padding: 5px 0px;
+      }
+    }
+  }
+
+  #tab-experience {
+    td {
+      display: block;
+      box-sizing: border-box;
+      clear: both;
+      padding: 0;
+
+      &:first-child {
+        font-weight: 700;
+        padding-top: 10px;
+      }
+
+      &:last-child {
+        padding-bottom: 10px;
+      }
+    }
+  }
+
+}
