@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\ProfessionalUser;
 use App\Entity\Region;
+use App\Entity\School;
 use App\Entity\StudentUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -58,6 +59,23 @@ class ProfessionalUserRepository extends ServiceEntityRepository
     public function findBySearchTerm($search) {
 
         $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_PROFESSIONAL_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join professional_user pu on u.id = pu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findBySearchTermAndRegionIds($search, array $regionIds) {
+
+        if(empty($regionIds)) {
+            return [];
+        }
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_PROFESSIONAL_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+          inner join professional_user pu on u.id = pu.id
+          INNER JOIN professional_user_region pur on pur.professional_user_id = pu.id
+          where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND pur.region_id IN ('. implode(",", $regionIds) . ')', $search);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
@@ -213,4 +231,14 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getBySchool(School $school) {
+        return $this->createQueryBuilder('p')
+                    ->innerJoin('p.schools', 'schools')
+                    ->where('schools.id = :id')
+                    ->setParameter('id', $school->getId())
+                    ->getQuery()
+                    ->getResult();
+    }
+
 }

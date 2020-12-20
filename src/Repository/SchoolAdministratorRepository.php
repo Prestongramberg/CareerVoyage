@@ -92,6 +92,33 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * @param        $search
+     * @param array  $regionIds
+     *
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTermAndRegionIds($search, array $regionIds) {
+
+        if(empty($regionIds)) {
+            return [];
+        }
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_SCHOOL_ADMINISTRATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+        inner join school_administrator sa on u.id = sa.id 
+        INNER JOIN school_school_administrator ssa on ssa.school_administrator_id = sa.id
+        INNER JOIN school s on ssa.school_id = s.id
+        where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN ('. implode(",", $regionIds) . ')', $search);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
+
     public function getSchoolAdminsForRegion(Region $region) {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.site', 'site')

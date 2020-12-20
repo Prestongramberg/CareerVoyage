@@ -222,6 +222,18 @@ class ProfessionalController extends AbstractController
             }
         }
 
+        if($user->isProfessional()) {
+
+            $useRegionFiltering = true;
+
+            /** @var ProfessionalUser $user */
+
+            foreach($user->getRegions() as $region) {
+
+                $regions[] = $region->getId();
+            }
+        }
+
         if($user->isStudent() || $user->isEducator()) {
 
             $useRegionFiltering = true;
@@ -238,6 +250,10 @@ class ProfessionalController extends AbstractController
         if($useRegionFiltering) {
             $professionals = array_filter($professionals, function(ProfessionalUser $professionalUser) use($regions) {
 
+                if($professionalUser->isVirtual()) {
+                    return true;
+                }
+
                 if($professionalUser->getRegions()->count() === 0) {
                     return false;
                 }
@@ -252,6 +268,7 @@ class ProfessionalController extends AbstractController
             });
         }
 
+        $professionals = array_values($professionals);
 
         $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
         $payload = json_decode($json, true);

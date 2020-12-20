@@ -6,8 +6,11 @@ use App\Entity\Company;
 use App\Entity\CompanyFavorite;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\Video;
 use App\Form\EditCompanyFormType;
@@ -250,6 +253,69 @@ class CompanyController extends AbstractController
                 $company->setIsMine(false);
             }
         }
+
+
+
+        $useRegionFiltering = false;
+        $regions = [];
+        if($user->isSchoolAdministrator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var SchoolAdministrator $user */
+            foreach($user->getSchools() as $school) {
+
+                if(!$school->getRegion()) {
+                    continue;
+                }
+
+                $regions[] = $school->getRegion()->getId();
+            }
+        }
+
+        if($user->isProfessional()) {
+
+            $useRegionFiltering = true;
+
+            /** @var ProfessionalUser $user */
+
+            foreach($user->getRegions() as $region) {
+
+                $regions[] = $region->getId();
+            }
+        }
+
+        if($user->isStudent() || $user->isEducator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var StudentUser|EducatorUser $user */
+
+            if($user->getSchool() && $user->getSchool()->getRegion()) {
+                $regions[] = $user->getSchool()->getRegion()->getId();
+            }
+        }
+
+        $regions = array_unique($regions);
+
+        if($useRegionFiltering) {
+            $companies = array_filter($companies, function(Company $company) use($regions) {
+
+                if($company->getRegions()->count() === 0) {
+                    return false;
+                }
+
+                foreach($company->getRegions() as $region) {
+                    if(in_array($region->getId(), $regions)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+
+        $companies = array_values($companies);
 
         $json = $this->serializer->serialize($companies, 'json', ['groups' => ['RESULTS_PAGE']]);
         $payload = json_decode($json, true);

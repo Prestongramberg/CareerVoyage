@@ -6,8 +6,12 @@ use App\Entity\Company;
 use App\Entity\CompanyFavorite;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
+use App\Entity\School;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\Video;
 use App\Form\EditCompanyFormType;
@@ -227,13 +231,85 @@ class SchoolController extends AbstractController
         }
 
         $schoolsArray = [];
-        foreach($schools as $school) {
-            if(in_array($school->getRegion()->getId(), $regions)) {
-                $schoolsArray[] = $school;
+        // Filter by region if necessary
+        if(!empty($regions)) {
+
+            $schools = array_filter($schools, function(School $school) use($regions) {
+
+                if(!$school->getRegion()) {
+                    return false;
+                }
+
+                if(in_array($school->getRegion()->getId(), $regions)) {
+                    return true;
+                }
+
+                return false;
+            });
+
+        } else {
+
+            $useRegionFiltering = false;
+            $regions = [];
+            if($user->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($user->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
+                    }
+
+                    $regions[] = $school->getRegion()->getId();
+                }
+            }
+
+            if($user->isProfessional()) {
+
+                $useRegionFiltering = true;
+
+                /** @var ProfessionalUser $user */
+
+                foreach($user->getRegions() as $region) {
+
+                    $regions[] = $region->getId();
+                }
+            }
+
+            if($user->isStudent() || $user->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($user->getSchool() && $user->getSchool()->getRegion()) {
+                    $regions[] = $user->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $schools = array_filter($schools, function(School $school) use($regions) {
+
+                    if(!$school->getRegion()) {
+                        return false;
+                    }
+
+                    if(in_array($school->getRegion()->getId(), $regions)) {
+                        return true;
+                    }
+
+                    return false;
+                });
             }
         }
 
-        $json = $this->serializer->serialize($schoolsArray, 'json', ['groups' => ['RESULTS_PAGE']]);
+        $schools = array_values($schools);
+
+        $json = $this->serializer->serialize($schools, 'json', ['groups' => ['RESULTS_PAGE']]);
         $payload = json_decode($json, true);
 
         return new JsonResponse(
