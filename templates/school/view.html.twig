@@ -74,7 +74,10 @@
                 <li><a href="#school-educators">Educators</a></li>
             {% endif %}
             {% if volunteeringCompanies|length %}
-                <li><a href="#school-companies">Companies</a></li>
+                <li><a href="#school-companies">Companies Willing to Volunteer</a></li>
+            {% endif %}
+            {% if volunteeringProfessionals|length %}
+                <li><a href="#school-professionals">Professionals Willing to Volunteer</a></li>
             {% endif %}
         </ul>
 
@@ -110,9 +113,9 @@
                 </div>
                 <div class="uk-width-1-3">
                     {% if school.getSchoolAdministrators|length > 0 %}
+                        <h3 class="uk-heading-line uk-text-center"><span>School Administrator</span></h3>
                         {% for admin in school.getSchoolAdministrators %}
                             <div class="uk-margin">
-                                <h3 class="uk-heading-line uk-text-center"><span>School Administrator</span></h3>
                                 <p class="uk-text-meta">
                                     <strong>{{ admin.getFullName }}</strong><br />
                                     <a href="mailto:{{ admin.email }}">{{ admin.email }}</a><br />
@@ -209,6 +212,22 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     <a href="{{ path('company_view', { "id": company.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
+            {% if volunteeringProfessionals|length %}
+                <div class="school__professionals">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for professional in volunteeringProfessionals %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ professional.fullName }}</dt>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="{{ path('profile_index', { "id": professional.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
                                 </div>
                             </div>
                         {% endfor %}

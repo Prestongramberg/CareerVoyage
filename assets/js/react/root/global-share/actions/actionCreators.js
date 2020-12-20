@@ -96,12 +96,15 @@ export function queryBySecondaryIndustry(options) {
 
 
 export function searchChattableUsers( search ) {
+    debugger;
     return (dispatch, getState) => {
 
+        debugger;
         const url = window.Routing.generate("global_share_data", { search: search } )
 
         dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS, searchQuery: search})
 
+        debugger;
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {

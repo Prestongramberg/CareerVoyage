@@ -117,6 +117,30 @@ class EducatorUserRepository extends ServiceEntityRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * @param        $search
+     * @param array  $regionIds
+     *
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTermAndRegionIds($search, array $regionIds) {
+
+        if(empty($regionIds)) {
+            return [];
+        }
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_EDUCATOR_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+        inner join educator_user eu on u.id = eu.id 
+        INNER JOIN school s on eu.school_id = s.id
+        where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN ('. implode(",", $regionIds) . ')', $search);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     public function getEducatorsForRegion(Region $region) {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.site', 'site')
