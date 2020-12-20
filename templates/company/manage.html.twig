@@ -35,7 +35,7 @@
           {% for company in companies %}
             <tr id="company_{{ company.id }}">
               <td><a href="{{ path('company_edit', {'id' : company.id}) }}">{{ company.name }}</a></td>
-              <td>{{ company.owner.fullName }}</td>
+              <td>{{ company.owner ? company.owner.fullName : 'N/A' }}</td>
               <td>{{ company.street }}<br />{{ company.city }}, {{ company.state ? company.state.abbreviation : "" }}  {{ company.zipCode }}</td>
               <td>
                 {% if company.approved %}

@@ -379,6 +379,17 @@ class ProfessionalUser extends User
         return $this;
     }
 
+    public function isVirtual() {
+
+        foreach($this->getRolesWillingToFulfill() as $rolesWillingToFulfill) {
+            if (stripos(strtolower($rolesWillingToFulfill->getName()), 'virtual') !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @return Collection|CompanyExperience[]
      */
