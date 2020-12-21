@@ -5,3 +5,29 @@
     position: relative;
   }
 }
+
+@media screen and (max-width: 640px) {
+  .mobile-company-listing {
+
+    .uk-first-column {
+      margin-top: 10px;
+      margin-left: 10px;
+      width: 75px;
+      height: 75px;
+
+      .company-listing__image {
+        height: 75px;
+      }
+    }
+
+    .uk-card-title-small {
+      padding: 10px;
+    }
+  }
+
+  .companies__all {
+    .uk-card-body {
+      padding: 10px;
+    }
+  }
+}
