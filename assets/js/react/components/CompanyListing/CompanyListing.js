@@ -11,6 +11,8 @@ class CompanyListing extends Component {
     render() {
         return (
             <div className="uk-card uk-card-default uk-grid-collapse uk-flex-left uk-margin" data-uk-grid>
+                
+                {/* Desktop View */}
                 <div className="uk-card-media-left uk-width-1-1 uk-width-medium@m uk-visible@m">
                     <div className="company-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                         style={{backgroundImage: `url(${this.props.image})`}}>
@@ -26,8 +28,8 @@ class CompanyListing extends Component {
                     </div>
                 </div>
 
-
-                <div className="uk-grid-collapse uk-flex-left uk-hidden@m" data-uk-grid>
+                {/* Mobile View */}
+                <div className="uk-grid-collapse uk-flex-left uk-hidden@m mobile-company-listing" data-uk-grid>
                     <div className="uk-card-media-left uk-width-auto">
                         <div className="company-listing__image uk-width-1-1 uk-width-small uk-height-small uk-height-max-small uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
                             style={{backgroundImage: `url(${this.props.image})`}}>
@@ -44,14 +46,13 @@ class CompanyListing extends Component {
                     </div>
 
                     <div className="uk-width-expand">
-                        <div className="uk-card-body">
-                            <a href={ window.Routing.generate('company_view', { id: this.props.id }) }>
-                                <h4 className="uk-card-title-small">{ this.props.name }</h4>
-                            </a>
-                        </div>
+                        <a href={ window.Routing.generate('company_view', { id: this.props.id }) }>
+                            <h4 className="uk-card-title-small">{ this.props.name }</h4>
+                        </a>
                     </div>
                 </div>
 
+                {/* Both Desktop & Mobile */}
                 <div className="uk-width-1-1 uk-width-expand@m">
                     <div className="uk-card-body">
                         <div className="company-listing__meta">
