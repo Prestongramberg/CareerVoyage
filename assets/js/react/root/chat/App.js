@@ -83,6 +83,7 @@ class App extends React.Component {
 
         return (
             <div className={`${cb}__window-chat`}>
+                <div onClick={ this.toggleChatWindow } className="close-chat-window"><span uk-icon="close"></span></div>
                 <div className={`${cb}__window-chat-nav`}>
                     <ul className="uk-tab">
                         <li className={ !isSearchOpen ? "uk-active" : "" } onClick={ this.props.showHistory }><a>History</a></li>
