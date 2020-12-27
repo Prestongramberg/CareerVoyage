@@ -41,7 +41,7 @@ window.Pintex = {
     modal: {
         dynamic_open: function(html) {
 
-            debugger;
+            // debugger;
             const $modal = $('#global-modal');
             $modal.find('.uk-modal-body').html( html );
             
@@ -112,6 +112,7 @@ window.Pintex = {
         debugger;
 
         eventHtml += `
+                <button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>
                 <h2>${eventPayload.title}</h2>
                 <p>
                     <strong>About the Experience</strong><br />
@@ -241,6 +242,10 @@ window.Pintex = {
         `);
     }
 };
+
+$(document).on('click', '.close-modal-button', function(){
+    UIkit.modal('#global-modal').hide();
+});
 
 // React
 require('./react/root');

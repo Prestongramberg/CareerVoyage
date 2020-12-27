@@ -54,7 +54,7 @@
                     <li><span>Experiences</span></li>
                 </ul>
             </div>
-            <div class="uk-width-1-2 uk-width-1-2@m">
+            <div class="uk-width-1-1 uk-width-1-2@m">
                 <div class="uk-flex uk-flex-right@m">
                     {% if user.isEducator or user.isStudent or user.isProfessional %}
                         <a href="{{ path('request_lesson_experience_or_site_visit') }}" class="uk-button uk-button-default uk-button-small">Suggest an Experience</a>
@@ -72,7 +72,9 @@
 
     <script>
         // When the user scrolls the page, execute myFunction
-        window.onscroll = function() {myFunction()};
+        if(window.innerWidth >= 960){
+            window.onscroll = function() {myFunction()};
+        }
 
 
         // Add the sticky class to the header when you reach its scroll position. Remove "sticky" when you leave the scroll position
