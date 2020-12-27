@@ -164,7 +164,7 @@ class ExperienceRepository extends ServiceEntityRepository
 
         $experienceIds = implode("','", $experienceIds);
 
-        $query = sprintf("SELECT * from experience e where e.start_date_and_time > NOW()
+        $query = sprintf("SELECT * from experience e where e.end_date_and_time > NOW()
                         AND e.id IN ('$experienceIds')
                         AND e.cancelled = 'false'
                         ORDER BY e.start_date_and_time ASC");
