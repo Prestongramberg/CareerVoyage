@@ -117,7 +117,7 @@ HERE;
     public function findAllFutureEvents() {
         $query = sprintf("select e.id, e.title, e.brief_description from experience e
                 inner join school_experience se on se.id = e.id
-                WHERE e.start_date_and_time >= DATE(NOW()) AND e.cancelled = 0
+                WHERE e.end_date_and_time >= DATE(NOW()) AND e.cancelled = 0
                 GROUP BY se.id order by e.start_date_and_time ASC");
 
         $em = $this->getEntityManager();
