@@ -240,6 +240,15 @@ abstract class Experience
         $this->feedback = new ArrayCollection();
     }
 
+    public function isVirtual() {
+
+        if (stripos(strtolower($this->getType()->getName()), 'virtual') !== false) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function getId()
     {
         return $this->id;

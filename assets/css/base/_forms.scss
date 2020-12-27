@@ -71,3 +71,14 @@ input[type=range] {
   display: block;
   width: 100%;
 }
+
+#student_edit_profile_form_notificationPreferences {
+  label {
+    display: inline;
+    
+    &::after {
+      content: "\a";
+      white-space: pre;
+    }
+  }
+}

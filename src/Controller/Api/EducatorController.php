@@ -7,6 +7,8 @@ use App\Entity\CompanyPhoto;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\EducatorUser;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -235,6 +237,68 @@ class EducatorController extends AbstractController
             $educators = $this->educatorUserRepository->getAll();
         }
 
+        $useRegionFiltering = false;
+        $regions = [];
+        if($user->isSchoolAdministrator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var SchoolAdministrator $user */
+            foreach($user->getSchools() as $school) {
+
+                if(!$school->getRegion()) {
+                    continue;
+                }
+
+                $regions[] = $school->getRegion()->getId();
+            }
+        }
+
+        if($user->isStudent() || $user->isEducator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var StudentUser|EducatorUser $user */
+
+            if($user->getSchool() && $user->getSchool()->getRegion()) {
+                $regions[] = $user->getSchool()->getRegion()->getId();
+            }
+        }
+
+        if($user->isProfessional()) {
+
+            $useRegionFiltering = true;
+
+            /** @var ProfessionalUser $user */
+
+            foreach($user->getRegions() as $region) {
+
+                $regions[] = $region->getId();
+            }
+        }
+
+        $regions = array_unique($regions);
+
+        if($useRegionFiltering) {
+            $educators = array_filter($educators, function(EducatorUser $educatorUser) use($regions) {
+
+                if(!$educatorUser->getSchool()) {
+                    return false;
+                }
+
+                if(!$educatorUser->getSchool()->getRegion()) {
+                    return false;
+                }
+
+                if(in_array($educatorUser->getSchool()->getRegion()->getId(), $regions)) {
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        $educators = array_values($educators);
 
         $json = $this->serializer->serialize($educators, 'json', ['groups' => ['EDUCATOR_USER_DATA']]);
         $educators = json_decode($json, true);

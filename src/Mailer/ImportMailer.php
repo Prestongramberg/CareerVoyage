@@ -2,6 +2,7 @@
 
 namespace App\Mailer;
 
+use App\Entity\EmailLog;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
 use Swift_Attachment;
@@ -30,7 +31,17 @@ class ImportMailer extends AbstractMailer
             Swift_Attachment::fromPath($attachmendFilePath)->setFilename('students.csv')
         );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Students Imported');
+        $log->setToEmail($schoolAdministrator->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function educatorImportMailer(SchoolAdministrator $schoolAdministrator, $attachmendFilePath) {
@@ -50,6 +61,16 @@ class ImportMailer extends AbstractMailer
             Swift_Attachment::fromPath($attachmendFilePath)->setFilename('educators.csv')
         );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Educators Imported');
+        $log->setToEmail($schoolAdministrator->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 }

@@ -218,11 +218,17 @@ class GlobalShare
          * @var StudentUser $loggedInUser
          */
         if($loggedInUser->isStudent()) {
-            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            // for now we are disabling student to student communication
-            //$studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $professionalUsers = $this->professionalUserRepository->findByAllowedCommunication($search, $loggedInUser);
+
+            /** @var StudentUser $loggedInUser */
+            $regionIds = [];
+
+            if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                $regionIds[] = $loggedInUser->getSchool()->getRegion()->getId();
+            }
+
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
             $users = array_merge($professionalUsers, $educatorUsers, $schoolAdministrators);
         }
 
@@ -235,10 +241,18 @@ class GlobalShare
          * @var EducatorUser $loggedInUser
          */
         if($loggedInUser->isEducator()) {
-            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $loggedInUser->getSchool());
-            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+
+            /** @var EducatorUser $loggedInUser */
+            $regionIds = [];
+
+            if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                $regionIds[] = $loggedInUser->getSchool()->getRegion()->getId();
+            }
+
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
             $users = array_merge($educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
         }
 
@@ -250,14 +264,17 @@ class GlobalShare
          * @var ProfessionalUser $loggedInUser
          */
         if($loggedInUser->isProfessional()) {
-            $educatorUsers = $this->educatorUserRepository->findBySearchTerm($search);
-            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
-            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
 
-            $studentUsers = [];
-            foreach($loggedInUser->getSchools() as $school) {
-                $studentUsers = array_merge($studentUsers, $this->studentUserRepository->findBySearchTermAndSchool($search, $school));
+            /** @var ProfessionalUser $loggedInUser */
+            $regionIds = [];
+            foreach($loggedInUser->getRegions() as $region) {
+                $regionIds[] = $region->getId();
             }
+
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
 
             $users = array_merge($studentUsers, $educatorUsers, $schoolAdministrators, $professionalUsers);
         }
@@ -271,17 +288,23 @@ class GlobalShare
          */
         if($loggedInUser->isSchoolAdministrator()) {
 
-            // find users just for their school
+            $regionIds = [];
+            /** @var SchoolAdministrator $loggedInUser */
             foreach($loggedInUser->getSchools() as $school) {
-                $educatorUsers = $this->educatorUserRepository->findBySearchTermAndSchool($search, $school);
-                $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTerm($search);
-                $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($search, $school);
-                $users = array_merge($users, $studentUsers, $educatorUsers, $schoolAdministrators);
+
+                if(!$school->getRegion()) {
+                    continue;
+                }
+
+              $regionIds[] = $school->getRegion()->getId();
             }
 
-            $professionalUsers = $this->professionalUserRepository->findBySearchTerm($search);
+            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
+            $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds($search, $regionIds);
 
-            $users = array_merge($users, $professionalUsers);
+            $users = array_merge($users, $professionalUsers, $studentUsers, $educatorUsers, $schoolAdministrators);
         }
 
         return $users;

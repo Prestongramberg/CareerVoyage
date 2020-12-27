@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
+use App\Entity\Region;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
@@ -90,6 +91,12 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'choice_attr' => function($choice, $key, $value) {
                     return ['class' => 'uk-checkbox', 'tooltip' => $choice->getDescription()];
                 },
+            ])
+            ->add('regions', EntityType::class, [
+                'class' => Region::class,
+                'expanded' => true,
+                'multiple' => true,
+                'choice_label' => 'friendlyName',
             ])
             ->add('interests', TextareaType::class)
             ->add('street', TextType::class, [])

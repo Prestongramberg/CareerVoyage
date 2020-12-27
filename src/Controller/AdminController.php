@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
+use App\Entity\EmailLog;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -97,6 +98,49 @@ class AdminController extends AbstractController
             'user' => $user,
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER"})
+     * @Route("/email-log/download", name="admin_email_log_download")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function emailLogDownload(Request $request, SerializerInterface $serializer) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $emailLogs = $this->entityManager->getRepository(EmailLog::class)->findAll();
+
+        $logs[] =
+            [
+                'from',
+                'to',
+                'subject',
+                'status',
+                'date'
+            ];
+
+        foreach($emailLogs as $emailLog) {
+            $logs[] = [
+              $emailLog->getFromEmail(),
+              $emailLog->getToEmail(),
+              $emailLog->getSubject(),
+              $emailLog->getStatus(),
+              $emailLog->getCreatedAt()->format('m/d/Y h:i:s A')
+            ];
+        }
+
+        $response = new Response($serializer->encode($logs, 'csv', [
+            \Symfony\Component\Serializer\Encoder\CsvEncoder::NO_HEADERS_KEY => true
+        ]));
+
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', "attachment; filename=email_log.csv");
+        return $response;
+
     }
 
     /**

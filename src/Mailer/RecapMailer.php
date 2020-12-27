@@ -3,6 +3,7 @@
 namespace App\Mailer;
 
 use App\Entity\EducatorUser;
+use App\Entity\EmailLog;
 use App\Entity\Experience;
 use App\Entity\Lesson;
 use App\Entity\SchoolAdministrator;
@@ -47,6 +48,18 @@ class RecapMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject($subject);
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+
     }
 }

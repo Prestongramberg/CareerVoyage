@@ -39,6 +39,7 @@ export function unSelectAll() {
 }
 
 export function loadSchools(url) {
+    debugger;
     return (dispatch, getState) => {
 
         const { search }  = getState();

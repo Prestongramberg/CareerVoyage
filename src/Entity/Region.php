@@ -47,10 +47,27 @@ class Region
      */
     private $site;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $friendlyName;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\ProfessionalUser", mappedBy="regions")
+     */
+    private $professionalUsers;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Company", mappedBy="regions")
+     */
+    private $companies;
+
     public function __construct()
     {
         $this->regionalCoordinators = new ArrayCollection();
         $this->schools = new ArrayCollection();
+        $this->professionalUsers = new ArrayCollection();
+        $this->companies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -152,6 +169,74 @@ class Region
     public function setSite(?Site $site): self
     {
         $this->site = $site;
+
+        return $this;
+    }
+
+    public function getFriendlyName(): ?string
+    {
+        return $this->friendlyName;
+    }
+
+    public function setFriendlyName(?string $friendlyName): self
+    {
+        $this->friendlyName = $friendlyName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProfessionalUser[]
+     */
+    public function getProfessionalUsers(): Collection
+    {
+        return $this->professionalUsers;
+    }
+
+    public function addProfessionalUser(ProfessionalUser $professionalUser): self
+    {
+        if (!$this->professionalUsers->contains($professionalUser)) {
+            $this->professionalUsers[] = $professionalUser;
+            $professionalUser->addRegion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfessionalUser(ProfessionalUser $professionalUser): self
+    {
+        if ($this->professionalUsers->contains($professionalUser)) {
+            $this->professionalUsers->removeElement($professionalUser);
+            $professionalUser->removeRegion($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Company[]
+     */
+    public function getCompanies(): Collection
+    {
+        return $this->companies;
+    }
+
+    public function addCompany(Company $company): self
+    {
+        if (!$this->companies->contains($company)) {
+            $this->companies[] = $company;
+            $company->addRegion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompany(Company $company): self
+    {
+        if ($this->companies->contains($company)) {
+            $this->companies->removeElement($company);
+            $company->removeRegion($this);
+        }
 
         return $this;
     }
