@@ -4,8 +4,11 @@ namespace App\Controller\Api;
 
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
+use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
@@ -201,6 +204,71 @@ class ProfessionalController extends AbstractController
         } else {
             $professionals = $this->professionalUserRepository->getAll();
         }
+
+        $useRegionFiltering = false;
+        $regions = [];
+        if($user->isSchoolAdministrator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var SchoolAdministrator $user */
+            foreach($user->getSchools() as $school) {
+
+                if(!$school->getRegion()) {
+                    continue;
+                }
+
+                $regions[] = $school->getRegion()->getId();
+            }
+        }
+
+        if($user->isProfessional()) {
+
+            $useRegionFiltering = true;
+
+            /** @var ProfessionalUser $user */
+
+            foreach($user->getRegions() as $region) {
+
+                $regions[] = $region->getId();
+            }
+        }
+
+        if($user->isStudent() || $user->isEducator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var StudentUser|EducatorUser $user */
+
+            if($user->getSchool() && $user->getSchool()->getRegion()) {
+                $regions[] = $user->getSchool()->getRegion()->getId();
+            }
+        }
+
+        $regions = array_unique($regions);
+
+        if($useRegionFiltering) {
+            $professionals = array_filter($professionals, function(ProfessionalUser $professionalUser) use($regions) {
+
+                if($professionalUser->isVirtual()) {
+                    return true;
+                }
+
+                if($professionalUser->getRegions()->count() === 0) {
+                    return false;
+                }
+
+                foreach($professionalUser->getRegions() as $region) {
+                    if(in_array($region->getId(), $regions)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+
+        $professionals = array_values($professionals);
 
         $json = $this->serializer->serialize($professionals, 'json', ['groups' => ['PROFESSIONAL_USER_DATA']]);
         $payload = json_decode($json, true);

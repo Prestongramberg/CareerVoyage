@@ -2,6 +2,7 @@
 
 namespace App\Mailer;
 
+use App\Entity\EmailLog;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SiteAdminUser;
 use App\Entity\User;
@@ -26,7 +27,17 @@ class FeedbackMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($from);
+        $log->setSubject('Request for lesson, idea or site visit.');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function requestForNewCourseToBeAddedToSystem(User $user, $message, $from) {
@@ -42,6 +53,16 @@ class FeedbackMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($from);
+        $log->setSubject('Request for new course to be added to the system.');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 }

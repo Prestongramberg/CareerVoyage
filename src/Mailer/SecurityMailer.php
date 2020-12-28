@@ -2,6 +2,7 @@
 
 namespace App\Mailer;
 
+use App\Entity\EmailLog;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SiteAdminUser;
@@ -32,7 +33,17 @@ class SecurityMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Password Reset');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function sendPasswordSetup(User $user) {
@@ -53,7 +64,17 @@ class SecurityMailer extends AbstractMailer
                 'text/html'
             );
 
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Password Setup');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     public function sendAccountActivation(User $user) {
@@ -73,7 +94,17 @@ class SecurityMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Activate Account');
+        $log->setToEmail($user->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -101,7 +132,17 @@ class SecurityMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Password Setup For Site Admin');
+        $log->setToEmail($siteAdminUser->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -129,7 +170,17 @@ class SecurityMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Password Setup For State Coordinator');
+        $log->setToEmail($stateCoordinator->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -157,7 +208,17 @@ class SecurityMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Password Setup For Regional Coordinator');
+        $log->setToEmail($regionalCoordinator->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
     /**
@@ -185,7 +246,17 @@ class SecurityMailer extends AbstractMailer
                 ),
                 'text/html'
             );
-        $this->mailer->send($message);
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Password Setup For School Administrator');
+        $log->setToEmail($schoolAdministrator->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 
 }

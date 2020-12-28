@@ -14,6 +14,7 @@ class App extends React.Component {
 
     render() {
 
+        debugger;
         const ranges = [ 25, 50, 70, 150 ];
 
         return (
@@ -86,7 +87,9 @@ class App extends React.Component {
     }
 
     loadSchools() {
-        this.props.loadSchools( window.Routing.generate('get_schools_by_radius') + `?zipcode=${this.props.search.geoZipCodeValue}&radius=${this.props.search.geoRadiusValue}` );
+        debugger;
+        var regions = encodeURIComponent(JSON.stringify(this.props.search.regions));
+        this.props.loadSchools( window.Routing.generate('get_schools_by_radius') + `?zipcode=${this.props.search.geoZipCodeValue}&radius=${this.props.search.geoRadiusValue}&regions=${regions}` );
     }
 }
 

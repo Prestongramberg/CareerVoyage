@@ -78,6 +78,46 @@ class StudentUserRepository extends ServiceEntityRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * @param $search
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTerm($search) {
+
+        $query = 'SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join student_user su on u.id = su.id';
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * @param        $search
+     * @param array  $regionIds
+     *
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function findBySearchTermAndRegionIds($search, array $regionIds) {
+
+        if(empty($regionIds)) {
+            return [];
+        }
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+                 inner join student_user su on u.id = su.id
+                 INNER JOIN school s on su.school_id = s.id
+            where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN ('. implode(",", $regionIds) . ')', $search);
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
     public function getStudentsForRegion(Region $region) {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.site', 'site')

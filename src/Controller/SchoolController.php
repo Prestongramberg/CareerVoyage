@@ -119,6 +119,7 @@ class SchoolController extends AbstractController
         $form = $this->createForm(SchoolAdminFormType::class, $schoolAdmin, [
             'method' => 'POST',
             'site' => $user->getSite(),
+            'user' => $user
         ]);
 
         $form->handleRequest($request);
@@ -565,11 +566,14 @@ class SchoolController extends AbstractController
         $user = $this->getUser();
 
         $volunteeringCompanies = $this->companyRepository->getBySchool($school);
+        $volunteeringProfessionals = $this->professionalUserRepository->getBySchool($school);
+
 
         return $this->render('school/view.html.twig', [
             'user' => $user,
             'school' => $school,
 	        'volunteeringCompanies' => $volunteeringCompanies,
+            'volunteeringProfessionals' => $volunteeringProfessionals
         ]);
     }
 

@@ -4,6 +4,8 @@ namespace App\Mailer;
 
 use App\Repository\UserRepository;
 use App\Service\NotificationPreferencesManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -46,6 +48,11 @@ class AbstractMailer
     protected $notificationPreferencesManager;
 
     /**
+     * @var EntityManagerInterface
+     */
+    protected $entityManager;
+
+    /**
      * @var string
      */
     protected $baseHost;
@@ -57,33 +64,31 @@ class AbstractMailer
 
     /**
      * AbstractMailer constructor.
-     * @param Swift_Mailer $mailer
-     * @param RouterInterface $router
-     * @param Environment $templating
-     * @param string $siteFromEmail
-     * @param UserRepository $userRepository
+     *
+     * @param Swift_Mailer                   $mailer
+     * @param RouterInterface                $router
+     * @param Environment                    $templating
+     * @param string                         $siteFromEmail
+     * @param UserRepository                 $userRepository
      * @param NotificationPreferencesManager $notificationPreferencesManager
-     * @param string $baseHost
-     * @param string $baseScheme
+     * @param EntityManagerInterface         $entityManager
+     * @param string                         $baseHost
+     * @param string                         $baseScheme
      */
     public function __construct(
-        Swift_Mailer $mailer,
-        RouterInterface $router,
-        Environment $templating,
-        string $siteFromEmail,
-        UserRepository $userRepository,
-        NotificationPreferencesManager $notificationPreferencesManager,
-        string $baseHost,
-        string $baseScheme
+        Swift_Mailer $mailer, RouterInterface $router, Environment $templating, string $siteFromEmail,
+        UserRepository $userRepository, NotificationPreferencesManager $notificationPreferencesManager,
+        EntityManagerInterface $entityManager, string $baseHost, string $baseScheme
     ) {
-        $this->mailer = $mailer;
-        $this->router = $router;
-        $this->templating = $templating;
-        $this->siteFromEmail = $siteFromEmail;
-        $this->userRepository = $userRepository;
+        $this->mailer                         = $mailer;
+        $this->router                         = $router;
+        $this->templating                     = $templating;
+        $this->siteFromEmail                  = $siteFromEmail;
+        $this->userRepository                 = $userRepository;
         $this->notificationPreferencesManager = $notificationPreferencesManager;
-        $this->baseHost = $baseHost;
-        $this->baseScheme = $baseScheme;
+        $this->entityManager                  = $entityManager;
+        $this->baseHost                       = $baseHost;
+        $this->baseScheme                     = $baseScheme;
     }
 
     /**

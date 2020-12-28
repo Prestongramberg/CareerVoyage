@@ -57,6 +57,7 @@ export function loadEvents(url) {
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
+                    debugger;
                     dispatch({type: actionTypes.EVENTS_LOADING_SUCCESS, response: response.responseBody})
                 }  else {
                     dispatch({
