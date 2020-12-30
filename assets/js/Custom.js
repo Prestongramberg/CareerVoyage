@@ -866,7 +866,7 @@ jQuery(document).ready(function($) {
             $elem.daterangepicker({
                 "drops": dropDirection,
                 "timePicker": true,
-                "timePickerIncrement": 15,
+                "timePickerIncrement": 5,
                 "startDate": today,
                 "endDate": tomorrow,
                 "autoApply": true,
@@ -888,7 +888,7 @@ jQuery(document).ready(function($) {
                 drops: dropDirection,
                 singleDatePicker: true,
                 timePicker: true,
-                timePickerIncrement: 15,
+                timePickerIncrement: 5,
                 linkedCalendars: false,
                 showCustomRangeLabel: false,
                 locale: {

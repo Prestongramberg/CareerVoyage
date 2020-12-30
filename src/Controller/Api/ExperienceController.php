@@ -189,6 +189,7 @@ class ExperienceController extends AbstractController
          * START THE LOGIC FOR FINDING EXPERIENCES BY ZIPCODE
          */
         if ($zipcode && $coordinates = $this->geocoder->geocode($zipcode)) {
+
             $lng = $coordinates['lng'];
             $lat = $coordinates['lat'];
             list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
@@ -248,6 +249,81 @@ class ExperienceController extends AbstractController
                 }, $experiences
             );
             $experiences   = $this->experienceRepository->findBy(['id' => $experienceIds]);
+
+            $useRegionFiltering = false;
+            $regions = [];
+            if($loggedInUser->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($loggedInUser->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
+                    }
+
+                    $regions[] = $school->getRegion()->getId();
+                }
+            }
+
+            if($loggedInUser->isProfessional()) {
+
+                $useRegionFiltering = true;
+
+                /** @var ProfessionalUser $loggedInUser */
+
+                foreach($loggedInUser->getRegions() as $region) {
+
+                    $regions[] = $region->getId();
+                }
+            }
+
+            if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $experiences = array_filter($experiences, function(Experience $experience) use($regions) {
+
+                    if($experience->isVirtual()) {
+                        return true;
+                    }
+                    
+                    if($experience instanceof CompanyExperience) {
+
+                        if(!$experience->getCompany()) {
+                            return false;
+                        }
+
+                        $hasMatch = false;
+                        foreach($experience->getCompany()->getRegions() as $region) {
+                            if(in_array($region->getId(), $regions)) {
+                                $hasMatch = true;
+                            }
+                        }
+
+                        if(!$hasMatch) {
+                            return false;
+                        }
+
+                    }
+
+                    return true;
+                });
+            }
+
+            $experiences = array_values($experiences);
+
             $json          = $this->serializer->serialize(
                 $experiences, 'json', [
                                 'groups' => [
@@ -259,6 +335,7 @@ class ExperienceController extends AbstractController
             $payload       = json_decode($json, true);
 
         } else {
+
             /**
              * START THE LOGIC FOR FINDING EXPERIENCES WITHOUT ZIPCODE
              */
@@ -320,6 +397,77 @@ class ExperienceController extends AbstractController
             }
 
             $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
+
+            $useRegionFiltering = false;
+            $regions = [];
+            if($loggedInUser->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($loggedInUser->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
+                    }
+
+                    $regions[] = $school->getRegion()->getId();
+                }
+            }
+
+            if($loggedInUser->isProfessional()) {
+
+                $useRegionFiltering = true;
+
+                /** @var ProfessionalUser $user */
+
+                foreach($loggedInUser->getRegions() as $region) {
+
+                    $regions[] = $region->getId();
+                }
+            }
+
+            if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $experiences = array_filter($experiences, function(Experience $experience) use($regions) {
+
+                    if($experience instanceof CompanyExperience) {
+
+                        if(!$experience->getCompany()) {
+                            return false;
+                        }
+
+                        $hasMatch = false;
+                        foreach($experience->getCompany()->getRegions() as $region) {
+                            if(in_array($region->getId(), $regions)) {
+                                $hasMatch = true;
+                            }
+                        }
+
+                        if(!$hasMatch) {
+                            return false;
+                        }
+
+                    }
+
+                    return true;
+                });
+            }
+
+            $experiences = array_values($experiences);
+
             $json        = $this->serializer->serialize(
                 $experiences, 'json', [
                                 'groups' => [
@@ -438,6 +586,76 @@ class ExperienceController extends AbstractController
                                         ]
             );
 
+            $useRegionFiltering = false;
+            $regions = [];
+            if($loggedInUser->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($loggedInUser->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
+                    }
+
+                    $regions[] = $school->getRegion()->getId();
+                }
+            }
+
+            if($loggedInUser->isProfessional()) {
+
+                $useRegionFiltering = true;
+
+                /** @var ProfessionalUser $user */
+
+                foreach($loggedInUser->getRegions() as $region) {
+
+                    $regions[] = $region->getId();
+                }
+            }
+
+            if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $experiences = array_filter($experiences, function(Experience $experience) use($regions) {
+
+                    if($experience instanceof CompanyExperience) {
+
+                        if(!$experience->getCompany()) {
+                            return false;
+                        }
+
+                        $hasMatch = false;
+                        foreach($experience->getCompany()->getRegions() as $region) {
+                            if(in_array($region->getId(), $regions)) {
+                                $hasMatch = true;
+                            }
+                        }
+
+                        if(!$hasMatch) {
+                            return false;
+                        }
+
+                    }
+
+                    return true;
+                });
+            }
+
+            $experiences = array_values($experiences);
+
             $json    = $this->serializer->serialize(
                 $experiences, 'json', [
                                 'groups' => [
@@ -529,6 +747,76 @@ class ExperienceController extends AbstractController
                                             'startDateAndTime' => 'ASC',
                                         ]
             );
+
+            $useRegionFiltering = false;
+            $regions = [];
+            if($loggedInUser->isSchoolAdministrator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var SchoolAdministrator $user */
+                foreach($loggedInUser->getSchools() as $school) {
+
+                    if(!$school->getRegion()) {
+                        continue;
+                    }
+
+                    $regions[] = $school->getRegion()->getId();
+                }
+            }
+
+            if($loggedInUser->isProfessional()) {
+
+                $useRegionFiltering = true;
+
+                /** @var ProfessionalUser $user */
+
+                foreach($loggedInUser->getRegions() as $region) {
+
+                    $regions[] = $region->getId();
+                }
+            }
+
+            if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+                $useRegionFiltering = true;
+
+                /** @var StudentUser|EducatorUser $user */
+
+                if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
+            if($useRegionFiltering) {
+                $experiences = array_filter($experiences, function(Experience $experience) use($regions) {
+
+                    if($experience instanceof CompanyExperience) {
+
+                        if(!$experience->getCompany()) {
+                            return false;
+                        }
+
+                        $hasMatch = false;
+                        foreach($experience->getCompany()->getRegions() as $region) {
+                            if(in_array($region->getId(), $regions)) {
+                                $hasMatch = true;
+                            }
+                        }
+
+                        if(!$hasMatch) {
+                            return false;
+                        }
+
+                    }
+
+                    return true;
+                });
+            }
+
+            $experiences = array_values($experiences);
 
             $json    = $this->serializer->serialize(
                 $experiences, 'json', [

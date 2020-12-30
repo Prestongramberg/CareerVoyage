@@ -119,6 +119,7 @@ class SchoolController extends AbstractController
         $form = $this->createForm(SchoolAdminFormType::class, $schoolAdmin, [
             'method' => 'POST',
             'site' => $user->getSite(),
+            'user' => $user
         ]);
 
         $form->handleRequest($request);
@@ -565,11 +566,14 @@ class SchoolController extends AbstractController
         $user = $this->getUser();
 
         $volunteeringCompanies = $this->companyRepository->getBySchool($school);
+        $volunteeringProfessionals = $this->professionalUserRepository->getBySchool($school);
+
 
         return $this->render('school/view.html.twig', [
             'user' => $user,
             'school' => $school,
 	        'volunteeringCompanies' => $volunteeringCompanies,
+            'volunteeringProfessionals' => $volunteeringProfessionals
         ]);
     }
 
@@ -652,45 +656,48 @@ class SchoolController extends AbstractController
                             }
                             $student = array_combine($columns, $values);
 
-                            $username = sprintf("%s.%s",
-                                strtolower($student['First Name'] . '.' . $student['Last Name']),
-                                $this->generateRandomString(1));
+                            if(!empty($student['First Name']) && !empty($student['Last Name'])){
 
-                            $studentObj = new StudentUser();
-                            $studentObj->setFirstName($student['First Name']);
-                            $studentObj->setLastName($student['Last Name']);
-                            $studentObj->setGraduatingYear($student['Graduating Year']);
+                                $username = sprintf("%s.%s",
+                                    strtolower($student['First Name'] . '.' . $student['Last Name']),
+                                    $this->generateRandomString(1));
 
-                            if(!empty($student['Educator Number'])) {
+                                $studentObj = new StudentUser();
+                                $studentObj->setFirstName($student['First Name']);
+                                $studentObj->setLastName($student['Last Name']);
+                                $studentObj->setGraduatingYear($student['Graduating Year']);
 
-                                if($previousEducator instanceof EducatorUser && $previousEducator->getId() === $student['Educator Number']) {
-                                    $studentObj->addEducatorUser($previousEducator);
-                                    $studentObj->setEducatorNumber($previousEducator->getId());
-                                } else {
+                                if(!empty($student['Educator Number'])) {
 
-                                    $educator = $this->educatorUserRepository->findOneBy([
-                                        'id' => $student['Educator Number'],
-                                        'school' => $school,
-                                    ]);
-                                    if($educator) {
-                                        $studentObj->addEducatorUser($educator);
-                                        $studentObj->setEducatorNumber($educator->getId());
-                                        $previousEducator = $educator;
+                                    if($previousEducator instanceof EducatorUser && $previousEducator->getId() === $student['Educator Number']) {
+                                        $studentObj->addEducatorUser($previousEducator);
+                                        $studentObj->setEducatorNumber($previousEducator->getId());
+                                    } else {
+
+                                        $educator = $this->educatorUserRepository->findOneBy([
+                                            'id' => $student['Educator Number'],
+                                            'school' => $school,
+                                        ]);
+                                        if($educator) {
+                                            $studentObj->addEducatorUser($educator);
+                                            $studentObj->setEducatorNumber($educator->getId());
+                                            $previousEducator = $educator;
+                                        }
                                     }
                                 }
+
+                                $studentObj->setSchool($school);
+                                $studentObj->setSite($user->getSite());
+                                $studentObj->setupAsStudent();
+                                $studentObj->initializeNewUser();
+                                $studentObj->setTempPassword($tempPassword);
+                                $studentObj->setActivated(true);
+                                $studentObj->setUsername($username);
+                                $studentObj->setPassword($encodedPassword);
+
+                                $this->entityManager->persist($studentObj);
+                                $studentObjs[] = $studentObj;
                             }
-
-                            $studentObj->setSchool($school);
-                            $studentObj->setSite($user->getSite());
-                            $studentObj->setupAsStudent();
-                            $studentObj->initializeNewUser();
-                            $studentObj->setTempPassword($tempPassword);
-                            $studentObj->setActivated(true);
-                            $studentObj->setUsername($username);
-                            $studentObj->setPassword($encodedPassword);
-
-                            $this->entityManager->persist($studentObj);
-                            $studentObjs[] = $studentObj;
                         }
 
                     }

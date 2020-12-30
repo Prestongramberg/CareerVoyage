@@ -21,7 +21,8 @@
                         <li><a href="#account-details-profile">Personal</a></li>
                         <li><a href="#account-details-profile-industries">Profession</a></li>
                         <li><a href="#account-details-profile-roles">Roles</a></li>
-                        <li><a href="#account-details-profile-schools" id="account-details-profile-schools">Schools</a></li>
+                        <li><a href="#account-details-profile-region">Region</a></li>
+                        <li id="school-tab"><a href="#account-details-profile-schools" id="account-details-profile-schools">Schools</a></li>
                         <li><a href="#account-details-profile-videos" id="account-details-profile-videos">Videos</a></li>
                         <li><a href="#account-details-profile-account">Account</a></li>
                     </ul>
@@ -119,18 +120,45 @@
                                 </fieldset>
                             </div>
                         </div>
+                        <div class="account_details_regions">
+                            <div class="uk-width-xlarge">
+                                <fieldset class="uk-fieldset">
+                                    <div class="uk-margin">
+                                        <div class="uk-column-1-2">
+                                            <div>
+                                                <p>Please Select geographical regions in which you want your profile visible:</p>
+                                                {{ form_label(form.regions, 'Regions *') }}
+                                                {{ form_widget(form.regions, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.regions) ? ' uk-form-danger' : '' ) }}) }}
+                                                <div class="clear"></div>
+                                                {{ form_errors(form.regions) }}
+                                            </div>
+
+                                            <div>
+                                                <img src="{{ asset('build/images/regions.png') }}">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="uk-margin">
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
                         <div class="account_details_schools">
 
                             <div class="uk-width-xlarge">
                                 <fieldset class="uk-fieldset">
                                     <div class="uk-margin">
-                                        {{ form_label(form.schools, 'Schools*') }}
+                                        {{ form_label(form.schools, 'Schools I volunteer at*') }}
                                         <div class="react-schools-select-by-radius"
                                             data-field-name="professional_edit_profile_form[schools][]"
                                             data-field-value="{{ form.schools.vars.value|json_encode }}"
                                             data-georadius-name="professional_edit_profile_form[geoRadius]"
                                             data-georadius-value="{{ form.geoRadius.vars.value }}"
                                             data-geozipcode-name="professional_edit_profile_form[geoZipCode]"
+                                            data-region-field-name="professional_edit_profile_form[regions][]"
+                                            data-use-regions-preselect="true"
                                             data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif user.zipcode is defined %}{{ user.zipcode }}{% endif %}">
                                             {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
                                             {{ form_widget(form.geoZipCode) }}
@@ -140,7 +168,7 @@
                                         {{ form_errors(form.schools) }}
                                     </div>
                                     <div class="uk-margin">
-                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button>
+                                        <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="5">Next</button>
                                     </div>
                                 </fieldset>
                             </div>
@@ -273,7 +301,7 @@
                             {% endif %}
 
                             <div class="uk-margin">
-                                <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="5">Next</button>
+                                <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="6">Next</button>
                             </div>
 
 
@@ -326,10 +354,16 @@
                                         {{ form_errors(form.isPhoneHiddenFromProfile) }}
                                     </div>
                                     <div class="uk-margin">
+                                        {% for pref in form.notificationPreferences %}
+                                            <div>
+                                                <label class="check">
+                                                    {{ form_errors(pref) }}
+                                                    {{ form_widget(pref) }}
+                                                    <span>{{ pref.vars.label }}</span>
+                                                </label>
 
-                                        {{ form_label(form.notificationPreferences, 'Notification Preferences') }}
-                                        {{ form_widget(form.notificationPreferences, {'attr': {'class': ( form_errors(form.notificationPreferences) ? ' uk-form-danger' : '' ) }}) }}
-                                        {{ form_errors(form.notificationPreferences) }}
+                                            </div>
+                                        {% endfor %}
                                     </div>
                                     <div class="uk-margin">
                                         <button class="uk-button uk-button-primary uk-button-small" id="submit-form">Save</button>

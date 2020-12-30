@@ -29,7 +29,7 @@ class App extends React.Component {
     renderCalendar() {
 
         const events = this.getRelevantEvents();
-        debugger;
+        // debugger;
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
         const ranges = [ 25, 50, 70, 150 ];
 
@@ -55,20 +55,20 @@ class App extends React.Component {
                             { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
                             { this.renderEventTypes() }
                         </div>
-                        <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
-                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                                <div className="uk-search uk-search-default uk-width-1-1">
+                        <div className="uk-grid-match uk-grid-small" data-uk-grid>
+                            <div className="uk-width-1-3@s">
+                                <div className="uk-search uk-search-default">
                                     <span data-uk-search-icon></span>
                                     <input className="uk-search-input" type="search" placeholder="Enter Zip Code..." onChange={(e) => { this.props.zipcodeChanged( e.target.value ) }} value={ this.props.search.zipcode } />
                                 </div>
                             </div>
-                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-width-1-3@s">
                                 <select className="uk-select" onChange={(e) => { this.props.radiusChanged( e.target.value ) }} >
                                     <option value="">Filter by Radius...</option>
                                     {ranges.map( (range, i) => <option key={i} value={range}>{range} miles</option> )}
                                 </select>
                             </div>
-                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-width-1-3@s">
                                 <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
                             </div>
                         </div>

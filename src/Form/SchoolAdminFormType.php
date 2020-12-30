@@ -44,33 +44,60 @@ class SchoolAdminFormType extends AbstractType
     {
         $site = $options['site'];
 
+        /** @var User $user */
+        $user = $options['user'];
+
         $builder->add('firstName', TextType::class)
-            ->add('lastName', TextType::class)
-            ->add('email', EmailType::class)
-            ->add('schools', EntityType::class, [
-                'class' => School::class,
-                'choice_label' => 'name',
-                'expanded'  => true,
-                'multiple'  => true,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
-                },
-                'query_builder' => function (EntityRepository $er) use ($site) {
-                    return $er->createQueryBuilder('s')
-                        ->where('s.site = :site')
-                        ->setParameter('site', $site)
-                        ->orderBy('s.name', 'ASC');
-                },
-            ]);
+                ->add('lastName', TextType::class)
+                ->add('email', EmailType::class)
+                ->add(
+                    'schools', EntityType::class, [
+                    'class'         => School::class,
+                    'choice_label'  => 'name',
+                    'expanded'      => true,
+                    'multiple'      => true,
+                    'choice_attr'   => function ($choice, $key, $value) {
+                        return ['class' => 'uk-checkbox'];
+                    },
+                    'query_builder' => function (EntityRepository $er) use ($site, $user) {
+
+                        if ($user->isRegionalCoordinator()) {
+
+                            /** @var RegionalCoordinator $user $ids */
+                            $regionIds = [$user->getRegion()->getId()];
+
+                            return $er->createQueryBuilder('s')
+                                      ->where('s.site = :site')
+                                      ->andWhere('s.region IN (:ids)')
+                                      ->setParameter('site', $site)
+                                      ->setParameter('ids', $regionIds)
+                                      ->orderBy('s.name', 'ASC');
+                        } else {
+                            // This should probably never happen as I'm pretty sure only regional coordinators can create school admins but just incase
+                            return $er->createQueryBuilder('s')
+                                      ->where('s.site = :site')
+                                      ->setParameter('site', $site)
+                                      ->orderBy('s.name', 'ASC');
+                        }
+                    },
+                ]
+                );
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-            'data_class' => SchoolAdministrator::class,
-            'validation_groups' => ["INCOMPLETE_USER"]
-        ]);
+        $resolver->setDefaults(
+            [
+                'data_class'        => SchoolAdministrator::class,
+                'validation_groups' => ["INCOMPLETE_USER"],
+            ]
+        );
 
-        $resolver->setRequired('site');
+        $resolver->setRequired(
+            [
+                'site',
+                'user',
+            ]
+        );
     }
 }

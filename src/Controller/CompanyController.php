@@ -18,6 +18,7 @@ use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentUser;
@@ -1758,8 +1759,30 @@ class CompanyController extends AbstractController
      */
     public function manageAction(Request $request) {
 
+        /** @var User $user */
         $user = $this->getUser();
         $companies = $this->companyRepository->getAllCompaniesByName();
+
+        if($user->isRegionalCoordinator()) {
+
+            /** @var RegionalCoordinator $user */
+
+            $companies = array_filter($companies, function (Company $company) use($user) {
+
+                $companyRegions = [];
+                foreach($company->getRegions() as $region) {
+                    $companyRegions[] = $region->getId();
+                }
+
+                if(in_array($user->getRegion()->getId(), $companyRegions)) {
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        $companies = array_values($companies);
 
         return $this->render('company/manage.html.twig', [
             'companies' => $companies,

@@ -12,24 +12,17 @@ class EventListing extends Component {
                         <div className="uk-grid-small uk-flex-middle" data-uk-grid>
 
                             <div className="uk-width-auto">
-                                <a href={ window.Routing.generate('experience_view', { id: this.props.id }) }>
-                                    <h4 className="uk-card-title-small">{ this.props.title }
-                                    </h4>
-                                    <small>{ this.props.friendlyName }</small>
-                                    <br />
-                                    <small>{ this.props.experienceListTitle }</small>
-                                </a>
+                                <h4 className="uk-card-title-small">
+                                    <a href={ window.Routing.generate('experience_view', { id: this.props.id }) }>{ this.props.title }</a>
+                                </h4>
+                                <p className="uk-text-small"><strong>{ this.props.friendlyName }</strong><br />{ this.props.experienceListTitle }</p>
                             </div>
 
                         </div>
                     </div>
                     <div className="uk-card-body">
-
-                        <div className="uk-margin">
-                            { truncate( this.props.briefDescription ) || "This experience doesn't have a description yet." }
-                        </div>
-                        <div className="uk-margin">Start Date: { this.props.friendlyStartDateAndTime }</div>
-                        <div className="uk-margin">End Date: { this.props.friendlyEndDateAndTime }</div>
+                        <p>{ truncate( this.props.briefDescription ) || "This experience doesn't have a description yet." }</p>
+                        <p className="uk-text-small"><strong>Dates:</strong><br />{ this.props.friendlyStartDateAndTime }<br />{ this.props.friendlyEndDateAndTime }</p>
 
                         <div className="uk-width-expand uk-visible@m">
                             <div className="uk-align-right">

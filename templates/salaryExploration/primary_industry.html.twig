@@ -7,11 +7,13 @@
     <div class="uk-container">
         <div class="uk-section uk-section-muted uk-padding">
             <h3>Select a Primary Industry Career Field</h3>
+            <ul>
             {% for primaryIndustry in primaryIndustries %}
-                <div>
+                <li>
                     <a href="{{ path('salary_exploration_secondary_industry', {'id' : primaryIndustry.id }) }}">{{ primaryIndustry.name }}</a>
-                </div>
+                </li>
             {% endfor %}
+            </ul>
         </div>
     </div>
 

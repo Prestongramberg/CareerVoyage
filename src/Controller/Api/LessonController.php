@@ -159,7 +159,7 @@ class LessonController extends AbstractController
      */
     public function getLessons() {
 
-        $lessons = $this->lessonRepository->findAll();
+        $lessons = $this->lessonRepository->findAll(['title' => 'asc']);
 
         $user = $this->getUser();
 

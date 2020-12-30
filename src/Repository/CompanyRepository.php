@@ -77,6 +77,7 @@ class CompanyRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('c')
             ->innerJoin('c.schools', 'schools')
             ->where('schools.id = :id')
+            ->orderBy('c.name', "ASC")
             ->setParameter('id', $school->getId())
             ->getQuery()
             ->getResult();
