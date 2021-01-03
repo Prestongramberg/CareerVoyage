@@ -5,10 +5,6 @@ export default (state = {}, action) => {
         case actionTypes.LOAD_INDUSTRIES_FAILURE:
         case actionTypes.LOAD_SECONDARY_INDUSTRIES_FAILURE:
         case actionTypes.LOAD_INDUSTRIES_SUCCESS:
-            return {
-                ...state,
-                loading: false
-            };
         case actionTypes.LOAD_SECONDARY_INDUSTRIES_SUCCESS:
             return {
                 ...state,
@@ -20,16 +16,22 @@ export default (state = {}, action) => {
                 primaryIndustrySelected: parseInt( action.industryId )
             };
 // TODO: This may need fixing
-        case actionTypes.SECONDARY_INDUSTRY_SEARCHED:
-            return {
-                ...state,
-                secondaryIndustrySearched: action.secondaryIndustrySearched
-            }
+        // case actionTypes.SECONDARY_INDUSTRY_SEARCHED:
+        //     return {
+        //         ...state,
+        //         secondaryIndustrySearched: action.secondaryIndustrySearched
+        //     }
         case actionTypes.SUBSCRIBE:
             return {
                 ...state,
                 secondaryIndustrySelected: ''
             };
+        // case actionTypes.SECONDARY_INDUSTRY_SEARCHED:
+        //     return {
+        //         ...state,
+        //         search: action.response.data
+
+        //     }
         default:
             return state;
     }

@@ -21,3 +21,12 @@ export function getAllSecondaryIndustries( industries, secondaryIndustryIds ) {
 
     return foundSecondaryIndustries;
 }
+
+
+export function searchSecondaryIndustryByName(industries, query) {
+    let foundSecondaryIndustries = [];
+    // Search the list of json items and find the id
+    // pass into reducer
+
+    return foundSecondaryIndustries;
+}

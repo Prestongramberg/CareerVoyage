@@ -9,10 +9,10 @@ export function primaryIndustryChanged(industryId) {
 }
 
 // TODO: This needs to be updated / ER
-export function secondaryIndustrySearched(searchPhrase) {
+export function secondaryIndustrySearched(query) {
     return {
         type: actionTypes.SECONDARY_INDUSTRY_SEARCHED,
-        searchPhrase: searchPhrase
+        query: query
     }
 }
 
@@ -67,7 +67,7 @@ export function loadSecondaryIndustries(url, removeDomId) {
         return api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    dispatch({ type: actionTypes.LOAD_SECONDARY_INDUSTRIES_SUCCESS, resposne: response.responseBody});
+                    dispatch({ type: actionTypes.LOAD_SECONDARY_INDUSTRIES_SUCCESS, response: response.responseBody});
                     $(`#${removeDomId}`).remove();
                 } else {
                     dispatch({

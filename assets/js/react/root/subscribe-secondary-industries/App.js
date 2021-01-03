@@ -58,11 +58,11 @@ class App extends React.Component {
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-1">
                                     {/* TODO - this needs to be fixed to allow searching from this field. */}
-                                    <input type="text" placeholder="Search for Career Field" className="uk-input" value={this.state.search} onChange={this.props.secondaryIndustrySearched} />
+                                    <input type="text" placeholder="Search for Career Field" className="uk-input" onChange={(e) => { this.props.secondaryIndustrySearched( e.target.value ) }} />
                                     <div uk-dropdown="mode: click; pos: bottom-justify">
                                         <ul>
                                             {/* { this.props.subscriptions.data.map(industry => <li key={industry.id} data-value={industry.id}>{ industry.name }</li>) } */}
-                                            { filteredIndustries.map( industry => <li key={industry.id} data-value={industry.id}>{ industry.name }</li> )}
+                                            { filteredIndustries.map( industry => <li key={industry.id} data-value={industry.id}>{ industry.name }</li> ) }
                                         </ul>
                                     </div>
 
@@ -216,14 +216,12 @@ App.propTypes = {
 
 App.defaultProps = {
     subscriptions: {},
-    uiState: {},
-    search: 'RDS'
+    uiState: {}
 };
 
 export const mapStateToProps = (state = {}) => ({
     subscriptions: state.subscriptions,
-    uiState: state.uiState,
-    search: state.search
+    uiState: state.uiState
 });
 
 export const mapDispatchToProps = dispatch => ({
@@ -232,7 +230,8 @@ export const mapDispatchToProps = dispatch => ({
     primaryIndustryChanged: (event) => dispatch(primaryIndustryChanged(event.target.value)),
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
     removeIndustry: (industryId) => dispatch(unsubscribe(industryId)),
-    removeAllSubscriptions: () => dispatch(unsubscribeAll())
+    removeAllSubscriptions: () => dispatch(unsubscribeAll()),
+    secondaryIndustrySearched: (event) => dispatch(secondaryIndustrySearched(event.target.value))
 });
 
 const ConnectedApp = connect(
