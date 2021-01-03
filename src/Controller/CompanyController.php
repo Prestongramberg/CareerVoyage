@@ -332,7 +332,8 @@ class CompanyController extends AbstractController
         } else if($company->isUserOwner($professional)) {
             // the owner of the company can't be removed unless someone else becomes the owner first
             $canRemove = false;
-        } else if ($user->getId() === $professional->getId()) {
+        } else if ($user->getId() != $professional->getId()) {
+            // Cannot remove yourself from a company
             $canRemove = true;
         }
 
