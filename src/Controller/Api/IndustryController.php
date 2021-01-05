@@ -74,7 +74,7 @@ class IndustryController extends AbstractController
      * @Route("/secondary_industries", name="get_secondary_industries", methods={"GET"}, options = { "expose" = true })
      */
     public function getSecondaryIndustries() {
-        $secondaryIndustries = $this->secondaryIndustryRepository->findAll();
+        $secondaryIndustries = $this->secondaryIndustryRepository->findBy(array(), array('name' => 'ASC'));
         
         $json = $this->serializer->serialize($secondaryIndustries, 'json', ['groups' => ['RESULTS_PAGE']]);
 

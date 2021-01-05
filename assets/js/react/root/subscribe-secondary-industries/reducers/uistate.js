@@ -16,22 +16,16 @@ export default (state = {}, action) => {
                 primaryIndustrySelected: parseInt( action.industryId )
             };
 // TODO: This may need fixing
-        // case actionTypes.SECONDARY_INDUSTRY_SEARCHED:
-        //     return {
-        //         ...state,
-        //         secondaryIndustrySearched: action.secondaryIndustrySearched
-        //     }
+        case actionTypes.SEARCH_BY_SECONDARY_INDUSTRY:
+            return {
+                ...state,
+                secondaryIndustrySearched: action.secondaryIndustrySearched
+            }
         case actionTypes.SUBSCRIBE:
             return {
                 ...state,
                 secondaryIndustrySelected: ''
             };
-        // case actionTypes.SECONDARY_INDUSTRY_SEARCHED:
-        //     return {
-        //         ...state,
-        //         search: action.response.data
-
-        //     }
         default:
             return state;
     }

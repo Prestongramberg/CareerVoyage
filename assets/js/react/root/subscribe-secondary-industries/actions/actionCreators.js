@@ -9,10 +9,10 @@ export function primaryIndustryChanged(industryId) {
 }
 
 // TODO: This needs to be updated / ER
-export function secondaryIndustrySearched(query) {
+export function searchBySecondaryIndustry(query) {
     return {
-        type: actionTypes.SECONDARY_INDUSTRY_SEARCHED,
-        query: query
+        type: actionTypes.SEARCH_BY_SECONDARY_INDUSTRY,
+        secondaryIndustrySearched: query
     }
 }
 
