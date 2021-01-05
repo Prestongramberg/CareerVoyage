@@ -80,12 +80,12 @@ class NewCompanyFormType extends AbstractType
                 ]
             ])
             ->add('emailAddress', TextType::class)
-            // ->add('primaryIndustry', EntityType::class, [
-            //     'class' => Industry::class,
-            //     'choice_label' => 'name',
-            //     'required' => false,
-            //     'placeholder' => 'Select a Primary Industry'
-            // ])
+            ->add('primaryIndustry', EntityType::class, [
+                'class' => Industry::class,
+                'choice_label' => 'name',
+                'required' => false,
+                'placeholder' => 'Select a Primary Industry'
+            ])
             // ->add('schools', EntityType::class, [
             //     'class' => School::class,
             //     'choice_label' => 'name',
@@ -110,25 +110,25 @@ class NewCompanyFormType extends AbstractType
             }
         ));
 
-        // $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-        //
-        //     $data = $event->getData();
-        //     if(!$data->getPrimaryIndustry()) {
-        //         return;
-        //     }
-        //     $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
-        // });
-        //
-        // $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-        //     /** @var Industry $industry */
-        //     $industry = $event->getForm()->getData();
-        //
-        //     if(!$industry) {
-        //         return;
-        //     }
-        //
-        //     $this->modifyForm($event->getForm()->getParent(), $industry);
-        // });
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        
+            $data = $event->getData();
+            if(!$data->getPrimaryIndustry()) {
+                return;
+            }
+            $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
+        });
+        
+        $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            /** @var Industry $industry */
+            $industry = $event->getForm()->getData();
+        
+            if(!$industry) {
+                return;
+            }
+        
+            $this->modifyForm($event->getForm()->getParent(), $industry);
+        });
     }
 
 
