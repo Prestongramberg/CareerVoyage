@@ -16,6 +16,7 @@
 
         <ul class="uk-tab" uk-switcher="connect: #tab-new-company" uk-tab>
             <li class="uk-active"><a href="#company-details">New Company</a></li>
+            <li><a href="#company-industries">Industries</a></li>
         </ul>
 
         {% if form_errors(form) %}
@@ -96,13 +97,42 @@
                         </div>
                     </fieldset>
                 </div>
+
+                <div class="uk-margin">
+                    <a href="#" uk-switcher-item="1" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                </div>
             </div>
 
+            <div class="page-company-edit__industry">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryIndustry, 'My Company\'s Primary Industry*') }}
+                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryIndustry) }}
+                        </div>
+
+                        <div class="js-secondary-industry-container">
+                            {% if form.secondaryIndustries is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }} <a class="uk-link-muted" data-select-all="edit_company_form[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="edit_company_form[secondaryIndustries][]">UnSelect All</a>
+                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.secondaryIndustries) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                       <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Create Company</button>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
         </div>
 
-        <div class="uk-margin">
-            <button class="uk-button uk-button-primary uk-button-small">Create Company</button>
-        </div>
+        
 
         {{ form_end(form) }}
 
