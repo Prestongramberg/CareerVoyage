@@ -56,6 +56,10 @@ class App extends React.Component {
                         </div>
 
                         <div className="uk-grid" data-uk-grid>
+                            <p>Total Schools: { relevantSchools.length }</p>
+                        </div>
+
+                        <div className="uk-grid" data-uk-grid>
                             <div className="uk-width-1-1 company-listings">
                                 { this.props.search.loading && (
                                     <div className="uk-width-1-1 uk-align-center">
