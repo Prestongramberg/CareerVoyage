@@ -38,15 +38,19 @@ export function getAllSecondaryIndustries( industries, secondaryIndustryIds ) {
 
 export function getSearchedSecondaryIndustries(industries, query) {
     if(query.length > 2) {
-        let foundIndustries = []
-        industries.forEach(industry => {
-            if(industry.name.toLowerCase().includes(query.toLowerCase())) {
-                foundIndustries.push(industry);
-            }
-        });
-        return foundIndustries;
+        const foundIndustries = industries.filter( industry => industry.name.toLowerCase().includes(query.toLowerCase()) );
+        if(foundIndustries) {
+            return foundIndustries;
+        }
+        // let foundIndustries = []
+        // industries.forEach(industry => {
+        //     if(industry.name.toLowerCase().includes(query.toLowerCase())) {
+        //         foundIndustries.push(industry);
+        //     }
+        // });
+        // return foundIndustries;
     } else {
-        return null;
+        return [];
     }
 
 }

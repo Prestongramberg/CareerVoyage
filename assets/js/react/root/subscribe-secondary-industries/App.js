@@ -51,22 +51,13 @@ class App extends React.Component {
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-1">
                                     {/* TODO - this needs to be fixed to allow searching from this field. */}
-                                    { /*<input type="text" placeholder="Search for Career Field" className="uk-input" value={ this.props.uiState.secondaryIndustrySearched } onChange={(e) => { this.props.secondaryIndustrySearched( e.target.value ) }} /> */ }
                                     <input type="text" placeholder="Search for Career Field" className="uk-input" value={ this.props.uiState.secondaryIndustrySearched.value } onChange={ this.props.searchBySecondaryIndustry } />
                                     <div uk-dropdown="mode: click; pos: bottom-justify">
                                         <ul>
-                                            { /*this.props.subscriptions.search.map(industry => <li key={industry.id} data-value={industry.id} className="secondaryIndustryChosen">{ industry.name }</li>) */ }
-                                            { this.props.uiState.secondaryIndustrySearched && 
-                                                
-                                                this.props.subscriptions.search.map((industry, index) => {
-                                                const industryList = getSearchedSecondaryIndustries(this.props.subscriptions.search, this.props.uiState.secondaryIndustrySearched);
-                                                
-                                                if (industryList !== null) {
-                                                    return industryList.map(industry => <li key={industry.id} data-value={ industry.id } className="secondaryIndustryChosen">{ industry.name }</li> )
-                                                } else {
-                                                    return null;
-                                                }
-                                            })}
+                                            { this.props.uiState.secondaryIndustrySearched && this.props.subscriptions.search && 
+                                                getSearchedSecondaryIndustries(this.props.subscriptions.search, this.props.uiState.secondaryIndustrySearched).map((industryList, index) => {
+                                                    return <li key={industryList.id} data-value={ industryList.id } className="secondaryIndustryChosen" onClick={this.props.secondaryIndustrySelected}>{ industryList.name }</li>
+                                            }) }
                                         </ul>
                                     </div>
 
@@ -229,7 +220,8 @@ export const mapDispatchToProps = dispatch => ({
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
     removeIndustry: (industryId) => dispatch(unsubscribe(industryId)),
     removeAllSubscriptions: () => dispatch(unsubscribeAll()),
-    searchBySecondaryIndustry: (event) => dispatch(searchBySecondaryIndustry(event.target.value))
+    searchBySecondaryIndustry: (event) => dispatch(searchBySecondaryIndustry(event.target.value)),
+    secondaryIndustrySelected: (event) => dispatch(subscribe(event.target.getAttribute("data-value")))
 });
 
 const ConnectedApp = connect(
