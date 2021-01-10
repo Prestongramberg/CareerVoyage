@@ -8,6 +8,11 @@ export default (state = {}, action) => {
                 ...state,
                 data: action.response.data
             };
+        case actionTypes.LOAD_SECONDARY_INDUSTRIES_SUCCESS:
+            return {
+                ...state,
+                search: action.response.data
+            };
         case actionTypes.SUBSCRIBE:
             let industryAlreadyExists = state.subscribed.indexOf(action.industryId) > -1;
             return {

@@ -1,7 +1,9 @@
 export default function getInitialState() {
     return {
-        loading: true,
+        loading: false,
+        // loading_search: true,
         primaryIndustrySelected: '',
-        secondaryIndustrySelected: ''
+        secondaryIndustrySelected: '',
+        secondaryIndustrySearched: ''
     }
 }

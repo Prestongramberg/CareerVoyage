@@ -23,6 +23,7 @@ if( subscribeSecondaryIndustries ) {
         {
             subscriptions: {
                 data: [],
+                search: [],
                 subscribed: getInitialSubscriptionsState( initialIndustrySubscriptions )
             },
             uiState: getInitialState()
