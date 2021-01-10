@@ -369,7 +369,8 @@ abstract class User implements UserInterface
     }
 
     /**
-     * @Groups({"CHAT", "MESSAGE"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "CHAT", "MESSAGE"})
+     *
      * @return string|null
      */
     public function getFullName(): ?string
@@ -920,7 +921,7 @@ abstract class User implements UserInterface
         }
         return '';
     }
-
+    
     public function getActivated()
     {
         return $this->activated;
