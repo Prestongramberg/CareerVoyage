@@ -658,9 +658,9 @@ class SchoolController extends AbstractController
 
                             if(!empty($student['First Name']) && !empty($student['Last Name'])){
 
-                                $username = sprintf("%s.%s",
+                                $username = preg_replace('/\s+/', '', sprintf("%s.%s",
                                     strtolower($student['First Name'] . '.' . $student['Last Name']),
-                                    $this->generateRandomString(1));
+                                    $this->generateRandomString(1)));
 
                                 $studentObj = new StudentUser();
                                 $studentObj->setFirstName($student['First Name']);
@@ -844,9 +844,10 @@ class SchoolController extends AbstractController
                                 $this->entityManager->persist($existingUser);
                                 $existingEducatorObjs[] = $existingUser;
                             } else {
-                                $username = sprintf("%s.%s",
+
+                                $username = preg_replace('/\s+/', '', sprintf("%s.%s",
                                     strtolower($educator['First Name'] . '.' . $educator['Last Name']),
-                                    $this->generateRandomString(1));
+                                    $this->generateRandomString(1)));
 
                                 $educatorObj = new EducatorUser();
                                 $educatorObj->setFirstName($educator['First Name']);
