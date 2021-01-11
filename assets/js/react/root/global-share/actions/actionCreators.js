@@ -27,14 +27,48 @@ export function queryByRole(options) {
     return {
         type: actionTypes.QUERY_BY_ROLE,
         roles: options
-    }
+    };
 }
 
 export function queryByUserRole(options) {
 
+    debugger;
     return {
         type: actionTypes.QUERY_BY_USER_ROLE,
         user_roles: options
+    };
+}
+
+export function queryByPage(page) {
+
+    debugger;
+    return {
+        type: actionTypes.QUERY_BY_PAGE,
+        current_page: page
+    };
+}
+
+export function query(data) {
+
+    debugger;
+    return (dispatch, getState) => {
+
+        debugger;
+        const state = getState();
+
+        const url = window.Routing.generate("global_share_data") + '?page=' + state.filters.current_page;
+
+        return api.post(url, state)
+            .then((response) => {
+
+                debugger;
+                if (response.statusCode < 300 && response.responseBody.success === true) {
+                    dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS, users: response.responseBody.data })
+                }
+            })
+            .catch((e)=> {
+                debugger;
+            })
     }
 }
 
@@ -99,13 +133,14 @@ export function searchChattableUsers( search ) {
     debugger;
     return (dispatch, getState) => {
 
+        const state = getState();
         debugger;
-        const url = window.Routing.generate("global_share_data", { search: search } )
+        const url = window.Routing.generate("global_share_data", { search: search, page: state.filters.current_page } );
 
         dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS, searchQuery: search})
 
         debugger;
-        return api.get(url)
+        return api.post(url, state)
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {
                     dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS, users: response.responseBody.data })

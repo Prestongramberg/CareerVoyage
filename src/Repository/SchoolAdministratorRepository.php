@@ -6,6 +6,7 @@ use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
+use App\Model\GlobalShareFilters;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -178,11 +179,13 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array $userIds
+     * @param array              $userIds
+     * @param GlobalShareFilters $filters
+     *
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataForGlobalShare(array $userIds) {
+    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null) {
 
         $ids = implode("','", $userIds);
 
@@ -193,6 +196,14 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
           LEFT JOIN school s on s.id = ssa.school_id
           WHERE u.id IN('$ids')";
 
+        if($filters) {
+
+            if(!empty($filters->getSchools())) {
+                $schools = implode("','", $filters->getSchools());
+                $query .= " AND s.id IN('$schools')";
+            }
+
+        }
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

@@ -5,12 +5,14 @@ export default (state = {}, action) => {
     switch (action.type) {
         case actionTypes.QUERY_BY_ROLE:
 
+            debugger;
             return {
                 ...state,
                 roles: action.roles
             };
             case actionTypes.QUERY_BY_USER_ROLE:
 
+                debugger;
                 return {
                     ...state,
                     user_roles: action.user_roles

@@ -23,7 +23,8 @@ if(globalShare) {
                 educators: [],
                 students: [],
                 school_admins: [],
-                all: []
+                all: [],
+                filters: [],
             },
             filters: {
                 roles: [],
@@ -41,6 +42,9 @@ if(globalShare) {
                 company_admins: [],
                 schools: [],
                 courses_taught: [],
+                current_page: 1,
+                total_count: 0,
+                total_pages: 0
             },
             search: {
                 roles: [],
@@ -52,7 +56,7 @@ if(globalShare) {
                 schools: [],
                 courses_taught: [],
                 primary_industries: [],
-                secondary_industries: [],
+                secondary_industries: []
             },
             ui: {
                 users: []

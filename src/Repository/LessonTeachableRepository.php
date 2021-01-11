@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
+use App\Entity\Region;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -51,18 +53,20 @@ class LessonTeachableRepository extends ServiceEntityRepository
 
     /**
      * @param $lesson []
+     *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByEducatorRequestors($lesson) {
+    public function findByEducatorRequestors($lesson)
+    {
         $query = sprintf("SELECT l.id FROM lesson l, lesson_teachable lt, educator_user e, user u WHERE l.id = %s AND lt.lesson_id = l.id AND lt.user_id = e.id AND e.id = u.id AND u.activated = %s", $lesson['lesson'], true);
-        
-        $em = $this->getEntityManager();
+
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         $total = $stmt->fetchAll();
 
-        if( sizeof($total) > 0) {
+        if (sizeof($total) > 0) {
             return true;
         } else {
             return false;
@@ -71,21 +75,24 @@ class LessonTeachableRepository extends ServiceEntityRepository
 
     /**
      * @param $lesson []
+     *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByExpertPresenters($lesson) {
+    public function findByExpertPresenters($lesson)
+    {
         $query = sprintf("SELECT l.id FROM lesson l, lesson_teachable lt, professional_user p, user u WHERE l.id = %s AND lt.lesson_id = l.id AND lt.user_id = p.id AND p.id = u.id AND u.activated = %s", $lesson['lesson'], true);
-        
-        $em = $this->getEntityManager();
+
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
         $total = $stmt->fetchAll();
 
-        if( sizeof($total) > 0) {
+        if (sizeof($total) > 0) {
             return true;
         } else {
             return false;
         }
     }
+
 }

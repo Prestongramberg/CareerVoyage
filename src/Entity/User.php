@@ -921,7 +921,7 @@ abstract class User implements UserInterface
         }
         return '';
     }
-    
+
     public function getActivated()
     {
         return $this->activated;
