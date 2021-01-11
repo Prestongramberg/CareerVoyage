@@ -201,12 +201,13 @@ class App extends React.Component {
 
     getRelevantProfessionals () {
 
-        
+        debugger;
         return this.props.professionals.filter(professional => {
 
+            debugger;
 
             // Set Searchable Fields
-            const searchableFields = ["firstName", "lastName", "briefBio", "interests"];
+            const searchableFields = ["firstName", "lastName", "briefBio", "interests", "fullName"];
 
             // Filter By Company
             if ( !!this.props.search.company && (

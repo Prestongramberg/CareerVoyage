@@ -7,6 +7,7 @@ use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Model\GlobalShareFilters;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -167,11 +168,13 @@ class StudentUserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array $userIds
+     * @param array              $userIds
+     * @param GlobalShareFilters $filters
+     *
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataForGlobalShare(array $userIds) {
+    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null) {
 
         $ids = implode("','", $userIds);
 
@@ -186,6 +189,28 @@ class StudentUserRepository extends ServiceEntityRepository
           LEFT JOIN industry i on si.primary_industry_id = i.id
           WHERE u.id IN('$ids')";
 
+        if($filters) {
+
+            if(!empty($filters->getInterestSearch())) {
+                $query .= sprintf(' AND su.career_statement LIKE "%%%s%%"', $filters->getInterestSearch());
+            }
+
+            if(!empty($filters->getPrimaryIndustries())) {
+                $primaryIndustries = implode("','", $filters->getPrimaryIndustries());
+                $query .= " AND si.primary_industry_id IN('$primaryIndustries')";
+            }
+
+            if(!empty($filters->getSecondaryIndustries())) {
+                $secondaryIndustries = implode("','", $filters->getSecondaryIndustries());
+                $query .= " AND susi.secondary_industry_id IN('$secondaryIndustries')";
+            }
+
+            if(!empty($filters->getSchools())) {
+                $schools = implode("','", $filters->getSchools());
+                $query .= " AND s.id IN('$schools')";
+            }
+
+        }
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

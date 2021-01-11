@@ -172,7 +172,8 @@
             <div class="page-lesson-view__professionals">
                 {% if lesson.lessonTeachables|length > 0 %}
                     <dl class="uk-description-list uk-description-list-divider">
-                        {% for lessonTeachable in lesson.lessonTeachables %}
+
+                        {% for lessonTeachable in lessonTeachables %}
                             {% if lessonTeachable.user.isProfessional and lessonTeachable.user.deleted == false and lessonTeachable.user.activated == true %}
                                 <div class="uk-grid uk-flex-middle" uk-grid>
                                     <div class="uk-width-auto">

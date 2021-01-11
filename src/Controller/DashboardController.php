@@ -54,7 +54,7 @@ class DashboardController extends AbstractController
     public function indexAction(Request $request, SessionInterface $session) {
 
         /** @var User $user */
-        $user = $this->getUser();
+        $user = $loggedInUser = $this->getUser();
 
         $dashboards = [];
 
@@ -299,6 +299,77 @@ class DashboardController extends AbstractController
             $companyExperienceIds[] = $companyExperience['id'];
         }
         $companyExperiences = $this->companyExperienceRepository->findBy(['id' => $companyExperienceIds, 'cancelled' => false]);
+
+
+        $useRegionFiltering = false;
+        $regions = [];
+        if($loggedInUser->isSchoolAdministrator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var SchoolAdministrator $user */
+            foreach($loggedInUser->getSchools() as $school) {
+
+                if(!$school->getRegion()) {
+                    continue;
+                }
+
+                $regions[] = $school->getRegion()->getId();
+            }
+        }
+
+        if($loggedInUser->isProfessional()) {
+
+            $useRegionFiltering = true;
+
+            /** @var ProfessionalUser $loggedInUser */
+
+            foreach($loggedInUser->getRegions() as $region) {
+
+                $regions[] = $region->getId();
+            }
+        }
+
+        if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var StudentUser|EducatorUser $user */
+
+            if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+                $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
+            }
+        }
+
+        $regions = array_unique($regions);
+
+        if($useRegionFiltering) {
+            $companyExperiences = array_filter($companyExperiences, function(CompanyExperience $companyExperience) use($regions) {
+
+                if($companyExperience->isVirtual()) {
+                    return true;
+                }
+
+                if(!$companyExperience->getCompany()) {
+                    return false;
+                }
+
+                $hasMatch = false;
+                foreach($companyExperience->getCompany()->getRegions() as $region) {
+                    if(in_array($region->getId(), $regions)) {
+                        $hasMatch = true;
+                    }
+                }
+
+                if(!$hasMatch) {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        $companyExperiences = array_values($companyExperiences);
 
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,

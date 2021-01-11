@@ -21,6 +21,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
 use App\Entity\RequestPossibleApprovers;
+use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\Video;
@@ -1018,7 +1019,17 @@ class CompanyController extends AbstractController
 
             $this->entityManager->flush();
 
-            
+            $regions = [];
+            if($loggedInUser->isProfessional()) {
+                /** @var ProfessionalUser $loggedInUser */
+                foreach($loggedInUser->getRegions() as $region) {
+
+                    $regions[] = $region->getId();
+                }
+            }
+
+            $regions = array_unique($regions);
+
             if($request->request->get('notify_students') === "match") {
                 // Send email to students that are interested in the event that was created
                 $items = $experience->getSecondaryIndustries();
@@ -1063,12 +1074,18 @@ class CompanyController extends AbstractController
 
                 /** @var StudentUser $student */
                 foreach($chosen_students as $student) {
-                    $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
+
+                    if(!empty($student->getSchool()->getRegion()->getId()) && in_array($student->getSchool()->getRegion()->getId(), $regions)) {
+                        $this->experienceMailer->experienceForward($experience, $student, $message, $loggedInUser);
+                    }
                 }
 
                 /** @var EducatorUser $teacher */
                 foreach($chosen_teachers as $teacher) {
-                    $this->experienceMailer->experienceForward($experience, $teacher, $message, $loggedInUser);
+
+                    if(!empty($teacher->getSchool()->getRegion()->getId()) && in_array($teacher->getSchool()->getRegion()->getId(), $regions)) {
+                        $this->experienceMailer->experienceForward($experience, $teacher, $message, $loggedInUser);
+                    }
                 }
             }
 
