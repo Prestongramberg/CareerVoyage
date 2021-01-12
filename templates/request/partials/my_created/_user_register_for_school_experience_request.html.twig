@@ -1,4 +1,5 @@
 <li id="urfser_{{ location }}_{{ request.id }}">
+    {% set user_type = "" %}
     {% if request.user %}
         {% if request.user.student %}
             {% set user_type = "Student" %}
