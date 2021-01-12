@@ -21,3 +21,36 @@ export function getAllSecondaryIndustries( industries, secondaryIndustryIds ) {
 
     return foundSecondaryIndustries;
 }
+
+
+// Used to search the list of secondary industries
+// export function searchBySecondaryIndustry(industries, query) {
+//     let foundSecondaryIndustries = [];
+    
+//     console.log(industries);
+//     console.log(query);
+    
+//     // Search the list of json items and find the id
+//     // pass into reducer
+
+//     return foundSecondaryIndustries;
+// }
+
+export function getSearchedSecondaryIndustries(industries, query) {
+    if(query.length > 2) {
+        const foundIndustries = industries.filter( industry => industry.name.toLowerCase().includes(query.toLowerCase()) );
+        if(foundIndustries) {
+            return foundIndustries;
+        }
+        // let foundIndustries = []
+        // industries.forEach(industry => {
+        //     if(industry.name.toLowerCase().includes(query.toLowerCase())) {
+        //         foundIndustries.push(industry);
+        //     }
+        // });
+        // return foundIndustries;
+    } else {
+        return [];
+    }
+
+}

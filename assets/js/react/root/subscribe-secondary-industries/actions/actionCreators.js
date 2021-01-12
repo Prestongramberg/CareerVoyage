@@ -8,6 +8,14 @@ export function primaryIndustryChanged(industryId) {
     };
 }
 
+// TODO: This needs to be updated / ER
+export function searchBySecondaryIndustry(query) {
+    return {
+        type: actionTypes.SEARCH_BY_SECONDARY_INDUSTRY,
+        secondaryIndustrySearched: query
+    }
+}
+
 export function subscribe(industryId) {
     return {
         type: actionTypes.SUBSCRIBE,
@@ -47,6 +55,29 @@ export function loadIndustries(url, removeDomId) {
             })
             .catch(()=> dispatch({
                 type: actionTypes.LOAD_INDUSTRIES_FAILURE,
+                error: "Something went wrong, please try refreshing the page."
+            }))
+    }
+}
+
+export function loadSecondaryIndustries(url, removeDomId) {
+    return (dispatch, getState) => {
+        dispatch({ type: actionTypes.LOAD_SECONDARY_INDUSTRIES })
+
+        return api.get(url)
+            .then((response) => {
+                if (response.statusCode < 300) {
+                    dispatch({ type: actionTypes.LOAD_SECONDARY_INDUSTRIES_SUCCESS, response: response.responseBody});
+                    $(`#${removeDomId}`).remove();
+                } else {
+                    dispatch({
+                        type: actionTypes.LOAD_SECONDARY_INDUSTRIES_FAILURE,
+                        error: "Something went wrong, please try refreshing the page."
+                    })
+                }
+            })
+            .catch(() => dispatch({
+                type: actionTypes.LOAD_SECONDARY_INDUSTRIES_FAILURE,
                 error: "Something went wrong, please try refreshing the page."
             }))
     }

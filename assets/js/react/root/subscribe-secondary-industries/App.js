@@ -1,8 +1,8 @@
 import React from "react"
 import { connect } from "react-redux"
-import { loadIndustries, primaryIndustryChanged, subscribe, unsubscribe, unsubscribeAll } from './actions/actionCreators'
+import { loadIndustries, loadSecondaryIndustries, primaryIndustryChanged, searchBySecondaryIndustry, subscribe, unsubscribe, unsubscribeAll } from './actions/actionCreators'
 import PropTypes from "prop-types";
-import { getSecondaryIndustry } from "./helpers/industries"
+import { getSecondaryIndustry, getSearchedSecondaryIndustries } from "./helpers/industries"
 import Loader from "../../components/Loader/Loader";
 
 class App extends React.Component {
@@ -46,7 +46,24 @@ class App extends React.Component {
                                 <p>Add Relevant Career Fields that you are interested in so that you can be notified when experiences related to those career fields are posted.</p>
                             )}
                             
-                            <p>Start by selecting an industry that you are interested in. Then select specific career fields in that industry or use “Add all career Fields” if applicable. Then, if you wish to select multiple industries, select the next industry from the industry dropdown menu and repeat the process of adding career fields.</p>
+                            <p>Start by either searching for a career or selecting an industry that you are interested in. Then select specific career fields in that industry or use “Add all career Fields” if applicable. Then, if you wish to select multiple industries, select the next industry from the industry dropdown menu and repeat the process of adding career fields.</p>
+                            
+                            <div className="uk-grid" data-uk-grid>
+                                <div className="uk-width-1-1">
+                                    {/* TODO - this needs to be fixed to allow searching from this field. */}
+                                    <input type="text" placeholder="Search for Career Field" className="uk-input" value={ this.props.uiState.secondaryIndustrySearched.value } onChange={ this.props.searchBySecondaryIndustry } />
+                                    <div uk-dropdown="mode: click; pos: bottom-justify">
+                                        <ul>
+                                            { this.props.uiState.secondaryIndustrySearched && this.props.subscriptions.search && 
+                                                getSearchedSecondaryIndustries(this.props.subscriptions.search, this.props.uiState.secondaryIndustrySearched).map((industryList, index) => {
+                                                    return <li key={industryList.id} data-value={ industryList.id } className="secondaryIndustryChosen" onClick={this.props.secondaryIndustrySelected}>{ industryList.name }</li>
+                                            }) }
+                                        </ul>
+                                    </div>
+
+                                    <p className="uk-text-center"><strong>OR</strong></p>
+                                </div>
+                            </div>
                             <div className="uk-grid" data-uk-grid>
                                 <div className="uk-width-1-2">
                                     <select className="uk-select" onChange={this.props.primaryIndustryChanged}>
@@ -170,6 +187,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.props.loadIndustries( window.Routing.generate('get_industries'), this.props.removeDomId );
+        this.props.loadSecondaryIndustries( window.Routing.generate('get_secondary_industries'), this.props.removeDomId );
     }
 }
 
@@ -181,12 +199,13 @@ App.propTypes = {
     removeDomId: PropTypes.string,
     subscriptions: PropTypes.object,
     uiState: PropTypes.object,
-    userKind: PropTypes.string
+    userKind: PropTypes.string,
+    search: PropTypes.string
 };
 
 App.defaultProps = {
     subscriptions: {},
-    uiState: {},
+    uiState: {}
 };
 
 export const mapStateToProps = (state = {}) => ({
@@ -196,10 +215,13 @@ export const mapStateToProps = (state = {}) => ({
 
 export const mapDispatchToProps = dispatch => ({
     loadIndustries: (url, removeDomId) => dispatch(loadIndustries(url, removeDomId)),
+    loadSecondaryIndustries: (url, removeDomId) => dispatch(loadSecondaryIndustries(url, removeDomId)),
     primaryIndustryChanged: (event) => dispatch(primaryIndustryChanged(event.target.value)),
     secondaryIndustryChanged: (event) => dispatch(subscribe(event.target.value)),
     removeIndustry: (industryId) => dispatch(unsubscribe(industryId)),
-    removeAllSubscriptions: () => dispatch(unsubscribeAll())
+    removeAllSubscriptions: () => dispatch(unsubscribeAll()),
+    searchBySecondaryIndustry: (event) => dispatch(searchBySecondaryIndustry(event.target.value)),
+    secondaryIndustrySelected: (event) => dispatch(subscribe(event.target.getAttribute("data-value")))
 });
 
 const ConnectedApp = connect(
