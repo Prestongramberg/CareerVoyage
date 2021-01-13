@@ -1821,7 +1821,10 @@ class CompanyController extends AbstractController
         $this->entityManager->persist($company);
         $this->entityManager->flush();
 
-        if($request->request->get('newStatus') == 1){
+        if($request->request->get('newStatus') == 1) {
+
+            $this->requestsMailer->newCompanyRequestApproval($company->getNewCompanyRequest());
+
             $button = '<button class="uk-button uk-button-small uk-label-success" data-id="'.$company->getId().'" data-newstatus="0">Approved</button>';
         } else {
             $button = '<button class="uk-button uk-button-small uk-label-warning" data-id="'.$company->getId().'" data-newstatus="1">Denied</button>';
