@@ -17,6 +17,8 @@
         <ul class="uk-tab" uk-switcher="connect: #tab-new-company" uk-tab>
             <li class="uk-active"><a href="#company-details">New Company</a></li>
             <li><a href="#company-industries">Industries</a></li>
+            <li><a href="#company-regions">Region</a></li>
+            <li><a href="#company-schools">Schools</a></li>
         </ul>
 
         {% if form_errors(form) %}
@@ -124,15 +126,66 @@
                         </div>
 
                        <div class="uk-margin">
-                            <button class="uk-button uk-button-primary uk-button-small">Create Company</button>
+                           <a href="#" uk-switcher-item="2" class="uk-button uk-button-secondary uk-button-small">Next</a>
                         </div>
                     </fieldset>
                 </div>
 
             </div>
-        </div>
 
-        
+            <div class="page-company-edit__regions">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            <div class="uk-column-1-2">
+                                <div>
+                                    <p>Please Select geographical regions in which you want your profile visible:</p>
+                                    {{ form_label(form.regions, 'Regions *') }}
+                                    {{ form_widget(form.regions, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.regions) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.regions) }}
+                                </div>
+
+                                <div>
+                                    <img src="{{ asset('build/images/regions.png') }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <a href="#" uk-switcher-item="3" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="page-company-edit__schools">
+                <div class="uk-width-xlarge">
+                    <fieldset class="uk-fieldset">
+                        <div class="uk-margin">
+                            {{ form_label(form.schools, 'Schools*') }}
+                            <div id="react-schools-select-by-radius"
+                                 data-field-name="new_company_form[schools][]"
+                                 data-field-value="{{ form.schools.vars.value|json_encode }}"
+                                 data-region-field-name="new_company_form[regions][]"
+                                 data-georadius-name="new_company_form[geoRadius]"
+                                 data-georadius-value="{{ form.geoRadius.vars.value }}"
+                                 data-geozipcode-name="new_company_form[geoZipCode]"
+                                 data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif company.zipcode is defined %}{{ company.zipcode }}{% endif %}">
+                                {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_widget(form.geoZipCode) }}
+                                {{ form_widget(form.geoRadius) }}
+                            </div>
+                            <div class="clear"></div>
+                            {{ form_errors(form.schools) }}
+                        </div>
+
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Create Company</button>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
 
         {{ form_end(form) }}
 

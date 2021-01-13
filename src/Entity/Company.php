@@ -203,7 +203,7 @@ class Company
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "Please specify at least one school.",
-     *     groups={"EDIT"}
+     *     groups={"EDIT", "CREATE"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="companies")
      */
@@ -289,7 +289,7 @@ class Company
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "Please select at least one region",
-     *      groups={"EDIT"}
+     *      groups={"EDIT", "CREATE"}
      * )
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\Region", inversedBy="companies")
