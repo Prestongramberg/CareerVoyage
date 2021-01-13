@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Company;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
+use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\State;
@@ -85,6 +86,21 @@ class NewCompanyFormType extends AbstractType
                 'choice_label' => 'name',
                 'required' => false,
                 'placeholder' => 'Select a Primary Industry'
+            ])
+            ->add('regions', EntityType::class, [
+                'class' => Region::class,
+                'expanded' => true,
+                'multiple' => true,
+                'choice_label' => 'friendlyName',
+            ])
+            ->add('schools', EntityType::class, [
+                'class' => School::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'expanded' => true,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox'];
+                }
             ])
             // ->add('schools', EntityType::class, [
             //     'class' => School::class,
