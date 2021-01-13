@@ -286,6 +286,12 @@ class Company
     private $geoZipCode;
 
     /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select at least one region",
+     *      groups={"EDIT"}
+     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\Region", inversedBy="companies")
      */
     private $regions;

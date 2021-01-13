@@ -175,6 +175,12 @@ class ProfessionalUser extends User
     private $professionalVideos;
 
     /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select at least one region",
+     *      groups={"EDIT"}
+     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\Region", inversedBy="professionalUsers")
      */
     private $regions;

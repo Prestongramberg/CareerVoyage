@@ -4,12 +4,14 @@ import { loadProfessionals, radiusChanged, updateCompanyQuery, updatePrimaryIndu
 import PropTypes from "prop-types";
 import ProfessionalListing from "../../components/ProfessionalListing/ProfessionalListing";
 import Loader from "../../components/Loader/Loader";
+import Pagination from "../../components/Pagination/Pagination";
+import Company from "../../components/Filter/Company";
 
 class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["loadProfessionals", "renderCompanyDropdown", "renderIndustryDropdown", "renderRolesDropdown", "renderSecondaryIndustryDropdown", "getRelevantProfessionals"];
+        const methods = ["loadProfessionals", "renderCompanyDropdown", "renderIndustryDropdown", "renderRolesDropdown", "renderSecondaryIndustryDropdown", "getRelevantProfessionals", "updateCompanyQuery"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -37,7 +39,7 @@ class App extends React.Component {
                                     <input className="uk-search-input" type="search" placeholder="Search by Name or Interests..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                                 </div>
                             </div>
-                            { this.renderCompanyDropdown() }
+                            <Company companies={this.props.companies} updateCompanyQuery={this.updateCompanyQuery}/>
                             { this.renderRolesDropdown() }
                             { this.renderIndustryDropdown() }
                             { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
@@ -103,6 +105,8 @@ class App extends React.Component {
                                 <p>No professionals match your selection</p>
                             )}
                         </div>
+
+                        <Pagination totalRecords={100} initialPage={1} pageLimit={10} pagesToShow={10} onChangePage={function() { debugger;}}/>
                     </div>
                 </div>
             </div>
@@ -262,6 +266,12 @@ class App extends React.Component {
             'zipcode': this.props.search.zipcode
         }) );
     }
+
+    updateCompanyQuery(event) {
+        debugger;
+        dispatch(updateCompanyQuery(event.target.value)
+    }
+
 }
 
 App.propTypes = {
