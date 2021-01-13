@@ -176,7 +176,7 @@ class ProfessionalController extends AbstractController
     /**
      * Example Request: http://pintex.test/api/professionals-by-radius?zipcode=54017
      *
-     * @Route("/professionals-by-radius", name="get_professionals_by_radius", methods={"GET"}, options = { "expose" = true })
+     * @Route("/professionals-by-radius", name="get_professionals_by_radius", methods={"GET", "POST"}, options = { "expose" = true })
      * @param Request $request
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
@@ -185,6 +185,16 @@ class ProfessionalController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+
+        $companyId = $request->request->get('search')['company'] ?? null;
+        $primaryIndustryId = $request->request->get('search')['industry'] ?? null;
+        $searchQuery = $request->request->get('search')['query'] ?? null;
+        $radius = $request->request->get('search')['radius'] ?? null;
+        $roleId = $request->request->get('search')['role'] ?? null;
+        $secondaryIndustryId = $request->request->get('search')['secondaryIndustry'] ?? null;
+        $zipcode = $request->request->get('search')['zipcode'] ?? null;
+
+
         // todo how do we know the users default zipcode? Probably just return all results if zipcode is null right?
         $zipcode = $request->query->get('zipcode',  null);
         $radius = $request->query->get('radius', 70);

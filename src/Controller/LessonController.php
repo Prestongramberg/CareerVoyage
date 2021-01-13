@@ -481,7 +481,7 @@ class LessonController extends AbstractController
 
         if($resource) {
             $mimeType = $resource->getMimeType();
-            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::EXPERIENCE_FILE);
+            $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::LESSON_RESOURCE);
             $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
             $file->setMimeType($mimeType ?? 'application/octet-stream');
             $file->setFileName($newFilename);
@@ -500,7 +500,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::EXPERIENCE_FILE.'/'. $file->getFileName(),
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::LESSON_RESOURCE.'/'. $file->getFileName(),
                     'id' => $file->getId(),
                     'title' => $file->getTitle(),
                     'description' => $file->getDescription(),

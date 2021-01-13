@@ -17,9 +17,9 @@ class OldApp extends React.Component {
 
     render() {
 
-
+        
         let p = this.props;
-
+        
         const relevantProfessionals = this.getRelevantProfessionals();
         const { user = {} } = this.props;
         const ranges = [ 25, 50, 70, 150 ];
@@ -39,7 +39,7 @@ class OldApp extends React.Component {
                                     <input className="uk-search-input" type="search" placeholder="Search by Name or Interests..." onChange={this.props.updateSearchQuery} value={this.props.search.query} />
                                 </div>
                             </div>
-                            { this.renderCompanyDropdown() }
+                            <Company companies={this.props.companies} updateCompanyQuery={this.updateCompanyQuery}/>
                             { this.renderRolesDropdown() }
                             { this.renderIndustryDropdown() }
                             { this.props.search.industry && this.renderSecondaryIndustryDropdown() }
@@ -77,7 +77,7 @@ class OldApp extends React.Component {
                                 if(professional.secondaryIndustries && professional.secondaryIndustries.length > 0) {
                                     secondaryIndustry = professional.secondaryIndustries[0].name;
                                 }
-
+                                
                                 const professionalCompany = professional.company ? professional.company : {};
                                 const hiddenAttributes = user.student ? {} : {
                                     email: professional.emailAfterPrivacySettingsApplied,
@@ -105,7 +105,8 @@ class OldApp extends React.Component {
                                 <p>No professionals match your selection</p>
                             )}
                         </div>
-                        
+
+                        <Pagination totalRecords={100} initialPage={1} pageLimit={10} pagesToShow={10} onChangePage={function() { debugger;}}/>
                     </div>
                 </div>
             </div>
@@ -204,7 +205,7 @@ class OldApp extends React.Component {
 
     getRelevantProfessionals () {
 
-
+        
         return this.props.professionals.filter(professional => {
 
 
@@ -254,12 +255,12 @@ class OldApp extends React.Component {
     }
 
     componentDidMount() {
-
+        
         this.loadProfessionals();
     }
 
     loadProfessionals() {
-
+        
         this.props.loadProfessionals( window.Routing.generate('get_professionals_by_radius', {
             'radius': this.props.search.radius,
             'zipcode': this.props.search.zipcode
