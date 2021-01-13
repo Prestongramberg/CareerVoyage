@@ -26,7 +26,7 @@
             <li class="uk-active"><a href="#company-details">Edit Company</a></li>
             <li><a href="#company-industries">Industry</a></li>
             <li><a href="#company-regions">Region</a></li>
-            <li id="school-tab"><a href="#company-schools">Schools</a></li>
+            <li><a href="#company-schools">Schools</a></li>
             <li><a href="#company-photos">Photos</a></li>
             <li><a href="#company-videos">Videos</a></li>
             <li><a href="#company-resources" style="background-color: #e8e8e8">Resources</a></li>
@@ -222,11 +222,10 @@
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
                             {{ form_label(form.schools, 'Schools*') }}
-                            <div class="react-schools-select-by-radius"
+                            <div id="react-schools-select-by-radius"
                                  data-field-name="edit_company_form[schools][]"
                                  data-field-value="{{ form.schools.vars.value|json_encode }}"
                                  data-region-field-name="edit_company_form[regions][]"
-                                 data-use-regions-preselect="true"
                                  data-georadius-name="edit_company_form[geoRadius]"
                                  data-georadius-value="{{ form.geoRadius.vars.value }}"
                                  data-geozipcode-name="edit_company_form[geoZipCode]"

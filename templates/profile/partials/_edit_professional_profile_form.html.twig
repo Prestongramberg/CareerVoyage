@@ -22,7 +22,7 @@
                         <li><a href="#account-details-profile-industries">Profession</a></li>
                         <li><a href="#account-details-profile-roles">Roles</a></li>
                         <li><a href="#account-details-profile-region">Region</a></li>
-                        <li id="school-tab"><a href="#account-details-profile-schools" id="account-details-profile-schools">Schools</a></li>
+                        <li><a href="#account-details-profile-schools" id="account-details-profile-schools">Schools</a></li>
                         <li><a href="#account-details-profile-videos" id="account-details-profile-videos">Videos</a></li>
                         <li><a href="#account-details-profile-account">Account</a></li>
                     </ul>
@@ -151,14 +151,13 @@
                                 <fieldset class="uk-fieldset">
                                     <div class="uk-margin">
                                         {{ form_label(form.schools, 'Schools I volunteer at*') }}
-                                        <div class="react-schools-select-by-radius"
+                                        <div id="react-schools-select-by-radius"
                                             data-field-name="professional_edit_profile_form[schools][]"
                                             data-field-value="{{ form.schools.vars.value|json_encode }}"
                                             data-georadius-name="professional_edit_profile_form[geoRadius]"
                                             data-georadius-value="{{ form.geoRadius.vars.value }}"
                                             data-geozipcode-name="professional_edit_profile_form[geoZipCode]"
                                             data-region-field-name="professional_edit_profile_form[regions][]"
-                                            data-use-regions-preselect="true"
                                             data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif user.zipcode is defined %}{{ user.zipcode }}{% endif %}">
                                             {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
                                             {{ form_widget(form.geoZipCode) }}

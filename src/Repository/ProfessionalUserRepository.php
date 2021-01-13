@@ -129,6 +129,10 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         return $stmt->fetchAll();
     }
 
+    public function search() {
+
+    }
+
     /**
      * @param $professionalIds
      * @return mixed

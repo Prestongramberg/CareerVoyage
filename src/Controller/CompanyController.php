@@ -918,7 +918,7 @@ class CompanyController extends AbstractController
 
                 if($fieldName === 'schools') {
                     $showMainError = false;
-                    $this->addFlash('error', 'Please select your volunteer schools.');
+                    $this->addFlash('error', 'Please select your volunteer schools or try selecting a different region if you do not see the schools you are looking for below.');
                 }
 
                 if($showMainError) {
