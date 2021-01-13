@@ -70,3 +70,36 @@ export function loadProfessionals(url) {
             }))
     }
 }
+
+export function query() {
+
+    debugger;
+    return (dispatch, getState) => {
+
+        debugger;
+        const state = getState();
+
+        const url = window.Routing.generate('get_professionals_by_radius');
+
+        //const url = window.Routing.generate("global_share_data") + '?page=' + state.filters.current_page;
+
+        return api.post(url, state)
+            .then((response) => {
+
+                debugger;
+                if (response.statusCode < 300) {
+                    dispatch({type: actionTypes.PROFESSIONALS_LOADING_SUCCESS, response: response.responseBody})
+                }  else {
+                    dispatch({
+                        type: actionTypes.PROFESSIONALS_LOADING_FAILURE
+                    })
+
+                }
+            })
+            .catch((e)=> {
+                dispatch({
+                    type: actionTypes.PROFESSIONALS_LOADING_FAILURE
+                })
+            })
+    }
+}

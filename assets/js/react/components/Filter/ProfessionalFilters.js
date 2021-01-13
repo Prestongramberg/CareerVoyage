@@ -7,7 +7,7 @@ import Loader from "../../components/Loader/Loader";
 import Pagination from "../../components/Pagination/Pagination";
 import Company from "../../components/Filter/Company";
 
-class App extends React.Component {
+class ProfessionalFilters extends React.Component {
 
     constructor() {
         super();
