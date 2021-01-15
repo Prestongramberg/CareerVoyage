@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import { addUser, removeUser, searchChattableUsers, sendNotifications, updateMessage, queryByRole, queryByUserRole, queryByCompany, queryByInterests, queryByCompanyAdministrators, queryBySchool, queryByCourseTaught, queryByPrimaryIndustry, queryBySecondaryIndustry } from "./actions/actionCreators";
+import { addUser, removeUser, searchChattableUsers, sendNotifications, updateMessage, queryByRole, queryByUserRole, queryByCompany, queryByInterests, queryByCompanyAdministrators, queryBySchool, queryByCourseTaught, queryByPrimaryIndustry, queryBySecondaryIndustry, query, queryByPage } from "./actions/actionCreators";
 import {connect} from "react-redux";
 const cb = 'global-share';
 import {mapObject} from "../../utilities/object-utils";
@@ -10,8 +10,8 @@ export class App extends Component {
 
     constructor(props) {
         super(props);
-        // const methods = ["displayFormField", "getText"];
-        // methods.forEach(method => (this[method] = this[method].bind(this)));
+        const methods = ["queryByUserRole", "queryByRole", "queryByCompany", "queryByCompanyAdministrators", "queryByCourseTaught", "queryBySchool", "queryByPrimaryIndustry", "queryBySecondaryIndustry", "queryByInterests"];
+        methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     componentWillMount() {
@@ -24,7 +24,7 @@ export class App extends Component {
         debugger;
 
         const users = this.getRelevantUsers();
-        const userCount = users.length;
+        const userCount = this.props.filters.total_count;
 
         return (
             <div className={cb}>
@@ -35,41 +35,44 @@ export class App extends Component {
                 <div id="global-share" className="uk-modal-800" data-uk-modal>
                     <div className="uk-modal-dialog uk-modal-body">
                         <h3>Who would you like to share with?</h3>
-                        <div className="uk-search uk-search-default uk-width-1-1">
-                            <span data-uk-search-icon></span>
-                            {<input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.searchChattableUsers} value={this.props.search.query} />}
-                        </div>
 
-                        <ul uk-accordion="multiple: true">
-                            <li>
-                                <a className="uk-accordion-title" href="#">Filters</a>
-                                <div className="uk-accordion-content">
+                        <form id="filterForm">
+                            <div className="uk-search uk-search-default uk-width-1-1">
+                                <span data-uk-search-icon></span>
+                                {<input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.searchChattableUsers} value={this.props.search.query} />}
+                            </div>
 
-                                    <div className="uk-container">
-                                        <div className="uk-grid" uk-grid>
-                                            <div className="uk-width-1-3">
-                                                { this.renderUserRoleDropdown() }
+                            <ul uk-accordion="multiple: true">
+                                <li>
+                                    <a className="uk-accordion-title" href="#">Filters</a>
+                                    <div className="uk-accordion-content">
+
+                                        <div className="uk-container">
+                                            <div className="uk-grid" uk-grid>
+                                                <div className="uk-width-1-3">
+                                                    { this.renderUserRoleDropdown() }
+                                                </div>
+                                                { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderRoleDropdown() } </div> }
+                                                { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyDropdown() } </div> }
+                                                { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderInterestsSearchField() } </div> }
+                                                { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyAdministratorDropdown() } </div> }
+
+                                                { this.isEducatorUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCoursesTaughtDropdown() } </div> }
+                                                { ( !this.props.user.roles.includes('ROLE_EDUCATOR_USER') && (this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() || this.isSchoolAdministratorUserRoleSelected()) ) && <div className="uk-width-1-3"> { this.renderSchoolDropdown() } </div> }
+
+                                                { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderPrimaryIndustryDropdown() } </div> }
+                                                { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderSecondaryIndustryDropdown() } </div> }
                                             </div>
-                                            { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderRoleDropdown() } </div> }
-                                            { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyDropdown() } </div> }
-                                            { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderInterestsSearchField() } </div> }
-                                            { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyAdministratorDropdown() } </div> }
-
-                                            { this.isEducatorUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCoursesTaughtDropdown() } </div> }
-                                            { ( this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() || this.isSchoolAdministratorUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderSchoolDropdown() } </div> }
-
-                                            { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderPrimaryIndustryDropdown() } </div> }
-                                            { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderSecondaryIndustryDropdown() } </div> }
                                         </div>
                                     </div>
-                                </div>
-                            </li>
-                        </ul>
+                                </li>
+                            </ul>
+                        </form>
 
                         <div className="uk-margin">
                             <div className="uk-grid">
                                 <div className="uk-width-1-2">
-                                    <div className={`${cb}__heading`}>Sending to Users: ({this.props.ui.users.length} results)</div>
+                                    <div className={`${cb}__heading`}>{users.length > 0 && `Sending to Users: (${this.props.ui.users.length} results)`} {users.length === 0 && `Select from a filter above to get started...`}</div>
                                     <div className={`${cb}__scrollable`}>
                                         {this.props.ui.users.map((user) => {
                                             return (
@@ -90,7 +93,7 @@ export class App extends Component {
                                     </div>
                                 </div>
                                 <div className="uk-width-1-2">
-                                    <div className={`${cb}__heading`}>Search Found: ({userCount} results)</div>
+                                    <div className={`${cb}__heading`}>{users.length > 0 && `Search Found: (${userCount} results)`}</div>
                                     <div className={`${cb}__scrollable`}>
                                         {users.map((user) => {
                                             return (
@@ -102,6 +105,14 @@ export class App extends Component {
                                             )
                                         })}
                                     </div>
+
+                                    {users.length > 0 && (
+                                        <ul className="uk-pagination">
+                                            <li onClick={() => { this.changePage(this.props.filters.current_page > 1 ? this.props.filters.current_page - 1 : 1) }}><a href="javascript:void(0)">prev</a></li>
+                                            <li onClick={() => { this.changePage(this.props.filters.current_page === this.props.filters.total_pages ? this.props.filters.total_pages : this.props.filters.current_page + 1) }}><a href="javascript:void(0)">next</a></li>
+                                        </ul>
+                                    )}
+
                                 </div>
                             </div>
                         </div>
@@ -120,7 +131,6 @@ export class App extends Component {
 
     renderUser(user) {
 
-        debugger;
         let loggedInUser = this.props.user;
         let row = '';
         let photoImageURL = user.photoImageURL ? user.photoImageURL : '/build/images/avatar.ec6ae432.png';
@@ -174,7 +184,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "Volunteer Role"}}
                         options={this.props.filters.roles}
                         value={this.props.search.roles}
-                        onChange={this.props.queryByRole}
+                        onChange={this.queryByRole}
                     />
                 </div>
             );
@@ -192,7 +202,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "User Role"}}
                         options={this.props.filters.user_roles}
                         value={this.props.search.user_roles}
-                        onChange={this.props.queryByUserRole}
+                        onChange={this.queryByUserRole}
                     />
                 </div>
             );
@@ -210,7 +220,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "Company"}}
                         options={this.props.filters.companies}
                         value={this.props.search.companies}
-                        onChange={this.props.queryByCompany}
+                        onChange={this.queryByCompany}
                     />
                 </div>
             );
@@ -224,7 +234,7 @@ export class App extends Component {
         return (
             <div className={"uk-search uk-search-default"} style={{"width" : "100%"}}>
                 <span data-uk-search-icon></span>
-                <input className="uk-search-input" type="search" placeholder="Search Interests..." onChange={this.props.queryByInterests} value={this.props.search.interests} />
+                <input className="uk-search-input" type="search" placeholder="Search Interests..." onChange={this.queryByInterests} value={this.props.search.interests} />
             </div>
         );
     }
@@ -238,7 +248,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "Company Administrator"}}
                         options={this.props.filters.company_admins}
                         value={this.props.search.company_admins}
-                        onChange={this.props.queryByCompanyAdministrators}
+                        onChange={this.queryByCompanyAdministrators}
                     />
                 </div>
             );
@@ -256,7 +266,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "Course Taught"}}
                         options={this.props.filters.courses_taught}
                         value={this.props.search.courses_taught}
-                        onChange={this.props.queryByCourseTaught}
+                        onChange={this.queryByCourseTaught}
                     />
                 </div>
             );
@@ -267,20 +277,16 @@ export class App extends Component {
 
     renderSchoolDropdown() {
 
-        if ( this.props.filters.company_admins.length > 0) {
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "School"}}
-                        options={this.props.filters.schools}
-                        value={this.props.search.schools}
-                        onChange={this.props.queryBySchool}
-                    />
-                </div>
-            );
-        }
-
-        return null;
+        return (
+            <div>
+                <MultiSelect
+                    overrideStrings={{"selectSomeItems": "School"}}
+                    options={this.props.filters.schools}
+                    value={this.props.search.schools}
+                    onChange={this.queryBySchool}
+                />
+            </div>
+        );
     }
 
     renderPrimaryIndustryDropdown() {
@@ -292,7 +298,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "Primary Industry"}}
                         options={this.props.filters.primary_industries}
                         value={this.props.search.primary_industries}
-                        onChange={this.props.queryByPrimaryIndustry}
+                        onChange={this.queryByPrimaryIndustry}
                     />
                 </div>
             );
@@ -308,12 +314,16 @@ export class App extends Component {
 
             let filters = [];
             let selectedPrimaryIndustries = this.props.search.primary_industries.map((x)=>x.value);
+            let addedSecondaryIndustries = [];
 
             this.props.filters.secondary_industries.forEach(function(industryData) {
 
                 let primaryIndustryId = industryData.primaryIndustryId;
 
-                if(selectedPrimaryIndustries.includes(primaryIndustryId)) {
+                if(selectedPrimaryIndustries.includes(primaryIndustryId) && !addedSecondaryIndustries.includes(industryData.secondaryIndustryId)) {
+
+                    addedSecondaryIndustries.push(industryData.secondaryIndustryId);
+
                     filters.push({label: industryData.secondaryIndustryName, value: industryData.secondaryIndustryId});
                 }
             });
@@ -324,7 +334,7 @@ export class App extends Component {
                         overrideStrings={{"selectSomeItems": "Secondary Career"}}
                         options={filters}
                         value={this.props.search.secondary_industries}
-                        onChange={this.props.queryBySecondaryIndustry}
+                        onChange={this.queryBySecondaryIndustry}
                     />
                 </div>
             );
@@ -336,9 +346,9 @@ export class App extends Component {
 
     getRelevantUsers() {
 
-        return this.props.users.all.filter(user => {
+        return this.props.users.all;
 
-            debugger;
+        return this.props.users.all.filter(user => {
 
             // roles search
             if(this.props.search.roles.length > 0) {
@@ -347,14 +357,10 @@ export class App extends Component {
                     return false;
                 }
 
-                debugger;
-
                 let roles = Object.keys(user.roles);
 
                 let selectedRoles = this.props.search.roles.map((x)=>x.value);
                 let matchingRoles = selectedRoles.filter(value => roles.includes(value))
-
-                debugger;
 
                 if(matchingRoles.length === 0) {
                     return false;
@@ -432,13 +438,9 @@ export class App extends Component {
             // courses taught search
             if(this.props.search.courses_taught.length > 0) {
 
-                debugger;
-
                 if(!user.courses) {
                     return false;
                 }
-
-                debugger;
 
                 let coursesTaught = Object.keys(user.courses);
 
@@ -532,6 +534,74 @@ export class App extends Component {
         let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
         return selectedUserRoles.includes("school_administrator");
     }
+
+    queryByRole(options) {
+
+        debugger;
+        this.props.queryByRole(options);
+        this.props.query(this.props.search);
+    }
+
+
+    queryByUserRole(options) {
+
+        debugger;
+        this.props.queryByUserRole(options);
+        this.props.query(this.props.search);
+    }
+
+    queryByCompany(options) {
+
+        debugger;
+        this.props.queryByCompany(options);
+        this.props.query(this.props.search);
+    }
+
+    queryByInterests(event) {
+
+        debugger;
+        this.props.queryByInterests(event);
+        this.props.query(this.props.search);
+    }
+
+    queryByCompanyAdministrators(options) {
+
+        debugger;
+        this.props.queryByCompanyAdministrators(options);
+        this.props.query(this.props.search);
+    }
+
+    queryByCourseTaught(options) {
+
+        debugger;
+        this.props.queryByCourseTaught(options);
+        this.props.query(this.props.search);
+    }
+
+    queryBySchool(options) {
+
+        debugger;
+        this.props.queryBySchool(options);
+        this.props.query(this.props.search);
+    }
+
+    queryByPrimaryIndustry(options) {
+        debugger;
+        this.props.queryByPrimaryIndustry(options);
+        this.props.query(this.props.search);
+    }
+
+    queryBySecondaryIndustry(options) {
+        debugger;
+        this.props.queryBySecondaryIndustry(options);
+        this.props.query(this.props.search);
+    }
+
+    changePage(page) {
+        this.props.queryByPage(page);
+        this.props.query(this.props.search);
+        debugger;
+    }
 }
 
 App.propTypes = {
@@ -559,6 +629,8 @@ export const mapDispatchToProps = dispatch => ({
     addDefaultUsers: () => dispatch(searchChattableUsers('')),
     queryByRole: (options) => dispatch(queryByRole( options )),
     queryByUserRole: (options) => dispatch(queryByUserRole( options )),
+    query: (data) => dispatch(query( data )),
+    queryByPage: (data) => dispatch(queryByPage( data )),
     queryByCompany: (options) => dispatch(queryByCompany( options )),
     queryByInterests: (event) => dispatch(queryByInterests( event.target.value )),
     queryByCompanyAdministrators: (options) => dispatch(queryByCompanyAdministrators( options )),

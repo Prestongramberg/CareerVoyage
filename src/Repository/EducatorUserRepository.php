@@ -8,6 +8,7 @@ use App\Entity\School;
 use App\Entity\Course;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
+use App\Model\GlobalShareFilters;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Doctrine\ORM\Query\Expr\Join;
@@ -224,11 +225,13 @@ class EducatorUserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array $userIds
+     * @param array              $userIds
+     * @param GlobalShareFilters $filters
+     *
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataForGlobalShare(array $userIds) {
+    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null) {
 
         $ids = implode("','", $userIds);
 
@@ -245,6 +248,33 @@ class EducatorUserRepository extends ServiceEntityRepository
           LEFT JOIN course c on euc.course_id = c.id
           WHERE u.id IN('$ids')";
 
+        if($filters) {
+
+            if(!empty($filters->getInterestSearch())) {
+                $query .= sprintf(' AND eu.interests LIKE "%%%s%%"', $filters->getInterestSearch());
+            }
+
+            if(!empty($filters->getPrimaryIndustries())) {
+                $primaryIndustries = implode("','", $filters->getPrimaryIndustries());
+                $query .= " AND si.primary_industry_id IN('$primaryIndustries')";
+            }
+
+            if(!empty($filters->getSecondaryIndustries())) {
+                $secondaryIndustries = implode("','", $filters->getSecondaryIndustries());
+                $query .= " AND eusi.secondary_industry_id IN('$secondaryIndustries')";
+            }
+
+            if(!empty($filters->getCoursesTaught())) {
+                $coursesTaught = implode("','", $filters->getCoursesTaught());
+                $query .= " AND c.id IN('$coursesTaught')";
+            }
+
+            if(!empty($filters->getSchools())) {
+                $schools = implode("','", $filters->getSchools());
+                $query .= " AND s.id IN('$schools')";
+            }
+
+        }
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

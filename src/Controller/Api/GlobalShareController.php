@@ -23,6 +23,7 @@ use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalEditProfileFormType;
+use App\Model\GlobalShareFilters;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\ExperienceRepository;
@@ -63,7 +64,7 @@ class GlobalShareController extends AbstractController
     use ServiceHelper;
 
     /**
-     * @Route("/data", name="global_share_data", methods={"GET"}, options = { "expose" = true })
+     * @Route("/data", name="global_share_data", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
@@ -72,9 +73,19 @@ class GlobalShareController extends AbstractController
 
         $loggedInUser = $this->getUser();
 
-        $search = $request->query->get('search', '');
+        $filters = new GlobalShareFilters($request);
 
-        $payload = $this->globalShare->getData($loggedInUser, $search);
+        $payload = $this->globalShare->getData(
+            $loggedInUser,
+            $filters
+        );
+
+        // We need to get all the data without filters applied as well to show all the filter options on the front end.
+        $payloadForFilters = $this->globalShare->getData(
+            $loggedInUser
+        );
+
+        $payload['filters'] = $payloadForFilters['all'];
 
         return new JsonResponse(
             [

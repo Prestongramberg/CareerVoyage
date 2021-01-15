@@ -6,6 +6,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\Region;
 use App\Entity\School;
 use App\Entity\StudentUser;
+use App\Model\GlobalShareFilters;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -208,10 +209,12 @@ class ProfessionalUserRepository extends ServiceEntityRepository
 
     /**
      * @param array $userIds
+     * @param       $filters
+     *
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataForGlobalShare(array $userIds) {
+    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null) {
 
         $ids = implode("','", $userIds);
 
@@ -229,6 +232,43 @@ class ProfessionalUserRepository extends ServiceEntityRepository
           LEFT JOIN roles_willing_to_fulfill rwtf on purwtf.roles_willing_to_fulfill_id = rwtf.id
           WHERE u.id IN('$ids')";
 
+        if($filters) {
+
+            if(!empty($filters->getInterestSearch())) {
+                $query .= sprintf(' AND pu.interests LIKE "%%%s%%"', $filters->getInterestSearch());
+            }
+
+            if(!empty($filters->getVolunteerRoles())) {
+                $volunteerRoles = implode("','", $filters->getVolunteerRoles());
+                $query .= " AND purwtf.roles_willing_to_fulfill_id IN('$volunteerRoles')";
+            }
+
+            if(!empty($filters->getCompanies())) {
+                $companies = implode("','", $filters->getCompanies());
+                $query .= " AND c.id IN('$companies')";
+            }
+
+            if(!empty($filters->getCompanyAdmins())) {
+                $companyAdmins = implode("','", $filters->getCompanyAdmins());
+                $query .= " AND c.email_address IN('$companyAdmins')";
+            }
+
+            if(!empty($filters->getPrimaryIndustries())) {
+                $primaryIndustries = implode("','", $filters->getPrimaryIndustries());
+                $query .= " AND si.primary_industry_id IN('$primaryIndustries')";
+            }
+
+            if(!empty($filters->getSecondaryIndustries())) {
+                $secondaryIndustries = implode("','", $filters->getSecondaryIndustries());
+                $query .= " AND pusi.secondary_industry_id IN('$secondaryIndustries')";
+            }
+
+            if($filters->hasFilterByCompanyAdministrator()) {
+                // grab the users that have the same email as the company email as this means that they are the company admin
+                $query .= " AND u.email = c.email_address";
+            }
+
+        }
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

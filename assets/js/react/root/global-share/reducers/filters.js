@@ -4,19 +4,30 @@ export default (state = {}, action) => {
 
     switch (action.type) {
 
+        case actionTypes.QUERY_BY_PAGE:
+
+            debugger;
+            return {
+                ...state,
+                current_page: action.current_page,
+            };
+
         case actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS:
 
             debugger;
             return {
                 ...state,
-                roles: get_roles(action.users.all),
-                companies: get_companies(action.users.all),
-                interests: get_interests(action.users.all),
-                company_admins: get_company_admins(action.users.all),
-                schools: get_schools(action.users.all),
-                courses_taught: get_courses_taught(action.users.all),
-                primary_industries: get_primary_industries(action.users.all),
-                secondary_industries: get_secondary_industries(action.users.all)
+                roles: get_roles(action.users.filters),
+                companies: get_companies(action.users.filters),
+                interests: get_interests(action.users.filters),
+                company_admins: get_company_admins(action.users.filters),
+                schools: get_schools(action.users.filters),
+                courses_taught: get_courses_taught(action.users.filters),
+                primary_industries: get_primary_industries(action.users.filters),
+                secondary_industries: get_secondary_industries(action.users.filters),
+                current_page: action.users.current_page,
+                total_count: action.users.total_count,
+                total_pages: action.users.total_pages
             };
         case actionTypes.NOTIFICATIONS_SENDING_SUCCESS:
             return state;
@@ -115,7 +126,7 @@ function get_company_admins( users ) {
                 }
 
 
-                filters.push({label: value, value: value});
+                filters.push({label: value, value: user.company_administrator});
             }
         }
     });
