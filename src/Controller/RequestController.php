@@ -8,6 +8,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
@@ -34,6 +35,7 @@ use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\EducatorRegisterEducatorForExperienceRequestRepository;
+use App\Repository\SchoolAdminRegisterSAForExperienceRequestRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\NewCompanyRequestRepository;
 use App\Repository\RegistrationRepository;
@@ -548,6 +550,23 @@ class RequestController extends AbstractController
                 $this->addFlash('success', 'You have been registered for this event!');
                 $this->entityManager->flush();
                 break;
+            case 'SchoolAdminRegisterSAForCompanyExperienceRequest':
+                /** @var SchoolAdminRegisterSAForCompanyExperienceRequest $request */
+                $schoolAdminUser = $request->getSchoolAdminUser();
+                $experience = $request->getCompanyExperience();
+
+                $this->entityManager->persist($experience);
+                $request->setApproved(true);
+                $this->entityManager->persist($request);
+                $registration = new Registration();
+                $registration->setUser($schoolAdminUser);
+                $registration->setExperience($request->getCompanyExperience());
+                $this->entityManager->persist($registration);
+                // make sure the teacher has a registration as well
+
+                $this->addFlash('success', 'You have been registered for this event!');
+                $this->entityManager->flush();
+                break;
             case 'StudentToMeetProfessionalRequest':
                 /** @var StudentToMeetProfessionalRequest $request */
                 $student = $request->getStudent();
@@ -732,7 +751,7 @@ class RequestController extends AbstractController
             $request->setProfessionalHasSeen(true);
         }
         if($user->isSchoolAdministrator()) {
-            $request->setSchoolAdministratorHasSeen(true);
+            $request->setSchoolAdminHasSeen(true);
         }
 
         $this->entityManager->persist($request);

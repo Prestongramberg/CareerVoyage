@@ -167,7 +167,7 @@ class RequestRepository extends ServiceEntityRepository
             return $this->createQueryBuilder('r')
                 ->leftJoin('r.requestPossibleApprovers', 'rpa')
                 ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
-                ->andWhere('r.schoolAdministratorHasSeen = :false')
+                ->andWhere('r.schoolAdminHasSeen = :false')
                 ->setParameter('needsApprovalBy', $user)
                 ->setParameter('possibleApprover', $user)
                 ->setParameter('false', false)

@@ -45,6 +45,7 @@ use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
 use App\Repository\SchoolAdministratorRepository;
+use App\Repository\SchoolAdminRegisterSAForCompanyExperienceRequestRepository;
 use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Repository\SiteAdminUserRepository;
@@ -318,6 +319,11 @@ trait ServiceHelper
     private $educatorRegisterEducatorForCompanyExperienceRequestRepository;
 
     /**
+     * @var SchoolAdminRegisterSAForCompanyExperienceRequestRepository $schoolAdminRegisterSAForCompanyExperienceRequestRepository
+     */
+    private $schoolAdminRegisterSAForCompanyExperienceRequestRepository;
+
+    /**
      * @var SchoolRepository
      */
     private $schoolRepository;
@@ -506,6 +512,7 @@ trait ServiceHelper
      * @param ChatMessageRepository                                         $chatMessageRepository
      * @param EducatorRegisterStudentForExperienceRequestRepository         $educatorRegisterStudentForExperienceRequestRepository
      * @param EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository
+     * @param SchoolAdminRegisterSAForCompanyExperienceRequestRepository    $schoolAdminRegisterSAForCompanyExperienceRequestRepository
      * @param SchoolRepository                                              $schoolRepository
      * @param TeachLessonExperienceRepository                               $teachLessonExperienceRepository
      * @param CompanyFavoriteRepository                                     $companyFavoriteRepository
@@ -560,6 +567,7 @@ trait ServiceHelper
         ChatMessageRepository $chatMessageRepository,
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
         EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository,
+        SchoolAdminRegisterSAForCompanyExperienceRequestRepository $schoolAdminRegisterSAForCompanyExperienceRequestRepository,
         SchoolRepository $schoolRepository, TeachLessonExperienceRepository $teachLessonExperienceRepository,
         CompanyFavoriteRepository $companyFavoriteRepository, RegistrationRepository $registrationRepository,
         EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
@@ -624,6 +632,7 @@ trait ServiceHelper
         $this->chatMessageRepository                                         = $chatMessageRepository;
         $this->educatorRegisterStudentForExperienceRequestRepository         = $educatorRegisterStudentForExperienceRequestRepository;
         $this->educatorRegisterEducatorForCompanyExperienceRequestRepository = $educatorRegisterEducatorForCompanyExperienceRequestRepository;
+        $this->schoolAdminRegisterSAForCompanyExperienceRequestRepository    = $schoolAdminRegisterSAForCompanyExperienceRequestRepository;
         $this->schoolRepository                                              = $schoolRepository;
         $this->teachLessonExperienceRepository                               = $teachLessonExperienceRepository;
         $this->companyFavoriteRepository                                     = $companyFavoriteRepository;
