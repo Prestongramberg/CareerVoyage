@@ -31,6 +31,11 @@ class SchoolAdministrator extends User
      */
     private $phone;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest", mappedBy="schoolAdministrator")
+     */
+    private $schoolAdminRegisterSAForCompanyExperienceRequests;
+
     public function __construct()
     {
         parent::__construct();

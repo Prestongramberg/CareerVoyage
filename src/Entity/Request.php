@@ -20,8 +20,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     "teachLessonRequest" = "TeachLessonRequest",
  *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
  *     "educatorRegisterEducatorForCompanyExperienceRequest" = "EducatorRegisterEducatorForCompanyExperienceRequest",
+ *     "schoolAdminRegisterSAForCompanyExperienceRequest" = "SchoolAdminRegisterSAForCompanyExperienceRequest",
  *     "studentToMeetProfessionalRequest" = "StudentToMeetProfessionalRequest",
- *     "userRegisterForSchoolExperienceRequest" = "UserRegisterForSchoolExperienceRequest"
+ *     "userRegisterForSchoolExperienceRequest" = "UserRegisterForSchoolExperienceRequest",
  
  * })
  */
@@ -98,7 +99,7 @@ abstract class Request
     /**
      * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
-    protected $schoolAdministratorHasSeen = false;
+    protected $schoolAdminHasSeen = false;
 
 
 
@@ -231,14 +232,14 @@ abstract class Request
         return $this;
     }
 
-    public function getSchoolAdministratorHasSeen(): ?bool
+    public function getSchoolAdminHasSeen(): ?bool
     {
-        return $this->schoolAdministratorHasSeen;
+        return $this->schoolAdminHasSeen;
     }
 
-    public function setSchoolAdministratorHasSeen(?bool $schoolAdministratorHasSeen): self
+    public function setSchoolAdminHasSeen(?bool $schoolAdminHasSeen): self
     {
-        $this->schoolAdministratorHasSeen = $schoolAdministratorHasSeen;
+        $this->schoolAdminHasSeen = $schoolAdminHasSeen;
         return $this;
     }
 
