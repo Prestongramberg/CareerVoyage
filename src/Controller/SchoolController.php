@@ -763,7 +763,7 @@ class SchoolController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
 
-            $errors = 'Duplicate Educators: ';
+            $errors = 'Duplicate Users (The following users were not imported as they already have an account on the platform as a NON educator): ';
             $error_emails = [];
 
             /** @var UploadedFile $uploadedFile */
@@ -831,11 +831,18 @@ class SchoolController extends AbstractController
                             $educator = array_combine($columns, $values);
 
                             $email = $educator['Email'];
+                            /** @var User $existingUser */
                             $existingUser = $this->userRepository->findOneBy([
                                 'email' => $email,
                             ]);
 
                             if($existingUser) {
+
+                                if(!$existingUser->isEducator()) {
+                                    $error_emails[] = $existingUser->getEmail();
+                                    continue;
+                                }
+
                                 // setup a temp password even for the existing user as odds are
                                 // they won't remember their current password and this will help
                                 // the school admin facilitate their login
