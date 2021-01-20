@@ -57,6 +57,26 @@
                     </div>
                 {% endif %}
 
+                {% if user.schoolAdministrator %}
+                    <div id="school_admin_id">                    
+                        <form class="uk-inline register_school_admin" method="post" action="{{ path('company_experience_school_admin_register', {'id' : experience.id}) }}">
+                            <input type="hidden" name="userId" value="{{ user.id }}" />
+                            {% if experience.isRegistered(user) and experience.schoolAdminRegisterSAForCompanyExperienceRequests|length > 0 %}
+                                <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
+                            {% else %}
+                                <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register Myself</button>
+                            {% endif %}
+                        </form>
+
+                        <form class="uk-inline deregister_school_admin" method="post" action="{{ path('company_experience_school_admin_deregister', {'id' : experience.id}) }}">
+                            <input type="hidden" name="userId" value="{{ user.id }}">
+                            {% if experience.isRegistered(user) and experience.schoolAdminRegisterSAForCompanyExperienceRequests|length > 0 %}
+                                <button class="uk-button uk-button-danger uk-button-small disabled uk-margin-small-bottom" type="submit">Cancel Registration</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                {% endif %}
+
                 {% if user.professional and experience.company.owner.id == user.id %}
                     <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#live-feedback-url" uk-toggle>Live Feedback URL</a>
                     <br>
@@ -469,6 +489,35 @@
           $.post( $(this).attr('action'), { educatorId: educator_id }, function(data){
             if(data.status === "success") {
               $('#educator_id').html( '<form class="uk-inline register_educator" action="{{ path('company_experience_educator_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="educatorId" value="' + data.educator_id + '"><button class="uk-button uk-button-secondary uk-button-small uk-margin-small-right" type="submit">Register Myself</button></form>' );
+            }
+          });
+        });
+
+
+        // School Admin Registering
+
+        $(document).on('submit', '.register_school_admin', function(e){
+          var school_admin_id = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { schoolAdminId: school_admin_id }, function(data){
+            if(data.status === "success") {
+                if(data.approval === true) {
+                    $('#school_admin_id').html( 'Pending <form class="uk-inline deregister_school_admin" action="{{ path('company_experience_school_admin_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="schoolAdminId" value="' + data.school_admin_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                } else {
+                    $('#school_admin_id').html( '<form class="uk-inline" method="post" action="#"><button class="uk-button uk-button-secondary uk-button-small disabled" type="submit" disabled="disabled">Already Registered</button></form> <form class="uk-inline deregister_school_admin" action="{{ path('company_experience_school_admin_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="schoolAdminId" value="' + data.school_admin_id + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel Registration</button></form>' );
+                    // send completion request
+                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){});
+                }
+            }
+          });
+        });
+
+        $(document).on('submit', '.deregister_school_admin', function(e){
+          var school_admin_id = $(this).children().first().val();
+          e.preventDefault();
+          $.post( $(this).attr('action'), { schoolAdminId: school_admin_id }, function(data){
+            if(data.status === "success") {
+              $('#school_admin_id').html( '<form class="uk-inline register_school_admin" action="{{ path('company_experience_school_admin_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="schoolAdminId" value="' + data.school_admin_id + '"><button class="uk-button uk-button-secondary uk-button-small uk-margin-small-right" type="submit">Register Myself</button></form>' );
             }
           });
         });

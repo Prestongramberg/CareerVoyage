@@ -11,6 +11,7 @@ use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\ExperienceFile;
@@ -41,6 +42,8 @@ use App\Repository\CompanyRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\UserRepository;
+use App\Repository\SchoolAdministratorRepository;
+use App\Repository\EducatorUserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
@@ -1331,6 +1334,92 @@ class CompanyController extends AbstractController
         if($request->isXmlHttpRequest()){
           // AJAX request
           return new JsonResponse( ["status" => "success", "educator_id" => $educatorIdToDeregister, 'id' => $experience->getId()]);
+        } else {
+          $this->addFlash('success', 'You have been removed from this experience.');
+          return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
+    }
+
+
+    /**
+     * @IsGranted("ROLE_SCHOOL_ADMINISTRATOR_USER")
+     * @Route("/companies/experiences/{id}/school_administrator/register", name="company_experience_school_admin_register", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function companyExperienceSchoolAdministratorRegisterAction(Request $request, CompanyExperience $experience) {
+        
+        $schoolAdminIdToRegister = $request->request->get('schoolAdminId');
+        $schoolAdminToRegister = $this->schoolAdministratorRepository->find($schoolAdminIdToRegister);
+
+
+        // We need to delete any previous "registration" for the school admin. This fixes the issue of an school admin
+        // trying to cancel a registration from an older non-shooolAdminRegisterSAForCompanyExperienceRequest.
+        
+        $registration = $this->registrationRepository->getByUserAndExperience($schoolAdminToRegister, $experience);
+        if ($registration) {
+            $this->entityManager->remove($registration);
+            $this->entityManager->flush();
+        }
+
+        // We will mark any educator as approved for this event.
+        $user = $this->getUser();
+        $registerRequest = new SchoolAdminRegisterSAForCompanyExperienceRequest();
+        $registerRequest->setCreatedBy($user);
+        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
+        $registerRequest->setCompanyExperience($experience);
+        $registerRequest->setSchoolAdminUser($schoolAdminToRegister);
+
+        // Does not require approval
+        $registerRequest->setApproved(true);
+        $registerRequest->setProfessionalHasSeen(true);
+        $registerRequest->setSchoolAdminHasSeen(true);
+        $this->entityManager->persist($registerRequest);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'You has been registered.');
+
+        if($request->isXmlHttpRequest()){
+        // AJAX request
+            return new JsonResponse( ["status" => "success", "school_admin_id" => $schoolAdminToRegister->getId(), 'id' => $experience->getId(), "approval" => $experience->getRequireApproval(), "request_id" => $registerRequest->getId()]);
+        } else {
+            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
+        }
+    }
+
+
+    /**
+     * @IsGranted("ROLE_SCHOOL_ADMINISTRATOR_USER")
+     * @Route("/companies/experiences/{id}/school_administrator/deregister", name="company_experience_school_admin_deregister", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     * @param CompanyExperience $experience
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function companyExperienceSchoolAdministratorDeregisterAction(Request $request, CompanyExperience $experience) {
+        $schoolAdminIdToDeregister = $request->request->get('schoolAdminId');
+        $schoolAdminToDeregister = $this->schoolAdministratorRepository->find($schoolAdminIdToDeregister);
+
+        $deregisterSchoolAdminForExperience = $this->schoolAdminRegisterSAForCompanyExperienceRequestRepository->getBySchoolAdministratorAndExperience($schoolAdminToDeregister, $experience);
+
+        $deregisterRequest = $this->requestRepository->find($deregisterSchoolAdminForExperience);
+        $registration = $this->registrationRepository->getByUserAndExperience($schoolAdminToDeregister, $experience);
+
+        /** @var ProfessionalUser $companyOwner */
+        $companyOwner = $experience->getCompany()->getOwner();
+
+        $this->entityManager->remove($deregisterSchoolAdminForExperience);
+        $this->entityManager->remove($deregisterRequest);
+        if ($registration) {
+            $this->entityManager->remove($registration);
+        }
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+        // 
+
+        if($request->isXmlHttpRequest()){
+          // AJAX request
+          return new JsonResponse( ["status" => "success", "school_admin_id" => $schoolAdminIdToDeregister, 'id' => $experience->getId()]);
         } else {
           $this->addFlash('success', 'You have been removed from this experience.');
           return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);

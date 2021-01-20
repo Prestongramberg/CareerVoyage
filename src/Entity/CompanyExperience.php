@@ -38,6 +38,12 @@ class CompanyExperience extends Experience
     private $educatorRegisterEducatorForCompanyExperienceRequests;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest", mappedBy="companyExperience", orphanRemoval=true)
+     */
+    private $schoolAdminRegisterSAForCompanyExperienceRequests;
+
+
+    /**
      * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
      */
     private $studentReviewExperienceFeedback;
@@ -59,6 +65,7 @@ class CompanyExperience extends Experience
         $this->educatorRegisterEducatorForCompanyExperienceRequests = new ArrayCollection(); 
         $this->studentReviewExperienceFeedback = new ArrayCollection();
         $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
+        $this->schoolAdminRegisterSAForCompanyExperienceRequests = new ArrayCollection();
     }
 
 
@@ -158,6 +165,39 @@ class CompanyExperience extends Experience
 
         return $this;
     }
+
+
+    /**
+     * @return Collection|SchoolAdminRegisterSAForCompanyExperienceRequest[]
+     */
+    public function getSchoolAdminRegisterSAForCompanyExperienceRequests(): Collection
+    {
+        return $this->schoolAdminRegisterSAForCompanyExperienceRequests;
+    }
+
+    public function addSchoolAdminRegisterSAForCompanyExperienceRequest(SchoolAdminRegisterSAForCompanyExperienceRequest $schoolAdminRegisterSAForCompanyExperienceRequest): self
+    {
+        if (!$this->schoolAdminRegisterSAForCompanyExperienceRequests->contains($schoolAdminRegisterSAForCompanyExperienceRequest)) {
+            $this->schoolAdminRegisterSAForCompanyExperienceRequests[] = $schoolAdminRegisterSAForCompanyExperienceRequest;
+            $schoolAdminRegisterSAForCompanyExperienceRequest->setCompanyExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchoolAdminRegisterSAForCompanyExperienceRequest(SchoolAdminRegisterSAForCompanyExperienceRequest $schoolAdminRegisterSAForCompanyExperienceRequest): self
+    {
+        if ($this->schoolAdminRegisterSAForCompanyExperienceRequests->contains($schoolAdminRegisterSAForCompanyExperienceRequest)) {
+            $this->schoolAdminRegisterSAForCompanyExperienceRequests->removeElement($schoolAdminRegisterSAForCompanyExperienceRequest);
+            // set the owning side to null (unless already changed)
+            if ($schoolAdminRegisterSAForCompanyExperienceRequest->getCompanyExperience() === $this) {
+                $schoolAdminRegisterSAForCompanyExperienceRequest->setCompanyExperience(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection|StudentReviewCompanyExperienceFeedback[]
