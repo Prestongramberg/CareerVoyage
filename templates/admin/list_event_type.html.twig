@@ -1,0 +1,42 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Experience Types{% endblock %}
+{% block bodyClass %}page-site-admin{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    <h3>Manage Experience Types</h3>
+                    <p><a href="{{ path('admin_event_types_new')}}" class="uk-button uk-button-primary">Create New Experience Type</a></p>
+                    {% if roles|length %}
+                      <table class="uk-table">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>In Company Experience Dropdown?</th>
+                            <th>In School Experience Dropdown?</th>
+                            <th>&nbsp;</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for role in roles %}
+                            <tr>
+                              <td><a href="{{ path('admin_event_types_edit', {'id' : role.id}) }}">{{ role.name }}</a></td>
+                              <td>{{ role.inEventDropdown ? 'Yes' : '' }}</td>
+                              <td>{{ role.inSchoolEventDropdown ? 'Yes' : '' }}</td>
+                              <td><a href="{{ path('admin_event_types_edit', {'id' : role.id}) }}">Edit</a></td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
