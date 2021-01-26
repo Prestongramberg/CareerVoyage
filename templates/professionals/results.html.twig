@@ -1,0 +1,159 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Professionals{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+
+        {% if form.nameOrInterest is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.nameOrInterest, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name or Interests...'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.company is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.company, {'attr': {'class': 'uk-select', 'placeholder': 'Company'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.rolesWillingToFulfill is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.rolesWillingToFulfill, {'attr': {'class': 'uk-select', 'placeholder': 'Roles Willing to Fullfill'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.primaryIndustry is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select js-primary-industry'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.secondaryIndustries is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <input type="text" id="item_filter_zipcode" name="zipcode" class="uk-input" placeholder="Enter Zip Code"
+                   value="{{ zipcode }}">
+        </div>
+
+        {% if form.radius is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.radius, {'attr': {'class': 'uk-select', 'placeholder': 'Filter by Radius'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <button class="uk-button uk-button-primary">Search</button>
+            <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
+        </div>
+        {{ form_end(form) }}
+        <br>
+
+        <div class="count">
+            Total Users: {{ pagination.getTotalItemCount }}
+        </div>
+        <br>
+
+        <div class="professionals__all">
+
+            <div class="professional-listings" data-uk-grid="masonry: true">
+
+                {% for paginatedUser in pagination %}
+
+                    <div class="uk-width-1-1 uk-width-1-2@l">
+
+                        <div>
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-header">
+                                    <div class="uk-grid-small uk-flex-middle" data-uk-grid>
+                                        <div class="uk-width-auto">
+
+                                            {% if paginatedUser.photoImageURL %}
+                                                <img class="uk-border-circle" width="40" height="40"
+                                                     src="{{ paginatedUser.photoImageURL }}"/>
+                                            {% else %}
+                                                <img class="uk-border-circle" width="40" height="40"
+                                                     src="{{ asset('build/images/avatar.png') }}"/>
+                                            {% endif %}
+                                        </div>
+                                        <div class="uk-width-expand">
+                                            <a href="{{ path('profile_index', {'id' : paginatedUser.id}) }}">
+                                                <h3 class="uk-card-title-small uk-margin-remove-bottom">{{ paginatedUser.firstName }} {{ paginatedUser.lastName }}</h3>
+                                            </a>
+                                            <p class="uk-text-meta uk-margin-remove-top">
+                                                {% if paginatedUser.company is defined and paginatedUser.company is not null %}
+                                                    <span><a href="{{ path('company_view', {'id' : paginatedUser.company.id}) }}">{{ paginatedUser.company.name }}</a></span>
+                                                {% else %}
+                                                    <span>Professional</span>
+                                                {% endif %}
+
+                                                {% if paginatedUser.primaryIndustry is defined and paginatedUser.primaryIndustry is not null %}
+                                                    <span>{{ paginatedUser.primaryIndustry.name }}</span>
+                                                {% endif %}
+
+                                                {% if paginatedUser.secondaryIndustries is defined and paginatedUser.secondaryIndustries is not null and paginatedUser.secondaryIndustries|length > 0 %}
+                                                    <span>{{ paginatedUser.secondaryIndustries[0].name }}</span>
+                                                {% endif %}
+
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="uk-card-body">
+                                    <div class="uk-margin">
+
+                                        {% if paginatedUser.briefBio is defined and paginatedUser.briefBio is not null %}
+
+                                            {{ paginatedUser.briefBio|length > 50 ? paginatedUser.briefBio|slice(0, 50) ~ '...' : paginatedUser.briefBio }}
+                                        {% else %}
+                                            This professional hasn't added a description yet.
+                                        {% endif %}
+                                    </div>
+                                    {% if paginatedUser.interests is defined and paginatedUser.interests is not null %}
+                                        <div class="uk-margin">
+                                            <strong>Interests:</strong> {{ paginatedUser.interests }}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="professional-links">
+
+                                        {% if paginatedUser.email is defined and paginatedUser.email is not null %}
+                                            <a href="mailto:{{ paginatedUser.email }}"
+                                               class="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                                        {% endif %}
+
+                                        {% if paginatedUser.phone is defined and paginatedUser.phone is not null %}
+                                            <a href="tel:{{ paginatedUser.phone }}"
+                                               class="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a>
+                                        {% endif %}
+
+                                        {% if paginatedUser.linkedinProfile is defined and paginatedUser.linkedinProfile is not null %}
+                                            <a href="{{ paginatedUser.linkedinProfile }}"
+                                               class="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"
+                                               target="_blank"></a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        {# display navigation #}
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    </div>
+
+{% endblock %}

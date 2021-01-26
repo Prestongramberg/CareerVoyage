@@ -1,0 +1,151 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Schools{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+
+        {% if form.name is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.name, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <input type="text" id="item_filter_zipcode" name="zipcode" class="uk-input" placeholder="Enter Zip Code"
+                   value="{{ zipcode }}">
+        </div>
+
+        {% if form.radius is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.radius, {'attr': {'class': 'uk-select', 'placeholder': 'Filter by Radius'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <button class="uk-button uk-button-primary">Search</button>
+            <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
+        </div>
+        {{ form_end(form) }}
+        <br>
+
+        <div class="count">
+            Total Schools: {{ pagination.getTotalItemCount }}
+        </div>
+        <br>
+
+        <div class="schools__all">
+
+            <div class="uk-grid" data-uk-grid>
+                <div class="uk-width-1-1 company-listings">
+
+                    {% for paginatedSchool in pagination %}
+
+                        <div class="uk-card uk-card-default uk-grid-collapse uk-flex-center uk-margin" data-uk-grid>
+                            <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m">
+                                <div class="school-listing__image uk-height-1-1 uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+                                     style="background-image: url({{ paginatedSchool.thumbnailImageURL }}); min-height: 150px">
+                                </div>
+                            </div>
+                            <div class="uk-width-1-1 uk-width-expand@m">
+                                <div class="uk-card-body">
+                                    <div class="school-listing__meta">
+                                        <a href="{{ path('school_view', {'id' : paginatedSchool.id}) }}">
+                                        <h4 class="uk-card-title-small uk-heading-divider">{{ paginatedSchool.name }}</h4>
+                                        </a>
+                                        <p>{{ paginatedSchool.shortDescription }}</p>
+                                        <div class="uk-grid uk-flex-middle" data-uk-grid>
+                                            <div class="uk-width-auto">
+                                                <div class="school-links">
+
+                                                    {% if paginatedSchool.website %}
+                                                        <a href="paginatedSchool.website" target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="world"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.phone %}
+                                                        <a href="tel:{{ paginatedSchool.phone }}"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="receiver"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.email %}
+                                                        <a href="mailto:{{ paginatedSchool.email }}"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="mail"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.schoolLinkedInPage %}
+                                                        <a href="{{ paginatedSchool.schoolLinkedInPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="linkedin"></a>
+
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.schoolFacebookPage %}
+                                                        <a href="{{ paginatedSchool.schoolFacebookPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="facebook"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.schoolInstagramPage %}
+                                                        <a href="{{ paginatedSchool.schoolInstagramPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="instagram"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.schoolTwitterPage %}
+                                                        <a href="{{ paginatedSchool.schoolTwitterPage }}" target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="twitter"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedSchool.latitude and paginatedSchool.longitude %}
+                                                        <a href="http://maps.google.com/?q={{ paginatedSchool.street }},{{ paginatedSchool.city }},{{ paginatedSchool.zipcode }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="location"></a>
+                                                    {% endif %}
+
+                                                </div>
+                                            </div>
+                                            <div class="uk-width-expand uk-visible@m">
+                                                <div class="uk-align-right">
+                                                    <a href="{{ path('school_view', {id: paginatedSchool.id}) }}" class="uk-button uk-button-small uk-button-text uk-text-muted">More
+                                                    info</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <br>
+        <br>
+        {# display navigation #}
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
