@@ -15,7 +15,7 @@ App\Entity\RolesWillingToFulfill:
   role_4:
     name: 'Informational interviewer'
     description: 'Up to a one hour interview where a professional meets with up to 5 students to provide information on their career field, the nature and rewards of the work and the pathways to get into that career.'
-    eventName: 'Informational interview'
+    eventName: 'Informational interview (Virtual or In-Person)'
   role_5:
     name: 'Job shadow host'
     description: 'A short-term experience  at a business that helps students explore a range of career options and begin to identify a career field or pathway of interest.'
