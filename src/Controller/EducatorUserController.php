@@ -13,10 +13,13 @@ use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\School;
+use App\Entity\SchoolAdministrator;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StateCoordinator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
+use App\Form\Filter\EducatorFilterType;
 use App\Form\ManageEducatorsFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
@@ -152,19 +155,105 @@ class EducatorUserController extends AbstractController
     }
 
     /**
-     * @Route("/", name="educator_index", methods={"GET"})
+     * @Route("/", name="educator_results_page", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction(Request $request) {
+    public function educatorResultsAction(Request $request)
+    {
 
-        $educatorUsers = $this->educatorUserRepository->getAll();
-
+        /** @var User $user */
         $user = $this->getUser();
-        return $this->render('educators/index.html.twig', [
-            'user' => $user,
-            'educatorUsers' => $educatorUsers
-        ]);
+
+        $form = $this->createForm(
+            EducatorFilterType::class, null, [
+                                             'method' => 'GET',
+                                         ]
+        );
+
+        $form->handleRequest($request);
+
+        $useRegionFiltering = false;
+        $regions            = [];
+        if ($user->isSchoolAdministrator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var SchoolAdministrator $user */
+            foreach ($user->getSchools() as $school) {
+
+                if (!$school->getRegion()) {
+                    continue;
+                }
+
+                $regions[] = $school->getRegion()->getId();
+            }
+        }
+
+        if ($user->isProfessional()) {
+
+            $useRegionFiltering = true;
+
+            /** @var ProfessionalUser $user */
+
+            foreach ($user->getRegions() as $region) {
+
+                $regions[] = $region->getId();
+            }
+        }
+
+        if ($user->isStudent() || $user->isEducator()) {
+
+            $useRegionFiltering = true;
+
+            /** @var StudentUser|EducatorUser $user */
+
+            if ($user->getSchool() && $user->getSchool()->getRegion()) {
+                $regions[] = $user->getSchool()->getRegion()->getId();
+            }
+        }
+
+        $regions = array_unique($regions);
+
+        if ($useRegionFiltering) {
+            $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u')
+                                                              ->leftJoin('u.school', 'school')
+                                                              ->leftJoin('school.region', 'region')
+                                                              ->andWhere('region.id IN (:regions)')
+                                                              ->andWhere('u.deleted = 0')
+                                                              ->setParameter('regions', $regions)
+                                                              ->addOrderBy('u.firstName', 'ASC');
+        } else {
+
+            $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u')
+                                                              ->andWhere('u.deleted = 0')
+                                                              ->addOrderBy('u.firstName', 'ASC');
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'educators/results.html.twig', [
+                                                 'user'         => $user,
+                                                 'pagination'   => $pagination,
+                                                 'form'         => $form->createView(),
+                                                 'zipcode'      => $request->query->get('zipcode', ''),
+                                                 'clearFormUrl' => $this->generateUrl('educator_results_page'),
+                                             ]
+        );
     }
 
     /**

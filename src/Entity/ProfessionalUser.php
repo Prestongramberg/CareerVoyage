@@ -121,12 +121,12 @@ class ProfessionalUser extends User
     private $allowedCommunications;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="decimal", precision=9, scale=6, nullable=true)
      */
     private $latitude;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="decimal", precision=9, scale=6, nullable=true)
      */
     private $longitude;
 
@@ -185,7 +185,6 @@ class ProfessionalUser extends User
      */
     private $regions;
 
-    
     public function __construct()
     {
         parent::__construct();
@@ -659,29 +658,29 @@ class ProfessionalUser extends User
 	 * @return string
 	 */
 	public function getGeoRadius(): ?string {
-                                       		return $this->geoRadius;
-                                       	}
+                                                		return $this->geoRadius;
+                                                	}
 
 	/**
 	 * @param string $geoRadius
 	 */
 	public function setGeoRadius( ?string $geoRadius ): void {
-                                       		$this->geoRadius = $geoRadius;
-                                       	}
+                                                		$this->geoRadius = $geoRadius;
+                                                	}
 
 	/**
 	 * @return string
 	 */
 	public function getGeoZipCode(): ?string {
-                                       		return $this->geoZipCode;
-                                       	}
+                                                		return $this->geoZipCode;
+                                                	}
 
 	/**
 	 * @param string $geoZipCode
 	 */
 	public function setGeoZipCode( ?string $geoZipCode ): void {
-                                       		$this->geoZipCode = $geoZipCode;
-                                       	}
+                                                		$this->geoZipCode = $geoZipCode;
+                                                	}
 
     /**
      * @return Collection|ProfessionalVideo[]

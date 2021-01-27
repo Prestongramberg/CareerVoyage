@@ -12,6 +12,7 @@ import {deepObject} from "./react/utilities/object-utils";
 import {secondsToHHMM} from "./react/utilities/string-utils";
 import { saveAs } from 'file-saver';
 import swal from 'sweetalert';
+import * as api  from 'react/utilities/api/api'
 
 // loads the Icon plugin
 UIkit.use(Icons);
@@ -246,6 +247,20 @@ window.Pintex = {
 $(document).on('click', '.close-modal-button', function(){
     UIkit.modal('#global-modal').hide();
 });
+
+$(document).on('change', '.js-primary-industry', function(){
+    this.form.submit();
+});
+
+
+$(document).on('click', '.js-un-teach-lesson', function(){
+
+});
+
+$(document).on('click', '.js-teach-lesson', function(){
+
+});
+
 
 // React
 require('./react/root');

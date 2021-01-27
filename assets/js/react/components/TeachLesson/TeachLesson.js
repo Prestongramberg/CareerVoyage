@@ -24,11 +24,11 @@ class TeachLesson extends Component {
         const staticText = this.props.isTeacher ? "Lessons I want Taught" : "Lessons I can Teach";
 
         if( isTeachable ) {
-            return <span className="teach-lesson" data-uk-tooltip={`title: Remove from ${staticText}`} onClick={this.unTeachLesson}>
+            return <span className="js-un-teach-lesson" data-uk-tooltip={`title: Remove from ${staticText}`} onClick={this.unTeachLesson}>
                         <i className="fa fa-graduation-cap" aria-hidden="true"></i>
                     </span>
         } else {
-            return <span className="teach-lesson" data-uk-tooltip={`title: Add to ${staticText}`} onClick={this.teachLesson}>
+            return <span className="js-teach-lesson" data-uk-tooltip={`title: Add to ${staticText}`} onClick={this.teachLesson}>
                         <i style={{ opacity: 0.5 }} className="fa fa-graduation-cap" aria-hidden="true"></i>
                     </span>
         }

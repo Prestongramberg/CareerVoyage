@@ -156,13 +156,13 @@ class School
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="decimal", precision=9, scale=6, nullable=true)
      */
     private $latitude;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="decimal", precision=9, scale=6, nullable=true)
      */
     private $longitude;
 
