@@ -12,7 +12,6 @@ import {deepObject} from "./react/utilities/object-utils";
 import {secondsToHHMM} from "./react/utilities/string-utils";
 import { saveAs } from 'file-saver';
 import swal from 'sweetalert';
-import * as api  from 'react/utilities/api/api'
 
 // loads the Icon plugin
 UIkit.use(Icons);
