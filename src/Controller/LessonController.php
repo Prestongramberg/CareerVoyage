@@ -16,6 +16,8 @@ use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EditLessonType;
+use App\Form\Filter\LessonFilterType;
+use App\Form\Filter\ProfessionalFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -93,6 +95,179 @@ class LessonController extends AbstractController
     }
 
     /**
+     * @Route("/lessons/results", name="lessons_results_page", methods={"GET"})
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function resultsPageAction(Request $request)
+    {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $favoritedLessons = $this->lessonFavoriteRepository->findBy(
+            [
+                'user' => $this->getUser(),
+            ]
+        );
+
+        // teachable lessons
+        $teachableLessons = $this->lessonTeachableRepository->findBy(
+            [
+                'user' => $this->getUser(),
+            ]
+        );
+
+        $form = $this->createForm(
+            LessonFilterType::class, null, [
+                                       'method' => 'GET',
+                                   ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->lessonRepository->createQueryBuilder('l')
+                                                ->addOrderBy('l.title', 'ASC');
+
+        // TODO LOOK AT API/LESSONCONTROLLER.PHP TO SEE IF YOU NEED TO MODIFY THE QUERY
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'lesson/results.html.twig', [
+                                          'favoritedLessons' => $favoritedLessons,
+                                          'teachableLessons' => $teachableLessons,
+                                          'user'             => $user,
+                                          'pagination'       => $pagination,
+                                          'form'             => $form->createView(),
+                                          'clearFormUrl'     => $this->generateUrl('lessons_results_page'),
+                                      ]
+        );
+    }
+
+    /**
+     * @Route("/lessons/teachable", name="lessons_teachable_page", methods={"GET"})
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function teachableAction(Request $request)
+    {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        // teachable lessons
+        $lessons = $this->lessonTeachableRepository->findBy(
+            [
+                'user' => $this->getUser(),
+            ]
+        );
+
+        $form = $this->createForm(
+            LessonFilterType::class, null, [
+                                       'method' => 'GET',
+                                   ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->lessonRepository->createQueryBuilder('l')
+                                                ->innerJoin('l.lessonTeachables', 'lt')
+                                                ->innerJoin('lt.user', 'u')
+                                                ->andWhere('u.id = :userId')
+                                                ->setParameter('userId', $user->getId())
+                                                ->addOrderBy('l.title', 'ASC');
+
+        // TODO LOOK AT API/LESSONCONTROLLER.PHP TO SEE IF YOU NEED TO MODIFY THE QUERY
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'lesson/teachable.html.twig', [
+                                            'user'         => $user,
+                                            'pagination'   => $pagination,
+                                            'form'         => $form->createView(),
+                                            'clearFormUrl' => $this->generateUrl('lessons_results_page'),
+                                        ]
+        );
+    }
+
+    /**
+     * @Route("/lessons/my-created", name="lessons_my_created", methods={"GET"})
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function myCreatedAction(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(
+            LessonFilterType::class, null, [
+                                       'method' => 'GET',
+                                   ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->lessonRepository->createQueryBuilder('l')
+                                                ->andWhere('l.user = :user')
+                                                ->setParameter('user', $user)
+                                                ->addOrderBy('l.title', 'ASC');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+
+        return $this->render(
+            'lesson/my_created.html.twig', [
+                                             'user'         => $user,
+                                             'pagination'   => $pagination,
+                                             'form'         => $form->createView(),
+                                             'clearFormUrl' => $this->generateUrl('lessons_my_created'),
+                                         ]
+        );
+    }
+
+    /**
      * @Route("/lessons/new", name="lesson_new", options = { "expose" = true })
      * @param Request $request
      *
@@ -132,7 +307,7 @@ class LessonController extends AbstractController
             if ($request->request->get('add_resource') == 'Yes') {
                 return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId(), 'tab' => 'resources']);
             } else {
-                return $this->redirectToRoute('lesson_index');
+                return $this->redirectToRoute('lessons_results_page');
             }
 
         }
@@ -185,11 +360,12 @@ class LessonController extends AbstractController
                     return false;
                 }
 
-                foreach($lessonCreator->getRegions() as $region) {
-                    if($region->getId() === $user->getSchool()->getRegion()->getId()) {
+                foreach ($lessonCreator->getRegions() as $region) {
+                    if ($region->getId() === $user->getSchool()->getRegion()->getId()) {
                         return true;
                     }
                 }
+
                 return false;
 
             }
@@ -552,8 +728,8 @@ class LessonController extends AbstractController
         }
 
 
-        if($resource) {
-            $mimeType = $resource->getMimeType();
+        if ($resource) {
+            $mimeType    = $resource->getMimeType();
             $newFilename = $this->uploaderHelper->upload($resource, UploaderHelper::LESSON_RESOURCE);
 
             $file->setOriginalName($resource->getClientOriginalName() ?? $newFilename);
@@ -573,10 +749,10 @@ class LessonController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success' => true,
-                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/'.UploaderHelper::LESSON_RESOURCE.'/'. $file->getFileName(),
-                    'id' => $file->getId(),
-                    'title' => $file->getTitle(),
+                    'success'     => true,
+                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $file->getFileName(),
+                    'id'          => $file->getId(),
+                    'title'       => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK

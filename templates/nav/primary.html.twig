@@ -13,7 +13,7 @@
 
             <li><a href="{{ path('dashboard') }}">Home</a></li>
             {% if user.isStudent == false %}
-                <li><a href="{{ path('lesson_index') }}">Search Lessons</a></li>
+                <li><a href="{{ path('lessons_results_page') }}">Search Lessons</a></li>
                 <li><a href="{{ path('school_results_page') }}">Find Schools</a></li>
             {% endif %}
             {% if user.isStudent == true %}

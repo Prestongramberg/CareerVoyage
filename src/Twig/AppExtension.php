@@ -164,7 +164,43 @@ class AppExtension extends AbstractExtension
             new TwigFunction('quote_array_elements_for_react', [$this, 'quoteArrayElementsForReact']),
             new TwigFunction('get_site', [$this, 'getSite']),
             new TwigFunction('user_can_chat_with_user', [$this, 'userCanChatWithUser']),
+            new TwigFunction('user_favorited_lesson', [$this, 'userFavoritedLesson']),
+            new TwigFunction('user_can_teach_lesson', [$this, 'userCanTeachLesson']),
         ];
+    }
+
+    /**
+     * @param User   $user
+     * @param Lesson $lesson
+     *
+     * @return bool
+     */
+    public function userFavoritedLesson(User $user, Lesson $lesson) {
+
+        foreach($lesson->getLessonFavorites() as $lessonFavorite) {
+            if($lessonFavorite->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param User   $user
+     * @param Lesson $lesson
+     *
+     * @return bool
+     *
+     */
+    public function userCanTeachLesson(User $user, Lesson $lesson) {
+
+        foreach($lesson->getLessonTeachables() as $lessonTeachable) {
+
+            if($lessonTeachable->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function getUploadedAssetPath(string $path): string

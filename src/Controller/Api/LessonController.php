@@ -228,9 +228,10 @@ class LessonController extends AbstractController
     }
 
     /**
-     * @Route("/lessons/{id}/teach", name="teach_lesson", methods={"POST"}, options = { "expose" = true })
+     * @Route("/lessons/{id}/teach", name="teach_lesson", methods={"POST", "GET"}, options = { "expose" = true })
      * @param Lesson $lesson
-     * @return JsonResponse
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function teachLesson(Lesson $lesson) {
 
@@ -240,14 +241,7 @@ class LessonController extends AbstractController
         ]);
 
         if($lessonObj) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'message' => 'lesson has already been added as a teachable lesson.',
-
-                ],
-                Response::HTTP_OK
-            );
+            return $this->redirectToRoute('lessons_results_page');
         }
 
         $lessonTeachable = new LessonTeachable();
@@ -257,18 +251,14 @@ class LessonController extends AbstractController
         $this->entityManager->persist($lessonTeachable);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
-            ],
-            Response::HTTP_OK
-        );
+        return $this->redirectToRoute('lessons_results_page');
     }
 
     /**
-     * @Route("/lessons/{id}/unteach", name="unteach_lesson", methods={"POST"}, options = { "expose" = true })
+     * @Route("/lessons/{id}/unteach", name="unteach_lesson", methods={"POST", "GET"}, options = { "expose" = true })
      * @param Lesson $lesson
-     * @return JsonResponse
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function unteachLesson(Lesson $lesson) {
 
@@ -281,23 +271,10 @@ class LessonController extends AbstractController
             $this->entityManager->remove($lessonObj);
             $this->entityManager->flush();
 
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'message' => 'lesson removed from teachable lessons.',
-                ],
-                Response::HTTP_OK
-            );
+            return $this->redirectToRoute('lessons_results_page');
         }
 
-        return new JsonResponse(
-            [
-                'success' => false,
-                'message' => 'lesson cannot be removed from teachable lessons cause it does not exist in the teachable lessons for this user.',
-            ],
-            Response::HTTP_OK
-        );
-
+        return $this->redirectToRoute('lessons_results_page');
     }
 
     /**
