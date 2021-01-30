@@ -21,7 +21,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
     {% endfor %}
 
     {# HISTORY TAB #}
@@ -30,7 +30,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set history_approvedByMe_denied = 0 %}
@@ -38,7 +38,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
     {% endfor %}
 
     {% set history_approvalIRequested_approved = 0 %}
@@ -46,7 +46,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set history_approvalIRequested_denied= 0 %}
@@ -54,7 +54,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
     {% endfor %}
 
     {% set myCompanyExperience_approved = 0 %}
@@ -62,7 +62,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set myCompanyExperience_denied = 0 %}
@@ -70,7 +70,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
     {% endfor %}
 
     {% set mySchoolExperience_approved = 0 %}
@@ -78,7 +78,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
     {% endfor %}
 
     {% set mySchoolExperience_denied = 0 %}
@@ -86,7 +86,7 @@
         {% if user.isStudent() and request.studentHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
         {% if user.isEducator() and request.educatorHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
         {% if user.isProfessional() and request.professionalHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
+        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
     {% endfor %}
 
 
