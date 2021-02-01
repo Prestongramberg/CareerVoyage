@@ -29,6 +29,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\StateCoordinatorRepository;
+use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
@@ -145,6 +146,31 @@ class AdminController extends AbstractController
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/event-types/list", name="admin_event_types_list")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function listEventType(Request $request) {
+        $user = $this->getUser();
+
+        $roles = $this->rolesWillingToFulfillRepository->findBy(array(), array('name' => 'ASC'));
+        // $roles = $this->rolesWillingToFulfillRepository->findBy(
+        //         ['userRole' => $v[0]],
+        //         ['position' => 'ASC']
+        //     );
+        // }
+
+        return $this->render('admin/list_event_type.html.twig', [
+            'user' => $user,
+            'roles' => $roles
+        ]);
+    }
+
+
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/event-types/new", name="admin_event_types_new")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -169,10 +195,46 @@ class AdminController extends AbstractController
             $this->entityManager->persist($role);
             $this->entityManager->flush();
             $this->addFlash('success', 'New experience type has been created.');
-            return $this->redirectToRoute('admin_role_new');
+            return $this->redirectToRoute('admin_event_types_list');
         }
 
         return $this->render('admin/new_event_type.html.twig', [
+            'user' => $user,
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/event-types/{id}/edit", name="admin_event_types_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param RolesWillingToFulfill $role
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function editEventType(Request $request, RolesWillingToFulfill $role) {
+
+        $user = $this->getUser();
+
+
+        $form = $this->createForm(EventTypeFormType::class, $role, [
+            'method' => 'POST'
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var $role RolesWillingToFulfill */
+            $role = $form->getData();
+            $role->setEventName($role->getName());
+
+            $this->entityManager->persist($role);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Experience type has been edited.');
+            return $this->redirectToRoute('admin_event_types_list');
+        }
+
+        return $this->render('admin/edit_event_type.html.twig', [
             'user' => $user,
             'form' => $form->createView()
         ]);
