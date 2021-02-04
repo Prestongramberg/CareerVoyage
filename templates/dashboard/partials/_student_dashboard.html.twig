@@ -150,11 +150,12 @@
                         </div>
                     </div>
 
-
-                    <div class="user_preferences_feedback">
-                        {# FEEDBACK WIDGET #}
-                        {{ feedback_widget(user)|raw }}
-                    </div>
+                    {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
+                        <div class="user_preferences_feedback">
+                            {# FEEDBACK WIDGET #}
+                            {{ feedback_widget(user)|raw }}
+                        </div>
+                    {% endif %}
 
                     <div class="user_preferences_reviews">
                         {# Professional Events with feedback and events missing feedback #}
