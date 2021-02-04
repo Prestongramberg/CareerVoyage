@@ -11,7 +11,9 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentReviewMeetProfessionalExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
+use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\TeachLessonExperience;
+use App\Entity\CompanyExperience;
 use App\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -187,10 +189,10 @@ class FeedbackGenerator implements \Iterator
             }
 
             if($this->userContext->isProfessional()) {
-
                 return (
                     $experience instanceof StudentToMeetProfessionalExperience ||
-                    $experience instanceof TeachLessonExperience
+                    $experience instanceof TeachLessonExperience ||
+                    $experience instanceof CompanyExperience
                 );
             }
 
@@ -271,7 +273,8 @@ class FeedbackGenerator implements \Iterator
                     return (
                         $feedback instanceof StudentReviewMeetProfessionalExperienceFeedback ||
                         $feedback instanceof StudentReviewTeachLessonExperienceFeedback ||
-                        $feedback instanceof EducatorReviewTeachLessonExperienceFeedback
+                        $feedback instanceof EducatorReviewTeachLessonExperienceFeedback ||
+                        $feedback instanceof StudentReviewCompanyExperienceFeedback
                     );
                 }
 

@@ -72,7 +72,7 @@ class FeedbackExtension extends AbstractExtension
         if($school) {
             $experiences = $this->experienceRepository->fetchEntitiesBySchool($school);
         } else {
-            $experiences = $experience ? [$experience] : $this->experienceRepository->findAll();
+            $experiences = $experience ? [$experience] : $this->experienceRepository->findAll(['start_date_and_time' => 'desc']);
         }
 
         if(empty($experiences)) {
@@ -89,7 +89,7 @@ class FeedbackExtension extends AbstractExtension
         );
 
         if($this->twig->getLoader()->exists($template)) {
-            return $this->twig->render($template, ['feedbackGenerator' => $feedbackGenerator,]);
+            return $this->twig->render($template, ['feedbackGenerator' => $feedbackGenerator]);
         }
 
         return $this->twig->render('widget/feedback/not_found.html.twig', ['user' => $user]);
