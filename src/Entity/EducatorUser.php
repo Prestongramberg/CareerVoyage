@@ -114,11 +114,11 @@ class EducatorUser extends User
     public function __construct()
     {
         parent::__construct();
-        $this->secondaryIndustries = new ArrayCollection();
-        $this->studentUsers = new ArrayCollection();
-        $this->educatorReviewCompanyExperienceFeedback = new ArrayCollection();
+        $this->secondaryIndustries                         = new ArrayCollection();
+        $this->studentUsers                                = new ArrayCollection();
+        $this->educatorReviewCompanyExperienceFeedback     = new ArrayCollection();
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
-        $this->myCourses = new ArrayCollection();
+        $this->myCourses                                   = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -245,21 +245,29 @@ class EducatorUser extends User
 
     /**
      * first name - period - last name (- period - random string)
+     *
      * @return string
      */
-    public function getTempUsername($similarUsernameCount) {
+    public function getTempUsername($similarUsernameCount)
+    {
 
         if ($similarUsernameCount) {
-            return strtolower(sprintf("%s.%s.%s",
-                $this->firstName,
-                $this->lastName,
-                $similarUsernameCount
-            ));
+            return strtolower(
+                sprintf(
+                    "%s.%s.%s",
+                    $this->firstName,
+                    $this->lastName,
+                    $similarUsernameCount
+                )
+            );
         } else {
-            return strtolower(sprintf("%s.%s",
-                $this->firstName,
-                $this->lastName
-            ));
+            return strtolower(
+                sprintf(
+                    "%s.%s",
+                    $this->firstName,
+                    $this->lastName
+                )
+            );
         }
     }
 
@@ -281,19 +289,42 @@ class EducatorUser extends User
      */
     public function getAlphabeticallySortedStudentUsers(): Collection
     {
-        $students = array();
+        $students     = array ();
         $student_list = $this->studentUsers->toArray();
-        foreach($student_list as $student){
-            if($student->activated == 1){
+        foreach ($student_list as $student) {
+            if ($student->activated == 1) {
                 array_push($students, $student);
             }
         }
 
-        usort($students, function($a, $b) {
+        usort(
+            $students, function ($a, $b) {
             return strcmp($a->lastName, $b->lastName);
-        });
+        }
+        );
 
         return new ArrayCollection($students);
+    }
+
+    /**
+     * @return Collection|StudentUser[]
+     */
+    public function getActiveStudentUsers(): Collection
+    {
+        $students = $this->getAlphabeticallySortedStudentUsers();
+
+        $activeStudents = new ArrayCollection();
+        /** @var StudentUser $studentUser */
+        foreach ($students as $studentUser) {
+
+            if (!$studentUser->getActivated()) {
+                continue;
+            }
+
+            $activeStudents->add($studentUser);
+        }
+
+        return $activeStudents;
     }
 
     /**
@@ -322,12 +353,14 @@ class EducatorUser extends User
         return $this;
     }
 
-    public function hasStudentUserInClass(StudentUser $studentUserToCheck) {
-        foreach($this->getStudentUsers() as $studentUser) {
-            if($studentUserToCheck->getId() === $studentUser->getId()) {
+    public function hasStudentUserInClass(StudentUser $studentUserToCheck)
+    {
+        foreach ($this->getStudentUsers() as $studentUser) {
+            if ($studentUserToCheck->getId() === $studentUser->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -339,8 +372,9 @@ class EducatorUser extends User
         return $this->educatorReviewCompanyExperienceFeedback;
     }
 
-    public function addEducatorReviewCompanyExperienceFeedback(EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback): self
-    {
+    public function addEducatorReviewCompanyExperienceFeedback(
+        EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback
+    ): self {
         if (!$this->educatorReviewCompanyExperienceFeedback->contains($educatorReviewCompanyExperienceFeedback)) {
             $this->educatorReviewCompanyExperienceFeedback[] = $educatorReviewCompanyExperienceFeedback;
             $educatorReviewCompanyExperienceFeedback->setEducator($this);
@@ -349,8 +383,9 @@ class EducatorUser extends User
         return $this;
     }
 
-    public function removeEducatorReviewCompanyExperienceFeedback(EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback): self
-    {
+    public function removeEducatorReviewCompanyExperienceFeedback(
+        EducatorReviewCompanyExperienceFeedback $educatorReviewCompanyExperienceFeedback
+    ): self {
         if ($this->educatorReviewCompanyExperienceFeedback->contains($educatorReviewCompanyExperienceFeedback)) {
             $this->educatorReviewCompanyExperienceFeedback->removeElement($educatorReviewCompanyExperienceFeedback);
             // set the owning side to null (unless already changed)
@@ -370,8 +405,9 @@ class EducatorUser extends User
         return $this->educatorReviewTeachLessonExperienceFeedback;
     }
 
-    public function addEducatorReviewTeachLessonExperienceFeedback(EducatorReviewTeachLessonExperienceFeedback $educatorReviewTeachLessonExperienceFeedback): self
-    {
+    public function addEducatorReviewTeachLessonExperienceFeedback(
+        EducatorReviewTeachLessonExperienceFeedback $educatorReviewTeachLessonExperienceFeedback
+    ): self {
         if (!$this->educatorReviewTeachLessonExperienceFeedback->contains($educatorReviewTeachLessonExperienceFeedback)) {
             $this->educatorReviewTeachLessonExperienceFeedback[] = $educatorReviewTeachLessonExperienceFeedback;
             $educatorReviewTeachLessonExperienceFeedback->setEducator($this);
@@ -380,8 +416,9 @@ class EducatorUser extends User
         return $this;
     }
 
-    public function removeEducatorReviewTeachLessonExperienceFeedback(EducatorReviewTeachLessonExperienceFeedback $educatorReviewTeachLessonExperienceFeedback): self
-    {
+    public function removeEducatorReviewTeachLessonExperienceFeedback(
+        EducatorReviewTeachLessonExperienceFeedback $educatorReviewTeachLessonExperienceFeedback
+    ): self {
         if ($this->educatorReviewTeachLessonExperienceFeedback->contains($educatorReviewTeachLessonExperienceFeedback)) {
             $this->educatorReviewTeachLessonExperienceFeedback->removeElement($educatorReviewTeachLessonExperienceFeedback);
             // set the owning side to null (unless already changed)
