@@ -284,7 +284,7 @@ HERE;
         $startDate = null, $endDate = null, $searchQuery = null, $eventType = null, $industry = null, $secondaryIndustry = null, $regionIds = []
     ) {
 
-        $query = sprintf('SELECT DISTINCT e.id, e.title, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "CompanyExperience" as className from company_experience ce INNER JOIN experience e on e.id = ce.id 
+        $query = sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "CompanyExperience" as className from company_experience ce INNER JOIN experience e on e.id = ce.id 
 LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
 LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
 LEFT JOIN industry i on i.id = si.primary_industry_id
