@@ -11,23 +11,32 @@ export default (state = {}, action) => {
         case actionTypes.SEARCH_QUERY_CHANGED:
             return {
                 ...state,
-                query: action.query
+                query: action.query,
+                refetchEvents: true
             };
         case actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED:
             return {
                 ...state,
                 industry: action.industry,
-                secondaryIndustry: ''
+                secondaryIndustry: '',
+                refetchEvents: true
+            };
+        case actionTypes.EVENTS_REFRESHED:
+            return {
+                ...state,
+                refetchEvents: false
             };
         case actionTypes.SECONDARY_INDUSTRY_QUERY_CHANGED:
             return {
                 ...state,
-                secondaryIndustry: action.industry
+                secondaryIndustry: action.industry,
+                refetchEvents: true
             };
         case actionTypes.EVENT_TYPE_QUERY_CHANGED:
             return {
                 ...state,
-                eventType: action.eventType
+                eventType: action.eventType,
+                refetchEvents: true
             }
         case actionTypes.COMPANY_QUERY_CHANGED:
             return {
@@ -37,12 +46,14 @@ export default (state = {}, action) => {
         case actionTypes.RADIUS_CHANGED:
             return {
                 ...state,
-                radius: action.radius
+                radius: action.radius,
+                refetchEvents: true
             };
         case actionTypes.ZIPCODE_CHANGED:
             return {
                 ...state,
-                zipcode: action.zipcode
+                zipcode: action.zipcode,
+                refetchEvents: true
             };
         default:
             return state;

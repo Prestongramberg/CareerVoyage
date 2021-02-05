@@ -53,14 +53,16 @@ class SchoolExperienceRepository extends ServiceEntityRepository
 
     /**
      * @param SecondaryIndustry $secondaryIndustries []
-     * @param int $limit
+     * @param int               $limit
+     *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findBySecondaryIndustries($secondaryIndustries, $limit = 6) {
+    public function findBySecondaryIndustries($secondaryIndustries, $limit = 6)
+    {
 
         $whereClause = [];
-        foreach($secondaryIndustries as $secondaryIndustry) {
+        foreach ($secondaryIndustries as $secondaryIndustry) {
             $whereClause[] = sprintf("secondary_industry_id = %s", $secondaryIndustry->getId());
         }
 
@@ -76,14 +78,16 @@ HERE;
 
         $query = sprintf($query, $whereClause, $limit);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
 
-    public function getNumberOfEventsGroupedBySchoolForRegion(Region $region) {
+    public function getNumberOfEventsGroupedBySchoolForRegion(Region $region)
+    {
 
         $query = <<<HERE
             Select school.id as school_id, school.name as school_name,
@@ -104,9 +108,10 @@ HERE;
 HERE;
 
         $query = sprintf($query, $region->getId(), $region->getId());
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $em    = $this->getEntityManager();
+        $stmt  = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
@@ -114,31 +119,40 @@ HERE;
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findAllFutureEvents() {
-        $query = sprintf("select e.id, e.title, e.brief_description from experience e
+    public function findAllFutureEvents()
+    {
+        $query = sprintf(
+            "select e.id, e.title, e.brief_description from experience e
                 inner join school_experience se on se.id = e.id
                 WHERE e.end_date_and_time >= DATE(NOW()) AND e.cancelled = 0
-                GROUP BY se.id order by e.start_date_and_time ASC");
+                GROUP BY se.id order by e.start_date_and_time ASC"
+        );
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
     /**
      * @param int $days
+     *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findAllFromPastDays($days = 7) {
-        $query = sprintf("select e.id, e.title, e.brief_description from experience e
+    public function findAllFromPastDays($days = 7)
+    {
+        $query = sprintf(
+            "select e.id, e.title, e.brief_description from experience e
           inner join school_experience se on se.id = e.id
-          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = 0 GROUP BY e.id order by e.created_at DESC", $days);
+          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = 0 GROUP BY e.id order by e.created_at DESC", $days
+        );
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
@@ -148,29 +162,74 @@ HERE;
      * 2. You must use the geocoder->calculateSearchSquare() service to return the 4 lat/lng points
      * 3. Then you can call this function!
      *
-     * @param $latN
-     * @param $latS
-     * @param $lonE
-     * @param $lonW
-     * @param $startingLatitude
-     * @param $startingLongitude
-     * @param $schoolId
+     * @param      $latN
+     * @param      $latS
+     * @param      $lonE
+     * @param      $lonW
+     * @param      $startingLatitude
+     * @param      $startingLongitude
+     * @param      $schoolId
+     * @param null $startDate
+     * @param null $endDate
+     *
+     * @param null $searchQuery
+     *
+     * @param null $eventType
+     * @param null $industry
+     * @param null $secondaryIndustry
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId = null) {
+    public function search(
+        $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId = null, $startDate = null,
+        $endDate = null, $searchQuery = null, $eventType = null, $industry = null, $secondaryIndustry = null
+    ) {
 
-        $query = sprintf('SELECT * from school_experience se INNER JOIN experience e on e.id = se.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND e.cancelled = %s',
-            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, 0
-        );
+        $query = sprintf('SELECT DISTINCT e.id, e.title, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "SchoolExperience" as className from school_experience se INNER JOIN experience e on e.id = se.id 
+LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
+LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
+LEFT JOIN industry i on i.id = si.primary_industry_id
+LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+WHERE 1 = 1 AND e.cancelled = %s', 0);
 
-        if($schoolId) {
-            $query .= sprintf('AND se.school_id = %s', $schoolId);
+        if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
+            $query .= sprintf(
+                ' AND e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s)',
+                $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+            );
         }
 
-        $em = $this->getEntityManager();
+        if ($schoolId) {
+            $query .= sprintf(' AND se.school_id = %s', $schoolId);
+        }
+
+        if ($startDate && $endDate) {
+
+            $query .= sprintf(" AND DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s'", $startDate, $endDate);
+
+        }
+
+        if ($searchQuery) {
+            $query .= sprintf(' AND e.title LIKE "%%%s%%"', $searchQuery);
+        }
+
+        if($eventType) {
+            $query .= sprintf(' AND rwtf.id = %s', $eventType);
+        }
+
+        if($industry) {
+            $query .= sprintf(' AND i.id = %s', $industry);
+        }
+
+        if($secondaryIndustry) {
+            $query .= sprintf(' AND si.id = %s', $secondaryIndustry);
+        }
+
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 }

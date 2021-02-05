@@ -1,5 +1,5 @@
 export default function getInitialCalendarState() {
     return {
-        loading: true
+        loading: false
     }
 }
