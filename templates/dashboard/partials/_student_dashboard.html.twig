@@ -54,9 +54,9 @@
                     <li><a href="#user-favorites">My Favorites</a></li>
                     <li><a href="#user-events">My Experiences</a></li>
                     {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
-                        <li><a href="#user-feedback">My Feedback</a></li>
+                        <li><a href="#user-feedback">My Received Feedback</a></li>
                     {% endif %}
-                    <li><a href="#user-reviews">My Reviews</a></li>
+                    <li><a href="#user-reviews">Provide Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -150,11 +150,12 @@
                         </div>
                     </div>
 
-
-                    <div class="user_preferences_feedback">
-                        {# FEEDBACK WIDGET #}
-                        {{ feedback_widget(user)|raw }}
-                    </div>
+                    {% if dashboards['eventsWithFeedbackFromOthers']|length > 0 %}
+                        <div class="user_preferences_feedback">
+                            {# FEEDBACK WIDGET #}
+                            {{ feedback_widget(user)|raw }}
+                        </div>
+                    {% endif %}
 
                     <div class="user_preferences_reviews">
                         {# Professional Events with feedback and events missing feedback #}

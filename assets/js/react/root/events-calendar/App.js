@@ -112,6 +112,7 @@ class App extends React.Component {
                             eventLimit={true}
                             events={this.getEvents}
                             eventClick={(info) => {
+                                debugger;
                                 info.jsEvent.preventDefault(); // don't let the browser navigate
                                 window.Pintex.openCalendarEventDetails(info.event)
                             }}
