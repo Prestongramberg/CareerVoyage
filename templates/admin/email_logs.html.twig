@@ -1,0 +1,47 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Email Logs for {{ user.firstName }} {{ user.lastName }}{% endblock %}
+{% block bodyClass %}page-site-admin{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    <h3>Email Logs for {{ user.firstName }} {{ user.lastName }}</h3>
+                    {% if emailLogs|length %}
+                        <table class="uk-table">
+                            <thead>
+                            <tr>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Sent At</th>
+                                <td>View Email</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for emailLog in emailLogs %}
+                                <tr>
+                                    <td>{{ emailLog.fromEmail }}</td>
+                                    <td>{{ emailLog.toEmail }}</td>
+                                    <td>{{ emailLog.subject }}</td>
+                                    <td>{{ emailLog.status }}</td>
+                                    <td>{{ emailLog.createdAt|date("m/d/Y h:i A") }}</td>
+                                    <td><a target="_blank" href="{{ path('admin_email_log_view_singular', {'id' : emailLog.id}) }}">View</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <h4>No Email Logs Exist For This User!</h4>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
