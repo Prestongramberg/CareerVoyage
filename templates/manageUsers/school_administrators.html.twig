@@ -43,6 +43,7 @@
                         {% if user.admin or user.siteAdmin %}
                             <th>Account Status</th>
                         {% endif %}
+                        <th>Download Emails</th>
                     </tr>
 
                     {# table body #}
@@ -85,6 +86,7 @@
                                 {% endif %}
                             {% endif %}
 
+                            <td><a target="_blank" href="{{ path('admin_email_log_view', {'id': paginatedUser.id}) }}">Email Logs</a></td>
                         </tr>
                     {% endfor %}
                 </table>
