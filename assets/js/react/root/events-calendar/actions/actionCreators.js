@@ -1,10 +1,16 @@
 import * as actionTypes from "./actionTypes";
-import * as api  from '../../../utilities/api/api'
+import * as api from '../../../utilities/api/api'
 
 export function updateSearchQuery(query) {
     return {
         type: actionTypes.SEARCH_QUERY_CHANGED,
         query: query
+    };
+}
+
+export function eventsRefreshed() {
+    return {
+        type: actionTypes.EVENTS_REFRESHED,
     };
 }
 
@@ -16,9 +22,22 @@ export function radiusChanged(radius) {
 }
 
 export function zipcodeChanged(zipcode) {
+
+    if(zipcode.length < 5) {
+        return;
+    }
+
     return {
         type: actionTypes.ZIPCODE_CHANGED,
         zipcode: zipcode
+    };
+}
+
+export function setEvents(events) {
+    debugger;
+    return {
+        type: actionTypes.EVENTS_LOADING_SUCCESS,
+        response: events
     };
 }
 
@@ -30,6 +49,7 @@ export function updateCompanyQuery(company) {
 }
 
 export function updatePrimaryIndustryQuery(industry) {
+    debugger;
     return {
         type: actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED,
         industry: industry
@@ -59,14 +79,14 @@ export function loadEvents(url) {
                 if (response.statusCode < 300) {
                     debugger;
                     dispatch({type: actionTypes.EVENTS_LOADING_SUCCESS, response: response.responseBody})
-                }  else {
+                } else {
                     dispatch({
                         type: actionTypes.EVENTS_LOADING_FAILURE
                     })
 
                 }
             })
-            .catch(()=> dispatch({
+            .catch(() => dispatch({
                 type: actionTypes.EVENTS_LOADING_FAILURE
             }))
     }
