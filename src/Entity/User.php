@@ -20,6 +20,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
+ *
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
  * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT"})
@@ -33,16 +35,16 @@ abstract class User implements UserInterface
 {
     use TimestampableEntity;
 
-    const ROLE_USER = 'ROLE_USER';
-    const ROLE_DASHBOARD_USER = 'ROLE_DASHBOARD_USER';
-    const ROLE_PROFESSIONAL_USER = 'ROLE_PROFESSIONAL_USER';
-    const ROLE_EDUCATOR_USER = 'ROLE_EDUCATOR_USER';
-    const ROLE_STUDENT_USER = 'ROLE_STUDENT_USER';
-    const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
-    const ROLE_STATE_COORDINATOR_USER = 'ROLE_STATE_COORDINATOR_USER';
+    const ROLE_USER                      = 'ROLE_USER';
+    const ROLE_DASHBOARD_USER            = 'ROLE_DASHBOARD_USER';
+    const ROLE_PROFESSIONAL_USER         = 'ROLE_PROFESSIONAL_USER';
+    const ROLE_EDUCATOR_USER             = 'ROLE_EDUCATOR_USER';
+    const ROLE_STUDENT_USER              = 'ROLE_STUDENT_USER';
+    const ROLE_ADMIN_USER                = 'ROLE_ADMIN_USER';
+    const ROLE_STATE_COORDINATOR_USER    = 'ROLE_STATE_COORDINATOR_USER';
     const ROLE_REGIONAL_COORDINATOR_USER = 'ROLE_REGIONAL_COORDINATOR_USER';
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
-    const ROLE_SITE_ADMIN_USER = 'ROLE_SITE_ADMIN_USER';
+    const ROLE_SITE_ADMIN_USER           = 'ROLE_SITE_ADMIN_USER';
 
     /**
      * @Groups({"ALL_USER_DATA", "PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
@@ -260,20 +262,33 @@ abstract class User implements UserInterface
      */
     protected $notificationPreferenceMask;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $profileCompleted = false;
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setProfileStatusEvent(): void
+    {
+        $this->profileCompleted = $this->isProfileCompleted();
+    }
+
     public function __construct()
     {
-        $this->lessonFavorites = new ArrayCollection();
-        $this->lessons = new ArrayCollection();
-        $this->requests = new ArrayCollection();
-        $this->requestsThatNeedMyApproval = new ArrayCollection();
-        $this->companyFavorites = new ArrayCollection();
-        $this->lessonTeachables = new ArrayCollection();
-        $this->chatMessages = new ArrayCollection();
-        $this->registrations = new ArrayCollection();
-        $this->feedback = new ArrayCollection();
+        $this->lessonFavorites                         = new ArrayCollection();
+        $this->lessons                                 = new ArrayCollection();
+        $this->requests                                = new ArrayCollection();
+        $this->requestsThatNeedMyApproval              = new ArrayCollection();
+        $this->companyFavorites                        = new ArrayCollection();
+        $this->lessonTeachables                        = new ArrayCollection();
+        $this->chatMessages                            = new ArrayCollection();
+        $this->registrations                           = new ArrayCollection();
+        $this->feedback                                = new ArrayCollection();
         $this->userRegisterForSchoolExperienceRequests = new ArrayCollection();
-        $this->requestPossibleApprovers = new ArrayCollection();
-        $this->videoFavorites = new ArrayCollection();
+        $this->requestPossibleApprovers                = new ArrayCollection();
+        $this->videoFavorites                          = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -303,6 +318,7 @@ abstract class User implements UserInterface
 
     /**
      * @param mixed $username
+     *
      * @return User
      */
     public function setUsername($username)
@@ -317,7 +333,7 @@ abstract class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(?string $password): self
@@ -341,7 +357,7 @@ abstract class User implements UserInterface
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
-         $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getFirstName(): ?string
@@ -386,6 +402,7 @@ abstract class User implements UserInterface
 
     /**
      * @param string $passwordResetToken
+     *
      * @return User
      * @throws \Exception
      */
@@ -413,6 +430,7 @@ abstract class User implements UserInterface
 
     /**
      * @param DateTime $passwordResetTokenTimestamp
+     *
      * @return User
      * @throws \Exception
      */
@@ -464,8 +482,9 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    public function friendlyRoleName() {
-        if($this->isProfessional()) {
+    public function friendlyRoleName()
+    {
+        if ($this->isProfessional()) {
             return 'professional';
         } elseif ($this->isEducator()) {
             return 'educator';
@@ -606,56 +625,64 @@ abstract class User implements UserInterface
         return false;
     }
 
-    public function setupAsAdmin() {
+    public function setupAsAdmin()
+    {
 
         if (!in_array(self::ROLE_ADMIN_USER, $this->roles)) {
             $this->roles[] = self::ROLE_ADMIN_USER;
         }
     }
 
-    public function setupAsProfessional() {
+    public function setupAsProfessional()
+    {
 
         if (!in_array(self::ROLE_PROFESSIONAL_USER, $this->roles)) {
             $this->roles[] = self::ROLE_PROFESSIONAL_USER;
         }
     }
 
-    public function setupAsStateCoordinator() {
+    public function setupAsStateCoordinator()
+    {
 
         if (!in_array(self::ROLE_STATE_COORDINATOR_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STATE_COORDINATOR_USER;
         }
     }
 
-    public function setupAsRegionalCoordinator() {
+    public function setupAsRegionalCoordinator()
+    {
 
         if (!in_array(self::ROLE_REGIONAL_COORDINATOR_USER, $this->roles)) {
             $this->roles[] = self::ROLE_REGIONAL_COORDINATOR_USER;
         }
     }
 
-    public function setupAsSchoolAdministrator() {
+    public function setupAsSchoolAdministrator()
+    {
 
         if (!in_array(self::ROLE_SCHOOL_ADMINISTRATOR_USER, $this->roles)) {
             $this->roles[] = self::ROLE_SCHOOL_ADMINISTRATOR_USER;
         }
     }
 
-    public function setupAsEducator() {
+    public function setupAsEducator()
+    {
 
         if (!in_array(self::ROLE_EDUCATOR_USER, $this->roles)) {
             $this->roles[] = self::ROLE_EDUCATOR_USER;
         }
     }
 
-    public function setupAsStudent() {
+    public function setupAsStudent()
+    {
 
         if (!in_array(self::ROLE_STUDENT_USER, $this->roles)) {
             $this->roles[] = self::ROLE_STUDENT_USER;
         }
     }
 
-    public function setupAsSiteAdminUser() {
+    public function setupAsSiteAdminUser()
+    {
 
         if (!in_array(self::ROLE_SITE_ADMIN_USER, $this->roles)) {
             $this->roles[] = self::ROLE_SITE_ADMIN_USER;
@@ -909,16 +936,18 @@ abstract class User implements UserInterface
 
     public function getPhotoPath()
     {
-        return UploaderHelper::PROFILE_PHOTO.'/'.$this->getPhoto();
+        return UploaderHelper::PROFILE_PHOTO . '/' . $this->getPhoto();
     }
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "CHAT"})
      */
-    public function getPhotoImageURL() {
-        if($this->getPhoto()) {
+    public function getPhotoImageURL()
+    {
+        if ($this->getPhoto()) {
             return '/media/cache/squared_thumbnail_small/uploads/' . $this->getPhotoPath();
         }
+
         return '';
     }
 
@@ -952,17 +981,17 @@ abstract class User implements UserInterface
 
     public function initializeNewUser($activationCode = true, $invitationCode = false)
     {
-        if($activationCode) {
+        if ($activationCode) {
             $activationCode = bin2hex(random_bytes(32));
             $this->setActivationCode($activationCode);
         }
 
-        if($invitationCode) {
+        if ($invitationCode) {
             $invitationCode = bin2hex(random_bytes(32));
             $this->setInvitationCode($invitationCode);
         }
 
-        $roles = $this->getRoles();
+        $roles         = $this->getRoles();
         $this->roles[] = self::ROLE_DASHBOARD_USER;
     }
 
@@ -979,20 +1008,21 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    public function canEditEvent(Experience $experience) {
+    public function canEditEvent(Experience $experience)
+    {
 
-        if($this->isAdmin()) {
+        if ($this->isAdmin()) {
             return true;
         }
 
-        if($experience instanceof CompanyExperience) {
-            if($experience->getCompany()->isUserOwner($this)) {
+        if ($experience instanceof CompanyExperience) {
+            if ($experience->getCompany()->isUserOwner($this)) {
                 return true;
             }
         }
 
-        if($experience instanceof SchoolExperience) {
-            if($experience->getSchool()->isUserSchoolAdministrator($this)) {
+        if ($experience instanceof SchoolExperience) {
+            if ($experience->getSchool()->isUserSchoolAdministrator($this)) {
                 return true;
             }
         }
@@ -1024,7 +1054,8 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
@@ -1059,7 +1090,8 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    public function canLoginAsAnotherUser() {
+    public function canLoginAsAnotherUser()
+    {
         // return $this->isAdmin() || $this->isSiteAdmin();
         return $this->isAdmin();
     }
@@ -1151,8 +1183,9 @@ abstract class User implements UserInterface
         return $this->userRegisterForSchoolExperienceRequests;
     }
 
-    public function addUserRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest): self
-    {
+    public function addUserRegisterForSchoolExperienceRequest(
+        UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest
+    ): self {
         if (!$this->userRegisterForSchoolExperienceRequests->contains($userRegisterForSchoolExperienceRequest)) {
             $this->userRegisterForSchoolExperienceRequests[] = $userRegisterForSchoolExperienceRequest;
             $userRegisterForSchoolExperienceRequest->setUser($this);
@@ -1161,8 +1194,9 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    public function removeUserRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest): self
-    {
+    public function removeUserRegisterForSchoolExperienceRequest(
+        UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest
+    ): self {
         if ($this->userRegisterForSchoolExperienceRequests->contains($userRegisterForSchoolExperienceRequest)) {
             $this->userRegisterForSchoolExperienceRequests->removeElement($userRegisterForSchoolExperienceRequest);
             // set the owning side to null (unless already changed)
@@ -1267,5 +1301,56 @@ abstract class User implements UserInterface
         $this->notificationPreferenceMask = $notificationPreferenceMask;
 
         return $this;
+    }
+
+    public function getProfileCompleted(): ?bool
+    {
+        return $this->profileCompleted;
+    }
+
+    public function setProfileCompleted(bool $profileCompleted): self
+    {
+        $this->profileCompleted = $profileCompleted;
+
+        return $this;
+    }
+
+    public function isProfileCompleted()
+    {
+
+        $user = $this;
+
+        if ($user->isProfessional()) {
+
+            /** @var ProfessionalUser $user */
+            if (!$user->getCity()) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        if ($user->isEducator()) {
+
+            /** @var EducatorUser $user */
+            if (!$user->getBriefBio()) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        if ($user->isStudent()) {
+
+            /** @var StudentUser $user */
+            if ($user->getSecondaryIndustries()->count() === 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return true;
+
     }
 }

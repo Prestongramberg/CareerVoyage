@@ -27,76 +27,104 @@
                     Total Users: {{ pagination.getTotalItemCount }}
                 </div>
 
-                <table class="uk-table uk-table-small uk-table-divider">
-                    <tr>
-                        <th><input type="checkbox" class="select-all-users" /></th>
-                        <th>ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Username</th>
-                        <th>Company</th>
-                        {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}<th>Login As User</th>{% endif %}
-                        <th>Is Owner</th>
-                        <th>Edit</th>
+                <div class="uk-overflow-auto">
 
-                        {% if user.admin or user.siteAdmin %}
-                            <th>Account Status</th>
-                        {% endif %}
-                    </tr>
-
-                    {# table body #}
-                    {% for paginatedUser in pagination %}
-                        <tr id="user_{{ paginatedUser.id }}">
-                            <td><input type="checkbox" class="select-users" value="{{ paginatedUser.id }}" /></td>
-                            <td>{{ paginatedUser.id }}</td>
-                            <td>{{ paginatedUser.firstName }}</td>
-                            <td>{{ paginatedUser.lastName }}</td>
-                            <td>{{ paginatedUser.email }}</td>
-                            <td>{{ paginatedUser.username }}</td>
-                            <td>
-                                {% if paginatedUser.company is defined and paginatedUser.company is not null %}
-                                    <a href="{{ path('company_edit', {id: paginatedUser.company.id}) }}">{{ paginatedUser.company.name }}</a>
-                                {% else %}
-                                    User does not belong to a company
-                                {% endif %}
-                            </td>
+                    <table class="uk-table uk-table-small uk-table-divider">
+                        <tr>
+                            <th><input type="checkbox" class="select-all-users"/></th>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Company</th>
                             {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
-                                <td>
-                                    <a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
-                                </td>
-                            {% endif %}
-
-                            <td>
-                                {% if paginatedUser.company is defined and paginatedUser.company is not null and paginatedUser.company.owner.id == paginatedUser.id %}
-                                    Yes
-                                {% else %}
-                                    No
-                                {% endif %}
-                            </td>
-
-                            <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a></td>
+                                <th>Login As User</th>{% endif %}
+                            <th>Is Owner</th>
+                            <th>Edit</th>
 
                             {% if user.admin or user.siteAdmin %}
-                                {% if paginatedUser.activated %}
-                                    <td> 
-                                        <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}" data-id="{{ paginatedUser.id }}" class="uk-button uk-button-small uk-label-success">Active</a>
-                                    </td>
-                                {% else %}
-                                    <td> 
-                                        <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}" data-id="{{ paginatedUser.id }}" class="uk-button uk-button-small uk-label-warning">Inactive</a>
-                                        <button data-href="{{ path('profile_delete', {'id': paginatedUser.id}) }}" data-id="{{ paginatedUser.id }}" class="uk-button uk-button-small uk-label-danger">Delete</button>
-                                    </td>
-                                {% endif %}
+                                <th>Account Status</th>
+                            {% endif %}
+
+                            {% if user.admin or user.siteAdmin %}
+                                <th>Download Emails</th>
+                                <th>Profile Completed</th>
                             {% endif %}
 
                         </tr>
-                    {% endfor %}
-                </table>
 
-                <input type="hidden" class='select-users-role' value="manage_professionals" />
+                        {# table body #}
+                        {% for paginatedUser in pagination %}
+                            <tr id="user_{{ paginatedUser.id }}">
+                                <td><input type="checkbox" class="select-users" value="{{ paginatedUser.id }}"/></td>
+                                <td>{{ paginatedUser.id }}</td>
+                                <td>{{ paginatedUser.firstName }}</td>
+                                <td>{{ paginatedUser.lastName }}</td>
+                                <td>{{ paginatedUser.email }}</td>
+                                <td>{{ paginatedUser.username }}</td>
+                                <td>
+                                    {% if paginatedUser.company is defined and paginatedUser.company is not null %}
+                                        <a href="{{ path('company_edit', {id: paginatedUser.company.id}) }}">{{ paginatedUser.company.name }}</a>
+                                    {% else %}
+                                        User does not belong to a company
+                                    {% endif %}
+                                </td>
+                                {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
+                                    <td>
+                                        <a class="uk-button uk-button-small uk-button-default"
+                                           href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
+                                    </td>
+                                {% endif %}
+
+                                <td>
+                                    {% if paginatedUser.company is defined and paginatedUser.company is not null and paginatedUser.company.owner.id == paginatedUser.id %}
+                                        Yes
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+
+                                <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a></td>
+
+                                {% if user.admin or user.siteAdmin %}
+                                    {% if paginatedUser.activated %}
+                                        <td>
+                                            <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}"
+                                                    data-id="{{ paginatedUser.id }}"
+                                                    class="uk-button uk-button-small uk-label-success">Active</a>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}"
+                                                    data-id="{{ paginatedUser.id }}"
+                                                    class="uk-button uk-button-small uk-label-warning">Inactive</a>
+                                                <button data-href="{{ path('profile_delete', {'id': paginatedUser.id}) }}"
+                                                        data-id="{{ paginatedUser.id }}"
+                                                        class="uk-button uk-button-small uk-label-danger">Delete
+                                                </button>
+                                        </td>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if user.admin or user.siteAdmin %}
+                                <td><a target="_blank"
+                                       href="{{ path('admin_email_log_view', {'id': paginatedUser.id}) }}">Email
+                                        Logs</a></td>
+                                <td>{{ paginatedUser.profileCompleted ? 'Yes' : 'No' }}</td>
+                                {% endif %}
+
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                </div>
+
+                <input type="hidden" class='select-users-role' value="manage_professionals"/>
                 <div id="mass-actions" class="uk-margin-bottom">
-                    <button id="mass-deactivate" class="uk-button uk-button-warning" value="deactivate">Deactivate Selected</button>
+                    <button id="mass-deactivate" class="uk-button uk-button-warning" value="deactivate">Deactivate
+                        Selected
+                    </button>
                     <button id="mass-delete" class="uk-button uk-button-danger" value="delete">Delete Selected</button>
                 </div>
                 {# display navigation #}

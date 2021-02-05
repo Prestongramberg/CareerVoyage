@@ -38,6 +38,11 @@ class ManageUserFilterType extends AbstractType
 
         switch ($options['filter_type']) {
             case ProfessionalUser::class:
+
+                $builder->add('profileCompleted', Filters\BooleanFilterType::class, [
+                    'placeholder' => 'Profile Completed'
+                ]);
+
                 $builder->add('company', CompanyFilterType::class, array(
                     'add_shared' => function (FilterBuilderExecuterInterface $qbe) {
                         $closure = function (QueryBuilder $filterBuilder, $alias, $joinAlias, Expr $expr) {
@@ -147,6 +152,11 @@ class ManageUserFilterType extends AbstractType
                 ));
                 break;
             case StudentUser::class:
+
+                $builder->add('profileCompleted', Filters\BooleanFilterType::class, [
+                    'placeholder' => 'Profile Completed'
+                ]);
+
                 $builder->add('school', Filters\EntityFilterType::class, [
                     'class' => School::class,
                     'choice_label' => 'name',
@@ -201,6 +211,11 @@ class ManageUserFilterType extends AbstractType
                 ]);
                 break;
             case EducatorUser::class:
+
+                $builder->add('profileCompleted', Filters\BooleanFilterType::class, [
+                    'placeholder' => 'Profile Completed'
+                ]);
+
                 $builder->add('school', Filters\EntityFilterType::class, [
                     'class' => School::class,
                     'choice_label' => 'name',

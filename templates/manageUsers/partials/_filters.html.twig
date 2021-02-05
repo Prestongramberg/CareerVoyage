@@ -59,9 +59,15 @@
     </div>
 {% endif %}
 
+{% if form.profileCompleted is defined %}
+    <div class="uk-width-1-4@s">
+        {{ form_widget(form.profileCompleted, {'attr': { 'class': 'uk-input', 'placeholder': 'Filter By Status'}}) }}
+    </div>
+{% endif %}
+
 
 <div class="uk-width-1-4@s">
     <button class="uk-button uk-button-default">Search</button>
-    <a class="uk-button uk-button-default" href="{{clearFormUrl }}">Clear</a>
+    <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
 </div>
 {{ form_end(form) }}
