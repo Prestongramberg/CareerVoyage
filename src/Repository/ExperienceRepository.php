@@ -183,9 +183,15 @@ LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
 LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
 LEFT JOIN industry i on i.id = si.primary_industry_id
 LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
-WHERE 1 = 1 AND e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND r.user_id = %s AND e.cancelled = %s',
-            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $userId, false
+WHERE 1 = 1 AND r.user_id = %s AND e.cancelled = %s', $userId, 0
         );
+
+        if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
+            $query .= sprintf(
+                ' AND e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s)',
+                $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+            );
+        }
 
         if ($startDate && $endDate) {
 

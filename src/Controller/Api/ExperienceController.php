@@ -198,9 +198,7 @@ class ExperienceController extends AbstractController
         $lonE               = null;
         $lonW               = null;
 
-
-        // todo add caching here...
-        // query filters and cache them right here...
+        // todo query filters and cache them right here...
         $filters = $filterGenerator->generate(
             [
                 FilterGenerator::INDUSTRY_FILTER,
