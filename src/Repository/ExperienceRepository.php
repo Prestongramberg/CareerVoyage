@@ -178,7 +178,7 @@ class ExperienceRepository extends ServiceEntityRepository
     ) {
 
         $query = sprintf(
-            'SELECT DISTINCT e.id, e.title, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "Experience" as className from experience e INNER JOIN registration r on r.experience_id = e.id 
+            'SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "Experience" as className from experience e INNER JOIN registration r on r.experience_id = e.id 
 LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
 LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
 LEFT JOIN industry i on i.id = si.primary_industry_id
