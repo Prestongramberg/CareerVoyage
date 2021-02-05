@@ -325,7 +325,7 @@
                                         Status
                                     </th>
                                 </tr>
-                                {% for studentUser in user.studentUsers %}
+                                {% for studentUser in user.activeStudentUsers %}
                                     <tr>
                                         <td>{{ studentUser.fullName }}</td>
                                         <td id="student_{{ studentUser.id }}">
