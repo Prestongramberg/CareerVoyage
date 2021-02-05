@@ -47,6 +47,8 @@ class RolesWillingToFulfill
     private $eventName;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     *
      * @ORM\Column(type="boolean")
      */
     private $inEventDropdown = false;
@@ -57,6 +59,8 @@ class RolesWillingToFulfill
     private $experiences;
 
     /**
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     *
      * @ORM\Column(type="boolean")
      */
     private $inSchoolEventDropdown = false;

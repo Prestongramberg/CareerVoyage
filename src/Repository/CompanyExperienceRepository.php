@@ -56,14 +56,16 @@ class CompanyExperienceRepository extends ServiceEntityRepository
 
     /**
      * @param SecondaryIndustry $secondaryIndustries []
-     * @param int $limit
+     * @param int               $limit
+     *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findBySecondaryIndustries($secondaryIndustries, $limit = 6) {
+    public function findBySecondaryIndustries($secondaryIndustries, $limit = 6)
+    {
 
         $whereClause = [];
-        foreach($secondaryIndustries as $secondaryIndustry) {
+        foreach ($secondaryIndustries as $secondaryIndustry) {
             $whereClause[] = sprintf("secondary_industry_id = %s", $secondaryIndustry->getId());
         }
 
@@ -79,13 +81,15 @@ HERE;
 
         $query = sprintf($query, $whereClause, $limit);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function getNumberOfEventsGroupedByPrimaryIndustry() {
+    public function getNumberOfEventsGroupedByPrimaryIndustry()
+    {
 
         $query = <<<HERE
         Select i.id as primary_industry_id, i.name as primary_industry_name,
@@ -98,13 +102,15 @@ HERE;
         ) as num_of_company_events
         from industry i
 HERE;
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $em    = $this->getEntityManager();
+        $stmt  = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function getNumberOfRegistrationsGroupedByPrimaryIndustry() {
+    public function getNumberOfRegistrationsGroupedByPrimaryIndustry()
+    {
         $query = <<<HERE
     select DISTINCT i.id as primary_industry_id, i.name as primary_industry_name,  e.id as company_experience_id, 
     (Select count(r.id) from registration r where r.experience_id = e.id) as number_of_registrations, 
@@ -117,13 +123,15 @@ HERE;
     where MONTH(e.start_date_and_time) = MONTH(CURRENT_DATE())
     AND YEAR(e.start_date_and_time) = YEAR(CURRENT_DATE())
 HERE;
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $em    = $this->getEntityManager();
+        $stmt  = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function getNumberOfRegistrationsGroupedByPrimaryIndustryForRegion(Region $region) {
+    public function getNumberOfRegistrationsGroupedByPrimaryIndustryForRegion(Region $region)
+    {
         $query = <<<HERE
         select i.id as primary_industry_id, i.name as primary_industry_name,
         (
@@ -146,14 +154,16 @@ HERE;
 HERE;
 
         $query = sprintf($query, $region->getId(), $region->getId());
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $em    = $this->getEntityManager();
+        $stmt  = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
 
-    public function getNumberOfRegistrationsGroupedByPrimaryIndustryForSchool(School $school) {
+    public function getNumberOfRegistrationsGroupedByPrimaryIndustryForSchool(School $school)
+    {
         $query = <<<HERE
             select i.id as primary_industry_id, i.name as primary_industry_name,
             (
@@ -174,59 +184,72 @@ HERE;
             ) as number_of_registrations
             from industry i
 HERE;
-        $em = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare(
-            sprintf($query,
+        $em    = $this->getEntityManager();
+        $stmt  = $em->getConnection()->prepare(
+            sprintf(
+                $query,
                 $school->getId(),
                 $school->getId(),
                 $school->getId(),
-                $school->getId())
+                $school->getId()
+            )
         );
 
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function getForSchool(School $school) {
+    public function getForSchool(School $school)
+    {
 
         return $this->createQueryBuilder('ce')
-            ->innerJoin('ce.company', 'c')
-            ->innerJoin('c.schools', 's')
-            ->where('s = :school')
-            ->setParameter('school', $school)
-            ->getQuery()
-            ->getResult();
+                    ->innerJoin('ce.company', 'c')
+                    ->innerJoin('c.schools', 's')
+                    ->where('s = :school')
+                    ->setParameter('school', $school)
+                    ->getQuery()
+                    ->getResult();
     }
 
     /**
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findAllFutureEvents() {
-        $query = sprintf("select e.id, e.title, e.brief_description from experience e
+    public function findAllFutureEvents()
+    {
+        $query = sprintf(
+            "select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
                 WHERE e.end_date_and_time >= DATE(NOW()) AND e.cancelled = 0
-                GROUP BY ce.id order by e.start_date_and_time ASC");
+                GROUP BY ce.id order by e.start_date_and_time ASC"
+        );
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
     /**
      * @param int $days
+     *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findAllFromPastDays($days = 7) {
-        $query = sprintf("select e.id, e.title, e.brief_description from experience e
+    public function findAllFromPastDays($days = 7)
+    {
+        $query = sprintf(
+            "select e.id, e.title, e.brief_description from experience e
                 inner join company_experience ce on ce.id = e.id
-          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = %s GROUP BY e.id order by e.created_at DESC", $days, 0);
+          WHERE e.created_at >= DATE(NOW()) - INTERVAL %d DAY AND e.cancelled = %s GROUP BY e.id order by e.created_at DESC", $days, 0
+        );
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
@@ -236,25 +259,80 @@ HERE;
      * 2. You must use the geocoder->calculateSearchSquare() service to return the 4 lat/lng points
      * 3. Then you can call this function!
      *
-     * @param $latN
-     * @param $latS
-     * @param $lonE
-     * @param $lonW
-     * @param $startingLatitude
-     * @param $startingLongitude
+     * @param       $latN
+     * @param       $latS
+     * @param       $lonE
+     * @param       $lonW
+     * @param       $startingLatitude
+     * @param       $startingLongitude
+     * @param null  $startDate
+     * @param null  $endDate
+     *
+     * @param null  $searchQuery
+     *
+     * @param null  $eventType
+     * @param null  $industry
+     * @param null  $secondaryIndustry
+     *
+     * @param array $regionIds
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
+    public function search(
+        $latN = null, $latS = null, $lonE = null, $lonW = null, $startingLatitude = null, $startingLongitude = null,
+        $startDate = null, $endDate = null, $searchQuery = null, $eventType = null, $industry = null, $secondaryIndustry = null, $regionIds = []
+    ) {
 
-        $query = sprintf('SELECT * from company_experience ce INNER JOIN experience e on e.id = ce.id WHERE e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) AND e.cancelled = %s',
-            $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, 0
-        );
+        $query = sprintf('SELECT DISTINCT e.id, e.title, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "CompanyExperience" as className from company_experience ce INNER JOIN experience e on e.id = ce.id 
+LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
+LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
+LEFT JOIN industry i on i.id = si.primary_industry_id
+LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+LEFT JOIN company c on ce.company_id = c.id
+LEFT JOIN company_region cr on cr.company_id = c.id
+WHERE 1 = 1 AND e.cancelled = %s', 0);
 
-        $em = $this->getEntityManager();
+        if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
+            $query .= sprintf(
+                ' AND e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s)',
+                $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+            );
+        }
+
+        if ($startDate && $endDate) {
+
+            $query .= sprintf(" AND DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s'", $startDate, $endDate);
+
+        }
+
+        if($searchQuery) {
+            $query .= sprintf(' AND e.title LIKE "%%%s%%"', $searchQuery);
+        }
+
+
+        if($eventType) {
+            $query .= sprintf(' AND rwtf.id = %s', $eventType);
+        }
+
+        if($industry) {
+            $query .= sprintf(' AND i.id = %s', $industry);
+        }
+
+        if($secondaryIndustry) {
+            $query .= sprintf(' AND si.id = %s', $secondaryIndustry);
+        }
+
+        if(!empty($regionIds)) {
+            //todo need to account for virtual events right here
+            $query .= sprintf(' AND (rwtf.name LIKE "%%%s%%" OR cr.region_id IN (%s))', "virtual", implode(",", $regionIds));
+        }
+
+
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
-
 }
