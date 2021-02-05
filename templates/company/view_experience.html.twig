@@ -189,7 +189,7 @@
                 <li><a href="#experience-attachments">Experience Documents</a></li>
             {% endif %}
                 <li><a href="#experience-contact">Contact</a></li>
-            {% if user.isEducator or user.isStudent %}
+            {% if user.isEducator or user.isStudent or user.schoolAdministrator %}
                 <li><a href="#experience-registration">Registration</a></li>
             {% endif %}
             {% if user.isAdmin or ( user.company is defined and user.company and user.company.owner.id == user.id and user.company.id == experience.company.id ) %}
@@ -312,7 +312,7 @@
                     </tbody>
                 </table>
             </div>
-            {% if user.isEducator or user.isStudent %}
+            {% if user.isEducator or user.isStudent or user.schoolAdministrator %}
                 <div class="experience_registration">
                     {% if user.isEducator %}
                         {% if user.studentUsers|length > 0 %}
@@ -321,9 +321,7 @@
                                 <tbody>
                                 <tr>
                                     <th>Student</th>
-                                    <th>
-                                        Status
-                                    </th>
+                                    <th>Status</th>
                                 </tr>
                                 {% for studentUser in user.studentUsers %}
                                     <tr>
@@ -379,6 +377,67 @@
                             {% endfor %}
                         {% else %}
                             <p>No educators are linked to you yet.  Please speak directly with them about interest in this experience.</p>
+                        {% endif %}
+                    {% endif %}
+
+
+                    {% if user.schoolAdministrator %}
+                        {% if user.schools|length > 0 %}
+                            <ul {% if user.schools|length == 1 %}uk-accordion="collapsible: false"{% else %}uk-accordion{% endif %}>
+                            {% for school in user.schools %}
+                                <li>
+                                    <a class="uk-accordion-title" href="#">{{ school.name }}</a>
+                                    <div class="uk-accordion-content">
+                                        <table class="uk-table uk-table-justify uk-table-divider">
+                                            <tbody>
+                                            <tr>
+                                                <th>Student</th>
+                                                <th>Status</th>
+                                            </tr>
+                                            
+                                                {% for studentUser in school.studentUsers %}
+                                                <tr>
+                                                    <td>{{ studentUser.fullName }}</td>
+                                                    <td id="student_{{ studentUser.id }}">
+                                                        {% set showPendingRegisterButton = true %}
+                                                        {% for request in experience.educatorRegisterStudentForCompanyExperienceRequests %}
+                                                            {% if request.studentUser %}
+                                                                {% if request.studentUser.id == studentUser.id %}
+                                                                    {% if request.approved %}
+                                                                        Approved
+                                                                        {% set showPendingRegisterButton = false %}
+                                                                        {% elseif request.denied %}
+                                                                            Denied
+                                                                            {% set showPendingRegisterButton = false %}
+                                                                        {% else %}
+                                                                            Pending
+                                                                            {% set showPendingRegisterButton = false %}
+                                                                    {% endif %}
+                                                                {% else %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if showPendingRegisterButton == true %}
+                                                            <form class="uk-inline register" action="{{ path('company_experience_student_register', { "id": experience.id }) }}" method="POST">
+                                                                <input type="hidden" name="studentId" value="{{ studentUser.id }}">
+                                                                <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
+                                                            </form>
+                                                        {% endif %}
+                                                        {% if showPendingRegisterButton == false %}
+                                                            <form class="uk-inline deregister" action="{{ path('company_experience_student_deregister', { "id": experience.id }) }}" method="POST">
+                                                                <input type="hidden" name="studentId" value="{{ studentUser.id }}">
+                                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
+                                                            </form>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            </ul>
                         {% endif %}
                     {% endif %}
                 </div>
