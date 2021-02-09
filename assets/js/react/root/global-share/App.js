@@ -44,7 +44,7 @@ export class App extends Component {
 
                             <ul uk-accordion="multiple: true">
                                 <li>
-                                    <a className="uk-accordion-title" href="#">Filters</a>
+                                    <a className="uk-accordion-title uk-button uk-button-default" id="toggle-filters" href="#">Toggle Filters</a>
                                     <div className="uk-accordion-content">
 
                                         <div className="uk-container">
@@ -72,21 +72,15 @@ export class App extends Component {
                         <div className="uk-margin">
                             <div className="uk-grid">
                                 <div className="uk-width-1-2">
-                                    <div className={`${cb}__heading`}>{users.length > 0 && `Sending to Users: (${this.props.ui.users.length} results)`} {users.length === 0 && `Select from a filter above to get started...`}</div>
+                                    <div className={`${cb}__heading`}>{users.length > 0 && `Sending to Users: (${this.props.ui.users.length} results)`} {users.length === 0 && `Select from a filter above to get started.`}</div>
                                     <div className={`${cb}__scrollable`}>
                                         {this.props.ui.users.map((user) => {
                                             return (
                                                 <div key={user.id}
-                                                     className={`${cb}__user-remove`}
+                                                     className={`live-chat__window-chat-thread ${cb}__user-remove`}
                                                      onClick={() => { this.props.removeUser( user ) }}>
-                                                    <div className="uk-grid">
-                                                        <div className="uk-width-expand">
-                                                            {this.renderUser(user)}
-                                                        </div>
-                                                        <div className="uk-width-auto">
-                                                            <span uk-icon="icon: close"></span>
-                                                        </div>
-                                                    </div>
+                                                        {this.renderUser(user)}
+                                                        <span className="close-icon" uk-icon="icon: close"></span>
                                                 </div>
                                             )
                                         })}
@@ -132,34 +126,44 @@ export class App extends Component {
     renderUser(user) {
 
         let loggedInUser = this.props.user;
-        let row = '';
+        let company = '';
+        let role = '';
+        let name = '';
         let photoImageURL = user.photoImageURL ? user.photoImageURL : '/build/images/avatar.ec6ae432.png';
 
         switch (user.user_role) {
             case 'professional':
-                row = user.first_name + ' ' +  user.last_name + ', Professional';
+                name = user.first_name + ' ' + user.last_name;
+                role = 'Professional';
 
                 if(user.company_name) {
-                    row += ', ' + user.company_name;
+                    company = user.company_name;
                 }
 
                 break;
             case 'educator':
-                row = user.first_name + ' ' +  user.last_name + ', Educator, ' + user.school_name;
+                name = user.first_name + ' ' + user.last_name;
+                role = 'Educator';
+                company = user.school_name;
                 break;
             case 'student':
 
                 // if the logged in user is a professional then don't show the student name
                 if(loggedInUser.roles && loggedInUser.roles.indexOf("ROLE_PROFESSIONAL_USER") !== -1 ) {
-                    row = 'Student, ' + user.school_name;
+                    name = '';
+                    role = 'Student';
+                    company = user.school_name;
                     photoImageURL = '/build/images/avatar.ec6ae432.png';
                 } else {
-                    row = user.first_name + ' ' +  user.last_name + ', Student, ' + user.school_name;
+                    name = user.first_name + ' ' + user.last_name;
+                    role = 'Student';
+                    company = user.school_name;
                 }
 
                 break;
             case 'school_administrator':
-                row = user.first_name + ' ' +  user.last_name + ', School Administrator';
+                name = user.first_name + ' ' + user.last_name;
+                role = 'School Administrator';
                 break;
         }
 
@@ -169,7 +173,8 @@ export class App extends Component {
                     <img src={photoImageURL} />
                 </div>
                 <div className="live-chat__window-chat-thread-name">
-                    {row}
+                    { name } <small><em>{ role }</em></small><br />
+                    <small>{ company }</small>
                 </div>
             </React.Fragment>
         )
