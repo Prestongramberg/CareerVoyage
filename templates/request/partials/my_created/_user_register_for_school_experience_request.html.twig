@@ -11,7 +11,7 @@
     {% endif %}
 
 
-    {% if (user.isEducator() and request.educatorHasSeen == false) or (user.isSchoolAdministrator() and request.schoolAdministratorHasSeen == false and location != "my-requests_pending") or (user.isStudent() and request.studentHasSeen == false) or (user.isProfessional() and request.professionalHasSeen == false) %}
+    {% if (user.isEducator() and request.educatorHasSeen == false) or (user.isSchoolAdministrator() and request.schoolAdminHasSeen == false and location != "my-requests_pending") or (user.isStudent() and request.studentHasSeen == false) or (user.isProfessional() and request.professionalHasSeen == false) %}
         <a class="uk-accordion-title toggle-has-seen" href="#" data-id="{{ request.id }}" data-approved="{{ request.approved }}" data-location="{{ location }}"  data-parent="{{ parentTab }}">
             <small class="icon"><em class="fa fa-circle"></em></small> Request to register user for school experience.
             <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}

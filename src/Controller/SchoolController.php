@@ -1943,7 +1943,7 @@ class SchoolController extends AbstractController
         } else {
             // Does not require approval
             $registerRequest->setApproved(true);
-            // $registerRequest->setSchoolAdministratorHasSeen(true);
+            // $registerRequest->setSchoolAdminHasSeen(true);
             $registerRequest->setStudentHasSeen(true);
             $this->entityManager->persist($registerRequest);
             $this->entityManager->flush();

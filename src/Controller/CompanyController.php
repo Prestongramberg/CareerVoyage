@@ -1428,7 +1428,7 @@ class CompanyController extends AbstractController
 
 
     /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @IsGranted({"ROLE_EDUCATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/companies/experiences/{id}/students/register", name="company_experience_student_register", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
      * @param CompanyExperience $experience
@@ -1468,7 +1468,14 @@ class CompanyController extends AbstractController
             // Does not require approval
             $registerRequest->setApproved(true);
             $registerRequest->setProfessionalHasSeen(true);
-            $registerRequest->setEducatorHasSeen(true);
+
+            if($user->isEducator()){
+                $registerRequest->setEducatorHasSeen(true);
+            }
+            if($user->isSchoolAdministrator()) {
+                $registerRequest->setSchoolAdminHasSeen(true);
+            }
+
             $this->entityManager->persist($registerRequest);
             $this->entityManager->flush();
             $this->addFlash('success', 'Student has been registered.');
@@ -1483,7 +1490,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
+     * @IsGranted({"ROLE_EDUCATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/companies/experiences/{id}/students/deregister", name="company_experience_student_deregister", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
      * @param CompanyExperience $experience
