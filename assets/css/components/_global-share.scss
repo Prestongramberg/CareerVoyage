@@ -1,32 +1,89 @@
-.global-share {
+#global-share {
 
-  &__heading {
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: underline;
-  }
+  .global-share {
 
-  &__scrollable {
-    height: 300px;
-    overflow: auto;
-    padding: 0;
-  }
+    &__heading {
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: underline;
+    }
 
-  &__user-add {
-    padding: 3px 6px;
+    &__scrollable {
+      height: 300px;
+      overflow: auto;
+      padding: 0;
+    }
 
-    &:hover {
-      background-color: #1e87f0;
-      color: #FFF;
+    &__user-add {
+      margin-bottom: 10px;
+      padding: 5px;
+      line-height: 1.0rem;
+
+      em {
+        color: #666;
+      }
+
+      &:hover {
+        background-color: #1e87f0;
+        color: #FFF;
+
+        em {
+          color: #fff;
+        }
+      }
+    }
+
+    &__user-remove {
+      margin-bottom: 10px;
+      padding: 5px;
+      line-height: 1.0rem;
+      position: relative;
+
+      .close-icon {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+      }
+      
+      em {
+        color: #666;
+      }
+
+      &:hover {
+        background-color: #f0506e;
+        color: #FFF;
+
+        em {
+          color: #fff;
+        }
+      }
     }
   }
 
-  &__user-remove {
-    padding: 3px 6px;
+  .multi-select {
+    font-size: 0.9rem;
 
-    &:hover {
-      background-color: #f0506e;
-      color: #FFF;
+    input {
+      float: left !important;
+      margin-top: 5px;
+    }
+  }
+
+  #toggle-filters {
+    line-height: auto !important;
+    display: inline-block !important;
+    font-size: 0.875rem !important;
+    line-height: 38px !important;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .uk-accordion-content {
+    .uk-container {
+      padding-left: 0px;
+      padding-right: 0px;
     }
   }
 }
