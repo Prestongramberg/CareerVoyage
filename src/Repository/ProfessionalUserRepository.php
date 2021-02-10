@@ -268,6 +268,8 @@ class ProfessionalUserRepository extends ServiceEntityRepository
                 $query .= " AND u.email = c.email_address";
             }
 
+            $query .= " ORDER BY u.last_name ASC, u.first_name ASC";
+
         }
 
         $em = $this->getEntityManager();

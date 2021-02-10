@@ -183,6 +183,9 @@ export class App extends Component {
     renderRoleDropdown() {
 
         if ( this.props.filters.roles.length > 0) {
+
+            this.props.filters.roles.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
+
             return (
                 <div>
                     <MultiSelect
@@ -219,6 +222,9 @@ export class App extends Component {
     renderCompanyDropdown() {
 
         if ( this.props.filters.companies.length > 0) {
+
+            this.props.filters.companies.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
+
             return (
                 <div>
                     <MultiSelect
@@ -247,6 +253,9 @@ export class App extends Component {
     renderCompanyAdministratorDropdown() {
 
         if ( this.props.filters.company_admins.length > 0) {
+
+            this.props.filters.company_admins.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
+
             return (
                 <div>
                     <MultiSelect
@@ -265,6 +274,9 @@ export class App extends Component {
     renderCoursesTaughtDropdown() {
 
         if ( this.props.filters.courses_taught.length > 0) {
+
+            this.props.filters.courses_taught.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
+
             return (
                 <div>
                     <MultiSelect
@@ -282,6 +294,8 @@ export class App extends Component {
 
     renderSchoolDropdown() {
 
+        this.props.filters.schools.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
+
         return (
             <div>
                 <MultiSelect
@@ -297,6 +311,9 @@ export class App extends Component {
     renderPrimaryIndustryDropdown() {
 
         if ( this.props.filters.primary_industries.length > 0) {
+
+            this.props.filters.primary_industries.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
+
             return (
                 <div>
                     <MultiSelect
@@ -332,6 +349,9 @@ export class App extends Component {
                     filters.push({label: industryData.secondaryIndustryName, value: industryData.secondaryIndustryId});
                 }
             });
+
+
+            filters.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
 
             return (
                 <div>

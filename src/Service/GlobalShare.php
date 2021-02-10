@@ -134,6 +134,9 @@ class GlobalShare
             ];
         }
 
+        
+
+
         $educators = $this->educatorUserRepository->getDataForGlobalShare($chattableUserIds, $filters);
 
         foreach ($educators as $educator) {
