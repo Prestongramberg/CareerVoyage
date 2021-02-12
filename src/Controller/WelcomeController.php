@@ -130,6 +130,15 @@ class WelcomeController extends AbstractController
                     $user->agreeToTerms();
                     $user->initializeNewUser();
 
+                    if($user instanceof ProfessionalUser) {
+
+                        $regions = $this->regionRepository->findAll();
+
+                        foreach($regions as $region) {
+                            $user->addRegion($region);
+                        }
+                    }
+
                     $entityManager = $this->getDoctrine()->getManager();
                     $entityManager->persist($user);
                     $entityManager->flush();
