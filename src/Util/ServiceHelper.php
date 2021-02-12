@@ -40,6 +40,7 @@ use App\Repository\NewCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\ProfessionalVideoRepository;
 use App\Repository\RegionalCoordinatorRepository;
+use App\Repository\RegionRepository;
 use App\Repository\RegistrationRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
@@ -464,6 +465,11 @@ trait ServiceHelper
     private $systemUserRepository;
 
     /**
+     * @var RegionRepository
+     */
+    private $regionRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -541,6 +547,7 @@ trait ServiceHelper
      * @param ChatHelper                                                    $chatHelper
      * @param GlobalShare                                                   $globalShare
      * @param SystemUserRepository                                          $systemUserRepository
+     * @param RegionRepository                                              $regionRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -584,7 +591,7 @@ trait ServiceHelper
         CareerVideoRepository $careerVideoRepository, VideoFavoriteRepository $videoFavoriteRepository,
         VideoRepository $videoRepository, ProfessionalVideoRepository $professionalVideoRepository,
         HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
-        SystemUserRepository $systemUserRepository
+        SystemUserRepository $systemUserRepository, RegionRepository $regionRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -661,6 +668,7 @@ trait ServiceHelper
         $this->chatHelper                                                    = $chatHelper;
         $this->globalShare                                                   = $globalShare;
         $this->systemUserRepository                                          = $systemUserRepository;
+        $this->regionRepository                                              = $regionRepository;
     }
 
     public function getFullQualifiedBaseUrl() {
