@@ -330,14 +330,14 @@ class FeedbackGenerator implements \Iterator
         $cumulativeShowUp = 0;
 
         foreach($this->getFeedback() as $feedback) {
-
+            
             $cumulativeShowUp += (int) $feedback->getShowUp();
         }
 
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($cumulativeShowUp / $this->totalFeedback()) . '%';
+            return floor( ($cumulativeShowUp / $totalFeedback) * 100 ) . '%';
         }
 
         return "0%";
@@ -358,7 +358,7 @@ class FeedbackGenerator implements \Iterator
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($cumulativeInsight / $totalFeedback * 100) . '%';
+            return floor( ($cumulativeInsight / $totalFeedback) * 100) . '%';
         }
 
         return "0%";
@@ -376,7 +376,7 @@ class FeedbackGenerator implements \Iterator
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($cumulativeEnjoyable / $totalFeedback * 100) . '%';
+            return floor( ($cumulativeEnjoyable / $totalFeedback) * 100) . '%';
         }
 
         return "0%";
@@ -395,7 +395,7 @@ class FeedbackGenerator implements \Iterator
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($learnSomethingNew / $this->totalFeedback() * 100) . '%';
+            return floor( ($learnSomethingNew / $totalFeedback) * 100) . '%';
         }
 
         return "0%";
@@ -417,10 +417,10 @@ class FeedbackGenerator implements \Iterator
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($cumulativeOnTime / $this->totalFeedback());
+            return floor( ($cumulativeOnTime / $totalFeedback) * 100 ). '%';
         }
 
-        return 0;
+        return '0%';
     }
 
     /**
@@ -438,10 +438,10 @@ class FeedbackGenerator implements \Iterator
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($cumulativePolite / $this->totalFeedback());
+            return floor( ($cumulativePolite / $totalFeedback) * 100).'%';
         }
 
-        return 0;
+        return '0%';
 
     }
 
@@ -515,10 +515,10 @@ class FeedbackGenerator implements \Iterator
         $totalFeedback = $this->totalFeedback();
 
         if($totalFeedback > 0) {
-            return floor($cumulativeEngaged / $this->totalFeedback());
+            return floor( ($cumulativeEngaged / $totalFeedback) * 100).'%';
         }
 
-        return 0;
+        return '0%';
     }
 
     /**
@@ -629,7 +629,11 @@ class FeedbackGenerator implements \Iterator
 
         $this->aggregate = true;
 
-        $template = "widget/feedback/data_breakdown/aggregate.html.twig";
+        $template = sprintf(
+            "widget/feedback/data_breakdown/%s/aggregate.html.twig",
+            str_replace(' ', '_', $this->userContext->friendlyRoleName())
+        );
+        // $template = "widget/feedback/data_breakdown/aggregate.html.twig";
 
         $html = $this->twig->render($template, ['feedbackGenerator' => $this]);
 
