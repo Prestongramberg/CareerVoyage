@@ -37,9 +37,9 @@
 
         {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
 
-        {% if form.name is defined %}
+        {% if form.title is defined %}
             <div class="uk-width-1-4@s">
-                {{ form_widget(form.name, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
+                {{ form_widget(form.title, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
             </div>
         {% endif %}
 
