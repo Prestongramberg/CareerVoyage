@@ -10,7 +10,8 @@ export class App extends Component {
 
     constructor(props) {
         super(props);
-        const methods = ["queryByUserRole", "queryByRole", "queryByCompany", "queryByCompanyAdministrators", "queryByCourseTaught", "queryBySchool", "queryByPrimaryIndustry", "queryBySecondaryIndustry", "queryByInterests"];
+        this.timeout = null;
+        const methods = ["queryByUserRole", "queryByRole", "queryByCompany", "queryByCompanyAdministrators", "queryByCourseTaught", "queryBySchool", "queryByPrimaryIndustry", "queryBySecondaryIndustry", "queryByInterests", "searchChattableUsers"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -39,7 +40,7 @@ export class App extends Component {
                         <form id="filterForm">
                             <div className="uk-search uk-search-default uk-width-1-1">
                                 <span data-uk-search-icon></span>
-                                {<input className="uk-search-input" type="search" placeholder="Search..." onChange={this.props.searchChattableUsers} value={this.props.search.query} />}
+                                {<input className="uk-search-input" type="search" placeholder="Search..." onChange={this.searchChattableUsers} />}
                             </div>
 
                             <ul uk-accordion="multiple: true">
@@ -602,6 +603,18 @@ export class App extends Component {
         this.props.query(this.props.search);
         debugger;
     }
+
+    searchChattableUsers(event) {
+
+        clearTimeout(this.timeout);
+
+        let searchValue = event.target.value;
+
+        // Make a new timeout set to go off in 800ms
+        this.timeout = setTimeout(() => {
+            this.props.searchChattableUsers(searchValue);
+        }, 500);
+    }
 }
 
 App.propTypes = {
@@ -623,7 +636,7 @@ export const mapStateToProps = (state = {}) => ({
 export const mapDispatchToProps = dispatch => ({
     addUser: (user) => dispatch(addUser( user )),
     removeUser: (user) => dispatch(removeUser( user )),
-    searchChattableUsers: (event) => dispatch(searchChattableUsers( event.target.value )),
+    searchChattableUsers: (searchValue) => dispatch(searchChattableUsers( searchValue )),
     sendNotifications: () => dispatch(sendNotifications()),
     updateMessage: (message) => dispatch(updateMessage(message)),
     addDefaultUsers: () => dispatch(searchChattableUsers('')),
