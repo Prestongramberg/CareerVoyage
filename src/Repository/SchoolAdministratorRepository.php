@@ -205,6 +205,9 @@ class SchoolAdministratorRepository extends ServiceEntityRepository
 
         }
 
+        $query .= " ORDER BY u.last_name ASC, u.first_name ASC";
+
+
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
