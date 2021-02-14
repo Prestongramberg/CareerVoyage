@@ -108,6 +108,20 @@ class VideoController extends AbstractController
             }
         }
 
+        $allVideos = [];
+        foreach($companyVideos as $v) {
+            array_push($allVideos, $v);
+        }
+        foreach($careerVideos as $v) {
+            array_push($allVideos, $v);
+        }
+        foreach($professionalVideos as $v) {
+            array_push($allVideos, $v);
+        }
+        
+
+
+        $allVideosJson = $this->serializer->serialize($allVideos, 'json', ['groups' => ['VIDEO']]);
         $companyVideosJson = $this->serializer->serialize($companyVideos, 'json', ['groups' => ['VIDEO']]);
         $careerVideosJson = $this->serializer->serialize($careerVideos, 'json', ['groups' => ['VIDEO']]);
         $professionalVideosJson = $this->serializer->serialize($professionalVideos, 'json', ['groups' => ['VIDEO', 'PROFESSIONAL_USER_DATA']]);
@@ -118,7 +132,8 @@ class VideoController extends AbstractController
                 'data' => [
                     'companyVideos' => json_decode($companyVideosJson, true),
                     'careerVideos' => json_decode($careerVideosJson, true),
-                    'professionalVideos' => json_decode($professionalVideosJson, true)
+                    'professionalVideos' => json_decode($professionalVideosJson, true),
+                    'allVideos' => json_decode($allVideosJson, true)
                 ]
             ],
             Response::HTTP_OK
