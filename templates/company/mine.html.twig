@@ -1,0 +1,103 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}My Company{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        <ul class="uk-subnav uk-subnav-pill" uk-margin>
+            <li><a href="{{ path('company_results_page') }}">ALL COMPANIES</a></li>
+            <li><a href="{{ path('company_favorites_page') }}">FAVORITES</a></li>
+
+            {% if user.professional and user.ownedCompany is defined and user.ownedCompany is not null %}
+                <li class="uk-active"><a href="{{ path('company_mine_page') }}">MY COMPANY</a></li>
+            {% endif %}
+        </ul>
+
+        <br>
+
+        <div class="companies_mine">
+
+            {% if user.company %}
+
+                <div>
+                    <div class="uk-card">
+                        <div class="uk-grid uk-flex-middle" data-uk-grid>
+                            <div class="uk-width-small">
+                                <img src={{ user.company.thumbnailImageURL }} alt=""/>
+                            </div>
+                            <div class="uk-width-expand">
+                                <h3>{{ user.company.name }}</h3>
+                                <div>
+                                    <a href="{{ path('company_view', {id: user.company.id}) }}"
+                                       class="uk-button uk-button-default uk-button-small">View</a>
+
+                                    {% if user.ownedCompany and user.ownedCompany.id == user.company.id %}
+                                        <a href="{{ path('company_edit', {id: user.company.id}) }}"
+                                           class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Edit</a>
+
+                                    {% else %}
+
+                                        <button data-uk-toggle="target: #remove-from-company" type="button"
+                                                class="uk-button uk-button-secondary uk-button-small uk-margin-small-left">
+                                            Remove
+                                        </button>
+
+                                        <div id="remove-from-company" data-uk-modal>
+                                            <div class="uk-modal-dialog uk-modal-body">
+                                                <h2 class="uk-modal-title">Are you sure you want to remove yourself
+                                                    from {{ user.company.name }}?</h2>
+                                                <div class="uk-margin">
+                                                    <form class="uk-inline uk-margin-right" method="post"
+                                                          action="{{ path('company_remove_user', {id: user.id}) }}">
+                                                        <button class="uk-button uk-button-danger" type="submit">Yes
+                                                        </button>
+                                                    </form>
+                                                    <button class="uk-button uk-button-default uk-modal-close">No,
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <button data-uk-toggle="target: #remove-company" type="button"
+                                            class="uk-button uk-button-danger uk-button-small uk-margin-small-left">
+                                        Delete
+                                    </button>
+                                    <div id="remove-company" data-uk-modal>
+                                        <div class="uk-modal-dialog uk-modal-body">
+                                            <h2 class="uk-modal-title">Are you sure you want to delete company "{{ user.company.name }}"?</h2>
+                                            <form class="uk-inline uk-margin-right" method="post"
+                                                  action="{{ path('company_delete', {'id' : user.company.id}) }}">
+                                                <button class="uk-button uk-button-danger" type="submit">Yes</button>
+                                            </form>
+                                            <button class="uk-button uk-button-default uk-modal-close">No, Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+
+                <div class="uk-placeholder uk-text-center">
+                    <p>You aren't associated with a company yet.</p>
+                    <a href="{{ path('company_new') }}" class="uk-button uk-button-primary
+                    uk-button-small">Create a Company</a>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+{% endblock %}
