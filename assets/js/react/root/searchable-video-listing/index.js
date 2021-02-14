@@ -15,9 +15,11 @@ if( searchableVideoListing ) {
         reducers,
         {
             companies: [],
+            allVideoIndustries: [],
             companyVideoIndustries: [],
             careerVideoIndustries: [],
             professionalVideoIndustries: [],
+            allVideos: [],
             companyVideos: [],
             careerVideos: [],
             professionalVideos: [],
@@ -25,6 +27,11 @@ if( searchableVideoListing ) {
                 loading: true,
                 loadingVideos: true,
                 loadingUser: true,
+            },
+            allVideoSearch: {
+                company: '',
+                industry: 0,
+                query: ''
             },
             companyVideoSearch: {
                 company: '',

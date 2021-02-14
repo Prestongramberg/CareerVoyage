@@ -1,6 +1,20 @@
 import * as actionTypes from "./actionTypes";
 import * as api  from '../../../utilities/api/api'
 
+export function updateAllVideoSearchQuery(query) {
+    return {
+        type: actionTypes.ALL_VIDEO_SEARCH_QUERY_CHANGED,
+        query: query
+    };
+}
+
+export function updateAllVideoIndustryQuery(industry) {
+    return {
+        type: actionTypes.ALL_VIDEO_INDUSTRY_QUERY_CHANGED,
+        industry: industry
+    };
+}
+
 export function updateCompanyVideoSearchQuery(query) {
     return {
         type: actionTypes.COMPANY_VIDEO_SEARCH_QUERY_CHANGED,

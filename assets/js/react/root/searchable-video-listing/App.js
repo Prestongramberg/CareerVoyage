@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import Loader from "../../components/Loader/Loader";
 import VideoListing from "../../components/VideoListing/VideoListing";
 import {
-    updateCompanyQuery, updateCompanyVideoIndustryQuery, updateCompanyVideoSearchQuery, updateCareerVideoIndustryQuery, updateCareerVideoSearchQuery, favoriteVideo, unfavoriteVideo, updateProfessionalVideoIndustryQuery, updateProfessionalVideoSearchQuery
+    updateCompanyQuery, updateAllVideoIndustryQuery, updateAllVideoSearchQuery, updateCompanyVideoIndustryQuery, updateCompanyVideoSearchQuery, updateCareerVideoIndustryQuery, updateCareerVideoSearchQuery, favoriteVideo, unfavoriteVideo, updateProfessionalVideoIndustryQuery, updateProfessionalVideoSearchQuery
 } from "../searchable-video-listing/actions/actionCreators";
 import CompanyListing from "../searchable-company-listing/App";
 
@@ -13,7 +13,7 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["loadVideos", "renderCompanyVideoIndustryDropdown", "getRelevantCompanyVideos", "getRelevantCareerVideos", "renderCompanyDropdown", "renderCareerVideoIndustryDropdown", "getFavoritedVideos"];
+        const methods = ["loadVideos", "renderAllVideoIndustryDropdown", "renderCompanyVideoIndustryDropdown", "getRelevantAllVideos", "getRelevantCompanyVideos", "getRelevantCareerVideos", "renderCompanyDropdown", "renderCareerVideoIndustryDropdown", "getFavoritedVideos"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -21,6 +21,7 @@ class App extends React.Component {
 
         debugger;
 
+        const relevantAllVideos = this.getRelevantAllVideos();
         const relevantCompanyVideos = this.getRelevantCompanyVideos();
         const relevantCareerVideos = this.getRelevantCareerVideos();
         const relevantProfessionalVideos = this.getRelevantProfessionalVideos();
@@ -31,6 +32,7 @@ class App extends React.Component {
 
 
                 <ul className="" data-uk-tab="{connect: '#tab-companies'}" data-uk-switcher>
+                    <li className="uk-active"><a href="#all-videos">All Videos</a></li>
                     <li className="uk-active"><a href="#local-company-videos">Local Company Videos</a></li>
                     <li className="uk-active"><a href="#general-career-videos">General Career Videos</a></li>
                     <li className="uk-active"><a href="#general-career-videos">Local Professional Videos</a></li>
@@ -38,6 +40,45 @@ class App extends React.Component {
                 </ul>
 
                 <div className="uk-switcher" id="tab-company-videos">
+                    <div className="all_videos">
+
+                        <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                            <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                                <div className="uk-search uk-search-default uk-width-1-1">
+                                    <span data-uk-search-icon></span>
+                                    <input className="uk-search-input" type="search" placeholder="Search by keyword or profession..." onChange={this.props.updateAllVideoSearchQuery} value={this.props.allVideoSearch.query} />
+                                </div>
+                            </div>
+                            { this.renderAllVideoIndustryDropdown() }
+                        </div>
+                        <div className="uk-grid-small uk-flex-left" data-uk-grid>
+                            <div class="uk-width-1-1 uk-width-1-1@s uk-width-1-2@l">Total Videos: { relevantAllVideos.length }</div>
+                        </div>
+                        <div className="videos-listings" data-uk-grid="masonry: true">
+                            { this.props.search.loading && (
+                                <div className="uk-width-1-1 uk-align-center">
+                                    <Loader />
+                                </div>
+                            )}
+                            { !this.props.search.loading && relevantAllVideos.map(video => (
+                                <VideoListing
+                                    id={video.id}
+                                    videoId={video.videoId}
+                                    isFavorite={video.favorite}
+                                    name={video.name}
+                                    user={this.props.user}
+                                    favoriteVideo={this.props.favoriteVideo}
+                                    unfavoriteVideo={this.props.unfavoriteVideo}
+                                    tags={video.tags}
+                                    secondaryIndustries ={video.secondaryIndustries}
+                                />
+                            ))}
+                            { !this.props.search.loading && relevantAllVideos.length === 0 && (
+                                <p>No videos match your selection</p>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="local_company_videos">
 
                         <div className="uk-grid-small uk-flex-middle" data-uk-grid>
@@ -218,6 +259,28 @@ class App extends React.Component {
         return null;
     }
 
+    renderAllVideoIndustryDropdown() {
+
+        if ( this.props.allVideoIndustries.length > 0 ) {
+
+            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+                    <select onChange={this.props.updateAllVideoIndustryQuery}>
+                        <option value="">Filter by Industry...</option>
+                        { this.props.allVideoIndustries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+                    </select>
+                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+                            tabIndex="-1">
+                        <span></span>
+                        <span data-uk-icon="icon: chevron-down"></span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        return null;
+    }
+
     renderCompanyVideoIndustryDropdown() {
 
         if ( this.props.companyVideoIndustries.length > 0 ) {
@@ -283,6 +346,58 @@ class App extends React.Component {
 
         return null;
     }
+
+
+    getRelevantAllVideos () {
+
+        return this.props.allVideos.filter(video => {
+
+            // Filter By Industry
+            if(!!this.props.allVideoSearch.industry) {
+                let primaryIndustryIds = [];
+                video.secondaryIndustries.forEach(secondary_industry => {
+                    if(secondary_industry.primaryIndustry && secondary_industry.primaryIndustry.id) {
+                        primaryIndustryIds.push(secondary_industry.primaryIndustry.id);
+                    }
+                });
+
+                if(!primaryIndustryIds.includes(parseInt(this.props.allVideoSearch.industry))) {
+                    return false;
+                }
+            }
+
+            // Filter By Search Term
+            if( this.props.allVideoSearch.query ) {
+
+                // collect the primary and secondary industry names to search off of
+                let primaryIndustryNames = [];
+                let secondaryIndustryNames = [];
+
+                video.secondaryIndustries.forEach(secondary_industry => {
+
+                    if(secondary_industry.primaryIndustry && secondary_industry.primaryIndustry.name) {
+                        primaryIndustryNames.push(secondary_industry.primaryIndustry.name);
+                    }
+
+                    if(secondary_industry.name) {
+                        secondaryIndustryNames.push(secondary_industry.name);
+                    }
+
+                });
+
+                return (
+                    video['name'] && video['name'].toLowerCase().indexOf(this.props.allVideoSearch.query.toLowerCase() ) > -1 ||
+                    video['tags'] && video['tags'].toLowerCase().indexOf(this.props.allVideoSearch.query.toLowerCase() ) > -1 ||
+                    primaryIndustryNames.length > 0 && primaryIndustryNames.join(',').toLowerCase().indexOf(this.props.allVideoSearch.query.toLowerCase() ) > -1 ||
+                    secondaryIndustryNames.length > 0 && secondaryIndustryNames.join(',').toLowerCase().indexOf(this.props.allVideoSearch.query.toLowerCase() ) > -1
+                );
+            }
+
+            return true;
+        })
+
+    }
+
 
     getRelevantCompanyVideos () {
 
@@ -481,12 +596,15 @@ class App extends React.Component {
 App.propTypes = {
     companies: PropTypes.array,
     industries: PropTypes.array,
+    allVideoIndustries: PropTypes.array,
     companyVideoIndustries: PropTypes.array,
     careerVideoIndustries: PropTypes.array,
     videos: PropTypes.array,
+    allVideos: PropTypes.array,
     companyVideos: PropTypes.array,
     careerVideos: PropTypes.array,
     search: PropTypes.object,
+    allVideoSearch: PropTypes.object,
     companyVideoSearch: PropTypes.object,
     careerVideoSearch: PropTypes.object,
     user: PropTypes.object
@@ -495,11 +613,14 @@ App.propTypes = {
 App.defaultProps = {
     companies: [],
     industries: [],
+    allVideoIndustries: [],
     companyVideoIndustries: [],
     careerVideoIndustries: [],
+    allVideos: [],
     companyVideos: [],
     careerVideos: [],
     search: {},
+    allVideoSearch: {},
     companyVideoSearch: {},
     careerVideoSearch: {},
     user: {}
@@ -508,13 +629,16 @@ App.defaultProps = {
 export const mapStateToProps = (state = {}) => ({
     companies: state.companies,
     industries: state.industries,
+    allVideos: state.allVideos,
     companyVideos: state.companyVideos,
     careerVideos: state.careerVideos,
     professionalVideos: state.professionalVideos,
+    allVideoIndustries: state.allVideoIndustries,
     companyVideoIndustries: state.companyVideoIndustries,
     careerVideoIndustries: state.careerVideoIndustries,
     professionalVideoIndustries: state.professionalVideoIndustries,
     search: state.search,
+    allVideoSearch: state.allVideoSearch,
     companyVideoSearch: state.companyVideoSearch,
     careerVideoSearch: state.careerVideoSearch,
     professionalVideoSearch: state.professionalVideoSearch,
@@ -527,6 +651,8 @@ export const mapDispatchToProps = dispatch => ({
     loadVideos: (url) => dispatch(loadVideos(url)),
     loadUser: (url) => dispatch(loadUser(url)),
     updateCompanyQuery: (event) => dispatch(updateCompanyQuery(event.target.value)),
+    updateAllVideoIndustryQuery: (event) => dispatch(updateAllVideoIndustryQuery(event.target.value)),
+    updateAllVideoSearchQuery: (event) => dispatch(updateAllVideoSearchQuery(event.target.value)),
     updateCompanyVideoIndustryQuery: (event) => dispatch(updateCompanyVideoIndustryQuery(event.target.value)),
     updateCompanyVideoSearchQuery: (event) => dispatch(updateCompanyVideoSearchQuery(event.target.value)),
     updateCareerVideoIndustryQuery: (event) => dispatch(updateCareerVideoIndustryQuery(event.target.value)),
