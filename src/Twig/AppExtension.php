@@ -166,7 +166,25 @@ class AppExtension extends AbstractExtension
             new TwigFunction('user_can_chat_with_user', [$this, 'userCanChatWithUser']),
             new TwigFunction('user_favorited_lesson', [$this, 'userFavoritedLesson']),
             new TwigFunction('user_can_teach_lesson', [$this, 'userCanTeachLesson']),
+            new TwigFunction('user_favorited_company', [$this, 'userFavoritedCompany']),
         ];
+    }
+
+
+    /**
+     * @param User    $user
+     * @param Company $company
+     *
+     * @return bool
+     */
+    public function userFavoritedCompany(User $user, Company $company) {
+
+        foreach($company->getCompanyFavorites() as $companyFavorite) {
+            if($companyFavorite->getUser() && $companyFavorite->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

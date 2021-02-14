@@ -1,0 +1,254 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}My Company Favorites{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        <ul class="uk-subnav uk-subnav-pill" uk-margin>
+            <li><a href="{{ path('company_results_page') }}">ALL COMPANIES</a></li>
+            <li class="uk-active"><a href="{{ path('company_favorites_page') }}">FAVORITES</a></li>
+
+            {% if user.professional and user.ownedCompany is defined and user.ownedCompany is not null %}
+                <li><a href="{{ path('company_mine_page') }}">MY COMPANY</a></li>
+            {% endif %}
+        </ul>
+
+        {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+
+        {% if form.name is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.name, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.primaryIndustry is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select js-primary-industry'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.secondaryIndustries is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <input type="text" id="item_filter_zipcode" name="zipcode" class="uk-input" placeholder="Enter Zip Code"
+                   value="{{ zipcode }}">
+        </div>
+
+        {% if form.radius is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.radius, {'attr': {'class': 'uk-select', 'placeholder': 'Filter by Radius'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <button class="uk-button uk-button-primary">Search</button>
+            <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
+        </div>
+        {{ form_end(form) }}
+        <br>
+
+        <div class="count">
+            Total Favorited Companies: {{ pagination.getTotalItemCount }}
+        </div>
+        <br>
+
+        <div class="companies__all">
+
+            <div class="uk-grid" data-uk-grid>
+                <div class="uk-width-1-1 company-listings">
+
+                    {% for paginatedCompany in pagination %}
+
+                        <div class="uk-card uk-card-default uk-grid-collapse uk-flex-left uk-margin" data-uk-grid>
+
+                            {# Desktop View #}
+                            <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m uk-visible@m">
+                                <div class="company-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+                                     style="background-image: url({{ paginatedCompany.thumbnailImageURL }})">
+                                    <div class="uk-inline uk-padding-small">
+
+                                        {% if user_favorited_company(user, paginatedCompany) %}
+                                            <a href="{{ path('unfavorite_company', {'id': paginatedCompany.id}) }}">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Remove from My Favorites">
+                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ path('favorite_company', {'id': paginatedCompany.id}) }}">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Add to My Favorites">
+                                                    <i style="opacity: 0.5" class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# Mobile View #}
+                            <div class="uk-grid-collapse uk-flex-left uk-hidden@m mobile-company-listing" data-uk-grid>
+                                <div class="uk-card-media-left uk-width-auto">
+                                    <div class="company-listing__image uk-width-1-1 uk-width-small uk-height-small uk-height-max-small uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+                                         style="background-image: url({{ paginatedCompany.thumbnailImageURL }})">
+                                        <div class="uk-inline uk-padding-small">
+                                            {% if user_favorited_company(user, paginatedCompany) %}
+                                                <a href="{{ path('favorite_company', {'id': paginatedCompany.id}) }}">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Remove from My Favorites">
+                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ path('unfavorite_company', {'id': paginatedCompany.id}) }}">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Add to My Favorites">
+                                                    <i style="opacity: 0.5" class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="uk-width-expand">
+                                    <a href="{{ path('company_view', {id: paginatedCompany.id}) }}">
+                                        <h4 class="uk-card-title-small">{{ paginatedCompany.name }}</h4>
+                                    </a>
+                                </div>
+                            </div>
+
+                            {# Both Desktop & Mobile #}
+                            <div class="uk-width-1-1 uk-width-expand@m">
+                                <div class="uk-card-body">
+                                    <div class="company-listing__meta">
+                                        <div class="uk-hidden@m">
+
+                                            <p style="border-top: 1px solid #e5e5e5; padding-top: 10px">
+
+                                                {% if paginatedCompany.primaryIndustry %}
+                                                    <strong>{{ paginatedCompany.primaryIndustry.name }}</strong>
+                                                {% endif %}
+                                                <br>
+
+                                                {% if paginatedCompany.shortDescription is defined and paginatedCompany.shortDescription is not null %}
+                                                    {{ paginatedCompany.shortDescription }}
+                                                {% else %}
+                                                    This company hasn't added a description yet.
+                                                {% endif %}
+                                            </p>
+
+                                        </div>
+                                        <div class="uk-visible@m">
+                                            <a href="{{ path('company_view', {id: paginatedCompany.id}) }}">
+                                                <h4 class="uk-card-title-small uk-heading-divider">{{ paginatedCompany.name }}</h4>
+                                            </a>
+
+                                            <p>
+                                                {% if paginatedCompany.primaryIndustry %}
+                                                    <strong>{{ paginatedCompany.primaryIndustry.name }}</strong>
+                                                {% endif %}
+                                                <br>
+
+                                                {% if paginatedCompany.shortDescription is defined and paginatedCompany.shortDescription is not null %}
+                                                    {{ paginatedCompany.shortDescription }}
+                                                {% else %}
+                                                    This company hasn't added a description yet.
+                                                {% endif %}
+
+                                            </p>
+                                        </div>
+                                        <div class="uk-grid uk-flex-middle" data-uk-grid>
+                                            <div class="uk-width-auto">
+                                                <div class="company-links">
+
+                                                    {% if paginatedCompany.website %}
+                                                        <a href="{{ paginatedCompany.website }}" target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="world"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.phone %}
+                                                        <a href="tel:{{ paginatedCompany.phone }}"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="receiver"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.emailAddress %}
+                                                        <a href="mailto:{{ paginatedCompany.emailAddress }}"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="mail"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.companyLinkedinPage %}
+                                                        <a href="{{ paginatedCompany.companyLinkedinPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="linkedin"></a>
+
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.companyFacebookPage %}
+                                                        <a href="{{ paginatedCompany.companyFacebookPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="facebook"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.companyInstagramPage %}
+                                                        <a href="{{ paginatedCompany.companyInstagramPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="instagram"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.companyTwitterPage %}
+                                                        <a href="{{ paginatedCompany.companyTwitterPage }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="twitter"></a>
+                                                    {% endif %}
+
+                                                    {% if paginatedCompany.latitude and paginatedCompany.longitude %}
+                                                        <a href="http://maps.google.com/?q={{ paginatedCompany.street }},{{ paginatedCompany.city }},{{ paginatedCompany.zipcode }}"
+                                                           target="_blank"
+                                                           class="uk-icon-button uk-margin-small-right"
+                                                           data-uk-icon="location"></a>
+                                                    {% endif %}
+
+                                                </div>
+                                            </div>
+
+                                            <div class="uk-width-expand uk-visible@m">
+                                                <div class="uk-align-right">
+                                                    <a href="{{ path('company_view', {id: paginatedCompany.id}) }}"
+                                                       class="uk-button uk-button-small uk-button-text uk-text-muted">More
+                                                        info</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+        {# display navigation #}
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    </div>
+
+{% endblock %}
