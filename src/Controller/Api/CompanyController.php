@@ -440,9 +440,10 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{id}/favorite", name="favorite_company", methods={"POST"}, options = { "expose" = true })
+     * @Route("/companies/{id}/favorite", name="favorite_company", methods={"GET"}, options = { "expose" = true })
      * @param Company $company
-     * @return JsonResponse
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function favoriteCompany(Company $company) {
 
@@ -453,14 +454,7 @@ class CompanyController extends AbstractController
         ]);
 
         if($companyObj) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'message' => 'company has already been added to favorites.'
-
-                ],
-                Response::HTTP_OK
-            );
+            return $this->redirectToRoute('company_results_page');
         }
 
         $companyFavorite = new CompanyFavorite();
@@ -470,19 +464,14 @@ class CompanyController extends AbstractController
         $this->entityManager->persist($companyFavorite);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
-                'message' => 'company added to favorites.'
-            ],
-            Response::HTTP_OK
-        );
+        return $this->redirectToRoute('company_results_page');
     }
 
     /**
-     * @Route("/companies/{id}/unfavorite", name="unfavorite_company", methods={"POST"}, options = { "expose" = true })
+     * @Route("/companies/{id}/unfavorite", name="unfavorite_company", methods={"GET"}, options = { "expose" = true })
      * @param Company $company
-     * @return JsonResponse
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function unFavoriteCompany(Company $company) {
 
@@ -496,23 +485,10 @@ class CompanyController extends AbstractController
             $this->entityManager->remove($companyObj);
             $this->entityManager->flush();
 
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'message' => 'company removed from favorites.'
-                ],
-                Response::HTTP_OK
-            );
+            return $this->redirectToRoute('company_results_page');
         }
 
-
-        return new JsonResponse(
-            [
-                'success' => false,
-                'message' => 'company cannot be removed from favorites cause it does not exist in favorites'
-            ],
-            Response::HTTP_OK
-        );
+        return $this->redirectToRoute('company_results_page');
     }
 
     /**
