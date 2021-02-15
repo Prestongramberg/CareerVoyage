@@ -31,9 +31,9 @@
 
         {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
 
-        {% if form.name is defined %}
+        {% if form.title is defined %}
             <div class="uk-width-1-4@s">
-                {{ form_widget(form.name, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
+                {{ form_widget(form.title, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
             </div>
         {% endif %}
 
@@ -57,11 +57,13 @@
 
         {% if form.hasEducatorRequestors is defined %}
             <div class="uk-width-1-4@s">
+
                 {{ form_widget(form.hasEducatorRequestors, {'attr': {'class': 'uk-select', 'placeholder': 'Search by Name...'}}) }}
             </div>
         {% endif %}
 
         <div class="uk-width-1-4@s">
+
             <button class="uk-button uk-button-primary">Search</button>
             <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
         </div>
