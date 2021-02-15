@@ -20,7 +20,7 @@
                 <li><a href="{{ path('school_view', { id: user.school.id }) }}">My School</a></li>
             {% endif %}
             <li><a href="{{ path('experience_index') }}">Search Experiences</a></li>
-            <li><a href="{{ path('company_index') }}">Find Companies</a></li>
+            <li><a href="{{ path('company_results_page') }}">Find Companies</a></li>
             <li><a href="{{ path('professional_results_page') }}">Find Professionals</a></li>
             <li><a href="{{ path('educator_results_page') }}">Find Educators</a></li>
             <li><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>

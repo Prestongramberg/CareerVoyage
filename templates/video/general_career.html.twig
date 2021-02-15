@@ -1,0 +1,246 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}General Career Videos{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        {% if (user.isSiteAdmin or user.isAdmin) %}
+
+            <div class="uk-margin uk-width-1-1">
+                <div class="uk-flex uk-flex-right@m">
+                    <a class="uk-button uk-button-primary uk-button-small" href="#modal-add-career-video" uk-toggle>Add
+                        a Video</a>
+                </div>
+            </div>
+
+            <div id="modal-add-career-video" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <h3>Add a Video</h3>
+
+                    <div class="uk-margin">
+                        <label for="edit_company_add_video_name" class="required">Name*</label>
+                        <input type="text" id="edit_company_add_video_name" name="name" required="required"
+                               class="uk-input"/>
+                    </div>
+
+                    <div class="uk-margin">
+                        <label for="edit_company_add_video_id" class="required">Youtube Video ID*</label>
+                        <div class="uk-position-relative">
+                            <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                            <input class="uk-input" id="edit_company_add_video_id" name="videoId" required="required"
+                                   type="text">
+                        </div>
+                        <small>Please make sure your video is open to public.</small>
+
+                    </div>
+
+                    <div class="uk-margin">
+                        <label for="edit_company_add_video_tags" class="required">Keywords</label>
+                        <div class="uk-position-relative">
+                            <textarea id="edit_company_add_video_tags" name="tags" class="uk-textarea"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="uk-width-xlarge">
+                        <fieldset class="uk-fieldset">
+                            <div class="career-video-secondary-industries"
+                                 data-field-name="secondaryIndustries"
+                                 data-remove-dom-id="secondaryIndustries"
+                            ></div>
+                        </fieldset>
+                    </div>
+
+                    <p class="uk-text-right">
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <input class="uk-button uk-button-primary" type="submit" value="Save"
+                               data-action="{{ path('career_videos_add') }}"/>
+                    </p>
+                </div>
+            </div>
+
+            {% if careerVideo %}
+
+                <div id="modal-edit-career-video" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <h3>Edit Video</h3>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_edit_video_name" class="required">Name*</label>
+                            <input type="text" id="edit_company_edit_video_name" name="name" required="required"
+                                   class="uk-input" value="{{ careerVideo.name }}"/>
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_edit_video_id" class="required">Youtube Video ID*</label>
+                            <div class="uk-position-relative">
+                                <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                <input class="uk-input" id="edit_company_edit_video_id" name="videoId"
+                                       required="required" type="text" value="{{ careerVideo.videoId }}">
+                            </div>
+                            <small>Please make sure your video is open to public.</small>
+
+                        </div>
+
+                        <div class="uk-margin">
+                            <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                            <div class="uk-position-relative">
+                                <textarea id="edit_company_edit_video_tags" name="tags"
+                                          class="uk-textarea">{{ careerVideo.tags }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="uk-width-xlarge">
+                            <fieldset class="uk-fieldset">
+                                <div class="career-video-secondary-industries"
+                                     data-field-name="secondaryIndustries"
+                                     data-secondary-industries="{{ encode_secondary_industries(careerVideo.secondaryIndustries) }}"
+                                     data-remove-dom-id="secondaryIndustries"
+                                ></div>
+                            </fieldset>
+                        </div>
+
+                        <p class="uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <input class="uk-button uk-button-primary" type="submit" value="Save"
+                                   data-action="{{ path('career_videos_edit', {id: careerVideo.id}) }}"/>
+                        </p>
+                    </div>
+                </div>
+
+            {% endif %}
+
+        {% endif %}
+
+        <ul class="uk-subnav uk-subnav-pill" uk-margin>
+            <li><a href="{{ path('videos_local_company') }}">LOCAL COMPANY VIDEOS</a></li>
+            <li class="uk-active"><a href="{{ path('videos_general_career') }}">GENERAL CAREER VIDEOS</a></li>
+            <li><a href="{{ path('videos_local_professional') }}">LOCAL PROFESSIONAL VIDEOS</a></li>
+            <li><a href="{{ path('videos_favorites') }}">FAVORITES</a></li>
+        </ul>
+
+        {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+
+        {% if form.keywordOrProfession is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.keywordOrProfession, {'attr': {'class': 'uk-input', 'placeholder': 'Search by keyword or profession...'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.primaryIndustry is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select js-primary-industry'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.secondaryIndustries is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.company is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.company, {'attr': {'class': 'uk-select'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <button class="uk-button uk-button-primary">Search</button>
+            <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
+        </div>
+        {{ form_end(form) }}
+        <br>
+
+        <div class="count">
+            Total General Career Videos: {{ pagination.getTotalItemCount }}
+        </div>
+        <br>
+
+        <div class="local_company_videos">
+
+            <div class="videos-listings" data-uk-grid="masonry: true">
+
+                {% for paginatedVideo in pagination %}
+
+                    <div>
+
+                        <div class="uk-card uk-card-default">
+
+                            <div class="uk-card-header">
+                                <div class="uk-width-expand">
+
+                                    {% if user_favorited_video(user, paginatedVideo) %}
+                                        <a href="{{ path('unfavorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_general_career">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Remove from My Favorites">
+                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ path('favorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_general_career">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Add to My Favorites">
+                                                    <i style="opacity: 0.5" class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                        </a>
+                                    {% endif %}
+
+
+                                    {% if user.admin or user.siteAdmin %}
+                                        <a style="margin-left: 20px" class="uk-link-text"
+                                           href="{{ path('videos_general_career') }}?editVideo={{ paginatedVideo.id }}">Edit</a> |
+                                        <a style="margin-left: 20px" class="uk-link-text"
+                                           href="{{ path('career_videos_delete', {id: paginatedVideo.id}) }}">Delete</a>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <div class="uk-card-body">
+                                <div>
+                                    <a class="company-video uk-inline" target="_blank"
+                                       href={"https://www.youtube.com/watch?v=" {{ paginatedVideo.videoId }}>
+                                        <img src="http://i.ytimg.com/vi/{{ paginatedVideo.videoId }}/hqdefault.jpg"
+                                             alt=""/>
+                                        <div class="company-video__overlay">
+                                            <div class="company-video__overlay-title">
+                                                {{ paginatedVideo.name }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+
+                    <p>No videos match your selection</p>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {# display navigation #}
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% if careerVideo %}
+        <script>
+            window.onload = function() {
+                UIkit.modal('#modal-edit-career-video').show()
+            };
+        </script>
+    {% endif %}
+
+{% endblock %}

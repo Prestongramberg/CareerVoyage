@@ -141,26 +141,23 @@ class VideoController extends AbstractController
     }
 
     /**
-     * @Route("/videos/{id}/favorite", name="favorite_video", methods={"POST"}, options = { "expose" = true })
-     * @param Video $video
-     * @return JsonResponse
+     * @Route("/videos/{id}/favorite", name="favorite_video", methods={"GET"}, options = { "expose" = true })
+     * @param Video   $video
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function favoriteVideo(Video $video) {
+    public function favoriteVideo(Video $video, Request $request) {
 
         $videoFavoriteObj = $this->videoFavoriteRepository->findOneBy([
             'user' => $this->getUser(),
             'video' => $video
         ]);
 
-        if($videoFavoriteObj) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'message' => 'video has already been added to favorites.'
+        $redirect = $request->query->get('redirect', 'videos_local_company');
 
-                ],
-                Response::HTTP_OK
-            );
+        if($videoFavoriteObj) {
+            return $this->redirectToRoute($redirect);
         }
 
         $videoFavorite = new VideoFavorite();
@@ -170,47 +167,32 @@ class VideoController extends AbstractController
         $this->entityManager->persist($videoFavorite);
         $this->entityManager->flush();
 
-        return new JsonResponse(
-            [
-                'success' => true,
-                'message' => 'video added to favorites.'
-            ],
-            Response::HTTP_OK
-        );
+        return $this->redirectToRoute($redirect);
     }
 
     /**
-     * @Route("/videos{id}/unfavorite", name="unfavorite_video", methods={"POST"}, options = { "expose" = true })
-     * @param Video $video
-     * @return JsonResponse
+     * @Route("/videos{id}/unfavorite", name="unfavorite_video", methods={"GET"}, options = { "expose" = true })
+     * @param Video   $video
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function unFavoriteVideo(Video $video) {
+    public function unFavoriteVideo(Video $video, Request $request) {
 
         $videoFavoriteObj = $this->videoFavoriteRepository->findOneBy([
             'user' => $this->getUser(),
             'video' => $video
         ]);
 
+        $redirect = $request->query->get('redirect', 'videos_local_company');
+
         if($videoFavoriteObj) {
             $this->entityManager->remove($videoFavoriteObj);
             $this->entityManager->flush();
 
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'message' => 'video removed from favorites.'
-                ],
-                Response::HTTP_OK
-            );
+            return $this->redirectToRoute($redirect);
         }
 
-
-        return new JsonResponse(
-            [
-                'success' => false,
-                'message' => 'video cannot be removed from favorites cause it does not exist in favorites'
-            ],
-            Response::HTTP_OK
-        );
+        return $this->redirectToRoute($redirect);
     }
 }

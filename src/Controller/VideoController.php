@@ -33,6 +33,10 @@ use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
 use App\Form\EducatorRegisterStudentsForExperienceFormType;
+use App\Form\Filter\CareerVideoFilterType;
+use App\Form\Filter\LocalCompanyVideoFilterType;
+use App\Form\Filter\ProfessionalVideoFilterType;
+use App\Form\Filter\VideoFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -75,6 +79,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class VideoController
+ *
  * @package App\Controller
  * @Route("/dashboard")
  */
@@ -86,54 +91,258 @@ class VideoController extends AbstractController
     /**
      * @Route("/videos", name="video_index", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction(Request $request) {
+    public function indexAction(Request $request)
+    {
+        return $this->redirectToRoute('videos_local_company');
 
         $editVideoId = $request->query->get('editVideo', null);
         $careerVideo = null;
-        if($editVideoId) {
+        if ($editVideoId) {
             $careerVideo = $this->careerVideoRepository->find($editVideoId);
         }
 
         $user = $this->getUser();
-        return $this->render('video/index.html.twig', [
-            'user' => $user,
-            'careerVideo' => $careerVideo
-        ]);
+
+        return $this->render(
+            'video/index.html.twig', [
+                                       'user'        => $user,
+                                       'careerVideo' => $careerVideo,
+                                   ]
+        );
+    }
+
+    /**
+     * @Route("/videos/local-company", name="videos_local_company", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function videosLocalCompanyAction(Request $request)
+    {
+        $editVideoId = $request->query->get('editVideo', null);
+        $careerVideo = null;
+        if ($editVideoId) {
+            $careerVideo = $this->videoRepository->find($editVideoId);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(
+            LocalCompanyVideoFilterType::class, null, [
+                                                  'method' => 'GET',
+                                              ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->companyVideoRepository->createQueryBuilder('cv')
+            ->leftJoin('cv.company', 'c')
+            ->leftJoin('c.primaryIndustry', 'pi')
+            ->leftJoin('c.secondaryIndustries', 'si');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'video/local_company.html.twig', [
+                                               'careerVideo'  => $careerVideo,
+                                               'user'         => $user,
+                                               'pagination'   => $pagination,
+                                               'form'         => $form->createView(),
+                                               'zipcode'      => $request->query->get('zipcode', ''),
+                                               'clearFormUrl' => $this->generateUrl('videos_local_company'),
+                                           ]
+        );
+    }
+
+    /**
+     * @Route("/videos/general-career", name="videos_general_career", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function videosGeneralCareerAction(Request $request)
+    {
+        $editVideoId = $request->query->get('editVideo', null);
+        $careerVideo = null;
+        if ($editVideoId) {
+            $careerVideo = $this->careerVideoRepository->find($editVideoId);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(
+            CareerVideoFilterType::class, null, [
+                                                  'method' => 'GET',
+                                              ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->careerVideoRepository->createQueryBuilder('cv')
+            ->leftJoin('cv.secondaryIndustries', 'si')
+            ->leftJoin('si.primaryIndustry', 'pi');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'video/general_career.html.twig', [
+                                                'careerVideo'  => $careerVideo,
+                                                'user'         => $user,
+                                                'pagination'   => $pagination,
+                                                'form'         => $form->createView(),
+                                                'zipcode'      => $request->query->get('zipcode', ''),
+                                                'clearFormUrl' => $this->generateUrl('videos_general_career'),
+                                            ]
+        );
+    }
+
+    /**
+     * @Route("/videos/local-professional", name="videos_local_professional", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function videosLocalProfessionalAction(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(
+            ProfessionalVideoFilterType::class, null, [
+                                                  'method' => 'GET',
+                                              ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->professionalVideoRepository->createQueryBuilder('pv')
+            ->leftJoin('pv.professional', 'p')
+            ->leftJoin('p.secondaryIndustries', 'si')
+            ->leftJoin('p.primaryIndustry', 'pi');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'video/local_professional.html.twig', [
+                                                    'user'         => $user,
+                                                    'pagination'   => $pagination,
+                                                    'form'         => $form->createView(),
+                                                    'zipcode'      => $request->query->get('zipcode', ''),
+                                                    'clearFormUrl' => $this->generateUrl('videos_local_professional'),
+                                                ]
+        );
+    }
+
+    /**
+     * @Route("/videos/favorites", name="videos_favorites", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function videosFavoritesAction(Request $request)
+    {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $filterBuilder = $this->videoRepository->createQueryBuilder('v')
+            ->innerJoin('v.videoFavorites', 'vf')
+            ->andWhere('vf.user = :user')
+            ->setParameter('user', $user);
+
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'video/favorites.html.twig', [
+                                           'user'         => $user,
+                                           'pagination'   => $pagination
+                                       ]
+        );
     }
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/career-videos/add", name="career_videos_add", options = { "expose" = true })
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function careerAddVideoAction(Request $request) {
+    public function careerAddVideoAction(Request $request)
+    {
 
-        $name = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
-        $tags = $request->request->get('tags');
+        $name                 = $request->request->get('name');
+        $videoId              = $request->request->get('videoId');
+        $tags                 = $request->request->get('tags');
         $secondaryIndustryIds = $request->request->get('secondaryIndustries');
 
-        if(!empty($secondaryIndustryIds)) {
-            $secondaryIndustries = $this->secondaryIndustryRepository->findBy([
-                'id' => $secondaryIndustryIds
-            ]);
+        if (!empty($secondaryIndustryIds)) {
+            $secondaryIndustries = $this->secondaryIndustryRepository->findBy(
+                [
+                    'id' => $secondaryIndustryIds,
+                ]
+            );
         } else {
             $secondaryIndustries = [];
         }
 
-        if($name && $videoId) {
+        if ($name && $videoId) {
             $video = new CareerVideo();
             $video->setName($name);
             $video->setVideoId($videoId);
 
-            if($tags) {
+            if ($tags) {
                 $video->setTags($tags);
             }
 
-            foreach($secondaryIndustries as $secondaryIndustry) {
+            foreach ($secondaryIndustries as $secondaryIndustry) {
                 $video->addSecondaryIndustry($secondaryIndustry);
             }
 
@@ -143,8 +352,8 @@ class VideoController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
+                    'id'      => $video->getId(),
+                    'name'    => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -163,21 +372,25 @@ class VideoController extends AbstractController
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/career-videos/{id}/edit", name="career_videos_edit", options = { "expose" = true })
-     * @param Request $request
+     * @param Request     $request
      * @param CareerVideo $video
+     *
      * @return JsonResponse
      */
-    public function careerEditVideoAction(Request $request, CareerVideo $video) {
+    public function careerEditVideoAction(Request $request, CareerVideo $video)
+    {
 
-        $name = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
-        $tags = $request->request->get('tags');
+        $name                 = $request->request->get('name');
+        $videoId              = $request->request->get('videoId');
+        $tags                 = $request->request->get('tags');
         $secondaryIndustryIds = $request->request->get('secondaryIndustries');
 
-        if(!empty($secondaryIndustryIds)) {
-            $secondaryIndustries = $this->secondaryIndustryRepository->findBy([
-                'id' => $secondaryIndustryIds
-            ]);
+        if (!empty($secondaryIndustryIds)) {
+            $secondaryIndustries = $this->secondaryIndustryRepository->findBy(
+                [
+                    'id' => $secondaryIndustryIds,
+                ]
+            );
         } else {
             $secondaryIndustries = [];
         }
@@ -191,11 +404,11 @@ class VideoController extends AbstractController
             $originalSecondaryIndustries->add($secondaryIndustry);
         }
 
-        if($name && $videoId) {
+        if ($name && $videoId) {
             $video->setName($name);
             $video->setVideoId($videoId);
 
-            if($tags) {
+            if ($tags) {
                 $video->setTags($tags);
             }
 
@@ -205,7 +418,7 @@ class VideoController extends AbstractController
                 }
             }
 
-            foreach($secondaryIndustries as $secondaryIndustry) {
+            foreach ($secondaryIndustries as $secondaryIndustry) {
                 if (false === $video->getSecondaryIndustries()->contains($secondaryIndustry)) {
                     $video->addSecondaryIndustry($secondaryIndustry);
                 }
@@ -217,8 +430,8 @@ class VideoController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
+                    'id'      => $video->getId(),
+                    'name'    => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -238,11 +451,13 @@ class VideoController extends AbstractController
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/career-videos/{id}/delete", name="career_videos_delete", options = { "expose" = true })
-     * @param Request $request
+     * @param Request     $request
      * @param CareerVideo $video
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function careerDeleteVideoAction(Request $request, CareerVideo $video) {
+    public function careerDeleteVideoAction(Request $request, CareerVideo $video)
+    {
 
         $this->entityManager->remove($video);
         $this->entityManager->flush();
@@ -256,9 +471,11 @@ class VideoController extends AbstractController
     /**
      * @Route("/admin-videos", name="admin_videos", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function adminVideosAction(Request $request) {
+    public function adminVideosAction(Request $request)
+    {
 
         $userRoles = [
             ["ANY", "Any User Role"],
@@ -267,17 +484,17 @@ class VideoController extends AbstractController
             ["ROLE_STUDENT_USER", "Student"],
             ["ROLE_SCHOOL_ADMINISTRATOR_USER", "School Administrator"],
             ["ROLE_REGIONAL_COORDINATOR_USER", "Region Coordinator"],
-            ["ROLE_STATE_COORDINATOR_USER", "State Coordinator"]
+            ["ROLE_STATE_COORDINATOR_USER", "State Coordinator"],
         ];
 
         $editVideoId = $request->query->get('editVideo', null);
-        $helpVideo = null;
-        if($editVideoId) {
+        $helpVideo   = null;
+        if ($editVideoId) {
             $helpVideo = $this->helpVideoRepository->find($editVideoId);
         }
 
         $videos = [];
-        foreach($userRoles as $k => $v){
+        foreach ($userRoles as $k => $v) {
             $videos[$v[0]] = $this->helpVideoRepository->findBy(
                 ['userRole' => $v[0]],
                 ['position' => 'ASC']
@@ -285,27 +502,32 @@ class VideoController extends AbstractController
         }
 
         $user = $this->getUser();
-        return $this->render('video/admin_index.html.twig', [
-            'user' => $user,
-            'helpVideo' => $helpVideo,
-            'roles' => $userRoles,
-            'videos' => $videos
-        ]);
+
+        return $this->render(
+            'video/admin_index.html.twig', [
+                                             'user'      => $user,
+                                             'helpVideo' => $helpVideo,
+                                             'roles'     => $userRoles,
+                                             'videos'    => $videos,
+                                         ]
+        );
     }
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/admin-videos/add", name="admin_videos_add", options = { "expose" = true })
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function adminAddVideoAction(Request $request) {
+    public function adminAddVideoAction(Request $request)
+    {
 
-        $name = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
+        $name     = $request->request->get('name');
+        $videoId  = $request->request->get('videoId');
         $userRole = $request->request->get('userRole');
 
-        if($name && $videoId) {
+        if ($name && $videoId) {
             $video = new HelpVideo();
             $video->setName($name);
             $video->setVideoId($videoId);
@@ -317,8 +539,8 @@ class VideoController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
+                    'id'      => $video->getId(),
+                    'name'    => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -338,16 +560,18 @@ class VideoController extends AbstractController
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/admin-videos/{id}/edit", name="admin_videos_edit", options = { "expose" = true })
      * @param Request $request
-     * @param Video $video
+     * @param Video   $video
+     *
      * @return JsonResponse
      */
-    public function adminEditVideoAction(Request $request, Video $video) {
+    public function adminEditVideoAction(Request $request, Video $video)
+    {
 
-        $name = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
+        $name     = $request->request->get('name');
+        $videoId  = $request->request->get('videoId');
         $userRole = $request->request->get('userRole');
 
-        if($name && $videoId) {
+        if ($name && $videoId) {
             $video->setName($name);
             $video->setVideoId($videoId);
             $video->setUserRole($userRole);
@@ -358,8 +582,8 @@ class VideoController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
+                    'id'      => $video->getId(),
+                    'name'    => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -380,11 +604,13 @@ class VideoController extends AbstractController
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/admin-videos/{id}/delete", name="admin_videos_delete", options = { "expose" = true })
      * @param Request $request
-     * @param Video $video
+     * @param Video   $video
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function adminDeleteVideoAction(Request $request, Video $video) {
-        if($video) {
+    public function adminDeleteVideoAction(Request $request, Video $video)
+    {
+        if ($video) {
             $this->entityManager->remove($video);
             $this->entityManager->flush();
 
@@ -398,6 +624,7 @@ class VideoController extends AbstractController
                 ], Response::HTTP_OK
             );
         }
+
         return new JsonResponse(
             [
                 'success' => false,
@@ -410,26 +637,28 @@ class VideoController extends AbstractController
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/admin-videos/{role}/sort", name="admin_videos_sort", options = { "expose" = true })
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function adminSortVideosAction(Request $request) {
-        
+    public function adminSortVideosAction(Request $request)
+    {
+
         $list = $request->request->get('data');
-        if($list) {
+        if ($list) {
             parse_str($list, $list_array);
 
-            foreach($list_array['item'] as $k => $v){
+            foreach ($list_array['item'] as $k => $v) {
 
-                $em = $this->getDoctrine()->getManager();
+                $em    = $this->getDoctrine()->getManager();
                 $video = $em->getRepository('App:HelpVideo')->find($v);
 
-                if($video) {
+                if ($video) {
                     $video->setPosition($k);
 
                     $em->persist($video);
                     $em->flush();
                 }
-                
+
             }
 
             return new JsonResponse(
@@ -439,6 +668,7 @@ class VideoController extends AbstractController
                 ], Response::HTTP_OK
             );
         }
+
         return new JsonResponse(
             [
                 'success' => false,
@@ -446,7 +676,6 @@ class VideoController extends AbstractController
             ], Response::HTTP_OK
         );
     }
-
 
 
 }
