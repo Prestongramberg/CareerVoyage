@@ -24,6 +24,7 @@ use App\Entity\StudentUser;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
+use App\Entity\Video;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\EducatorRegisterEducatorForExperienceRequestRepository;
 use App\Repository\ChatMessageRepository;
@@ -167,9 +168,25 @@ class AppExtension extends AbstractExtension
             new TwigFunction('user_favorited_lesson', [$this, 'userFavoritedLesson']),
             new TwigFunction('user_can_teach_lesson', [$this, 'userCanTeachLesson']),
             new TwigFunction('user_favorited_company', [$this, 'userFavoritedCompany']),
+            new TwigFunction('user_favorited_video', [$this, 'userFavoritedVideo']),
         ];
     }
 
+    /**
+     * @param User  $user
+     * @param Video $video
+     *
+     * @return bool
+     */
+    public function userFavoritedVideo(User $user, Video $video) {
+
+        foreach($video->getVideoFavorites() as $videoFavorite) {
+            if($videoFavorite->getUser() && $videoFavorite->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @param User    $user

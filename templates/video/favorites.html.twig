@@ -1,0 +1,85 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Favorite Videos{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        <ul class="uk-subnav uk-subnav-pill" uk-margin>
+            <li><a href="{{ path('videos_local_company') }}">LOCAL COMPANY VIDEOS</a></li>
+            <li><a href="{{ path('videos_general_career') }}">GENERAL CAREER VIDEOS</a></li>
+            <li><a href="{{ path('videos_local_professional') }}">LOCAL PROFESSIONAL VIDEOS</a></li>
+            <li class="uk-active"><a href="{{ path('videos_favorites') }}">FAVORITES</a></li>
+        </ul>
+
+        <div class="count">
+            Total Favorite Videos: {{ pagination.getTotalItemCount }}
+        </div>
+        <br>
+
+        <div class="local_company_videos">
+
+            <div class="videos-listings" data-uk-grid="masonry: true">
+
+                {% for paginatedVideo in pagination %}
+
+                    <div>
+
+                        <div class="uk-card uk-card-default">
+
+                            <div class="uk-card-header">
+                                <div class="uk-width-expand">
+
+                                    {% if user_favorited_video(user, paginatedVideo) %}
+                                        <a href="{{ path('unfavorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_favorites">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Remove from My Favorites">
+                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ path('favorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_favorites">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Add to My Favorites">
+                                                    <i style="opacity: 0.5" class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                        </a>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <div class="uk-card-body">
+                                <div>
+                                    <a class="company-video uk-inline" target="_blank"
+                                       href={"https://www.youtube.com/watch?v=" {{ paginatedVideo.videoId }}>
+                                        <img src="http://i.ytimg.com/vi/{{ paginatedVideo.videoId }}/hqdefault.jpg"
+                                             alt=""/>
+                                        <div class="company-video__overlay">
+                                            <div class="company-video__overlay-title">
+                                                {{ paginatedVideo.name }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+
+                    <p>You have not favorite any videos yet.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {# display navigation #}
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    </div>
+
+{% endblock %}
