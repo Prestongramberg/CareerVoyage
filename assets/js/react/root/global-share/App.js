@@ -59,7 +59,7 @@ export class App extends Component {
                                                 { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyAdministratorDropdown() } </div> }
 
                                                 { this.isEducatorUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCoursesTaughtDropdown() } </div> }
-                                                { ( !this.props.user.roles.includes('ROLE_EDUCATOR_USER') && (this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() || this.isSchoolAdministratorUserRoleSelected()) ) && <div className="uk-width-1-3"> { this.renderSchoolDropdown() } </div> }
+                                                { ( !Object.values(this.props.user.roles).includes('ROLE_EDUCATOR_USER') && (this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() || this.isSchoolAdministratorUserRoleSelected()) ) && <div className="uk-width-1-3"> { this.renderSchoolDropdown() } </div> }
 
                                                 { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderPrimaryIndustryDropdown() } </div> }
                                                 { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderSecondaryIndustryDropdown() } </div> }
