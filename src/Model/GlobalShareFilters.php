@@ -80,7 +80,6 @@ class GlobalShareFilters
         }
 
         $this->request = $request;
-        $this->search  = $request->query->get('search');
         $search        = $request->request->get('search');
 
         $this->setUserRoles($search['user_roles'])
@@ -92,7 +91,7 @@ class GlobalShareFilters
              ->setPrimaryIndustries($search['primary_industries'])
              ->setSecondaryIndustries($search['secondary_industries'])
              ->setCoursesTaught($search['courses_taught'])
-             ->setSearch($request->query->get('search', ''))
+             ->setSearch($search['query'] ?? '')
              ->setSchools($search['schools']);
     }
 

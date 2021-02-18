@@ -17,7 +17,8 @@ export class App extends Component {
 
     componentWillMount() {
         this.props.updateMessage( this.props.message )
-        this.props.addDefaultUsers()
+        //this.props.addDefaultUsers()
+        this.props.query(this.props.search);
     }
 
     render() {
@@ -126,6 +127,7 @@ export class App extends Component {
 
     renderUser(user) {
 
+        debugger;
         let loggedInUser = this.props.user;
         let company = '';
         let role = '';
@@ -631,13 +633,16 @@ export class App extends Component {
 
     searchChattableUsers(event) {
 
+        debugger;
         clearTimeout(this.timeout);
 
         let searchValue = event.target.value;
 
         // Make a new timeout set to go off in 800ms
         this.timeout = setTimeout(() => {
+            debugger;
             this.props.searchChattableUsers(searchValue);
+            this.props.query(this.props.search);
         }, 500);
     }
 }

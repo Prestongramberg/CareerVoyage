@@ -134,8 +134,6 @@ class GlobalShare
             ];
         }
 
-        
-
 
         $educators = $this->educatorUserRepository->getDataForGlobalShare($chattableUserIds, $filters);
 
@@ -307,12 +305,7 @@ class GlobalShare
             }
         }
 
-        if ($filters === null || ($filters !== null && !$filters->hasFilterByStudent() &&
-                !$filters->hasFilterBySchoolAdministrator() &&
-                !$filters->hasFilterByEducator() &&
-                !$filters->hasFilterByProfessional() &&
-                !$filters->hasFilterByCompanyAdministrator())) {
-
+        if ($filters === null) {
             $professionalUsers    = $this->professionalUserRepository->findBySearchTermAndRegionIds('', $regionIds);
             $educatorUsers        = $this->educatorUserRepository->findBySearchTermAndRegionIds('', $regionIds);
             $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds('', $regionIds);
@@ -322,6 +315,23 @@ class GlobalShare
 
             return $users;
         }
+
+
+        if (!$filters->hasFilterByStudent() &&
+            !$filters->hasFilterBySchoolAdministrator() &&
+            !$filters->hasFilterByEducator() &&
+            !$filters->hasFilterByProfessional() &&
+            !$filters->hasFilterByCompanyAdministrator()) {
+
+        $professionalUsers    = $this->professionalUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+        $educatorUsers        = $this->educatorUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+        $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+        $studentUsers         = $this->studentUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+
+        $users = array_merge($users, $educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
+
+        return $users;
+    }
 
         if ($filters->hasFilterByProfessional() || $filters->hasFilterByCompanyAdministrator()) {
             $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);

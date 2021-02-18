@@ -1,21 +1,21 @@
 import * as actionTypes from "./actionTypes";
-import * as api  from '../../../utilities/api/api'
+import * as api from '../../../utilities/api/api'
 
-export function addUser( user ) {
+export function addUser(user) {
     return {
         type: actionTypes.ADD_USER,
         user: user
     }
 }
 
-export function removeUser( user ) {
+export function removeUser(user) {
     return {
         type: actionTypes.REMOVE_USER,
         user: user
     }
 }
 
-export function updateMessage( message ) {
+export function updateMessage(message) {
     return {
         type: actionTypes.UPDATE_MESSAGE,
         message: message
@@ -63,10 +63,10 @@ export function query(data) {
 
                 debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS, users: response.responseBody.data })
+                    dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS, users: response.responseBody.data})
                 }
             })
-            .catch((e)=> {
+            .catch((e) => {
                 debugger;
             })
     }
@@ -129,63 +129,41 @@ export function queryBySecondaryIndustry(options) {
 }
 
 
-export function searchChattableUsers( search ) {
+export function searchChattableUsers(search) {
     debugger;
-    return (dispatch, getState) => {
 
-        const state = getState();
-        debugger;
-        const url = window.Routing.generate("global_share_data", { search: search, page: state.filters.current_page } );
-
-        dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS, searchQuery: search})
-
-        debugger;
-        return api.post(url, state)
-            .then((response) => {
-                if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS, users: response.responseBody.data })
-                }  else {
-                    dispatch({
-                        type: actionTypes.SEARCH_CHATTABLE_USERS_FAILURE
-                    })
-                    window.Pintex.notification("Something went wrong, please try again.");
-                }
-            })
-            .catch((e)=> {
-                dispatch({
-                    type: actionTypes.SEARCH_CHATTABLE_USERS_FAILURE
-                })
-                window.Pintex.notification("Something went wrong, please try again.");
-            })
-    }
+    return {
+        type: actionTypes.SEARCH_CHATTABLE_USERS,
+        searchQuery: search
+    };
 }
 
 export function sendNotifications() {
     return (dispatch, getState) => {
 
-        const { ui } = getState();
+        const {ui} = getState();
 
         const url = window.Routing.generate("share_notify")
 
         dispatch({type: actionTypes.NOTIFICATIONS_SENDING})
 
         return api.post(url, {
-                message: ui.message,
-                user_ids: ui.users.map((user) => user.id)
-            })
+            message: ui.message,
+            user_ids: ui.users.map((user) => user.id)
+        })
             .then((response) => {
                 if (response.statusCode < 300 && response.responseBody.success === true) {
                     window.Pintex.notification("Notifications Sent!");
                     UIkit.modal('#global-share').hide();
-                    dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS });
-                }  else {
+                    dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS});
+                } else {
                     dispatch({
                         type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
                     })
                     window.Pintex.notification("Something went wrong, please try again.");
                 }
             })
-            .catch((response)=> {
+            .catch((response) => {
                 debugger;
                 dispatch({
                     type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
@@ -195,20 +173,6 @@ export function sendNotifications() {
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //
