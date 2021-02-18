@@ -3,4 +3,3 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     form_themes: ['@LexikFormFilter/Form/form_div_layout.html.twig', 'form/form_errors.html.twig']
-    cache: false
