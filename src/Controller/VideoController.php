@@ -115,6 +115,61 @@ class VideoController extends AbstractController
     }
 
     /**
+     * @Route("/videos/all", name="videos_all", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function videosAllAction(Request $request)
+    {
+        $editVideoId = $request->query->get('editVideo', null);
+        $careerVideo = null;
+        if ($editVideoId) {
+            $careerVideo = $this->careerVideoRepository->find($editVideoId);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(
+            CareerVideoFilterType::class, null, [
+                                                  'method' => 'GET',
+                                              ]
+        );
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->careerVideoRepository->createQueryBuilder('cv')
+            ->leftJoin('cv.secondaryIndustries', 'si')
+            ->leftJoin('si.primaryIndustry', 'pi');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $sql = $filterQuery->getSQL();
+
+        $pagination = $this->paginator->paginate(
+            $filterQuery, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
+        );
+
+        return $this->render(
+            'video/all.html.twig', [
+                                                'careerVideo'  => $careerVideo,
+                                                'user'         => $user,
+                                                'pagination'   => $pagination,
+                                                'form'         => $form->createView(),
+                                                'zipcode'      => $request->query->get('zipcode', ''),
+                                                'clearFormUrl' => $this->generateUrl('videos_all'),
+                                            ]
+        );
+    }
+
+    /**
      * @Route("/videos/local-company", name="videos_local_company", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      *
