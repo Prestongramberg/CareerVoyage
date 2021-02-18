@@ -1,20 +1,54 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Favorite Videos{% endblock %}
+{% block title %}All Videos{% endblock %}
 
 {% block body %}
 
     <div class="uk-container">
 
         <ul class="uk-subnav uk-subnav-pill" uk-margin>
+            <li class="uk-active"><a href="{{ path('videos_all') }}">ALL VIDEOS</a></li>
             <li><a href="{{ path('videos_local_company') }}">LOCAL COMPANY VIDEOS</a></li>
             <li><a href="{{ path('videos_general_career') }}">GENERAL CAREER VIDEOS</a></li>
             <li><a href="{{ path('videos_local_professional') }}">LOCAL PROFESSIONAL VIDEOS</a></li>
-            <li class="uk-active"><a href="{{ path('videos_favorites') }}">FAVORITES</a></li>
+            <li><a href="{{ path('videos_favorites') }}">FAVORITES</a></li>
         </ul>
 
+        {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+
+        {% if form.keywordOrProfession is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.keywordOrProfession, {'attr': {'class': 'uk-input', 'placeholder': 'Search by keyword or profession...'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.primaryIndustry is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select js-primary-industry'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.secondaryIndustries is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-select'}}) }}
+            </div>
+        {% endif %}
+
+        {% if form.company is defined %}
+            <div class="uk-width-1-4@s">
+                {{ form_widget(form.company, {'attr': {'class': 'uk-select'}}) }}
+            </div>
+        {% endif %}
+
+        <div class="uk-width-1-4@s">
+            <button class="uk-button uk-button-primary">Search</button>
+            <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
+        </div>
+        {{ form_end(form) }}
+        <br>
+
         <div class="count">
-            Total Favorite Videos: {{ pagination.getTotalItemCount }}
+            Total General Career Videos: {{ pagination.getTotalItemCount }}
         </div>
         <br>
 
@@ -32,14 +66,14 @@
                                 <div class="uk-width-expand">
 
                                     {% if user_favorited_video(user, paginatedVideo) %}
-                                        <a href="{{ path('unfavorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_favorites">
+                                        <a href="{{ path('unfavorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_general_career">
                                                 <span class="favorite-company"
                                                       data-uk-tooltip="title: Remove from My Favorites">
                                                     <i class="fa fa-heart" aria-hidden="true"></i>
                                                 </span>
                                         </a>
                                     {% else %}
-                                        <a href="{{ path('favorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_favorites">
+                                        <a href="{{ path('favorite_video', {'id': paginatedVideo.id}) }}?redirect=videos_general_career">
                                                 <span class="favorite-company"
                                                       data-uk-tooltip="title: Add to My Favorites">
                                                     <i style="opacity: 0.5" class="fa fa-heart" aria-hidden="true"></i>
@@ -69,7 +103,7 @@
 
                 {% else %}
 
-                    <p>You have not favorite any videos yet.</p>
+                    <p>No videos match your selection</p>
                 {% endfor %}
 
             </div>
@@ -81,5 +115,18 @@
         </div>
 
     </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% if careerVideo %}
+        <script>
+            window.onload = function() {
+                UIkit.modal('#modal-edit-career-video').show()
+            };
+        </script>
+    {% endif %}
 
 {% endblock %}
