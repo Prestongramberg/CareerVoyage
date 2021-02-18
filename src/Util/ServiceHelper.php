@@ -42,6 +42,7 @@ use App\Repository\ProfessionalVideoRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RegionRepository;
 use App\Repository\RegistrationRepository;
+use App\Repository\ReportRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
@@ -295,7 +296,7 @@ trait ServiceHelper
     private $companyExperienceRepository;
 
     /**
-     * @var GuardAuthenticatorHandler $guardHandler,
+     * @var GuardAuthenticatorHandler $guardHandler ,
      */
     private $guardHandler;
 
@@ -445,7 +446,7 @@ trait ServiceHelper
     private $professionalVideoRepository;
 
     /**
-     * @var HelpVideoRepository 
+     * @var HelpVideoRepository
      */
     private $helpVideoRepository;
 
@@ -468,6 +469,11 @@ trait ServiceHelper
      * @var RegionRepository
      */
     private $regionRepository;
+
+    /**
+     * @var ReportRepository
+     */
+    private $reportRepository;
 
     /**
      * ServiceHelper constructor.
@@ -548,6 +554,7 @@ trait ServiceHelper
      * @param GlobalShare                                                   $globalShare
      * @param SystemUserRepository                                          $systemUserRepository
      * @param RegionRepository                                              $regionRepository
+     * @param ReportRepository                                              $reportRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -591,7 +598,9 @@ trait ServiceHelper
         CareerVideoRepository $careerVideoRepository, VideoFavoriteRepository $videoFavoriteRepository,
         VideoRepository $videoRepository, ProfessionalVideoRepository $professionalVideoRepository,
         HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
-        SystemUserRepository $systemUserRepository, RegionRepository $regionRepository
+        SystemUserRepository $systemUserRepository,
+        RegionRepository $regionRepository,
+        ReportRepository $reportRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -669,15 +678,19 @@ trait ServiceHelper
         $this->globalShare                                                   = $globalShare;
         $this->systemUserRepository                                          = $systemUserRepository;
         $this->regionRepository                                              = $regionRepository;
+        $this->reportRepository                                              = $reportRepository;
     }
 
-    public function getFullQualifiedBaseUrl() {
+    public function getFullQualifiedBaseUrl()
+    {
         $routerContext = $this->router->getContext();
-        $port = $routerContext->getHttpPort();
-        return sprintf('%s://%s%s%s',
+        $port          = $routerContext->getHttpPort();
+
+        return sprintf(
+            '%s://%s%s%s',
             $routerContext->getScheme(),
             $routerContext->getHost(),
-            ($port !== 80 ? ':'. $port : ''),
+            ($port !== 80 ? ':' . $port : ''),
             $routerContext->getBaseUrl()
         );
     }

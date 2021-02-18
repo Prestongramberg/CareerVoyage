@@ -205,7 +205,7 @@ class GlobalShare
 
         $payload['all'] = array_merge([], $payload['professionals'], $payload['students'], $payload['school_admins'], $payload['educators']);
 
-        $payload['total_count']        = count($payload['professionals']) + count($payload['students']) + count($payload['school_admins']) + count($payload['educators']);
+        $payload['total_count']  = count($payload['professionals']) + count($payload['students']) + count($payload['school_admins']) + count($payload['educators']);
         $payload['current_page'] = $filters ? $filters->getPage() : 1;
         $payload['total_pages']  = ceil(count($chattableUsers) / GlobalShareFilters::ITEMS_PER_PAGE);
 
@@ -307,11 +307,16 @@ class GlobalShare
             }
         }
 
-        if(!$filters) {
-            $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds('', $regionIds);
-            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndRegionIds('', $regionIds);
+        if ($filters === null || ($filters !== null && !$filters->hasFilterByStudent() &&
+                !$filters->hasFilterBySchoolAdministrator() &&
+                !$filters->hasFilterByEducator() &&
+                !$filters->hasFilterByProfessional() &&
+                !$filters->hasFilterByCompanyAdministrator())) {
+
+            $professionalUsers    = $this->professionalUserRepository->findBySearchTermAndRegionIds('', $regionIds);
+            $educatorUsers        = $this->educatorUserRepository->findBySearchTermAndRegionIds('', $regionIds);
             $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds('', $regionIds);
-            $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds('', $regionIds);
+            $studentUsers         = $this->studentUserRepository->findBySearchTermAndRegionIds('', $regionIds);
 
             $users = array_merge($users, $educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
 
@@ -333,7 +338,7 @@ class GlobalShare
         if ($filters->hasFilterByStudent()) {
 
             /** @var EducatorUser $loggedInUser */
-            if($loggedInUser->isEducator()) {
+            if ($loggedInUser->isEducator()) {
                 $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($filters->getSearch(), $loggedInUser->getSchool());
             } else {
                 $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);

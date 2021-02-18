@@ -217,6 +217,6 @@ class ChatNotificationCommand extends Command
         }
         $this->entityManager->flush();
 
-        $output->writeln('Chat notification emails successfully sent...');
+        $output->writeln(sprintf('Chat notification emails successfully sent [%s]', (new \DateTime())->format("m/d/Y h:i A")));
     }
 }
