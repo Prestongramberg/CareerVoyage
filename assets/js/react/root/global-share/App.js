@@ -41,7 +41,7 @@ export class App extends Component {
                         <form id="filterForm">
                             <div className="uk-search uk-search-default uk-width-1-1">
                                 <span data-uk-search-icon></span>
-                                {<input className="uk-search-input" type="search" placeholder="Search..." onChange={this.searchChattableUsers} />}
+                                {<input className="uk-search-input" type="search" placeholder="Search By Name..." onChange={this.searchChattableUsers} />}
                             </div>
 
                             <ul uk-accordion="multiple: true">
@@ -643,7 +643,7 @@ export class App extends Component {
             debugger;
             this.props.searchChattableUsers(searchValue);
             this.props.query(this.props.search);
-        }, 500);
+        }, 200);
     }
 }
 
