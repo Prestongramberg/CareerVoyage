@@ -65,7 +65,7 @@ class RegionalCoordinatorController extends AbstractController
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
      *
-     * @Route("/reports", name="dashboard_reports")
+     * @Route("/reporting", name="dashboard_reports")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception

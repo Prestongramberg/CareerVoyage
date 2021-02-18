@@ -1,0 +1,41 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Reports Available For {{ user.firstName }} {{ user.lastName }}{% endblock %}
+{% block bodyClass %}page-site-admin{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+        <div class="uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+
+                <div class="uk-width-xlarge">
+
+                    <h3>Reports Available For {{ user.firstName }} {{ user.lastName }}</h3>
+                    {% if reports|length %}
+                        <table class="uk-table">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <td>Actions</td>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {% for report in reports %}
+
+                                <tr>
+                                    <td>{{ report.title }}</td>
+                                    <td><a target="_blank" href="{{ path('report_index', {'reportName': report.name}) }}">Download</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <h4>No Reports Are Available For This User!</h4>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

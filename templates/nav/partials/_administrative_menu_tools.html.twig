@@ -10,4 +10,6 @@
     {% include 'nav/partials/_regional_administrative_tools.html.twig' %}
 {% elseif user.isSchoolAdministrator %}
     {% include 'nav/partials/_school_administrative_tools.html.twig' %}
+{% elseif user.isProfessional %}
+    {% include 'nav/partials/_professional_tools.html.twig' %}
 {% endif %}

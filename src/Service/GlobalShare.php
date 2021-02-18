@@ -134,8 +134,6 @@ class GlobalShare
             ];
         }
 
-        
-
 
         $educators = $this->educatorUserRepository->getDataForGlobalShare($chattableUserIds, $filters);
 
@@ -205,7 +203,7 @@ class GlobalShare
 
         $payload['all'] = array_merge([], $payload['professionals'], $payload['students'], $payload['school_admins'], $payload['educators']);
 
-        $payload['total_count']        = count($payload['professionals']) + count($payload['students']) + count($payload['school_admins']) + count($payload['educators']);
+        $payload['total_count']  = count($payload['professionals']) + count($payload['students']) + count($payload['school_admins']) + count($payload['educators']);
         $payload['current_page'] = $filters ? $filters->getPage() : 1;
         $payload['total_pages']  = ceil(count($chattableUsers) / GlobalShareFilters::ITEMS_PER_PAGE);
 
@@ -307,16 +305,33 @@ class GlobalShare
             }
         }
 
-        if(!$filters) {
-            $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds('', $regionIds);
-            $educatorUsers = $this->educatorUserRepository->findBySearchTermAndRegionIds('', $regionIds);
+        if ($filters === null) {
+            $professionalUsers    = $this->professionalUserRepository->findBySearchTermAndRegionIds('', $regionIds);
+            $educatorUsers        = $this->educatorUserRepository->findBySearchTermAndRegionIds('', $regionIds);
             $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds('', $regionIds);
-            $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds('', $regionIds);
+            $studentUsers         = $this->studentUserRepository->findBySearchTermAndRegionIds('', $regionIds);
 
             $users = array_merge($users, $educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
 
             return $users;
         }
+
+
+        if (!$filters->hasFilterByStudent() &&
+            !$filters->hasFilterBySchoolAdministrator() &&
+            !$filters->hasFilterByEducator() &&
+            !$filters->hasFilterByProfessional() &&
+            !$filters->hasFilterByCompanyAdministrator()) {
+
+        $professionalUsers    = $this->professionalUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+        $educatorUsers        = $this->educatorUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+        $schoolAdministrators = $this->schoolAdministratorRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+        $studentUsers         = $this->studentUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
+
+        $users = array_merge($users, $educatorUsers, $schoolAdministrators, $studentUsers, $professionalUsers);
+
+        return $users;
+    }
 
         if ($filters->hasFilterByProfessional() || $filters->hasFilterByCompanyAdministrator()) {
             $professionalUsers = $this->professionalUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);
@@ -333,7 +348,7 @@ class GlobalShare
         if ($filters->hasFilterByStudent()) {
 
             /** @var EducatorUser $loggedInUser */
-            if($loggedInUser->isEducator()) {
+            if ($loggedInUser->isEducator()) {
                 $studentUsers = $this->studentUserRepository->findBySearchTermAndSchool($filters->getSearch(), $loggedInUser->getSchool());
             } else {
                 $studentUsers = $this->studentUserRepository->findBySearchTermAndRegionIds($filters->getSearch(), $regionIds);

@@ -4,3 +4,4 @@
 <li class="uk-nav-header">Management</li>
 <li><a href="{{ path('school_view', { id: user.school.id }) }}">My School</a></li>
 <li><a href="{{ path('school_chat', {'id': user.school.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: comments"></span> CHAT - {{ user.school.name }}</a></li>
+<li><a href="{{ path('report_index') }}"><span class="uk-margin-small-right" uk-icon="icon: download"></span> Reports</a></li>

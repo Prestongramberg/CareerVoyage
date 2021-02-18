@@ -44,8 +44,7 @@ class LessonFilterType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add(
-            'title', Filters\TextFilterType::class, [
+        $builder->add('title', Filters\TextFilterType::class, [
                        'condition_pattern' => FilterOperands::STRING_CONTAINS,
                    ]
         );

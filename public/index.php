@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('America/Chicago');
+
 use App\Kernel;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpFoundation\Request;
