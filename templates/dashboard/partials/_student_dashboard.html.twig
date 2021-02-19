@@ -218,13 +218,13 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <h4>New Lessons (Created within past 7 days)</h4>
+                        <h4>New Topics (Created within past 7 days)</h4>
                         <hr>
                         <div style="text-align: left">
                             {% for lesson in lessons %}
                                 <p><a href="/dashboard/lessons/{{lesson.id}}/view">{{lesson.title }}</a></p>
                             {% else %}
-                                <p>No New Lessons exist at this time.</p>
+                                <p>No New Topics exist at this time.</p>
                             {% endfor %}
                         </div>
 

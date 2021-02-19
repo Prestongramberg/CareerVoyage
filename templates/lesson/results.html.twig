@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}All Lessons{% endblock %}
+{% block title %}All Topics{% endblock %}
 
 {% block body %}
 
@@ -10,23 +10,22 @@
             <div class="uk-flex uk-flex-right@m">
                 {% if (user.isEducator or user.isProfessional or user.isSchoolAdministrator) %}
                     <a href="{{ path('request_lesson_experience_or_site_visit') }}"
-                       class="uk-button uk-button-default uk-button-small uk-margin-small-right">Suggest a Lesson</a>
+                       class="uk-button uk-button-default uk-button-small uk-margin-small-right">Suggest a Topic</a>
                 {% endif %}
-                <a href="{{ path('lesson_new') }}" class="uk-button uk-button-primary uk-button-small">Create a
-                    Lesson</a>
+                <a href="{{ path('lesson_new') }}" class="uk-button uk-button-primary uk-button-small">Create a Topic</a>
             </div>
         </div>
 
         <ul class="uk-subnav uk-subnav-pill" uk-margin>
-            <li class="uk-active"><a href="{{ path('lessons_results_page') }}">All Lessons</a></li>
+            <li class="uk-active"><a href="{{ path('lessons_results_page') }}">All Topics</a></li>
 
             {% if user.educator %}
-                <li><a href="{{ path('lessons_teachable_page') }}">Lessons I want Taught</a></li>
+                <li><a href="{{ path('lessons_teachable_page') }}">Topics I want Taught</a></li>
             {% elseif user.schoolAdministrator or user.professional %}
-                <li><a href="{{ path('lessons_teachable_page') }}">Lessons I can Teach</a></li>
+                <li><a href="{{ path('lessons_teachable_page') }}">Topics I can Teach</a></li>
             {% endif %}
 
-            <li><a href="{{ path('lessons_my_created') }}">My Created Lessons</a></li>
+            <li><a href="{{ path('lessons_my_created') }}">My Created Topics</a></li>
         </ul>
 
         {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
@@ -69,7 +68,7 @@
         <br>
 
         <div class="count">
-            Total Lessons: {{ pagination.getTotalItemCount }}
+            Total Topics: {{ pagination.getTotalItemCount }}
         </div>
         <br>
 
@@ -85,9 +84,9 @@
                             <div class="uk-inline uk-padding-small">
 
                                 {% if user.educator %}
-                                    {% set staticText = 'Lessons I want Taught' %}
+                                    {% set staticText = 'Topics I want Taught' %}
                                 {% elseif user.schoolAdministrator or user.professional %}
-                                    {% set staticText = 'Lessons I can Teach' %}
+                                    {% set staticText = 'Topics I can Teach' %}
                                 {% endif %}
 
 
@@ -126,7 +125,7 @@
             {% else %}
                 <div class="uk-width-1-1">
                     <div class="uk-placeholder uk-text-center">
-                        No lessons match your search criteria
+                        No topics match your search criteria
                     </div>
                 </div>
             {% endfor %}

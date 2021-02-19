@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Add Lesson{% endblock %}
+{% block title %}Add Topic{% endblock %}
 {% block bodyClass %}page-lesson-add{% endblock %}
 
 {% block javascripts %}
@@ -16,7 +16,7 @@
     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
     <ul class="uk-tab" uk-switcher="connect: #tab-add-lesson" uk-tab>
-        <li class="uk-active"><a href="#lesson-details">Lesson</a></li>
+        <li class="uk-active"><a href="#lesson-details">Topic</a></li>
         <li class="uk-active"><a href="#lesson-industries">Industries</a></li>
         <li><a href="#lesson-courses">Courses</a></li>
         <li><a href="#lesson-outcomes">Outcomes</a></li>
@@ -40,13 +40,13 @@
                     </div>
                     <div class="uk-margin">
                         {{ form_label(form.shortDescription, 'Short Description*') }}
-                        <div class="uk-text-meta">One sentence summary that describes lesson, often framed as an ESSENTIAL question</div>
+                        <div class="uk-text-meta">One sentence summary that describes topic, often framed as an ESSENTIAL question</div>
                         {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.shortDescription) }}
                     </div>
                     <div class="uk-margin">
                         {{ form_label(form.summary, 'Summary*') }}
-                        <div class="uk-text-meta">Provide an overview of the lesson for students and professionals</div>
+                        <div class="uk-text-meta">Provide an overview of the topic for students and professionals</div>
                         <div data-wysiwyg="[name='new_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}">
                         </div>
                         <div style="display: none;">
@@ -107,15 +107,15 @@
             <fieldset class="uk-fieldset">
                 <div class="uk-margin">
                     {{ form_label(form.learningOutcomes, 'Learning Outcomes') }}
-                    <div class="uk-text-meta">Describe what students will learn from this lesson</div>
+                    <div class="uk-text-meta">Describe what students will learn from this topic</div>
                     <div data-wysiwyg="[name='new_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"
-                         data-placeholder="Use the following to describe what students will learn in this lesson:
-“By the end of this lesson, students will:
+                         data-placeholder="Use the following to describe what students will learn in this topic:
+“By the end of this topic, students will:
 Be able…
 Understand….
 Be aware….
 Know….”
-After describing learning outcomes, feel free to share additional resources which will help the guest instructor teach this lesson. This can be links to websites, videos or Google drive docs.
+After describing learning outcomes, feel free to share additional resources which will help the guest instructor teach this topic. This can be links to websites, videos or Google drive docs.
 ">
                     </div>
                     <div style="display: none;">
@@ -125,7 +125,7 @@ After describing learning outcomes, feel free to share additional resources whic
                 </div>
                 <div class="uk-margin">
                     {{ form_label(form.educationalStandards, 'Educational Standards') }}
-                    <div class="uk-text-meta">Describe educational standards that this lesson meets for criteria.</div>
+                    <div class="uk-text-meta">Describe educational standards that this topic meets for criteria.</div>
                     <div data-wysiwyg="[name='new_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"
                         data-placeholder="If you know which specific state, national or common core standards insert them here">
                     </div>
@@ -136,11 +136,11 @@ After describing learning outcomes, feel free to share additional resources whic
                 </div>
             </fieldset>
             <div class="uk-margin">
-                <a href="#" class="uk-button uk-button-primary uk-button-small" id="create-lesson">Create Lesson</a>
+                <a href="#" class="uk-button uk-button-primary uk-button-small" id="create-lesson">Create Topic</a>
             </div>
 
             <div class="action-modal" style="display:none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #d8d8d8;">
-                <p><strong><em class="fa fa-warning"></em> Would you like to add additional resource files to this lesson or a thumbnail and banner image?</strong></p>
+                <p><strong><em class="fa fa-warning"></em> Would you like to add additional resource files to this topic or a thumbnail and banner image?</strong></p>
                 <input type="submit" class="uk-button uk-button-primary uk-button-small" name="add_resource" value="Yes" />
                 <input type="submit" class="uk-button uk-button-danger uk-button-small" name="add_resource" value="No" />
             </div>
