@@ -701,8 +701,11 @@ class ExperienceController extends AbstractController
     public function experienceNotifyUsersAction(Request $request)
     {
 
-        $loggedInUser = $this->getUser();
-
+        // $loggedInUser = $this->getUser();
+        // if( $loggedInUser->isStudent() ){
+        //     echo "USER IS A STUDENT";
+        //     die();
+        // }
 
         $systemUser = $this->systemUserRepository->findOneBy(
             [

@@ -100,9 +100,13 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
+                    {% set personName = "<br />~ #{user.firstName}  #{user.lastName}" %}
+                    {% if user.isStudent %}
+                        {% set personName = "" %}
+                    {% endif %}
                     <div style="display: inline-block" id="react-global-share"
                          data-user="{{ encode_user(user) }}"
-                         data-message="Check out this upcoming experience: <a href='{{ absolute_url('view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                         data-message="Check out this upcoming experience: <a href='{{ absolute_url('view', {id: experience.id}) }}'>{{ experience.title }}</a>.{{ personName }}">
                         Share this Experience
                     </div>
                 </div>
