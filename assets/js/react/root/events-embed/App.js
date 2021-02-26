@@ -239,6 +239,8 @@ class App extends React.Component {
             end: event.endDateAndTime
         }
 
+        console.log(defaults);
+
         switch (event.className) {
             case "CompanyExperience":
                 return {

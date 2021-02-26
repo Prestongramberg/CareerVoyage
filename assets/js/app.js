@@ -105,11 +105,7 @@ window.Pintex = {
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
         const eventId = parseInt(eventPayload.id);
 
-        console.log(eventPayload);
-
         var this_level = this;
-
-        debugger;
 
         eventHtml += `
                 <button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>
@@ -142,7 +138,18 @@ window.Pintex = {
 
                 this_level.openModal(eventHtml);
             });
-        }else {
+        } else if( eventPayload.className == 'teachLessonExperience' ) {
+            eventHtml += `<a href="/dashboard/requests/${ eventPayload.regId }/view" class="uk-button uk-button-primary uk-button-small uk-margin-small-left uk-margin-small-bottom">View Request</a>`;
+            this_level.openModal(eventHtml);
+
+            // $.post('/dashboard/schools/experiences/' + eventPayload.id + '/data', {}, function(data){
+            //     if(data.allow_edit === true){
+            //         eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'schools', 'school_event_delete');
+            //     }
+
+            //     this_level.openModal(eventHtml);
+            // });
+        } else {
             this.openModal(eventHtml);
         }
     },
