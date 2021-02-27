@@ -105,6 +105,8 @@ window.Pintex = {
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
         const eventId = parseInt(eventPayload.id);
 
+        console.log(eventPayload);
+
         var this_level = this;
 
         eventHtml += `
@@ -139,7 +141,7 @@ window.Pintex = {
                 this_level.openModal(eventHtml);
             });
         } else if( eventPayload.className == 'teachLessonExperience' ) {
-            eventHtml += `<a href="/dashboard/requests/${ eventPayload.regId }/view" class="uk-button uk-button-primary uk-button-small uk-margin-small-left uk-margin-small-bottom">View Request</a>`;
+            eventHtml += `<a href="/dashboard/requests/${ eventPayload.regId }/view" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
             this_level.openModal(eventHtml);
 
             // $.post('/dashboard/schools/experiences/' + eventPayload.id + '/data', {}, function(data){

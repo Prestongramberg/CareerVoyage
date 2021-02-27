@@ -239,7 +239,10 @@ class App extends React.Component {
             end: event.endDateAndTime
         }
 
+        console.log("Defaults:");
         console.log(defaults);
+
+        console.log(event);
 
         switch (event.className) {
             case "CompanyExperience":
