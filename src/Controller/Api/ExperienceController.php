@@ -17,6 +17,8 @@ use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentUser;
+use App\Entity\StudentToMeetProfessionalExperience;
+use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\SystemUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
@@ -32,6 +34,7 @@ use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\SchoolExperienceRepository;
+use App\Repository\StudentToMeetProfessionalExperienceRepository;
 use App\Service\FileUploader;
 use App\Service\FilterGenerator;
 use App\Service\ImageCacheGenerator;
@@ -1032,5 +1035,44 @@ class ExperienceController extends AbstractController
         $this->addFlash('success', 'Experience successfully cancelled. Users will be notified.');
 
         return $this->redirectToRoute('dashboard');
+    }
+
+
+
+    /**
+     * Example Request: http://pintex.test/api/experiences-by-user?user
+     *
+     * @Route("/experiences-by-user", name="get_experiences_by_user", methods={"GET"}, options = { "expose" = true })
+     * @param Request         $request
+     *
+     * @return JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getExperiencesByUser(Request $request)
+    {
+        $user               = $this->getUser();
+        $experiences = [];
+       
+        $allMyExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
+        foreach($allMyExperiences as $r) {
+            $url = "";
+            $requestId = "";
+            $className = $r->getClassName();
+
+            if($className == 'TeachLessonExperience') {
+                $url = $this->generateUrl('lesson_view', ['id' => $r->getOriginalRequest()->getLesson()->getId()]);
+                $requestId = $r->getOriginalRequest()->getId();
+            }
+
+            $experiences[] = array("id" => $r->getId(), "requestId" => $requestId, "title" => $r->getTitle(), "about" => $r->getAbout(), "briefDescription" => $r->getBriefDescription(), "startDateAndTime" => $r->getStartDateAndTime()->format('Y-m-d H:i:s'), "endDateAndTime" => $r->getEndDateAndTime()->format("Y-m-d H:i:s"), "className" => $className, "url" => $url);
+        }
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data'    => $experiences
+            ],
+            Response::HTTP_OK
+        );
     }
 }

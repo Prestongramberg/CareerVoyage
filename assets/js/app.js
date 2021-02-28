@@ -120,6 +120,8 @@ window.Pintex = {
 
         if ( event.url ) {
             eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
+        } else if (eventPayload.url) {
+            eventHtml += `<a href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
@@ -140,17 +142,10 @@ window.Pintex = {
 
                 this_level.openModal(eventHtml);
             });
-        } else if( eventPayload.className == 'teachLessonExperience' ) {
-            eventHtml += `<a href="/dashboard/requests/${ eventPayload.regId }/view" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
+        } else if( eventPayload.className == 'TeachLessonExperience' ) {
+            eventHtml += `<a href="/dashboard/requests/${ eventPayload.requestId }/view" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
             this_level.openModal(eventHtml);
 
-            // $.post('/dashboard/schools/experiences/' + eventPayload.id + '/data', {}, function(data){
-            //     if(data.allow_edit === true){
-            //         eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'schools', 'school_event_delete');
-            //     }
-
-            //     this_level.openModal(eventHtml);
-            // });
         } else {
             this.openModal(eventHtml);
         }

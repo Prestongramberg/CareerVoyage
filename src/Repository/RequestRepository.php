@@ -185,4 +185,22 @@ class RequestRepository extends ServiceEntityRepository
         //     'approved' => true,
         // ], ['createdAt' => 'DESC']);
 
+
+
+
+
+    public function getAllMyApprovedRequests(User $user) {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.requestPossibleApprovers', 'rpa')
+            ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+            ->andWhere('r.denied = :denied')
+            ->andWhere('r.approved = :approved')
+            ->setParameter('possibleApprover', $user)
+            ->setParameter('needsApprovalBy', $user)
+            ->setParameter('denied', false)
+            ->setParameter('approved', true)
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
