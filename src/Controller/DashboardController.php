@@ -291,7 +291,16 @@ class DashboardController extends AbstractController
         foreach($schoolExperiences as $schoolExperience) {
             $schoolExperienceIds[] = $schoolExperience['id'];
         }
-        $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'cancelled' => false]);
+
+        if($loggedInUser->isSchoolAdministrator()){
+            $u_school_ids = [];
+            foreach($user->getSchools() as $school) {
+                $u_school_ids[] = $school->getId();
+            }
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'school' => $u_school_ids, 'cancelled' => false]);
+        } else {
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'cancelled' => false]);
+        }
 
         $companyExperiences = $this->companyExperienceRepository->findAllFromPastDays(7);
         $companyExperienceIds = [];
