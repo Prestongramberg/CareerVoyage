@@ -702,13 +702,19 @@ class ExperienceController extends AbstractController
     {
 
         $loggedInUser = $this->getUser();
+        if( $loggedInUser->isStudent() ){
+            
+        } else {
+            $systemUser = $loggedInUser;
+        }
 
-
-        $systemUser = $this->systemUserRepository->findOneBy(
-            [
-                'type' => SystemUser::EXPERIENCE_NOTIFY,
-            ]
-        );
+        if(!$systemUser) {
+            $systemUser = $this->systemUserRepository->findOneBy(
+                [
+                    'type' => SystemUser::EXPERIENCE_NOTIFY,
+                ]
+            );
+        }
 
         if (!$systemUser) {
             $systemUser = new SystemUser();
