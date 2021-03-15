@@ -52,6 +52,7 @@
 
                 {% for paginatedVideo in pagination %}
 
+                    {{ dump(paginatedVideo) }}
                     <div>
 
                         <div class="uk-card uk-card-default">
@@ -79,9 +80,10 @@
                             </div>
 
                             <div class="uk-card-body">
+                                s
                                 <div>
                                     <a class="company-video uk-inline" target="_blank"
-                                       href={"https://www.youtube.com/watch?v=" {{ paginatedVideo.videoId }}>
+                                       href="https://www.youtube.com/watch?v={{ paginatedVideo.videoId }}">
                                         <img src="http://i.ytimg.com/vi/{{ paginatedVideo.videoId }}/hqdefault.jpg"
                                              alt=""/>
                                         <div class="company-video__overlay">
