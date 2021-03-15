@@ -76,7 +76,7 @@ class ProfessionalVideoFilterType extends AbstractType
 
                                     $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                    $queryBuilder->andWhere('v.name LIKE :searchTerm OR v.tags LIKE :searchTerm OR pi.name LIKE :searchTerm OR si.name LIKE :searchTerm')
+                                    $queryBuilder->andWhere('pv.name LIKE :searchTerm OR pv.tags LIKE :searchTerm OR pi.name LIKE :searchTerm OR si.name LIKE :searchTerm')
                                                  ->setParameter('searchTerm', '%' . $searchTerm . '%');
 
                                     $newFilterQuery = new ORMQuery($queryBuilder);
