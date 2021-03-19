@@ -35,8 +35,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $baseUrl;
     private $siteRepository;
     private $session;
+    private $env;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository, SessionInterface $session)
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository, SessionInterface $session, $env)
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
@@ -44,6 +45,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $this->passwordEncoder = $passwordEncoder;
         $this->siteRepository = $siteRepository;
         $this->session = $session;
+        $this->env = $env;
     }
 
     public function supports(Request $request)
@@ -141,7 +143,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         // logged in as another user then redirect to our router middleware
         //$sessionData = $this->session->has('previouslyLoggedInAs')
 
-        if($site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl() && !$this->session->get('previouslyLoggedInAs', null)) {
+        if($this->env !== 'dev' && $site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl() && !$this->session->get('previouslyLoggedInAs', null)) {
             return new RedirectResponse($site->getFullyQualifiedBaseUrl() . sprintf('/security-router/%s', $user->getTemporarySecurityToken()));
         } else {
             // once the user is on the correct site URL let's go ahead and direct them to the appropriate place

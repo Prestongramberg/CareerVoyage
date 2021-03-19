@@ -9,7 +9,7 @@ use App\Entity\Registration;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Proxies\__CG__\App\Entity\StudentUser;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Registration|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,7 +19,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class RegistrationRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Registration::class);
     }

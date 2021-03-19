@@ -8,7 +8,7 @@ use App\Entity\StudentUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 
 use App\Entity\EducatorUser;
@@ -25,7 +25,7 @@ use Doctrine\ORM\Query\ResultSetMapping;
  */
 class UserRepository extends ServiceEntityRepository implements  UserLoaderInterface
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
     }

@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Experience;
 use App\Entity\SchoolExperience;
 use App\Entity\User;
@@ -17,7 +17,7 @@ use App\Entity\User;
  */
 class UserRegisterForSchoolExperienceRequestRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, UserRegisterForSchoolExperienceRequest::class);
     }
