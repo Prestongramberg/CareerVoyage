@@ -1,3 +1,12 @@
+### Install Local
+
+vagrant up
+
+
+
+
+
+
 clone this repo
 $ cp ./puphpet/config.yaml.dist /puphpet/config.yaml
 vagrant up

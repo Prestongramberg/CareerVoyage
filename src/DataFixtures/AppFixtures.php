@@ -63,7 +63,7 @@ style="color: #636466; text-decoration: none;">www.futureforward.org</a><br />')
         $site->setBaseUrl('pintex.org');
         $site->setLogo('logo-pintex.jpg');
         $site->setLogoEmail('logo-pintex-email.jpg');
-        $site->setFullyQualifiedBaseUrl('http://pintex.test');
+        $site->setFullyQualifiedBaseUrl('http://localhost:8000');
         $site->setSignature('&copy;2019 Pintex. All Rights Reserved.<br />
 <a href=\http://www.pintex.test/\"" style=\""color: #636466; text-decoration: none;\"">www.pintex.test</a><br />');
         $site->setChildSite(false);

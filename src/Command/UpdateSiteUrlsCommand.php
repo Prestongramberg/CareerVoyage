@@ -139,8 +139,8 @@ class UpdateSiteUrlsCommand extends Command
             'fullyQualifiedBaseUrl' => 'https://dev.pintexsolutions.com'
         ]);
         if($site) {
-            $site->setBaseUrl('pintex.test');
-            $site->setFullyQualifiedBaseUrl('http://pintex.test');
+            $site->setBaseUrl('localhost:8000');
+            $site->setFullyQualifiedBaseUrl('http://localhost:8000');
         }
         $this->entityManager->flush();
         $output->writeln('Site URLs updated for local!');
