@@ -17,7 +17,30 @@
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
-                                <div class="react-teach-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-teachable="{{ lesson.isTeachableByUser( user ) }}" data-teacher="{{ user.isEducator }}"></div>&nbsp;&nbsp;&nbsp;
+                                {% if user.educator %}
+                                    {% set staticText = 'Topics I want Taught' %}
+                                {% elseif user.schoolAdministrator or user.professional %}
+                                    {% set staticText = 'Topics I can Teach' %}
+                                {% endif %}
+
+                                {% if user.educator or user.schoolAdministrator or user.professional %}
+
+                                    {% if user_can_teach_lesson(user, lesson) %}
+                                        <a href="{{ path('unteach_lesson', {'id': lesson.id, 'page': lesson.id }) }}">
+                                        <span class="teach-lesson"
+                                              data-uk-tooltip="title: Remove from {{ staticText }}">
+                                        <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                                    </span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ path('teach_lesson', {'id': lesson.id, 'page': lesson.id }) }}">
+                                     <span class="teach-lesson" data-uk-tooltip="title: Add to {{ staticText }}">
+                                        <i style="opacity: 0.5" class="fa fa-graduation-cap" aria-hidden="true"></i>
+                                    </span>
+                                        </a>
+                                    {% endif %}
+
+                                {% endif %}
                             </div>
                         </div>
                     </div>
