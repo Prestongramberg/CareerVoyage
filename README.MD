@@ -1,6 +1,6 @@
 ##Project Setup 
 
-    1. git clone git@github.com:joscraw/nscs-signup.git
+    1. git clone git@github.com:joscraw/pintex.git
     
     2. Copy dist.env.local to .env.local
 
