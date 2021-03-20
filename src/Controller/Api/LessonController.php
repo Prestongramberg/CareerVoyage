@@ -293,7 +293,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => false,
-                    'message' => 'lesson has already been added to favorites.',
+                    'message' => 'Topic has already been added to favorites.',
 
                 ],
                 Response::HTTP_OK
@@ -334,7 +334,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'message' => 'lesson removed from favorites',
+                    'message' => 'Topic has been removed from favorites',
                 ],
                 Response::HTTP_OK
             );
@@ -343,7 +343,7 @@ class LessonController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'message' => 'lesson cannot be removed from favorites cause it does not exist in favorites',
+                'message' => 'Topic cannot be removed from favorites because it does not exist in favorites',
             ],
             Response::HTTP_OK
         );

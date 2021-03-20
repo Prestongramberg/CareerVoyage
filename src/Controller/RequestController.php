@@ -421,7 +421,7 @@ class RequestController extends AbstractController
                 $teachLessonExperience->setStartDateAndTime($date);
                 $teachLessonExperience->setEndDateAndTime($endDate);
                 $teachLessonExperience->setTitle(sprintf("
-                Lesson: %s with Guest Instructor %s, %s in %s Class
+                Topics: %s with Guest Instructor %s, %s in %s Class
                 ", $request->getLesson()->getTitle(), $needsApprovalBy->getFullName(), date_format($date,'F jS Y'), $request->getCreatedBy()->getFullName()));
                 $teachLessonExperience->setBriefDescription(sprintf("%s", $request->getLesson()->getShortDescription()));
                 $teachLessonExperience->setOriginalRequest($request);

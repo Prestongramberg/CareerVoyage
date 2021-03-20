@@ -310,7 +310,7 @@ class RequestsMailer extends AbstractMailer
      */
     public function teachLessonRequest(TeachLessonRequest $teachLessonRequest) {
 
-        $message = (new \Swift_Message("Teach Lesson Request."))
+        $message = (new \Swift_Message("Teach Topic Request."))
             ->setFrom($this->siteFromEmail)
             ->setTo($teachLessonRequest->getNeedsApprovalBy()->getEmail())
             ->setBody(
@@ -325,7 +325,7 @@ class RequestsMailer extends AbstractMailer
 
         $log = new EmailLog();
         $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Teach Lesson Request.");
+        $log->setSubject("Teach Topic Request.");
         $log->setToEmail($teachLessonRequest->getNeedsApprovalBy()->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
@@ -344,7 +344,7 @@ class RequestsMailer extends AbstractMailer
      */
     public function teachLessonRequestApproval(TeachLessonRequest $teachLessonRequest) {
 
-        $message = (new \Swift_Message("Teach Lesson Request Approval."))
+        $message = (new \Swift_Message("Teach Topic Request Approval."))
             ->setFrom($this->siteFromEmail)
             ->setTo($teachLessonRequest->getCreatedBy()->getEmail())
             ->setBody(
@@ -359,7 +359,7 @@ class RequestsMailer extends AbstractMailer
 
         $log = new EmailLog();
         $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Teach Lesson Request Approval.");
+        $log->setSubject("Teach Topic Request Approval.");
         $log->setToEmail($teachLessonRequest->getCreatedBy()->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
@@ -379,7 +379,7 @@ class RequestsMailer extends AbstractMailer
      */
     public function teachLessonRequestDenied(TeachLessonRequest $teachLessonRequest) {
 
-        $message = (new \Swift_Message("Teach Lesson Request Denied."))
+        $message = (new \Swift_Message("Teach Topic Request Denied."))
             ->setFrom($this->siteFromEmail)
             ->setTo($teachLessonRequest->getCreatedBy()->getEmail())
             ->setBody(
@@ -394,7 +394,7 @@ class RequestsMailer extends AbstractMailer
 
         $log = new EmailLog();
         $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Teach Lesson Request Denied.");
+        $log->setSubject("Teach Topic Request Denied.");
         $log->setToEmail($teachLessonRequest->getCreatedBy()->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
