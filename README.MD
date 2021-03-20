@@ -3,6 +3,8 @@
     1. git clone git@github.com:joscraw/pintex.git
     
     2. Copy dist.env.local to .env.local
+    
+    3. vagrant plugin install vagrant-disksize 
 
     3. vagrant up
 
