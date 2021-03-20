@@ -11,6 +11,9 @@
     4. vagrant ssh
     
     5. cd /var/www
+
+    6. rm -R /var/www/var/cache
+       rm -R /var/www/var/log
     
     6. php -d memory_limit=-1 /usr/bin/composer install
     
