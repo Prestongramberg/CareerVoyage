@@ -233,7 +233,7 @@ class LessonController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function teachLesson(Lesson $lesson) {
+    public function teachLesson(Lesson $lesson, Request $request) {
 
         $lessonObj = $this->lessonTeachableRepository->findOneBy([
             'user' => $this->getUser(),
@@ -241,7 +241,11 @@ class LessonController extends AbstractController
         ]);
 
         if($lessonObj) {
-            return $this->redirectToRoute('lessons_results_page');
+            if($request->query->get('page')){ 
+                return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
+            } else {
+                return $this->redirectToRoute('lessons_results_page');
+            }
         }
 
         $lessonTeachable = new LessonTeachable();
@@ -251,7 +255,11 @@ class LessonController extends AbstractController
         $this->entityManager->persist($lessonTeachable);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('lessons_results_page');
+        if($request->query->get('page')){ 
+            return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
+        } else {
+            return $this->redirectToRoute('lessons_results_page');
+        }
     }
 
     /**
@@ -260,7 +268,7 @@ class LessonController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function unteachLesson(Lesson $lesson) {
+    public function unteachLesson(Lesson $lesson, Request $request) {
 
         $lessonObj = $this->lessonTeachableRepository->findOneBy([
             'user' => $this->getUser(),
@@ -270,11 +278,13 @@ class LessonController extends AbstractController
         if($lessonObj) {
             $this->entityManager->remove($lessonObj);
             $this->entityManager->flush();
-
-            return $this->redirectToRoute('lessons_results_page');
         }
 
-        return $this->redirectToRoute('lessons_results_page');
+        if($request->query->get('page')){ 
+            return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
+        } else {
+            return $this->redirectToRoute('lessons_results_page');
+        }
     }
 
     /**
