@@ -1,6 +1,6 @@
 ##Project Setup 
 
-    1. git clone git@github.com:joscraw/nscs-signup.git
+    1. git clone git@github.com:joscraw/pintex.git
     
     2. Copy dist.env.local to .env.local
 
@@ -10,7 +10,7 @@
     
     5. cd /var/www
     
-    6. composer install
+    6. php -d memory_limit=-1 /usr/bin/composer install
     
     7. yarn install
     
@@ -20,7 +20,6 @@
     
     10. Ask Eric or Josh how to get a copy of the staging or production database to import (see notes below on how to connect to the local database)
     
-    11. ./bin/console update:siteUrls
 
 
 When you write some CSS/Javascript and need to re-compile:
