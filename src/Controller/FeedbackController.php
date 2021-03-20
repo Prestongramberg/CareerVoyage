@@ -125,7 +125,7 @@ class FeedbackController extends AbstractController
         $user = $this->getUser();
 
         $form = $this->createFormBuilder()
-            ->add('message', TextareaType::class, ['label' => 'Request a lesson, experience, or site visit.',
+            ->add('message', TextareaType::class, ['label' => 'Request a topic, experience, or site visit.',
                 'constraints' => [
                     new NotBlank(),
                 ]

@@ -78,7 +78,7 @@
                 <ul class="uk-tab" id="user-nav" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-schools">My Schools</a></li>
-                    <li><a href="#user-lessons">My Lessons</a></li>
+                    <li><a href="#user-lessons">My Topics</a></li>
                     <li><a href="#user-feedback">My Feedback</a></li>
                     <li><a href="#user-events">
                     Provide Feedback
@@ -132,7 +132,7 @@
                                         <i class="fa fa-book" aria-hidden="true"></i>
                                     </div>
                                     <div class="uk-width-expand">
-                                        <h3 class="uk-card-title uk-margin-remove-bottom">Lessons I Can Teach</h3>
+                                        <h3 class="uk-card-title uk-margin-remove-bottom">Topics I Can Teach</h3>
                                     </div>
                                     <div class="uk-width-auto">
                                         <div class="uk-align-right">
@@ -151,7 +151,7 @@
                                         {% endfor %}
                                     </ul>
                                 {% else %}
-                                    <p>You haven't added any lessons yet.</p>
+                                    <p>You haven't added any topics yet.</p>
                                 {% endif %}
                             </div>
                         </div>
@@ -252,13 +252,13 @@
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <h4>New Lessons (Created within past 7 days)</h4>
+                        <h4>New Topics (Created within past 7 days)</h4>
                         <hr>
                         <div style="text-align: left">
                             {% for lesson in lessons %}
                                 <p><a href="/dashboard/lessons/{{lesson.id}}/view">{{lesson.title }}</a></p>
                             {% else %}
-                                <p>No New Lessons exist at this time.</p>
+                                <p>No New topics exist at this time.</p>
                             {% endfor %}
                         </div>
 

@@ -27,7 +27,7 @@ class LessonImportCommand extends Command
 
     const COMMAND = 'lesson:import';
 
-    const DESCRIPTION = 'This command will import lessons from a csv';
+    const DESCRIPTION = 'This command will import topics from a csv';
 
     /**
      * @var EntityManagerInterface
@@ -222,7 +222,7 @@ class LessonImportCommand extends Command
         $this->entityManager->flush();
 
 
-        $output->writeln('Lessons successfully imported!');
+        $output->writeln('Topics successfully imported!');
 
     }
 

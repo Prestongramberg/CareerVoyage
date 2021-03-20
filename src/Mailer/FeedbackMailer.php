@@ -16,7 +16,7 @@ class FeedbackMailer extends AbstractMailer
 {
     public function requestForLessonIdeaOrSiteVisit(User $user, $message, $from) {
 
-        $message = (new \Swift_Message('Request for lesson, idea or site visit.'))
+        $message = (new \Swift_Message('Request for topic, idea or site visit.'))
             ->setFrom($this->siteFromEmail)
             ->setTo($user->getEmail())
             ->setBody(
@@ -31,7 +31,7 @@ class FeedbackMailer extends AbstractMailer
 
         $log = new EmailLog();
         $log->setFromEmail($from);
-        $log->setSubject('Request for lesson, idea or site visit.');
+        $log->setSubject('Request for topic, idea or site visit.');
         $log->setToEmail($user->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());

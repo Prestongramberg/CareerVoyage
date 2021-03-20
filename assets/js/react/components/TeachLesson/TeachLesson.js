@@ -21,7 +21,7 @@ class TeachLesson extends Component {
 
     renderBasedOnTeachable( isTeachable ) {
 
-        const staticText = this.props.isTeacher ? "Lessons I want Taught" : "Lessons I can Teach";
+        const staticText = this.props.isTeacher ? "Topics I want Taught" : "Topics I can Teach";
 
         if( isTeachable ) {
             return <span className="js-un-teach-lesson" data-uk-tooltip={`title: Remove from ${staticText}`} onClick={this.unTeachLesson}>
@@ -46,11 +46,11 @@ class TeachLesson extends Component {
                     });
                     this.props.lessonIsNowUnteachable(this.props.id);
                 }  else {
-                    window.Pintex.notification("Unable to unteach lesson. Please try again.");
+                    window.Pintex.notification("Unable to unteach topic. Please try again.");
                 }
             })
             .catch(()=> {
-                window.Pintex.notification("Unable to unteach lesson. Please try again.");
+                window.Pintex.notification("Unable to unteach topic. Please try again.");
             });
     }
 
@@ -65,11 +65,11 @@ class TeachLesson extends Component {
                     });
                     this.props.lessonIsNowTeachable(this.props.id);
                 }  else {
-                    window.Pintex.notification("Unable to teach lesson. Please try again.");
+                    window.Pintex.notification("Unable to teach topic. Please try again.");
                 }
             })
             .catch(()=> {
-                window.Pintex.notification("Unable to teach lesson. Please try again.");
+                window.Pintex.notification("Unable to teach topic. Please try again.");
             });
     }
 }

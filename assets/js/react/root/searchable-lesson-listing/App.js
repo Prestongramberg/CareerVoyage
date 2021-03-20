@@ -28,13 +28,13 @@ class App extends React.Component {
                     <li className="uk-active"><a href="#all-lessons">All Lessons</a></li>
 
                     { user.schoolAdministrator || user.professional && (
-                        <li><a href="#teachable-lessons">Lessons I can teach</a></li>
+                        <li><a href="#teachable-lessons">Topics I can teach</a></li>
                     )}
                     
                     { user.educator && (
-                        <li><a href="#taught-lessons">Lessons I want taught</a></li>
+                        <li><a href="#taught-lessons">Topics I want taught</a></li>
                     )}
-                    <li><a href="#my-lessons">My Created Lessons</a></li>
+                    <li><a href="#my-lessons">My Created Topics</a></li>
 
                 </ul>
 
@@ -71,7 +71,7 @@ class App extends React.Component {
                                 { !this.props.search.loading && relevantLessons.length === 0 && (
                                     <div className="uk-width-1-1">
                                         <div className="uk-placeholder uk-text-center">
-                                            No lessons match your search criteria
+                                            No topics match your search criteria
                                         </div>
                                     </div>
                                 )}
@@ -92,7 +92,7 @@ class App extends React.Component {
                             )}
                             { teachableLessons.length === 0 && (
                                 <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
-                                    <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
+                                    <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> topics yet!</p>
                                 </div>
                             )}
                         </div>
@@ -111,7 +111,7 @@ class App extends React.Component {
                             )}
                             { teachableLessons.length === 0 && (
                                 <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
-                                    <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> lessons yet!</p>
+                                    <p>You don't have any teachable <i className="fa fa-graduation-cap" aria-hidden="true"></i> topics yet!</p>
                                 </div>
                             )}
                         </div>
@@ -130,7 +130,7 @@ class App extends React.Component {
                         )}
                         { ownerLessons.length === 0 && (
                             <div className="uk-placeholder uk-text-center uk-width-1-1 uk-margin">
-                                <p>You haven't created any lessons yet!</p>
+                                <p>You haven't created any topics yet!</p>
                             </div>
                         )}
                     </div>
