@@ -92,7 +92,7 @@
                         <ul class="uk-list">
                             {% for region in user.site.regions %}
                                 {% if region.state.name == user.state.name %}
-                                    <li>{{ region.name|capitalize }}</li>
+                                    <li><a href="{{ path('region_edit', { 'id': region.id })}}">{{ region.name }}</a></li>
                                 {% endif %}
                             {% endfor %}
                         </ul>
