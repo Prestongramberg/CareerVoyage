@@ -121,7 +121,7 @@ window.Pintex = {
             `;
 
         if ( event.url ) {
-            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
+            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom" style="position: relative; z-index: 99999">View More Details</a>`;
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
