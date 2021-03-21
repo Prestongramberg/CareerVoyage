@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Request lesson, experience, or site visit.{% endblock %}
+{% block title %}Request topic, experience, or site visit.{% endblock %}
 {% block bodyClass %}page-lesson-edit{% endblock %}
 
 {% block body %}
@@ -17,7 +17,7 @@
         {% endif %}
 
         <div class="uk-margin">
-            {{ form_label(form.message, 'Request a lesson, experience, or site visit*') }}
+            {{ form_label(form.message, 'Request a topic, experience, or site visit*') }}
             {{ form_widget(form.message, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.message) ? ' uk-form-danger' : '' ) }}) }}
             {{ form_errors(form.message) }}
         </div>

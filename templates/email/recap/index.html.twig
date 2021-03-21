@@ -1,8 +1,8 @@
 {% include 'email/partial/emailHeader.html.twig' %}
 
-{# Relevant Lessons #}
+{# Relevant Topics #}
 <hr>
-<h2>New Lessons (Created within past 7 days)</h2>
+<h2>New Topics (Created within past 7 days)</h2>
 <hr>
 <div style="text-align: left">
     {% for lesson in lessons %}
@@ -10,7 +10,7 @@
         <p>Short Description: <strong>{{ lesson.short_description }}</strong></p>
         <hr>
     {% else %}
-        <p>No New Lessons exist at this time.</p>
+        <p>No New Topics exist at this time.</p>
     {% endfor %}
 </div>
 

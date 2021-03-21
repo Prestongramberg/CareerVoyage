@@ -302,7 +302,7 @@ class LessonController extends AbstractController
 
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Lesson successfully created');
+            $this->addFlash('success', 'Topic successfully created');
 
             if ($request->request->get('add_resource') == 'Yes') {
                 return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId(), 'tab' => 'resources']);
@@ -457,7 +457,7 @@ class LessonController extends AbstractController
             $this->entityManager->persist($lesson);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Lesson successfully updated');
+            $this->addFlash('success', 'Topic successfully updated');
 
             return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId()]);
 
@@ -490,7 +490,7 @@ class LessonController extends AbstractController
         $this->entityManager->remove($lesson);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'lesson deleted');
+        $this->addFlash('success', 'Topic deleted');
 
         return $this->redirectToRoute('lesson_index');
     }

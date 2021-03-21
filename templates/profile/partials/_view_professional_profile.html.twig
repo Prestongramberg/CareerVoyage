@@ -163,7 +163,7 @@
 
             <br /><br />
 
-            <!-- Lessons -->
+            <!-- Topics -->
             <div class="uk-card uk-card-default">
                 <div class="uk-card-header">
                     <div class="uk-grid-small uk-flex-middle" uk-grid>
@@ -171,7 +171,7 @@
                             <i class="fa fa-book" aria-hidden="true"></i>
                         </div>
                         <div class="uk-width-expand">
-                            <h3 class="uk-card-title uk-margin-remove-bottom">Lessons I Can Teach</h3>
+                            <h3 class="uk-card-title uk-margin-remove-bottom">Topics I Can Teach</h3>
                         </div>
                     </div>
                 </div>
@@ -192,7 +192,7 @@
                                                 <div id="request-lesson-{{ teachable.lesson.id }}" data-uk-modal>
                                                     <div class="uk-modal-dialog uk-modal-body">
                                                         <h2 class="uk-modal-title">Request "{{ teachable.user.fullName }}" to Guest Instruct?</h2>
-                                                        <p>Lesson: {{ teachable.lesson.title }}</p>
+                                                        <p>Topic: {{ teachable.lesson.title }}</p>
                                                         <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
                                                         <form method="post" action="{{ path('lesson_request_to_teach', {'lesson_id' : teachable.lesson.id, 'professional_id': teachable.user.id}) }}">
                                                             <div class="uk-margin">
@@ -223,7 +223,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p>This user hasn't added any lessons yet.</p>
+                        <p>This user hasn't added any topics yet.</p>
                     {% endif %}
                 </div>
             </div>

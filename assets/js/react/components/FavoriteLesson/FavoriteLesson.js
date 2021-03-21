@@ -43,11 +43,11 @@ class FavoriteLesson extends Component {
                     });
                     this.props.lessonUnfavorited(this.props.id);
                 }  else {
-                    window.Pintex.notification("Unable to unfavorite lesson.  Please try again.");
+                    window.Pintex.notification("Unable to unfavorite topic.  Please try again.");
                 }
             })
             .catch(()=> {
-                window.Pintex.notification("Unable to unfavorite lesson.  Please try again.");
+                window.Pintex.notification("Unable to unfavorite topic.  Please try again.");
             });
     }
 
@@ -62,11 +62,11 @@ class FavoriteLesson extends Component {
                     });
                     this.props.lessonFavorited(this.props.id);
                 }  else {
-                    window.Pintex.notification("Unable to favorite lesson.  Please try again.");
+                    window.Pintex.notification("Unable to favorite topic.  Please try again.");
                 }
             })
             .catch(()=> {
-                window.Pintex.notification("Unable to favorite lesson.  Please try again.");
+                window.Pintex.notification("Unable to favorite topic.  Please try again.");
             });
     }
 }

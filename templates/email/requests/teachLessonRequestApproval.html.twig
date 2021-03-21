@@ -1,11 +1,11 @@
 {% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
 
 {% if request.isFromProfessional %}
-    <p>Your request to teach lesson <strong>{{ request.lesson.title }}</strong> at the following school: <strong>{{ request.createdBy.school.name }}</strong>
+    <p>Your request to teach topic <strong>{{ request.lesson.title }}</strong> at the following school: <strong>{{ request.createdBy.school.name }}</strong>
         has been approved.</p>
     <p>Login to the <a href="{{ url('dashboard') }}">dashboard</a> to view</p>
 {% else %}
-    <p>Your request for <strong>{{ request.needsApprovalBy.fullName }}</strong> to teach lesson <strong>{{ request.lesson.title }}</strong> at the following school: <strong>{{ request.createdBy.school.name }}</strong>
+    <p>Your request for <strong>{{ request.needsApprovalBy.fullName }}</strong> to teach topic <strong>{{ request.lesson.title }}</strong> at the following school: <strong>{{ request.createdBy.school.name }}</strong>
         has been accepted.</p>
     <p>Login to the <a href="{{ url('dashboard') }}">dashboard</a> to view</p>
 {% endif %}

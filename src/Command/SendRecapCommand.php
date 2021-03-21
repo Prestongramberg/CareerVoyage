@@ -42,7 +42,7 @@ class SendRecapCommand extends Command
 
     const COMMAND = 'send:recap';
 
-    const DESCRIPTION = 'This command is a central hub for initiating the sending for a recurring email of relevant lessons, events, etc for the users in the system.';
+    const DESCRIPTION = 'This command is a central hub for initiating the sending for a recurring email of relevant topics, events, etc for the users in the system.';
 
     /**
      * @var EntityManagerInterface

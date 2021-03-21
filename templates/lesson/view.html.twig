@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}View Lesson{% endblock %}
+{% block title %}View Topics{% endblock %}
 {% block bodyClass %}page-lesson-view{% endblock %}
 {% block flashMessage %}{% endblock %}
 
@@ -17,7 +17,30 @@
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
-                                <div class="react-teach-lesson uk-inline" data-lesson-id="{{ lesson.id }}" data-lesson-teachable="{{ lesson.isTeachableByUser( user ) }}" data-teacher="{{ user.isEducator }}"></div>&nbsp;&nbsp;&nbsp;
+                                {% if user.educator %}
+                                    {% set staticText = 'Topics I want Taught' %}
+                                {% elseif user.schoolAdministrator or user.professional %}
+                                    {% set staticText = 'Topics I can Teach' %}
+                                {% endif %}
+
+                                {% if user.educator or user.schoolAdministrator or user.professional %}
+
+                                    {% if user_can_teach_lesson(user, lesson) %}
+                                        <a href="{{ path('unteach_lesson', {'id': lesson.id, 'page': lesson.id }) }}">
+                                        <span class="teach-lesson"
+                                              data-uk-tooltip="title: Remove from {{ staticText }}">
+                                        <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                                    </span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ path('teach_lesson', {'id': lesson.id, 'page': lesson.id }) }}">
+                                     <span class="teach-lesson" data-uk-tooltip="title: Add to {{ staticText }}">
+                                        <i style="opacity: 0.5" class="fa fa-graduation-cap" aria-hidden="true"></i>
+                                    </span>
+                                        </a>
+                                    {% endif %}
+
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -33,7 +56,7 @@
         <div class="uk-margin">
             <ul class="uk-breadcrumb">
                 <li><a href="/">Dashboard</a></li>
-                <li><a href="{{ path('lesson_index') }}">Lessons</a></li>
+                <li><a href="{{ path('lesson_index') }}">Topics</a></li>
                 <li><span>{{ lesson.title }}</span></li>
             </ul>
         </div>
@@ -42,11 +65,11 @@
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
                     {% if user.admin or (lesson.user and user.id == lesson.user.id) %}
-                        <a href="{{ path('lesson_edit', {'id': lesson.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit this Lesson</a>
+                        <a href="{{ path('lesson_edit', {'id': lesson.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit this Topic</a>
                     {% endif %}
 
                     {% if user.admin or (lesson.user and user.id == lesson.user.id) %}
-                        <form class="uk-inline" method="get" action="{{ path('lesson_delete', {'id' : lesson.id}) }}" onSubmit="return confirm('Are you sure you want to delete this lesson?')">
+                        <form class="uk-inline" method="get" action="{{ path('lesson_delete', {'id' : lesson.id}) }}" onSubmit="return confirm('Are you sure you want to delete this topic?')">
                             <button class="uk-button uk-button-danger uk-button-small" type="submit">Delete</button>
                         </form>
                     {% endif %}
@@ -226,7 +249,7 @@
                         {% endfor %}
                     </dl>
                 {% else %}
-                    <p>No professionals currently teach this lesson</p>
+                    <p>No professionals currently teach this topic</p>
                 {% endif %}
             </div>
             <div class="page-lesson-view__educators">
@@ -255,7 +278,7 @@
                         {% endfor %}
                     </dl>
                 {% else %}
-                    <p>No educators are currently looking for this lesson</p>
+                    <p>No educators are currently looking for this topic.</p>
                 {% endif %}
             </div>
         </div>

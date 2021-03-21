@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
  
-{% block title %}Edit Lesson{% endblock %}
+{% block title %}Edit Topic{% endblock %}
 {% block bodyClass %}page-lesson-edit{% endblock %}
 
 {% block javascripts %}
@@ -21,7 +21,7 @@
 
         <div class="uk-margin">
             <div class="uk-align-right@l">
-                <a href="{{ path('lesson_view', {id: lesson.id}) }}" class="uk-button uk-button-default uk-button-small">Back to Lesson</a>
+                <a href="{{ path('lesson_view', {id: lesson.id}) }}" class="uk-button uk-button-default uk-button-small">Back to Topic</a>
             </div>
         </div>
 
@@ -35,7 +35,7 @@
         {% endif %}
 
         <ul class="uk-tab" uk-switcher="connect: #tab-edit-lesson" uk-tab>
-            <li class="uk-active"><a href="#lesson-details">Edit Lesson</a></li>
+            <li class="uk-active"><a href="#lesson-details">Edit Topic</a></li>
             <li><a href="#lesson-industries">Industries</a></li>
             <li><a href="#lesson-courses">Courses</a></li>
             <li><a href="#lesson-outcomes">Outcomes</a></li>
@@ -53,13 +53,13 @@
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.shortDescription, 'Short Description*') }}
-                            <div class="uk-text-meta">One sentence summary that describes lesson, often framed as an ESSENTIAL question</div>
+                            <div class="uk-text-meta">One sentence summary that describes topic, often framed as an ESSENTIAL question</div>
                             {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.shortDescription) }}
                         </div>
                         <div class="uk-margin">
                             {{ form_label(form.summary, 'Summary*') }}
-                            <div class="uk-text-meta">Provide an overview of the lesson for students and professionals</div>
+                            <div class="uk-text-meta">Provide an overview of the topic for students and professionals</div>
                             <div data-wysiwyg="[name='edit_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
                             <div style="display: none;">
                                 {{ form_widget(form.summary) }}
@@ -76,7 +76,7 @@
                                 <img id="lessonThumbnailImage" src="{{ lesson.thumbnailImage ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
                             </div>
                             <div class="uk-width-expand">
-                                <label>Lesson Thumbnail (300x300)<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></label>
+                                <label>Topic Thumbnail (300x300)<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></label>
                                 <div data-upload-url="{{ path('lesson_thumbnail_add', { id: lesson.id }) }}" data-type="image:lessonThumbnailImage"></div>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                                 <img id="lessonFeaturedImage" src="{{ lesson.featuredImage ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
                             </div>
                             <div class="uk-width-expand">
-                                <label>Lesson Featured Image (1680x300)<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></label>
+                                <label>Topic Featured Image (1680x300)<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></label>
                                 <div data-upload-url="{{ path('lesson_featured_add', { id: lesson.id }) }}" data-type="image:lessonFeaturedImage"></div>
                             </div>
                         </div>
@@ -140,13 +140,13 @@
                     <div class="uk-margin">
                         {{ form_label(form.learningOutcomes, 'Learning Outcomes') }}
                         <div data-wysiwyg="[name='edit_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"
-                             data-placeholder="Use the following to describe what students will learn in this lesson:
-“By the end of this lesson, students will:
+                             data-placeholder="Use the following to describe what students will learn in this topic:
+“By the end of this topic, students will:
 Be able…
 Understand….
 Be aware….
 Know….”
-After describing learning outcomes, feel free to share additional resources which will help the guest instructor teach this lesson. This can be links to websites, videos or Google drive docs.
+After describing learning outcomes, feel free to share additional resources which will help the guest instructor teach this topic. This can be links to websites, videos or Google drive docs.
 ">
                         </div>
                         <div style="display: none;">
@@ -176,7 +176,7 @@ After describing learning outcomes, feel free to share additional resources whic
             <!-- ####################################################################################### -->
             <div class="page-lesson-edit__resources">
                 <div class="uk-width-xlarge">
-                    <p>Resources are meant to provide help to understand more about the lesson</p>
+                    <p>Resources are meant to provide help to understand more about the topic.</p>
                 </div>
                 <div class="uk-margin">
                     <div class="uk-text-center uk-placeholder">
