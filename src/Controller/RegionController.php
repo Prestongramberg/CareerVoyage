@@ -14,6 +14,7 @@ use App\Entity\RegionalCoordinator;
 use App\Entity\StateCoordinator;
 use App\Entity\User;
 use App\Form\CreateRegionFormType;
+use App\Form\EditRegionFormType;
 use App\Form\EditCompanyFormType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
@@ -101,6 +102,47 @@ class RegionController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+
+
+    /**
+     * @IsGranted({"ROLE_STATE_COORDINATOR_USER"})
+     * @Route("/{id}/edit", name="region_edit", options = { "expose" = true })
+     * @param Request $request
+     * @param Region $region
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function editRegionAction(Request $request, Region $region) {
+        /** @var StateCoordinator $user */
+        $user = $this->getUser();
+        
+        $form = $this->createForm(EditRegionFormType::class, $region, [
+            'method' => 'POST',
+            'loggedInUser' => $user
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            /** @var Region $region */
+            $region = $form->getData();
+            $region->setSite($user->getSite());
+            $region->setState($user->getState());
+
+            $this->entityManager->persist($region);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Region successfully saved.');
+            return $this->redirectToRoute('dashboard');
+        }
+
+        return $this->render('region/edit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView()
+        ]);
+    }
+
+
 
     /**
      * @Security("is_granted('ROLE_STATE_COORDINATOR_USER')")
