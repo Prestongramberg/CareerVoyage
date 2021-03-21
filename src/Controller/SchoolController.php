@@ -501,6 +501,7 @@ class SchoolController extends AbstractController
         $schoolAdminId = $request->request->get('schoolAdminId');
 
         $studentUser->setArchived(true);
+        $studentUser->setActivated(false);
         $this->entityManager->persist($studentUser);
         $this->entityManager->flush();
 
