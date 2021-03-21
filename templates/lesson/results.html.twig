@@ -17,7 +17,7 @@
         </div>
 
         <ul class="uk-subnav uk-subnav-pill" uk-margin>
-            <li class="uk-active"><a href="{{ path('lessons_results_page') }}">All Topics</a></li>
+            <li class="uk-active"><a href="{{ path('lessons_results_page') }}">All Topics</a></li> 
 
             {% if user.educator %}
                 <li><a href="{{ path('lessons_teachable_page') }}">Topics I want Taught</a></li>
@@ -49,15 +49,15 @@
             {% endif %}
 
             {% if form.hasExpertPresenters is defined %}
-                <div class="uk-width-1-4@s">
+                <!-- <div class="uk-width-1-4@s">
                     {{ form_widget(form.hasExpertPresenters, {'attr': {'class': 'uk-select', 'placeholder': 'Search by Name...'}}) }}
-                </div>
+                </div> -->
             {% endif %}
 
             {% if form.hasEducatorRequestors is defined %}
-                <div class="uk-width-1-4@s">
+                <!-- <div class="uk-width-1-4@s">
                     {{ form_widget(form.hasEducatorRequestors, {'attr': {'class': 'uk-select', 'placeholder': 'Search by Name...'}}) }}
-                </div>
+                </div> -->
             {% endif %}
         
         <div class="uk-width-1-4@s">
