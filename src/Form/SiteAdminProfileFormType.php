@@ -83,11 +83,9 @@ class SiteAdminProfileFormType extends AbstractType
                 'expanded'  => false,
                 'multiple'  => false,
                 'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('s');
-                },
-                'attr' => [
-                    'disabled' => true
-                ]
+                    return $er->createQueryBuilder('s')
+                              ->orderBy('s.name');
+                }
             ])->add('notificationPreferences', ChoiceType::class, [
                 'expanded' => true,
                 'multiple' => true,
