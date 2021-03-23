@@ -1,0 +1,12 @@
+{% extends 'baseAuthenticatedReportDashboard.html.twig' %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/report_dashboard.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('build/report_dashboard.css') }}" />
+ {% endblock %}

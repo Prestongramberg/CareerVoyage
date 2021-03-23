@@ -71,7 +71,7 @@ class ReportController extends AbstractController
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
-     * @Route("/{reportName}", name="report_index")
+     * @Route("/download/{reportName}", name="report_index")
      *
      * @param Request $request
      *
@@ -88,7 +88,7 @@ class ReportController extends AbstractController
 
             'EXPERIENCE_FEEDBACK_RESULTS' => [
                 'title' => 'Experience Feedback Results',
-                'name'  => 'EXPERIENCE_FEEDBACK_RESULTS',
+                'name' => 'EXPERIENCE_FEEDBACK_RESULTS',
                 'roles' => function () use ($user) {
 
                     if ($user->isSchoolAdministrator() || $user->isEducator()) {
@@ -161,13 +161,13 @@ class ReportController extends AbstractController
                     foreach ($feedbackGenerator as $experience) {
                         foreach ($experience->getFeedback() as $feedback) {
                             $data[] = [
-                                'Experience Id'    => $experience->getId(),
+                                'Experience Id' => $experience->getId(),
                                 'Experience Title' => $experience->getTitle(),
-                                'Feedback Rating'  => $feedback->getRating(),
-                                'Insight'          => $feedback->getProvidedCareerInsight(),
-                                'Enjoyable'        => $feedback->getWasEnjoyableAndEngaging(),
-                                'Learned'          => $feedback->getLearnSomethingNew(),
-                                'Recommendation'   => $feedback->getLikelihoodToRecommendToFriend(),
+                                'Feedback Rating' => $feedback->getRating(),
+                                'Insight' => $feedback->getProvidedCareerInsight(),
+                                'Enjoyable' => $feedback->getWasEnjoyableAndEngaging(),
+                                'Learned' => $feedback->getLearnSomethingNew(),
+                                'Recommendation' => $feedback->getLikelihoodToRecommendToFriend(),
                             ];
                         }
                     }
@@ -179,7 +179,7 @@ class ReportController extends AbstractController
 
             'EXPERIENCE_DATA_BREAKDOWN' => [
                 'title' => 'Experience Data Breakdown',
-                'name'  => 'EXPERIENCE_DATA_BREAKDOWN',
+                'name' => 'EXPERIENCE_DATA_BREAKDOWN',
                 'roles' => function () use ($user) {
 
                     if ($user->isSchoolAdministrator() || $user->isEducator()) {
@@ -251,14 +251,14 @@ class ReportController extends AbstractController
                     $data = [];
                     foreach ($feedbackGenerator as $experience) {
                         $data[] = [
-                            'Experience Id'           => $experience->getId(),
-                            'Experience Title'        => $experience->getTitle(),
-                            'Learned Something'       => $feedbackGenerator->cumulativeLearned(),
+                            'Experience Id' => $experience->getId(),
+                            'Experience Title' => $experience->getTitle(),
+                            'Learned Something' => $feedbackGenerator->cumulativeLearned(),
                             'Provided Career Insight' => $feedbackGenerator->cumulativeInsight(),
-                            'Enjoyable And Engaging'  => $feedbackGenerator->cumulativeEnjoyable(),
-                            'Average Rating'          => $feedbackGenerator->cumulativeRating(),
-                            'Total Responses'         => $feedbackGenerator->totalFeedback(),
-                            'NPM Score'               => $feedbackGenerator->npmScore(),
+                            'Enjoyable And Engaging' => $feedbackGenerator->cumulativeEnjoyable(),
+                            'Average Rating' => $feedbackGenerator->cumulativeRating(),
+                            'Total Responses' => $feedbackGenerator->totalFeedback(),
+                            'NPM Score' => $feedbackGenerator->npmScore(),
                         ];
                     }
 
@@ -269,7 +269,7 @@ class ReportController extends AbstractController
 
             'LESSONS_I_WANT_TAUGHT' => [
                 'title' => 'Lessons Educators and School Administrators Want Taught',
-                'name'  => 'LESSONS_I_WANT_TAUGHT',
+                'name' => 'LESSONS_I_WANT_TAUGHT',
                 'roles' => [
                     'ROLE_ADMIN_USER',
                     'ROLE_SITE_ADMIN_USER',
@@ -341,9 +341,9 @@ WHERE (u.discr = "educatorUser" OR u.discr = "schoolAdministrator") :regions',
                 ],
 
             ],
-            'LESSONS_I_CAN_TEACH'   => [
+            'LESSONS_I_CAN_TEACH' => [
                 'title' => 'Lessons Professionals Can Teach',
-                'name'  => 'LESSONS_I_CAN_TEACH',
+                'name' => 'LESSONS_I_CAN_TEACH',
                 'roles' => [
                     'ROLE_ADMIN_USER',
                     'ROLE_SITE_ADMIN_USER',
@@ -436,10 +436,10 @@ WHERE u.discr = "professionalUser" :regions',
 
             return $this->render(
                 'report/index.html.twig', [
-                                            'user'    => $user,
-                                            'reports' => $downloadableReports
-                                            //'form' => $form->createView(),
-                                        ]
+                    'user' => $user,
+                    'reports' => $downloadableReports
+                    //'form' => $form->createView(),
+                ]
             );
         }
 
@@ -500,7 +500,7 @@ WHERE u.discr = "professionalUser" :regions',
 
             $results = $report['query']();
 
-            if(empty($results)) {
+            if (empty($results)) {
                 $results[] = ['Report ' . $reportName => 'Zero Results'];
             }
 
@@ -574,8 +574,8 @@ WHERE u.discr = "professionalUser" :regions',
         $response = new Response(
             $serializer->encode(
                 $logs, 'csv', [
-                         \Symfony\Component\Serializer\Encoder\CsvEncoder::NO_HEADERS_KEY => true,
-                     ]
+                    \Symfony\Component\Serializer\Encoder\CsvEncoder::NO_HEADERS_KEY => true,
+                ]
             )
         );
 
@@ -611,10 +611,10 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/email_logs.html.twig', [
-                                            'user'         => $user,
-                                            'loggedInUser' => $loggedInUser,
-                                            'emailLogs'    => $emailLogs,
-                                        ]
+                'user' => $user,
+                'loggedInUser' => $loggedInUser,
+                'emailLogs' => $emailLogs,
+            ]
         );
     }
 
@@ -657,9 +657,9 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/list_event_type.html.twig', [
-                                                 'user'  => $user,
-                                                 'roles' => $roles,
-                                             ]
+                'user' => $user,
+                'roles' => $roles,
+            ]
         );
     }
 
@@ -680,8 +680,8 @@ WHERE u.discr = "professionalUser" :regions',
 
         $form = $this->createForm(
             EventTypeFormType::class, $role, [
-                                        'method' => 'POST',
-                                    ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -700,9 +700,9 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/new_event_type.html.twig', [
-                                                'user' => $user,
-                                                'form' => $form->createView(),
-                                            ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -723,8 +723,8 @@ WHERE u.discr = "professionalUser" :regions',
 
         $form = $this->createForm(
             EventTypeFormType::class, $role, [
-                                        'method' => 'POST',
-                                    ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -743,9 +743,30 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/edit_event_type.html.twig', [
-                                                 'user' => $user,
-                                                 'form' => $form->createView(),
-                                             ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
+     * @Route("/experience-satisfaction-dashboard", name="report_experience_satisfaction_dashboard")
+     *
+     * @param Request $request
+     *
+     * @param null    $reportName
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function experienceSatisfactionDashboard(Request $request)
+    {
+        $user = $this->getUser();
+
+        return $this->render(
+            'report/dashboard/experience_satisfaction.html.twig', [
+                'user' => $user,
+            ]
         );
     }
 }
