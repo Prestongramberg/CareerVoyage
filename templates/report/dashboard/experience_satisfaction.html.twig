@@ -1,5 +1,6 @@
 {% extends 'baseAuthenticatedReportDashboard.html.twig' %}
 
+{% block title %}Experience Satisfaction Report{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
@@ -8,5 +9,62 @@
 
  {% block stylesheets %}
      {{ parent() }}
-     <link rel="stylesheet" href="{{ asset('build/report_dashboard.css') }}" />
+     <link rel="stylesheet" href="{{ asset('build/report_dashboard.css') }}"/>
  {% endblock %}
+
+
+{% block navTitle %}Data Analysis{% endblock %}
+
+ {% block filters %}
+
+     {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+
+     {% if form.feedbackProvider is defined %}
+         <div class="uk-width-1-4@s">
+             {{ form_widget(form.feedbackProvider, {'attr': {'class': 'uk-select'}}) }}
+         </div>
+     {% endif %}
+
+     <div class="uk-width-1-4@s">
+         <button class="uk-button uk-button-primary">Search</button>
+         <a class="uk-button uk-button-danger" href="{{ clearFormUrl }}">Clear</a>
+     </div>
+     {{ form_end(form) }}
+
+ {% endblock %}
+
+
+
+ {% block charts %}
+
+     <div uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@l">
+         <div>
+             <div class="uk-card uk-card-default">
+                 <div class="uk-card-header">
+                     {{ barChart.header }} <br>
+                     <small>{{ barChart.subHeader }}</small>
+                 </div>
+                 <div class="uk-card-body">
+
+                     {# TODO You can add these to a controller that symfony can render asyncronously. Come back and do this before the demo. #}
+
+                     <div data-chart="{{ barChart.render }}" class="chartjs-wrapper"><canvas id="myChart" class="chartjs"></canvas></div>
+
+                 </div>
+             </div>
+         </div>
+         <div>
+             <div class="uk-card uk-card-default">
+                 <div class="uk-card-header">
+                     Website Traffic
+                 </div>
+                 <div class="uk-card-body">
+                     <canvas id="chart2"></canvas>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+ {% endblock %}
+
+

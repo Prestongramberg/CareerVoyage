@@ -10,7 +10,6 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" href="css/notyf.min.css" />
 
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
@@ -18,19 +17,35 @@
 
     {% if app.request.getSchemeAndHttpHost() == 'https://dev.pintexsolutions.com' %}
         <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-PPS32QQ');</script>
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-PPS32QQ');</script>
         <!-- End Google Tag Manager -->
         {% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
         <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-TTHND3F');</script>
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-TTHND3F');</script>
         <!-- End Google Tag Manager -->
     {% endif %}
 
@@ -40,9 +55,9 @@
     <div class="uk-container uk-container-expand">
         <nav uk-navbar>
             <div class="uk-navbar-left">
-                <a id="sidebar_toggle" class="uk-navbar-toggle" uk-navbar-toggle-icon ></a>
+                <a id="sidebar_toggle" class="uk-navbar-toggle" uk-navbar-toggle-icon></a>
                 <a href="#" class="uk-navbar-item uk-logo">
-                    UI Admin
+                    {% block navTitle %}{% endblock %}
                 </a>
             </div>
             <div class="uk-navbar-right uk-light">
@@ -66,13 +81,15 @@
 <div id="sidebar" class="tm-sidebar-left uk-background-default">
     <center>
         <div class="user">
-            <img id="avatar" width="100" class="uk-border-circle" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}" />
+            <img id="avatar" width="100" class="uk-border-circle"
+                 src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"/>
             <div class="uk-margin-top"></div>
             <div id="name" class="uk-text-truncate">{{ user.fullName }}</div>
             <div id="email" class="uk-text-truncate">{{ user.email }}</div>
-            <span id="status" data-enabled="true" data-online-text="Online" data-away-text="Away" data-interval="10000" class="uk-margin-top uk-label uk-label-success"></span>
+            <span id="status" data-enabled="true" data-online-text="Online" data-away-text="Away" data-interval="10000"
+                  class="uk-margin-top uk-label uk-label-success"></span>
         </div>
-        <br />
+        <br/>
     </center>
     <ul class="uk-nav uk-nav-default">
 
@@ -102,10 +119,14 @@
     </div>
     <div class="uk-section-small">
         <div class="uk-container uk-container-large">
+
+
+            {% block filters %}{% endblock %}
+
             <div uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-4@xl">
                 <div>
                     <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">New Registrations</span><br />
+                        <span class="statistics-text">New Registrations</span><br/>
                         <span class="statistics-number">
                                     14.164
                                     <span class="uk-label uk-label-success">
@@ -116,7 +137,7 @@
                 </div>
                 <div>
                     <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">Website Traffic</span><br />
+                        <span class="statistics-text">Website Traffic</span><br/>
                         <span class="statistics-number">
                                     123.238
                                     <span class="uk-label uk-label-danger">
@@ -127,7 +148,7 @@
                 </div>
                 <div>
                     <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">Total Invoices</span><br />
+                        <span class="statistics-text">Total Invoices</span><br/>
                         <span class="statistics-number">
                                     2.316
                                     <span class="uk-label uk-label-success">
@@ -138,7 +159,7 @@
                 </div>
                 <div>
                     <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">Total Income</span><br />
+                        <span class="statistics-text">Total Income</span><br/>
                         <span class="statistics-number">
                                     6.384€
                                     <span class="uk-label uk-label-success">
@@ -148,28 +169,8 @@
                     </div>
                 </div>
             </div>
-            <div uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@l">
-                <div>
-                    <div class="uk-card uk-card-default">
-                        <div class="uk-card-header">
-                            Website Traffic
-                        </div>
-                        <div class="uk-card-body">
-                            <canvas id="chart1"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="uk-card uk-card-default">
-                        <div class="uk-card-header">
-                            Website Traffic
-                        </div>
-                        <div class="uk-card-body">
-                            <canvas id="chart2"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+            {% block charts %}{% endblock %}
         </div>
     </div>
 </div>

@@ -77,6 +77,21 @@ class Feedback
      */
     protected $deleted = false;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $feedbackProvider;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $interestWorkingForCompany = 0;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $experience_provider;
+
 
     public function getId(): ?int
     {
@@ -193,6 +208,42 @@ class Feedback
     public function setDeleted(bool $deleted): self
     {
         $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    public function getFeedbackProvider(): ?string
+    {
+        return $this->feedbackProvider;
+    }
+
+    public function setFeedbackProvider(?string $feedbackProvider): self
+    {
+        $this->feedbackProvider = $feedbackProvider;
+
+        return $this;
+    }
+
+    public function getInterestWorkingForCompany(): ?int
+    {
+        return $this->interestWorkingForCompany;
+    }
+
+    public function setInterestWorkingForCompany(?int $interestWorkingForCompany): self
+    {
+        $this->interestWorkingForCompany = $interestWorkingForCompany;
+
+        return $this;
+    }
+
+    public function getExperienceProvider(): ?string
+    {
+        return $this->experience_provider;
+    }
+
+    public function setExperienceProvider(?string $experience_provider): self
+    {
+        $this->experience_provider = $experience_provider;
 
         return $this;
     }

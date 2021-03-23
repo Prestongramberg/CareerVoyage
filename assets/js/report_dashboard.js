@@ -3,6 +3,7 @@
 // App SCSS
 
 require('jquery.transit');
+import Chart from 'chart.js';
 
 require('../css/report_dashboard.scss');
 
@@ -66,5 +67,15 @@ $(function() {
             sidebarToggle(false);
         }
     });
+
+
+
+    debugger;
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    let chartData = $('.chartjs-wrapper').attr('data-chart');
+    chartData = JSON.parse(chartData);
+
+    var chart = new Chart(ctx, chartData);
 
 })

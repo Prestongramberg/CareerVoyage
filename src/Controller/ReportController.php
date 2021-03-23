@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
 use App\Entity\EmailLog;
+use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -19,6 +20,7 @@ use App\Entity\StateCoordinator;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EventTypeFormType;
+use App\Form\Filter\Report\Dashboard\FeedbackFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -27,6 +29,8 @@ use App\Form\SiteAdminFormType;
 use App\Form\StateCoordinatorFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Model\Collection\FeedbackCollection;
+use App\Model\Report\Dashboard\Feedback\BarChart\StudentInterestInWorkingForCompany;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
@@ -42,7 +46,6 @@ use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -57,6 +60,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
+
 
 /**
  * Class ReportController
@@ -755,17 +759,41 @@ WHERE u.discr = "professionalUser" :regions',
      *
      * @param Request $request
      *
-     * @param null    $reportName
-     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function experienceSatisfactionDashboard(Request $request)
     {
         $user = $this->getUser();
 
+        // depending on the user role type that will determine which filters we show.
+        $form = $this->createForm(
+            FeedbackFilterType::class, null, [
+                'method' => 'GET',
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        // make sure you don't pull feedback that has been marked as deleted
+        $filterBuilder = $this->feedbackRepository->createQueryBuilder('f');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $feedbackCollection = new FeedbackCollection($filterQuery->getResult());
+
+        // todo should we add the calculation of the graphs into a command? Or cache them?
+        $barChart = new StudentInterestInWorkingForCompany($feedbackCollection);
+
         return $this->render(
             'report/dashboard/experience_satisfaction.html.twig', [
                 'user' => $user,
+                'barChart' => $barChart,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),
             ]
         );
     }

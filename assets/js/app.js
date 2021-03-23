@@ -18,6 +18,7 @@ UIkit.use(Icons);
 
 // App Vendor JS
 const $ = require('jquery');
+window.$ = $;
 // const moment = require('./vendor/moment.js');
 require('./vendor/jquery-datetimepicker.js');
 require('./vendor/fontawesome.js');
