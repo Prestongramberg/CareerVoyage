@@ -268,6 +268,11 @@ abstract class User implements UserInterface
     protected $profileCompleted = false;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $dashboardOrder = [];
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -1352,5 +1357,17 @@ abstract class User implements UserInterface
 
         return true;
 
+    }
+
+    public function getDashboardOrder(): ?array
+    {
+        return $this->dashboardOrder;
+    }
+
+    public function setDashboardOrder(?array $dashboardOrder): self
+    {
+        $this->dashboardOrder = $dashboardOrder;
+
+        return $this;
     }
 }

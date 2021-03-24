@@ -30,6 +30,8 @@ use App\Form\StateCoordinatorFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
 use App\Model\Collection\FeedbackCollection;
+use App\Model\Report\Dashboard\AbstractDashboard;
+use App\Model\Report\Dashboard\Feedback\BarChart\ExperienceRating;
 use App\Model\Report\Dashboard\Feedback\BarChart\StudentInterestInWorkingForCompany;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -763,12 +765,56 @@ WHERE u.discr = "professionalUser" :regions',
      */
     public function experienceSatisfactionDashboard(Request $request)
     {
-
+        /** @var User $user */
         $user = $this->getUser();
+
+        $dashboardOrder = $request->request->get('sortableData', null);
+
+        if ($dashboardOrder) {
+            $originalDashboardOrder = $user->getDashboardOrder() ?? [];
+
+            if ($request->query->has('top')) {
+                $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] = $dashboardOrder;
+            } else {
+                if ($request->query->has('bottom')) {
+                    $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] = $dashboardOrder;
+                }
+            }
+
+            $user->setDashboardOrder($originalDashboardOrder);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        // Let's setup some default date filters if none are passed up
+        $data           = null;
+        $filters        = $request->query->get('item_filter', []);
+        $eventStartDate = $filters['eventStartDate'] ?? [];
+        if (empty($eventStartDate['left_date']) || empty($eventStartDate['right_date'])) {
+            $leftDate  = new \DateTime('-1 month');
+            $rightDate = new \DateTime('now');
+
+            $data = [
+                'eventStartDate' => [
+                    'left_date' => $leftDate,
+                    'right_date' => $rightDate,
+                ],
+            ];
+        } else {
+            $leftDate  = $eventStartDate['left_date'];
+            $rightDate = $eventStartDate['right_date'];
+        }
 
         // depending on the user role type that will determine which filters we show.
         $form = $this->createForm(
-            FeedbackFilterType::class, null, [
+            FeedbackFilterType::class, $data, [
                 'method' => 'GET',
             ]
         );
@@ -778,24 +824,55 @@ WHERE u.discr = "professionalUser" :regions',
         // make sure you don't pull feedback that has been marked as deleted
         $filterBuilder = $this->feedbackRepository->createQueryBuilder('f');
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
-        }
+        $this->filterBuilder->addFilterConditions($form, $filterBuilder);
 
         $filterQuery = $filterBuilder->getQuery();
 
         $feedbackCollection = new FeedbackCollection($filterQuery->getResult());
 
-        // todo should add an array of charts here.
-        // todo should we add the calculation of the graphs into a command? Or cache them?
-        $barChart = new StudentInterestInWorkingForCompany($feedbackCollection);
+        $defaultDashboards = [
+            AbstractDashboard::DASHBOARD_SUMMARY,
+            AbstractDashboard::DASHBOARD_STUDENT_INTEREST_IN_WORKING_FOR_COMPANY,
+            AbstractDashboard::DASHBOARD_EXPERIENCE_RATING,
+            AbstractDashboard::DASHBOARD_NPS_SCORE,
+        ];
+
+        $dashboardOrder          = $user->getDashboardOrder() ?? [];
+        $userSavedPos1Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] ?? [];
+        $userSavedPos2Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] ?? [];
+
+        $charts = [];
+        foreach ($defaultDashboards as $defaultDashboard) {
+
+            if (!class_exists($defaultDashboard)) {
+                continue;
+            }
+
+            // todo let's cache the computation here for the given feedback collection ids right or for the request url or filters or something?
+            // todo create an md5 hash right? Double check this to make sure this will work. md5 === md5, etc
+
+            /** @var AbstractDashboard $dashboardInstance */
+            $dashboardInstance = new $defaultDashboard($feedbackCollection);
+
+            if (($position = array_search($defaultDashboard, $userSavedPos1Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            if (($position = array_search($defaultDashboard, $userSavedPos2Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            $charts[] = $dashboardInstance;
+        }
 
         $showFilters = $request->query->has('item_filter');
 
         return $this->render(
             'report/dashboard/experience_satisfaction.html.twig', [
                 'user' => $user,
-                'barChart' => $barChart,
+                'charts' => $charts,
+                'leftDate' => $leftDate,
+                'rightDate' => $rightDate,
                 'showFilters' => $showFilters,
                 'form' => $form->createView(),
                 'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),

@@ -12,6 +12,7 @@
      <link rel="stylesheet" href="{{ asset('build/report_dashboard.css') }}"/>
  {% endblock %}
 
+{% block heading %}Experience Satisfaction Report <mark style="font-size: 14px">{{ leftDate|date("m/d/Y") }} - {{ rightDate|date("m/d/Y") }}</mark>{% endblock %}
 
 {% block navTitle %}Data Analysis{% endblock %}
 
@@ -72,12 +73,12 @@
              {% if form.eventStartDate is defined %}
                  <div class="uk-width-1-4">
                      {{ form_label(form.eventStartDate, 'Time Period', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.eventStartDate.left_date, {'attr': {'class': 'uk-datepicker uk-input'}}) }}
+                     {{ form_widget(form.eventStartDate.left_date, {'attr': {'class': 'uk-datepicker uk-input start-date-picker'}}) }}
                  </div>
 
                  <div class="uk-width-1-4">
                      <label style="visibility: hidden">Time Period</label>
-                     {{ form_widget(form.eventStartDate.right_date, {'attr': {'class': 'uk-datepicker uk-input'}}) }}
+                     {{ form_widget(form.eventStartDate.right_date, {'attr': {'class': 'uk-datepicker uk-input end-date-picker'}}) }}
                  </div>
              {% endif %}
 
@@ -94,42 +95,18 @@
  {% endblock %}
 
 
-
  {% block charts %}
 
-     <div uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@l">
-         <div>
-             <div class="uk-card uk-card-default">
-                 <div class="uk-card-header">
-                     {{ barChart.header }} <br>
-                     <small>{{ barChart.subHeader }}</small>
-                 </div>
-                 <div class="uk-card-body">
+     <div data-url="{{ path('report_experience_satisfaction_dashboard') }}?top" uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-4@xl" uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+         {% for chart in charts|filter(c => c.location == 'top')|sort((a, b) => a.position <=> b.position) %}
+             {% include chart.template %}
+         {% endfor %}
+     </div>
 
-                     {# TODO You can add these to a controller that symfony can render asyncronously. Come back and do this before the demo. #}
-
-                     <div data-chart="{{ barChart.render }}" class="chartjs-wrapper">
-                         <canvas id="myChart" class="chartjs"></canvas>
-                     </div>
-
-                 </div>
-                 <div class="uk-card-footer" style="text-align: center">
-                     {{ barChart.footer }}
-                 </div>
-             </div>
-         </div>
-         <div>
-             <div class="uk-card uk-card-default">
-                 <div class="uk-card-header">
-                     Website Traffic
-                 </div>
-                 <div class="uk-card-body">
-                     <canvas id="chart2"></canvas>
-                 </div>
-             </div>
-         </div>
+     <div data-url="{{ path('report_experience_satisfaction_dashboard') }}?bottom" uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@l" uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+         {% for chart in charts|filter(c => c.location == 'bottom')|sort((a, b) => a.position <=> b.position) %}
+             {% include chart.template %}
+         {% endfor %}
      </div>
 
  {% endblock %}
-
-

@@ -4,8 +4,9 @@ namespace App\Model\Report\Dashboard\Feedback\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
+use App\Model\Report\Dashboard\AbstractDashboard;
 
-class ExperienceRating
+class ExperienceRating extends AbstractDashboard
 {
     protected $type = 'bar';
 
@@ -23,6 +24,8 @@ class ExperienceRating
 
     protected $subHeader = '';
 
+    protected $position = 1;
+
     /**
      * BarChart constructor.
      *
@@ -30,42 +33,39 @@ class ExperienceRating
      */
     public function __construct(FeedbackCollection $feedbackCollection)
     {
-        $data           = [];
-        $totalResponses = 0;
-        $totalInterest  = 0;
+        $data             = [];
+        $totalResponses   = 0;
+        $cumulativeRating = 0;
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if ($feedback->getFeedbackProvider() !== 'Student') {
-                continue;
-            }
-
-            if ($feedback->getExperienceProvider() !== 'Company') {
+            if (!$feedback->getRating()) {
                 continue;
             }
 
             $totalResponses++;
 
-            $interest = $feedback->getInterestWorkingForCompany();
+            $rating = $feedback->getRating();
 
-            if ($interest == 4 || $interest == 5) {
-                $totalInterest++;
+            $cumulativeRating += (int)$feedback->getRating();
+
+            if (!isset($data[$rating])) {
+                $data[$rating] = 0;
             }
 
-            if (!isset($data[$interest])) {
-                $data[$interest] = 0;
-            }
-
-            $data[$interest]++;
+            $data[$rating]++;
         }
 
         foreach ($this->labels as $label) {
             $this->data[] = isset($data[$label]) ? $data[$label] : 0;
         }
 
-        $this->header    = $this->label = sprintf("%s%% of Students Expressed Interest in Working for the Company", round($totalInterest / $totalResponses * 100));
-        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
+        $this->header = $this->label = 'Experience Rating';
+
+        if ($totalResponses !== 0) {
+            $this->subHeader = sprintf("Average: %s", round($cumulativeRating / $totalResponses, 1));
+        }
     }
 
     public function render()
@@ -100,5 +100,30 @@ class ExperienceRating
     public function getSubHeader(): string
     {
         return $this->subHeader;
+    }
+
+    public function getFooter()
+    {
+        return '';
+    }
+
+    public function getTemplate()
+    {
+        return 'report/dashboard/bar_chart.html.twig';
+    }
+
+    public function getLocation()
+    {
+        return 'bottom';
+    }
+
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    public function setPosition($position)
+    {
+        $this->position = $position;
     }
 }

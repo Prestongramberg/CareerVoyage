@@ -104,70 +104,21 @@
     </ul>
 </div>
 <div class="content-padder content-background">
+
     <div class="uk-section-small uk-section-default header">
         <div class="uk-container uk-container-large">
-            <h1><span class="ion-speedometer"></span> Experience Satisfaction Report</h1>
-            {#<p>
-                Welcome back, Èrik Campobadal
-            </p>#}
+            <h1><span class="ion-speedometer"></span> {% block heading %}{% endblock %}</h1>
             <ul class="uk-breadcrumb">
                 <li><a href="{{ path('dashboard') }}">Home</a></li>
                 <li><span href="">Dashboard</span></li>
             </ul>
         </div>
     </div>
+
     <div class="uk-section-small">
         <div class="uk-container uk-container-large">
 
-
             {% block filters %}{% endblock %}
-
-            <div uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-4@xl">
-                <div>
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">New Registrations</span><br/>
-                        <span class="statistics-number">
-                                    14.164
-                                    <span class="uk-label uk-label-success">
-                                        8% <span class="ion-arrow-up-c"></span>
-                                    </span>
-                                </span>
-                    </div>
-                </div>
-                <div>
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">Website Traffic</span><br/>
-                        <span class="statistics-number">
-                                    123.238
-                                    <span class="uk-label uk-label-danger">
-                                        13% <span class="ion-arrow-down-c"></span>
-                                    </span>
-                                </span>
-                    </div>
-                </div>
-                <div>
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">Total Invoices</span><br/>
-                        <span class="statistics-number">
-                                    2.316
-                                    <span class="uk-label uk-label-success">
-                                        37% <span class="ion-arrow-up-c"></span>
-                                    </span>
-                                </span>
-                    </div>
-                </div>
-                <div>
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <span class="statistics-text">Total Income</span><br/>
-                        <span class="statistics-number">
-                                    6.384€
-                                    <span class="uk-label uk-label-success">
-                                        26% <span class="ion-arrow-up-c"></span>
-                                    </span>
-                                </span>
-                    </div>
-                </div>
-            </div>
 
             {% block charts %}{% endblock %}
         </div>

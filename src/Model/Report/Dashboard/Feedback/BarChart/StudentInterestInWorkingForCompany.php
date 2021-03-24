@@ -4,8 +4,9 @@ namespace App\Model\Report\Dashboard\Feedback\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
+use App\Model\Report\Dashboard\AbstractDashboard;
 
-class StudentInterestInWorkingForCompany
+class StudentInterestInWorkingForCompany extends AbstractDashboard
 {
     protected $type = 'bar';
 
@@ -24,6 +25,8 @@ class StudentInterestInWorkingForCompany
     protected $subHeader = '';
 
     protected $footer = 'Not at all interested <-> Highly interested';
+
+    protected $position = 0;
 
     /**
      * BarChart constructor.
@@ -113,5 +116,25 @@ class StudentInterestInWorkingForCompany
     public function getFooter(): string
     {
         return $this->footer;
+    }
+
+    public function getTemplate()
+    {
+        return 'report/dashboard/bar_chart.html.twig';
+    }
+
+    public function getLocation()
+    {
+        return 'bottom';
+    }
+
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    public function setPosition($position)
+    {
+        $this->position = $position;
     }
 }

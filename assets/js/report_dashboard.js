@@ -69,13 +69,13 @@ $(function() {
     });
 
 
+    $('.chartjs-wrapper').each(function() {
+        debugger;
+        var ctx = $(this).find('.chartjs').get(0).getContext('2d');
 
-    debugger;
-    var ctx = document.getElementById('myChart').getContext('2d');
+        let chartData = $(this).attr('data-chart');
+        chartData = JSON.parse(chartData);
 
-    let chartData = $('.chartjs-wrapper').attr('data-chart');
-    chartData = JSON.parse(chartData);
-
-    var chart = new Chart(ctx, chartData);
-
+        new Chart(ctx, chartData);
+    });
 })
