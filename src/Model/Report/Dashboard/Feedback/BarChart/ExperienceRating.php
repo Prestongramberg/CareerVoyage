@@ -5,7 +5,7 @@ namespace App\Model\Report\Dashboard\Feedback\BarChart;
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
 
-class StudentInterestInWorkingForCompany
+class ExperienceRating
 {
     protected $type = 'bar';
 
@@ -22,8 +22,6 @@ class StudentInterestInWorkingForCompany
     protected $header = '';
 
     protected $subHeader = '';
-
-    protected $footer = 'Not at all interested <-> Highly interested';
 
     /**
      * BarChart constructor.
@@ -66,10 +64,7 @@ class StudentInterestInWorkingForCompany
             $this->data[] = isset($data[$label]) ? $data[$label] : 0;
         }
 
-        if ($totalResponses !== 0) {
-            $this->header = sprintf("%s%% of Students Expressed Interest in Working for the Company", round($totalInterest / $totalResponses * 100));
-        }
-
+        $this->header    = $this->label = sprintf("%s%% of Students Expressed Interest in Working for the Company", round($totalInterest / $totalResponses * 100));
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);
     }
 
@@ -105,13 +100,5 @@ class StudentInterestInWorkingForCompany
     public function getSubHeader(): string
     {
         return $this->subHeader;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFooter(): string
-    {
-        return $this->footer;
     }
 }

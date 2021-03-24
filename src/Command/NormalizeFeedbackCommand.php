@@ -100,14 +100,62 @@ class NormalizeFeedbackCommand extends Command
                 case 'StudentReviewCompanyExperienceFeedback':
                     /** @var StudentReviewCompanyExperienceFeedback $feedback */
 
+                    $regionIds = [];
+                    $regionNames = [];
+                    $schoolIds = [];
+                    $schoolNames = [];
+                    $companyIds = [];
+                    $companyNames = [];
+
                     $feedback->setFeedbackProvider('Student');
                     $feedback->setInterestWorkingForCompany($feedback->getInterestInWorkingForCompany());
                     $feedback->setExperienceProvider('Company');
+                    $feedback->setEventStartDate($feedback->getExperience()->getStartDateAndTime());
+
+                    if($feedback->getExperience() && $feedback->getExperience()->getType()) {
+                        $feedback->setExperienceType($feedback->getExperience()->getType());
+                        $feedback->setExperienceTypeName($feedback->getExperience()->getType()->getEventName());
+                    }
+
+                    if($feedback->getStudent() && $feedback->getStudent()->getSchool() && $region = $feedback->getStudent()->getSchool()->getRegion()) {
+                        $regionIds[] = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+
+                    if($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
+                        foreach($company->getRegions() as $region) {
+                            $regionIds[] = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    }
+
+                    if($feedback->getCompanyExperience() && $employeeContact = $feedback->getCompanyExperience()->getEmployeeContact()) {
+
+                        foreach($employeeContact->getRegions() as $region) {
+                            $regionIds[] = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    }
+
+                    if($feedback->getStudent() && $school = $feedback->getStudent()->getSchool()) {
+                        $schoolIds[] = $school->getId();
+                        $schoolNames[] = $school->getName();
+                    }
+
+                    if($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
+                        $companyIds[] = $company->getId();
+                        $companyNames[] = $company->getName();
+                    }
+
+                    $feedback->setRegions($regionIds);
+                    $feedback->setRegionNames($regionNames);
+                    $feedback->setSchools($schoolIds);
+                    $feedback->setSchoolNames($schoolNames);
+                    $feedback->setCompanies($companyIds);
+                    $feedback->setCompanyNames($companyNames);
 
                     $feedbackUpdateCount++;
                     break;
-
-
             }
 
             $this->entityManager->persist($feedback);

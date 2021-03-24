@@ -54,8 +54,10 @@ class ProfessionalUserRepository extends ServiceEntityRepository
 
     /**
      * @param $search
+     *
      * @return mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findBySearchTerm($search) {
 

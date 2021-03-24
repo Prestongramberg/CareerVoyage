@@ -763,6 +763,7 @@ WHERE u.discr = "professionalUser" :regions',
      */
     public function experienceSatisfactionDashboard(Request $request)
     {
+
         $user = $this->getUser();
 
         // depending on the user role type that will determine which filters we show.
@@ -785,13 +786,17 @@ WHERE u.discr = "professionalUser" :regions',
 
         $feedbackCollection = new FeedbackCollection($filterQuery->getResult());
 
+        // todo should add an array of charts here.
         // todo should we add the calculation of the graphs into a command? Or cache them?
         $barChart = new StudentInterestInWorkingForCompany($feedbackCollection);
+
+        $showFilters = $request->query->has('item_filter');
 
         return $this->render(
             'report/dashboard/experience_satisfaction.html.twig', [
                 'user' => $user,
                 'barChart' => $barChart,
+                'showFilters' => $showFilters,
                 'form' => $form->createView(),
                 'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),
             ]

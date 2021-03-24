@@ -901,6 +901,56 @@ jQuery(document).ready(function($) {
     });
 
     /**
+     * Time Pickers
+     */
+    $('.uk-datepicker').each(function( index ) {
+        var $elem = $(this);
+        var dropDirection = $elem.hasClass('uk-timepicker-up') ? "up" : "down";
+
+        if($('.end-date-picker').length) {
+
+            if($elem.closest('form').hasClass('edit-form')) {
+                today = $('.start-date-picker').val();
+                tomorrow = $('.end-date-picker').val();
+            }
+
+            // for selecting a date range
+            $elem.daterangepicker({
+                "drops": dropDirection,
+                "timePicker": false,
+                "startDate": today,
+                "endDate": tomorrow,
+                "autoApply": true,
+                "locale": {
+                    "format": 'MM/DD/YYYY'
+                }
+            }, function(start, end, label) {
+                $('.start-date-picker').val( start.format('MM/DD/YYYY h:mm A') );
+                $('.end-date-picker').val( end.format('MM/DD/YYYY h:mm A') );
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+
+            // $elem.val( $('.start-date-picker').val() + " - " + $('.end-date-picker').val());
+
+        } else {
+
+            // For selecting a single date
+            $elem.daterangepicker({
+                drops: dropDirection,
+                singleDatePicker: true,
+                timePicker: false,
+                linkedCalendars: false,
+                showCustomRangeLabel: false,
+                locale: {
+                    format: 'MM/DD/YYYY'
+                }
+            }, function(start, end, label) {
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+        }
+    });
+
+    /**
      * Parse Youtube Urls to get Video IDs
      */
     function youtube_parser(url){
