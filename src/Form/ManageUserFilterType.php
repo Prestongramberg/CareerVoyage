@@ -153,8 +153,39 @@ class ManageUserFilterType extends AbstractType
                 break;
             case StudentUser::class:
 
-                $builder->add('profileCompleted', Filters\BooleanFilterType::class, [
-                    'placeholder' => 'Profile Completed'
+                // $builder->add('profileCompleted', Filters\BooleanFilterType::class, [
+                //     'placeholder' => 'Profile Completed'
+                // ]);
+                $builder->add('profileCompleted', Filters\ChoiceFilterType::class, [
+                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
+                        if (empty($values['value'])) {
+                            return null;
+                        }
+
+                        $status = $values['value'];
+
+                        $queryBuilder = $filterQuery->getQueryBuilder();
+
+                        if($status === 'complete'){
+                            $queryBuilder->innerJoin('u.secondaryIndustries','si')
+                                         ->andWhere('si.id IS NOT NULL');
+                        } elseif($status === 'incomplete') {
+                            $queryBuilder->leftJoin('u.secondaryIndustries','si')
+                                         ->andWhere('si.id IS NULL');
+                        }
+
+                        $newFilterQuery = new ORMQuery($queryBuilder);
+                        return $newFilterQuery->getExpr();
+                    },
+                    'mapped' => false,
+                    'expanded' => false,
+                    'multiple' => false,
+                    'required' => false,
+                    'choices'  => [
+                        'Profile Completed' => '',
+                        'Yes' => 'complete',
+                        'No' => 'incomplete'
+                    ]
                 ]);
 
                 $builder->add('school', Filters\EntityFilterType::class, [
@@ -188,12 +219,10 @@ class ManageUserFilterType extends AbstractType
 
                         $queryBuilder = $filterQuery->getQueryBuilder();
 
-                        if($status === 'complete'){
-                            $queryBuilder->innerJoin('u.secondaryIndustries','si')
-                                         ->andWhere('si.id IS NOT NULL');
-                        } elseif($status === 'incomplete') {
-                            $queryBuilder->leftJoin('u.secondaryIndustries','si')
-                                         ->andWhere('si.id IS NULL');
+                        if($status === 'active'){
+                            $queryBuilder->andWhere('u.activated = true');
+                        } elseif($status === 'inactive') {
+                            $queryBuilder->andWhere('u.activated = false');
                         }
 
                         $newFilterQuery = new ORMQuery($queryBuilder);
@@ -204,9 +233,9 @@ class ManageUserFilterType extends AbstractType
                     'multiple' => false,
                     'required' => false,
                     'choices'  => [
-                        'Filter by Status' => '',
-                        'Profile Complete' => 'complete',
-                        'Profile Incomplete' => 'incomplete'
+                        'Account Status' => '',
+                        'Active' => 'active',
+                        'Inactive' => 'inactive'
                     ]
                 ]);
                 break;
