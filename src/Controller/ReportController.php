@@ -762,6 +762,7 @@ WHERE u.discr = "professionalUser" :regions',
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function experienceSatisfactionDashboard(Request $request)
     {
@@ -824,6 +825,24 @@ WHERE u.discr = "professionalUser" :regions',
         // make sure you don't pull feedback that has been marked as deleted
         $filterBuilder = $this->feedbackRepository->createQueryBuilder('f');
 
+        if($user->isProfessional()) {
+            /** @var ProfessionalUser $user */
+            $company = $user->getCompany();
+            $companyId = $company->getId();
+
+
+            $filterBuilder->where('f.companies LIKE :companyId')
+                                   ->andWhere('u.')
+                                   ->setParameter('roles', '%"'.User::ROLE_EDUCATOR_USER.'"%');
+
+
+
+
+
+        }
+
+
+
         $this->filterBuilder->addFilterConditions($form, $filterBuilder);
 
         $filterQuery = $filterBuilder->getQuery();
@@ -835,6 +854,11 @@ WHERE u.discr = "professionalUser" :regions',
             AbstractDashboard::DASHBOARD_STUDENT_INTEREST_IN_WORKING_FOR_COMPANY,
             AbstractDashboard::DASHBOARD_EXPERIENCE_RATING,
             AbstractDashboard::DASHBOARD_NPS_SCORE,
+            AbstractDashboard::DASHBOARD_EXPERIENCE_ENJOYABLE_AND_ENGAGING,
+            AbstractDashboard::DASHBOARD_LEARNED_SOMETHING_NEW,
+            AbstractDashboard::DASHBOARD_PROVIDED_CAREER_INSIGHT,
+            AbstractDashboard::DASHBOARD_LIKELIHOOD_TO_RECOMMEND_A_FRIEND,
+            AbstractDashboard::DASHBOARD_PROMOTER_NEEUTRAL_DETRACTOR
         ];
 
         $dashboardOrder          = $user->getDashboardOrder() ?? [];

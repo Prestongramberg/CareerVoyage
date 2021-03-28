@@ -31,7 +31,6 @@ class NpsScore extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-
             if ($feedback->getLikelihoodToRecommendToFriend() > 8) {
                 $cumulativePromoters++;
             }
