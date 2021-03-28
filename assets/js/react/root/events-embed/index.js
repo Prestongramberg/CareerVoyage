@@ -13,18 +13,18 @@ for( let i = 0; i < event_calendars.length; i++) {
     (function(i){
         const userId = parseInt(event_calendars[i].getAttribute("data-user-id") || 0);
         const schoolId = parseInt(event_calendars[i].getAttribute("data-school-id") || 0);
-        const zipcode = event_calendars[i].getAttribute("data-zipcode");
+        // const zipcode = event_calendars[i].getAttribute("data-zipcode");
 
         const store = createStore(
             reducers,
             {
                 calendar: getInitialCalendarState(),
                 events: [],
-                industries: [],
-                search: {
-                    radius: 70,
-                    zipcode: zipcode
-                }
+                // industries: []
+                // search: {
+                //     radius: 70,
+                //     zipcode: zipcode
+                // }
             },
             compose(
                 applyMiddleware(thunk),
