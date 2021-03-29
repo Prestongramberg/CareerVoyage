@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RegionRepository")
@@ -23,6 +24,7 @@ class Region
     private $id;
 
     /**
+     * @Assert\NotBlank(message="Please enter a region name.")
      * @ORM\Column(type="string", length=255)
      */
     private $name;
@@ -48,6 +50,8 @@ class Region
     private $site;
 
     /**
+     * @Assert\NotBlank(message="Please enter a region friendly name.")
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $friendlyName;
