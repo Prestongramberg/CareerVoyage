@@ -12,7 +12,8 @@
      <link rel="stylesheet" href="{{ asset('build/report_dashboard.css') }}"/>
  {% endblock %}
 
-{% block heading %}Experience Satisfaction Report <mark style="font-size: 14px">{{ leftDate|date("m/d/Y") }} - {{ rightDate|date("m/d/Y") }}</mark>{% endblock %}
+{% block heading %}Experience Satisfaction Report
+    <mark style="font-size: 14px">{{ leftDate|date("m/d/Y") }} - {{ rightDate|date("m/d/Y") }}</mark>{% endblock %}
 
 {% block navTitle %}Data Analysis{% endblock %}
 
@@ -26,69 +27,68 @@
          <br>
          <div id="dashboard-filters" {{ showFilters ? '' : 'hidden' }}>
              <br>
-             {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
 
-             {% if form.feedbackProvider is defined %}
-                 <div class="uk-width-1-4">
-                     {{ form_label(form.feedbackProvider, 'Feedback Provider', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.feedbackProvider, {'attr': {'class': 'uk-select'}}) }}
-                 </div>
-             {% endif %}
+             <form method="get" action="{{ path('report_experience_satisfaction_dashboard') }}"
+                   class="uk-grid uk-grid-small">
 
-             {% if form.experienceProvider is defined %}
-                 <div class="uk-width-1-4">
-                     {{ form_label(form.experienceProvider, 'Experience Provider', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.experienceProvider, {'attr': {'class': 'uk-select'}}) }}
-                 </div>
-             {% endif %}
 
-             {% if form.experienceTypeName is defined %}
-                 <div class="uk-width-1-4">
-                     {{ form_label(form.experienceTypeName, 'Experience Type', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.experienceTypeName, {'attr': {'class': 'uk-select'}}) }}
-                 </div>
-             {% endif %}
+                 {% if form.feedbackProvider is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.feedbackProvider, 'Feedback Provider', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.feedbackProvider, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
 
-             {% if form.regionNames is defined %}
-                 <div class="uk-width-1-4">
-                     {{ form_label(form.regionNames, 'Region', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.regionNames, {'attr': {'class': 'uk-select'}}) }}
-                 </div>
-             {% endif %}
+                 {% if form.experienceProvider is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.experienceProvider, 'Experience Provider', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.experienceProvider, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
 
-             {% if form.schoolNames is defined %}
-                 <div class="uk-width-1-4">
-                     {{ form_label(form.schoolNames, 'School', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.schoolNames, {'attr': {'class': 'uk-select'}}) }}
-                 </div>
-             {% endif %}
+                 {% if form.experienceTypeName is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.experienceTypeName, 'Experience Type', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.experienceTypeName, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
 
-             {% if form.companyNames is defined %}
                  <div class="uk-width-1-4">
-                     {{ form_label(form.companyNames, 'Company', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.companyNames, {'attr': {'class': 'uk-select'}}) }}
-                 </div>
-             {% endif %}
-
-             {% if form.eventStartDate is defined %}
-                 <div class="uk-width-1-4">
-                     {{ form_label(form.eventStartDate, 'Time Period', {'attr': {'class': 'uk-text-bold'}}) }}
-                     {{ form_widget(form.eventStartDate.left_date, {'attr': {'class': 'uk-datepicker uk-input start-date-picker'}}) }}
+                     {{ render_hinclude(controller('App\\Controller\\ReportController::filter', {type: 'region'})) }}
                  </div>
 
                  <div class="uk-width-1-4">
-                     <label style="visibility: hidden">Time Period</label>
-                     {{ form_widget(form.eventStartDate.right_date, {'attr': {'class': 'uk-datepicker uk-input end-date-picker'}}) }}
+                     {{ render_hinclude(controller('App\\Controller\\ReportController::filter', {type: 'school'})) }}
                  </div>
-             {% endif %}
 
-             <br>
-             <div class="uk-width-1-1" style="float:right">
+                 {% if form.companyNames is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.companyNames, 'Company', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.companyNames, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
+
+                 {% if form.eventStartDate is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.eventStartDate, 'Time Period', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.eventStartDate.left_date, {'attr': {'class': 'uk-datepicker uk-input start-date-picker'}}) }}
+                     </div>
+
+                     <div class="uk-width-1-4">
+                         <label style="visibility: hidden">Time Period</label>
+                         {{ form_widget(form.eventStartDate.right_date, {'attr': {'class': 'uk-datepicker uk-input end-date-picker'}}) }}
+                     </div>
+                 {% endif %}
+
                  <br>
-                 <button class="uk-button uk-button-primary" style="float:right">Search</button>
-                 <a class="uk-button uk-button-danger uk-align-right" style="float:right" href="{{ clearFormUrl }}">Clear</a>
-             </div>
-             {{ form_end(form) }}
+                 <div class="uk-width-1-1" style="float:right">
+                     <br>
+                     <button class="uk-button uk-button-primary" style="float:right">Search</button>
+                     <a class="uk-button uk-button-danger uk-align-right" style="float:right" href="{{ clearFormUrl }}">Clear</a>
+                 </div>
+
+             </form>
+
          </div>
      </div>
      <br>
@@ -97,13 +97,17 @@
 
  {% block charts %}
 
-     <div data-url="{{ path('report_experience_satisfaction_dashboard') }}?top" uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-4@xl" uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+     <div data-url="{{ path('report_experience_satisfaction_dashboard') }}?top" uk-grid
+          class="uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-4@xl"
+          uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
          {% for chart in charts|filter(c => c.location == 'top')|sort((a, b) => a.position <=> b.position) %}
              {% include chart.template %}
          {% endfor %}
      </div>
 
-     <div data-url="{{ path('report_experience_satisfaction_dashboard') }}?bottom" uk-grid class="uk-child-width-1-1@s uk-child-width-1-2@l" uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+     <div data-url="{{ path('report_experience_satisfaction_dashboard') }}?bottom" uk-grid
+          class="uk-child-width-1-1@s uk-child-width-1-2@l"
+          uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
          {% for chart in charts|filter(c => c.location == 'bottom')|sort((a, b) => a.position <=> b.position) %}
              {% include chart.template %}
          {% endfor %}

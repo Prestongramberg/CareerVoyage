@@ -32,6 +32,7 @@
         "@fullcalendar/daygrid": "^4.3.0",
         "@fullcalendar/react": "^4.3.0",
         "@symfony/stimulus-bridge": "^2.0.2",
+        "Hinclude": "^1.2.0",
         "chart.js": "^2.9.4",
         "daterangepicker": "^3.0.5",
         "file-saver": "^2.0.2",

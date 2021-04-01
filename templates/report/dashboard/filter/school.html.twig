@@ -1,0 +1,4 @@
+{% if form.schoolNames is defined %}
+    {{ form_label(form.schoolNames, 'School', {'attr': {'class': 'uk-text-bold'}}) }}
+    {{ form_widget(form.schoolNames, {'attr': {'class': 'uk-select'}}) }}
+{% endif %}

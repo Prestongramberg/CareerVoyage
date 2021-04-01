@@ -21,6 +21,8 @@ use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EventTypeFormType;
 use App\Form\Filter\Report\Dashboard\FeedbackFilterType;
+use App\Form\Filter\Report\Dashboard\RegionFilterType;
+use App\Form\Filter\Report\Dashboard\SchoolFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -825,22 +827,18 @@ WHERE u.discr = "professionalUser" :regions',
         // make sure you don't pull feedback that has been marked as deleted
         $filterBuilder = $this->feedbackRepository->createQueryBuilder('f');
 
-        if($user->isProfessional()) {
+        if ($user->isProfessional()) {
             /** @var ProfessionalUser $user */
-            $company = $user->getCompany();
+            $company   = $user->getCompany();
             $companyId = $company->getId();
 
 
             $filterBuilder->where('f.companies LIKE :companyId')
-                                   ->andWhere('u.')
-                                   ->setParameter('roles', '%"'.User::ROLE_EDUCATOR_USER.'"%');
-
-
-
+                          ->andWhere('u.')
+                          ->setParameter('roles', '%"' . User::ROLE_EDUCATOR_USER . '"%');
 
 
         }
-
 
 
         $this->filterBuilder->addFilterConditions($form, $filterBuilder);
@@ -858,7 +856,7 @@ WHERE u.discr = "professionalUser" :regions',
             AbstractDashboard::DASHBOARD_LEARNED_SOMETHING_NEW,
             AbstractDashboard::DASHBOARD_PROVIDED_CAREER_INSIGHT,
             AbstractDashboard::DASHBOARD_LIKELIHOOD_TO_RECOMMEND_A_FRIEND,
-            AbstractDashboard::DASHBOARD_PROMOTER_NEEUTRAL_DETRACTOR
+            AbstractDashboard::DASHBOARD_PROMOTER_NEEUTRAL_DETRACTOR,
         ];
 
         $dashboardOrder          = $user->getDashboardOrder() ?? [];
@@ -902,5 +900,54 @@ WHERE u.discr = "professionalUser" :regions',
                 'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),
             ]
         );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
+     * @Route("/dashboard-filter", name="report_dashboard_filter")
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function filter(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $data = null;
+
+        $type = 'school';
+
+        switch($type) {
+            case 'region':
+                $form = $this->createForm(
+                    RegionFilterType::class, $data, [
+                        'method' => 'GET',
+                    ]
+                );
+                $template = 'report/dashboard/filter/region.html.twig';
+                break;
+            case 'school':
+                $form = $this->createForm(
+                    SchoolFilterType::class, $data, [
+                        'method' => 'GET',
+                    ]
+                );
+                $template = 'report/dashboard/filter/school.html.twig';
+                break;
+        }
+
+
+        $form->handleRequest($request);
+
+        return $this->render(
+            $template, [
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
+        );
+
     }
 }

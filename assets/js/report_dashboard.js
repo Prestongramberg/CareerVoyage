@@ -6,6 +6,7 @@ require('jquery.transit');
 import Chart from 'chart.js';
 
 require('../css/report_dashboard.scss');
+require('Hinclude/hinclude');
 
 $(function() {
 
