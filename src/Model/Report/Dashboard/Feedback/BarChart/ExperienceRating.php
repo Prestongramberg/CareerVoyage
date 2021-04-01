@@ -24,7 +24,9 @@ class ExperienceRating extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $position = 1;
+    protected $position = 0;
+
+    protected $footer = 'Poor <-> Excellent';
 
     /**
      * BarChart constructor.
@@ -104,7 +106,7 @@ class ExperienceRating extends AbstractDashboard
 
     public function getFooter()
     {
-        return '';
+        return $this->footer;
     }
 
     public function getTemplate()

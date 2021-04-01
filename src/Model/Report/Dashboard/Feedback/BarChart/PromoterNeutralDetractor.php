@@ -20,7 +20,7 @@ class PromoterNeutralDetractor extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = '';
+    protected $header = 'Count of Promoters, Passives and Detractors.';
 
     protected $subHeader = '';
 
@@ -41,10 +41,6 @@ class PromoterNeutralDetractor extends AbstractDashboard
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
-
-            if ($feedback->getFeedbackProvider() !== 'Student') {
-                continue;
-            }
 
             if ($feedback->getLikelihoodToRecommendToFriend() > 8) {
                 $cumulativePromoters++;
