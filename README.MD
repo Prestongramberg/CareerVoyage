@@ -54,17 +54,3 @@ then just clear out the old host from the ~/.ssh/known_hosts file and try to rec
 ##Visit the app in the browser!
 
 1. http://localhost:8000/
-
-
-##Xdebug setup for backend debugging
-    
-xdebug install https://stackoverflow.com/questions/38370395/xdebug-for-php-5-6-on-ubuntu-16-04
-
-sudo vim sudo vim /etc/php/5.6/cli/conf.d/20-xdebug.ini
-
-xdebug.default_enable=1
-xdebug.remote_autostart=0
-xdebug.remote_connect_back=1
-xdebug.remote_enable=1
-xdebug.remote_handler=dbgp
-xdebug.remote_port=9004

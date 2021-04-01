@@ -1,0 +1,4 @@
+{% if form.regionNames is defined %}
+    {{ form_label(form.regionNames, 'Region', {'attr': {'class': 'uk-text-bold'}}) }}
+    {{ form_widget(form.regionNames, {'attr': {'class': 'uk-select'}}) }}
+{% endif %}

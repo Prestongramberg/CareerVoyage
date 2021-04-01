@@ -7,6 +7,7 @@ use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
 use App\Entity\EmailLog;
+use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
@@ -19,6 +20,9 @@ use App\Entity\StateCoordinator;
 use App\Entity\User;
 use App\Form\EditCompanyFormType;
 use App\Form\EventTypeFormType;
+use App\Form\Filter\Report\Dashboard\FeedbackFilterType;
+use App\Form\Filter\Report\Dashboard\RegionFilterType;
+use App\Form\Filter\Report\Dashboard\SchoolFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
@@ -27,6 +31,10 @@ use App\Form\SiteAdminFormType;
 use App\Form\StateCoordinatorFormType;
 use App\Mailer\RequestsMailer;
 use App\Mailer\SecurityMailer;
+use App\Model\Collection\FeedbackCollection;
+use App\Model\Report\Dashboard\AbstractDashboard;
+use App\Model\Report\Dashboard\Feedback\BarChart\ExperienceRating;
+use App\Model\Report\Dashboard\Feedback\BarChart\StudentInterestInWorkingForCompany;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\LessonFavoriteRepository;
@@ -42,7 +50,6 @@ use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -58,6 +65,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
 
+
 /**
  * Class ReportController
  *
@@ -71,7 +79,7 @@ class ReportController extends AbstractController
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
-     * @Route("/{reportName}", name="report_index")
+     * @Route("/download/{reportName}", name="report_index")
      *
      * @param Request $request
      *
@@ -88,7 +96,7 @@ class ReportController extends AbstractController
 
             'EXPERIENCE_FEEDBACK_RESULTS' => [
                 'title' => 'Experience Feedback Results',
-                'name'  => 'EXPERIENCE_FEEDBACK_RESULTS',
+                'name' => 'EXPERIENCE_FEEDBACK_RESULTS',
                 'roles' => function () use ($user) {
 
                     if ($user->isSchoolAdministrator() || $user->isEducator()) {
@@ -161,13 +169,13 @@ class ReportController extends AbstractController
                     foreach ($feedbackGenerator as $experience) {
                         foreach ($experience->getFeedback() as $feedback) {
                             $data[] = [
-                                'Experience Id'    => $experience->getId(),
+                                'Experience Id' => $experience->getId(),
                                 'Experience Title' => $experience->getTitle(),
-                                'Feedback Rating'  => $feedback->getRating(),
-                                'Insight'          => $feedback->getProvidedCareerInsight(),
-                                'Enjoyable'        => $feedback->getWasEnjoyableAndEngaging(),
-                                'Learned'          => $feedback->getLearnSomethingNew(),
-                                'Recommendation'   => $feedback->getLikelihoodToRecommendToFriend(),
+                                'Feedback Rating' => $feedback->getRating(),
+                                'Insight' => $feedback->getProvidedCareerInsight(),
+                                'Enjoyable' => $feedback->getWasEnjoyableAndEngaging(),
+                                'Learned' => $feedback->getLearnSomethingNew(),
+                                'Recommendation' => $feedback->getLikelihoodToRecommendToFriend(),
                             ];
                         }
                     }
@@ -179,7 +187,7 @@ class ReportController extends AbstractController
 
             'EXPERIENCE_DATA_BREAKDOWN' => [
                 'title' => 'Experience Data Breakdown',
-                'name'  => 'EXPERIENCE_DATA_BREAKDOWN',
+                'name' => 'EXPERIENCE_DATA_BREAKDOWN',
                 'roles' => function () use ($user) {
 
                     if ($user->isSchoolAdministrator() || $user->isEducator()) {
@@ -251,14 +259,14 @@ class ReportController extends AbstractController
                     $data = [];
                     foreach ($feedbackGenerator as $experience) {
                         $data[] = [
-                            'Experience Id'           => $experience->getId(),
-                            'Experience Title'        => $experience->getTitle(),
-                            'Learned Something'       => $feedbackGenerator->cumulativeLearned(),
+                            'Experience Id' => $experience->getId(),
+                            'Experience Title' => $experience->getTitle(),
+                            'Learned Something' => $feedbackGenerator->cumulativeLearned(),
                             'Provided Career Insight' => $feedbackGenerator->cumulativeInsight(),
-                            'Enjoyable And Engaging'  => $feedbackGenerator->cumulativeEnjoyable(),
-                            'Average Rating'          => $feedbackGenerator->cumulativeRating(),
-                            'Total Responses'         => $feedbackGenerator->totalFeedback(),
-                            'NPM Score'               => $feedbackGenerator->npmScore(),
+                            'Enjoyable And Engaging' => $feedbackGenerator->cumulativeEnjoyable(),
+                            'Average Rating' => $feedbackGenerator->cumulativeRating(),
+                            'Total Responses' => $feedbackGenerator->totalFeedback(),
+                            'NPM Score' => $feedbackGenerator->npmScore(),
                         ];
                     }
 
@@ -269,7 +277,7 @@ class ReportController extends AbstractController
 
             'LESSONS_I_WANT_TAUGHT' => [
                 'title' => 'Lessons Educators and School Administrators Want Taught',
-                'name'  => 'LESSONS_I_WANT_TAUGHT',
+                'name' => 'LESSONS_I_WANT_TAUGHT',
                 'roles' => [
                     'ROLE_ADMIN_USER',
                     'ROLE_SITE_ADMIN_USER',
@@ -341,9 +349,9 @@ WHERE (u.discr = "educatorUser" OR u.discr = "schoolAdministrator") :regions',
                 ],
 
             ],
-            'LESSONS_I_CAN_TEACH'   => [
+            'LESSONS_I_CAN_TEACH' => [
                 'title' => 'Lessons Professionals Can Teach',
-                'name'  => 'LESSONS_I_CAN_TEACH',
+                'name' => 'LESSONS_I_CAN_TEACH',
                 'roles' => [
                     'ROLE_ADMIN_USER',
                     'ROLE_SITE_ADMIN_USER',
@@ -436,10 +444,10 @@ WHERE u.discr = "professionalUser" :regions',
 
             return $this->render(
                 'report/index.html.twig', [
-                                            'user'    => $user,
-                                            'reports' => $downloadableReports
-                                            //'form' => $form->createView(),
-                                        ]
+                    'user' => $user,
+                    'reports' => $downloadableReports
+                    //'form' => $form->createView(),
+                ]
             );
         }
 
@@ -500,7 +508,7 @@ WHERE u.discr = "professionalUser" :regions',
 
             $results = $report['query']();
 
-            if(empty($results)) {
+            if (empty($results)) {
                 $results[] = ['Report ' . $reportName => 'Zero Results'];
             }
 
@@ -574,8 +582,8 @@ WHERE u.discr = "professionalUser" :regions',
         $response = new Response(
             $serializer->encode(
                 $logs, 'csv', [
-                         \Symfony\Component\Serializer\Encoder\CsvEncoder::NO_HEADERS_KEY => true,
-                     ]
+                    \Symfony\Component\Serializer\Encoder\CsvEncoder::NO_HEADERS_KEY => true,
+                ]
             )
         );
 
@@ -611,10 +619,10 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/email_logs.html.twig', [
-                                            'user'         => $user,
-                                            'loggedInUser' => $loggedInUser,
-                                            'emailLogs'    => $emailLogs,
-                                        ]
+                'user' => $user,
+                'loggedInUser' => $loggedInUser,
+                'emailLogs' => $emailLogs,
+            ]
         );
     }
 
@@ -657,9 +665,9 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/list_event_type.html.twig', [
-                                                 'user'  => $user,
-                                                 'roles' => $roles,
-                                             ]
+                'user' => $user,
+                'roles' => $roles,
+            ]
         );
     }
 
@@ -680,8 +688,8 @@ WHERE u.discr = "professionalUser" :regions',
 
         $form = $this->createForm(
             EventTypeFormType::class, $role, [
-                                        'method' => 'POST',
-                                    ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -700,9 +708,9 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/new_event_type.html.twig', [
-                                                'user' => $user,
-                                                'form' => $form->createView(),
-                                            ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -723,8 +731,8 @@ WHERE u.discr = "professionalUser" :regions',
 
         $form = $this->createForm(
             EventTypeFormType::class, $role, [
-                                        'method' => 'POST',
-                                    ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -743,9 +751,213 @@ WHERE u.discr = "professionalUser" :regions',
 
         return $this->render(
             'admin/edit_event_type.html.twig', [
-                                                 'user' => $user,
-                                                 'form' => $form->createView(),
-                                             ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
+     * @Route("/experience-satisfaction-dashboard", name="report_experience_satisfaction_dashboard")
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function experienceSatisfactionDashboard(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $dashboardOrder = $request->request->get('sortableData', null);
+
+        if ($dashboardOrder) {
+            $originalDashboardOrder = $user->getDashboardOrder() ?? [];
+
+            if ($request->query->has('top')) {
+                $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] = $dashboardOrder;
+            } else {
+                if ($request->query->has('bottom')) {
+                    $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] = $dashboardOrder;
+                }
+            }
+
+            $user->setDashboardOrder($originalDashboardOrder);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        // Let's setup some default date filters if none are passed up
+        $data           = null;
+        $filters        = $request->query->get('item_filter', []);
+        $eventStartDate = $filters['eventStartDate'] ?? [];
+        if (empty($eventStartDate['left_date']) || empty($eventStartDate['right_date'])) {
+            $leftDate  = new \DateTime('-1 month');
+            $rightDate = new \DateTime('now');
+
+            $data = [
+                'eventStartDate' => [
+                    'left_date' => $leftDate,
+                    'right_date' => $rightDate,
+                ],
+            ];
+        } else {
+            $leftDate  = $eventStartDate['left_date'];
+            $rightDate = $eventStartDate['right_date'];
+        }
+
+        // depending on the user role type that will determine which filters we show.
+        $form = $this->createForm(
+            FeedbackFilterType::class, $data, [
+                'method' => 'GET',
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        // make sure you don't pull feedback that has been marked as deleted
+        $filterBuilder = $this->feedbackRepository->createQueryBuilder('f');
+
+        if ($user->isProfessional()) {
+            /** @var ProfessionalUser $user */
+            $company   = $user->getCompany();
+            $companyId = $company->getId();
+
+
+            $filterBuilder->where('f.companies LIKE :companyId')
+                          ->andWhere('u.')
+                          ->setParameter('roles', '%"' . User::ROLE_EDUCATOR_USER . '"%');
+
+
+        }
+
+
+        $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        $feedbackCollection = new FeedbackCollection($filterQuery->getResult());
+
+        $defaultDashboards = [
+            AbstractDashboard::DASHBOARD_SUMMARY,
+            AbstractDashboard::DASHBOARD_STUDENT_INTEREST_IN_WORKING_FOR_COMPANY,
+            AbstractDashboard::DASHBOARD_EXPERIENCE_RATING,
+            AbstractDashboard::DASHBOARD_NPS_SCORE,
+            AbstractDashboard::DASHBOARD_EXPERIENCE_ENJOYABLE_AND_ENGAGING,
+            AbstractDashboard::DASHBOARD_LEARNED_SOMETHING_NEW,
+            AbstractDashboard::DASHBOARD_PROVIDED_CAREER_INSIGHT,
+            AbstractDashboard::DASHBOARD_LIKELIHOOD_TO_RECOMMEND_A_FRIEND,
+            AbstractDashboard::DASHBOARD_PROMOTER_NEEUTRAL_DETRACTOR,
+        ];
+
+        $dashboardOrder          = $user->getDashboardOrder() ?? [];
+        $userSavedPos1Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] ?? [];
+        $userSavedPos2Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] ?? [];
+
+        $charts = [];
+        foreach ($defaultDashboards as $defaultDashboard) {
+
+            if (!class_exists($defaultDashboard)) {
+                continue;
+            }
+
+            // todo let's cache the computation here for the given feedback collection ids right or for the request url or filters or something?
+            // todo create an md5 hash right? Double check this to make sure this will work. md5 === md5, etc
+
+            /** @var AbstractDashboard $dashboardInstance */
+            $dashboardInstance = new $defaultDashboard($feedbackCollection);
+
+            if (($position = array_search($defaultDashboard, $userSavedPos1Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            if (($position = array_search($defaultDashboard, $userSavedPos2Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            $charts[] = $dashboardInstance;
+        }
+
+        $showFilters = $request->query->has('item_filter');
+
+        return $this->render(
+            'report/dashboard/experience_satisfaction.html.twig', [
+                'user' => $user,
+                'charts' => $charts,
+                'leftDate' => $leftDate,
+                'rightDate' => $rightDate,
+                'showFilters' => $showFilters,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),
+                'request' => $request
+            ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
+     * @Route("/dashboard-filter", name="report_dashboard_filter")
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function filter(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $data = null;
+
+        $form = $this->createForm(
+            FeedbackFilterType::class, $data, [
+                'method' => 'GET',
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        //$type = 'school';
+
+/*        switch($type) {
+            case 'region':
+                $form = $this->createForm(
+                    RegionFilterType::class, $data, [
+                        'method' => 'GET',
+                    ]
+                );
+                $template = 'report/dashboard/filter/region.html.twig';
+                break;
+            case 'school':
+                $form = $this->createForm(
+                    SchoolFilterType::class, $data, [
+                        'method' => 'GET',
+                    ]
+                );
+                $template = 'report/dashboard/filter/school.html.twig';
+                break;
+        }*/
+
+        $template = 'report/dashboard/filter/school.html.twig';
+
+        $form->handleRequest($request);
+
+        return $this->render(
+            $template, [
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
+        );
+
     }
 }
