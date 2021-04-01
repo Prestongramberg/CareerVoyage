@@ -70,7 +70,8 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         }
 
         if ($totalResponses !== 0) {
-            $this->header = sprintf("%s%% of Students Expressed Interest in Working for the Company", round($totalInterest / $totalResponses * 100));
+            //$this->header = sprintf("%s%% of Students Expressed Interest in Working for the Company", round($totalInterest / $totalResponses * 100));
+            $this->header = 'After this experience my awareness of career opportunities at this comnpany is: 5 point scale from much less to much more';
         }
 
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);

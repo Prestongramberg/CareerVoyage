@@ -49,7 +49,7 @@ class ProvidedCareerInsight extends AbstractDashboard
 
         if ($totalResponses !== 0) {
             $this->percentage = round($positive / $totalResponses * 100);
-            $this->header = 'Of Respondents Stated They Were Provided Learned Career Insight.';
+            $this->header = 'Written Feedback text book.';
         }
 
         $this->data = [$positive, $negative];
