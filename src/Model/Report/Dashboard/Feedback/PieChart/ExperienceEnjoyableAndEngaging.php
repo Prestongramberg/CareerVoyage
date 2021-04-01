@@ -47,10 +47,14 @@ class ExperienceEnjoyableAndEngaging extends AbstractDashboard
             $totalResponses++;
         }
 
+        $this->header = 'Of Respondents Found The Experience Enjoyable And Engaging.';
+
         if ($totalResponses !== 0) {
             $this->percentage = round($positive / $totalResponses * 100);
             $this->header = 'Of Respondents Found The Experience Enjoyable And Engaging.';
         }
+
+        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
 
         $this->data = [$positive, $negative];
     }

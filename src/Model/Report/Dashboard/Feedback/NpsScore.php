@@ -46,6 +46,8 @@ class NpsScore extends AbstractDashboard
             $this->npsScore = round((($cumulativePromoters / $this->totalResponses) - ($cumulativeDetractors / $this->totalResponses)) * 100);
         }
 
+        $this->subHeader = sprintf("(%s Responses)", $this->totalResponses);
+
         $this->header = 'NPS Score';
     }
 

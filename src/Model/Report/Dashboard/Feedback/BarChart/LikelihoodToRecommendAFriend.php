@@ -65,9 +65,9 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
             $this->data[] = isset($data[$label]) ? $data[$label] : 0;
         }
 
-        if ($totalResponses !== 0) {
-            $this->header = "Likelihood To Recommend To A Friend";
-        }
+        $this->header = "Likelihood To Recommend To A Friend";
+
+        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
     }
 
     public function render()

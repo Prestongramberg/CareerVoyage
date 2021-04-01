@@ -67,6 +67,8 @@ class ExperienceRating extends AbstractDashboard
 
         if ($totalResponses !== 0) {
             $this->subHeader = sprintf("Average: %s", round($cumulativeRating / $totalResponses, 1));
+        } else {
+            $this->subHeader = sprintf("(%s Responses)", $totalResponses);
         }
     }
 
