@@ -47,10 +47,13 @@ class ProvidedCareerInsight extends AbstractDashboard
             $totalResponses++;
         }
 
+        $this->header = 'Of Respondents Stated They Were Provided Learned Career Insight.';
+
         if ($totalResponses !== 0) {
             $this->percentage = round($positive / $totalResponses * 100);
-            $this->header = 'Of Respondents Stated They Were Provided Learned Career Insight.';
         }
+
+        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
 
         $this->data = [$positive, $negative];
     }

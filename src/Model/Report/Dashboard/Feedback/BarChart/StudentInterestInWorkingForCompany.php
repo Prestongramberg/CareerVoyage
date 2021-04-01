@@ -76,6 +76,7 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         $this->header = 'After this company experience my awareness of career opportunities at this company is: 5 point scale from much less to much more';
 
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);
+
     }
 
     public function render()

@@ -38,6 +38,7 @@ class PromoterNeutralDetractor extends AbstractDashboard
         $cumulativePromoters  = 0;
         $cumulativeDetractors = 0;
         $cumulativePassives = 0;
+        $totalResponses = 0;
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
@@ -53,9 +54,13 @@ class PromoterNeutralDetractor extends AbstractDashboard
             if(!$feedback->getLikelihoodToRecommendToFriend()) {
                 $cumulativePassives++;
             }
+
+            $totalResponses++;
         }
 
         $this->data = [$cumulativePromoters, $cumulativePassives, $cumulativeDetractors];
+
+        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
 
     }
 
