@@ -898,6 +898,7 @@ WHERE u.discr = "professionalUser" :regions',
                 'showFilters' => $showFilters,
                 'form' => $form->createView(),
                 'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),
+                'request' => $request
             ]
         );
     }
@@ -918,9 +919,17 @@ WHERE u.discr = "professionalUser" :regions',
 
         $data = null;
 
-        $type = 'school';
+        $form = $this->createForm(
+            FeedbackFilterType::class, $data, [
+                'method' => 'GET',
+            ]
+        );
 
-        switch($type) {
+        $form->handleRequest($request);
+
+        //$type = 'school';
+
+/*        switch($type) {
             case 'region':
                 $form = $this->createForm(
                     RegionFilterType::class, $data, [
@@ -937,8 +946,9 @@ WHERE u.discr = "professionalUser" :regions',
                 );
                 $template = 'report/dashboard/filter/school.html.twig';
                 break;
-        }
+        }*/
 
+        $template = 'report/dashboard/filter/school.html.twig';
 
         $form->handleRequest($request);
 

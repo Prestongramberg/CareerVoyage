@@ -12,7 +12,7 @@ class NpsScore extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $position = 1;
+    protected $position = 7;
 
     protected $totalResponses = 0;
 
@@ -82,7 +82,7 @@ class NpsScore extends AbstractDashboard
 
     public function getLocation()
     {
-        return 'top';
+        return 'bottom';
     }
 
     public function getPosition()

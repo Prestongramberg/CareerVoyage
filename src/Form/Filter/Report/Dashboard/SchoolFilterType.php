@@ -2,6 +2,7 @@
 
 namespace App\Form\Filter\Report\Dashboard;
 
+use App\Entity\Feedback;
 use App\Repository\FeedbackRepository;
 use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Lexik\Bundle\FormFilterBundle\Filter\Query\QueryInterface;
@@ -87,8 +88,6 @@ class SchoolFilterType extends AbstractType
             FormEvents::POST_SUBMIT, function (FormEvent $event) use($filters) {
 
 
-            $name = "test";
-
             $regionName = $event->getForm()->getData();
             $form       = $event->getForm()->getParent();
 
@@ -104,9 +103,18 @@ class SchoolFilterType extends AbstractType
                 $form->remove('schoolNames');
             }
 
-            $schoolNames = [];
-            foreach($filters['school_name'] as $schoolName) {
-                $test = "hi";
+            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
+                                                  ->andWhere(sprintf("JSON_CONTAINS(f.regionNames, '\"%s\"', '$') = TRUE", $regionName))
+                                                  ->getQuery()
+                                                  ->getResult();
+
+            $choices = [];
+            /** @var Feedback $feedback */
+            foreach ($feedbacks as $feedback) {
+                // todo we may need a school id to school name map so we can actually use the school id
+                foreach($feedback->getSchoolNames() as $schoolName) {
+                    $choices[$schoolName] = $schoolName;
+                }
             }
 
             $form->add('schoolNames', Filters\ChoiceFilterType::class, [
@@ -114,11 +122,9 @@ class SchoolFilterType extends AbstractType
                     'multiple' => false,
                     'required' => false,
                     'placeholder' => 'All',
-                    'choices' => $filters['school_name'],
+                    'choices' => $choices,
                 ]
             );
-
-
 
 
             /*            $industry = $event->getForm()->getData();
