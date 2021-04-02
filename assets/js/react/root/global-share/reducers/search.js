@@ -47,6 +47,7 @@ export default (state = {}, action) => {
 
             return {
                 ...state,
+                user_modified_messages: {...state.user_modified_messages, [action.userId]: true},
                 user_messages: {...state.user_messages, [action.userId]: action.message}
             };
 

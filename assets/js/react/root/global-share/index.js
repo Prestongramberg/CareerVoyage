@@ -27,6 +27,7 @@ if(globalShare) {
             search: {
                 message: message,
                 user_messages: {},
+                user_modified_messages: {},
                 filters: {},
                 form: {},
                 items: [],

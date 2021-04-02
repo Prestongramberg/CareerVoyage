@@ -13,6 +13,7 @@ const cb = 'global-share';
 import {Multiselect} from 'multiselect-react-dropdown';
 import Loader from "../../components/Loader/Loader"
 import Pagination from "react-js-pagination";
+
 const avatarLogoPath = require('../../../../images/avatar.png');
 
 export class App extends Component {
@@ -59,11 +60,14 @@ export class App extends Component {
                                 <div>
 
                                     {this.props.search.notifiedUsers.includes(item.id) ?
-                                        <button style={{width: "100%", opacity: ".1"}} className="uk-button uk-button-default" type="button" disabled={true}>Share</button> :
-                                        <button onClick={() => {document.getElementById("toggle-usage-textarea-" + item.id).focus();
-                                    }} style={{width: "100%"}} className="uk-button uk-button-default" type="button"
-                                                        uk-toggle={"target: #toggle-usage-" + item.id + "; animation: uk-animation-slide-top"}>Share
-                                    </button> }
+                                        <button style={{width: "100%", opacity: ".1"}}
+                                                className="uk-button uk-button-default" type="button"
+                                                disabled={true}>Share</button> :
+                                        <button onClick={() => {
+                                            document.getElementById("toggle-usage-textarea-" + item.id).focus();
+                                        }} style={{width: "100%"}} className="uk-button uk-button-default" type="button"
+                                                uk-toggle={"target: #toggle-usage-" + item.id + "; animation: uk-animation-slide-top"}>Share
+                                        </button>}
 
                                 </div>
                             </div>,
@@ -85,7 +89,7 @@ export class App extends Component {
     }
 
     multipleSelectFilterChanged(selectedOptions, selectedOption, fieldName) {
-        
+
 
         let values = [];
         for (let selectedOption of selectedOptions) {
@@ -109,7 +113,7 @@ export class App extends Component {
     }
 
     singleSelectFilterChanged(selectedOptions, selectedOption, fieldName) {
-        
+
 
         let value = null;
 
@@ -130,7 +134,7 @@ export class App extends Component {
     }
 
     textFilterChanged(value, fieldName) {
-        
+
 
         let context = {
             'fieldName': fieldName,
@@ -146,7 +150,7 @@ export class App extends Component {
 
         this.props.pageChanged(pageNumber);
 
-        
+
     }
 
     renderFilters(startingIndex = null, endingIndex = null) {
@@ -313,7 +317,7 @@ export class App extends Component {
     }
 
     renderPagination() {
-        
+
         return (
             <div style={{marginTop: "50px"}}>
                 <Pagination
@@ -336,33 +340,38 @@ export class App extends Component {
             return null
         }
 
+        let message = this.props.message;
+        if (this.props.search.user_modified_messages[item.id]) {
+            message = this.props.search.user_messages[item.id];
+        }
+
         return (
             <div id={"toggle-usage-" + item.id} hidden>
                 {<textarea id={"toggle-usage-textarea-" + item.id} className="uk-textarea" cols="30"
                            rows="5" onChange={(e) => {
                     this.props.updateMessage(e.target.value, item.id)
-                }} value={this.props.search.user_messages[item.id] || this.props.message}></textarea>}
+                }} value={message}></textarea>}
                 {<button className="uk-button uk-button-primary"
                          style={{'width': '100%'}} onClick={() => {
-                    this.props.sendNotifications(item.id, this.props.experience, this.props.search.user_messages[item.id] || this.props.message)
+                    this.props.sendNotifications(item.id, this.props.experience, message)
                 }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
                 }
             </div>
         );
 
-     /*   return (
-            <div id={"toggle-usage-" + item.id} hidden={this.props.search.notifiedUsers.includes(item.id)}>
-                {<textarea id={"toggle-usage-textarea-" + item.id} className="uk-textarea" cols="30"
-                           rows="5" onChange={(e) => {
-                    this.props.updateMessage(e.target.value)
-                }} value={this.props.message}></textarea>}
-                {<button className="uk-button uk-button-primary"
-                         style={{'width': '100%'}} onClick={() => {
-                    this.props.sendNotifications(item.id, this.props.experience, this.props.message)
-                }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
-                }
-            </div>
-        );*/
+        /*   return (
+               <div id={"toggle-usage-" + item.id} hidden={this.props.search.notifiedUsers.includes(item.id)}>
+                   {<textarea id={"toggle-usage-textarea-" + item.id} className="uk-textarea" cols="30"
+                              rows="5" onChange={(e) => {
+                       this.props.updateMessage(e.target.value)
+                   }} value={this.props.message}></textarea>}
+                   {<button className="uk-button uk-button-primary"
+                            style={{'width': '100%'}} onClick={() => {
+                       this.props.sendNotifications(item.id, this.props.experience, this.props.message)
+                   }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
+                   }
+               </div>
+           );*/
     }
 
 }
