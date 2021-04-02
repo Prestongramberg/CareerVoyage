@@ -76,6 +76,7 @@ class GlobalShareController extends AbstractController
     public function getDataAction(Request $request)
     {
 
+        /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
         $filters = new GlobalShareFilters($request);
@@ -117,6 +118,7 @@ class GlobalShareController extends AbstractController
         $message      = $request->request->get('message');
         $userId       = $request->request->get('userId');
 
+        /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
         $experience = $this->experienceRepository->find($experienceId);
