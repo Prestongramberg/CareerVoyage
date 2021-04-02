@@ -273,6 +273,23 @@ abstract class User implements UserInterface
     private $dashboardOrder = [];
 
     /**
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom")
+     */
+    protected $sentFromShares;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentTo")
+     */
+    protected $sentToShares;
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     *
+     * @var bool
+     */
+    protected $loggedInUserShared = false;
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
