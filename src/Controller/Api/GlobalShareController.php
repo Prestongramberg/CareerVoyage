@@ -16,7 +16,9 @@ use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
+use App\Entity\Share;
 use App\Entity\StudentUser;
+use App\Entity\SystemUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
@@ -55,6 +57,7 @@ use Symfony\Component\Asset\Packages;
 
 /**
  * Class GlobalShareController
+ *
  * @package App\Controller
  * @Route("/api/global-share")
  */
@@ -66,10 +69,12 @@ class GlobalShareController extends AbstractController
     /**
      * @Route("/data", name="global_share_data", methods={"POST"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataAction(Request $request) {
+    public function getDataAction(Request $request)
+    {
 
         $loggedInUser = $this->getUser();
 
@@ -90,9 +95,85 @@ class GlobalShareController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data' => $payload,
+                'data'    => $payload,
             ],
             Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/notify", name="api_global_share_notify", options = { "expose" = true }, methods={"POST"})
+     * @param Request $request
+     *
+     * @return JsonResponse
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Exception
+     */
+    public function experienceNotifyUsersAction(Request $request)
+    {
+        $experienceId = $request->request->get('experienceId');
+        $message      = $request->request->get('message');
+        $userId       = $request->request->get('userId');
+
+        $loggedInUser = $this->getUser();
+
+        $experience = $this->experienceRepository->find($experienceId);
+
+        $user = $this->userRepository->find($userId);
+
+        $chat = $this->chatRepository->findOneBy(
+            [
+                'userOne' => $loggedInUser,
+                'userTwo' => $user,
+            ]
+        );
+
+        if (!$chat) {
+            $chat = $this->chatRepository->findOneBy(
+                [
+                    'userOne' => $user,
+                    'userTwo' => $loggedInUser,
+                ]
+            );
+        }
+
+        // if a chat doesn't exist then let's create one!
+        if (!$chat) {
+            $chat = new Chat();
+            $chat->setUserOne($user);
+            $chat->setUserTwo($loggedInUser);
+            $this->entityManager->persist($chat);
+            $this->entityManager->flush();
+        }
+
+        $chatMessage = new ChatMessage();
+        $chatMessage->setBody($message);
+        $chatMessage->setSentFrom($loggedInUser);
+        $chatMessage->setSentAt(new \DateTime());
+        $chatMessage->setChat($chat);
+
+        // Figure out which user to message from the chat object
+        $userToMessage = $chat->getUserOne()->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+        $chatMessage->setSentTo($userToMessage);
+
+        $share = new Share();
+        $share->setSentFrom($loggedInUser);
+        $share->setSentTo($userToMessage);
+        $share->setExperience($experience);
+
+        $this->entityManager->persist($chatMessage);
+        $this->entityManager->persist($share);
+        $this->entityManager->flush();
+
+        $this->experienceMailer->genericShareNotification($message, $user);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'message' => 'Notifications successfully sent out.',
+            ], Response::HTTP_OK
         );
     }
 }
