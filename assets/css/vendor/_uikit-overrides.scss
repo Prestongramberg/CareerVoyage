@@ -18,3 +18,60 @@
 .uk-form-custom {
   overflow: hidden;
 }
+
+
+.uk-offcanvas-bar-large {
+  left: -370px;
+  width: 370px;
+}
+
+@media (min-width: 960px) {
+  .uk-offcanvas-flip .uk-offcanvas-bar-large {
+    right: -450px;
+  }
+}
+
+@media (min-width: 960px) {
+  .uk-offcanvas-bar-large {
+    left: -450px;
+    width: 450px;
+  }
+}
+
+.uk-offcanvas-bar-large {
+
+  padding-top: 16px;
+
+  .live-chat__window-chat-thread-name {
+    width: 100%;
+  }
+
+  .multiselect-container {
+    background: linear-gradient(180deg,#fff 0,#e5e5e5);
+    color: #666;
+  }
+
+  .optionListContainer {
+    background: linear-gradient(180deg,#fff 0,#e5e5e5);
+    color: #666;
+  }
+
+  .multiselect-container {
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  .uk-search {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .optionContainer li:hover {
+    background: #222 !important;
+  }
+
+}
+
+.uk-notification-top-right {
+  right: 50px;
+}

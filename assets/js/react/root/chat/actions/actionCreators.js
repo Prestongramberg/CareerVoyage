@@ -107,8 +107,10 @@ export function loadThread( userId, refresh = false ) {
 
         !refresh && dispatch({type: actionTypes.LOADING_THREAD})
 
+        debugger;
         return api.post(url, { userId: userId })
             .then((response) => {
+                debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
                     const data = response.responseBody.data;
                     const engagedUser = parseInt(data.userOne.id ) === parseInt( userId ) ? data.userOne : data.userTwo;

@@ -17,24 +17,24 @@ export default (state = {}, action) => {
                 state = removeByKey(state, 'myCourses');
             }
 
+            if (!action.context.value) {
+                return removeByKey(state, action.context.fieldName);
+            }
+
             return {
                 ...state,
-                [action.context.fieldName]: action.context.filter
+                [action.context.fieldName]: action.context.value
             };
 
         case actionTypes.FILTER_CHANGE_FAILURE:
 
 
-            return {
-                ...state,
-                [action.context.fieldName]: []
-            };
+            return removeByKey(state, action.context.fieldName);
 
         default:
             return state;
     }
 };
-
 
 function removeByKey(myObj, deleteKey) {
     return Object.keys(myObj)

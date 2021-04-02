@@ -1,162 +1,153 @@
 import * as actionTypes from "./actionTypes";
 import * as api from '../../../utilities/api/api'
 
-export function addUser(user) {
-    return {
-        type: actionTypes.ADD_USER,
-        user: user
-    }
-}
+/**
+ * Three dispatches need to happen here
+ * LOAD_INITIAL_DATA_REQUESTED
+ * LOAD_INITIAL_DATA_SUCCESS
+ * LOAD_INITIAL_DATA_FAILURE
+ *
+ *
+ * @return {function(*, *): *}
+ */
+export function loadInitialData() {
 
-export function removeUser(user) {
-    return {
-        type: actionTypes.REMOVE_USER,
-        user: user
-    }
-}
-
-export function updateMessage(message) {
-    return {
-        type: actionTypes.UPDATE_MESSAGE,
-        message: message
-    }
-}
-
-export function queryByRole(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_ROLE,
-        roles: options
-    };
-}
-
-export function queryByUserRole(options) {
-
-    debugger;
-    return {
-        type: actionTypes.QUERY_BY_USER_ROLE,
-        user_roles: options
-    };
-}
-
-export function queryByPage(page) {
-
-    debugger;
-    return {
-        type: actionTypes.QUERY_BY_PAGE,
-        current_page: page
-    };
-}
-
-export function query(data) {
-
-    debugger;
     return (dispatch, getState) => {
 
         debugger;
-        const state = getState();
+        let state = getState();
 
-        const url = window.Routing.generate("global_share_data") + '?page=' + state.filters.current_page;
+        dispatch({
+            type: actionTypes.LOAD_INITIAL_DATA_REQUESTED
+        });
 
-        return api.post(url, state)
+        let url = window.Routing.generate("search_users");
+
+        if (state.search.experience) {
+            url = window.Routing.generate("search_users", {experience: state.search.experience});
+        }
+
+        return api.post(url, {})
             .then((response) => {
 
-                debugger;
+
                 if (response.statusCode < 300 && response.responseBody.success === true) {
-                    dispatch({type: actionTypes.SEARCH_CHATTABLE_USERS_SUCCESS, users: response.responseBody.data})
+                    dispatch({type: actionTypes.SEARCH_SUCCESS, data: response.responseBody})
                 }
             })
             .catch((e) => {
-                debugger;
+
             })
     }
 }
 
-export function queryByCompany(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_COMPANY,
-        companies: options
-    }
-}
-
-export function queryByInterests(search) {
-
-    return {
-        type: actionTypes.QUERY_BY_INTERESTS,
-        interests: search
-    }
-}
-
-export function queryByCompanyAdministrators(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_COMPANY_ADMINISTRATORS,
-        company_admins: options
-    }
-}
-
-export function queryByCourseTaught(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_COURSE_TAUGHT,
-        courses_taught: options
-    }
-}
-
-export function queryBySchool(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_SCHOOL,
-        schools: options
-    }
-}
-
-export function queryByPrimaryIndustry(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_PRIMARY_INDUSTRY,
-        primary_industries: options
-    }
-}
-
-export function queryBySecondaryIndustry(options) {
-
-    return {
-        type: actionTypes.QUERY_BY_SECONDARY_INDUSTRY,
-        secondary_industries: options
-    }
-}
+export function filterChanged(context) {
 
 
-export function searchChattableUsers(search) {
-    debugger;
-
-    return {
-        type: actionTypes.SEARCH_CHATTABLE_USERS,
-        searchQuery: search
-    };
-}
-
-export function sendNotifications() {
     return (dispatch, getState) => {
 
-        const {ui} = getState();
 
-        const url = window.Routing.generate("share_notify")
+        let state = getState();
 
-        dispatch({type: actionTypes.NOTIFICATIONS_SENDING})
+        if (state.search.typingTimeout) {
+            clearTimeout(state.search.typingTimeout);
+        }
+
+        dispatch({
+            type: actionTypes.FILTER_CHANGE_REQUESTED,
+            context: context,
+            typingTimeout: setTimeout(() => {
+
+                let form = context.form;
+
+                if(context.fieldName === 'userRole') {
+                    form = removeByKey(form, 'company');
+                    form = removeByKey(form, 'rolesWillingToFulfill');
+                    form = removeByKey(form, 'primaryIndustry');
+                    form = removeByKey(form, 'secondaryIndustries');
+                    form = removeByKey(form, 'school');
+                    form = removeByKey(form, 'myCourses');
+
+                    if(!context.value) {
+                        form = removeByKey(form, 'userRole');
+                    }
+                }
+
+                const data = {
+                    filters: {...form, [context.fieldName]: context.value}
+                };
+
+                const url = window.Routing.generate("search_users");
+
+                return api.post(url, data)
+                    .then((response) => {
+
+
+                        if (response.statusCode < 300 && response.responseBody.success === true) {
+                            dispatch({type: actionTypes.FILTER_CHANGE_SUCCESS, data: response.responseBody})
+                        }
+                    })
+                    .catch((e) => {
+                        dispatch({type: actionTypes.FILTER_CHANGE_FAILURE, context: context})
+                    })
+
+            }, 200)
+
+        });
+    }
+}
+
+export function pageChanged(pageNumber) {
+
+
+    return (dispatch, getState) => {
+
+
+        dispatch({
+            type: actionTypes.PAGE_CHANGE_REQUESTED
+        });
+
+        const url = window.Routing.generate("search_users", {page: pageNumber});
+
+        return api.post(url, {})
+            .then((response) => {
+
+
+                if (response.statusCode < 300 && response.responseBody.success === true) {
+                    dispatch({type: actionTypes.PAGE_CHANGE_SUCCESS, data: response.responseBody})
+                }
+            })
+            .catch((e) => {
+                dispatch({type: actionTypes.FILTER_CHANGE_FAILURE, context: context})
+            })
+    }
+}
+
+export function sendNotifications(userId, experienceId, message) {
+
+    return (dispatch, getState) => {
+
+        const url = window.Routing.generate("api_global_share_notify")
+
+        dispatch({type: actionTypes.NOTIFICATIONS_SENDING, userId: userId})
+
 
         return api.post(url, {
-            message: ui.message,
-            user_ids: ui.users.map((user) => user.id)
+            message: message,
+            userId: userId,
+            experienceId: experienceId
         })
             .then((response) => {
+
+                debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
-                    window.Pintex.notification("Notifications Sent!");
-                    UIkit.modal('#global-share').hide();
-                    dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS});
+                    //window.Pintex.notification("Notifications Sent!");
+
+                    UIkit.notification("Notification Sent!", {status: 'success', pos: 'top-right'})
+
+                    dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS, userId: userId});
                 } else {
+
                     dispatch({
                         type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
                     })
@@ -164,7 +155,7 @@ export function sendNotifications() {
                 }
             })
             .catch((response) => {
-                debugger;
+
                 dispatch({
                     type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
                 })
@@ -174,93 +165,20 @@ export function sendNotifications() {
     }
 }
 
+export function updateMessage( message, userId ) {
+    debugger;
+    return {
+        type: actionTypes.UPDATE_MESSAGE,
+        message: message,
+        userId: userId
+    }
+}
 
-//
-// export function search( search ) {
-//     return (dispatch, getState) => {
-//
-//         const url = window.Routing.generate("search_chat_users", { search: search } )
-//
-//         dispatch({type: actionTypes.SEARCH})
-//
-//         return api.get(url)
-//             .then((response) => {
-//                 if (response.statusCode < 300 && response.responseBody.success === true) {
-//                     dispatch({type: actionTypes.SEARCH_SUCCESS, users: response.responseBody.data })
-//                 }  else {
-//                     dispatch({
-//                         type: actionTypes.SEARCH_FAILURE
-//                     })
-//                     window.Pintex.notification("Something went wrong, please try again.");
-//                 }
-//             })
-//             .catch((e)=> {
-//                 dispatch({
-//                     type: actionTypes.SEARCH_FAILURE
-//                 })
-//                 window.Pintex.notification("Something went wrong, please try again.");
-//             })
-//     }
-// }
-//
-// export function sendMessage( message, chatId ) {
-//     return (dispatch, getState) => {
-//
-//         const url = window.Routing.generate("message_chat", { chatId: chatId })
-//
-//         dispatch({type: actionTypes.SEND_MESSAGE})
-//
-//         return api.post(url, { message: message })
-//             .then((response) => {
-//                 if (response.statusCode < 300 && response.responseBody.success === true) {
-//                     dispatch({type: actionTypes.SEND_MESSAGE_SUCCESS })
-//
-//                     // Refresh the chat
-//                     const { chat } = getState();
-//                     dispatch(loadThread( chat.userEngagedWith.id, true ))
-//                 }  else {
-//                     dispatch({
-//                         type: actionTypes.SEND_MESSAGE_FAILURE
-//                     })
-//                     window.Pintex.notification("Something went wrong, please try again.");
-//                 }
-//             })
-//             .catch(()=> {
-//                 dispatch({
-//                     type: actionTypes.LOADING_THREAD_FAILURE
-//                 })
-//                 window.Pintex.notification("Something went wrong, please try again.");
-//             })
-//     }
-// }
-//
-// export function loadThread( userId, refresh = false ) {
-//
-//     return (dispatch, getState) => {
-//
-//         const url = window.Routing.generate("create_or_get_chat")
-//
-//         !refresh && dispatch({type: actionTypes.LOADING_THREAD})
-//
-//         return api.post(url, { userId: userId })
-//             .then((response) => {
-//                 if (response.statusCode < 300 && response.responseBody.success === true) {
-//                     const data = response.responseBody.data;
-//                     const engagedUser = parseInt(data.userOne.id ) === parseInt( userId ) ? data.userOne : data.userTwo;
-//                     dispatch({type: actionTypes.LOADING_THREAD_SUCCESS, messages: data.messages, chatId: data.id, userEngagedWith: engagedUser })
-//                 }  else {
-//                     dispatch({
-//                         type: actionTypes.LOADING_THREAD_FAILURE
-//                     })
-//                     window.Pintex.notification("Something went wrong, please try again.");
-//                 }
-//             })
-//             .catch(()=> {
-//                 dispatch({
-//                     type: actionTypes.LOADING_THREAD_FAILURE
-//                 })
-//                 window.Pintex.notification("Something went wrong, please try again.");
-//             })
-//     }
-// }
-
+function removeByKey(myObj, deleteKey) {
+    return Object.keys(myObj)
+        .filter(key => key !== deleteKey)
+        .reduce((result, current) => {
+            result[current] = myObj[current];
+            return result;
+        }, {});
+}

@@ -224,6 +224,12 @@
             "config/routes/liip_imagine.yaml"
         ]
     },
+    "limenius/liform": {
+        "version": "v0.17.0"
+    },
+    "limenius/liform-bundle": {
+        "version": "v0.17.0"
+    },
     "maennchen/zipstream-php": {
         "version": "2.1.0"
     },

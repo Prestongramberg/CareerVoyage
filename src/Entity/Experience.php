@@ -231,6 +231,11 @@ abstract class Experience
      */
     protected $requireApproval = false;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="experience")
+     */
+    private $shares;
+
 
     public function __construct()
     {
@@ -238,6 +243,7 @@ abstract class Experience
         $this->secondaryIndustries = new ArrayCollection();
         $this->registrations = new ArrayCollection();
         $this->feedback = new ArrayCollection();
+        $this->shares = new ArrayCollection();
     }
 
     public function isVirtual() {
@@ -701,4 +707,33 @@ abstract class Experience
         return $this;
     }
 
+    /**
+     * @return Collection|Share[]
+     */
+    public function getShares(): Collection
+    {
+        return $this->shares;
+    }
+
+    public function addShare(Share $share): self
+    {
+        if (!$this->shares->contains($share)) {
+            $this->shares[] = $share;
+            $share->setExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShare(Share $share): self
+    {
+        if ($this->shares->removeElement($share)) {
+            // set the owning side to null (unless already changed)
+            if ($share->getExperience() === $this) {
+                $share->setExperience(null);
+            }
+        }
+
+        return $this;
+    }
 }

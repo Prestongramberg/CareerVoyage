@@ -5,61 +5,40 @@ import { Provider } from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
 import App from "./App";
+import { reducer as formReducer } from 'redux-form';
 
 const globalShare = document.getElementById("react-global-share");
 
 if(globalShare) {
 
-    debugger;
+
     const user = JSON.parse( globalShare.getAttribute("data-user") ) || {};
-    const message = globalShare.getAttribute("data-message");
+    const message = globalShare.getAttribute("data-message") || "";
+    const experience = globalShare.getAttribute("data-experience") || null;
     const title = globalShare.textContent;
 
     const store = createStore(
         reducers,
         {
-            users: {
-                professionals: [],
-                educators: [],
-                students: [],
-                school_admins: [],
-                all: [],
-                filters: [],
-            },
+            form: {},
             filters: {
-                roles: [],
-                user_roles: [
-                    { label: 'Professional', value: 'professional' },
-                    { label: 'Student', value: 'student' },
-                    { label: 'Educator', value: 'educator' },
-                    { label: 'School Administrator', value: 'school_administrator' },
-                    { label: 'Company Administrator', value: 'company_administrator' }
-                ],
-                companies: [],
-                primary_industries: [],
-                secondary_industries: [],
-                interests: [],
-                company_admins: [],
-                schools: [],
-                courses_taught: [],
-                current_page: 1,
-                total_count: 0,
-                total_pages: 0
+                activePage: 1
             },
             search: {
-                roles: [],
-                companies: [],
-                user_roles: [],
-                query: '',
-                interests: '',
-                company_admins: [],
-                schools: [],
-                courses_taught: [],
-                primary_industries: [],
-                secondary_industries: []
-            },
-            ui: {
-                users: []
+                message: message,
+                user_messages: {},
+                filters: {},
+                form: {},
+                items: [],
+                schema: {
+                    properties: {}
+                },
+                typingTimeout: null,
+                pagination: {},
+                loading: false,
+                currentNotifiedUser: null,
+                notifiedUsers: [],
+                experience: experience
             }
         },
         compose(
@@ -72,6 +51,7 @@ if(globalShare) {
         ReactDOM.render(
             <Provider store={store}>
                 <App message={message}
+                     experience={experience}
                      title={title}
                      user={user}
                 />
