@@ -123,6 +123,7 @@ class GlobalShareController extends AbstractController
 
         $experience = $this->experienceRepository->find($experienceId);
 
+        /** @var User $user */
         $user = $this->userRepository->find($userId);
 
         $chat = $this->chatRepository->findOneBy(
