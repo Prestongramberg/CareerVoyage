@@ -76,10 +76,32 @@
             <div class="uk-width-expand">
                 <div class="uk-align-right@l">
 
-                    <div style="display: inline-block" id="react-global-share"
-                         data-user="{{ encode_user(user) }}"
-                         data-message="Check out this upcoming experience: <a href='{{ absolute_url('school_experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
-                        Share this Experience
+                    <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: true">
+                        <div class="uk-offcanvas-bar uk-offcanvas-bar-large">
+
+                            <div>
+                                <h3>Share Experience</h3>
+                                <button class="uk-offcanvas-close" type="button" uk-close></button>
+                            </div>
+
+                            <div id="react-global-share"
+                                 data-user="{{ encode_user(user) }}"
+                                 data-experience="{{ experience.id }}"
+                                 data-message="Check out this upcoming experience: <a href='{{ absolute_url('view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                                Share this Experience
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+                        <div class="uk-width-expand">
+                            <div class="uk-align-right@l">
+                                <button class="uk-button uk-button-primary uk-button-small" type="button"
+                                        uk-toggle="target: #offcanvas-flip">Share Experience
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {% if user.isAdmin or user.isSchoolAdministrator or ( user.isEducator and experience.school.getAllowEventCreation() and experience.getSchoolContact().getId() == user.id ) %}
