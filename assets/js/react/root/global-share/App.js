@@ -13,6 +13,7 @@ const cb = 'global-share';
 import {Multiselect} from 'multiselect-react-dropdown';
 import Loader from "../../components/Loader/Loader"
 import Pagination from "react-js-pagination";
+const avatarLogoPath = require('../../../../images/avatar.png');
 
 export class App extends Component {
 
@@ -264,7 +265,7 @@ export class App extends Component {
         let company = '';
         let role = '';
         let name = '';
-        let photoImageURL = user.photoImageURL ? user.photoImageURL : '/build/images/avatar.ec6ae432.png';
+        let photoImageURL = user.photoImageURL ? user.photoImageURL : avatarLogoPath;
 
         if (user.professional) {
 
@@ -280,7 +281,7 @@ export class App extends Component {
 
             company = user.school && user.school.name ? user.school.name : "User Does Not Belong To A School";
             role = 'Student';
-            photoImageURL = '/build/images/avatar.ec6ae432.png';
+            photoImageURL = avatarLogoPath;
 
             // if the logged in user is a professional then don't show the student name
             if (loggedInUser.roles && loggedInUser.roles.indexOf("ROLE_PROFESSIONAL_USER") !== -1) {

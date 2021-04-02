@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af1b4b9d06ca221d895caa552b2ad7c5",
+    "content-hash": "8ea8a4056b136c72ef7494c9423d2d2e",
     "packages": [
         {
             "name": "api-platform/api-pack",
@@ -3047,6 +3047,46 @@
                 "source": "https://github.com/Limenius/Liform/tree/v0.17.0"
             },
             "time": "2020-10-06T15:01:01+00:00"
+        },
+        {
+            "name": "limenius/liform-bundle",
+            "version": "v0.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Limenius/LiformBundle.git",
+                "reference": "6de210a2a7098e463f4fc1255fdc2f9542575580"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Limenius/LiformBundle/zipball/6de210a2a7098e463f4fc1255fdc2f9542575580",
+                "reference": "6de210a2a7098e463f4fc1255fdc2f9542575580",
+                "shasum": ""
+            },
+            "require": {
+                "limenius/liform": "^0.17.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Limenius\\LiformBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nacho Martín",
+                    "email": "nacho@limenius.com"
+                }
+            ],
+            "description": "Bundle for Liform: Transform Symfony Forms into Json Schema",
+            "support": {
+                "issues": "https://github.com/Limenius/LiformBundle/issues",
+                "source": "https://github.com/Limenius/LiformBundle/tree/v0.17.0"
+            },
+            "time": "2020-10-06T15:07:51+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
