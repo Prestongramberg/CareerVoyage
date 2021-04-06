@@ -79,7 +79,6 @@
                             </div>
 
                             <div class="uk-card-body">
-                                s
                                 <div>
                                     <a class="company-video uk-inline" target="_blank"
                                        href="https://www.youtube.com/watch?v={{ paginatedVideo.videoId }}">
@@ -87,7 +86,11 @@
                                              alt=""/>
                                         <div class="company-video__overlay">
                                             <div class="company-video__overlay-title">
-                                                {{ paginatedVideo.name }}
+                                                <strong>{{ paginatedVideo.name }}</strong><br />
+                                                {% if paginatedVideo.professional.company %}
+                                                    {{ paginatedVideo.professional.company.name }}<br />
+                                                {% endif %}
+                                                {{ paginatedVideo.professional.firstName }} {{ paginatedVideo.professional.lastName }}
                                             </div>
                                         </div>
                                     </a>
