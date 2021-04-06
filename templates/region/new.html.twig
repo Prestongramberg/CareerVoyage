@@ -30,6 +30,11 @@
                             {{ form_errors(form.name) }}
                         </div>
                         <div class="uk-margin">
+                            {{ form_label(form.friendlyName, 'Friendly Name*') }}
+                            {{ form_widget(form.friendlyName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.friendlyName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.friendlyName) }}
+                        </div>
+                        <div class="uk-margin">
                             <button class="uk-button uk-button-primary uk-button-small">Create new Region</button>
                         </div>
                     </fieldset>

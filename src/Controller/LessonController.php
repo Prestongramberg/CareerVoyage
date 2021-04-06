@@ -128,6 +128,8 @@ class LessonController extends AbstractController
         $form->handleRequest($request);
 
         $filterBuilder = $this->lessonRepository->createQueryBuilder('l')
+                                                ->andWhere('l.deleted = :deleted')
+                                                ->setParameter('deleted', false)
                                                 ->addOrderBy('l.title', 'ASC');
 
         // TODO LOOK AT API/LESSONCONTROLLER.PHP TO SEE IF YOU NEED TO MODIFY THE QUERY
@@ -487,12 +489,13 @@ class LessonController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $this->entityManager->remove($lesson);
+        $lesson->setDeleted(true);
+        $this->entityManager->persist($lesson);
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Topic deleted');
 
-        return $this->redirectToRoute('lesson_index');
+        return $this->redirectToRoute('lessons_results_page');
     }
 
     /**
