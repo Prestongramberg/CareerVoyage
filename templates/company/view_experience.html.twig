@@ -298,8 +298,8 @@
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
                     <tr>
-                        <td>Experience Coordinator</td>
-                        <td>
+                        <td width="35%">Experience Coordinator</td>
+                        <td width="65%">
                             {% if experience.employeeContact and experience.employeeContact.fullName %}
                                 {{ experience.employeeContact.fullName }}
                             {% endif %}
@@ -307,6 +307,20 @@
                             {% if experience.employeeContact and experience.employeeContact.fullName %}
                                 {% if user_can_chat_with_user( user, experience.employeeContact ) %}
                                     <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.employeeContact.id }}">Chat</button>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if experience.employeeContact and experience.employeeContact.fullName %}
+                                {% if user.id == experience.company.owner.id %}
+                                    <span style="float:right;">Allow to see feedback? 
+                                        <span id="view_feedback">
+                                            {% if experience.canViewFeedback == true %}
+                                                <a href="#" id="toggle-feedback" data-value="0" data-user="{{ experience.employeeContact.id }}" class="uk-button uk-button-primary uk-button-small">Yes</a>
+                                            {% else %}
+                                                <a href="#" id="toggle-feedback" data-value="1" data-user="{{ experience.employeeContact.id }}" class="uk-button uk-button-danger uk-button-small">No</a>
+                                            {% endif %}
+                                        </span>
+                                    </span>
                                 {% endif %}
                             {% endif %}
 
@@ -600,6 +614,22 @@
         });
 
 
+        $(document).on("click", "#toggle-feedback", function(e){
+            e.preventDefault();
+            var val = $(this).data('value');
+            var user = $(this).data('user');
+            $.post('{{ path('toggle_feedback_view', { "id": experience.id }) }}', { val: val, user: user}, function(data){
+                if(data.status == "success") {
+                    if(data.canView == 1) {
+                        $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="0" data-user="' + user + '" class="uk-button uk-button-primary uk-button-small">Yes</a>');
+                    } else {
+                        $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="1" data-user="' + user + '" class="uk-button uk-button-danger uk-button-small">No</a>');
+                    }
+                }
+            });
+        });
+
+
         function fallbackCopyTextToClipboard(text) {
             var textArea = document.createElement("textarea");
             textArea.value = text;
@@ -641,7 +671,6 @@
             copyTextToClipboard(feedbackUrl.value);
             window.alert("Url " + feedbackUrl.value + " copied to clipboard.");
         }
-
     </script>
 
 

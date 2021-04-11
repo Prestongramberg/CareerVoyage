@@ -189,7 +189,6 @@ class DashboardController extends AbstractController
             }
 
         } elseif ($user->isProfessional()) {
-
             $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
 
             /** @var ProfessionalUser $user */
