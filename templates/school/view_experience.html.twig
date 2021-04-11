@@ -458,6 +458,50 @@
                         {% endif %}
                     {% endfor %}
                 </div>
+
+
+                <h3>Educators</h3>
+                <div class="uk-width-1">
+                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
+                        {% if request.user.educator %}
+
+                            {% if request.user.activated != false and request.user.deleted != true %}
+
+                                {% if request.approved %}
+                                    Approved
+                                    {% set showPendingRegisterButton = false %}
+                                {% elseif request.denied %}
+                                    Denied
+                                    {% set showPendingRegisterButton = false %}
+                                {% else %}
+                                    Pending
+                                    {% set showPendingRegisterButton = false %}
+                                {% endif %}
+
+
+
+                                <div class="uk-grid uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
+                                    </div>
+                                    <div class="uk-width-auto">
+                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+
+                                        {% if showPendingRegisterButton == false %}
+                                            {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
+                                                <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                    <input type="hidden" name="userId" value="{{ request.user.id }}">
+                                                    <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                                </form>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <hr>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
 
             {% if user.isEducator %}
