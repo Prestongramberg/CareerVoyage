@@ -2293,6 +2293,30 @@ class CompanyController extends AbstractController
         return new JsonResponse(["status" => "success", "html" => $html]);
     }
 
+
+    /**
+     * @Route("/companies/experiences/{id}/toggle-feedback-view", name="toggle_feedback_view", options = { "expose" = true })
+     * @param Request $request
+     * @param CompanyExperience $experience
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function toggleCanViewFeedback(Request $request, CompanyExperience $experience) {
+
+        $experience->setCanViewFeedback($request->request->get('val'));
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+
+        return new JsonResponse(["status" => "success", "canView" => $request->request->get('val')]);
+    }
+
+
+
+
+
+
+
+
     /**
      * List all errors of a given bound form.
      *
