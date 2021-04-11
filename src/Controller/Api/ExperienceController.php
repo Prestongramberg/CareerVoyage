@@ -914,12 +914,6 @@ class ExperienceController extends AbstractController
      */
     public function experienceTeachLessonEventDeleteAction(Request $request, TeachLessonExperience $experience)
     {
-
-
-        var_dump($request);
-        die();
-
-
         /** @var User $user */
         $user = $this->getUser();
 
