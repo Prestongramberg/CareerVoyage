@@ -45,6 +45,7 @@ class EditRegionFormType extends AbstractType
         $loggedInUser = $options['loggedInUser'];
 
         $builder->add('name', TextType::class);
+        $builder->add('friendlyName', TextType::class);
 
 
         if($loggedInUser->isAdmin()) {

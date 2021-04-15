@@ -446,7 +446,7 @@ class Lesson
      * @Groups({"LESSON_DATA"})
      * @return bool
      */
-    public function deleted()
+    public function getDeleted()
     {
         return $this->deleted;
     }

@@ -163,6 +163,7 @@
             <div class="videos-listings" data-uk-grid="masonry: true">
 
                 {% for paginatedVideo in pagination %}
+                    {% set secondaryIndustries = paginatedVideo.getSecondaryIndustries() %}
 
                     <div>
 
@@ -206,7 +207,8 @@
                                              alt=""/>
                                         <div class="company-video__overlay">
                                             <div class="company-video__overlay-title">
-                                                {{ paginatedVideo.name }}
+                                                <strong>{{ paginatedVideo.name }}</strong>
+
                                             </div>
                                         </div>
                                     </a>
