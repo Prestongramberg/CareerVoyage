@@ -94,6 +94,11 @@ class Lesson
     private $featuredImage;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private $deleted = false;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="lesson", orphanRemoval=true)
      */
     private $lessonFavorites;
@@ -436,6 +441,24 @@ class Lesson
     {
         $this->isTeachable = $isTeachable;
     }
+
+    /**
+     * @Groups({"LESSON_DATA"})
+     * @return bool
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param bool $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+    }
+
 
     /**
      * @Groups({"LESSON_DATA"})

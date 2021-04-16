@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}New Region{% endblock %}
+{% block title %}Edit Region{% endblock %}
 {% block bodyClass %}page-state-coordinator{% endblock %}
 
 {% block body %}
@@ -12,7 +12,7 @@
 
                     {% include 'flash/messages.html.twig' %}
 
-                    <h3>Create a new Region</h3>
+                    <h3>Edit Region</h3>
 
                     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -35,7 +35,7 @@
                             {{ form_errors(form.friendlyName) }}
                         </div>
                         <div class="uk-margin">
-                            <button class="uk-button uk-button-primary uk-button-small">Create new Region</button>
+                            <button class="uk-button uk-button-primary uk-button-small">Save Region</button>
                         </div>
                     </fieldset>
 

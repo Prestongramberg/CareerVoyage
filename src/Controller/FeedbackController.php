@@ -243,6 +243,7 @@ class FeedbackController extends AbstractController
 
         $studentFeedbackUrl = '';
 
+
         // look at the experience object and see which form you should load in
         switch ($experience->getClassName()) {
             case 'CompanyExperience':case 'CompanyExperience':
@@ -312,6 +313,11 @@ class FeedbackController extends AbstractController
                     $feedback = $feedback = $feedback ? $feedback : new ProfessionalReviewSchoolExperienceFeedback();
                     $formType = ProfessionalReviewSchoolExperienceFeedbackFormType::class;
                     $template = 'new_professional_review_school_experience_feedback.html.twig';
+                }
+                if($user->isEducator()) {
+                    $feedback = $feedback = $feedback ? $feedback : new Feedback();
+                    $formType = GenericFeedbackFormType::class;
+                    $template = 'new_generic_feedback.html.twig';
                 }
                 break;
             default:

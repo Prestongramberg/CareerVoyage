@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 
-class CreateRegionFormType extends AbstractType
+class EditRegionFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

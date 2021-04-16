@@ -69,7 +69,7 @@ class LessonRepository extends ServiceEntityRepository
 
         $whereClause = !empty($whereClause) ? sprintf('(%s)', implode(" OR ", $whereClause)) : '';
 
-        $query = sprintf("select l.id, l.title, l.short_description from lesson l inner join lesson_secondary_industry lsi on l.id = lsi.lesson_id WHERE l.created_at >= DATE(NOW()) - INTERVAL 7 DAY AND %s GROUP BY l.id order by l.created_at DESC LIMIT %s", $whereClause, $limit);
+        $query = sprintf("select l.id, l.title, l.short_description from lesson l inner join lesson_secondary_industry lsi on l.id = lsi.lesson_id WHERE l.created_at >= DATE(NOW()) - INTERVAL 7 DAY AND deleted=0 AND %s GROUP BY l.id order by l.created_at DESC LIMIT %s", $whereClause, $limit);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
@@ -83,7 +83,7 @@ class LessonRepository extends ServiceEntityRepository
      * @throws \Doctrine\DBAL\DBALException
      */
     public function findAllLessonsFromPastDays($days = 7) {
-        $query = sprintf("select l.id, l.title, l.short_description from lesson l WHERE l.created_at >= DATE(NOW()) - INTERVAL %d DAY GROUP BY l.id order by l.created_at DESC", $days);
+        $query = sprintf("select l.id, l.title, l.short_description from lesson l WHERE l.created_at >= DATE(NOW()) - INTERVAL %d DAY AND deleted=0 GROUP BY l.id order by l.created_at DESC", $days);
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
