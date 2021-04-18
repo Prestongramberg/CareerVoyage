@@ -106,6 +106,11 @@ class EducatorUser extends User
     private $educatorRegisterEducatorForCompanyExperienceRequests;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorVideo", mappedBy="educator")
+     */
+    private $educatorVideos;
+
+    /**
      * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="educatorUsers")
      */
@@ -119,6 +124,7 @@ class EducatorUser extends User
         $this->educatorReviewCompanyExperienceFeedback     = new ArrayCollection();
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->myCourses                                   = new ArrayCollection();
+        $this->educatorVideos                              = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -451,6 +457,38 @@ class EducatorUser extends User
     {
         if ($this->myCourses->contains($myCourse)) {
             $this->myCourses->removeElement($myCourse);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection|EducatorVideo[]
+     */
+    public function getEducatorVideos(): Collection
+    {
+        return $this->educatorVideos;
+    }
+
+    public function addEducatorVideo(EducatorVideo $educatorVideo): self
+    {
+        if (!$this->educatorVideos->contains($educatorVideo)) {
+            $this->educatorVideos[] = $educatorVideo;
+            $educatorVideo->setEducator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorVideo(EducatorVideo $educatorVideo): self
+    {
+        if ($this->educatorVideos->contains($educatorVideo)) {
+            $this->educatorVideos->removeElement($educatorVideo);
+            // set the owning side to null (unless already changed)
+            if ($educatorVideo->getEducator() === $this) {
+                $educatorVideo->setEducator(null);
+            }
         }
 
         return $this;
