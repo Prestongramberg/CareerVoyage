@@ -21,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Feedback
 {
     /**
+     * @Groups({"FEEDBACK"})
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -28,36 +30,42 @@ class Feedback
     protected $id;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
     protected $rating = 0;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
     protected $providedCareerInsight = false;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
     protected $wasEnjoyableAndEngaging = false;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="boolean")
      */
     protected $learnSomethingNew = false;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
     protected $likelihoodToRecommendToFriend = 7;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="text", nullable=true)
      */
     protected $additionalFeedback;
@@ -73,69 +81,106 @@ class Feedback
     protected $experience;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="boolean")
      */
     protected $deleted = false;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $feedbackProvider;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="integer", nullable=true)
      */
     protected $interestWorkingForCompany = 0;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $experienceProvider;
+    protected $experienceProvider;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\ManyToOne(targetEntity=RolesWillingToFulfill::class)
      */
-    private $experienceType;
+    protected $experienceType;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $experienceTypeName;
+    protected $experienceTypeName;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $regions = [];
+    protected $regions = [];
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $regionNames = [];
+    protected $regionNames = [];
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $schools = [];
+    protected $schools = [];
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $schoolNames = [];
+    protected $schoolNames = [];
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $companies = [];
+    protected $companies = [];
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $companyNames = [];
+    protected $companyNames = [];
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\Column(type="date", nullable=true)
      */
-    private $eventStartDate;
+    protected $eventStartDate;
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="json", nullable=true)
+     */
+    protected $companyAdmins = [];
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="json", nullable=true)
+     */
+    protected $regionalCoordinators = [];
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="json", nullable=true)
+     */
+    protected $schoolAdmins = [];
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="json", nullable=true)
+     */
+    protected $employeeContacts = [];
 
 
     public function getId(): ?int
@@ -348,7 +393,7 @@ class Feedback
 
     public function setSchools(?array $schools): self
     {
-        $this->schools = $schools;
+        $this->schools = array_values(array_unique($schools));
 
         return $this;
     }
@@ -360,7 +405,7 @@ class Feedback
 
     public function setSchoolNames(?array $schoolNames): self
     {
-        $this->schoolNames = $schoolNames;
+        $this->schoolNames = array_values(array_unique($schoolNames));
 
         return $this;
     }
@@ -372,7 +417,7 @@ class Feedback
 
     public function setCompanies(?array $companies): self
     {
-        $this->companies = $companies;
+        $this->companies = array_values(array_unique($companies));
 
         return $this;
     }
@@ -384,7 +429,7 @@ class Feedback
 
     public function setCompanyNames(?array $companyNames): self
     {
-        $this->companyNames = $companyNames;
+        $this->companyNames = array_values(array_unique($companyNames));
 
         return $this;
     }
@@ -397,6 +442,54 @@ class Feedback
     public function setEventStartDate(?\DateTimeInterface $eventStartDate): self
     {
         $this->eventStartDate = $eventStartDate;
+
+        return $this;
+    }
+
+    public function getCompanyAdmins(): ?array
+    {
+        return $this->companyAdmins;
+    }
+
+    public function setCompanyAdmins(?array $companyAdmins): self
+    {
+        $this->companyAdmins = array_values(array_unique($companyAdmins));
+
+        return $this;
+    }
+
+    public function getRegionalCoordinators(): ?array
+    {
+        return $this->regionalCoordinators;
+    }
+
+    public function setRegionalCoordinators(?array $regionalCoordinators): self
+    {
+        $this->regionalCoordinators = array_values(array_unique($regionalCoordinators));
+
+        return $this;
+    }
+
+    public function getSchoolAdmins(): ?array
+    {
+        return $this->schoolAdmins;
+    }
+
+    public function setSchoolAdmins(?array $schoolAdmins): self
+    {
+        $this->schoolAdmins = array_values(array_unique($schoolAdmins));
+
+        return $this;
+    }
+
+    public function getEmployeeContacts(): ?array
+    {
+        return $this->employeeContacts;
+    }
+
+    public function setEmployeeContacts(?array $employeeContacts): self
+    {
+        $this->employeeContacts = array_values(array_unique($employeeContacts));
 
         return $this;
     }

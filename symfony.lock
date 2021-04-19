@@ -415,9 +415,6 @@
             "config/bootstrap.php"
         ]
     },
-    "symfony/contracts": {
-        "version": "v1.1.0"
-    },
     "symfony/css-selector": {
         "version": "v4.3.0"
     },
@@ -804,6 +801,9 @@
             "version": "1.0",
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
+    },
+    "timetoogo/pinq": {
+        "version": "3.5.0"
     },
     "twig/twig": {
         "version": "v2.11.0"

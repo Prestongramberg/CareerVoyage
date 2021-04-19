@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Cache\CacheKey;
 use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
@@ -54,6 +55,7 @@ use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -64,6 +66,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Asset\Packages;
+use Symfony\Contracts\Cache\ItemInterface;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 
 /**
@@ -765,11 +770,28 @@ WHERE u.discr = "professionalUser" :regions',
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
+     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function experienceSatisfactionDashboard(Request $request)
+    public function experienceSatisfactionDashboard(Request $request, $cacheDirectory)
     {
         /** @var User $user */
         $user = $this->getUser();
+
+        $cache          = new FilesystemAdapter('feedback', 0, $cacheDirectory . '/pintex');
+        $cachedFeedback = $cache->get(CacheKey::FEEDBACK, function (ItemInterface $item) {
+            return [];
+        });
+
+        $data = Traversable::from($cachedFeedback);
+
+        //Apply first filter
+        $filter1 = $data
+            ->where(function ($row) {
+                return $row['price'] > 90 && $row['price'] < 99;
+            })
+            ->orderByDescending(function ($row) {
+                return $row['id'];
+            });
 
         $dashboardOrder = $request->request->get('sortableData', null);
 
@@ -829,8 +851,15 @@ WHERE u.discr = "professionalUser" :regions',
 
         if ($user->isProfessional()) {
             /** @var ProfessionalUser $user */
-            $company   = $user->getCompany();
-            $companyId = $company->getId();
+            $company = $user->getCompany();
+
+            if (!$company = $user->getCompany()) {
+
+            }
+
+            if ($user->getEmail() === $company->getEmailAddress()) {
+                $companyId = $company->getId();
+            }
 
 
             $filterBuilder->where('f.companies LIKE :companyId')
@@ -898,7 +927,7 @@ WHERE u.discr = "professionalUser" :regions',
                 'showFilters' => $showFilters,
                 'form' => $form->createView(),
                 'clearFormUrl' => $this->generateUrl('report_experience_satisfaction_dashboard'),
-                'request' => $request
+                'request' => $request,
             ]
         );
     }
@@ -929,24 +958,24 @@ WHERE u.discr = "professionalUser" :regions',
 
         //$type = 'school';
 
-/*        switch($type) {
-            case 'region':
-                $form = $this->createForm(
-                    RegionFilterType::class, $data, [
-                        'method' => 'GET',
-                    ]
-                );
-                $template = 'report/dashboard/filter/region.html.twig';
-                break;
-            case 'school':
-                $form = $this->createForm(
-                    SchoolFilterType::class, $data, [
-                        'method' => 'GET',
-                    ]
-                );
-                $template = 'report/dashboard/filter/school.html.twig';
-                break;
-        }*/
+        /*        switch($type) {
+                    case 'region':
+                        $form = $this->createForm(
+                            RegionFilterType::class, $data, [
+                                'method' => 'GET',
+                            ]
+                        );
+                        $template = 'report/dashboard/filter/region.html.twig';
+                        break;
+                    case 'school':
+                        $form = $this->createForm(
+                            SchoolFilterType::class, $data, [
+                                'method' => 'GET',
+                            ]
+                        );
+                        $template = 'report/dashboard/filter/school.html.twig';
+                        break;
+                }*/
 
         $template = 'report/dashboard/filter/school.html.twig';
 
