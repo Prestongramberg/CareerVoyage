@@ -3,10 +3,13 @@
 namespace App\Form\Filter\Report\Dashboard;
 
 use App\Entity\Feedback;
+use App\Entity\User;
 use App\Repository\FeedbackRepository;
 use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Lexik\Bundle\FormFilterBundle\Filter\Query\QueryInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -15,6 +18,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Lexik\Bundle\FormFilterBundle\Filter\Form\Type as Filters;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 /**
  * Class FeedbackFilterType
@@ -25,72 +30,19 @@ class FeedbackFilterType extends AbstractType
 {
     public const CACHE_KEY = 'filter.report.dashboard.feedback_filters';
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @var FeedbackRepository
-     */
-    private $feedbackRepository;
-
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    /**
-     * ProfessionalFilterType constructor.
-     *
-     * @param RequestStack       $requestStack
-     * @param FeedbackRepository $feedbackRepository
-     * @param string             $cacheDirectory
-     */
-    public function __construct(RequestStack $requestStack, FeedbackRepository $feedbackRepository,
-                                string $cacheDirectory
-    ) {
-        $this->requestStack       = $requestStack;
-        $this->feedbackRepository = $feedbackRepository;
-        $this->cacheDirectory     = $cacheDirectory;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $cache = new FilesystemAdapter('pintex', 3600, $this->cacheDirectory);
 
-        /*$filters = $cache->get(self::CACHE_KEY, function (ItemInterface $item) {
-
-            return $this->feedbackRepository->getFilters();
-        });*/
-
-        $filters = $this->feedbackRepository->getFilters();
+        $feedback = $options['feedback'];
+        /** @var User $user */
+        $user = $options['user'];
 
         $builder->add('feedbackProvider', Filters\ChoiceFilterType::class, [
                 'expanded' => false,
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $filters['feedback_provider'],
-                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                    if (empty($values['value'])) {
-                        return null;
-                    }
-
-                    $feedbackProvider = $values['value'];
-
-                    $queryBuilder = $filterQuery->getQueryBuilder();
-
-                    $queryBuilder->andWhere('f.feedbackProvider = :feedbackProvider')
-                                 ->setParameter('feedbackProvider', $feedbackProvider);
-
-                    $newFilterQuery = new ORMQuery($queryBuilder);
-
-                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                    return $newFilterQuery->createCondition($expression);
-                },
+                'choices' => $this->getScalarFacet($feedback, 'feedbackProvider'),
             ]
         );
 
@@ -99,54 +51,16 @@ class FeedbackFilterType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $filters['experience_provider'],
-                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                    if (empty($values['value'])) {
-                        return null;
-                    }
-
-                    $experienceProvider = $values['value'];
-
-                    $queryBuilder = $filterQuery->getQueryBuilder();
-
-                    $queryBuilder->andWhere('f.experienceProvider = :experienceProvider')
-                                 ->setParameter('experienceProvider', $experienceProvider);
-
-                    $newFilterQuery = new ORMQuery($queryBuilder);
-
-                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                    return $newFilterQuery->createCondition($expression);
-                },
+                'choices' => $this->getScalarFacet($feedback, 'experienceProvider'),
             ]
         );
 
-        $builder->add('experienceTypeName', Filters\ChoiceFilterType::class, [
+        $builder->add('experienceTypeName', ChoiceType::class, [
                 'expanded' => false,
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $filters['experience_type_name'],
-                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                    if (empty($values['value'])) {
-                        return null;
-                    }
-
-                    $experienceTypeName = $values['value'];
-
-                    $queryBuilder = $filterQuery->getQueryBuilder();
-
-                    $queryBuilder->andWhere('f.experienceTypeName = :experienceTypeName')
-                                 ->setParameter('experienceTypeName', $experienceTypeName);
-
-                    $newFilterQuery = new ORMQuery($queryBuilder);
-
-                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                    return $newFilterQuery->createCondition($expression);
-                },
+                'choices' => $this->getScalarFacet($feedback, 'experienceTypeName'),
             ]
         );
 
@@ -155,26 +69,7 @@ class FeedbackFilterType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $filters['region_name'],
-                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                    if (empty($values['value'])) {
-                        return null;
-                    }
-
-                    $regionName = $values['value'];
-
-                    $queryBuilder = $filterQuery->getQueryBuilder();
-
-                    $queryBuilder->andWhere('f.regionNames LIKE :regionName')
-                                 ->setParameter('regionName', '%' . $regionName . '%');
-
-                    $newFilterQuery = new ORMQuery($queryBuilder);
-
-                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                    return $newFilterQuery->createCondition($expression);
-                },
+                'choices' => $this->getArrayFacet($feedback, 'regionNames'),
             ]
         );
 
@@ -183,26 +78,7 @@ class FeedbackFilterType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $filters['school_name'],
-                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                    if (empty($values['value'])) {
-                        return null;
-                    }
-
-                    $schoolName = $values['value'];
-
-                    $queryBuilder = $filterQuery->getQueryBuilder();
-
-                    $queryBuilder->andWhere('f.schoolNames LIKE :schoolName')
-                                 ->setParameter('schoolName', '%' . $schoolName . '%');
-
-                    $newFilterQuery = new ORMQuery($queryBuilder);
-
-                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                    return $newFilterQuery->createCondition($expression);
-                },
+                'choices' => $this->getArrayFacet($feedback, 'schoolNames'),
             ]
         );
 
@@ -211,28 +87,20 @@ class FeedbackFilterType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $filters['company_name'],
-                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                    if (empty($values['value'])) {
-                        return null;
-                    }
-
-                    $companyName = $values['value'];
-
-                    $queryBuilder = $filterQuery->getQueryBuilder();
-
-                    $queryBuilder->andWhere('f.companyNames LIKE :companyName')
-                                 ->setParameter('companyName', '%' . $companyName . '%');
-
-                    $newFilterQuery = new ORMQuery($queryBuilder);
-
-                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                    return $newFilterQuery->createCondition($expression);
-                },
+                'choices' => $this->getArrayFacet($feedback, 'companyNames'),
             ]
         );
+
+        if($user->isProfessional()) {
+            $builder->add('employeeContactNames', Filters\ChoiceFilterType::class, [
+                    'expanded' => false,
+                    'multiple' => false,
+                    'required' => false,
+                    'placeholder' => 'All',
+                    'choices' => $this->getArrayFacet($feedback, 'employeeContactNames'),
+                ]
+            );
+        }
 
         $builder->add('eventStartDate', Filters\DateRangeFilterType::class, [
                 'left_date_options' => [
@@ -250,1125 +118,71 @@ class FeedbackFilterType extends AbstractType
             ]
         );
 
+    }
 
-        /* REGION NAME FILTER CHANGE */
-        $builder->get('regionNames')->addEventListener(
-            FormEvents::POST_SUBMIT, function (FormEvent $event) {
+    private function getScalarFacet(Traversable $cachedFeedback, $key)
+    {
 
+        $results = $cachedFeedback
+            ->where(function ($row) use ($key) {
+                return $row[$key] !== null && !empty($row[$key]);
+            })
+            ->groupBy(function ($row) use ($key) {
+                return $row[$key];
+            })->select(function (ITraversable $data) use ($key) {
+                return ['key' => $data->last()[$key], 'count' => $data->count()];
+            })->orderByAscending(function ($row) {
+                return $row['key'];
+            });
 
-            $regionName = $event->getForm()->getData();
-            $form       = $event->getForm()->getParent();
+        $choices = [];
+        foreach ($results as $result) {
+            $label           = sprintf("%s (%s)", $result['key'], $result['count']);
+            $value           = $result['key'];
+            $choices[$label] = $value;
+        }
 
-            if (!$regionName) {
-                return;
-            }
+        return $choices;
+    }
 
-            if (!$form) {
-                return;
-            }
+    private function getArrayFacet(Traversable $cachedFeedback, $key)
+    {
 
-            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
-                                                  ->andWhere(sprintf("JSON_CONTAINS(f.regionNames, '\"%s\"', '$') = TRUE", $regionName))
-                                                  ->getQuery()
-                                                  ->getResult();
+        $results = $cachedFeedback
+            ->where(function ($row) use ($key) {
+                return !empty($row[$key]);
+            })->select(function ($row) use ($key) {
+                return $row[$key];
+            });
 
-            $schoolChoices             = [];
-            $companyChoices            = [];
-            $feedbackProviderChoices   = [];
-            $experienceProviderChoices = [];
-            $experienceTypeNameChoices = [];
-            /** @var Feedback $feedback */
-            foreach ($feedbacks as $feedback) {
-                foreach ($feedback->getSchoolNames() as $schoolName) {
-                    $schoolChoices[$schoolName] = $schoolName;
-                }
+        if(empty($results->asArray())) {
+            return [];
+        }
 
-                foreach ($feedback->getCompanyNames() as $companyName) {
-                    $companyChoices[$companyName] = $companyName;
-                }
+        $results = array_merge(...$results->asArray());
+        $results   = Traversable::from($results);
 
-                $feedbackProviderChoices[$feedback->getFeedbackProvider()]     = $feedback->getFeedbackProvider();
-                $experienceProviderChoices[$feedback->getExperienceProvider()] = $feedback->getExperienceProvider();
-                $experienceTypeNameChoices[$feedback->getExperienceTypeName()] = $feedback->getExperienceTypeName();
-            }
-
-            $form->add('schoolNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $schoolChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $schoolName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.schoolNames LIKE :schoolName')
-                                     ->setParameter('schoolName', '%' . $schoolName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('companyNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $companyChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $companyName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.companyNames LIKE :companyName')
-                                     ->setParameter('companyName', '%' . $companyName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('feedbackProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $feedbackProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $feedbackProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.feedbackProvider = :feedbackProvider')
-                                     ->setParameter('feedbackProvider', $feedbackProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceProvider = :experienceProvider')
-                                     ->setParameter('experienceProvider', $experienceProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceTypeName', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceTypeNameChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceTypeName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceTypeName = :experienceTypeName')
-                                     ->setParameter('experienceTypeName', $experienceTypeName);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
+        $results = $results->groupBy(function ($value) {
+            return $value;
+        })->select(function (ITraversable $data) use ($key) {
+            return ['key' => $data->last(), 'count' => $data->count()];
+        })->orderByAscending(function ($row) {
+            return $row['key'];
         });
 
-
-        /* SCHOOL NAME FILTER CHANGE */
-        $builder->get('schoolNames')->addEventListener(
-            FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-
-            $schoolName = $event->getForm()->getData();
-            $form       = $event->getForm()->getParent();
-
-            if (!$schoolName) {
-                return;
-            }
-
-            if (!$form) {
-                return;
-            }
-
-            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
-                                                  ->andWhere(sprintf("JSON_CONTAINS(f.schoolNames, '\"%s\"', '$') = TRUE", $schoolName))
-                                                  ->getQuery()
-                                                  ->getResult();
-
-            $regionChoices             = [];
-            $companyChoices            = [];
-            $feedbackProviderChoices   = [];
-            $experienceProviderChoices = [];
-            $experienceTypeNameChoices = [];
-            /** @var Feedback $feedback */
-            foreach ($feedbacks as $feedback) {
-
-                foreach ($feedback->getRegionNames() as $regionName) {
-                    $regionChoices[$regionName] = $regionName;
-                }
-
-                foreach ($feedback->getCompanyNames() as $companyName) {
-                    $companyChoices[$companyName] = $companyName;
-                }
-
-                $feedbackProviderChoices[$feedback->getFeedbackProvider()]     = $feedback->getFeedbackProvider();
-                $experienceProviderChoices[$feedback->getExperienceProvider()] = $feedback->getExperienceProvider();
-                $experienceTypeNameChoices[$feedback->getExperienceTypeName()] = $feedback->getExperienceTypeName();
-            }
-
-            $form->add('regionNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $regionChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $regionName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.regionNames LIKE :regionName')
-                                     ->setParameter('regionName', '%' . $regionName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('companyNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $companyChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $companyName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.companyNames LIKE :companyName')
-                                     ->setParameter('companyName', '%' . $companyName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('feedbackProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $feedbackProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $feedbackProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.feedbackProvider = :feedbackProvider')
-                                     ->setParameter('feedbackProvider', $feedbackProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceProvider = :experienceProvider')
-                                     ->setParameter('experienceProvider', $experienceProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceTypeName', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceTypeNameChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceTypeName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceTypeName = :experienceTypeName')
-                                     ->setParameter('experienceTypeName', $experienceTypeName);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-        });
-
-        /* COMPANY NAME FILTER CHANGE */
-        $builder->get('companyNames')->addEventListener(
-            FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-
-            $companyName = $event->getForm()->getData();
-            $form        = $event->getForm()->getParent();
-
-            if (!$companyName) {
-                return;
-            }
-
-            if (!$form) {
-                return;
-            }
-
-            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
-                                                  ->andWhere(sprintf("JSON_CONTAINS(f.companyNames, '\"%s\"', '$') = TRUE", $companyName))
-                                                  ->getQuery()
-                                                  ->getResult();
-
-            $regionChoices             = [];
-            $schoolChoices             = [];
-            $feedbackProviderChoices   = [];
-            $experienceProviderChoices = [];
-            $experienceTypeNameChoices = [];
-            /** @var Feedback $feedback */
-            foreach ($feedbacks as $feedback) {
-
-                foreach ($feedback->getRegionNames() as $regionName) {
-                    $regionChoices[$regionName] = $regionName;
-                }
-
-                foreach ($feedback->getSchoolNames() as $schoolName) {
-                    $schoolChoices[$schoolName] = $schoolName;
-                }
-
-                $feedbackProviderChoices[$feedback->getFeedbackProvider()]     = $feedback->getFeedbackProvider();
-                $experienceProviderChoices[$feedback->getExperienceProvider()] = $feedback->getExperienceProvider();
-                $experienceTypeNameChoices[$feedback->getExperienceTypeName()] = $feedback->getExperienceTypeName();
-            }
-
-            $form->add('regionNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $regionChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $regionName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.regionNames LIKE :regionName')
-                                     ->setParameter('regionName', '%' . $regionName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('schoolNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $schoolChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $schoolName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.schoolNames LIKE :schoolName')
-                                     ->setParameter('schoolName', '%' . $schoolName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('feedbackProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $feedbackProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $feedbackProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.feedbackProvider = :feedbackProvider')
-                                     ->setParameter('feedbackProvider', $feedbackProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceProvider = :experienceProvider')
-                                     ->setParameter('experienceProvider', $experienceProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceTypeName', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceTypeNameChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceTypeName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceTypeName = :experienceTypeName')
-                                     ->setParameter('experienceTypeName', $experienceTypeName);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-        });
-
-
-        /* FEEDBACK PROVIDER FILTER CHANGE */
-        $builder->get('feedbackProvider')->addEventListener(
-            FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-
-            $feedbackProvider = $event->getForm()->getData();
-            $form             = $event->getForm()->getParent();
-
-            if (!$feedbackProvider) {
-                return;
-            }
-
-            if (!$form) {
-                return;
-            }
-
-            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
-                                                  ->andWhere('f.feedbackProvider = :feedbackProvider')
-                                                  ->setParameter('feedbackProvider', $feedbackProvider)
-                                                  ->getQuery()
-                                                  ->getResult();
-
-            $regionChoices             = [];
-            $schoolChoices             = [];
-            $companyChoices            = [];
-            $experienceProviderChoices = [];
-            $experienceTypeNameChoices = [];
-            /** @var Feedback $feedback */
-            foreach ($feedbacks as $feedback) {
-
-                foreach ($feedback->getRegionNames() as $regionName) {
-                    $regionChoices[$regionName] = $regionName;
-                }
-
-                foreach ($feedback->getSchoolNames() as $schoolName) {
-                    $schoolChoices[$schoolName] = $schoolName;
-                }
-
-                foreach ($feedback->getCompanyNames() as $companyName) {
-                    $companyChoices[$companyName] = $companyName;
-                }
-
-                $experienceProviderChoices[$feedback->getExperienceProvider()] = $feedback->getExperienceProvider();
-                $experienceTypeNameChoices[$feedback->getExperienceTypeName()] = $feedback->getExperienceTypeName();
-            }
-
-            $form->add('regionNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $regionChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $regionName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.regionNames LIKE :regionName')
-                                     ->setParameter('regionName', '%' . $regionName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('schoolNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $schoolChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $schoolName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.schoolNames LIKE :schoolName')
-                                     ->setParameter('schoolName', '%' . $schoolName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('companyNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $companyChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $companyName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.companyNames LIKE :companyName')
-                                     ->setParameter('companyName', '%' . $companyName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceProvider = :experienceProvider')
-                                     ->setParameter('experienceProvider', $experienceProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceTypeName', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceTypeNameChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceTypeName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceTypeName = :experienceTypeName')
-                                     ->setParameter('experienceTypeName', $experienceTypeName);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-        });
-
-        /* EXPERIENCE PROVIDER FILTER CHANGE */
-        $builder->get('experienceProvider')->addEventListener(
-            FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-
-            $experienceProvider = $event->getForm()->getData();
-            $form               = $event->getForm()->getParent();
-
-            if (!$experienceProvider) {
-                return;
-            }
-
-            if (!$form) {
-                return;
-            }
-
-            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
-                                                  ->andWhere('f.experienceProvider = :experienceProvider')
-                                                  ->setParameter('experienceProvider', $experienceProvider)
-                                                  ->getQuery()
-                                                  ->getResult();
-
-            $regionChoices             = [];
-            $schoolChoices             = [];
-            $companyChoices            = [];
-            $feedbackProviderChoices   = [];
-            $experienceTypeNameChoices = [];
-            /** @var Feedback $feedback */
-            foreach ($feedbacks as $feedback) {
-
-                foreach ($feedback->getRegionNames() as $regionName) {
-                    $regionChoices[$regionName] = $regionName;
-                }
-
-                foreach ($feedback->getSchoolNames() as $schoolName) {
-                    $schoolChoices[$schoolName] = $schoolName;
-                }
-
-                foreach ($feedback->getCompanyNames() as $companyName) {
-                    $companyChoices[$companyName] = $companyName;
-                }
-
-                $feedbackProviderChoices[$feedback->getFeedbackProvider()]     = $feedback->getFeedbackProvider();
-                $experienceTypeNameChoices[$feedback->getExperienceTypeName()] = $feedback->getExperienceTypeName();
-            }
-
-            $form->add('regionNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $regionChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $regionName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.regionNames LIKE :regionName')
-                                     ->setParameter('regionName', '%' . $regionName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('schoolNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $schoolChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $schoolName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.schoolNames LIKE :schoolName')
-                                     ->setParameter('schoolName', '%' . $schoolName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('companyNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $companyChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $companyName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.companyNames LIKE :companyName')
-                                     ->setParameter('companyName', '%' . $companyName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('feedbackProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $feedbackProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $feedbackProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.feedbackProvider = :feedbackProvider')
-                                     ->setParameter('feedbackProvider', $feedbackProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceTypeName', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceTypeNameChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceTypeName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceTypeName = :experienceTypeName')
-                                     ->setParameter('experienceTypeName', $experienceTypeName);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-        });
-
-
-        /* EXPERIENCE PROVIDER FILTER CHANGE */
-        $builder->get('experienceTypeName')->addEventListener(
-            FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-
-            $experienceTypeName = $event->getForm()->getData();
-            $form               = $event->getForm()->getParent();
-
-            if (!$experienceTypeName) {
-                return;
-            }
-
-            if (!$form) {
-                return;
-            }
-
-            $feedbacks = $this->feedbackRepository->createQueryBuilder('f')
-                                                  ->andWhere('f.experienceTypeName = :experienceTypeName')
-                                                  ->setParameter('experienceTypeName', $experienceTypeName)
-                                                  ->getQuery()
-                                                  ->getResult();
-
-            $regionChoices             = [];
-            $schoolChoices             = [];
-            $companyChoices            = [];
-            $feedbackProviderChoices   = [];
-            $experienceProviderChoices = [];
-            /** @var Feedback $feedback */
-            foreach ($feedbacks as $feedback) {
-
-                foreach ($feedback->getRegionNames() as $regionName) {
-                    $regionChoices[$regionName] = $regionName;
-                }
-
-                foreach ($feedback->getSchoolNames() as $schoolName) {
-                    $schoolChoices[$schoolName] = $schoolName;
-                }
-
-                foreach ($feedback->getCompanyNames() as $companyName) {
-                    $companyChoices[$companyName] = $companyName;
-                }
-
-                $feedbackProviderChoices[$feedback->getFeedbackProvider()]     = $feedback->getFeedbackProvider();
-                $experienceProviderChoices[$feedback->getExperienceProvider()] = $feedback->getExperienceProvider();
-            }
-
-            $form->add('regionNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $regionChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $regionName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.regionNames LIKE :regionName')
-                                     ->setParameter('regionName', '%' . $regionName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('schoolNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $schoolChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $schoolName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.schoolNames LIKE :schoolName')
-                                     ->setParameter('schoolName', '%' . $schoolName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('companyNames', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $companyChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $companyName = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.companyNames LIKE :companyName')
-                                     ->setParameter('companyName', '%' . $companyName . '%');
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('feedbackProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $feedbackProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $feedbackProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.feedbackProvider = :feedbackProvider')
-                                     ->setParameter('feedbackProvider', $feedbackProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-
-            $form->add('experienceProvider', Filters\ChoiceFilterType::class, [
-                    'expanded' => false,
-                    'multiple' => false,
-                    'required' => false,
-                    'placeholder' => 'All',
-                    'choices' => $experienceProviderChoices,
-                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
-
-                        if (empty($values['value'])) {
-                            return null;
-                        }
-
-                        $experienceProvider = $values['value'];
-
-                        $queryBuilder = $filterQuery->getQueryBuilder();
-
-                        $queryBuilder->andWhere('f.experienceProvider = :experienceProvider')
-                                     ->setParameter('experienceProvider', $experienceProvider);
-
-                        $newFilterQuery = new ORMQuery($queryBuilder);
-
-                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
-
-                        return $newFilterQuery->createCondition($expression);
-                    },
-                ]
-            );
-        });
-
+        $choices = [];
+        foreach ($results as $result) {
+            $label           = sprintf("%s (%s)", $result['key'], $result['count']);
+            $value           = $result['key'];
+            $choices[$label] = $value;
+        }
+
+        return $choices;
     }
 
     public function getBlockPrefix()
     {
-        return 'item_filter';
+        return '';
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -1379,5 +193,8 @@ class FeedbackFilterType extends AbstractType
                 'validation_groups' => array ('filtering') // avoid NotBlank() constraint-related message
             )
         );
+
+        $resolver->setRequired(['feedback', 'user']);
+
     }
 }

@@ -76,6 +76,7 @@ class Feedback
     protected $user;
 
     /**
+     * @Groups({"FEEDBACK"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Experience", inversedBy="feedback")
      */
     protected $experience;
@@ -181,6 +182,12 @@ class Feedback
      * @ORM\Column(type="json", nullable=true)
      */
     protected $employeeContacts = [];
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $employeeContactNames = [];
 
 
     public function getId(): ?int
@@ -490,6 +497,18 @@ class Feedback
     public function setEmployeeContacts(?array $employeeContacts): self
     {
         $this->employeeContacts = array_values(array_unique($employeeContacts));
+
+        return $this;
+    }
+
+    public function getEmployeeContactNames(): ?array
+    {
+        return $this->employeeContactNames;
+    }
+
+    public function setEmployeeContactNames(?array $employeeContactNames): self
+    {
+        $this->employeeContactNames = $employeeContactNames;
 
         return $this;
     }

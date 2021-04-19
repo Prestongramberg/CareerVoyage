@@ -768,8 +768,9 @@ WHERE u.discr = "professionalUser" :regions',
      *
      * @param Request $request
      *
+     * @param         $cacheDirectory
+     *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function experienceSatisfactionDashboard(Request $request, $cacheDirectory)
@@ -782,16 +783,110 @@ WHERE u.discr = "professionalUser" :regions',
             return [];
         });
 
-        $data = Traversable::from($cachedFeedback);
+        $cachedFeedback   = Traversable::from($cachedFeedback);
+        $filteredFeedback = null;
 
-        //Apply first filter
-        $filter1 = $data
-            ->where(function ($row) {
-                return $row['price'] > 90 && $row['price'] < 99;
-            })
-            ->orderByDescending(function ($row) {
-                return $row['id'];
+        $filters = [
+            'experienceTypeName' => 'scalar',
+            'regionNames' => 'array',
+            'feedbackProvider' => 'scalar',
+            'experienceProvider' => 'scalar',
+            'schoolNames' => 'array',
+            'companyNames' => 'array',
+            'employeeContactNames' => 'array',
+        ];
+
+        foreach ($filters as $filter => $facetType) {
+            $filterValue = $request->query->get($filter, null);
+
+            if (!$filterValue) {
+                continue;
+            }
+
+            $cachedFeedback = $cachedFeedback
+                ->where(function ($row) use ($filter, $filterValue, $facetType) {
+
+                    if ($facetType === 'scalar') {
+                        return $row[$filter] === $filterValue;
+                    } elseif ($facetType === 'array') {
+                        return in_array($filterValue, $row[$filter], true);
+                    }
+                });
+        }
+
+
+        $data      = null;
+        $filters   = $request->query->get('eventStartDate', []);
+        $leftDate  = !empty($filters['left_date']) ? new \DateTime($filters['left_date']) : new \DateTime('-1 month');
+        $rightDate = !empty($filters['right_date']) ? new \DateTime($filters['right_date']) : new \DateTime('now');
+
+        $cachedFeedback = $cachedFeedback
+            ->where(function ($row) use ($leftDate, $rightDate) {
+
+                $eventStartDate = !empty($row['eventStartDate']) ? new \DateTime($row['eventStartDate']) : null;
+
+                if (!$eventStartDate) {
+                    return false;
+                }
+
+                return ($eventStartDate >= $leftDate && $eventStartDate <= $rightDate);
             });
+
+        if ($user->isProfessional()) {
+            /** @var ProfessionalUser $user */
+            $company = $user->getOwnedCompany();
+
+            $cachedFeedback = $cachedFeedback
+                ->where(function ($row) use ($company) {
+
+                    if (!$company) {
+                        return false;
+                    }
+
+                    return in_array($company->getId(), $row['companies']);
+                });
+
+        } elseif ($user->isRegionalCoordinator()) {
+            /** @var RegionalCoordinator $user */
+            $region = $user->getRegion();
+
+            $cachedFeedback = $cachedFeedback
+                ->where(function ($row) use ($region) {
+
+                    if (!$region) {
+                        return false;
+                    }
+
+                    return in_array($region->getId(), $row['regions']);
+                });
+
+        } elseif ($user->isSchoolAdministrator()) {
+            /** @var SchoolAdministrator $user */
+            $schools = $user->getSchools();
+
+            $cachedFeedback = $cachedFeedback
+                ->where(function ($row) use ($schools) {
+
+                    if (!$schools) {
+                        return false;
+                    }
+
+                    foreach ($schools as $school) {
+
+                        if (in_array($school->getId(), $row['schools'])) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+        }
+
+
+        // TODO STEP 1 look at the query params from the request data and start filtering the data using each of the facets. You will need to run through each of the facets
+        // TODO STEP 2 and then when that is done pass the remaining data into the form type to load the form filters.
+        // TODO STEP 3 is to pass that data directly into the charts/graphs to load the data you need lightning fast!
+        // TODO STEP 4 build in the permissions for the remaining dashboards/charts on trello
 
         $dashboardOrder = $request->request->get('sortableData', null);
 
@@ -818,63 +913,23 @@ WHERE u.discr = "professionalUser" :regions',
             );
         }
 
-        // Let's setup some default date filters if none are passed up
-        $data           = null;
-        $filters        = $request->query->get('item_filter', []);
-        $eventStartDate = $filters['eventStartDate'] ?? [];
-        if (empty($eventStartDate['left_date']) || empty($eventStartDate['right_date'])) {
-            $leftDate  = new \DateTime('-1 month');
-            $rightDate = new \DateTime('now');
-
-            $data = [
-                'eventStartDate' => [
-                    'left_date' => $leftDate,
-                    'right_date' => $rightDate,
-                ],
-            ];
-        } else {
-            $leftDate  = $eventStartDate['left_date'];
-            $rightDate = $eventStartDate['right_date'];
-        }
+        $data = [
+            'eventStartDate' => [
+                'left_date' => $leftDate,
+                'right_date' => $rightDate,
+            ],
+        ];
 
         // depending on the user role type that will determine which filters we show.
         $form = $this->createForm(
             FeedbackFilterType::class, $data, [
                 'method' => 'GET',
+                'feedback' => $filteredFeedback ?? $cachedFeedback,
+                'user' => $user,
             ]
         );
 
         $form->handleRequest($request);
-
-        // make sure you don't pull feedback that has been marked as deleted
-        $filterBuilder = $this->feedbackRepository->createQueryBuilder('f');
-
-        if ($user->isProfessional()) {
-            /** @var ProfessionalUser $user */
-            $company = $user->getCompany();
-
-            if (!$company = $user->getCompany()) {
-
-            }
-
-            if ($user->getEmail() === $company->getEmailAddress()) {
-                $companyId = $company->getId();
-            }
-
-
-            $filterBuilder->where('f.companies LIKE :companyId')
-                          ->andWhere('u.')
-                          ->setParameter('roles', '%"' . User::ROLE_EDUCATOR_USER . '"%');
-
-
-        }
-
-
-        $this->filterBuilder->addFilterConditions($form, $filterBuilder);
-
-        $filterQuery = $filterBuilder->getQuery();
-
-        $feedbackCollection = new FeedbackCollection($filterQuery->getResult());
 
         $defaultDashboards = [
             AbstractDashboard::DASHBOARD_SUMMARY,
@@ -899,11 +954,8 @@ WHERE u.discr = "professionalUser" :regions',
                 continue;
             }
 
-            // todo let's cache the computation here for the given feedback collection ids right or for the request url or filters or something?
-            // todo create an md5 hash right? Double check this to make sure this will work. md5 === md5, etc
-
             /** @var AbstractDashboard $dashboardInstance */
-            $dashboardInstance = new $defaultDashboard($feedbackCollection);
+            $dashboardInstance = new $defaultDashboard($filteredFeedback ?? $cachedFeedback);
 
             if (($position = array_search($defaultDashboard, $userSavedPos1Dashboards)) !== false) {
                 $dashboardInstance->setPosition($position);
@@ -916,7 +968,7 @@ WHERE u.discr = "professionalUser" :regions',
             $charts[] = $dashboardInstance;
         }
 
-        $showFilters = $request->query->has('item_filter');
+        $showFilters = $request->query->has('showFilters');
 
         return $this->render(
             'report/dashboard/experience_satisfaction.html.twig', [
@@ -930,63 +982,5 @@ WHERE u.discr = "professionalUser" :regions',
                 'request' => $request,
             ]
         );
-    }
-
-    /**
-     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
-     * @Route("/dashboard-filter", name="report_dashboard_filter")
-     *
-     * @param Request $request
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
-     */
-    public function filter(Request $request)
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $data = null;
-
-        $form = $this->createForm(
-            FeedbackFilterType::class, $data, [
-                'method' => 'GET',
-            ]
-        );
-
-        $form->handleRequest($request);
-
-        //$type = 'school';
-
-        /*        switch($type) {
-                    case 'region':
-                        $form = $this->createForm(
-                            RegionFilterType::class, $data, [
-                                'method' => 'GET',
-                            ]
-                        );
-                        $template = 'report/dashboard/filter/region.html.twig';
-                        break;
-                    case 'school':
-                        $form = $this->createForm(
-                            SchoolFilterType::class, $data, [
-                                'method' => 'GET',
-                            ]
-                        );
-                        $template = 'report/dashboard/filter/school.html.twig';
-                        break;
-                }*/
-
-        $template = 'report/dashboard/filter/school.html.twig';
-
-        $form->handleRequest($request);
-
-        return $this->render(
-            $template, [
-                'user' => $user,
-                'form' => $form->createView(),
-            ]
-        );
-
     }
 }

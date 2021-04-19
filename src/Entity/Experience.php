@@ -61,7 +61,7 @@ abstract class Experience
     }
 
     /**
-     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA", "FEEDBACK"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")

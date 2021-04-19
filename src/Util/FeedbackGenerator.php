@@ -491,7 +491,7 @@ class FeedbackGenerator implements \Iterator
 
         foreach($this->getFeedback() as $feedback) {
 
-            if(!$feedback->getLikelihoodToRecommendToFriend()) {
+            if($feedback->getLikelihoodToRecommendToFriend() === 6 || $feedback->getLikelihoodToRecommendToFriend() === 7) {
                 $cumulativePassives++;
             }
         }

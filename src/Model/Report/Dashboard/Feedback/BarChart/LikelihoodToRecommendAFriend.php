@@ -5,6 +5,8 @@ namespace App\Model\Report\Dashboard\Feedback\BarChart;
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 class LikelihoodToRecommendAFriend extends AbstractDashboard
 {
@@ -31,9 +33,9 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
     /**
      * BarChart constructor.
      *
-     * @param FeedbackCollection $feedbackCollection
+     * @param Traversable $feedbackCollection
      */
-    public function __construct(FeedbackCollection $feedbackCollection)
+    public function __construct(Traversable $feedbackCollection)
     {
         $data           = [];
         $totalResponses = 0;
@@ -42,13 +44,17 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if ($feedback->getFeedbackProvider() !== 'Student') {
+            if ($feedback['feedbackProvider'] !== 'Student') {
+                continue;
+            }
+
+            if($feedback['likelihoodToRecommendToFriend'] === null) {
                 continue;
             }
 
             $totalResponses++;
 
-            $likelihood = $feedback->getLikelihoodToRecommendToFriend();
+            $likelihood = $feedback['likelihoodToRecommendToFriend'];
 
             if(!$likelihood) {
                 continue;

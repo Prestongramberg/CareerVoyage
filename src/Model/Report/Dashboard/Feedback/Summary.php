@@ -5,6 +5,8 @@ namespace App\Model\Report\Dashboard\Feedback;
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 class Summary extends AbstractDashboard
 {
@@ -27,9 +29,9 @@ class Summary extends AbstractDashboard
     /**
      * BarChart constructor.
      *
-     * @param FeedbackCollection $feedbackCollection
+     * @param Traversable $feedbackCollection
      */
-    public function __construct(FeedbackCollection $feedbackCollection)
+    public function __construct(Traversable $feedbackCollection)
     {
         $schoolIds     = [];
         $companyIds    = [];
@@ -38,8 +40,8 @@ class Summary extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            $schools = $feedback->getSchools() ?? [];
-            $companies = $feedback->getCompanies() ?? [];
+            $schools = $feedback['schools'] ?? [];
+            $companies = $feedback['companies'] ?? [];
 
             foreach ($schools as $school) {
                 $schoolIds[] = $school;
@@ -49,8 +51,8 @@ class Summary extends AbstractDashboard
                 $companyIds[] = $company;
             }
 
-            if ($feedback->getExperience()) {
-                $experienceIds[] = $feedback->getExperience()->getId();
+            if (!empty(($experienceId = $feedback['experience']['id']))) {
+                $experienceIds[] = $experienceId;
             }
 
             $this->totalResponses++;

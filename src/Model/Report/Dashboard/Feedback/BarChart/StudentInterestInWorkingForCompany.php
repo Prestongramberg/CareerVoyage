@@ -5,6 +5,8 @@ namespace App\Model\Report\Dashboard\Feedback\BarChart;
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 class StudentInterestInWorkingForCompany extends AbstractDashboard
 {
@@ -31,38 +33,44 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
     /**
      * BarChart constructor.
      *
-     * @param FeedbackCollection $feedbackCollection
+     * @param Traversable $feedbackCollection
      */
-    public function __construct(FeedbackCollection $feedbackCollection)
+    public function __construct(Traversable $feedbackCollection)
     {
         $data           = [];
         $totalResponses = 0;
         $totalInterest  = 0;
 
-        /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if ($feedback->getFeedbackProvider() !== 'Student') {
+            $feedbackProvider = $feedback['feedbackProvider'] ?? null;
+            $experienceProvider = $feedback['experienceProvider'] ?? null;
+
+            if ($feedbackProvider !== 'Student') {
                 continue;
             }
 
-            if ($feedback->getExperienceProvider() !== 'Company') {
+            if ($experienceProvider !== 'Company') {
                 continue;
             }
+
+            if($feedback['interestWorkingForCompany'] === null) {
+                continue;
+            }
+
+            $interestWorkingForCompany = $feedback['interestWorkingForCompany'];
 
             $totalResponses++;
 
-            $interest = $feedback->getInterestWorkingForCompany();
-
-            if ($interest == 4 || $interest == 5) {
+            if ($interestWorkingForCompany === 4 || $interestWorkingForCompany === 5) {
                 $totalInterest++;
             }
 
-            if (!isset($data[$interest])) {
-                $data[$interest] = 0;
+            if (!isset($data[$interestWorkingForCompany])) {
+                $data[$interestWorkingForCompany] = 0;
             }
 
-            $data[$interest]++;
+            $data[$interestWorkingForCompany]++;
         }
 
         foreach ($this->labels as $label) {

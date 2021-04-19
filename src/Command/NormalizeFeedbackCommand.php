@@ -110,6 +110,7 @@ class NormalizeFeedbackCommand extends Command
                     $companyIds           = [];
                     $companyNames         = [];
                     $companyAdmins        = [];
+                    $employeeContactIds   = [];
                     $employeeContacts     = [];
 
                     $feedback->setFeedbackProvider('Student');
@@ -131,7 +132,8 @@ class NormalizeFeedbackCommand extends Command
                     }
 
                     if (($companyExperience = $feedback->getCompanyExperience()) && $employeeContact = $companyExperience->getEmployeeContact()) {
-                        $employeeContacts[] = $employeeContact->getId();
+                        $employeeContactIds[] = $employeeContact->getId();
+                        $employeeContacts[]   = $employeeContact->getFullName();
                     }
 
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
@@ -177,7 +179,8 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
                     $feedback->setCompanyAdmins($companyAdmins);
-                    $feedback->setEmployeeContacts($employeeContacts);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -194,7 +197,9 @@ class NormalizeFeedbackCommand extends Command
                     $companyIds           = [];
                     $companyNames         = [];
                     $companyAdmins        = [];
+                    $employeeContactIds   = [];
                     $employeeContacts     = [];
+
 
                     $feedback->setFeedbackProvider('Educator');
                     $feedback->setExperienceProvider('Company');
@@ -215,7 +220,8 @@ class NormalizeFeedbackCommand extends Command
                     }
 
                     if (($companyExperience = $feedback->getCompanyExperience()) && $employeeContact = $companyExperience->getEmployeeContact()) {
-                        $employeeContacts[] = $employeeContact->getId();
+                        $employeeContactIds[] = $employeeContact->getId();
+                        $employeeContacts[]   = $employeeContact->getFullName();
                     }
 
                     if ($feedback->getEducator() && $school = $feedback->getEducator()->getSchool()) {
@@ -254,7 +260,8 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
                     $feedback->setCompanyAdmins($companyAdmins);
-                    $feedback->setEmployeeContacts($employeeContacts);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -272,6 +279,7 @@ class NormalizeFeedbackCommand extends Command
                     $companyIds           = [];
                     $companyNames         = [];
                     $companyAdmins        = [];
+                    $employeeContactIds   = [];
                     $employeeContacts     = [];
 
                     $feedback->setFeedbackProvider('Professional');
@@ -283,32 +291,32 @@ class NormalizeFeedbackCommand extends Command
                         $feedback->setExperienceTypeName($feedback->getExperience()->getType()->getEventName());
                     }
 
-                    if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
-                        foreach ($company->getRegions() as $region) {
+                    if ($feedback->getCompanyExperience() && $state = $feedback->getCompanyExperience()->getState()) {
+                        foreach ($state->getRegions() as $region) {
                             $regionIds[]   = $region->getId();
                             $regionNames[] = $region->getName();
                         }
                     }
 
-                    if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
-                        foreach ($company->getSchools() as $school) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
-                        }
-                    }
+                    /*          if ($feedback->getCompanyExperience() && $state = $feedback->getCompanyExperience()->getState()) {
+                                  foreach ($state->getSchools() as $school) {
+                                      $schoolIds[]   = $school->getId();
+                                      $schoolNames[] = $school->getName();
+                                  }
+                              }*/
 
-                    if ($feedback->getProfessional()) {
+                    /*     if ($feedback->getProfessional()) {
 
-                        foreach ($feedback->getProfessional()->getRegions() as $region) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
-                        }
+                             foreach ($feedback->getProfessional()->getRegions() as $region) {
+                                 $regionIds[]   = $region->getId();
+                                 $regionNames[] = $region->getName();
+                             }
 
-                        foreach ($feedback->getProfessional()->getSchools() as $school) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
-                        }
-                    }
+                             foreach ($feedback->getProfessional()->getSchools() as $school) {
+                                 $schoolIds[]   = $school->getId();
+                                 $schoolNames[] = $school->getName();
+                             }
+                         }*/
 
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
                         $companyIds[]   = $company->getId();
@@ -329,7 +337,8 @@ class NormalizeFeedbackCommand extends Command
                     }
 
                     if (($companyExperience = $feedback->getCompanyExperience()) && $employeeContact = $companyExperience->getEmployeeContact()) {
-                        $employeeContacts[] = $employeeContact->getId();
+                        $employeeContactIds[] = $employeeContact->getId();
+                        $employeeContacts[]   = $employeeContact->getFullName();
                     }
 
                     $feedback->setRegions($regionIds);
@@ -341,7 +350,8 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
                     $feedback->setCompanyAdmins($companyAdmins);
-                    $feedback->setEmployeeContacts($employeeContacts);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -359,6 +369,7 @@ class NormalizeFeedbackCommand extends Command
                     $companyIds           = [];
                     $companyNames         = [];
                     $companyAdmins        = [];
+                    $employeeContactIds   = [];
                     $employeeContacts     = [];
 
                     $feedback->setFeedbackProvider('Student');
@@ -422,7 +433,8 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
                     $feedback->setCompanyAdmins($companyAdmins);
-                    $feedback->setEmployeeContacts($employeeContacts);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -440,6 +452,7 @@ class NormalizeFeedbackCommand extends Command
                     $companyIds           = [];
                     $companyNames         = [];
                     $companyAdmins        = [];
+                    $employeeContactIds   = [];
                     $employeeContacts     = [];
 
 
@@ -457,18 +470,18 @@ class NormalizeFeedbackCommand extends Command
                         $schoolNames[] = $school->getName();
                     }
 
-                    if ($feedback->getProfessional()) {
+                    /*   if ($feedback->getProfessional()) {
 
-                        foreach ($feedback->getProfessional()->getRegions() as $region) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
-                        }
+                           foreach ($feedback->getProfessional()->getRegions() as $region) {
+                               $regionIds[]   = $region->getId();
+                               $regionNames[] = $region->getName();
+                           }
 
-                        foreach ($feedback->getProfessional()->getSchools() as $school) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
-                        }
-                    }
+                           foreach ($feedback->getProfessional()->getSchools() as $school) {
+                               $schoolIds[]   = $school->getId();
+                               $schoolNames[] = $school->getName();
+                           }
+                       }*/
 
 
                     if ($feedback->getSchoolExperience() && $school = $feedback->getSchoolExperience()->getSchool()) {
@@ -504,9 +517,40 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
                     $feedback->setCompanyAdmins($companyAdmins);
-                    $feedback->setEmployeeContacts($employeeContacts);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
+                    break;
+
+                default:
+
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
+                    $feedback->setRegions($regionIds);
+                    $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
+                    $feedback->setSchools($schoolIds);
+                    $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
+                    $feedback->setCompanies($companyIds);
+                    $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
+
+                    $feedbackUpdateCount++;
+
                     break;
 
             }
@@ -530,8 +574,8 @@ class NormalizeFeedbackCommand extends Command
 
             $cachedFeedback = [];
             foreach ($this->generateFeedbackCollection() as $feedback) {
-                $data       = $this->serializer->serialize($feedback, 'json', ['groups' => ['FEEDBACK']]);
-                $data = json_decode($data, true);
+                $data             = $this->serializer->serialize($feedback, 'json', ['groups' => ['FEEDBACK']]);
+                $data             = json_decode($data, true);
                 $cachedFeedback[] = $data;
             }
 
