@@ -289,4 +289,20 @@ class ProfessionalUserRepository extends ServiceEntityRepository
                     ->getResult();
     }
 
+    /**
+     * Fetch a user entity by email address
+     *
+     * @param string $emailAddress
+     *
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByEmailAddress($emailAddress) {
+        return $this->createQueryBuilder('p')
+                    ->where('p.email = :email')
+                    ->setParameter('email', $emailAddress)
+                    ->getQuery()
+                    ->getOneOrNullResult();
+    }
+
 }

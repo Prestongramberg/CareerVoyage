@@ -5,6 +5,8 @@ namespace App\Model\Report\Dashboard\Feedback;
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 class NpsScore extends AbstractDashboard
 {
@@ -21,9 +23,9 @@ class NpsScore extends AbstractDashboard
     /**
      * BarChart constructor.
      *
-     * @param FeedbackCollection $feedbackCollection
+     * @param Traversable $feedbackCollection
      */
-    public function __construct(FeedbackCollection $feedbackCollection)
+    public function __construct(Traversable $feedbackCollection)
     {
         $cumulativePromoters  = 0;
         $cumulativeDetractors = 0;
@@ -31,11 +33,15 @@ class NpsScore extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if ($feedback->getLikelihoodToRecommendToFriend() > 8) {
+            if($feedback['likelihoodToRecommendToFriend'] === null) {
+                continue;
+            }
+
+            if ($feedback['likelihoodToRecommendToFriend'] > 8) {
                 $cumulativePromoters++;
             }
 
-            if ($feedback->getLikelihoodToRecommendToFriend() < 7) {
+            if ($feedback['likelihoodToRecommendToFriend'] < 7) {
                 $cumulativeDetractors++;
             }
 

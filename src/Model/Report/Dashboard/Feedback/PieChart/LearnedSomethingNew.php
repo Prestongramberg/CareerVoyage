@@ -5,6 +5,8 @@ namespace App\Model\Report\Dashboard\Feedback\PieChart;
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use Pinq\ITraversable;
+use Pinq\Traversable;
 
 class LearnedSomethingNew extends AbstractDashboard
 {
@@ -27,9 +29,9 @@ class LearnedSomethingNew extends AbstractDashboard
     /**
      * BarChart constructor.
      *
-     * @param FeedbackCollection $feedbackCollection
+     * @param Traversable $feedbackCollection
      */
-    public function __construct(FeedbackCollection $feedbackCollection)
+    public function __construct(Traversable $feedbackCollection)
     {
         $totalResponses   = 0;
         $positive = 0;
@@ -38,7 +40,11 @@ class LearnedSomethingNew extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if($feedback->getLearnSomethingNew()) {
+            if($feedback['learnSomethingNew'] === null) {
+                $positive++;
+            }
+
+            if($feedback['learnSomethingNew']) {
                 $positive++;
             } else {
                 $negative++;

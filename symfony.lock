@@ -811,6 +811,9 @@
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
     },
+    "timetoogo/pinq": {
+        "version": "3.5.0"
+    },
     "twig/twig": {
         "version": "v2.11.0"
     },

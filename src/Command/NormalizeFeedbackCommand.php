@@ -2,51 +2,24 @@
 
 namespace App\Command;
 
-
-use App\Entity\CompanyExperience;
+use App\Cache\CacheKey;
 use App\Entity\EducatorReviewCompanyExperienceFeedback;
-use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
-use App\Entity\EducatorUser;
 use App\Entity\Feedback;
-use App\Entity\Industry;
-use App\Entity\Lesson;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalUser;
-use App\Entity\SchoolExperience;
-use App\Entity\SecondaryIndustry;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
-use App\Entity\StudentReviewTeachLessonExperienceFeedback;
-use App\Entity\StudentUser;
-use App\Entity\User;
-use App\Mailer\ChatNotificationMailer;
-use App\Message\RecapMessage;
-use App\Repository\ChatMessageRepository;
-use App\Repository\CompanyExperienceRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\CourseRepository;
-use App\Repository\EducatorUserRepository;
 use App\Repository\FeedbackRepository;
-use App\Repository\GradeRepository;
-use App\Repository\IndustryRepository;
-use App\Repository\LessonRepository;
 use App\Repository\ProfessionalUserRepository;
-use App\Repository\RegionRepository;
-use App\Repository\SchoolExperienceRepository;
-use App\Repository\StudentUserRepository;
-use App\Repository\UserRepository;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class NormalizeFeedbackCommand extends Command
 {
@@ -67,15 +40,38 @@ class NormalizeFeedbackCommand extends Command
     private $feedbackRepository;
 
     /**
+     * @var ProfessionalUserRepository
+     */
+    private $professionalUserRepository;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * @var string
+     */
+    private $cacheDirectory;
+
+    /**
      * NormalizeFeedbackCommand constructor.
      *
-     * @param EntityManagerInterface $entityManager
-     * @param FeedbackRepository     $feedbackRepository
+     * @param EntityManagerInterface     $entityManager
+     * @param FeedbackRepository         $feedbackRepository
+     * @param ProfessionalUserRepository $professionalUserRepository
+     * @param SerializerInterface        $serializer
+     * @param                            $cacheDirectory
      */
-    public function __construct(EntityManagerInterface $entityManager, FeedbackRepository $feedbackRepository)
-    {
-        $this->entityManager      = $entityManager;
-        $this->feedbackRepository = $feedbackRepository;
+    public function __construct(EntityManagerInterface $entityManager, FeedbackRepository $feedbackRepository,
+                                ProfessionalUserRepository $professionalUserRepository, SerializerInterface $serializer,
+                                $cacheDirectory
+    ) {
+        $this->entityManager              = $entityManager;
+        $this->feedbackRepository         = $feedbackRepository;
+        $this->professionalUserRepository = $professionalUserRepository;
+        $this->serializer                 = $serializer;
+        $this->cacheDirectory             = $cacheDirectory;
 
         parent::__construct();
     }
@@ -105,12 +101,17 @@ class NormalizeFeedbackCommand extends Command
                 case 'StudentReviewCompanyExperienceFeedback':
                     /** @var StudentReviewCompanyExperienceFeedback $feedback */
 
-                    $regionIds    = [];
-                    $regionNames  = [];
-                    $schoolIds    = [];
-                    $schoolNames  = [];
-                    $companyIds   = [];
-                    $companyNames = [];
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
 
                     $feedback->setFeedbackProvider('Student');
                     $feedback->setInterestWorkingForCompany($feedback->getInterestInWorkingForCompany());
@@ -125,6 +126,14 @@ class NormalizeFeedbackCommand extends Command
                     if ($feedback->getStudent() && $feedback->getStudent()->getSchool() && $region = $feedback->getStudent()->getSchool()->getRegion()) {
                         $regionIds[]   = $region->getId();
                         $regionNames[] = $region->getName();
+                        foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                            $regionalCoordinators[] = $regionalCoordinator->getId();
+                        }
+                    }
+
+                    if (($companyExperience = $feedback->getCompanyExperience()) && $employeeContact = $companyExperience->getEmployeeContact()) {
+                        $employeeContactIds[] = $employeeContact->getId();
+                        $employeeContacts[]   = $employeeContact->getFullName();
                     }
 
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
@@ -137,19 +146,41 @@ class NormalizeFeedbackCommand extends Command
                     if ($feedback->getStudent() && $school = $feedback->getStudent()->getSchool()) {
                         $schoolIds[]   = $school->getId();
                         $schoolNames[] = $school->getName();
+
+                        foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                            $schoolAdmins[] = $schoolAdministrator->getId();
+                        }
                     }
 
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
                         $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
+
+                        /** @var ProfessionalUser $companyOwner */
+                        if ($companyOwner = $company->getOwner()) {
+                            $companyAdmins[] = $companyOwner->getId();
+                        }
+
+                        if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                            /** @var ProfessionalUser $additionalCompanyAdmin */
+                            if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                $companyAdmins[] = $additionalCompanyAdmin->getId();
+                            }
+                        }
                     }
 
                     $feedback->setRegions($regionIds);
                     $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
                     $feedback->setSchools($schoolIds);
                     $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -157,12 +188,18 @@ class NormalizeFeedbackCommand extends Command
                 case 'EducatorReviewCompanyExperienceFeedback':
                     /** @var EducatorReviewCompanyExperienceFeedback $feedback */
 
-                    $regionIds    = [];
-                    $regionNames  = [];
-                    $schoolIds    = [];
-                    $schoolNames  = [];
-                    $companyIds   = [];
-                    $companyNames = [];
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
 
                     $feedback->setFeedbackProvider('Educator');
                     $feedback->setExperienceProvider('Company');
@@ -176,24 +213,55 @@ class NormalizeFeedbackCommand extends Command
                     if ($feedback->getEducator() && $feedback->getEducator()->getSchool() && $region = $feedback->getEducator()->getSchool()->getRegion()) {
                         $regionIds[]   = $region->getId();
                         $regionNames[] = $region->getName();
+
+                        foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                            $regionalCoordinators[] = $regionalCoordinator->getId();
+                        }
+                    }
+
+                    if (($companyExperience = $feedback->getCompanyExperience()) && $employeeContact = $companyExperience->getEmployeeContact()) {
+                        $employeeContactIds[] = $employeeContact->getId();
+                        $employeeContacts[]   = $employeeContact->getFullName();
                     }
 
                     if ($feedback->getEducator() && $school = $feedback->getEducator()->getSchool()) {
                         $schoolIds[]   = $school->getId();
                         $schoolNames[] = $school->getName();
+
+                        foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                            $schoolAdmins[] = $schoolAdministrator->getId();
+                        }
                     }
 
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
                         $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
+
+                        /** @var ProfessionalUser $companyOwner */
+                        if ($companyOwner = $company->getOwner()) {
+                            $companyAdmins[] = $companyOwner->getId();
+                        }
+
+                        if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                            /** @var ProfessionalUser $additionalCompanyAdmin */
+                            if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                $companyAdmins[] = $additionalCompanyAdmin->getId();
+                            }
+                        }
                     }
 
                     $feedback->setRegions($regionIds);
                     $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
                     $feedback->setSchools($schoolIds);
                     $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -202,12 +270,17 @@ class NormalizeFeedbackCommand extends Command
                     // Feedback Provider is the Professional and the experience provider is the Company
                     /** @var ProfessionalReviewCompanyExperienceFeedback $feedback */
 
-                    $regionIds    = [];
-                    $regionNames  = [];
-                    $schoolIds    = [];
-                    $schoolNames  = [];
-                    $companyIds   = [];
-                    $companyNames = [];
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
 
                     $feedback->setFeedbackProvider('Professional');
                     $feedback->setExperienceProvider('Company');
@@ -218,44 +291,67 @@ class NormalizeFeedbackCommand extends Command
                         $feedback->setExperienceTypeName($feedback->getExperience()->getType()->getEventName());
                     }
 
-                    if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
-                        foreach($company->getRegions() as $region) {
+                    if ($feedback->getCompanyExperience() && $state = $feedback->getCompanyExperience()->getState()) {
+                        foreach ($state->getRegions() as $region) {
                             $regionIds[]   = $region->getId();
                             $regionNames[] = $region->getName();
                         }
                     }
 
-                    if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
-                        foreach($company->getSchools() as $school) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
-                        }
-                    }
+                    /*          if ($feedback->getCompanyExperience() && $state = $feedback->getCompanyExperience()->getState()) {
+                                  foreach ($state->getSchools() as $school) {
+                                      $schoolIds[]   = $school->getId();
+                                      $schoolNames[] = $school->getName();
+                                  }
+                              }*/
 
-                    if ($feedback->getProfessional()) {
+                    /*     if ($feedback->getProfessional()) {
 
-                        foreach($feedback->getProfessional()->getRegions() as $region) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
-                        }
+                             foreach ($feedback->getProfessional()->getRegions() as $region) {
+                                 $regionIds[]   = $region->getId();
+                                 $regionNames[] = $region->getName();
+                             }
 
-                        foreach($feedback->getProfessional()->getSchools() as $school) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
-                        }
-                    }
+                             foreach ($feedback->getProfessional()->getSchools() as $school) {
+                                 $schoolIds[]   = $school->getId();
+                                 $schoolNames[] = $school->getName();
+                             }
+                         }*/
 
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
                         $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
+
+                        /** @var ProfessionalUser $companyOwner */
+                        if ($companyOwner = $company->getOwner()) {
+                            $companyAdmins[] = $companyOwner->getId();
+                        }
+
+                        if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                            /** @var ProfessionalUser $additionalCompanyAdmin */
+                            if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                $companyAdmins[] = $additionalCompanyAdmin->getId();
+                            }
+                        }
+                    }
+
+                    if (($companyExperience = $feedback->getCompanyExperience()) && $employeeContact = $companyExperience->getEmployeeContact()) {
+                        $employeeContactIds[] = $employeeContact->getId();
+                        $employeeContacts[]   = $employeeContact->getFullName();
                     }
 
                     $feedback->setRegions($regionIds);
                     $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
                     $feedback->setSchools($schoolIds);
                     $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -264,12 +360,17 @@ class NormalizeFeedbackCommand extends Command
                     // Feedback Provider is the Student and the experience provider is the School
                     /** @var StudentReviewSchoolExperienceFeedback $feedback */
 
-                    $regionIds    = [];
-                    $regionNames  = [];
-                    $schoolIds    = [];
-                    $schoolNames  = [];
-                    $companyIds   = [];
-                    $companyNames = [];
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
 
                     $feedback->setFeedbackProvider('Student');
                     $feedback->setExperienceProvider('School');
@@ -283,35 +384,57 @@ class NormalizeFeedbackCommand extends Command
                     if ($feedback->getSchoolExperience() && $school = $feedback->getSchoolExperience()->getSchool()) {
                         $schoolIds[]   = $school->getId();
                         $schoolNames[] = $school->getName();
+
+                        foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                            $schoolAdmins[] = $schoolAdministrator->getId();
+                        }
+
                     }
 
-                    if($student = $feedback->getStudent()) {
-                        if($school = $student->getSchool()) {
+                    if ($student = $feedback->getStudent()) {
+                        if ($school = $student->getSchool()) {
                             $schoolIds[]   = $school->getId();
                             $schoolNames[] = $school->getName();
+
+                            foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                                $schoolAdmins[] = $schoolAdministrator->getId();
+                            }
                         }
                     }
 
                     if ($feedback->getSchoolExperience() && $school = $feedback->getSchoolExperience()->getSchool()) {
-                        if($region = $school->getRegion()) {
+                        if ($region = $school->getRegion()) {
                             $regionIds[]   = $region->getId();
                             $regionNames[] = $region->getName();
+
+                            foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                                $regionalCoordinators[] = $regionalCoordinator->getId();
+                            }
                         }
                     }
 
-                    if($student = $feedback->getStudent()) {
-                        if($student->getSchool() && $region = $student->getSchool()->getRegion()) {
+                    if ($student = $feedback->getStudent()) {
+                        if ($student->getSchool() && $region = $student->getSchool()->getRegion()) {
                             $regionIds[]   = $region->getId();
                             $regionNames[] = $region->getName();
+
+                            foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                                $regionalCoordinators[] = $regionalCoordinator->getId();
+                            }
                         }
                     }
 
                     $feedback->setRegions($regionIds);
                     $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
                     $feedback->setSchools($schoolIds);
                     $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
                     break;
@@ -320,12 +443,18 @@ class NormalizeFeedbackCommand extends Command
                     // Feedback Provider is the Professional and the experience provider is the School
                     /** @var ProfessionalReviewSchoolExperienceFeedback $feedback */
 
-                    $regionIds    = [];
-                    $regionNames  = [];
-                    $schoolIds    = [];
-                    $schoolNames  = [];
-                    $companyIds   = [];
-                    $companyNames = [];
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
 
                     $feedback->setFeedbackProvider('Professional');
                     $feedback->setExperienceProvider('School');
@@ -341,35 +470,87 @@ class NormalizeFeedbackCommand extends Command
                         $schoolNames[] = $school->getName();
                     }
 
-                    if ($feedback->getProfessional()) {
+                    /*   if ($feedback->getProfessional()) {
 
-                        foreach($feedback->getProfessional()->getRegions() as $region) {
+                           foreach ($feedback->getProfessional()->getRegions() as $region) {
+                               $regionIds[]   = $region->getId();
+                               $regionNames[] = $region->getName();
+                           }
+
+                           foreach ($feedback->getProfessional()->getSchools() as $school) {
+                               $schoolIds[]   = $school->getId();
+                               $schoolNames[] = $school->getName();
+                           }
+                       }*/
+
+
+                    if ($feedback->getSchoolExperience() && $school = $feedback->getSchoolExperience()->getSchool()) {
+                        if ($region = $school->getRegion()) {
                             $regionIds[]   = $region->getId();
                             $regionNames[] = $region->getName();
-                        }
-
-                        foreach($feedback->getProfessional()->getSchools() as $school) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
                         }
                     }
 
 
-                    if ($feedback->getSchoolExperience() && $school = $feedback->getSchoolExperience()->getSchool()) {
-                        if($region = $school->getRegion()) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
+                    if ($feedback->getProfessional() && $company = $feedback->getProfessional()->getCompany()) {
+
+                        /** @var ProfessionalUser $companyOwner */
+                        if ($companyOwner = $company->getOwner()) {
+                            $companyAdmins[] = $companyOwner->getId();
+                        }
+
+                        if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                            /** @var ProfessionalUser $additionalCompanyAdmin */
+                            if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                $companyAdmins[] = $additionalCompanyAdmin->getId();
+                            }
                         }
                     }
 
                     $feedback->setRegions($regionIds);
                     $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
                     $feedback->setSchools($schoolIds);
                     $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
                     $feedback->setCompanies($companyIds);
                     $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
 
                     $feedbackUpdateCount++;
+                    break;
+
+                default:
+
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
+                    $feedback->setRegions($regionIds);
+                    $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
+                    $feedback->setSchools($schoolIds);
+                    $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
+                    $feedback->setCompanies($companyIds);
+                    $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
+
+                    $feedbackUpdateCount++;
+
                     break;
 
             }
@@ -382,6 +563,24 @@ class NormalizeFeedbackCommand extends Command
         }
 
         $this->entityManager->flush();
+
+        // todo add cache delete here
+
+        $cache = new FilesystemAdapter('feedback', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::FEEDBACK);
+
+        $cache->get(CacheKey::FEEDBACK, function (ItemInterface $item) {
+
+            $cachedFeedback = [];
+            foreach ($this->generateFeedbackCollection() as $feedback) {
+                $data             = $this->serializer->serialize($feedback, 'json', ['groups' => ['FEEDBACK']]);
+                $data             = json_decode($data, true);
+                $cachedFeedback[] = $data;
+            }
+
+            return $cachedFeedback;
+        });
 
         $output->writeln('Feedback Data normalized: ' . $feedbackUpdateCount);
     }
