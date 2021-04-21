@@ -12,7 +12,7 @@
     <ul id="test" class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         <li><a href="#account-career-fields">Career Fields of Interest</a></li>
-        <li><a href="#account-courses">Courses</a></li>
+        <li><a href="#account-courses">Courses, Clubs, Positions</a></li>
         <li><a href="#account-students">Students</a></li>
         <li><a href="#account-videos">Videos</a></li>
         <li id="account-account"><a href="#account-account">Account</a></li>
@@ -48,6 +48,7 @@
                     </div>
                     <div class="uk-margin">
                         {{ form_label(form.interests, 'Interests') }}
+                        <div class="uk-text-meta">Tell us about your professional interests related to your career.</div>
                         {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
                         {{ form_errors(form.interests) }}
                     </div>
@@ -80,10 +81,10 @@
         </div>
         <div class="account_courses">
             <div class="uk-width-xlarge">
-                <p><input type="text" id="filter_courses" placeholder="Type to filter course results" class="uk-input" /></p>
+                <p><input type="text" id="filter_courses" placeholder="Type to filter results" class="uk-input" /></p>
                 <fieldset class="uk-fieldset">
                     <div class="uk-margin">
-                        <p>{{ form_label(form.myCourses, 'My Courses*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[myCourses][]">Select All</a></p>
+                        <p>{{ form_label(form.myCourses, 'Courses, Clubs, Positions*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[myCourses][]">Select All</a></p>
                         
                         {{ form_widget(form.myCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.myCourses) ? ' uk-form-danger' : '' ) }}) }}
                         <div class="clear"></div>
