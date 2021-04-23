@@ -9,6 +9,7 @@ use App\Entity\CompanyExperience;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\CompanyVideo;
+use App\Entity\CompanyView;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
@@ -40,6 +41,7 @@ use App\Mailer\ExperienceMailer;
 use App\Repository\AdminUserRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
+use App\Repository\CompanyViewRepository;
 use App\Repository\JoinCompanyRequestRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\UserRepository;
@@ -50,6 +52,7 @@ use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -384,6 +387,30 @@ class CompanyController extends AbstractController
         $user                = $this->getUser();
         $professional_users  = $this->companyRepository->getActiveProfessionalUsers($company->getId());
         $company_experiences = $this->companyExperienceRepository->findBy(['cancelled' => 0]);
+
+        // Create company_view record for the user.
+        $userViews = $this->getDoctrine()->getRepository(CompanyView::class)->getLastCompanyView($company->getId(), $user->getId());
+        if(sizeof($userViews) == 0) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $view = new CompanyView();
+            $view->setCompany($company);
+            $view->setUser($user);
+            $view->setCreatedAt( new DateTime() );
+            $entityManager->persist($view);
+            $entityManager->flush();
+        } else {
+            $dt = new DateTime();
+            if($userViews[0]->getCreatedAt() <= $dt->modify("-1 day")){
+                $entityManager = $this->getDoctrine()->getManager();
+                $view = new CompanyView();
+                $view->setCompany($company);
+                $view->setUser($user);
+                $view->setCreatedAt( new DateTime() );
+                $entityManager->persist($view);
+                $entityManager->flush();
+            }
+        }
+
 
         return $this->render(
             'company/view.html.twig', [
@@ -2295,6 +2322,33 @@ class CompanyController extends AbstractController
 
 
     /**
+     * @Route("/companies/{id}/page-visits", name="company_page_visits", options = { "expose" = true })
+     * @param Request $request
+     * @param Company $company
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function pageVisitsAction(Request $request, Company $company)
+    {
+        $visits_7            = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(7, $company->getId());
+        $visits_30           = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(30, $company->getId());
+        $visits_90           = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(90, $company->getId());
+        $visits_365          = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(365, $company->getId());
+        $user                = $this->getUser();
+
+        return $this->render(
+            'company/page_visits.html.twig', [
+                                        'company'           => $company,
+                                        'user'              => $user,
+                                        'visits_7'          => $visits_7,
+                                        'visits_30'         => $visits_30,
+                                        'visits_90'         => $visits_90,
+                                        'visits_365'        => $visits_365
+                                    ]
+        );
+    }
+
+    /**
      * @Route("/companies/experiences/{id}/toggle-feedback-view", name="toggle_feedback_view", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience
@@ -2309,13 +2363,6 @@ class CompanyController extends AbstractController
 
         return new JsonResponse(["status" => "success", "canView" => $request->request->get('val')]);
     }
-
-
-
-
-
-
-
 
     /**
      * List all errors of a given bound form.

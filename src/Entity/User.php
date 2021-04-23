@@ -268,6 +268,11 @@ abstract class User implements UserInterface
     protected $profileCompleted = false;
 
     /**
+     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="user_id", orphanRemoval=true)
+     */
+    private $companyViews;
+
+    /**
      * @ORM\Column(type="json", nullable=true)
      */
     private $dashboardOrder = [];
@@ -311,6 +316,7 @@ abstract class User implements UserInterface
         $this->userRegisterForSchoolExperienceRequests = new ArrayCollection();
         $this->requestPossibleApprovers                = new ArrayCollection();
         $this->videoFavorites                          = new ArrayCollection();
+        $this->companyViews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1376,6 +1382,24 @@ abstract class User implements UserInterface
 
     }
 
+    /**
+     * @return Collection|CompanyView[]
+     */
+    public function getCompanyViews(): Collection
+    {
+        return $this->companyViews;
+    }
+
+    public function addCompanyView(CompanyView $companyView): self
+    {
+        if (!$this->companyViews->contains($companyView)) {
+            $this->companyViews[] = $companyView;
+            $companyView->setUserId($this);
+        }
+        
+        return $this;
+    }
+
     public function getDashboardOrder(): ?array
     {
         return $this->dashboardOrder;
@@ -1406,6 +1430,19 @@ abstract class User implements UserInterface
         return $this;
     }
 
+
+    public function removeCompanyView(CompanyView $companyView): self
+    {
+        if ($this->companyViews->removeElement($companyView)) {
+            // set the owning side to null (unless already changed)
+            if ($companyView->getUserId() === $this) {
+                $companyView->setUserId(null);
+              }
+        }
+
+        return $this;
+    }
+  
     public function removeSentToShareShare(Share $sentToShare): self
     {
         if ($this->sentToShares->removeElement($sentToShare)) {
@@ -1417,6 +1454,7 @@ abstract class User implements UserInterface
 
         return $this;
     }
+
 
     /**
      * @return Collection|Share[]

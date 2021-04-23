@@ -49,6 +49,10 @@
                     {% endif %}
 
                     {% if company.owner and user.id == company.owner.id %}
+                        <a href="{{ path('company_page_visits', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Page Visits</a>
+                    {% endif %}
+
+                    {% if company.owner and user.id == company.owner.id %}
                         <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Company</a>
                     {% endif %}
 
