@@ -1,0 +1,94 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}My Company{% endblock %}
+{% block bodyClass %}page-company-view{% endblock %}
+{% block flashMessage %}{% endblock %}
+
+{% block body %}
+
+    <div class="page-company-view__featured-image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
+         data-src="{{ company.featuredImageURL }}" uk-img>
+
+        <div class="uk-width-1-1" style="background: rgba(0,0,0,0.6)">
+            <div class="uk-container">
+                <div class="uk-padding-small">
+                    <div class="uk-grid-small uk-flex-middle" uk-grid>
+                        <div class="uk-width-expand">
+                            <h3>{{ company.name }}</h3>
+                        </div>
+                        <div class="uk-width-auto">
+                            <div class="uk-align-right">
+                                <div class="react-favorite-company uk-inline" data-company-id="{{ company.id }}" data-company-favorited="{{ company.isFavoritedByUser( user ) }}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-container">
+
+        {% include 'flash/messages.html.twig' %}
+
+        <div class="uk-margin">
+            <ul class="uk-breadcrumb">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="{{ path('company_index') }}">Companies</a></li>
+                <li><span>{{ company.name }}</span></li>
+            </ul>
+        </div>
+
+        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+            <div class="uk-width-expand">
+                <div class="uk-align-right@l">
+                    {% if user.isProfessional and user.company is null %}
+                        <form class="uk-inline" method="post" action="{{ path('company_join', {'id': company.id}) }}">
+                            <button type="submit" class="uk-button uk-button-default uk-button-small">Join this Company</button>
+                        </form>
+                    {% endif %}
+
+                    {% if company.owner and user.id == company.owner.id %}
+                        <a href="{{ path('company_page_visits', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Page Visits</a>
+                    {% endif %}
+
+                    {% if company.owner and user.id == company.owner.id %}
+                        <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Company</a>
+                    {% endif %}
+
+                    {% if company.owner and user.id == company.owner.id %}
+                        <a href="{{ path('company_experience_create', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Create Experience</a>
+                    {% endif %}
+
+                    {% if user.admin or (company.owner and user.id == company.owner.id) %}
+                        <form class="uk-inline" method="get" action="{{ path('company_delete', {'id' : company.id}) }}">
+                            <button class="uk-button uk-button-danger uk-button-small" type="submit">Delete</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="uk-margin">
+            <h3>Visits to {{ company.name }}</h3>
+            <table class="uk-table uk-table-divider uk-table-small">
+                <thead>
+                    <th>Past 7 Days</th>
+                    <th>Past 30 Days</th>
+                    <th>Past 90 Days</th>
+                    <th>Past 365 Days</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ visits_7|length }}</td>
+                        <td>{{ visits_30|length }}</td>
+                        <td>{{ visits_90|length }}</td>
+                        <td>{{ visits_365|length }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

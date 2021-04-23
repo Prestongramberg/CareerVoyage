@@ -296,6 +296,11 @@ class Company
      */
     private $regions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="company_id", orphanRemoval=true)
+     */
+    private $companyViews;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -309,6 +314,7 @@ class Company
         $this->companyExperiences = new ArrayCollection();
         $this->studentUsers = new ArrayCollection();
         $this->regions = new ArrayCollection();
+        $this->companyViews = new ArrayCollection();
     }
 
     public function getId()
@@ -1044,29 +1050,29 @@ class Company
 	 * @return string
 	 */
 	public function getGeoRadius(): ?string {
-               		return $this->geoRadius;
-               	}
+                              		return $this->geoRadius;
+                              	}
 
 	/**
 	 * @param string $geoRadius
 	 */
 	public function setGeoRadius( ?string $geoRadius ): void {
-               		$this->geoRadius = $geoRadius;
-               	}
+                              		$this->geoRadius = $geoRadius;
+                              	}
 
 	/**
 	 * @return string
 	 */
 	public function getGeoZipCode(): ?string {
-               		return $this->geoZipCode;
-               	}
+                              		return $this->geoZipCode;
+                              	}
 
 	/**
 	 * @param string $geoZipCode
 	 */
 	public function setGeoZipCode( ?string $geoZipCode ): void {
-               		$this->geoZipCode = $geoZipCode;
-               	}
+                              		$this->geoZipCode = $geoZipCode;
+                              	}
 
     /**
      * @return Collection|Region[]
@@ -1089,6 +1095,36 @@ class Company
     {
         if ($this->regions->contains($region)) {
             $this->regions->removeElement($region);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CompanyView[]
+     */
+    public function getCompanyViews(): Collection
+    {
+        return $this->companyViews;
+    }
+
+    public function addCompanyView(CompanyView $companyView): self
+    {
+        if (!$this->companyViews->contains($companyView)) {
+            $this->companyViews[] = $companyView;
+            $companyView->setCompanyId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompanyView(CompanyView $companyView): self
+    {
+        if ($this->companyViews->removeElement($companyView)) {
+            // set the owning side to null (unless already changed)
+            if ($companyView->getCompanyId() === $this) {
+                $companyView->setCompanyId(null);
+            }
         }
 
         return $this;
