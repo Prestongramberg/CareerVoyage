@@ -273,6 +273,28 @@ abstract class User implements UserInterface
     private $companyViews;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $dashboardOrder = [];
+
+    /**
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom")
+     */
+    protected $sentFromShares;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentTo")
+     */
+    protected $sentToShares;
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     *
+     * @var bool
+     */
+    protected $loggedInUserShared = false;
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -1099,7 +1121,7 @@ abstract class User implements UserInterface
     public function canLoginAsAnotherUser()
     {
         // return $this->isAdmin() || $this->isSiteAdmin();
-        return $this->isAdmin();
+        return $this->isAdmin() || $this->isSiteAdmin();
     }
 
     /**
@@ -1374,9 +1396,40 @@ abstract class User implements UserInterface
             $this->companyViews[] = $companyView;
             $companyView->setUserId($this);
         }
+        
+        return $this;
+    }
+
+    public function getDashboardOrder(): ?array
+    {
+        return $this->dashboardOrder;
+    }
+
+    public function setDashboardOrder(?array $dashboardOrder): self
+    {
+        $this->dashboardOrder = $dashboardOrder;
 
         return $this;
     }
+
+    /**
+     * @return Collection|Share[]
+     */
+    public function getSentToShares(): Collection
+    {
+        return $this->sentToShares;
+    }
+
+    public function addSentToShare(Share $sentToShare): self
+    {
+        if (!$this->sentToShares->contains($sentToShare)) {
+            $this->sentToShares[] = $sentToShare;
+            $sentToShare->setSentFrom($this);
+        }
+
+        return $this;
+    }
+
 
     public function removeCompanyView(CompanyView $companyView): self
     {
@@ -1384,9 +1437,68 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($companyView->getUserId() === $this) {
                 $companyView->setUserId(null);
+              }
+        }
+
+        return $this;
+    }
+  
+    public function removeSentToShareShare(Share $sentToShare): self
+    {
+        if ($this->sentToShares->removeElement($sentToShare)) {
+            // set the owning side to null (unless already changed)
+            if ($sentToShare->getSentFrom() === $this) {
+                $sentToShare->setSentFrom(null);
             }
         }
 
         return $this;
+    }
+
+
+    /**
+     * @return Collection|Share[]
+     */
+    public function getSentFromShares(): Collection
+    {
+        return $this->sentFromShares;
+    }
+
+    public function addSentFromShare(Share $sentFromShare): self
+    {
+        if (!$this->sentFromShares->contains($sentFromShare)) {
+            $this->sentFromShares[] = $sentFromShare;
+            $sentFromShare->setSentFrom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSentFromShareShare(Share $sentFromShare): self
+    {
+        if ($this->sentFromShares->removeElement($sentFromShare)) {
+            // set the owning side to null (unless already changed)
+            if ($sentFromShare->getSentFrom() === $this) {
+                $sentFromShare->setSentFrom(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLoggedInUserShared(): bool
+    {
+        return $this->loggedInUserShared;
+    }
+
+    /**
+     * @param bool $loggedInUserShared
+     */
+    public function setLoggedInUserShared(bool $loggedInUserShared): void
+    {
+        $this->loggedInUserShared = $loggedInUserShared;
     }
 }

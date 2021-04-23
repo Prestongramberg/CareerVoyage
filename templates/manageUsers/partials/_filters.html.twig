@@ -48,15 +48,17 @@
     </div>
 {% endif %}
 
+
+
 {% if (user.isAdmin or user.isRegionalCoordinator) and (app.request.attributes.get("_route") == "manage_professionals" or app.request.attributes.get("_route") == "manage_students" or app.request.attributes.get("_route") == "manage_educators") %}
     <div class="uk-width-1-4@s">
         {{ form_widget(form.status, {'attr': { 'class': 'uk-input', 'placeholder': 'Filter By Status'}}) }}
-        {# <select name="status" class="uk-input" placeholder="Filter By Status">
-            <option value="">Filter by Status</option>
-            <option value="complete" {% if profile_status is defined and profile_status == "complete" %}selected="selected"{% endif %}>Profile Complete</option>
-            <option value="incomplete" {% if profile_status is defined and profile_status == "incomplete" %}selected="selected"{% endif %}>Profile Incomplete</option>
-        </select> #}
     </div>
+
+{% else %} 
+    {% if form.status is defined %}
+        <!-- {{ form_widget(form.status, {'attr': { 'class': 'uk-input', 'placeholder': 'Filter By Status'}}) }} -->
+    {% endif %}
 {% endif %}
 
 {% if form.profileCompleted is defined %}

@@ -1,0 +1,116 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}View Request{% endblock %}
+{% block bodyClass %}requests-view{% endblock %}
+
+{% block body %}
+  <div class="uk-container">
+    
+    <table class="uk-table uk-table-small uk-table-divider">
+      <tbody>
+      <tr>
+          <td>Request type</td>
+          <td>Teach lesson</td>
+      </tr>
+      <tr>
+          <td>Lesson title</td>
+          <td>{{ request.lesson.title }}</td>
+      </tr>
+      <tr>
+          <td>School name</td>
+          <td>{{ request.createdBy.school.name }}</td>
+      </tr>
+      <tr>
+          <td>Dates Available</td>
+          <td>
+              <p>{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}</p>
+              <p>{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}</p>
+              <p>{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}</p>
+          </td>
+      </tr>
+      <tr>
+          <td>Professional</td>
+          <td>
+              {{ request.needsApprovalBy.fullName }}
+          </td>
+      </tr>
+      {% if render_request_status_text( request ) == "Approved" %}
+          <tr>
+              <td>Date Confirmed</td>
+              <td>
+                  {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}<br /><br />
+                  <div class="react-calendar-button"
+                      data-event-start-time="{{ request.teachLessonExperience.startDateAndTimeTimeStamp }}"
+                      data-event-end-time="{{ request.teachLessonExperience.endDateAndTimeTimeStamp }}"
+                      data-title="{{ request.teachLessonExperience.title }}"
+                      data-description="{{ request.teachLessonExperience.briefDescription }}"
+                      data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
+                  ></div>
+
+                  <a class="uk-button uk-button-danger uk-button-small" href="#modal-change-date-{{ request.teachLessonExperience.id }}" uk-toggle>Request Change of Date</a>
+                  <br>
+                  <div id="modal-change-date-{{ request.teachLessonExperience.id }}" uk-modal>
+                      <div class="uk-modal-dialog uk-modal-body">
+                          <h3>Request to Change Date of Experience</h3>
+                          <form class="uk-inline" action="{{ path('experience_teach_lesson_event_request_new_dates', { "id": request.teachLessonExperience.id }) }}" method="POST">
+                              <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
+                              <label>New Date Choice 1</label>
+                              <input class="uk-timepicker uk-input" name="date_option_one" type="text"><br /><br />
+                              <label>New Date Choice 2</label>
+                              <input class="uk-timepicker uk-input" name="date_option_two" type="text"><br /><br />
+                              <label>New Date Choice 3</label>
+                              <input class="uk-timepicker uk-input" name="date_option_three" type="text"><br /><br />
+
+                              <label>Custom Message</label>
+                              <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                              <p>
+                                  <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                  <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                              </p>
+                          </form>
+                      </div>
+                  </div>
+
+                  <br>
+
+                  <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Experience</a>
+                  <br>
+                  <div id="modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-modal>
+                      <div class="uk-modal-dialog uk-modal-body">
+                          <h3>Cancel Experience</h3>
+                          <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
+
+                              <label>Custom Message</label>
+                              <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+
+                              <p>
+                                  <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                  <button class="uk-button uk-button-danger" type="submit">Submit</button>
+                              </p>
+                          </form>
+                      </div>
+                  </div>
+              </td>
+          </tr>
+      {% endif %}
+      <tr>
+          <td>Status</td>
+          <td>
+              <span class="uk-label">
+                  {{ render_request_status_text( request ) }}
+              </span>
+          </td>
+      </tr>
+      <tr>
+          <td>Created On</td>
+          <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
+      </tr>
+      </tbody>
+    </table>
+
+
+
+
+  </div>
+{% endblock %}

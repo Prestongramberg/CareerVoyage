@@ -146,6 +146,13 @@ class FeedbackGenerator implements \Iterator
                 }
             }
 
+            if($this->userContext->isProfessional() && $experience instanceof CompanyExperience ) {
+                // Check if the user is assigned to view feedback for experience
+                if( $experience->getCanViewFeedback() == true && $experience->getEmployeeContact() != NULL && $experience->getCanViewFeedback() === true && $this->userContext->getId() == $experience->getEmployeeContact()->getId() ){
+                    return true;
+                }
+            }
+
             foreach($experience->getRegistrations() as $registration) {
 
                 if(!$registration->getUser()) {
@@ -164,7 +171,6 @@ class FeedbackGenerator implements \Iterator
 
             return false;
         });
-
 
         $this->experiences = $experiences->filter(function(Experience $experience) {
 
@@ -491,7 +497,7 @@ class FeedbackGenerator implements \Iterator
 
         foreach($this->getFeedback() as $feedback) {
 
-            if(!$feedback->getLikelihoodToRecommendToFriend()) {
+            if($feedback->getLikelihoodToRecommendToFriend() === 6 || $feedback->getLikelihoodToRecommendToFriend() === 7) {
                 $cumulativePassives++;
             }
         }

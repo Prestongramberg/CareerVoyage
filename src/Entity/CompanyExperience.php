@@ -28,6 +28,12 @@ class CompanyExperience extends Experience
     private $employeeContact;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $canViewFeedback;
+
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="companyExperience", orphanRemoval=true)
      */
     private $educatorRegisterStudentForCompanyExperienceRequests;
@@ -271,5 +277,19 @@ class CompanyExperience extends Experience
         }
 
         return '';
+    }
+
+    
+
+    public function getCanViewFeedback()
+    {
+        return $this->canViewFeedback;
+    }
+
+    public function setCanViewFeedback($canViewFeedback): self
+    {
+        $this->canViewFeedback = $canViewFeedback;
+
+        return $this;
     }
 }

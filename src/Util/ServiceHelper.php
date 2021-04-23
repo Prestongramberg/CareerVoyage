@@ -87,6 +87,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\Paginator;
 use Twig\Environment;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdaterInterface;
+use Limenius\Liform\Liform;
 
 trait ServiceHelper
 {
@@ -476,6 +477,11 @@ trait ServiceHelper
     private $reportRepository;
 
     /**
+     * @var Liform
+     */
+    private $liform;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -600,7 +606,8 @@ trait ServiceHelper
         HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
         SystemUserRepository $systemUserRepository,
         RegionRepository $regionRepository,
-        ReportRepository $reportRepository
+        ReportRepository $reportRepository,
+        Liform $liform
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -679,6 +686,7 @@ trait ServiceHelper
         $this->systemUserRepository                                          = $systemUserRepository;
         $this->regionRepository                                              = $regionRepository;
         $this->reportRepository                                              = $reportRepository;
+        $this->liform                                                        = $liform;
     }
 
     public function getFullQualifiedBaseUrl()

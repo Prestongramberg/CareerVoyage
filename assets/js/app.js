@@ -18,6 +18,7 @@ UIkit.use(Icons);
 
 // App Vendor JS
 const $ = require('jquery');
+window.$ = $;
 // const moment = require('./vendor/moment.js');
 require('./vendor/jquery-datetimepicker.js');
 require('./vendor/fontawesome.js');
@@ -96,8 +97,8 @@ window.Pintex = {
 
         let eventHtml = "";
         const eventPayload = deepObject(event, 'extendedProps.customEventPayload') || { className: "default" };
-        const eventStartDate = parseInt( eventPayload.startDateAndTimeTimeStamp );
-        const eventEndDate = parseInt( eventPayload.endDateAndTimeTimeStamp );
+        const eventStartDate = parseInt( eventPayload.startDateAndTime );
+        const eventEndDate = parseInt( eventPayload.endDateAndTime );
         const eventTitle = eventPayload.title;
         const eventAbout = eventPayload.about;
         const eventDescription = eventPayload.briefDescription;
@@ -109,8 +110,6 @@ window.Pintex = {
 
         var this_level = this;
 
-        debugger;
-
         eventHtml += `
                 <button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>
                 <h2>${eventPayload.title}</h2>
@@ -121,10 +120,20 @@ window.Pintex = {
             `;
 
         if ( event.url ) {
-            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom" style="position: relative; z-index: 99999">View More Details</a>`;
+            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
+        } else if (eventPayload.url) {
+            eventHtml += `<a href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
+
+        // TODO: CONTINUE HERE WITH VARIOUS EXPERIENCE TYPES
+        /*if(eventEndDate < Date.now()) {
+            if(eventPayload.className == 'Experience') {
+                eventHtml += ` <a href="/dashboard/experiences/${ eventPayload.id }/view" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom" style="position: relative; z-index: 99999">View Feedback</a>`;
+            
+            }
+        }*/
 
         if( eventPayload.className == "CompanyExperience") {
             $.post('/dashboard/companies/experiences/' + eventId + '/data', {}, function(data){
@@ -142,7 +151,11 @@ window.Pintex = {
 
                 this_level.openModal(eventHtml);
             });
-        }else {
+        } else if( eventPayload.className == 'TeachLessonExperience' ) {
+            eventHtml += `<a href="/dashboard/requests/${ eventPayload.requestId }/view" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
+            this_level.openModal(eventHtml);
+
+        } else {
             this.openModal(eventHtml);
         }
     },

@@ -3,74 +3,77 @@ import * as actionTypes from "../actions/actionTypes";
 export default (state = {}, action) => {
 
     switch (action.type) {
-        case actionTypes.QUERY_BY_ROLE:
-
-            debugger;
+        case actionTypes.SEARCH_SUCCESS:
             return {
                 ...state,
-                roles: action.roles
-            };
-            case actionTypes.QUERY_BY_USER_ROLE:
-
-                debugger;
-                return {
-                    ...state,
-                    user_roles: action.user_roles
-                };
-
-        case actionTypes.QUERY_BY_COMPANY:
-
+                items: action.data.items,
+                schema: action.data.schema,
+                pagination: action.data.pagination,
+                loading: false,
+                notifiedUsers: action.data.notifiedUsers
+            }
+        case actionTypes.FILTER_CHANGE_SUCCESS:
+        case actionTypes.PAGE_CHANGE_SUCCESS:
+        case actionTypes.LOAD_INITIAL_DATA_SUCCESS:
             return {
                 ...state,
-                companies: action.companies
-            };
-
-        case actionTypes.QUERY_BY_INTERESTS:
-
+                items: action.data.items,
+                schema: action.data.schema,
+                pagination: action.data.pagination,
+                loading: false
+            }
+        case actionTypes.SEARCH_LOADING:
+        case actionTypes.FILTER_CHANGE_REQUESTED:
             return {
                 ...state,
-                interests: action.interests
-            };
-
-        case actionTypes.QUERY_BY_COMPANY_ADMINISTRATORS:
-
+                loading: true,
+                typingTimeout: action.typingTimeout
+            }
+        case actionTypes.PAGE_CHANGE_REQUESTED:
+        case actionTypes.LOAD_INITIAL_DATA_REQUESTED:
             return {
                 ...state,
-                company_admins: action.company_admins
-            };
+                loading: true,
+            }
+        case actionTypes.SEARCH_QUERY:
 
-        case actionTypes.QUERY_BY_COURSE_TAUGHT:
 
             return {
                 ...state,
-                courses_taught: action.courses_taught
+                form: {...state.form, [action.fieldName]: action.fieldValue}
             };
-        case actionTypes.QUERY_BY_SCHOOL:
+
+        case actionTypes.UPDATE_MESSAGE:
 
             return {
                 ...state,
-                schools: action.schools
+                user_modified_messages: {...state.user_modified_messages, [action.userId]: true},
+                user_messages: {...state.user_messages, [action.userId]: action.message}
             };
 
-        case actionTypes.QUERY_BY_PRIMARY_INDUSTRY:
+        case actionTypes.NOTIFICATIONS_SENDING:
+
 
             return {
                 ...state,
-                primary_industries: action.primary_industries
+                currentNotifiedUser: action.userId
             };
 
-        case actionTypes.QUERY_BY_SECONDARY_INDUSTRY:
+        case actionTypes.NOTIFICATIONS_SENDING_SUCCESS:
 
             return {
                 ...state,
-                secondary_industries: action.secondary_industries
+                currentNotifiedUser: null,
+                notifiedUsers: [...state.notifiedUsers, action.userId]
             };
 
-        case actionTypes.SEARCH_CHATTABLE_USERS:
+        case actionTypes.NOTIFICATIONS_SENDING_FAILURE:
+
             return {
                 ...state,
-                query: action.searchQuery
+                currentNotifiedUser: null
             };
+
         default:
             return state;
     }

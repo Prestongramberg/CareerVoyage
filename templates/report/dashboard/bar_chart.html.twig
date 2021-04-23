@@ -1,0 +1,21 @@
+<div id="{{ chart.name }}" class="js-sortable-dashboard-item">
+    <div class="uk-card uk-card-default">
+        <div class="uk-card-header" style="position: relative">
+            <span style="position: absolute; top: 10px; right: 20px" uk-icon="move" class="uk-sortable-handle"></span>
+            {{ chart.header }} <br>
+            <mark><small>{{ chart.subHeader }}</small></mark>
+        </div>
+        <div class="uk-card-body">
+
+            {# TODO You can add these to a controller that symfony can render asyncronously. Come back and do this before the demo. #}
+
+            <div data-chart="{{ chart.render }}" class="chartjs-wrapper">
+                <canvas class="chartjs"></canvas>
+            </div>
+
+        </div>
+        <div class="uk-card-footer" style="text-align: center">
+            {{ chart.footer }}
+        </div>
+    </div>
+</div>

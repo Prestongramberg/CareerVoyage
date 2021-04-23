@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\CompanyPhoto;
 use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
+use App\Entity\EducatorVideo;
 use App\Entity\Image;
 use App\Entity\Course;
 use App\Entity\Lesson;
@@ -360,6 +361,126 @@ class EducatorUserController extends AbstractController
         $this->addFlash('success', 'Students successfully re-assigned');
 
         return $this->redirectToRoute('educator_manage', ['id' => $schoolId]);
+    }
+
+
+
+    /**
+     * @Route("/educators/videos/{id}/edit", name="educator_video_edit", options = { "expose" = true })
+     * @param Request           $request
+     * @param EducatorVideo $video
+     *
+     * @return JsonResponse
+     */
+    public function educatorEditVideoAction(Request $request, EducatorVideo $video)
+    {
+
+        $this->denyAccessUnlessGranted('edit', $video->getEducator());
+
+        $name    = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+        $tags    = $request->request->get('tags');
+
+        if ($name && $videoId) {
+            $video->setName($name);
+            $video->setVideoId($videoId);
+
+            if ($tags) {
+                $video->setTags($tags);
+            }
+
+
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id'      => $video->getId(),
+                    'name'    => $name,
+                    'videoId' => $videoId,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/educators/{id}/video/add", name="educator_video_add", options = { "expose" = true })
+     * @param Request          $request
+     * @param EducatorUser $educatorUser
+     *
+     * @return JsonResponse
+     */
+    public function educatorAddVideoAction(Request $request, EducatorUser $educatorUser)
+    {
+
+        $this->denyAccessUnlessGranted('edit', $educatorUser);
+
+        $name    = $request->request->get('name');
+        $videoId = $request->request->get('videoId');
+        $tags    = $request->request->get('tags');
+
+        if ($name && $videoId) {
+            $video = new EducatorVideo();
+            $video->setName($name);
+            $video->setVideoId($videoId);
+            $video->setEducator($educatorUser);
+
+            if ($tags) {
+                $video->setTags($tags);
+            }
+
+            $this->entityManager->persist($video);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id'      => $video->getId(),
+                    'name'    => $name,
+                    'videoId' => $videoId,
+
+                ], Response::HTTP_OK
+            );
+        }
+
+        return new JsonResponse(
+            [
+                'success' => false,
+
+            ], Response::HTTP_OK
+        );
+    }
+
+    /**
+     * @Route("/educators/videos/{id}/remove", name="educator_video_remove", options = { "expose" = true })
+     * @param Request           $request
+     * @param EducatorVideo $video
+     *
+     * @return JsonResponse
+     */
+    public function educatorRemoveVideoAction(Request $request, EducatorVideo $video)
+    {
+
+        $this->denyAccessUnlessGranted('edit', $video->getEducator());
+
+        $this->entityManager->remove($video);
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            [
+                'success' => true,
+
+            ], Response::HTTP_OK
+        );
     }
 
 

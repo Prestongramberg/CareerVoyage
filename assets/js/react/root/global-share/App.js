@@ -1,650 +1,379 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from "prop-types";
-import { addUser, removeUser, searchChattableUsers, sendNotifications, updateMessage, queryByRole, queryByUserRole, queryByCompany, queryByInterests, queryByCompanyAdministrators, queryBySchool, queryByCourseTaught, queryByPrimaryIndustry, queryBySecondaryIndustry, query, queryByPage } from "./actions/actionCreators";
+import {
+    sendNotifications,
+    loadInitialData,
+    filterChanged,
+    pageChanged,
+    updateMessage
+} from "./actions/actionCreators";
 import {connect} from "react-redux";
+
 const cb = 'global-share';
-import {mapObject} from "../../utilities/object-utils";
-import MultiSelect from "react-multi-select-component";
+import {Multiselect} from 'multiselect-react-dropdown';
+import Loader from "../../components/Loader/Loader"
+import Pagination from "react-js-pagination";
+
+const avatarLogoPath = require('../../../../images/avatar.png');
 
 export class App extends Component {
 
     constructor(props) {
         super(props);
-        this.timeout = null;
-        const methods = ["queryByUserRole", "queryByRole", "queryByCompany", "queryByCompanyAdministrators", "queryByCourseTaught", "queryBySchool", "queryByPrimaryIndustry", "queryBySecondaryIndustry", "queryByInterests", "searchChattableUsers"];
+        const methods = ["renderFilters", "singleSelectFilterChanged", "multipleSelectFilterChanged", "textFilterChanged", "handlePageChange", "renderShareForm"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
-    componentWillMount() {
-        this.props.updateMessage( this.props.message )
-        //this.props.addDefaultUsers()
-        this.props.query(this.props.search);
+    componentDidMount() {
+
+        this.props.loadInitialData();
     }
 
+    /**
+     * Don't do ajax fetching inside render() as this gets
+     * called all the time every time the state changes
+     * @return {*}
+     */
     render() {
 
-        debugger;
-
-        const users = this.getRelevantUsers();
-        const userCount = this.props.filters.total_count;
-
         return (
-            <div className={cb}>
-                <button data-uk-toggle="target: #global-share" type="button"
-                        className="uk-button uk-button-primary uk-button-small">
-                    {this.props.title}
-                </button>
-                <div id="global-share" className="uk-modal-800" data-uk-modal>
-                    <div className="uk-modal-dialog uk-modal-body">
-                        <h3>Who would you like to share with?</h3>
-
-                        <form id="filterForm">
-                            <div className="uk-search uk-search-default uk-width-1-1">
-                                <span data-uk-search-icon></span>
-                                {<input className="uk-search-input" type="search" placeholder="Search By Name..." onChange={this.searchChattableUsers} />}
-                            </div>
-
-                            <ul uk-accordion="multiple: true">
-                                <li>
-                                    <a className="uk-accordion-title uk-button uk-button-default" id="toggle-filters" href="#">Toggle Filters</a>
-                                    <div className="uk-accordion-content">
-
-                                        <div className="uk-container">
-                                            <div className="uk-grid" uk-grid>
-                                                <div className="uk-width-1-3">
-                                                    { this.renderUserRoleDropdown() }
-                                                </div>
-                                                { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderRoleDropdown() } </div> }
-                                                { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyDropdown() } </div> }
-                                                { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderInterestsSearchField() } </div> }
-                                                { this.isProfessionalUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCompanyAdministratorDropdown() } </div> }
-
-                                                { this.isEducatorUserRoleSelected() && <div className="uk-width-1-3"> { this.renderCoursesTaughtDropdown() } </div> }
-                                                { ( !Object.values(this.props.user.roles).includes('ROLE_EDUCATOR_USER') && (this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() || this.isSchoolAdministratorUserRoleSelected()) ) && <div className="uk-width-1-3"> { this.renderSchoolDropdown() } </div> }
-
-                                                { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderPrimaryIndustryDropdown() } </div> }
-                                                { ( this.isProfessionalUserRoleSelected() || this.isEducatorUserRoleSelected() || this.isStudentUserRoleSelected() ) && <div className="uk-width-1-3"> { this.renderSecondaryIndustryDropdown() } </div> }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </form>
-
-                        <div className="uk-margin">
-                            <div className="uk-grid">
-                                <div className="uk-width-1-2">
-                                    <div className={`${cb}__heading`}>{users.length > 0 && `Sending to Users: (${this.props.ui.users.length} results)`} {users.length === 0 && `Select from a filter above to get started.`}</div>
-                                    <div className={`${cb}__scrollable`}>
-                                        {this.props.ui.users.map((user) => {
-                                            return (
-                                                <div key={user.id}
-                                                     className={`live-chat__window-chat-thread ${cb}__user-remove`}
-                                                     onClick={() => { this.props.removeUser( user ) }}>
-                                                        {this.renderUser(user)}
-                                                        <span className="close-icon" uk-icon="icon: close"></span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                                <div className="uk-width-1-2">
-                                    <div className={`${cb}__heading`}>{users.length > 0 && `Search Found: (${userCount} results)`}</div>
-                                    <div className={`${cb}__scrollable`}>
-                                        {users.map((user) => {
-                                            return (
-
-                                                <div key={user.id} className={`live-chat__window-chat-thread ${cb}__user-add`} onClick={() => { this.props.addUser( user ) }}>
-                                                    {this.renderUser(user)}
-                                                </div>
-
-                                            )
-                                        })}
-                                    </div>
-
-                                    {users.length > 0 && (
-                                        <ul className="uk-pagination">
-                                            <li onClick={() => { this.changePage(this.props.filters.current_page > 1 ? this.props.filters.current_page - 1 : 1) }}><a href="javascript:void(0)">prev</a></li>
-                                            <li onClick={() => { this.changePage(this.props.filters.current_page === this.props.filters.total_pages ? this.props.filters.total_pages : this.props.filters.current_page + 1) }}><a href="javascript:void(0)">next</a></li>
-                                        </ul>
-                                    )}
-
-                                </div>
-                            </div>
-                        </div>
-                        <div className="uk-margin">
-                            <label>Message</label>
-                            {<textarea id="" className="uk-textarea" cols="30" rows="10" onChange={ (e) => { this.props.updateMessage( e.target.value ) } } value={ this.props.ui.message }></textarea>}
-                        </div>
-                        <div className="uk-margin">
-                            {<button className="uk-button uk-button-primary" style={{'width': '100%'}} onClick={() => { this.props.sendNotifications() }}>Share to selected users</button>}
-                        </div>
+            <div>
+                {this.renderFilters(0, 1)}
+                <div>
+                    <button style={{width: "100%"}} className="uk-button uk-button-default" type="button"
+                            uk-toggle="target: #toggle-usage; animation: uk-animation-slide-top">Filters
+                    </button>
+                    <div id="toggle-usage" hidden>
+                        {this.renderFilters(1)}
                     </div>
                 </div>
+                {this.props.search.loading && <div className="uk-width-1-1 uk-align-center"><Loader/></div>}
+
+                {!this.props.search.loading &&
+                <div style={{marginTop: "20px"}}>
+
+                    <div style={{marginBottom: "20px"}}>Total Results: {this.props.search.pagination.totalCount}</div>
+                    {this.props.search.items.map((item) => {
+                        return [
+                            <div style={{display: "flex", marginBottom: "10px"}} key={item.id}>
+                                {this.renderUser(item)}
+                                <div>
+
+                                    {this.props.search.notifiedUsers.includes(item.id) ?
+                                        <button style={{width: "100%", opacity: ".1"}}
+                                                className="uk-button uk-button-default" type="button"
+                                                disabled={true}>Share</button> :
+                                        <button onClick={() => {
+                                            document.getElementById("toggle-usage-textarea-" + item.id).focus();
+                                        }} style={{width: "100%"}} className="uk-button uk-button-default" type="button"
+                                                uk-toggle={"target: #toggle-usage-" + item.id + "; animation: uk-animation-slide-top"}>Share
+                                        </button>}
+
+                                </div>
+                            </div>,
+                            <div>
+                                {this.renderShareForm(item)}
+                            </div>
+                        ]
+                    })}
+
+                    {!this.props.search.loading && this.props.search.items.length === 0 && (
+                        <p>No users match your selection</p>
+                    )}
+
+                    {this.renderPagination()}
+                </div>
+                }
             </div>
         );
+    }
+
+    multipleSelectFilterChanged(selectedOptions, selectedOption, fieldName) {
+
+
+        let values = [];
+        for (let selectedOption of selectedOptions) {
+            values.push(selectedOption.id);
+        }
+
+        if (!values.length) {
+            values = null;
+        }
+
+        let context = {
+            'fieldName': fieldName,
+            'filter': selectedOptions,
+            'value': values,
+            'reset': [],
+            //'currentFilters': this.props.filters,
+            'form': this.props.form
+        };
+
+        this.props.filterChanged(context);
+    }
+
+    singleSelectFilterChanged(selectedOptions, selectedOption, fieldName) {
+
+
+        let value = null;
+
+        if (selectedOptions.length) {
+            value = selectedOption.value;
+        }
+
+        let context = {
+            'fieldName': fieldName,
+            'filter': selectedOptions,
+            'value': value,
+            'reset': null,
+            //'currentFilters': this.props.filters,
+            'form': this.props.form
+        };
+
+        this.props.filterChanged(context);
+    }
+
+    textFilterChanged(value, fieldName) {
+
+
+        let context = {
+            'fieldName': fieldName,
+            'filter': value,
+            'value': value,
+            'form': this.props.form
+        };
+
+        this.props.filterChanged(context);
+    }
+
+    handlePageChange(pageNumber) {
+
+        this.props.pageChanged(pageNumber);
+
+
+    }
+
+    renderFilters(startingIndex = null, endingIndex = null) {
+
+        const filters = [];
+
+        for (let fieldName in this.props.search.schema.properties) {
+            let field = this.props.search.schema.properties[fieldName];
+
+            if (field.items && field.items.enum && field.items.enum_titles) {
+                // Select Field (Multiple)
+
+                let selected = this.props.filters[fieldName] || [];
+
+                const merged = field.items.enum.reduce((obj, key, index) => ({
+                    ...obj,
+                    [key]: field.items.enum_titles[index]
+                }), {});
+                let options = [];
+
+                for (let key in merged) {
+                    let value = merged[key];
+
+                    options.push({label: value, value: key, id: key});
+                }
+
+                filters.push(<Multiselect
+                        options={options}
+                        showCheckbox={true}
+                        showArrow={true}
+                        selectedValues={selected}
+                        placeholder={field.title}
+                        avoidHighlightFirstOption={true}
+                        onSelect={(selectedOptions, selectedOption) => {
+                            this.multipleSelectFilterChanged(selectedOptions, selectedOption, fieldName)
+                        }}
+                        onRemove={(selectedOptions, selectedOption) => {
+                            this.multipleSelectFilterChanged(selectedOptions, selectedOption, fieldName)
+                        }}
+                        displayValue="label"
+                    />
+                );
+
+            } else if (!field.items && field.enum && field.enum_titles) {
+                // Select Field Single
+
+                let selected = this.props.filters[fieldName] || [];
+
+                const merged = field.enum.reduce((obj, key, index) => ({
+                    ...obj,
+                    [key]: field.enum_titles[index]
+                }), {});
+                let options = [];
+
+                for (let key in merged) {
+                    let value = merged[key];
+
+                    options.push({label: value, value: key, id: key});
+                }
+
+                filters.push(<Multiselect
+                        options={options}
+                        showCheckbox={true}
+                        showArrow={true}
+                        selectionLimit={1}
+                        selectedValues={selected}
+                        avoidHighlightFirstOption={true}
+                        placeholder={field.title}
+                        onSelect={(selectedOptions, selectedOption) => {
+                            this.singleSelectFilterChanged(selectedOptions, selectedOption, fieldName)
+                        }}
+                        onRemove={(selectedOptions, selectedOption) => {
+                            this.singleSelectFilterChanged(selectedOptions, selectedOption, fieldName)
+                        }}
+                        displayValue="label"
+                    />
+                );
+            } else if (!field.items && !field.enum && !field.enum_titles) {
+                // Text Field
+
+                if (field.type === 'string') {
+                    filters.push(
+                        <div className={"uk-search uk-search-default"} style={{"width": "100%"}}>
+                            <span data-uk-search-icon></span>
+                            <input onChange={(event) => {
+                                this.textFilterChanged(event.target.value, fieldName);
+                            }} className="uk-search-input" type="search" placeholder={field.title}
+                                   value={this.props.filters.search || ""}/>
+                        </div>
+                    );
+                }
+            }
+
+        }
+
+        if (!Number.isInteger(startingIndex)) {
+            startingIndex = 0;
+        }
+
+        if (!Number.isInteger(endingIndex)) {
+            endingIndex = filters.length;
+        }
+
+        return (
+            <div>
+                {filters.slice(startingIndex, endingIndex)}
+            </div>
+        )
     }
 
     renderUser(user) {
 
         debugger;
+
         let loggedInUser = this.props.user;
         let company = '';
         let role = '';
         let name = '';
-        let photoImageURL = user.photoImageURL ? user.photoImageURL : '/build/images/avatar.ec6ae432.png';
+        let photoImageURL = user.photoImageURL ? user.photoImageURL : avatarLogoPath;
 
-        switch (user.user_role) {
-            case 'professional':
-                name = user.first_name + ' ' + user.last_name;
-                role = 'Professional';
+        if (user.professional) {
 
-                if(user.company_name) {
-                    company = user.company_name;
-                }
+            name = user.fullName;
+            role = 'Professional';
+            company = user.company && user.company.name ? user.company.name : "User Does Not Belong To A Company";
 
-                break;
-            case 'educator':
-                name = user.first_name + ' ' + user.last_name;
-                role = 'Educator';
-                company = user.school_name;
-                break;
-            case 'student':
+        } else if (user.educator) {
+            name = user.fullName;
+            role = 'Educator';
+            company = user.school && user.school.name ? user.school.name : "User Does Not Belong To A School";
+        } else if (user.student) {
 
-                // if the logged in user is a professional then don't show the student name
-                if(loggedInUser.roles && loggedInUser.roles.indexOf("ROLE_PROFESSIONAL_USER") !== -1 ) {
-                    name = '';
-                    role = 'Student';
-                    company = user.school_name;
-                    photoImageURL = '/build/images/avatar.ec6ae432.png';
-                } else {
-                    name = user.first_name + ' ' + user.last_name;
-                    role = 'Student';
-                    company = user.school_name;
-                }
+            company = user.school && user.school.name ? user.school.name : "User Does Not Belong To A School";
+            role = 'Student';
+            photoImageURL = avatarLogoPath;
 
-                break;
-            case 'school_administrator':
-                name = user.first_name + ' ' + user.last_name;
-                role = 'School Administrator';
-                break;
+            // if the logged in user is a professional then don't show the student name
+            if (loggedInUser.roles && loggedInUser.roles.indexOf("ROLE_PROFESSIONAL_USER") !== -1) {
+                name = '';
+            } else {
+                name = user.fullName;
+            }
+        } else if (user.schoolAdministrator) {
+
+            name = user.fullName;
+            role = 'School Administrator';
+        } else {
+            name = user.fullName;
         }
 
         return (
             <React.Fragment>
                 <div className="live-chat__window-chat-thread-image">
-                    <img src={photoImageURL} />
+                    <img src={photoImageURL}/>
                 </div>
                 <div className="live-chat__window-chat-thread-name">
-                    { name } <small><em>{ role }</em></small><br />
-                    <small>{ company }</small>
+                    {name}
+                    <small><em> {role}</em></small>
+                    <br/>
+                    <small>{company}</small>
                 </div>
             </React.Fragment>
         )
     }
 
-    renderRoleDropdown() {
-
-        if ( this.props.filters.roles.length > 0) {
-
-            this.props.filters.roles.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "Volunteer Role"}}
-                        options={this.props.filters.roles}
-                        value={this.props.search.roles}
-                        onChange={this.queryByRole}
-                    />
-                </div>
-            );
-        }
-
-        return null;
-    }
-
-    renderUserRoleDropdown() {
-
-        if ( this.props.filters.user_roles.length > 0) {
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "User Role"}}
-                        options={this.props.filters.user_roles}
-                        value={this.props.search.user_roles}
-                        onChange={this.queryByUserRole}
-                    />
-                </div>
-            );
-        }
-
-        return null;
-    }
-
-    renderCompanyDropdown() {
-
-        if ( this.props.filters.companies.length > 0) {
-
-            this.props.filters.companies.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "Company"}}
-                        options={this.props.filters.companies}
-                        value={this.props.search.companies}
-                        onChange={this.queryByCompany}
-                    />
-                </div>
-            );
-        }
-
-        return null;
-    }
-
-    renderInterestsSearchField() {
+    renderPagination() {
 
         return (
-            <div className={"uk-search uk-search-default"} style={{"width" : "100%"}}>
-                <span data-uk-search-icon></span>
-                <input className="uk-search-input" type="search" placeholder="Search Interests..." onChange={this.queryByInterests} value={this.props.search.interests} />
-            </div>
-        );
-    }
-
-    renderCompanyAdministratorDropdown() {
-
-        if ( this.props.filters.company_admins.length > 0) {
-
-            this.props.filters.company_admins.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "Company Administrator"}}
-                        options={this.props.filters.company_admins}
-                        value={this.props.search.company_admins}
-                        onChange={this.queryByCompanyAdministrators}
-                    />
-                </div>
-            );
-        }
-
-        return null;
-    }
-
-    renderCoursesTaughtDropdown() {
-
-        if ( this.props.filters.courses_taught.length > 0) {
-
-            this.props.filters.courses_taught.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "Course Taught"}}
-                        options={this.props.filters.courses_taught}
-                        value={this.props.search.courses_taught}
-                        onChange={this.queryByCourseTaught}
-                    />
-                </div>
-            );
-        }
-
-        return null;
-    }
-
-    renderSchoolDropdown() {
-
-        this.props.filters.schools.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-        return (
-            <div>
-                <MultiSelect
-                    overrideStrings={{"selectSomeItems": "School"}}
-                    options={this.props.filters.schools}
-                    value={this.props.search.schools}
-                    onChange={this.queryBySchool}
+            <div style={{marginTop: "50px"}}>
+                <Pagination
+                    activePage={this.props.search.pagination.currentPageNumber}
+                    itemsCountPerPage={this.props.search.pagination.numItemsPerPage}
+                    totalItemsCount={this.props.search.pagination.totalCount}
+                    pageRangeDisplayed={5}
+                    innerClass="uk-pagination uk-flex-center"
+                    activeClass="uk-active"
+                    disabledClass="uk-disabled"
+                    onChange={this.handlePageChange}
                 />
             </div>
         );
     }
 
-    renderPrimaryIndustryDropdown() {
+    renderShareForm(item) {
 
-        if ( this.props.filters.primary_industries.length > 0) {
-
-            this.props.filters.primary_industries.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "Primary Industry"}}
-                        options={this.props.filters.primary_industries}
-                        value={this.props.search.primary_industries}
-                        onChange={this.queryByPrimaryIndustry}
-                    />
-                </div>
-            );
+        if (this.props.search.notifiedUsers.includes(item.id)) {
+            return null
         }
 
-        return null;
-
-    }
-
-    renderSecondaryIndustryDropdown() {
-
-        if ( this.props.search.primary_industries.length > 0) {
-
-            let filters = [];
-            let selectedPrimaryIndustries = this.props.search.primary_industries.map((x)=>x.value);
-            let addedSecondaryIndustries = [];
-
-            this.props.filters.secondary_industries.forEach(function(industryData) {
-
-                let primaryIndustryId = industryData.primaryIndustryId;
-
-                if(selectedPrimaryIndustries.includes(primaryIndustryId) && !addedSecondaryIndustries.includes(industryData.secondaryIndustryId)) {
-
-                    addedSecondaryIndustries.push(industryData.secondaryIndustryId);
-
-                    filters.push({label: industryData.secondaryIndustryName, value: industryData.secondaryIndustryId});
-                }
-            });
-
-
-            filters.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase()) ? 1 : -1);
-
-            return (
-                <div>
-                    <MultiSelect
-                        overrideStrings={{"selectSomeItems": "Secondary Career"}}
-                        options={filters}
-                        value={this.props.search.secondary_industries}
-                        onChange={this.queryBySecondaryIndustry}
-                    />
-                </div>
-            );
+        let message = this.props.message;
+        if (this.props.search.user_modified_messages[item.id]) {
+            message = this.props.search.user_messages[item.id];
         }
 
-        return null;
+        return (
+            <div id={"toggle-usage-" + item.id} hidden>
+                {<textarea id={"toggle-usage-textarea-" + item.id} className="uk-textarea" cols="30"
+                           rows="5" onChange={(e) => {
+                    this.props.updateMessage(e.target.value, item.id)
+                }} value={message}></textarea>}
+                {<button className="uk-button uk-button-primary"
+                         style={{'width': '100%'}} onClick={() => {
+                    this.props.sendNotifications(item.id, this.props.experience, message)
+                }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
+                }
+            </div>
+        );
 
+        /*   return (
+               <div id={"toggle-usage-" + item.id} hidden={this.props.search.notifiedUsers.includes(item.id)}>
+                   {<textarea id={"toggle-usage-textarea-" + item.id} className="uk-textarea" cols="30"
+                              rows="5" onChange={(e) => {
+                       this.props.updateMessage(e.target.value)
+                   }} value={this.props.message}></textarea>}
+                   {<button className="uk-button uk-button-primary"
+                            style={{'width': '100%'}} onClick={() => {
+                       this.props.sendNotifications(item.id, this.props.experience, this.props.message)
+                   }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
+                   }
+               </div>
+           );*/
     }
 
-    getRelevantUsers() {
-
-        return this.props.users.all;
-
-        return this.props.users.all.filter(user => {
-
-            // roles search
-            if(this.props.search.roles.length > 0) {
-
-                if(!user.roles) {
-                    return false;
-                }
-
-                let roles = Object.keys(user.roles);
-
-                let selectedRoles = this.props.search.roles.map((x)=>x.value);
-                let matchingRoles = selectedRoles.filter(value => roles.includes(value))
-
-                if(matchingRoles.length === 0) {
-                    return false;
-                }
-            }
-
-            // user roles search
-            if(this.props.search.user_roles.length > 0) {
-
-                if(!user.user_role) {
-                    return false;
-                }
-
-                let userRole = user.user_role;
-                let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
-                let hasMatchingUserRoles = selectedUserRoles.includes(userRole);
-
-                if(user.company_administrator && selectedUserRoles.includes('company_administrator')) {
-                    hasMatchingUserRoles = true;
-                }
-
-                if(!hasMatchingUserRoles) {
-                    return false;
-                }
-            }
-
-            // companies search
-            if(this.props.search.companies.length > 0) {
-
-                if(!user.company_id) {
-                    return false;
-                }
-
-                let companyId = user.company_id;
-                let selectedCompanyIds = this.props.search.companies.map((x)=>x.value);
-                let hasMatchingCompanies = selectedCompanyIds.includes(companyId);
-
-                if(!hasMatchingCompanies) {
-                    return false;
-                }
-            }
-
-            // interests search
-            if(this.props.search.interests !== "") {
-
-                if(!user.interests) {
-                    return false;
-                }
-
-                let interests = user.interests;
-
-                let hasMatchingInterests = interests.toLowerCase().includes(this.props.search.interests.toLowerCase());
-
-                if(!hasMatchingInterests) {
-                    return false;
-                }
-            }
-
-            // company admin search
-            if(this.props.search.company_admins.length > 0) {
-
-                if(!user.company_administrator) {
-                    return false;
-                }
-
-                let companyAdministrator = user.company_administrator;
-                let selectedCompanyAdmins = this.props.search.company_admins.map((x)=>x.value);
-                let hasMatchingCompanyAdmin = selectedCompanyAdmins.includes(companyAdministrator);
-
-                if(!hasMatchingCompanyAdmin) {
-                    return false;
-                }
-            }
-
-            // courses taught search
-            if(this.props.search.courses_taught.length > 0) {
-
-                if(!user.courses) {
-                    return false;
-                }
-
-                let coursesTaught = Object.keys(user.courses);
-
-                let selectedCoursesTaught = this.props.search.courses_taught.map((x)=>x.value);
-                let hasMatchingCoursesTaught = selectedCoursesTaught.filter(value => coursesTaught.includes(value))
-
-                if(hasMatchingCoursesTaught.length === 0) {
-                    return false;
-                }
-            }
-
-            // schools search
-            if(this.props.search.schools.length > 0) {
-
-                let schoolIds = [];
-
-                if(user.schools) {
-                    for (const property in user.schools) {
-                        schoolIds.push(property);
-                    }
-                }
-
-                if(user.school_id) {
-                    schoolIds.push(user.school_id);
-                }
-
-                let selectedSchools = this.props.search.schools.map((x)=>x.value);
-                let hasMatchingSchools = selectedSchools.filter(value => schoolIds.includes(value));
-
-                if(hasMatchingSchools.length === 0) {
-                    return false;
-                }
-            }
-
-            if(this.props.search.primary_industries.length > 0) {
-
-                let primaryIndustryIds = [];
-                for(let property in user.secondary_industries) {
-                    let industryData = user.secondary_industries[property];
-                    primaryIndustryIds.push(industryData.primary_industry_id);
-                }
-
-                let selectedPrimaryIndustries = this.props.search.primary_industries.map((x)=>x.value);
-                let hasMatchingPrimaryIndustries = selectedPrimaryIndustries.filter(value => primaryIndustryIds.includes(value));
-
-                if(hasMatchingPrimaryIndustries.length === 0) {
-                    return false;
-                }
-            }
-
-            if(this.props.search.secondary_industries.length > 0) {
-
-                let secondaryIndustryIds = [];
-                for(let property in user.secondary_industries) {
-                    let industryData = user.secondary_industries[property];
-                    secondaryIndustryIds.push(industryData.secondary_industry_id);
-                }
-
-                let selectedSecondaryIndustries = this.props.search.secondary_industries.map((x)=>x.value);
-                let hasMatchingSecondaryIndustries = selectedSecondaryIndustries.filter(value => secondaryIndustryIds.includes(value));
-
-                if(hasMatchingSecondaryIndustries.length === 0) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }
-
-    isProfessionalUserRoleSelected() {
-
-        let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
-        return selectedUserRoles.includes("professional");
-    }
-
-    isEducatorUserRoleSelected() {
-
-        let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
-        return selectedUserRoles.includes("educator");
-    }
-
-    isStudentUserRoleSelected() {
-
-        let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
-        return selectedUserRoles.includes("student");
-    }
-
-    isSchoolAdministratorUserRoleSelected() {
-
-        let selectedUserRoles = this.props.search.user_roles.map((x)=>x.value);
-        return selectedUserRoles.includes("school_administrator");
-    }
-
-    queryByRole(options) {
-
-        debugger;
-        this.props.queryByRole(options);
-        this.props.query(this.props.search);
-    }
-
-
-    queryByUserRole(options) {
-
-        debugger;
-        this.props.queryByUserRole(options);
-        this.props.query(this.props.search);
-    }
-
-    queryByCompany(options) {
-
-        debugger;
-        this.props.queryByCompany(options);
-        this.props.query(this.props.search);
-    }
-
-    queryByInterests(event) {
-
-        debugger;
-        this.props.queryByInterests(event);
-        this.props.query(this.props.search);
-    }
-
-    queryByCompanyAdministrators(options) {
-
-        debugger;
-        this.props.queryByCompanyAdministrators(options);
-        this.props.query(this.props.search);
-    }
-
-    queryByCourseTaught(options) {
-
-        debugger;
-        this.props.queryByCourseTaught(options);
-        this.props.query(this.props.search);
-    }
-
-    queryBySchool(options) {
-
-        debugger;
-        this.props.queryBySchool(options);
-        this.props.query(this.props.search);
-    }
-
-    queryByPrimaryIndustry(options) {
-        debugger;
-        this.props.queryByPrimaryIndustry(options);
-        this.props.query(this.props.search);
-    }
-
-    queryBySecondaryIndustry(options) {
-        debugger;
-        this.props.queryBySecondaryIndustry(options);
-        this.props.query(this.props.search);
-    }
-
-    changePage(page) {
-        this.props.queryByPage(page);
-        this.props.query(this.props.search);
-        debugger;
-    }
-
-    searchChattableUsers(event) {
-
-        debugger;
-        clearTimeout(this.timeout);
-
-        let searchValue = event.target.value;
-
-        // Make a new timeout set to go off in 800ms
-        this.timeout = setTimeout(() => {
-            debugger;
-            this.props.searchChattableUsers(searchValue);
-            this.props.query(this.props.search);
-        }, 200);
-    }
 }
 
 App.propTypes = {
@@ -657,30 +386,18 @@ App.defaultProps = {
 };
 
 export const mapStateToProps = (state = {}) => ({
-    users: state.users,
     filters: state.filters,
-    search: state.search,
-    ui: state.ui
+    form: state.form,
+    search: state.search
 });
 
 export const mapDispatchToProps = dispatch => ({
-    addUser: (user) => dispatch(addUser( user )),
-    removeUser: (user) => dispatch(removeUser( user )),
-    searchChattableUsers: (searchValue) => dispatch(searchChattableUsers( searchValue )),
-    sendNotifications: () => dispatch(sendNotifications()),
-    updateMessage: (message) => dispatch(updateMessage(message)),
-    addDefaultUsers: () => dispatch(searchChattableUsers('')),
-    queryByRole: (options) => dispatch(queryByRole( options )),
-    queryByUserRole: (options) => dispatch(queryByUserRole( options )),
-    query: (data) => dispatch(query( data )),
-    queryByPage: (data) => dispatch(queryByPage( data )),
-    queryByCompany: (options) => dispatch(queryByCompany( options )),
-    queryByInterests: (event) => dispatch(queryByInterests( event.target.value )),
-    queryByCompanyAdministrators: (options) => dispatch(queryByCompanyAdministrators( options )),
-    queryByCourseTaught: (options) => dispatch(queryByCourseTaught( options )),
-    queryBySchool: (options) => dispatch(queryBySchool( options )),
-    queryByPrimaryIndustry: (options) => dispatch(queryByPrimaryIndustry( options )),
-    queryBySecondaryIndustry: (options) => dispatch(queryBySecondaryIndustry( options )),
+
+    loadInitialData: () => dispatch(loadInitialData()),
+    filterChanged: (context) => dispatch(filterChanged(context)),
+    pageChanged: (pageNumber) => dispatch(pageChanged(pageNumber)),
+    sendNotifications: (userId, experienceId, message) => dispatch(sendNotifications(userId, experienceId, message)),
+    updateMessage: (message, userId) => dispatch(updateMessage(message, userId)),
 });
 
 const ConnectedApp = connect(

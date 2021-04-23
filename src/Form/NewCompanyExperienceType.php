@@ -112,7 +112,8 @@ class NewCompanyExperienceType extends AbstractType
                 'expanded'  => false,
                 'multiple'  => false,
                 'required' => true
-            ]);
+            ])
+            ->add('canViewFeedback', HiddenType::class, ['data' => true]);
 
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
