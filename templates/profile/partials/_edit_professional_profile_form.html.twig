@@ -52,6 +52,7 @@
                                     </div>
                                     <div class="uk-margin">
                                         {{ form_label(form.interests, 'Interests') }}
+                                        <div class="uk-text-meta">Tell us about professional interests and skills related to your career and experience which educators and students would benefit from.</div>
                                         {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
                                         {{ form_errors(form.interests) }}
                                     </div>
