@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\BarChart;
+namespace App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
@@ -8,7 +8,7 @@ use App\Model\Report\Dashboard\AbstractDashboard;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class StudentInterestInWorkingForCompany extends AbstractDashboard
+class ExperienceRating extends AbstractDashboard
 {
     protected $type = 'bar';
 
@@ -26,11 +26,9 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $footer = '1: Much Less < 3: No Change > 5: Much More';
+    protected $position = 0;
 
-    protected $position = 1;
-
-    protected $average = 0;
+    protected $footer = '1: Poor < 3: Average > 5: Excellent';
 
     /**
      * BarChart constructor.
@@ -39,52 +37,41 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $data           = [];
-        $totalResponses = 0;
-        $cumulative     = 0;
+        $data             = [];
+        $totalResponses   = 0;
+        $cumulativeRating = 0;
 
+        /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            $feedbackProvider = $feedback['feedbackProvider'] ?? null;
-            $experienceProvider = $feedback['experienceProvider'] ?? null;
+            $feedbackRating = $feedback['rating'] ?? null;
 
-            if ($feedbackProvider !== 'Student') {
+            if (!$feedbackRating) {
                 continue;
             }
-
-            if ($experienceProvider !== 'Company') {
-                continue;
-            }
-
-            if($feedback['interestWorkingForCompany'] === null) {
-                continue;
-            }
-
-            $interestWorkingForCompany = $feedback['interestWorkingForCompany'];
 
             $totalResponses++;
 
-            $cumulative += (int)$interestWorkingForCompany;
+            $cumulativeRating += (int)$feedbackRating;
 
-            if (!isset($data[$interestWorkingForCompany])) {
-                $data[$interestWorkingForCompany] = 0;
+            if (!isset($data[$feedbackRating])) {
+                $data[$feedbackRating] = 0;
             }
 
-            $data[$interestWorkingForCompany]++;
+            $data[$feedbackRating]++;
         }
 
         foreach ($this->labels as $label) {
             $this->data[] = isset($data[$label]) ? $data[$label] : 0;
         }
 
+        $this->header = $this->label = 'Experience Rating';
+
         if ($totalResponses !== 0) {
-            $this->average = sprintf("Average: %s", round($cumulative/ $totalResponses, 1));
+            $this->subHeader = sprintf("Average: %s", round($cumulativeRating / $totalResponses, 1));
+        } else {
+            $this->subHeader = sprintf("(%s Responses)", $totalResponses);
         }
-
-        $this->header = 'After this company experience my awareness of career opportunities at this company is: 5 point scale from much less to much more';
-
-        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
-
     }
 
     public function render()
@@ -125,10 +112,7 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         return $this->subHeader;
     }
 
-    /**
-     * @return string
-     */
-    public function getFooter(): string
+    public function getFooter()
     {
         return $this->footer;
     }
@@ -151,15 +135,5 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
     public function setPosition($position)
     {
         $this->position = $position;
-    }
-
-    public function getAverage()
-    {
-        return $this->average;
-    }
-
-    public function setAverage($average)
-    {
-        $this->average = $average;
     }
 }

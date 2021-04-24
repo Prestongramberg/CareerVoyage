@@ -12,7 +12,7 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
 {
     protected $type = 'bar';
 
-    protected $labels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    protected $labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
     protected $label = 'Bar Chart';
 
@@ -30,6 +30,8 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
 
     protected $position = 5;
 
+    protected $average = 0;
+
     /**
      * BarChart constructor.
      *
@@ -39,7 +41,7 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
     {
         $data           = [];
         $totalResponses = 0;
-        $totalInterest  = 0;
+        $cumulative     = 0;
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
@@ -48,7 +50,7 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
                 continue;
             }
 
-            if($feedback['likelihoodToRecommendToFriend'] === null) {
+            if ($feedback['likelihoodToRecommendToFriend'] === null) {
                 continue;
             }
 
@@ -56,9 +58,7 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
 
             $likelihood = $feedback['likelihoodToRecommendToFriend'];
 
-            if(!$likelihood) {
-                continue;
-            }
+            $cumulative += (int)$likelihood;
 
             if (!isset($data[$likelihood])) {
                 $data[$likelihood] = 0;
@@ -71,7 +71,11 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
             $this->data[] = isset($data[$label]) ? $data[$label] : 0;
         }
 
-        $this->header = "Likelihood To Recommend To A Friend";
+        if($totalResponses !== 0) {
+            $this->average = sprintf("Average: %s", round($cumulative/ $totalResponses, 1));
+        }
+
+        $this->header = "Likelihood to recommend to a friend";
 
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);
     }
@@ -80,13 +84,17 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
     {
         return json_encode([
             'type' => $this->type,
+            'options' => [
+                'legend' => [
+                    'display' => false,
+                ],
+            ],
             'data' => [
                 'labels' => $this->labels,
                 'datasets' => [
                     [
                         'backgroundColor' => $this->backgroundColor,
                         'borderColor' => $this->borderColor,
-                        'label' => $this->label,
                         'data' => $this->data,
                     ],
                 ],
@@ -136,5 +144,15 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
     public function setPosition($position)
     {
         $this->position = $position;
+    }
+
+    public function getAverage()
+    {
+        return $this->average;
+    }
+
+    public function setAverage($average)
+    {
+        $this->average = $average;
     }
 }

@@ -38,6 +38,7 @@ class ProfessionalReviewTeachLessonExperienceFeedbackFormType extends AbstractTy
     {
         $builder->add('feedback', FeedbackFormType::class, [
             'data_class' => StudentReviewCompanyExperienceFeedback::class,
+            'label' => false
         ]);
     }
 

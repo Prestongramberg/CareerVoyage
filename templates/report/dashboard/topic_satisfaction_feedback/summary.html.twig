@@ -1,17 +1,17 @@
-<div id="{{ chart.name }}" class="js-sortable-dashboard-item">
+<div id="{{ chart.name }}">
     <div class="uk-card uk-card-default">
         <div class="uk-card-header" style="position: relative">
             <span style="position: absolute; top: 10px; right: 20px" uk-icon="move" class="uk-sortable-handle"></span>
-            <mark>{{ chart.percentage }}%</mark> {{ chart.header }} <br>
-            <mark>{{ chart.subHeader }}</mark>
+            {{ chart.header }} <br>
+            <small>{{ chart.subHeader }}</small>
         </div>
         <div class="uk-card-body">
-
             {# TODO You can add these to a controller that symfony can render asyncronously. Come back and do this before the demo. #}
 
-            <div data-chart="{{ chart.render }}" class="chartjs-wrapper">
-                <canvas class="chartjs"></canvas>
-            </div>
+            <p>Number of Schools: <mark><strong>{{ chart.numberOfSchools }}</strong></mark></p>
+            <p>Number of Companies: <mark><strong>{{ chart.numberOfCompanies }}</strong></mark></p>
+            <p>Number of Presentations: <mark><strong>{{ chart.numberOfExperiences }}</strong></mark></p>
+            <p>Number of Feedback Responses: <mark><strong>{{ chart.totalResponses }}</strong></mark></p>
 
         </div>
         <div class="uk-card-footer" style="text-align: center">

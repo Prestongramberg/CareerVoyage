@@ -28,7 +28,7 @@ class ExperienceRating extends AbstractDashboard
 
     protected $position = 0;
 
-    protected $footer = 'Poor <-> Excellent';
+    protected $footer = '1: Poor < 3: Average > 5: Excellent';
 
     /**
      * BarChart constructor.
@@ -78,13 +78,17 @@ class ExperienceRating extends AbstractDashboard
     {
         return json_encode([
             'type' => $this->type,
+            'options' => [
+                'legend' => [
+                    'display' => false
+                ],
+            ],
             'data' => [
                 'labels' => $this->labels,
                 'datasets' => [
                     [
                         'backgroundColor' => $this->backgroundColor,
                         'borderColor' => $this->borderColor,
-                        'label' => $this->label,
                         'data' => $this->data,
                     ],
                 ],

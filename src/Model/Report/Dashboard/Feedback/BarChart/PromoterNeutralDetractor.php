@@ -22,7 +22,7 @@ class PromoterNeutralDetractor extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Count of Promoters, Passives and Detractors.';
+    protected $header = 'Count of Promoters (9-10), Passives (7-8), Detractors (0-6).';
 
     protected $subHeader = '';
 
@@ -44,6 +44,10 @@ class PromoterNeutralDetractor extends AbstractDashboard
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
+
+            if ($feedback['feedbackProvider'] !== 'Student') {
+                continue;
+            }
 
             if($feedback['likelihoodToRecommendToFriend'] === null) {
                 continue;
@@ -76,6 +80,9 @@ class PromoterNeutralDetractor extends AbstractDashboard
             'type' => $this->type,
             'options' => [
                 'indexAxis' => 'y',
+                'legend' => [
+                    'display' => false
+                ],
             ],
             'data' => [
                 'labels' => $this->labels,
@@ -83,7 +90,6 @@ class PromoterNeutralDetractor extends AbstractDashboard
                     [
                         'backgroundColor' => $this->backgroundColor,
                         'borderColor' => $this->borderColor,
-                        'label' => $this->label,
                         'data' => $this->data,
                     ],
                 ],

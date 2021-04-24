@@ -40,6 +40,7 @@ class ProfessionalReviewStudentToMeetProfessionalFeedbackFormType extends Abstra
     {
         $builder->add('feedback', FeedbackFormType::class, [
             'data_class' => ProfessionalReviewStudentToMeetProfessionalFeedback::class,
+            'label' => false
         ]);
 
         $builder->add('showUp', ChoiceType::class, [

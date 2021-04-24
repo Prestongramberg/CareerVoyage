@@ -3,7 +3,10 @@
         <div class="uk-card-header" style="position: relative">
             <span style="position: absolute; top: 10px; right: 20px" uk-icon="move" class="uk-sortable-handle"></span>
             {{ chart.header }} <br>
-            <mark><small>{{ chart.subHeader }}</small></mark>
+            <mark>{{ chart.subHeader }}</mark>
+            {% if chart.average is defined %}
+                <mark>{{ chart.average }}</mark>
+            {% endif %}
         </div>
         <div class="uk-card-body">
 

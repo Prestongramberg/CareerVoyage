@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\BarChart;
+namespace App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
@@ -46,17 +46,12 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         foreach ($feedbackCollection as $feedback) {
 
             $feedbackProvider = $feedback['feedbackProvider'] ?? null;
-            $experienceProvider = $feedback['experienceProvider'] ?? null;
 
             if ($feedbackProvider !== 'Student') {
                 continue;
             }
 
-            if ($experienceProvider !== 'Company') {
-                continue;
-            }
-
-            if($feedback['interestWorkingForCompany'] === null) {
+            if($feedback['interestWorkingForCompany'] === null || $feedback['interestWorkingForCompany'] === 0) {
                 continue;
             }
 

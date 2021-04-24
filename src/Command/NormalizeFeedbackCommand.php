@@ -4,12 +4,15 @@ namespace App\Command;
 
 use App\Cache\CacheKey;
 use App\Entity\EducatorReviewCompanyExperienceFeedback;
+use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
 use App\Entity\Feedback;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
+use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
+use App\Entity\StudentReviewTeachLessonExperienceFeedback;
 use App\Repository\FeedbackRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Util\FileHelper;
@@ -156,6 +159,7 @@ class NormalizeFeedbackCommand extends Command
                         $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
 
+
                         /** @var ProfessionalUser $companyOwner */
                         if ($companyOwner = $company->getOwner()) {
                             $companyAdmins[] = $companyOwner->getId();
@@ -181,6 +185,7 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanyAdmins($companyAdmins);
                     $feedback->setEmployeeContacts($employeeContactIds);
                     $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('experience_satisfaction');
 
                     $feedbackUpdateCount++;
                     break;
@@ -262,6 +267,7 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanyAdmins($companyAdmins);
                     $feedback->setEmployeeContacts($employeeContactIds);
                     $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('experience_satisfaction');
 
                     $feedbackUpdateCount++;
                     break;
@@ -352,6 +358,7 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanyAdmins($companyAdmins);
                     $feedback->setEmployeeContacts($employeeContactIds);
                     $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('experience_satisfaction');
 
                     $feedbackUpdateCount++;
                     break;
@@ -435,6 +442,7 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanyAdmins($companyAdmins);
                     $feedback->setEmployeeContacts($employeeContactIds);
                     $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('experience_satisfaction');
 
                     $feedbackUpdateCount++;
                     break;
@@ -454,7 +462,6 @@ class NormalizeFeedbackCommand extends Command
                     $companyAdmins        = [];
                     $employeeContactIds   = [];
                     $employeeContacts     = [];
-
 
                     $feedback->setFeedbackProvider('Professional');
                     $feedback->setExperienceProvider('School');
@@ -519,8 +526,310 @@ class NormalizeFeedbackCommand extends Command
                     $feedback->setCompanyAdmins($companyAdmins);
                     $feedback->setEmployeeContacts($employeeContactIds);
                     $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('experience_satisfaction');
 
                     $feedbackUpdateCount++;
+                    break;
+
+                case 'ProfessionalReviewTeachLessonExperienceFeedback':
+                    // Feedback Provider is the Professional and the experience provider is the Professional
+                    /** @var ProfessionalReviewTeachLessonExperienceFeedback $feedback */
+
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
+
+                    $feedback->setFeedbackProvider('Professional');
+                    $feedback->setExperienceProvider('Professional');
+                    $feedback->setEventStartDate($feedback->getExperience()->getStartDateAndTime());
+
+                    if ($feedback->getExperience() && $feedback->getExperience()->getType()) {
+                        $feedback->setExperienceType($feedback->getExperience()->getType());
+                        $feedback->setExperienceTypeName($feedback->getExperience()->getType()->getEventName());
+                    }
+
+                    if ($feedback->getTeachLessonExperience() && $school = $feedback->getTeachLessonExperience()->getSchool()) {
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+
+                        foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                            $schoolAdmins[] = $schoolAdministrator->getId();
+                        }
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+
+                            foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                                $regionalCoordinators[] = $regionalCoordinator->getId();
+                            }
+                        }
+                    }
+
+                    if ($feedback->getTeachLessonExperience() && $teacher = $feedback->getTeachLessonExperience()->getTeacher()) {
+
+                        $employeeContactIds[] = $teacher->getId();
+                        $employeeContacts[]   = $teacher->getFullName();
+
+                        if ($company = $teacher->getCompany()) {
+                            $companyIds[]   = $company->getId();
+                            $companyNames[] = $company->getName();
+
+                            if ($companyOwner = $company->getOwner()) {
+                                $companyAdmins[] = $companyOwner->getId();
+                            }
+
+                            if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                                if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                    $companyAdmins[] = $additionalCompanyAdmin->getId();
+                                }
+                            }
+                        }
+                    }
+
+                    if (($experience = $feedback->getTeachLessonExperience()) && ($request = $experience->getOriginalRequest()) && $lesson = $request->getLesson()) {
+                        $feedback->setTopic($lesson->getTitle());
+
+                        if ($teacher = $experience->getTeacher()) {
+                            $feedback->setPresenter($teacher->getFullName());
+                        }
+                    }
+
+                    $feedback->setRegions($regionIds);
+                    $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
+                    $feedback->setSchools($schoolIds);
+                    $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
+                    $feedback->setCompanies($companyIds);
+                    $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('topic_satisfaction');
+
+                    break;
+
+                case 'EducatorReviewTeachLessonExperienceFeedback':
+                    // Feedback Provider is the Educator and the experience provider is the Professional
+                    /** @var EducatorReviewTeachLessonExperienceFeedback $feedback */
+
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
+
+                    $feedback->setFeedbackProvider('Educator');
+
+                    // todo how do we really determine who the experience provider is? Ask Chris?
+                    if ($feedback->getTeachLessonExperience() && $request = $feedback->getTeachLessonExperience()->getOriginalRequest()) {
+
+                        if ($request->getIsFromProfessional()) {
+                            $feedback->setExperienceProvider('Company');
+                        } elseif (!$request->getIsFromProfessional()) {
+                            $feedback->setExperienceProvider('School');
+                        }
+                    }
+
+                    $feedback->setEventStartDate($feedback->getExperience()->getStartDateAndTime());
+
+                    // todo we aren't setting a type anywhere.
+                    // todo @see Controller/LessonController.php:401
+                    if ($feedback->getExperience() && $feedback->getExperience()->getType()) {
+                        $feedback->setExperienceType($feedback->getExperience()->getType());
+                        $feedback->setExperienceTypeName($feedback->getExperience()->getType()->getEventName());
+                    }
+
+                    if ($feedback->getTeachLessonExperience() && $school = $feedback->getTeachLessonExperience()->getSchool()) {
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+
+                        foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                            $schoolAdmins[] = $schoolAdministrator->getId();
+                        }
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+
+                            foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                                $regionalCoordinators[] = $regionalCoordinator->getId();
+                            }
+                        }
+                    }
+
+                    if ($feedback->getTeachLessonExperience() && $teacher = $feedback->getTeachLessonExperience()->getTeacher()) {
+
+                        $employeeContactIds[] = $teacher->getId();
+                        $employeeContacts[]   = $teacher->getFullName();
+
+                        if ($company = $teacher->getCompany()) {
+                            $companyIds[]   = $company->getId();
+                            $companyNames[] = $company->getName();
+
+                            /** @var ProfessionalUser $companyOwner */
+                            if ($companyOwner = $company->getOwner()) {
+                                $companyAdmins[] = $companyOwner->getId();
+                            }
+
+                            if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                                /** @var ProfessionalUser $additionalCompanyAdmin */
+                                if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                    $companyAdmins[] = $additionalCompanyAdmin->getId();
+                                }
+                            }
+                        }
+                    }
+
+                    if (($experience = $feedback->getTeachLessonExperience()) && ($request = $experience->getOriginalRequest()) && $lesson = $request->getLesson()) {
+                        $feedback->setTopic($lesson->getTitle());
+
+                        if ($teacher = $experience->getTeacher()) {
+                            $feedback->setPresenter($teacher->getFullName());
+                        }
+                    }
+
+                    // the related ro my classroom work is the question for these feedback forms rather than provided career insight
+                    $feedback->setRelatedToMyClassroomWork($feedback->getProvidedCareerInsight());
+
+                    $feedback->setRegions($regionIds);
+                    $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
+                    $feedback->setSchools($schoolIds);
+                    $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
+                    $feedback->setCompanies($companyIds);
+                    $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('topic_satisfaction');
+
+                    break;
+
+                case 'StudentReviewTeachLessonExperienceFeedback':
+                    // Feedback Provider is the Student and the experience provider is the Professional
+                    /** @var StudentReviewTeachLessonExperienceFeedback $feedback */
+
+                    $regionIds            = [];
+                    $regionNames          = [];
+                    $regionalCoordinators = [];
+                    $schoolIds            = [];
+                    $schoolNames          = [];
+                    $schoolAdmins         = [];
+                    $companyIds           = [];
+                    $companyNames         = [];
+                    $companyAdmins        = [];
+                    $employeeContactIds   = [];
+                    $employeeContacts     = [];
+
+
+                    $feedback->setFeedbackProvider('Student');
+
+                    // todo how do we really determine who the experience provider is? Ask Chris?
+                    if ($feedback->getTeachLessonExperience() && $request = $feedback->getTeachLessonExperience()->getOriginalRequest()) {
+
+                        if ($request->getIsFromProfessional()) {
+                            $feedback->setExperienceProvider('Company');
+                        } elseif (!$request->getIsFromProfessional()) {
+                            $feedback->setExperienceProvider('School');
+                        }
+                    }
+
+                    $feedback->setEventStartDate($feedback->getExperience()->getStartDateAndTime());
+
+                    // todo we aren't setting a type anywhere.
+                    // todo @see Controller/LessonController.php:401
+                    if ($feedback->getExperience() && $feedback->getExperience()->getType()) {
+                        $feedback->setExperienceType($feedback->getExperience()->getType());
+                        $feedback->setExperienceTypeName($feedback->getExperience()->getType()->getEventName());
+                    }
+
+                    if ($feedback->getTeachLessonExperience() && $school = $feedback->getTeachLessonExperience()->getSchool()) {
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+
+                        foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                            $schoolAdmins[] = $schoolAdministrator->getId();
+                        }
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+
+                            foreach ($region->getRegionalCoordinators() as $regionalCoordinator) {
+                                $regionalCoordinators[] = $regionalCoordinator->getId();
+                            }
+                        }
+                    }
+
+                    if ($feedback->getTeachLessonExperience() && $teacher = $feedback->getTeachLessonExperience()->getTeacher()) {
+
+                        $employeeContactIds[] = $teacher->getId();
+                        $employeeContacts[]   = $teacher->getFullName();
+
+                        if ($company = $teacher->getCompany()) {
+                            $companyIds[]   = $company->getId();
+                            $companyNames[] = $company->getName();
+
+                            /** @var ProfessionalUser $companyOwner */
+                            if ($companyOwner = $company->getOwner()) {
+                                $companyAdmins[] = $companyOwner->getId();
+                            }
+
+                            if ($companyAdminEmail = $company->getEmailAddress()) {
+
+                                /** @var ProfessionalUser $additionalCompanyAdmin */
+                                if ($additionalCompanyAdmin = $this->professionalUserRepository->getByEmailAddress($companyAdminEmail)) {
+                                    $companyAdmins[] = $additionalCompanyAdmin->getId();
+                                }
+                            }
+                        }
+                    }
+
+                    if (($experience = $feedback->getTeachLessonExperience()) && ($request = $experience->getOriginalRequest()) && $lesson = $request->getLesson()) {
+                        $feedback->setTopic($lesson->getTitle());
+
+                        if ($teacher = $experience->getTeacher()) {
+                            $feedback->setPresenter($teacher->getFullName());
+                        }
+                    }
+
+                    // the related ro my classroom work is the question for these feedback forms rather than provided career insight
+                    $feedback->setRelatedToMyClassroomWork($feedback->getProvidedCareerInsight());
+
+                    $feedback->setRegions($regionIds);
+                    $feedback->setRegionNames($regionNames);
+                    $feedback->setRegionalCoordinators($regionalCoordinators);
+                    $feedback->setSchools($schoolIds);
+                    $feedback->setSchoolNames($schoolNames);
+                    $feedback->setSchoolAdmins($schoolAdmins);
+                    $feedback->setCompanies($companyIds);
+                    $feedback->setCompanyNames($companyNames);
+                    $feedback->setCompanyAdmins($companyAdmins);
+                    $feedback->setEmployeeContacts($employeeContactIds);
+                    $feedback->setEmployeeContactNames($employeeContacts);
+                    $feedback->setDashboardType('topic_satisfaction');
+
                     break;
 
                 default:
