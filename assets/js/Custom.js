@@ -848,6 +848,155 @@ jQuery(document).ready(function($) {
 
     });
 
+
+
+
+    /**
+     * Educator Video Form
+     */
+    $(document).on('click', '#modal-add-educator-video [data-action]', function(e) {
+
+        e.preventDefault();
+
+        debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const $educatorField = $modalBody.find('[name="educatorId"]');
+        const educatorId = $educatorField.val();
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-add-educator-video' ).hide();
+                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('profile_edit', {id: educatorId});
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+    /**
+     * Educator Edit Video Form
+     */
+    $(document).on('click', '#modal-edit-educator-video [data-action]', function(e) {
+
+        e.preventDefault();
+
+        debugger;
+        const url = $(this).attr('data-action');
+        const $modalBody = $(this).closest('.uk-modal-body');
+        const $fields = $modalBody.find('[name]');
+        const $nameField = $modalBody.find('[name="name"]');
+        const name = $nameField.val();
+        const $videoField = $modalBody.find('[name="videoId"]');
+        const $educatorField = $modalBody.find('[name="educatorId"]');
+        const educatorId = $educatorField.val();
+
+        const $tagsField = $modalBody.find('[name="tags"]');
+        const tags = $tagsField.val();
+        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+
+        // Smart Set
+        $videoField.val( videoId );
+
+        $videoField.removeClass('uk-form-success uk-form-error');
+
+        // Validate Youtube Video ID
+        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
+            if( response && response.etag ) {
+                // Turn the youtube Video Field Green/Red Depending
+                if( response.items.length ) {
+                    $videoField.addClass('uk-form-success');
+                    $.ajax({
+                        url: url,
+                        data: {
+                            name: name,
+                            videoId: videoId,
+                            tags: tags
+                        },
+                        method: "POST",
+                        complete: function(serverResponse) {
+
+                            const response = serverResponse.responseJSON;
+
+                            if( response.success ) {
+                                $fields.val('').removeClass('uk-form-success uk-form-danger');
+                                UIkit.modal( '#modal-edit-educator-video' ).hide();
+                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+
+                                setTimeout(function() {
+                                    window.location = Routing.generate('profile_edit', {id: educatorId});
+                                }, 1000);
+                            } else {
+                                window.Pintex.notification("Unable to upload video. Please try again.", "danger");
+                            }
+                        }
+                    });
+                } else {
+                    $videoField.addClass('uk-form-danger');
+                    window.Pintex.notification("Enter a valid Youtube Video ID.", "danger");
+                }
+            } else {
+                window.Pintex.notification("Something went wrong. Please try again later.", "danger");
+            }
+        });
+
+    });
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Time Pickers
      */
