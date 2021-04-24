@@ -178,13 +178,24 @@ class ExperienceRepository extends ServiceEntityRepository
     ) {
 
         $query = sprintf(
-            'SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "Experience" as className from experience e INNER JOIN registration r on r.experience_id = e.id 
-LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
-LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
-LEFT JOIN industry i on i.id = si.primary_industry_id
-LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
-WHERE 1 = 1 AND r.user_id = %s AND e.cancelled = %s', $userId, 0
+            'SELECT DISTINCT e.id, r.id as regId, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, e.discr as className 
+             FROM experience e 
+             INNER JOIN registration r on r.experience_id = e.id 
+             LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
+             LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
+             LEFT JOIN industry i on i.id = si.primary_industry_id
+             LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+             WHERE 1 = 1 AND r.user_id = %s AND e.cancelled = %s', $userId, 0
         );
+
+        // $query = sprintf(
+        //     'SELECT DISTINCT e.id, r.id as regId, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, e.discr as className from experience e INNER JOIN registration r on r.experience_id = e.id 
+        //      LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
+        //      LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
+        //      LEFT JOIN industry i on i.id = si.primary_industry_id
+        //      LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+        //      WHERE 1 = 1 AND r.user_id = %s AND e.cancelled = %s', $userId, 0
+        // );
 
         if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
             $query .= sprintf(
@@ -241,4 +252,5 @@ WHERE 1 = 1 AND r.user_id = %s AND e.cancelled = %s', $userId, 0
 
         return $stmt->fetchAll();
     }
+
 }

@@ -11,7 +11,8 @@ class App extends React.Component {
 
     constructor() {
         super();
-        const methods = ["getEventObjectByType", "getRelevantEvents", "handleTabNavigation", "loadEvents", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
+        // const methods = ["getEventObjectByType", "getRelevantEvents", "handleTabNavigation", "loadEvents", "renderCalendar", "renderEventTypes", "renderIndustryDropdown"];
+        const methods = ["handleTabNavigation", "getRelevantEvents", "loadEvents", "renderCalendar"];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
@@ -27,13 +28,13 @@ class App extends React.Component {
 
         const events = this.getRelevantEvents();
         const calendarEvents = events.map(event => this.getEventObjectByType( event ));
-        const ranges = [ 25, 50, 70, 150 ];
+        // const ranges = [ 25, 50, 70, 150 ];
 
         return (
 
             [
                 <div className="pintex-calendar pintex-testing">
-                    <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                    {/* <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                         <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                             <div className="uk-search uk-search-default uk-width-1-1">
                                 <span data-uk-search-icon></span>
@@ -60,7 +61,7 @@ class App extends React.Component {
                         <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                             <div className="uk-button uk-button-primary" onClick={this.loadEvents}>Apply</div>
                         </div>
-                    </div>
+                    </div> */}
                     <div className="uk-margin">
                         <FullCalendar
                             defaultView="dayGridMonth"
@@ -85,104 +86,104 @@ class App extends React.Component {
                     );
     }
 
-    renderIndustryDropdown() {
+    // renderIndustryDropdown() {
 
-        if ( this.props.industries.length > 0 ) {
-            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
-                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
-                    <select onChange={this.props.updatePrimaryIndustryQuery}>
-                        <option value="">Filter by Industry...</option>
-                        { this.props.industries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
-                    </select>
-                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
-                            tabIndex="-1">
-                        <span></span>
-                        <span data-uk-icon="icon: chevron-down"></span>
-                    </button>
-                </div>
-            </div>
-        }
+    //     if ( this.props.industries.length > 0 ) {
+    //         return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+    //             <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+    //                 <select onChange={this.props.updatePrimaryIndustryQuery}>
+    //                     <option value="">Filter by Industry...</option>
+    //                     { this.props.industries.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+    //                 </select>
+    //                 <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+    //                         tabIndex="-1">
+    //                     <span></span>
+    //                     <span data-uk-icon="icon: chevron-down"></span>
+    //                 </button>
+    //             </div>
+    //         </div>
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    renderSecondaryIndustryDropdown() {
+    // renderSecondaryIndustryDropdown() {
 
-        if ( this.props.industries.length > 0 ) {
+    //     if ( this.props.industries.length > 0 ) {
 
-            const secondaryIndustries = this.props.industries.map( industry => {
-                return parseInt(this.props.search.industry ) === parseInt( industry.id ) ? industry.secondaryIndustries : [];
-            } ).reduce((a, b) => a.concat(b), []).filter((v,i,a)=>a.findIndex((t)=>(t.id === v.id))===i);
+    //         const secondaryIndustries = this.props.industries.map( industry => {
+    //             return parseInt(this.props.search.industry ) === parseInt( industry.id ) ? industry.secondaryIndustries : [];
+    //         } ).reduce((a, b) => a.concat(b), []).filter((v,i,a)=>a.findIndex((t)=>(t.id === v.id))===i);
 
-            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
-                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
-                    <select onChange={this.props.updateSecondaryIndustryQuery}>
-                        <option value="">Filter by Career...</option>
-                        { secondaryIndustries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
-                    </select>
-                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
-                            tabIndex="-1">
-                        <span></span>
-                        <span data-uk-icon="icon: chevron-down"></span>
-                    </button>
-                </div>
-            </div>
-        }
+    //         return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+    //             <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+    //                 <select onChange={this.props.updateSecondaryIndustryQuery}>
+    //                     <option value="">Filter by Career...</option>
+    //                     { secondaryIndustries.map( industry => <option key={industry.id} value={industry.id}>{industry.name}</option> ) }
+    //                 </select>
+    //                 <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+    //                         tabIndex="-1">
+    //                     <span></span>
+    //                     <span data-uk-icon="icon: chevron-down"></span>
+    //                 </button>
+    //             </div>
+    //         </div>
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    renderEventTypes() {
+    // renderEventTypes() {
 
-        if ( this.props.events.length > 0 ) {
+    //     if ( this.props.events.length > 0 ) {
 
-            const companyEventTypes = this.props.events.map( event => {
-                if ( !event.friendlyEventName ) {
-                    return null
-                }
+    //         const companyEventTypes = this.props.events.map( event => {
+    //             if ( !event.friendlyEventName ) {
+    //                 return null
+    //             }
 
-                if(event.className !== 'CompanyExperience') {
-                    return null;
-                }
+    //             if(event.className !== 'CompanyExperience') {
+    //                 return null;
+    //             }
 
-                return event.friendlyEventName;
+    //             return event.friendlyEventName;
 
-            } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
+    //         } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
 
-            const schoolEventTypes = this.props.events.map( event => {
-                if ( !event.friendlyEventName ) {
-                    return null
-                }
+    //         const schoolEventTypes = this.props.events.map( event => {
+    //             if ( !event.friendlyEventName ) {
+    //                 return null
+    //             }
 
-                if(event.className !== 'SchoolExperience') {
-                    return null;
-                }
+    //             if(event.className !== 'SchoolExperience') {
+    //                 return null;
+    //             }
 
-                return event.friendlyEventName;
+    //             return event.friendlyEventName;
 
-            } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
+    //         } ).filter((v,i,a)=>a.indexOf(v)==i).filter(Boolean);
 
-            return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
-                <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
-                    <select onChange={this.props.updateEventTypeQuery}>
-                        <option value="">Filter by Experience Type...</option>
-                        <optgroup label="Company Experiences">
-                            { companyEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
-                        </optgroup>
-                        <optgroup label="School Experiences">
-                            { schoolEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
-                        </optgroup>
-                    </select>
-                    <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
-                            tabIndex="-1">
-                        <span></span>
-                        <span data-uk-icon="icon: chevron-down"></span>
-                    </button>
-                </div>
-            </div>
-        }
-    }
+    //         return <div className="uk-width-1-1 uk-width-1-2@s uk-width-1-3@l">
+    //             <div className="uk-width-1-1 uk-text-truncate" data-uk-form-custom="target: > * > span:first-child">
+    //                 <select onChange={this.props.updateEventTypeQuery}>
+    //                     <option value="">Filter by Experience Type...</option>
+    //                     <optgroup label="Company Experiences">
+    //                         { companyEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+    //                     </optgroup>
+    //                     <optgroup label="School Experiences">
+    //                         { schoolEventTypes.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0)).map( eventType => <option key={eventType} value={eventType}>{eventType}</option> ) }
+    //                     </optgroup>
+    //                 </select>
+    //                 <button className="uk-button uk-button-default uk-width-1-1 uk-width-autom@l" type="button"
+    //                         tabIndex="-1">
+    //                     <span></span>
+    //                     <span data-uk-icon="icon: chevron-down"></span>
+    //                 </button>
+    //             </div>
+    //         </div>
+    //     }
+    // }
 
     handleTabNavigation() {
         this.forceUpdate();
@@ -192,39 +193,39 @@ class App extends React.Component {
         return this.props.events.filter(event => {
 
             // Set Searchable Fields
-            const searchableFields = ["title"];
+            // const searchableFields = ["title"];
 
             // Filter By Industry
-            if (
-                ( !!this.props.search.industry && !event.secondaryIndustries ) ||
-                ( !!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 )
-            ) {
-                return false;
-            }
+            // if (
+            //     ( !!this.props.search.industry && !event.secondaryIndustries ) ||
+            //     ( !!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 )
+            // ) {
+            //     return false;
+            // }
 
             // Filter By Sub Industry
-            if ( !!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
-                return false;
-            }
+            // if ( !!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
+            //     return false;
+            // }
 
             // Filter by Event Type
-            if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1 ) ) {
-                return false;
-            }
+            // if ( !!this.props.search.eventType && ( !event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1 ) ) {
+            //     return false;
+            // }
 
             // Filter By Search Term
-            if( this.props.search.query ) {
-                // basic search fields
-                const basicSearchFieldsFound = searchableFields.some((field) => ( event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+            // if( this.props.search.query ) {
+            //     // basic search fields
+            //     const basicSearchFieldsFound = searchableFields.some((field) => ( event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
 
-                // Event Type (Job Shadow, Interview, etc)
-                const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
+            //     // Event Type (Job Shadow, Interview, etc)
+            //     const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1
 
-                // Event Industry (Carpentry, Brick Layer, etc)
-                const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => ( field.name.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
+            //     // Event Industry (Carpentry, Brick Layer, etc)
+            //     const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => ( field.name.toLowerCase().indexOf(this.props.search.query.toLowerCase() ) > -1 ) )
 
-                return basicSearchFieldsFound || eventTypeFound || eventIndustryFound
-            }
+            //     return basicSearchFieldsFound || eventTypeFound || eventIndustryFound
+            // }
 
             return true;
         });
@@ -238,6 +239,11 @@ class App extends React.Component {
             start: event.startDateAndTime,
             end: event.endDateAndTime
         }
+
+        console.log("Defaults:");
+        console.log(defaults);
+
+        console.log(event);
 
         switch (event.className) {
             case "CompanyExperience":
@@ -264,47 +270,50 @@ class App extends React.Component {
     }
 
     loadEvents() {
-        this.props.loadEvents( window.Routing.generate('get_experiences_by_radius', {
-            'radius': this.props.search.radius,
-            'schoolId': this.props.schoolId,
-            'userId': this.props.userId,
-            'zipcode': this.props.search.zipcode
+        this.props.loadEvents( window.Routing.generate('get_experiences_by_user', {
+            'userId': this.props.userId
         }) );
+        // this.props.loadEvents( window.Routing.generate('get_experiences_by_radius', {
+        //     'radius': this.props.search.radius,
+        //     'schoolId': this.props.schoolId,
+        //     'userId': this.props.userId,
+        //     'zipcode': this.props.search.zipcode
+        // }) );
     }
 }
 
 App.propTypes = {
     calendar: PropTypes.object,
     events: PropTypes.array,
-    industries: PropTypes.array,
-    schoolId: PropTypes.number,
+    // industries: PropTypes.array,
+    // schoolId: PropTypes.number,
     userId: PropTypes.number
 };
 
 App.defaultProps = {
     calendar: {},
     events: [],
-    industries: [],
-    search: {},
-    schoolId: 0,
+    // industries: [],
+    // search: {},
+    // schoolId: 0,
     userId: 0
 };
 
 export const mapStateToProps = (state = {}) => ({
     calendar: state.calendar,
     events: state.events,
-    industries: state.industries,
-    search: state.search
+    // industries: state.industries,
+    // search: state.search
 });
 
 export const mapDispatchToProps = dispatch => ({
     loadEvents: (url) => dispatch(loadEvents(url)),
-    radiusChanged: (radius) => dispatch(radiusChanged(radius)),
-    updateEventTypeQuery: (event) => dispatch(updateEventTypeQuery(event.target.value)),
-    updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
-    updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
-    updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
-    zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode))
+    // radiusChanged: (radius) => dispatch(radiusChanged(radius)),
+    // updateEventTypeQuery: (event) => dispatch(updateEventTypeQuery(event.target.value)),
+    // updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
+    // updateSearchQuery: (event) => dispatch(updateSearchQuery(event.target.value)),
+    // updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
+    // zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode))
 });
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);

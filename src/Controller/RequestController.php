@@ -762,4 +762,23 @@ class RequestController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/requests/{id}/view", name="view_request", options = { "expose" = true })
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function viewRequest(Request $request) {
+
+        $user = $this->getUser();
+        $reqId = $request->get('id');
+
+        $myRequest = $this->requestRepository->find($reqId);
+
+        return $this->render('request/view.html.twig', [
+            'user' => $user,
+            'request' => $myRequest
+        ]);
+    }
+
 }
