@@ -83,8 +83,8 @@
                                             <label>New Date Choice 3</label>
                                             <input class="uk-timepicker uk-input" name="date_option_three" type="text"><br /><br />
 
-                                            <label>Custom Message</label>
-                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                            <label>Reason for changing the date:</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%" required></textarea>
 
                                             <p>
                                                 <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
@@ -103,8 +103,8 @@
                                         <h3>Cancel Experience</h3>
                                         <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
 
-                                            <label>Custom Message</label>
-                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                            <label>Reason for cancelling the event:</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%" required></textarea>
 
                                             <p>
                                                 <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
@@ -226,8 +226,8 @@
                                         <h3>Cancel Experience</h3>
                                         <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
 
-                                            <label>Custom Message</label>
-                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                            <label>Reason for cancelling the event:</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%" required></textarea>
 
                                             <p>
                                                 <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
