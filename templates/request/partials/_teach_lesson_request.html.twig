@@ -6,13 +6,22 @@
         {% if request.wasCreatedByUser(user) %}
             {% if request.createdBy.isEducator and request.educatorHasSeen == false %}
                 <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                    <small class="icon"><em class="fa fa-circle"></em></small> Request to teach a topic
+                    <small class="icon"><em class="fa fa-circle"></em></small> 
+                    {% if request.message %}
+                        Reschedule - Request to teach a topic
+                    {% else %}
+                        Request to teach a topic
+                    {% endif %}
                     <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                     <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.needsApprovalBy.fullName }}</small>
                 </a>
             {% else %}
                 <a class="uk-accordion-title" href="#">
-                    Request to teach a topic
+                    {% if request.message %}
+                        Reschedule - Request to teach a topic
+                    {% else %}
+                        Request to teach a topic
+                    {% endif %}
                     <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                     <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.needsApprovalBy.fullName }}</small>
                 </a>
@@ -74,8 +83,8 @@
                                             <label>New Date Choice 3</label>
                                             <input class="uk-timepicker uk-input" name="date_option_three" type="text"><br /><br />
 
-                                            <label>Custom Message</label>
-                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                            <label>Reason for changing the date:</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%" required></textarea>
 
                                             <p>
                                                 <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
@@ -94,8 +103,8 @@
                                         <h3>Cancel Experience</h3>
                                         <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
 
-                                            <label>Custom Message</label>
-                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                            <label>Reason for cancelling the event:</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%" required></textarea>
 
                                             <p>
                                                 <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
@@ -131,13 +140,22 @@
         {% else %}
             {% if request.professionalHasSeen == false %}
                 <a class="uk-accordion-title toggle-has-seen" href="#" data-location="{{ location }}" data-parent="{{ parentTab }}" data-id="{{ request.id }}">
-                    <small class="icon"><em class="fa fa-circle"></em></small> Request to teach a topic
+                    <small class="icon"><em class="fa fa-circle"></em></small> 
+                    {% if request.message %}
+                        Reschedule - Request to teach a topic
+                    {% else %}
+                        Request to teach a topic
+                    {% endif %}
                     <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                     <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</small>
                 </a>
             {% else %}
                 <a class="uk-accordion-title" href="#">
-                    Request to teach a topic
+                    {% if request.message %}
+                        Reschedule - Request to teach a topic
+                    {% else %}
+                        Request to teach a topic
+                    {% endif %}
                     <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
                     <br /><strong>{{ request.lesson.title }}</strong> - School: {{ request.createdBy.school.name }} - Professional: {{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</small>
                 </a>
@@ -208,8 +226,8 @@
                                         <h3>Cancel Experience</h3>
                                         <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
 
-                                            <label>Custom Message</label>
-                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                                            <label>Reason for cancelling the event:</label>
+                                            <textarea class="uk-textarea" name="customMessage" style="width: 100%" required></textarea>
 
                                             <p>
                                                 <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>

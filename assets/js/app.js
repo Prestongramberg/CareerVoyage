@@ -214,8 +214,8 @@ window.Pintex = {
                     <label class="uk-form-label">End Date.</label>
                     <input class="uk-timepicker uk-input" name="newEndDate" type="text">
 
-                    <label>Custom Message</label>
-                    <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                    <label>Reason for changing the date:</label>
+                    <textarea class="uk-textarea" name="customMessage" required style="width: 100%"></textarea>
 
                     <p>
                         <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
@@ -232,8 +232,8 @@ window.Pintex = {
                 <h3>Cancel Experience</h3>
                 <form class="uk-inline" action="/api/experiences/${eventId}/${deleteAction}" method="POST">
 
-                    <label>Custom Message</label>
-                    <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+                    <label>Reason for deleting the event:</label>
+                    <textarea class="uk-textarea" name="customMessage" required style="width: 100%"></textarea>
 
                     <p>
                         <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
