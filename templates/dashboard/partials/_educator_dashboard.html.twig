@@ -53,9 +53,10 @@
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">Favorites</a></li>
-                    <li><a href="#user-events">Experiences</a></li>
+                    <li><a href="#user-events">Experiences / Guest Topics</a></li>
                     <li><a href="#user-students">My Students</a></li>
                     <li><a href="#user-feedback">Provide Feedback</a></li>
+                    <li><a href="#view-feedback">View Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                     <div class="user_preferences_calendar">
@@ -177,7 +178,7 @@
 
                             <div class="uk-card uk-card-default">
                                 <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences</h3>
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences and Guest Instructor Topics</h3>
                                     <ul class="uk-tab" uk-switcher="connect: #tab-events" uk-tab>
                                         <li class="uk-active"><a href="#events-upcoming">Upcoming</a></li>
                                         <li><a href="#events-completed">Completed</a></li>
@@ -273,6 +274,24 @@
                                             {% endif %}
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feedback">
+                        <div class="uk-margin">
+                            <div class="uk-card uk-card-default">
+                                <div class="uk-card-body">
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">View Feedback</h3>
+                                    {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
+                                        <ul class="uk-list uk-list-divider">
+                                            {% for event in dashboards.completedEventsRegisteredForByUser %}
+                                                <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p>No completed experiences.</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

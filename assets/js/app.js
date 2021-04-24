@@ -96,8 +96,8 @@ window.Pintex = {
 
         let eventHtml = "";
         const eventPayload = deepObject(event, 'extendedProps.customEventPayload') || { className: "default" };
-        const eventStartDate = parseInt( eventPayload.startDateAndTimeTimeStamp );
-        const eventEndDate = parseInt( eventPayload.endDateAndTimeTimeStamp );
+        const eventStartDate = parseInt( eventPayload.startDateAndTime );
+        const eventEndDate = parseInt( eventPayload.endDateAndTime );
         const eventTitle = eventPayload.title;
         const eventAbout = eventPayload.about;
         const eventDescription = eventPayload.briefDescription;
@@ -125,6 +125,14 @@ window.Pintex = {
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
+
+        // TODO: CONTINUE HERE WITH VARIOUS EXPERIENCE TYPES
+        /*if(eventEndDate < Date.now()) {
+            if(eventPayload.className == 'Experience') {
+                eventHtml += ` <a href="/dashboard/experiences/${ eventPayload.id }/view" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom" style="position: relative; z-index: 99999">View Feedback</a>`;
+            
+            }
+        }*/
 
         if( eventPayload.className == "CompanyExperience") {
             $.post('/dashboard/companies/experiences/' + eventId + '/data', {}, function(data){
