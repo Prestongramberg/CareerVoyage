@@ -47,4 +47,24 @@ class AdminUserRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param        $search
+     *
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     */
+    public function findBySearchTerm($search)
+    {
+
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_ADMIN_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join admin_user au on u.id = au.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
+            $search);
+
+        $em   = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

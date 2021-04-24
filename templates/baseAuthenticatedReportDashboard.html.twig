@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard!{% endblock %}</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+</head>
+<body>
+<div uk-sticky class="uk-navbar-container tm-navbar-container uk-active" style="height: 80px">
+    <div class="uk-container uk-container-expand">
+        <nav uk-navbar>
+            <div class="uk-navbar-left">
+                <a id="sidebar_toggle" class="uk-navbar-toggle" uk-navbar-toggle-icon></a>
+                <a href="#" class="uk-navbar-item uk-logo">
+                    {% block navTitle %}{% endblock %}
+                </a>
+            </div>
+            <div class="uk-navbar-right uk-light">
+                <ul class="uk-navbar-nav">
+                    <li class="uk-active">
+                        <a href="#">{{ user.fullName }} &nbsp;<span class="ion-ios-arrow-down"></span></a>
+                        <div uk-dropdown="pos: bottom-right; mode: click; offset: -17;">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li class="uk-nav-header">Options</li>
+                                <li><a href="{{ path('profile_edit', {'id': app.user.id}) }}">Edit Profile</a></li>
+                                <li class="uk-nav-header">Actions</li>
+                                <li><a href="{{ path('sign_out') }}">Logout</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<div id="sidebar" class="tm-sidebar-left uk-background-default">
+    <center>
+        <div class="user">
+            <img id="avatar" width="100" class="uk-border-circle"
+                 src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"/>
+            <div class="uk-margin-top"></div>
+            <div id="name" class="uk-text-truncate">{{ user.fullName }}</div>
+            <div id="email" class="uk-text-truncate">{{ user.email }}</div>
+            <span id="status" data-enabled="true" data-online-text="Online" data-away-text="Away" data-interval="10000"
+                  class="uk-margin-top uk-label uk-label-success"></span>
+        </div>
+        <br/>
+    </center>
+    <ul class="uk-nav uk-nav-default">
+
+        <li class="uk-nav-header">
+            Dashboards
+        </li>
+        <li class="{{ dashboardType == 'experience_satisfaction' ? 'uk-active' : '' }}"><a href="{{ path('report_experience_satisfaction_dashboard') }}">Experience Satisfaction</a></li>
+        <li class="{{ dashboardType == 'topic_satisfaction' ? 'uk-active' : '' }}"><a href="{{ path('report_topic_satisfaction_dashboard') }}">Topic Satisfaction</a></li>
+    </ul>
+</div>
+<div class="content-padder content-background">
+
+    <div class="uk-section-small uk-section-default header">
+        <div class="uk-container uk-container-large">
+            <h1><span class="ion-speedometer"></span> {% block heading %}{% endblock %}</h1>
+            <ul class="uk-breadcrumb">
+                <li><a href="{{ path('dashboard') }}">Home</a></li>
+                <li><span href="">Dashboard</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="uk-section-small">
+        <div class="uk-container uk-container-large">
+
+            {% block filters %}{% endblock %}
+
+            {% block charts %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
+    <script>
+        /**
+         * Global constants
+         *
+         * TODO: ideally these values would be filled in from the server side
+         *
+         * @class SETTINGS
+         * @static
+         */
+        window.SETTINGS = {};
+
+        /**
+         * Root path for all JavaScript files
+         *
+         * @property SCRIPT_PATH
+         * @type String
+         * @final
+         */
+        SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
+
+        /**
+         * LOGGED in User
+         */
+        SETTINGS.LOGGED_IN_USER_ID = {{ user.id }};
+
+        /**
+         * Photo of User
+         */
+        SETTINGS.LOGGED_IN_USER_PHOTO = "{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}";
+        SETTINGS.DEFAULT_USER_PHOTO = "{{ asset('build/images/avatar.png') }}"
+    </script>
+
+    {{ encore_entry_script_tags('app') }}
+
+{% endblock %}
+
+</body>
+</html>

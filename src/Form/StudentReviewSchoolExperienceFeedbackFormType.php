@@ -37,6 +37,7 @@ class StudentReviewSchoolExperienceFeedbackFormType extends AbstractType
     {
         $builder->add('feedback', FeedbackFormType::class, [
             'data_class' => StudentReviewSchoolExperienceFeedback::class,
+            'label' => false
         ]);
 
         $builder->add('interestInWorkingForCompany', HiddenType::class, []);

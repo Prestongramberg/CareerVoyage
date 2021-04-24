@@ -29,11 +29,20 @@ class Kernel extends BaseKernel
 
         // return '/dev/shm/cache/' . $this->getEnvironment();
 
-        if (file_exists('../.env.local')) {
+        if($this->getEnvironment() === 'dev') {
             return '/dev/shm/cache/' . $this->getEnvironment();
         }
 
         return $this->getProjectDir().'/var/cache/'.$this->environment;
+    }
+
+    public function getLogDir()
+    {
+        if($this->getEnvironment() === 'dev') {
+            return '/dev/shm/log';
+        }
+
+        return parent::getLogDir();
     }
 
     public function registerBundles(): iterable

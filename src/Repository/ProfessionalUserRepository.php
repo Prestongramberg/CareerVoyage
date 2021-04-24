@@ -54,8 +54,10 @@ class ProfessionalUserRepository extends ServiceEntityRepository
 
     /**
      * @param $search
+     *
      * @return mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findBySearchTerm($search) {
 
@@ -285,6 +287,22 @@ class ProfessionalUserRepository extends ServiceEntityRepository
                     ->setParameter('id', $school->getId())
                     ->getQuery()
                     ->getResult();
+    }
+
+    /**
+     * Fetch a user entity by email address
+     *
+     * @param string $emailAddress
+     *
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByEmailAddress($emailAddress) {
+        return $this->createQueryBuilder('p')
+                    ->where('p.email = :email')
+                    ->setParameter('email', $emailAddress)
+                    ->getQuery()
+                    ->getOneOrNullResult();
     }
 
 }

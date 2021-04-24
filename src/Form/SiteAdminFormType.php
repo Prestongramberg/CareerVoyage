@@ -49,7 +49,8 @@ class SiteAdminFormType extends AbstractType
                 'expanded'  => false,
                 'multiple'  => false,
                 'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('s');
+                    return $er->createQueryBuilder('s')
+                              ->orderBy('s.name');
                 }
             ]);
     }
