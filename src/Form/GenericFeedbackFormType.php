@@ -42,6 +42,7 @@ class GenericFeedbackFormType extends AbstractType
     {
         $builder->add('feedback', FeedbackFormType::class, [
             'data_class' => Feedback::class,
+            'label' => false
         ]);
 
     }

@@ -53,7 +53,7 @@ class LearnedSomethingNew extends AbstractDashboard
             $totalResponses++;
         }
 
-        $this->header = 'Of Respondents Found They Learned Something New.';
+        $this->header = 'of respondents found they learned something new.';
 
         if ($totalResponses !== 0) {
             $this->percentage = round($positive / $totalResponses * 100);

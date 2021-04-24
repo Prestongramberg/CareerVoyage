@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\PieChart;
+namespace App\Model\Report\Dashboard\TopicSatisfactionFeedback\PieChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
@@ -8,7 +8,7 @@ use App\Model\Report\Dashboard\AbstractDashboard;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class ExperienceEnjoyableAndEngaging extends AbstractDashboard
+class LearnedSomethingNew extends AbstractDashboard
 {
     protected $type = 'pie';
 
@@ -22,7 +22,7 @@ class ExperienceEnjoyableAndEngaging extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $position = 2;
+    protected $position = 3;
 
     protected $percentage = 0;
 
@@ -40,11 +40,11 @@ class ExperienceEnjoyableAndEngaging extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if($feedback['wasEnjoyableAndEngaging'] === null) {
-                continue;
+            if($feedback['learnSomethingNew'] === null) {
+                $positive++;
             }
 
-            if($feedback['wasEnjoyableAndEngaging']) {
+            if($feedback['learnSomethingNew']) {
                 $positive++;
             } else {
                 $negative++;
@@ -53,11 +53,10 @@ class ExperienceEnjoyableAndEngaging extends AbstractDashboard
             $totalResponses++;
         }
 
-        $this->header = 'of respondents found the experience enjoyable and engaging.';
+        $this->header = 'of respondents found they learned something new.';
 
         if ($totalResponses !== 0) {
             $this->percentage = round($positive / $totalResponses * 100);
-            $this->header = 'of respondents found the experience enjoyable and engaging.';
         }
 
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\BarChart;
+namespace App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
@@ -8,13 +8,13 @@ use App\Model\Report\Dashboard\AbstractDashboard;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class StudentInterestInWorkingForCompany extends AbstractDashboard
+class PromoterNeutralDetractor extends AbstractDashboard
 {
     protected $type = 'bar';
 
-    protected $labels = ['1', '2', '3', '4', '5'];
+    protected $labels = ['Promoter', 'Neutral', 'Detractor'];
 
-    protected $label = 'Bar Chart';
+    protected $label = '';
 
     protected $data = [];
 
@@ -22,15 +22,13 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = '';
+    protected $header = 'Count of Promoters (9-10), Passives (7-8), Detractors (0-6).';
 
     protected $subHeader = '';
 
-    protected $footer = '1: Much Less < 3: No Change > 5: Much More';
+    protected $footer = '';
 
-    protected $position = 1;
-
-    protected $average = 0;
+    protected $position = 6;
 
     /**
      * BarChart constructor.
@@ -39,49 +37,38 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $data           = [];
+        $cumulativePromoters  = 0;
+        $cumulativeDetractors = 0;
+        $cumulativePassives = 0;
         $totalResponses = 0;
-        $cumulative     = 0;
 
+        /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            $feedbackProvider = $feedback['feedbackProvider'] ?? null;
-            $experienceProvider = $feedback['experienceProvider'] ?? null;
-
-            if ($feedbackProvider !== 'Student') {
+            if ($feedback['feedbackProvider'] !== 'Student') {
                 continue;
             }
 
-            if ($experienceProvider !== 'Company') {
+            if($feedback['likelihoodToRecommendToFriend'] === null) {
                 continue;
             }
 
-            if($feedback['interestWorkingForCompany'] === null) {
-                continue;
+            if ($feedback['likelihoodToRecommendToFriend'] > 8) {
+                $cumulativePromoters++;
             }
 
-            $interestWorkingForCompany = $feedback['interestWorkingForCompany'];
+            if ($feedback['likelihoodToRecommendToFriend'] < 7) {
+                $cumulativeDetractors++;
+            }
+
+            if ($feedback['likelihoodToRecommendToFriend'] === 7 || $feedback['likelihoodToRecommendToFriend'] === 8) {
+                $cumulativePassives++;
+            }
 
             $totalResponses++;
-
-            $cumulative += (int)$interestWorkingForCompany;
-
-            if (!isset($data[$interestWorkingForCompany])) {
-                $data[$interestWorkingForCompany] = 0;
-            }
-
-            $data[$interestWorkingForCompany]++;
         }
 
-        foreach ($this->labels as $label) {
-            $this->data[] = isset($data[$label]) ? $data[$label] : 0;
-        }
-
-        if ($totalResponses !== 0) {
-            $this->average = sprintf("Average: %s", round($cumulative/ $totalResponses, 1));
-        }
-
-        $this->header = 'After this company experience my awareness of career opportunities at this company is: 5 point scale from much less to much more';
+        $this->data = [$cumulativePromoters, $cumulativePassives, $cumulativeDetractors];
 
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);
 
@@ -92,6 +79,7 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         return json_encode([
             'type' => $this->type,
             'options' => [
+                'indexAxis' => 'y',
                 'legend' => [
                     'display' => false
                 ],
@@ -151,15 +139,5 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
     public function setPosition($position)
     {
         $this->position = $position;
-    }
-
-    public function getAverage()
-    {
-        return $this->average;
-    }
-
-    public function setAverage($average)
-    {
-        $this->average = $average;
     }
 }

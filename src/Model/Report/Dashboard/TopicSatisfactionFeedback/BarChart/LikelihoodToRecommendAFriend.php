@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\BarChart;
+namespace App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
@@ -8,11 +8,11 @@ use App\Model\Report\Dashboard\AbstractDashboard;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class StudentInterestInWorkingForCompany extends AbstractDashboard
+class LikelihoodToRecommendAFriend extends AbstractDashboard
 {
     protected $type = 'bar';
 
-    protected $labels = ['1', '2', '3', '4', '5'];
+    protected $labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
     protected $label = 'Bar Chart';
 
@@ -26,9 +26,9 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $footer = '1: Much Less < 3: No Change > 5: Much More';
+    protected $footer = '';
 
-    protected $position = 1;
+    protected $position = 5;
 
     protected $average = 0;
 
@@ -43,34 +43,28 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         $totalResponses = 0;
         $cumulative     = 0;
 
+        /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            $feedbackProvider = $feedback['feedbackProvider'] ?? null;
-            $experienceProvider = $feedback['experienceProvider'] ?? null;
-
-            if ($feedbackProvider !== 'Student') {
+            if ($feedback['feedbackProvider'] !== 'Student') {
                 continue;
             }
 
-            if ($experienceProvider !== 'Company') {
+            if ($feedback['likelihoodToRecommendToFriend'] === null) {
                 continue;
             }
-
-            if($feedback['interestWorkingForCompany'] === null) {
-                continue;
-            }
-
-            $interestWorkingForCompany = $feedback['interestWorkingForCompany'];
 
             $totalResponses++;
 
-            $cumulative += (int)$interestWorkingForCompany;
+            $likelihood = $feedback['likelihoodToRecommendToFriend'];
 
-            if (!isset($data[$interestWorkingForCompany])) {
-                $data[$interestWorkingForCompany] = 0;
+            $cumulative += (int)$likelihood;
+
+            if (!isset($data[$likelihood])) {
+                $data[$likelihood] = 0;
             }
 
-            $data[$interestWorkingForCompany]++;
+            $data[$likelihood]++;
         }
 
         foreach ($this->labels as $label) {
@@ -78,13 +72,12 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
         }
 
         if ($totalResponses !== 0) {
-            $this->average = sprintf("Average: %s", round($cumulative/ $totalResponses, 1));
+            $this->average = sprintf("Average: %s", round($cumulative / $totalResponses, 1));
         }
 
-        $this->header = 'After this company experience my awareness of career opportunities at this company is: 5 point scale from much less to much more';
+        $this->header = "Likelihood to recommend to a friend";
 
         $this->subHeader = sprintf("(%s Responses)", $totalResponses);
-
     }
 
     public function render()
@@ -93,7 +86,7 @@ class StudentInterestInWorkingForCompany extends AbstractDashboard
             'type' => $this->type,
             'options' => [
                 'legend' => [
-                    'display' => false
+                    'display' => false,
                 ],
             ],
             'data' => [

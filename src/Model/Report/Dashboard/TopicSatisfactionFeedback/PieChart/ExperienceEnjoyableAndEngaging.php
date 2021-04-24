@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\PieChart;
+namespace App\Model\Report\Dashboard\TopicSatisfactionFeedback\PieChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;

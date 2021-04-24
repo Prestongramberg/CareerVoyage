@@ -34,7 +34,7 @@ class Feedback
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="integer")
      */
-    protected $rating = 0;
+    protected $rating;
 
     /**
      * @Groups({"FEEDBACK"})
@@ -189,6 +189,30 @@ class Feedback
      */
     private $employeeContactNames = [];
 
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $dashboardType;
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $relatedToMyClassroomWork;
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $topic;
+
+    /**
+     * @Groups({"FEEDBACK"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $presenter;
+
 
     public function getId(): ?int
     {
@@ -267,6 +291,11 @@ class Feedback
         return $this;
     }
 
+    /**
+     * @Groups({"FEEDBACK"})
+     * @return string
+     * @throws \ReflectionException
+     */
     public function getClassName()
     {
         return (new \ReflectionClass($this))->getShortName();
@@ -509,6 +538,54 @@ class Feedback
     public function setEmployeeContactNames(?array $employeeContactNames): self
     {
         $this->employeeContactNames = $employeeContactNames;
+
+        return $this;
+    }
+
+    public function getDashboardType(): ?string
+    {
+        return $this->dashboardType;
+    }
+
+    public function setDashboardType(?string $dashboardType): self
+    {
+        $this->dashboardType = $dashboardType;
+
+        return $this;
+    }
+
+    public function getRelatedToMyClassroomWork(): ?bool
+    {
+        return $this->relatedToMyClassroomWork;
+    }
+
+    public function setRelatedToMyClassroomWork(?bool $relatedToMyClassroomWork): self
+    {
+        $this->relatedToMyClassroomWork = $relatedToMyClassroomWork;
+
+        return $this;
+    }
+
+    public function getTopic(): ?string
+    {
+        return $this->topic;
+    }
+
+    public function setTopic(?string $topic): self
+    {
+        $this->topic = $topic;
+
+        return $this;
+    }
+
+    public function getPresenter(): ?string
+    {
+        return $this->presenter;
+    }
+
+    public function setPresenter(?string $presenter): self
+    {
+        $this->presenter = $presenter;
 
         return $this;
     }
