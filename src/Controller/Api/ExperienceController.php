@@ -296,7 +296,7 @@ class ExperienceController extends AbstractController
                             foreach ($loggedInUser->getSchools() as $school) {
                                 $schoolId          = $school->getId();
                                 $experiences       = $this->schoolExperienceRepository->search($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId, $startDate, $endDate, $searchQuery, $eventType, $industry, $secondaryIndustry);
-                                $schoolExperiences = array_merge($schoolExperiences, $experiences);
+                                $schoolExperiences = array_unique(array_merge($schoolExperiences, $experiences), SORT_REGULAR);
                             }
                         }
                     }
