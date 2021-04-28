@@ -2349,7 +2349,7 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/experiences/{id}/toggle-feedback-view", name="toggle_feedback_view", options = { "expose" = true })
+     * @Route("/companies/experiences/{id}/toggle-feedback-view", name="toggle_company_feedback_view", options = { "expose" = true })
      * @param Request $request
      * @param CompanyExperience $experience
      *

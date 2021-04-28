@@ -618,7 +618,7 @@
             e.preventDefault();
             var val = $(this).data('value');
             var user = $(this).data('user');
-            $.post('{{ path('toggle_feedback_view', { "id": experience.id }) }}', { val: val, user: user}, function(data){
+            $.post('{{ path('toggle_company_feedback_view', { "id": experience.id }) }}', { val: val, user: user}, function(data){
                 if(data.status == "success") {
                     if(data.canView == 1) {
                         $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="0" data-user="' + user + '" class="uk-button uk-button-primary uk-button-small">Yes</a>');
