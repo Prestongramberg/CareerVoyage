@@ -133,7 +133,8 @@ class NewSchoolExperienceType extends AbstractType
                 'expanded'  => false,
                 'multiple'  => false,
                 'required' => true
-            ]);
+            ])
+            ->add('canViewFeedback', HiddenType::class, ['data' => true]);
             // ->add('startDateAndTime', TextType::class, [])
             // ->add('endDateAndTime', TextType::class, []);
 
