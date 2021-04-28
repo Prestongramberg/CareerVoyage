@@ -658,8 +658,32 @@
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
                     <tr>
-                        <td>Experience Coordinator</td>
-                        <td>{{ experience.schoolContact.fullName }}</td>
+                        <td width="35%">Experience Coordinator</td>
+                        <td width="65%">
+                            {% if experience.schoolContact and experience.schoolContact.fullName %}
+                                {{ experience.schoolContact.fullName }}
+                            {% endif %}
+
+                            {% if experience.schoolContact and experience.schoolContact.fullName %}
+                                {% if user_can_chat_with_user( user, experience.schoolContact ) %}
+                                    <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.schoolContact.id }}">Chat</button>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if experience.schoolContact and experience.schoolContact.fullName %}
+                                {% if user.isSchoolAdministrator %}
+                                    <span style="float:right;">Allow to see feedback? 
+                                        <span id="view_feedback">
+                                            {% if experience.canViewFeedback == true %}
+                                                <a href="#" id="toggle-feedback" data-value="0" data-user="{{ experience.schoolContact.id }}" class="uk-button uk-button-primary uk-button-small">Yes</a>
+                                            {% else %}
+                                                <a href="#" id="toggle-feedback" data-value="1" data-user="{{ experience.schoolContact.id }}" class="uk-button uk-button-danger uk-button-small">No</a>
+                                            {% endif %}
+                                        </span>
+                                    </span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td>Email</td>
@@ -824,6 +848,22 @@
               $('#student_' + data.userId).html( '<form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>' );
             }
           });
+        });
+
+
+        $(document).on("click", "#toggle-feedback", function(e){
+            e.preventDefault();
+            var val = $(this).data('value');
+            var user = $(this).data('user');
+            $.post('{{ path('toggle_school_feedback_view', { "id": experience.id }) }}', { val: val, user: user}, function(data){
+                if(data.status == "success") {
+                    if(data.canView == 1) {
+                        $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="0" data-user="' + user + '" class="uk-button uk-button-primary uk-button-small">Yes</a>');
+                    } else {
+                        $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="1" data-user="' + user + '" class="uk-button uk-button-danger uk-button-small">No</a>');
+                    }
+                }
+            });
         });
 
         function fallbackCopyTextToClipboard(text) {

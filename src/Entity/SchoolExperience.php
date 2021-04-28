@@ -51,6 +51,11 @@ class SchoolExperience extends Experience
      */
     private $userRegisterForSchoolExperienceRequests;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $canViewFeedback;
+
     public function __construct()
     {
         parent::__construct();
@@ -146,5 +151,17 @@ class SchoolExperience extends Experience
         }
 
         return '';
+    }
+
+    public function getCanViewFeedback()
+    {
+        return $this->canViewFeedback;
+    }
+
+    public function setCanViewFeedback($canViewFeedback): self
+    {
+        $this->canViewFeedback = $canViewFeedback;
+
+        return $this;
     }
 }
