@@ -163,6 +163,7 @@ export class App extends Component {
             if (field.items && field.items.enum && field.items.enum_titles) {
                 // Select Field (Multiple)
 
+                debugger;
                 let selected = this.props.filters[fieldName] || [];
 
                 const merged = field.items.enum.reduce((obj, key, index) => ({
@@ -174,8 +175,11 @@ export class App extends Component {
                 for (let key in merged) {
                     let value = merged[key];
 
-                    options.push({label: value, value: key, id: key});
+                    options.push({label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(), value: key, id: key});
                 }
+
+                debugger;
+                options = options.sort((a, b) => (a.label > b.label) ? 1 : -1);
 
                 filters.push(<Multiselect
                         options={options}
@@ -205,11 +209,15 @@ export class App extends Component {
                 }), {});
                 let options = [];
 
+                debugger;
                 for (let key in merged) {
                     let value = merged[key];
 
-                    options.push({label: value, value: key, id: key});
+                    options.push({label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(), value: key, id: key});
                 }
+
+                debugger;
+                options = options.sort((a, b) => (a.label > b.label) ? 1 : -1);
 
                 filters.push(<Multiselect
                         options={options}
