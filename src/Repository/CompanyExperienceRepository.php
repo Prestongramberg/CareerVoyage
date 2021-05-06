@@ -301,9 +301,9 @@ WHERE 1 = 1 AND e.cancelled = %s', 0);
         }
 
         if ($startDate && $endDate) {
-
-            $query .= sprintf(" AND DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s'", $startDate, $endDate);
-
+            $query .= sprintf(" AND (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s')", $startDate, $endDate);
+            $query .= sprintf(" OR (DATE(e.start_date_and_time) <= '%s' AND DATE(e.end_date_and_time) >= '%s')", $startDate, $endDate);
+            $query .= sprintf(" OR ( (DATE(e.start_date_and_time) BETWEEN '%s' AND '%s') OR (DATE(e.end_date_and_time) BETWEEN '%s' AND '%s') )", $startDate, $endDate, $startDate, $endDate);
         }
 
         if($searchQuery) {
