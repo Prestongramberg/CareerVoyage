@@ -126,8 +126,8 @@ class SearchFilterType extends AbstractType
                           'choices'      => [
                               'Educator'             => 'ROLE_EDUCATOR_USER',
                               'Professional'         => 'ROLE_PROFESSIONAL_USER',
-                              'Student'              => 'ROLE_STUDENT_USER',
                               'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
+                              'Student'              => 'ROLE_STUDENT_USER',
                           ],
                           'label'        => 'FILTER BY USER ROLE',
                           'placeholder'  => 'FILTER BY USER ROLE',

@@ -95,9 +95,12 @@ class SearchController extends AbstractController
         $regionIds    = [];
         $experienceId = $request->query->get('experience', null);
         $experience   = null;
+        $serializationGroups = ['ALL_USER_DATA', 'STUDENT_USER', 'EDUCATOR_USER_DATA', 'PROFESSIONAL_USER_DATA'];
         if ($experienceId) {
             $experience = $this->experienceRepository->find($experienceId);
         }
+
+
 
         /**
          * Students can message
@@ -195,6 +198,7 @@ class SearchController extends AbstractController
         $userRole = $form->get('userRole')->getData();
 
         if ($userRole === User::ROLE_PROFESSIONAL_USER) {
+            $serializationGroups = ['ALL_USER_DATA', 'PROFESSIONAL_USER_DATA'];
             $filterBuilder = $this->professionalUserRepository->createQueryBuilder('u');
 
             if (!empty($regionIds)) {
@@ -204,6 +208,7 @@ class SearchController extends AbstractController
             }
 
         } elseif ($userRole === User::ROLE_EDUCATOR_USER) {
+            $serializationGroups = ['ALL_USER_DATA', 'EDUCATOR_USER_DATA'];
             $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
 
             if (!empty($regionIds)) {
@@ -214,6 +219,7 @@ class SearchController extends AbstractController
             }
 
         } elseif ($userRole === User::ROLE_STUDENT_USER) {
+            $serializationGroups = ['ALL_USER_DATA', 'STUDENT_USER'];
             $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
 
             if (!empty($regionIds)) {
@@ -238,7 +244,7 @@ class SearchController extends AbstractController
         }
 
         $filterBuilder->andWhere('u.deleted = 0');
-        $filterBuilder->addOrderBy('u.firstName', 'ASC');
+        $filterBuilder->addOrderBy('u.lastName', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
@@ -273,7 +279,7 @@ class SearchController extends AbstractController
             }
         }
 
-        $items = $this->serializer->serialize($items, 'json', ['groups' => ["ALL_USER_DATA"]]);
+        $items = $this->serializer->serialize($items, 'json', ['groups' => $serializationGroups]);
 
         return new JsonResponse(
             [

@@ -29,6 +29,7 @@ class StudentUser extends User
     use RandomStringGenerator;
 
     /**
+     * @Groups({"STUDENT_USER"})
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="studentUsers")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
