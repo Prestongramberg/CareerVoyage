@@ -82,6 +82,15 @@ class ExperienceRating extends AbstractDashboard
                 'legend' => [
                     'display' => false
                 ],
+                'scales' => [
+                    'yAxes' => [
+                        [
+                            'ticks' => [
+                                'beginAtZero' => true
+                            ]
+                        ]
+                    ]
+                ]
             ],
             'data' => [
                 'labels' => $this->labels,
