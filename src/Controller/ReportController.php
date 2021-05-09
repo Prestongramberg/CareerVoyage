@@ -737,7 +737,6 @@ WHERE u.discr = "professionalUser" :regions',
      * @param         $cacheDirectory
      *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Psr\Cache\InvalidArgumentException
      * @throws \Exception
      */
     public function experienceSatisfactionDashboard(Request $request, $cacheDirectory)
@@ -963,6 +962,8 @@ WHERE u.discr = "professionalUser" :regions',
      * @param Request $request
      *
      * @param         $cacheDirectory
+     *
+     * @return Response
      * @throws \Exception
      */
     public function topicSatisfactionDashboard(Request $request, $cacheDirectory)
@@ -1185,4 +1186,14 @@ WHERE u.discr = "professionalUser" :regions',
             ]
         );
     }
+
+    public function get($query) {
+
+        $em = $this->entityManager;
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll();
+
+    }
+
 }

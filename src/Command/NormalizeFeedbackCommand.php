@@ -3,18 +3,38 @@
 namespace App\Command;
 
 use App\Cache\CacheKey;
+use App\Entity\AdminUser;
+use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\EducatorReviewCompanyExperienceFeedback;
 use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
+use App\Entity\EducatorUser;
 use App\Entity\Feedback;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalUser;
+use App\Entity\RegionalCoordinator;
+use App\Entity\Report;
+use App\Entity\SchoolAdministrator;
+use App\Entity\SchoolExperience;
+use App\Entity\SiteAdminUser;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
+use App\Entity\StudentToMeetProfessionalExperience;
+use App\Entity\StudentUser;
+use App\Entity\TeachLessonExperience;
+use App\Repository\CompanyExperienceRepository;
+use App\Repository\CompanyRepository;
+use App\Repository\EducatorUserRepository;
 use App\Repository\FeedbackRepository;
 use App\Repository\ProfessionalUserRepository;
+use App\Repository\ReportRepository;
+use App\Repository\SchoolExperienceRepository;
+use App\Repository\StudentToMeetProfessionalExperienceRepository;
+use App\Repository\StudentUserRepository;
+use App\Repository\TeachLessonExperienceRepository;
 use App\Util\FileHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -53,6 +73,46 @@ class NormalizeFeedbackCommand extends Command
     private $serializer;
 
     /**
+     * @var CompanyRepository
+     */
+    private $companyRepository;
+
+    /**
+     * @var ReportRepository
+     */
+    private $reportRepository;
+
+    /**
+     * @var CompanyExperienceRepository
+     */
+    private $companyExperienceRepository;
+
+    /**
+     * @var StudentUserRepository
+     */
+    private $studentUserRepository;
+
+    /**
+     * @var EducatorUserRepository
+     */
+    private $educatorUserRepository;
+
+    /**
+     * @var SchoolExperienceRepository
+     */
+    private $schoolExperienceRepository;
+
+    /**
+     * @var StudentToMeetProfessionalExperienceRepository
+     */
+    private $studentToMeetProfessionalExperienceRepository;
+
+    /**
+     * @var TeachLessonExperienceRepository
+     */
+    private $teachLessonExperienceRepository;
+
+    /**
      * @var string
      */
     private $cacheDirectory;
@@ -60,21 +120,44 @@ class NormalizeFeedbackCommand extends Command
     /**
      * NormalizeFeedbackCommand constructor.
      *
-     * @param EntityManagerInterface     $entityManager
-     * @param FeedbackRepository         $feedbackRepository
-     * @param ProfessionalUserRepository $professionalUserRepository
-     * @param SerializerInterface        $serializer
-     * @param                            $cacheDirectory
+     * @param EntityManagerInterface                        $entityManager
+     * @param FeedbackRepository                            $feedbackRepository
+     * @param ProfessionalUserRepository                    $professionalUserRepository
+     * @param SerializerInterface                           $serializer
+     * @param CompanyRepository                             $companyRepository
+     * @param ReportRepository                              $reportRepository
+     * @param CompanyExperienceRepository                   $companyExperienceRepository
+     * @param StudentUserRepository                         $studentUserRepository
+     * @param EducatorUserRepository                        $educatorUserRepository
+     * @param SchoolExperienceRepository                    $schoolExperienceRepository
+     * @param StudentToMeetProfessionalExperienceRepository $studentToMeetProfessionalExperienceRepository
+     * @param TeachLessonExperienceRepository               $teachLessonExperienceRepository
+     * @param string                                        $cacheDirectory
      */
     public function __construct(EntityManagerInterface $entityManager, FeedbackRepository $feedbackRepository,
                                 ProfessionalUserRepository $professionalUserRepository, SerializerInterface $serializer,
-                                $cacheDirectory
+                                CompanyRepository $companyRepository, ReportRepository $reportRepository,
+                                CompanyExperienceRepository $companyExperienceRepository,
+                                StudentUserRepository $studentUserRepository,
+                                EducatorUserRepository $educatorUserRepository,
+                                SchoolExperienceRepository $schoolExperienceRepository,
+                                StudentToMeetProfessionalExperienceRepository $studentToMeetProfessionalExperienceRepository,
+                                TeachLessonExperienceRepository $teachLessonExperienceRepository,
+                                string $cacheDirectory
     ) {
-        $this->entityManager              = $entityManager;
-        $this->feedbackRepository         = $feedbackRepository;
-        $this->professionalUserRepository = $professionalUserRepository;
-        $this->serializer                 = $serializer;
-        $this->cacheDirectory             = $cacheDirectory;
+        $this->entityManager                                 = $entityManager;
+        $this->feedbackRepository                            = $feedbackRepository;
+        $this->professionalUserRepository                    = $professionalUserRepository;
+        $this->serializer                                    = $serializer;
+        $this->companyRepository                             = $companyRepository;
+        $this->reportRepository                              = $reportRepository;
+        $this->companyExperienceRepository                   = $companyExperienceRepository;
+        $this->studentUserRepository                         = $studentUserRepository;
+        $this->educatorUserRepository                        = $educatorUserRepository;
+        $this->schoolExperienceRepository                    = $schoolExperienceRepository;
+        $this->studentToMeetProfessionalExperienceRepository = $studentToMeetProfessionalExperienceRepository;
+        $this->teachLessonExperienceRepository               = $teachLessonExperienceRepository;
+        $this->cacheDirectory                                = $cacheDirectory;
 
         parent::__construct();
     }
@@ -90,11 +173,40 @@ class NormalizeFeedbackCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+        //$this->normalizeFeedbackData($input, $output);
+
+        $this->reportRepository->deleteAllReports();
+        //$this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
+        //$this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
+        //$this->normalizeDataForCompanyExperiences($input, $output);
+        //$this->normalizeDataForStudentsRegisteredOnPlatform($input, $output);
+        //$this->normalizeDataForSchoolExperiences($input, $output);
+
+        //$this->normalizeDataForEducatorsRegisteredOnPlatform($input, $output);
+
+        //$this->normalizeDataForStudentParticipation($input, $output);
+
+        $this->normalizeDataForVolunteerParticipation($input, $output);
+    }
+
+
+    private function normalizeFeedbackData(InputInterface $input, OutputInterface $output)
+    {
+        $this->entityManager->clear();
+        $output->writeln('Normalizing feedback data.');
+
         $feedbackCollection = $this->generateFeedbackCollection();
 
         $feedbackUpdateCount = 0;
-        /** @var Feedback $feedback */
-        foreach ($feedbackCollection as $feedback) {
+        foreach ($feedbackCollection as $result) {
+
+            /** @var Feedback $feedback */
+            $feedback = $result[0] ?? null;
+
+            if (!$feedback) {
+                continue;
+            }
 
             $className = $feedback->getClassName();
 
@@ -304,26 +416,6 @@ class NormalizeFeedbackCommand extends Command
                         }
                     }
 
-                    /*          if ($feedback->getCompanyExperience() && $state = $feedback->getCompanyExperience()->getState()) {
-                                  foreach ($state->getSchools() as $school) {
-                                      $schoolIds[]   = $school->getId();
-                                      $schoolNames[] = $school->getName();
-                                  }
-                              }*/
-
-                    /*     if ($feedback->getProfessional()) {
-
-                             foreach ($feedback->getProfessional()->getRegions() as $region) {
-                                 $regionIds[]   = $region->getId();
-                                 $regionNames[] = $region->getName();
-                             }
-
-                             foreach ($feedback->getProfessional()->getSchools() as $school) {
-                                 $schoolIds[]   = $school->getId();
-                                 $schoolNames[] = $school->getName();
-                             }
-                         }*/
-
                     if ($feedback->getCompanyExperience() && $company = $feedback->getCompanyExperience()->getCompany()) {
                         $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
@@ -476,20 +568,6 @@ class NormalizeFeedbackCommand extends Command
                         $schoolIds[]   = $school->getId();
                         $schoolNames[] = $school->getName();
                     }
-
-                    /*   if ($feedback->getProfessional()) {
-
-                           foreach ($feedback->getProfessional()->getRegions() as $region) {
-                               $regionIds[]   = $region->getId();
-                               $regionNames[] = $region->getName();
-                           }
-
-                           foreach ($feedback->getProfessional()->getSchools() as $school) {
-                               $schoolIds[]   = $school->getId();
-                               $schoolNames[] = $school->getName();
-                           }
-                       }*/
-
 
                     if ($feedback->getSchoolExperience() && $school = $feedback->getSchoolExperience()->getSchool()) {
                         if ($region = $school->getRegion()) {
@@ -891,21 +969,1130 @@ class NormalizeFeedbackCommand extends Command
             return $cachedFeedback;
         });
 
-        $output->writeln('Feedback Data normalized: ' . $feedbackUpdateCount);
+        $output->writeln('Done..... Count: ' . $feedbackUpdateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/87FYSdK0/512-companies-registered-on-platfrom
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForCompaniesRegisteredOnPlatform(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for companies registered on platform.');
+
+        $companyCollection = $this->generateCompanyCollection();
+
+        $updateCount = 0;
+        foreach ($companyCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+
+            /** @var Company $company */
+            $company = $result[0] ?? null;
+
+            if (!$company) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('companies_registered_on_platform');
+            $report->setCompanyName($company->getName());
+            $report->setCompany($company->getId());
+            $report->setRegistrationDate($company->getCreatedAt());
+
+            foreach ($company->getSchools() as $school) {
+                $schoolNames[] = $school->getName();
+                $schoolIds[]   = $school->getId();
+            }
+
+            $report->setSchoolNames($schoolNames);
+            $report->setSchools($schoolIds);
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+            unset($schoolIds, $schoolNames, $company, $report);
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("companies_registered_on_platform") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/vVvXl7MV/513-professionals-registered-on-platform-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForProfessionalsRegisteredOnPlatform(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for professionals registered on platform.');
+
+        $professionalCollection = $this->generateProfessionalCollection();
+
+        $updateCount = 0;
+        foreach ($professionalCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+
+            /** @var ProfessionalUser $professional */
+            $professional = $result[0] ?? null;
+
+            if (!$professional) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('professionals_registered_on_platform');
+            $report->setCompanyName($professional->getCompany() ? $professional->getCompany()->getName() : null);
+            $report->setCompany($professional->getCompany() ? $professional->getCompany()->getId() : null);
+            $report->setRegistrationDate($professional->getCreatedAt());
+            $report->setProfessional($professional->getId());
+            $report->setProfessionalName($professional->getFullName());
+
+
+            foreach ($professional->getSchools() as $school) {
+                $schoolNames[] = $school->getName();
+                $schoolIds[]   = $school->getId();
+            }
+
+            $report->setSchoolNames($schoolNames);
+            $report->setSchools($schoolIds);
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+            unset($schoolIds, $schoolNames, $professional, $report);
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("professionals_registered_on_platform") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/F2V69ziu/516-company-experiences-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForCompanyExperiences(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for company experiences.');
+
+        $companyExperienceCollection = $this->generateCompanyExperienceCollection();
+
+        $updateCount = 0;
+        foreach ($companyExperienceCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+            $regionIds   = [];
+            $regionNames = [];
+
+            /** @var CompanyExperience $companyExperience */
+            $companyExperience = $result[0] ?? null;
+
+            if (!$companyExperience) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('company_experience_participation');
+            $report->setCompanyName($companyExperience->getCompany() ? $companyExperience->getCompany()->getName() : null);
+            $report->setCompany($companyExperience->getCompany() ? $companyExperience->getCompany()->getId() : null);
+            $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
+            $report->setExperienceName($companyExperience->getTitle());
+            $report->setExperience($companyExperience->getId());
+
+            if ($type = $companyExperience->getType()) {
+                $report->setExperienceType($companyExperience->getType()->getName());
+                $report->setExperienceTypeId($companyExperience->getType()->getId());
+            }
+
+            if ($companyExperience->getRegistrations()->count() === 0) {
+                continue;
+            }
+
+            foreach ($companyExperience->getRegistrations() as $registration) {
+
+                if (!$registeredUser = $registration->getUser()) {
+                    continue;
+                }
+
+                if ($registeredUser instanceof EducatorUser) {
+
+                    if ($school = $registeredUser->getSchool()) {
+                        $schoolIds[]   = $registeredUser->getSchool()->getId();
+                        $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    } else {
+                        continue;
+                    }
+                } elseif ($registeredUser instanceof StudentUser) {
+
+                    if ($school = $registeredUser->getSchool()) {
+                        $schoolIds[]   = $registeredUser->getSchool()->getId();
+                        $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    } else {
+                        continue;
+                    }
+                } elseif ($registeredUser instanceof SchoolAdministrator) {
+
+                    foreach ($registeredUser->getSchools() as $school) {
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    }
+                } elseif ($registeredUser instanceof ProfessionalUser) {
+
+                    foreach ($registeredUser->getSchools() as $school) {
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+                    }
+
+                    foreach ($registeredUser->getRegions() as $region) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+                } elseif ($registeredUser instanceof AdminUser) {
+                    continue;
+                } elseif ($registeredUser instanceof SiteAdminUser) {
+                    continue;
+                } elseif ($registeredUser instanceof RegionalCoordinator) {
+                    continue;
+                }
+            }
+
+            $report->setSchoolNames($schoolNames);
+            $report->setSchools($schoolIds);
+            $report->setRegionNames($regionNames);
+            $report->setRegions($regionIds);
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $companyExperience);
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("company_experience_participation") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/WVp4YdDp/515-student-registered-on-platform-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForStudentsRegisteredOnPlatform(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for students registered on platform.');
+
+        $studentCollection = $this->generateStudentCollection();
+
+        $updateCount = 0;
+        foreach ($studentCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+            $regionIds   = [];
+            $regionNames = [];
+
+            /** @var StudentUser $student */
+            $student = $result[0] ?? null;
+
+            if (!$student) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('students_registered_on_platform');
+            $report->setRegistrationDate($student->getCreatedAt());
+
+            if ($school = $student->getSchool()) {
+                $schoolNames[] = $school->getName();
+                $schoolIds[]   = $school->getId();
+
+                if ($region = $school->getRegion()) {
+                    $regionIds[]   = $region->getId();
+                    $regionNames[] = $region->getName();
+                }
+            }
+
+
+            $report->setSchoolNames($schoolNames);
+            $report->setSchools($schoolIds);
+            $report->setRegions($regionIds);
+            $report->setRegionNames($regionNames);
+            $report->setStudent($student->getId());
+            $report->setStudentName($student->getFullName());
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $student, $report);
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("students_registered_on_platform") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+
+    /**
+     * @see https://trello.com/c/I7iGQ6Nv/517-school-experiences-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForSchoolExperiences(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for school experiences.');
+
+        $schoolExperienceCollection = $this->generateSchoolExperienceCollection();
+
+        $updateCount = 0;
+        foreach ($schoolExperienceCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+            $regionIds   = [];
+            $regionNames = [];
+
+            /** @var SchoolExperience $schoolExperience */
+            $schoolExperience = $result[0] ?? null;
+
+            if (!$schoolExperience) {
+                continue;
+            }
+
+            if (!$schoolExperience->getSchool()) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('school_experience_participation');
+            $report->setSchoolName($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getName() : null);
+            $report->setSchool($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getId() : null);
+            $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
+            $report->setExperienceName($schoolExperience->getTitle());
+            $report->setExperience($schoolExperience->getId());
+
+            if ($type = $schoolExperience->getType()) {
+                $report->setExperienceType($schoolExperience->getType()->getName());
+                $report->setExperienceTypeId($schoolExperience->getType()->getId());
+            }
+
+            if ($school = $schoolExperience->getSchool()) {
+                $report->setSchool($school->getId());
+                $report->setSchoolName($school->getName());
+                $schoolIds[]   = $school->getId();
+                $schoolNames[] = $school->getName();
+
+                if ($region = $school->getRegion()) {
+                    $report->setRegionName($region->getName());
+                    $report->setRegion($region->getId());
+                    $regionIds[]   = $region->getId();
+                    $regionNames[] = $region->getName();
+                }
+            }
+
+            $report->setSchoolNames($schoolNames);
+            $report->setSchools($schoolIds);
+            $report->setRegionNames($regionNames);
+            $report->setRegions($regionIds);
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $schoolExperience);
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("school_experience_participation") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+
+    /**
+     * @see https://trello.com/c/09EWHk5g/514-educators-registered-on-platform-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForEducatorsRegisteredOnPlatform(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for educators registered on platform.');
+
+        $educatorCollection = $this->generateEducatorCollection();
+
+        $updateCount = 0;
+        foreach ($educatorCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+            $regionIds   = [];
+            $regionNames = [];
+
+            /** @var EducatorUser $educator */
+            $educator = $result[0] ?? null;
+
+            if (!$educator) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('educators_registered_on_platform');
+            $report->setRegistrationDate($educator->getCreatedAt());
+
+            if ($school = $educator->getSchool()) {
+                $schoolNames[] = $school->getName();
+                $schoolIds[]   = $school->getId();
+
+                if ($region = $school->getRegion()) {
+                    $regionIds[]   = $region->getId();
+                    $regionNames[] = $region->getName();
+                }
+            }
+
+            $report->setSchoolNames($schoolNames);
+            $report->setSchools($schoolIds);
+            $report->setRegions($regionIds);
+            $report->setRegionNames($regionNames);
+            $report->setEducator($educator->getId());
+            $report->setEducatorName($educator->getFullName());
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $educator, $report);
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("educators_registered_on_platform") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/L509zwUT/539-student-participation-reports
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForStudentParticipation(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('Normalizing data for student experience participation.');
+
+        $updateCount = 0;
+
+        $companyExperienceCollection = $this->generateCompanyExperienceCollection();
+        foreach ($companyExperienceCollection as $result) {
+
+            /** @var CompanyExperience $companyExperience */
+            $companyExperience = $result[0] ?? null;
+
+            if (!$companyExperience) {
+                continue;
+            }
+
+            if ($companyExperience->getRegistrations()->count() === 0) {
+                continue;
+            }
+
+            foreach ($companyExperience->getRegistrations() as $registration) {
+
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
+
+                if (!$registeredUser = $registration->getUser()) {
+                    continue;
+                }
+
+                if (!$registeredUser instanceof StudentUser) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setType('student_experience_participation');
+                $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
+                $report->setExperienceName($companyExperience->getTitle());
+                $report->setExperience($companyExperience->getId());
+                $report->setStudent($registeredUser->getId());
+                $report->setStudentName($registeredUser->getFullName());
+
+                if ($type = $companyExperience->getType()) {
+                    $report->setExperienceType($companyExperience->getType()->getName());
+                    $report->setExperienceTypeId($companyExperience->getType()->getId());
+                }
+
+                if ($school = $registeredUser->getSchool()) {
+                    $schoolIds[]   = $registeredUser->getSchool()->getId();
+                    $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                    if ($region = $school->getRegion()) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
+
+                if ($updateCount % 10 === 0) {
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+                }
+
+                $updateCount++;
+            }
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+
+        $schoolExperienceCollection = $this->generateSchoolExperienceCollection();
+        foreach ($schoolExperienceCollection as $result) {
+
+            /** @var SchoolExperience $schoolExperience */
+            $schoolExperience = $result[0] ?? null;
+
+            if (!$schoolExperience) {
+                continue;
+            }
+
+            if ($schoolExperience->getRegistrations()->count() === 0) {
+                continue;
+            }
+
+            foreach ($schoolExperience->getRegistrations() as $registration) {
+
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
+
+                if (!$registeredUser = $registration->getUser()) {
+                    continue;
+                }
+
+                if (!$registeredUser instanceof StudentUser) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setType('student_experience_participation');
+                $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
+                $report->setExperienceName($schoolExperience->getTitle());
+                $report->setExperience($schoolExperience->getId());
+                $report->setStudent($registeredUser->getId());
+                $report->setStudentName($registeredUser->getFullName());
+
+                if ($type = $schoolExperience->getType()) {
+                    $report->setExperienceType($schoolExperience->getType()->getName());
+                    $report->setExperienceTypeId($schoolExperience->getType()->getId());
+                }
+
+                if ($school = $registeredUser->getSchool()) {
+                    $schoolIds[]   = $registeredUser->getSchool()->getId();
+                    $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                    if ($region = $school->getRegion()) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
+
+                if ($updateCount % 10 === 0) {
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+                }
+
+                $updateCount++;
+            }
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+
+        $studentToMeetProfessionalExperienceCollection = $this->generateStudentToMeetProfessionalExperienceCollection();
+        foreach ($studentToMeetProfessionalExperienceCollection as $result) {
+
+            /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
+            $studentToMeetProfessionalExperience = $result[0] ?? null;
+
+            if (!$studentToMeetProfessionalExperience) {
+                continue;
+            }
+
+            if ($studentToMeetProfessionalExperience->getRegistrations()->count() === 0) {
+                continue;
+            }
+
+            foreach ($studentToMeetProfessionalExperience->getRegistrations() as $registration) {
+
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
+
+                if (!$registeredUser = $registration->getUser()) {
+                    continue;
+                }
+
+                if (!$registeredUser instanceof StudentUser) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setType('student_experience_participation');
+                $report->setExperienceStartDate($studentToMeetProfessionalExperience->getStartDateAndTime());
+                $report->setExperienceName($studentToMeetProfessionalExperience->getTitle());
+                $report->setExperience($studentToMeetProfessionalExperience->getId());
+                $report->setStudent($registeredUser->getId());
+                $report->setStudentName($registeredUser->getFullName());
+
+                if ($type = $studentToMeetProfessionalExperience->getType()) {
+                    $report->setExperienceType($studentToMeetProfessionalExperience->getType()->getName());
+                    $report->setExperienceTypeId($studentToMeetProfessionalExperience->getType()->getId());
+                }
+
+                if ($school = $registeredUser->getSchool()) {
+                    $schoolIds[]   = $registeredUser->getSchool()->getId();
+                    $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                    if ($region = $school->getRegion()) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
+
+                if ($updateCount % 10 === 0) {
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+                }
+
+                $updateCount++;
+            }
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("student_experience_participation") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/5UymjA9K/538-volunteer-participation-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForVolunteerParticipation(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('Normalizing data for professional volunteer participation.');
+
+        $updateCount = 0;
+
+        $companyExperienceCollection = $this->generateCompanyExperienceCollection();
+        foreach ($companyExperienceCollection as $result) {
+
+            /** @var CompanyExperience $companyExperience */
+            $companyExperience = $result[0] ?? null;
+
+            if (!$companyExperience) {
+                continue;
+            }
+
+            if(!$employeeContact = $companyExperience->getEmployeeContact()) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('professional_volunteer_participation');
+            $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
+            $report->setExperienceName($companyExperience->getTitle());
+            $report->setExperience($companyExperience->getId());
+            $report->setProfessional($employeeContact->getId());
+            $report->setProfessionalName($employeeContact->getFullName());
+
+            if ($type = $companyExperience->getType()) {
+                $report->setExperienceType($companyExperience->getType()->getName());
+                $report->setExperienceTypeId($companyExperience->getType()->getId());
+            }
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+
+        $schoolExperienceCollection = $this->generateSchoolExperienceCollection();
+        foreach ($schoolExperienceCollection as $result) {
+
+            /** @var SchoolExperience $schoolExperience */
+            $schoolExperience = $result[0] ?? null;
+
+            if (!$schoolExperience) {
+                continue;
+            }
+
+            if ($schoolExperience->getRegistrations()->count() === 0) {
+                continue;
+            }
+
+            foreach ($schoolExperience->getRegistrations() as $registration) {
+
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
+
+                if (!$registeredUser = $registration->getUser()) {
+                    continue;
+                }
+
+                if (!$registeredUser instanceof ProfessionalUser) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setType('professional_volunteer_participation');
+                $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
+                $report->setExperienceName($schoolExperience->getTitle());
+                $report->setExperience($schoolExperience->getId());
+                $report->setProfessional($registeredUser->getId());
+                $report->setProfessionalName($registeredUser->getFullName());
+
+                if ($type = $schoolExperience->getType()) {
+                    $report->setExperienceType($schoolExperience->getType()->getName());
+                    $report->setExperienceTypeId($schoolExperience->getType()->getId());
+                }
+
+                if($school = $schoolExperience->getSchool()) {
+                    $report->setSchool($school->getId());
+                    $report->setSchoolName($school->getName());
+                    $schoolIds[]   = $school->getId();
+                    $schoolNames[] = $school->getName();
+
+                    if ($region = $school->getRegion()) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
+
+                if ($updateCount % 10 === 0) {
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+                }
+
+                $updateCount++;
+            }
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+
+        $studentToMeetProfessionalExperienceCollection = $this->generateStudentToMeetProfessionalExperienceCollection();
+        foreach ($studentToMeetProfessionalExperienceCollection as $result) {
+
+            /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
+            $studentToMeetProfessionalExperience = $result[0] ?? null;
+
+            if (!$studentToMeetProfessionalExperience) {
+                continue;
+            }
+
+            if ($studentToMeetProfessionalExperience->getRegistrations()->count() === 0) {
+                continue;
+            }
+
+            foreach ($studentToMeetProfessionalExperience->getRegistrations() as $registration) {
+
+                if (!$registeredUser = $registration->getUser()) {
+                    continue;
+                }
+
+                if (!$registeredUser instanceof ProfessionalUser) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setType('professional_volunteer_participation');
+                $report->setExperienceStartDate($studentToMeetProfessionalExperience->getStartDateAndTime());
+                $report->setExperienceName($studentToMeetProfessionalExperience->getTitle());
+                $report->setExperience($studentToMeetProfessionalExperience->getId());
+                $report->setProfessional($registeredUser->getId());
+                $report->setProfessionalName($registeredUser->getFullName());
+
+                if ($type = $studentToMeetProfessionalExperience->getType()) {
+                    $report->setExperienceType($studentToMeetProfessionalExperience->getType()->getName());
+                    $report->setExperienceTypeId($studentToMeetProfessionalExperience->getType()->getId());
+                }
+
+                $this->entityManager->persist($report);
+
+                if ($updateCount % 10 === 0) {
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+                }
+
+                $updateCount++;
+            }
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+
+
+        $teachLessonExperienceCollection = $this->generateTeachLessonExperienceCollection();
+        foreach ($teachLessonExperienceCollection as $result) {
+
+            $schoolIds   = [];
+            $schoolNames = [];
+            $regionIds   = [];
+            $regionNames = [];
+
+            /** @var TeachLessonExperience $teachLessonExperience */
+            $teachLessonExperience = $result[0] ?? null;
+
+            if (!$teachLessonExperience) {
+                continue;
+            }
+
+            $report = new Report();
+            $report->setType('professional_volunteer_participation');
+            $report->setExperienceStartDate($teachLessonExperience->getStartDateAndTime());
+            $report->setExperienceName($teachLessonExperience->getTitle());
+            $report->setExperience($teachLessonExperience->getId());
+
+            if ($type = $teachLessonExperience->getType()) {
+                $report->setExperienceType($teachLessonExperience->getType()->getName());
+                $report->setExperienceTypeId($teachLessonExperience->getType()->getId());
+            }
+
+            if($teacher = $teachLessonExperience->getTeacher()) {
+                $report->setProfessional($teacher->getId());
+                $report->setProfessionalName($teacher->getFullName());
+            }
+
+            if($school = $teachLessonExperience->getSchool()) {
+                $schoolNames[] = $school->getName();
+                $schoolIds[] = $school->getId();
+                $report->setSchool($school->getId());
+                $report->setSchoolName($school->getName());
+
+                if($region = $school->getRegion()) {
+                    $regionIds[] = $region->getId();
+                    $regionNames[] = $region->getName();
+                    $report->setRegion($region->getId());
+                    $report->setRegionName($region->getName());
+                }
+            }
+
+            $report->setSchools($schoolIds);
+            $report->setSchoolNames($schoolNames);
+            $report->setRegions($regionIds);
+            $report->setRegionNames($regionNames);
+
+            $this->entityManager->persist($report);
+
+            if ($updateCount % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
+
+            $updateCount++;
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $output->writeln('Done with report ("professional_volunteer_participation") Count: ' . $updateCount);
+
+        return $this;
     }
 
     /**
      * @return iterable
      */
-    public function generateFeedbackCollection(): iterable
+    private function generateFeedbackCollection(): iterable
     {
-
-        $feedbackCollection = $this->feedbackRepository->findAll();
+        $queryBuilder = $this->feedbackRepository->createQueryBuilder('f')->getQuery();
 
         /** @var Feedback $feedback */
-        foreach ($feedbackCollection as $feedback) {
+        foreach ($queryBuilder->iterate() as $feedback) {
 
             yield $feedback;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateCompanyCollection(): iterable
+    {
+        $queryBuilder = $this->companyRepository->createQueryBuilder('c')->getQuery();
+
+        /** @var Company $company */
+        foreach ($queryBuilder->iterate() as $company) {
+
+            yield $company;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateProfessionalCollection(): iterable
+    {
+        $queryBuilder = $this->professionalUserRepository->createQueryBuilder('p')->getQuery();
+
+        /** @var ProfessionalUser $professionalUser */
+        foreach ($queryBuilder->iterate() as $professionalUser) {
+
+            yield $professionalUser;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateCompanyExperienceCollection(): iterable
+    {
+        $queryBuilder = $this->companyExperienceRepository->createQueryBuilder('ce')->getQuery();
+
+        /** @var CompanyExperience $companyExperience */
+        foreach ($queryBuilder->iterate() as $companyExperience) {
+
+            yield $companyExperience;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateStudentCollection(): iterable
+    {
+        $queryBuilder = $this->studentUserRepository->createQueryBuilder('su')->getQuery();
+
+        /** @var StudentUser $studentUser */
+        foreach ($queryBuilder->iterate() as $studentUser) {
+
+            yield $studentUser;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateSchoolExperienceCollection(): iterable
+    {
+        $queryBuilder = $this->schoolExperienceRepository->createQueryBuilder('se')->getQuery();
+
+        /** @var SchoolExperience $schoolExperience */
+        foreach ($queryBuilder->iterate() as $schoolExperience) {
+
+            yield $schoolExperience;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateEducatorCollection(): iterable
+    {
+        $queryBuilder = $this->educatorUserRepository->createQueryBuilder('eu')->getQuery();
+
+        /** @var EducatorUser $educatorUser */
+        foreach ($queryBuilder->iterate() as $educatorUser) {
+
+            yield $educatorUser;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateStudentToMeetProfessionalExperienceCollection(): iterable
+    {
+        $queryBuilder = $this->studentToMeetProfessionalExperienceRepository->createQueryBuilder('spe')->getQuery();
+
+        /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
+        foreach ($queryBuilder->iterate() as $studentToMeetProfessionalExperience) {
+
+            yield $studentToMeetProfessionalExperience;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateTeachLessonExperienceCollection(): iterable
+    {
+        $queryBuilder = $this->teachLessonExperienceRepository->createQueryBuilder('tle')->getQuery();
+
+        /** @var TeachLessonExperience $teachLessonExperience */
+        foreach ($queryBuilder->iterate() as $teachLessonExperience) {
+
+            yield $teachLessonExperience;
         }
     }
 }
