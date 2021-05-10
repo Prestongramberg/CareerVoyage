@@ -174,13 +174,14 @@ class NormalizeFeedbackCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        //$this->normalizeFeedbackData($input, $output);
+        $this->normalizeFeedbackData($input, $output);
 
         $this->reportRepository->deleteAllReports();
-        //$this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
-        //$this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
-        //$this->normalizeDataForStudentsRegisteredOnPlatform($input, $output);
-        //$this->normalizeDataForEducatorsRegisteredOnPlatform($input, $output);
+
+        $this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
+        $this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
+        $this->normalizeDataForStudentsRegisteredOnPlatform($input, $output);
+        $this->normalizeDataForEducatorsRegisteredOnPlatform($input, $output);
 
         $this->normalizeDataForCompanyExperiences($input, $output);
         $this->normalizeDataForSchoolExperiences($input, $output);
