@@ -179,14 +179,12 @@ class NormalizeFeedbackCommand extends Command
         $this->reportRepository->deleteAllReports();
         //$this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
         //$this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
-        //$this->normalizeDataForCompanyExperiences($input, $output);
         //$this->normalizeDataForStudentsRegisteredOnPlatform($input, $output);
-        //$this->normalizeDataForSchoolExperiences($input, $output);
-
         //$this->normalizeDataForEducatorsRegisteredOnPlatform($input, $output);
 
-        //$this->normalizeDataForStudentParticipation($input, $output);
-
+        $this->normalizeDataForCompanyExperiences($input, $output);
+        $this->normalizeDataForSchoolExperiences($input, $output);
+        $this->normalizeDataForStudentParticipation($input, $output);
         $this->normalizeDataForVolunteerParticipation($input, $output);
     }
 
@@ -950,8 +948,7 @@ class NormalizeFeedbackCommand extends Command
         }
 
         $this->entityManager->flush();
-
-        // todo add cache delete here
+        $this->entityManager->clear();
 
         $cache = new FilesystemAdapter('feedback', 0, $this->cacheDirectory . '/pintex');
 
@@ -987,48 +984,63 @@ class NormalizeFeedbackCommand extends Command
 
         $output->writeln('Normalizing data for companies registered on platform.');
 
-        $companyCollection = $this->generateCompanyCollection();
+        $cache = new FilesystemAdapter('companies_registered', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::COMPANIES_REGISTERED);
 
         $updateCount = 0;
-        foreach ($companyCollection as $result) {
 
-            $schoolIds   = [];
-            $schoolNames = [];
+        $cache->get(CacheKey::COMPANIES_REGISTERED, function (ItemInterface $item) use (&$updateCount) {
 
-            /** @var Company $company */
-            $company = $result[0] ?? null;
+            $cachedData = [];
+            foreach ($this->generateCompanyCollection() as $result) {
 
-            if (!$company) {
-                continue;
-            }
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
 
-            $report = new Report();
-            $report->setType('companies_registered_on_platform');
-            $report->setCompanyName($company->getName());
-            $report->setCompany($company->getId());
-            $report->setRegistrationDate($company->getCreatedAt());
+                /** @var Company $company */
+                $company = $result[0] ?? null;
 
-            foreach ($company->getSchools() as $school) {
-                $schoolNames[] = $school->getName();
-                $schoolIds[]   = $school->getId();
-            }
+                if (!$company) {
+                    continue;
+                }
 
-            $report->setSchoolNames($schoolNames);
-            $report->setSchools($schoolIds);
+                $report = new Report();
+                $report->setDashboardType('companies_registered_on_platform');
+                $report->setCompanyName($company->getName());
+                $report->setCompany($company->getId());
+                $report->setRegistrationDate($company->getCreatedAt());
 
-            $this->entityManager->persist($report);
+                foreach ($company->getSchools() as $school) {
+                    $schoolNames[] = $school->getName();
+                    $schoolIds[]   = $school->getId();
 
-            if ($updateCount % 10 === 0) {
+                    if ($region = $school->getRegion()) {
+                        $regionNames[] = $region->getName();
+                        $regionIds[]   = $region->getId();
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
                 $this->entityManager->flush();
                 $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
             }
 
-            $updateCount++;
-            unset($schoolIds, $schoolNames, $company, $report);
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            return $cachedData;
+        });
 
         $output->writeln('Done with report ("companies_registered_on_platform") Count: ' . $updateCount);
 
@@ -1048,187 +1060,68 @@ class NormalizeFeedbackCommand extends Command
 
         $output->writeln('Normalizing data for professionals registered on platform.');
 
-        $professionalCollection = $this->generateProfessionalCollection();
+        $cache = new FilesystemAdapter('professionals_registered', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::PROFESSIONALS_REGISTERED);
 
         $updateCount = 0;
-        foreach ($professionalCollection as $result) {
 
-            $schoolIds   = [];
-            $schoolNames = [];
+        $cache->get(CacheKey::PROFESSIONALS_REGISTERED, function (ItemInterface $item) use (&$updateCount) {
 
-            /** @var ProfessionalUser $professional */
-            $professional = $result[0] ?? null;
+            $cachedData = [];
+            foreach ($this->generateProfessionalCollection() as $result) {
 
-            if (!$professional) {
-                continue;
-            }
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionNames = [];
+                $regionIds   = [];
 
-            $report = new Report();
-            $report->setType('professionals_registered_on_platform');
-            $report->setCompanyName($professional->getCompany() ? $professional->getCompany()->getName() : null);
-            $report->setCompany($professional->getCompany() ? $professional->getCompany()->getId() : null);
-            $report->setRegistrationDate($professional->getCreatedAt());
-            $report->setProfessional($professional->getId());
-            $report->setProfessionalName($professional->getFullName());
+                /** @var ProfessionalUser $professional */
+                $professional = $result[0] ?? null;
 
+                if (!$professional) {
+                    continue;
+                }
 
-            foreach ($professional->getSchools() as $school) {
-                $schoolNames[] = $school->getName();
-                $schoolIds[]   = $school->getId();
-            }
+                $report = new Report();
+                $report->setDashboardType('professionals_registered_on_platform');
+                $report->setCompanyName($professional->getCompany() ? $professional->getCompany()->getName() : null);
+                $report->setCompany($professional->getCompany() ? $professional->getCompany()->getId() : null);
+                $report->setRegistrationDate($professional->getCreatedAt());
+                $report->setProfessional($professional->getId());
+                $report->setProfessionalName($professional->getFullName());
 
-            $report->setSchoolNames($schoolNames);
-            $report->setSchools($schoolIds);
+                foreach ($professional->getSchools() as $school) {
+                    $schoolNames[] = $school->getName();
+                    $schoolIds[]   = $school->getId();
 
-            $this->entityManager->persist($report);
+                    if ($region = $school->getRegion()) {
+                        $regionNames[] = $region->getName();
+                        $regionIds[]   = $region->getId();
+                    }
+                }
 
-            if ($updateCount % 10 === 0) {
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
                 $this->entityManager->flush();
                 $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
             }
 
-            $updateCount++;
-            unset($schoolIds, $schoolNames, $professional, $report);
-        }
+            return $cachedData;
+        });
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
 
         $output->writeln('Done with report ("professionals_registered_on_platform") Count: ' . $updateCount);
-
-        return $this;
-    }
-
-    /**
-     * @see https://trello.com/c/F2V69ziu/516-company-experiences-report
-     *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return NormalizeFeedbackCommand
-     */
-    private function normalizeDataForCompanyExperiences(InputInterface $input, OutputInterface $output)
-    {
-
-        $output->writeln('Normalizing data for company experiences.');
-
-        $companyExperienceCollection = $this->generateCompanyExperienceCollection();
-
-        $updateCount = 0;
-        foreach ($companyExperienceCollection as $result) {
-
-            $schoolIds   = [];
-            $schoolNames = [];
-            $regionIds   = [];
-            $regionNames = [];
-
-            /** @var CompanyExperience $companyExperience */
-            $companyExperience = $result[0] ?? null;
-
-            if (!$companyExperience) {
-                continue;
-            }
-
-            $report = new Report();
-            $report->setType('company_experience_participation');
-            $report->setCompanyName($companyExperience->getCompany() ? $companyExperience->getCompany()->getName() : null);
-            $report->setCompany($companyExperience->getCompany() ? $companyExperience->getCompany()->getId() : null);
-            $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
-            $report->setExperienceName($companyExperience->getTitle());
-            $report->setExperience($companyExperience->getId());
-
-            if ($type = $companyExperience->getType()) {
-                $report->setExperienceType($companyExperience->getType()->getName());
-                $report->setExperienceTypeId($companyExperience->getType()->getId());
-            }
-
-            if ($companyExperience->getRegistrations()->count() === 0) {
-                continue;
-            }
-
-            foreach ($companyExperience->getRegistrations() as $registration) {
-
-                if (!$registeredUser = $registration->getUser()) {
-                    continue;
-                }
-
-                if ($registeredUser instanceof EducatorUser) {
-
-                    if ($school = $registeredUser->getSchool()) {
-                        $schoolIds[]   = $registeredUser->getSchool()->getId();
-                        $schoolNames[] = $registeredUser->getSchool()->getName();
-
-                        if ($region = $school->getRegion()) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
-                        }
-                    } else {
-                        continue;
-                    }
-                } elseif ($registeredUser instanceof StudentUser) {
-
-                    if ($school = $registeredUser->getSchool()) {
-                        $schoolIds[]   = $registeredUser->getSchool()->getId();
-                        $schoolNames[] = $registeredUser->getSchool()->getName();
-
-                        if ($region = $school->getRegion()) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
-                        }
-                    } else {
-                        continue;
-                    }
-                } elseif ($registeredUser instanceof SchoolAdministrator) {
-
-                    foreach ($registeredUser->getSchools() as $school) {
-                        $schoolIds[]   = $school->getId();
-                        $schoolNames[] = $school->getName();
-
-                        if ($region = $school->getRegion()) {
-                            $regionIds[]   = $region->getId();
-                            $regionNames[] = $region->getName();
-                        }
-                    }
-                } elseif ($registeredUser instanceof ProfessionalUser) {
-
-                    foreach ($registeredUser->getSchools() as $school) {
-                        $schoolIds[]   = $school->getId();
-                        $schoolNames[] = $school->getName();
-                    }
-
-                    foreach ($registeredUser->getRegions() as $region) {
-                        $regionIds[]   = $region->getId();
-                        $regionNames[] = $region->getName();
-                    }
-                } elseif ($registeredUser instanceof AdminUser) {
-                    continue;
-                } elseif ($registeredUser instanceof SiteAdminUser) {
-                    continue;
-                } elseif ($registeredUser instanceof RegionalCoordinator) {
-                    continue;
-                }
-            }
-
-            $report->setSchoolNames($schoolNames);
-            $report->setSchools($schoolIds);
-            $report->setRegionNames($regionNames);
-            $report->setRegions($regionIds);
-
-            $this->entityManager->persist($report);
-
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-
-            $updateCount++;
-            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $companyExperience);
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
-        $output->writeln('Done with report ("company_experience_participation") Count: ' . $updateCount);
 
         return $this;
     }
@@ -1246,60 +1139,294 @@ class NormalizeFeedbackCommand extends Command
 
         $output->writeln('Normalizing data for students registered on platform.');
 
-        $studentCollection = $this->generateStudentCollection();
+        $cache = new FilesystemAdapter('students_registered', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::STUDENTS_REGISTERED);
 
         $updateCount = 0;
-        foreach ($studentCollection as $result) {
+        $cache->get(CacheKey::STUDENTS_REGISTERED, function (ItemInterface $item) use (&$updateCount) {
 
-            $schoolIds   = [];
-            $schoolNames = [];
-            $regionIds   = [];
-            $regionNames = [];
+            $cachedData = [];
 
-            /** @var StudentUser $student */
-            $student = $result[0] ?? null;
+            foreach ($this->generateStudentCollection() as $result) {
 
-            if (!$student) {
-                continue;
-            }
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
 
-            $report = new Report();
-            $report->setType('students_registered_on_platform');
-            $report->setRegistrationDate($student->getCreatedAt());
+                /** @var StudentUser $student */
+                $student = $result[0] ?? null;
 
-            if ($school = $student->getSchool()) {
-                $schoolNames[] = $school->getName();
-                $schoolIds[]   = $school->getId();
-
-                if ($region = $school->getRegion()) {
-                    $regionIds[]   = $region->getId();
-                    $regionNames[] = $region->getName();
+                if (!$student) {
+                    continue;
                 }
-            }
+
+                $report = new Report();
+                $report->setDashboardType('students_registered_on_platform');
+                $report->setRegistrationDate($student->getCreatedAt());
+
+                if ($school = $student->getSchool()) {
+                    $schoolNames[] = $school->getName();
+                    $schoolIds[]   = $school->getId();
+                    $report->setSchoolName($school->getName());
+                    $report->setSchool($school->getId());
+
+                    if ($region = $school->getRegion()) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                        $report->setRegion($region->getId());
+                        $report->setRegionName($region->getName());
+                    }
+                }
 
 
-            $report->setSchoolNames($schoolNames);
-            $report->setSchools($schoolIds);
-            $report->setRegions($regionIds);
-            $report->setRegionNames($regionNames);
-            $report->setStudent($student->getId());
-            $report->setStudentName($student->getFullName());
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegions($regionIds);
+                $report->setRegionNames($regionNames);
+                $report->setStudent($student->getId());
+                $report->setStudentName($student->getFullName());
 
-            $this->entityManager->persist($report);
-
-            if ($updateCount % 10 === 0) {
+                $this->entityManager->persist($report);
                 $this->entityManager->flush();
                 $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
             }
 
-            $updateCount++;
-            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $student, $report);
-        }
+            return $cachedData;
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+        });
 
         $output->writeln('Done with report ("students_registered_on_platform") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/09EWHk5g/514-educators-registered-on-platform-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForEducatorsRegisteredOnPlatform(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for educators registered on platform.');
+
+        $cache = new FilesystemAdapter('educators_registered', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::EDUCATORS_REGISTERED);
+
+        $updateCount = 0;
+        $cache->get(CacheKey::EDUCATORS_REGISTERED, function (ItemInterface $item) use (&$updateCount) {
+
+            $cachedData = [];
+
+            foreach ($this->generateEducatorCollection() as $result) {
+
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
+
+                /** @var EducatorUser $educator */
+                $educator = $result[0] ?? null;
+
+                if (!$educator) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setDashboardType('educators_registered_on_platform');
+                $report->setRegistrationDate($educator->getCreatedAt());
+
+                if ($school = $educator->getSchool()) {
+                    $schoolNames[] = $school->getName();
+                    $schoolIds[]   = $school->getId();
+                    $report->setSchoolName($school->getName());
+                    $report->setSchool($school->getId());
+
+                    if ($region = $school->getRegion()) {
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                        $report->setRegion($region->getId());
+                        $report->setRegionName($region->getName());
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegions($regionIds);
+                $report->setRegionNames($regionNames);
+                $report->setEducator($educator->getId());
+                $report->setEducatorName($educator->getFullName());
+
+                $this->entityManager->persist($report);
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
+            }
+
+            return $cachedData;
+        });
+
+
+        $output->writeln('Done with report ("educators_registered_on_platform") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    /**
+     * @see https://trello.com/c/F2V69ziu/516-company-experiences-report
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return NormalizeFeedbackCommand
+     */
+    private function normalizeDataForCompanyExperiences(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Normalizing data for company experiences.');
+
+        $cache = new FilesystemAdapter('company_experience_participation', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::COMPANY_EXPERIENCE_PARTICIPATION);
+
+        $updateCount = 0;
+
+        $cache->get(CacheKey::COMPANY_EXPERIENCE_PARTICIPATION, function (ItemInterface $item) use (&$updateCount) {
+
+            $cachedData = [];
+
+            foreach ($this->generateCompanyExperienceCollection() as $result) {
+
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
+
+                /** @var CompanyExperience $companyExperience */
+                $companyExperience = $result[0] ?? null;
+
+                if (!$companyExperience) {
+                    continue;
+                }
+
+                $report = new Report();
+                $report->setDashboardType('company_experience_participation');
+                $report->setCompanyName($companyExperience->getCompany() ? $companyExperience->getCompany()->getName() : null);
+                $report->setCompany($companyExperience->getCompany() ? $companyExperience->getCompany()->getId() : null);
+                $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
+                $report->setExperienceName($companyExperience->getTitle());
+                $report->setExperience($companyExperience->getId());
+                $report->setParticipationType('Company');
+
+                if ($type = $companyExperience->getType()) {
+                    $report->setExperienceType($companyExperience->getType()->getName());
+                    $report->setExperienceTypeId($companyExperience->getType()->getId());
+                }
+
+                if ($companyExperience->getRegistrations()->count() === 0) {
+                    continue;
+                }
+
+                foreach ($companyExperience->getRegistrations() as $registration) {
+
+                    if (!$registeredUser = $registration->getUser()) {
+                        continue;
+                    }
+
+                    if ($registeredUser instanceof EducatorUser) {
+
+                        if ($school = $registeredUser->getSchool()) {
+                            $schoolIds[]   = $registeredUser->getSchool()->getId();
+                            $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                            if ($region = $school->getRegion()) {
+                                $regionIds[]   = $region->getId();
+                                $regionNames[] = $region->getName();
+                            }
+                        } else {
+                            continue;
+                        }
+                    } elseif ($registeredUser instanceof StudentUser) {
+
+                        if ($school = $registeredUser->getSchool()) {
+                            $schoolIds[]   = $registeredUser->getSchool()->getId();
+                            $schoolNames[] = $registeredUser->getSchool()->getName();
+
+                            if ($region = $school->getRegion()) {
+                                $regionIds[]   = $region->getId();
+                                $regionNames[] = $region->getName();
+                            }
+                        } else {
+                            continue;
+                        }
+                    } elseif ($registeredUser instanceof SchoolAdministrator) {
+
+                        foreach ($registeredUser->getSchools() as $school) {
+                            $schoolIds[]   = $school->getId();
+                            $schoolNames[] = $school->getName();
+
+                            if ($region = $school->getRegion()) {
+                                $regionIds[]   = $region->getId();
+                                $regionNames[] = $region->getName();
+                            }
+                        }
+                    } elseif ($registeredUser instanceof ProfessionalUser) {
+
+                        foreach ($registeredUser->getSchools() as $school) {
+                            $schoolIds[]   = $school->getId();
+                            $schoolNames[] = $school->getName();
+                        }
+
+                        foreach ($registeredUser->getRegions() as $region) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    } elseif ($registeredUser instanceof AdminUser) {
+                        continue;
+                    } elseif ($registeredUser instanceof SiteAdminUser) {
+                        continue;
+                    } elseif ($registeredUser instanceof RegionalCoordinator) {
+                        continue;
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
+            }
+
+            return $cachedData;
+        });
+
+        $output->writeln('Done with report ("company_experience_participation") Count: ' . $updateCount);
 
         return $this;
     }
@@ -1318,145 +1445,82 @@ class NormalizeFeedbackCommand extends Command
 
         $output->writeln('Normalizing data for school experiences.');
 
-        $schoolExperienceCollection = $this->generateSchoolExperienceCollection();
+        $cache = new FilesystemAdapter('school_experience_participation', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::SCHOOL_EXPERIENCE_PARTICIPATION);
 
         $updateCount = 0;
-        foreach ($schoolExperienceCollection as $result) {
 
-            $schoolIds   = [];
-            $schoolNames = [];
-            $regionIds   = [];
-            $regionNames = [];
+        $cache->get(CacheKey::SCHOOL_EXPERIENCE_PARTICIPATION, function (ItemInterface $item) use (&$updateCount) {
 
-            /** @var SchoolExperience $schoolExperience */
-            $schoolExperience = $result[0] ?? null;
+            $cachedData = [];
 
-            if (!$schoolExperience) {
-                continue;
-            }
+            foreach ($this->generateSchoolExperienceCollection() as $result) {
 
-            if (!$schoolExperience->getSchool()) {
-                continue;
-            }
+                $schoolIds   = [];
+                $schoolNames = [];
+                $regionIds   = [];
+                $regionNames = [];
 
-            $report = new Report();
-            $report->setType('school_experience_participation');
-            $report->setSchoolName($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getName() : null);
-            $report->setSchool($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getId() : null);
-            $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
-            $report->setExperienceName($schoolExperience->getTitle());
-            $report->setExperience($schoolExperience->getId());
+                /** @var SchoolExperience $schoolExperience */
+                $schoolExperience = $result[0] ?? null;
 
-            if ($type = $schoolExperience->getType()) {
-                $report->setExperienceType($schoolExperience->getType()->getName());
-                $report->setExperienceTypeId($schoolExperience->getType()->getId());
-            }
-
-            if ($school = $schoolExperience->getSchool()) {
-                $report->setSchool($school->getId());
-                $report->setSchoolName($school->getName());
-                $schoolIds[]   = $school->getId();
-                $schoolNames[] = $school->getName();
-
-                if ($region = $school->getRegion()) {
-                    $report->setRegionName($region->getName());
-                    $report->setRegion($region->getId());
-                    $regionIds[]   = $region->getId();
-                    $regionNames[] = $region->getName();
+                if (!$schoolExperience) {
+                    continue;
                 }
-            }
 
-            $report->setSchoolNames($schoolNames);
-            $report->setSchools($schoolIds);
-            $report->setRegionNames($regionNames);
-            $report->setRegions($regionIds);
+                if (!$schoolExperience->getSchool()) {
+                    continue;
+                }
 
-            $this->entityManager->persist($report);
+                $report = new Report();
+                $report->setDashboardType('school_experience_participation');
+                $report->setSchoolName($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getName() : null);
+                $report->setSchool($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getId() : null);
+                $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
+                $report->setExperienceName($schoolExperience->getTitle());
+                $report->setExperience($schoolExperience->getId());
+                $report->setParticipationType('School');
 
-            if ($updateCount % 10 === 0) {
+                if ($type = $schoolExperience->getType()) {
+                    $report->setExperienceType($schoolExperience->getType()->getName());
+                    $report->setExperienceTypeId($schoolExperience->getType()->getId());
+                }
+
+                if ($school = $schoolExperience->getSchool()) {
+                    $report->setSchool($school->getId());
+                    $report->setSchoolName($school->getName());
+                    $schoolIds[]   = $school->getId();
+                    $schoolNames[] = $school->getName();
+
+                    if ($region = $school->getRegion()) {
+                        $report->setRegionName($region->getName());
+                        $report->setRegion($region->getId());
+                        $regionIds[]   = $region->getId();
+                        $regionNames[] = $region->getName();
+                    }
+                }
+
+                $report->setSchoolNames($schoolNames);
+                $report->setSchools($schoolIds);
+                $report->setRegionNames($regionNames);
+                $report->setRegions($regionIds);
+
+                $this->entityManager->persist($report);
                 $this->entityManager->flush();
                 $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
             }
 
-            $updateCount++;
-            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $schoolExperience);
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            return $cachedData;
+        });
 
         $output->writeln('Done with report ("school_experience_participation") Count: ' . $updateCount);
-
-        return $this;
-    }
-
-
-    /**
-     * @see https://trello.com/c/09EWHk5g/514-educators-registered-on-platform-report
-     *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return NormalizeFeedbackCommand
-     */
-    private function normalizeDataForEducatorsRegisteredOnPlatform(InputInterface $input, OutputInterface $output)
-    {
-
-        $output->writeln('Normalizing data for educators registered on platform.');
-
-        $educatorCollection = $this->generateEducatorCollection();
-
-        $updateCount = 0;
-        foreach ($educatorCollection as $result) {
-
-            $schoolIds   = [];
-            $schoolNames = [];
-            $regionIds   = [];
-            $regionNames = [];
-
-            /** @var EducatorUser $educator */
-            $educator = $result[0] ?? null;
-
-            if (!$educator) {
-                continue;
-            }
-
-            $report = new Report();
-            $report->setType('educators_registered_on_platform');
-            $report->setRegistrationDate($educator->getCreatedAt());
-
-            if ($school = $educator->getSchool()) {
-                $schoolNames[] = $school->getName();
-                $schoolIds[]   = $school->getId();
-
-                if ($region = $school->getRegion()) {
-                    $regionIds[]   = $region->getId();
-                    $regionNames[] = $region->getName();
-                }
-            }
-
-            $report->setSchoolNames($schoolNames);
-            $report->setSchools($schoolIds);
-            $report->setRegions($regionIds);
-            $report->setRegionNames($regionNames);
-            $report->setEducator($educator->getId());
-            $report->setEducatorName($educator->getFullName());
-
-            $this->entityManager->persist($report);
-
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-
-            $updateCount++;
-            unset($schoolIds, $schoolNames, $regionIds, $regionNames, $educator, $report);
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
-        $output->writeln('Done with report ("educators_registered_on_platform") Count: ' . $updateCount);
 
         return $this;
     }
@@ -1473,237 +1537,240 @@ class NormalizeFeedbackCommand extends Command
     {
         $output->writeln('Normalizing data for student experience participation.');
 
+        $cache = new FilesystemAdapter('student_experience_participation', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::STUDENT_EXPERIENCE_PARTICIPATION);
+
         $updateCount = 0;
 
-        $companyExperienceCollection = $this->generateCompanyExperienceCollection();
-        foreach ($companyExperienceCollection as $result) {
+        $cache->get(CacheKey::STUDENT_EXPERIENCE_PARTICIPATION, function (ItemInterface $item) use (&$updateCount) {
 
-            /** @var CompanyExperience $companyExperience */
-            $companyExperience = $result[0] ?? null;
+            $cachedData = [];
 
-            if (!$companyExperience) {
-                continue;
-            }
+            foreach ($this->generateCompanyExperienceCollection() as $result) {
 
-            if ($companyExperience->getRegistrations()->count() === 0) {
-                continue;
-            }
+                /** @var CompanyExperience $companyExperience */
+                $companyExperience = $result[0] ?? null;
 
-            foreach ($companyExperience->getRegistrations() as $registration) {
-
-                $schoolIds   = [];
-                $schoolNames = [];
-                $regionIds   = [];
-                $regionNames = [];
-
-                if (!$registeredUser = $registration->getUser()) {
+                if (!$companyExperience) {
                     continue;
                 }
 
-                if (!$registeredUser instanceof StudentUser) {
+                if ($companyExperience->getRegistrations()->count() === 0) {
                     continue;
                 }
 
-                $report = new Report();
-                $report->setType('student_experience_participation');
-                $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
-                $report->setExperienceName($companyExperience->getTitle());
-                $report->setExperience($companyExperience->getId());
-                $report->setStudent($registeredUser->getId());
-                $report->setStudentName($registeredUser->getFullName());
+                foreach ($companyExperience->getRegistrations() as $registration) {
 
-                if ($type = $companyExperience->getType()) {
-                    $report->setExperienceType($companyExperience->getType()->getName());
-                    $report->setExperienceTypeId($companyExperience->getType()->getId());
-                }
+                    $schoolIds   = [];
+                    $schoolNames = [];
+                    $regionIds   = [];
+                    $regionNames = [];
 
-                if ($school = $registeredUser->getSchool()) {
-                    $schoolIds[]   = $registeredUser->getSchool()->getId();
-                    $schoolNames[] = $registeredUser->getSchool()->getName();
-
-                    if ($region = $school->getRegion()) {
-                        $regionIds[]   = $region->getId();
-                        $regionNames[] = $region->getName();
+                    if (!$registeredUser = $registration->getUser()) {
+                        continue;
                     }
-                }
 
-                $report->setSchoolNames($schoolNames);
-                $report->setSchools($schoolIds);
-                $report->setRegionNames($regionNames);
-                $report->setRegions($regionIds);
+                    if (!$registeredUser instanceof StudentUser) {
+                        continue;
+                    }
 
-                $this->entityManager->persist($report);
+                    $report = new Report();
+                    $report->setDashboardType('student_experience_participation');
+                    $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
+                    $report->setExperienceName($companyExperience->getTitle());
+                    $report->setExperience($companyExperience->getId());
+                    $report->setStudent($registeredUser->getId());
+                    $report->setStudentName($registeredUser->getFullName());
+                    $report->setParticipationType('Student');
 
-                if ($updateCount % 10 === 0) {
+                    if ($type = $companyExperience->getType()) {
+                        $report->setExperienceType($companyExperience->getType()->getName());
+                        $report->setExperienceTypeId($companyExperience->getType()->getId());
+                    }
+
+                    if ($school = $registeredUser->getSchool()) {
+                        $schoolIds[]   = $registeredUser->getSchool()->getId();
+                        $schoolNames[] = $registeredUser->getSchool()->getName();
+                        $report->setSchool($school->getId());
+                        $report->setSchoolName($school->getName());
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                            $report->setRegion($region->getId());
+                            $report->setRegionName($region->getName());
+                        }
+                    }
+
+                    $report->setSchoolNames($schoolNames);
+                    $report->setSchools($schoolIds);
+                    $report->setRegionNames($regionNames);
+                    $report->setRegions($regionIds);
+
+                    $this->entityManager->persist($report);
                     $this->entityManager->flush();
                     $this->entityManager->clear();
+
+                    $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                    $data         = json_decode($data, true);
+                    $cachedData[] = $data;
+
+                    $updateCount++;
                 }
-
-                $updateCount++;
             }
 
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-        }
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            foreach ($this->generateSchoolExperienceCollection() as $result) {
 
+                /** @var SchoolExperience $schoolExperience */
+                $schoolExperience = $result[0] ?? null;
 
-        $schoolExperienceCollection = $this->generateSchoolExperienceCollection();
-        foreach ($schoolExperienceCollection as $result) {
-
-            /** @var SchoolExperience $schoolExperience */
-            $schoolExperience = $result[0] ?? null;
-
-            if (!$schoolExperience) {
-                continue;
-            }
-
-            if ($schoolExperience->getRegistrations()->count() === 0) {
-                continue;
-            }
-
-            foreach ($schoolExperience->getRegistrations() as $registration) {
-
-                $schoolIds   = [];
-                $schoolNames = [];
-                $regionIds   = [];
-                $regionNames = [];
-
-                if (!$registeredUser = $registration->getUser()) {
+                if (!$schoolExperience) {
                     continue;
                 }
 
-                if (!$registeredUser instanceof StudentUser) {
+                if ($schoolExperience->getRegistrations()->count() === 0) {
                     continue;
                 }
 
-                $report = new Report();
-                $report->setType('student_experience_participation');
-                $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
-                $report->setExperienceName($schoolExperience->getTitle());
-                $report->setExperience($schoolExperience->getId());
-                $report->setStudent($registeredUser->getId());
-                $report->setStudentName($registeredUser->getFullName());
+                foreach ($schoolExperience->getRegistrations() as $registration) {
 
-                if ($type = $schoolExperience->getType()) {
-                    $report->setExperienceType($schoolExperience->getType()->getName());
-                    $report->setExperienceTypeId($schoolExperience->getType()->getId());
-                }
+                    $schoolIds   = [];
+                    $schoolNames = [];
+                    $regionIds   = [];
+                    $regionNames = [];
 
-                if ($school = $registeredUser->getSchool()) {
-                    $schoolIds[]   = $registeredUser->getSchool()->getId();
-                    $schoolNames[] = $registeredUser->getSchool()->getName();
-
-                    if ($region = $school->getRegion()) {
-                        $regionIds[]   = $region->getId();
-                        $regionNames[] = $region->getName();
+                    if (!$registeredUser = $registration->getUser()) {
+                        continue;
                     }
-                }
 
-                $report->setSchoolNames($schoolNames);
-                $report->setSchools($schoolIds);
-                $report->setRegionNames($regionNames);
-                $report->setRegions($regionIds);
+                    if (!$registeredUser instanceof StudentUser) {
+                        continue;
+                    }
 
-                $this->entityManager->persist($report);
+                    $report = new Report();
+                    $report->setDashboardType('student_experience_participation');
+                    $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
+                    $report->setExperienceName($schoolExperience->getTitle());
+                    $report->setExperience($schoolExperience->getId());
+                    $report->setStudent($registeredUser->getId());
+                    $report->setStudentName($registeredUser->getFullName());
+                    $report->setParticipationType('Student');
 
-                if ($updateCount % 10 === 0) {
+                    if ($type = $schoolExperience->getType()) {
+                        $report->setExperienceType($schoolExperience->getType()->getName());
+                        $report->setExperienceTypeId($schoolExperience->getType()->getId());
+                    }
+
+                    if ($school = $registeredUser->getSchool()) {
+                        $schoolIds[]   = $registeredUser->getSchool()->getId();
+                        $schoolNames[] = $registeredUser->getSchool()->getName();
+                        $report->setSchool($school->getId());
+                        $report->setSchoolName($school->getName());
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                            $report->setRegion($region->getId());
+                            $report->setRegionName($region->getName());
+                        }
+                    }
+
+                    $report->setSchoolNames($schoolNames);
+                    $report->setSchools($schoolIds);
+                    $report->setRegionNames($regionNames);
+                    $report->setRegions($regionIds);
+
+                    $this->entityManager->persist($report);
                     $this->entityManager->flush();
                     $this->entityManager->clear();
+
+                    $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                    $data         = json_decode($data, true);
+                    $cachedData[] = $data;
+
+                    $updateCount++;
                 }
-
-                $updateCount++;
             }
 
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-        }
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            foreach ($this->generateStudentToMeetProfessionalExperienceCollection() as $result) {
 
+                /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
+                $studentToMeetProfessionalExperience = $result[0] ?? null;
 
-        $studentToMeetProfessionalExperienceCollection = $this->generateStudentToMeetProfessionalExperienceCollection();
-        foreach ($studentToMeetProfessionalExperienceCollection as $result) {
-
-            /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
-            $studentToMeetProfessionalExperience = $result[0] ?? null;
-
-            if (!$studentToMeetProfessionalExperience) {
-                continue;
-            }
-
-            if ($studentToMeetProfessionalExperience->getRegistrations()->count() === 0) {
-                continue;
-            }
-
-            foreach ($studentToMeetProfessionalExperience->getRegistrations() as $registration) {
-
-                $schoolIds   = [];
-                $schoolNames = [];
-                $regionIds   = [];
-                $regionNames = [];
-
-                if (!$registeredUser = $registration->getUser()) {
+                if (!$studentToMeetProfessionalExperience) {
                     continue;
                 }
 
-                if (!$registeredUser instanceof StudentUser) {
+                if ($studentToMeetProfessionalExperience->getRegistrations()->count() === 0) {
                     continue;
                 }
 
-                $report = new Report();
-                $report->setType('student_experience_participation');
-                $report->setExperienceStartDate($studentToMeetProfessionalExperience->getStartDateAndTime());
-                $report->setExperienceName($studentToMeetProfessionalExperience->getTitle());
-                $report->setExperience($studentToMeetProfessionalExperience->getId());
-                $report->setStudent($registeredUser->getId());
-                $report->setStudentName($registeredUser->getFullName());
+                foreach ($studentToMeetProfessionalExperience->getRegistrations() as $registration) {
 
-                if ($type = $studentToMeetProfessionalExperience->getType()) {
-                    $report->setExperienceType($studentToMeetProfessionalExperience->getType()->getName());
-                    $report->setExperienceTypeId($studentToMeetProfessionalExperience->getType()->getId());
-                }
+                    $schoolIds   = [];
+                    $schoolNames = [];
+                    $regionIds   = [];
+                    $regionNames = [];
 
-                if ($school = $registeredUser->getSchool()) {
-                    $schoolIds[]   = $registeredUser->getSchool()->getId();
-                    $schoolNames[] = $registeredUser->getSchool()->getName();
-
-                    if ($region = $school->getRegion()) {
-                        $regionIds[]   = $region->getId();
-                        $regionNames[] = $region->getName();
+                    if (!$registeredUser = $registration->getUser()) {
+                        continue;
                     }
-                }
 
-                $report->setSchoolNames($schoolNames);
-                $report->setSchools($schoolIds);
-                $report->setRegionNames($regionNames);
-                $report->setRegions($regionIds);
+                    if (!$registeredUser instanceof StudentUser) {
+                        continue;
+                    }
 
-                $this->entityManager->persist($report);
+                    $report = new Report();
+                    $report->setDashboardType('student_experience_participation');
+                    $report->setExperienceStartDate($studentToMeetProfessionalExperience->getStartDateAndTime());
+                    $report->setExperienceName($studentToMeetProfessionalExperience->getTitle());
+                    $report->setExperience($studentToMeetProfessionalExperience->getId());
+                    $report->setStudent($registeredUser->getId());
+                    $report->setStudentName($registeredUser->getFullName());
+                    $report->setParticipationType('Student');
 
-                if ($updateCount % 10 === 0) {
+                    if ($type = $studentToMeetProfessionalExperience->getType()) {
+                        $report->setExperienceType($studentToMeetProfessionalExperience->getType()->getName());
+                        $report->setExperienceTypeId($studentToMeetProfessionalExperience->getType()->getId());
+                    }
+
+                    if ($school = $registeredUser->getSchool()) {
+                        $schoolIds[]   = $registeredUser->getSchool()->getId();
+                        $schoolNames[] = $registeredUser->getSchool()->getName();
+                        $report->setSchool($school->getId());
+                        $report->setSchoolName($school->getName());
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                            $report->setRegion($region->getId());
+                            $report->setRegionName($region->getName());
+                        }
+                    }
+
+                    $report->setSchoolNames($schoolNames);
+                    $report->setSchools($schoolIds);
+                    $report->setRegionNames($regionNames);
+                    $report->setRegions($regionIds);
+
+                    $this->entityManager->persist($report);
                     $this->entityManager->flush();
                     $this->entityManager->clear();
+
+                    $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                    $data         = json_decode($data, true);
+                    $cachedData[] = $data;
+
+                    $updateCount++;
                 }
-
-                $updateCount++;
             }
 
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-        }
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            return $cachedData;
+        });
 
         $output->writeln('Done with report ("student_experience_participation") Count: ' . $updateCount);
 
@@ -1722,248 +1789,240 @@ class NormalizeFeedbackCommand extends Command
     {
         $output->writeln('Normalizing data for professional volunteer participation.');
 
+        $cache = new FilesystemAdapter('volunteer_experience_participation', 0, $this->cacheDirectory . '/pintex');
+
+        $cache->delete(CacheKey::VOLUNTEER_EXPERIENCE_PARTICIPATION);
+
         $updateCount = 0;
 
-        $companyExperienceCollection = $this->generateCompanyExperienceCollection();
-        foreach ($companyExperienceCollection as $result) {
+        $cache->get(CacheKey::VOLUNTEER_EXPERIENCE_PARTICIPATION, function (ItemInterface $item) use (&$updateCount) {
 
-            /** @var CompanyExperience $companyExperience */
-            $companyExperience = $result[0] ?? null;
+            $cachedData = [];
 
-            if (!$companyExperience) {
-                continue;
-            }
+            foreach ($this->generateCompanyExperienceCollection() as $result) {
 
-            if(!$employeeContact = $companyExperience->getEmployeeContact()) {
-                continue;
-            }
+                /** @var CompanyExperience $companyExperience */
+                $companyExperience = $result[0] ?? null;
 
-            $report = new Report();
-            $report->setType('professional_volunteer_participation');
-            $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
-            $report->setExperienceName($companyExperience->getTitle());
-            $report->setExperience($companyExperience->getId());
-            $report->setProfessional($employeeContact->getId());
-            $report->setProfessionalName($employeeContact->getFullName());
+                if (!$companyExperience) {
+                    continue;
+                }
 
-            if ($type = $companyExperience->getType()) {
-                $report->setExperienceType($companyExperience->getType()->getName());
-                $report->setExperienceTypeId($companyExperience->getType()->getId());
-            }
+                if (!$employeeContact = $companyExperience->getEmployeeContact()) {
+                    continue;
+                }
 
-            $this->entityManager->persist($report);
+                $report = new Report();
+                $report->setDashboardType('professional_volunteer_participation');
+                $report->setExperienceStartDate($companyExperience->getStartDateAndTime());
+                $report->setExperienceName($companyExperience->getTitle());
+                $report->setExperience($companyExperience->getId());
+                $report->setProfessional($employeeContact->getId());
+                $report->setProfessionalName($employeeContact->getFullName());
+                $report->setParticipationType('Volunteer');
 
-            if ($updateCount % 10 === 0) {
+                if ($type = $companyExperience->getType()) {
+                    $report->setExperienceType($companyExperience->getType()->getName());
+                    $report->setExperienceTypeId($companyExperience->getType()->getId());
+                }
+
+                $this->entityManager->persist($report);
                 $this->entityManager->flush();
                 $this->entityManager->clear();
+
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
+
+                $updateCount++;
             }
 
-            $updateCount++;
-        }
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            foreach ($this->generateSchoolExperienceCollection() as $result) {
 
+                /** @var SchoolExperience $schoolExperience */
+                $schoolExperience = $result[0] ?? null;
 
-        $schoolExperienceCollection = $this->generateSchoolExperienceCollection();
-        foreach ($schoolExperienceCollection as $result) {
+                if (!$schoolExperience) {
+                    continue;
+                }
 
-            /** @var SchoolExperience $schoolExperience */
-            $schoolExperience = $result[0] ?? null;
+                if ($schoolExperience->getRegistrations()->count() === 0) {
+                    continue;
+                }
 
-            if (!$schoolExperience) {
-                continue;
+                foreach ($schoolExperience->getRegistrations() as $registration) {
+
+                    $schoolIds   = [];
+                    $schoolNames = [];
+                    $regionIds   = [];
+                    $regionNames = [];
+
+                    if (!$registeredUser = $registration->getUser()) {
+                        continue;
+                    }
+
+                    if (!$registeredUser instanceof ProfessionalUser) {
+                        continue;
+                    }
+
+                    $report = new Report();
+                    $report->setDashboardType('professional_volunteer_participation');
+                    $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
+                    $report->setExperienceName($schoolExperience->getTitle());
+                    $report->setExperience($schoolExperience->getId());
+                    $report->setProfessional($registeredUser->getId());
+                    $report->setProfessionalName($registeredUser->getFullName());
+                    $report->setParticipationType('Volunteer');
+
+                    if ($type = $schoolExperience->getType()) {
+                        $report->setExperienceType($schoolExperience->getType()->getName());
+                        $report->setExperienceTypeId($schoolExperience->getType()->getId());
+                    }
+
+                    if ($school = $schoolExperience->getSchool()) {
+                        $report->setSchool($school->getId());
+                        $report->setSchoolName($school->getName());
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                        }
+                    }
+
+                    $report->setSchoolNames($schoolNames);
+                    $report->setSchools($schoolIds);
+                    $report->setRegionNames($regionNames);
+                    $report->setRegions($regionIds);
+
+                    $this->entityManager->persist($report);
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+
+                    $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                    $data         = json_decode($data, true);
+                    $cachedData[] = $data;
+
+                    $updateCount++;
+                }
             }
 
-            if ($schoolExperience->getRegistrations()->count() === 0) {
-                continue;
+
+            foreach ($this->generateStudentToMeetProfessionalExperienceCollection() as $result) {
+
+                /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
+                $studentToMeetProfessionalExperience = $result[0] ?? null;
+
+                if (!$studentToMeetProfessionalExperience) {
+                    continue;
+                }
+
+                if ($studentToMeetProfessionalExperience->getRegistrations()->count() === 0) {
+                    continue;
+                }
+
+                foreach ($studentToMeetProfessionalExperience->getRegistrations() as $registration) {
+
+                    if (!$registeredUser = $registration->getUser()) {
+                        continue;
+                    }
+
+                    if (!$registeredUser instanceof ProfessionalUser) {
+                        continue;
+                    }
+
+                    $report = new Report();
+                    $report->setDashboardType('professional_volunteer_participation');
+                    $report->setExperienceStartDate($studentToMeetProfessionalExperience->getStartDateAndTime());
+                    $report->setExperienceName($studentToMeetProfessionalExperience->getTitle());
+                    $report->setExperience($studentToMeetProfessionalExperience->getId());
+                    $report->setProfessional($registeredUser->getId());
+                    $report->setProfessionalName($registeredUser->getFullName());
+                    $report->setParticipationType('Volunteer');
+
+                    if ($type = $studentToMeetProfessionalExperience->getType()) {
+                        $report->setExperienceType($studentToMeetProfessionalExperience->getType()->getName());
+                        $report->setExperienceTypeId($studentToMeetProfessionalExperience->getType()->getId());
+                    }
+
+                    $this->entityManager->persist($report);
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+
+                    $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                    $data         = json_decode($data, true);
+                    $cachedData[] = $data;
+
+                    $updateCount++;
+                }
             }
 
-            foreach ($schoolExperience->getRegistrations() as $registration) {
+
+            foreach ($this->generateTeachLessonExperienceCollection() as $result) {
 
                 $schoolIds   = [];
                 $schoolNames = [];
                 $regionIds   = [];
                 $regionNames = [];
 
-                if (!$registeredUser = $registration->getUser()) {
-                    continue;
-                }
+                /** @var TeachLessonExperience $teachLessonExperience */
+                $teachLessonExperience = $result[0] ?? null;
 
-                if (!$registeredUser instanceof ProfessionalUser) {
+                if (!$teachLessonExperience) {
                     continue;
                 }
 
                 $report = new Report();
-                $report->setType('professional_volunteer_participation');
-                $report->setExperienceStartDate($schoolExperience->getStartDateAndTime());
-                $report->setExperienceName($schoolExperience->getTitle());
-                $report->setExperience($schoolExperience->getId());
-                $report->setProfessional($registeredUser->getId());
-                $report->setProfessionalName($registeredUser->getFullName());
+                $report->setDashboardType('professional_volunteer_participation');
+                $report->setExperienceStartDate($teachLessonExperience->getStartDateAndTime());
+                $report->setExperienceName($teachLessonExperience->getTitle());
+                $report->setExperience($teachLessonExperience->getId());
+                $report->setParticipationType('Volunteer');
 
-                if ($type = $schoolExperience->getType()) {
-                    $report->setExperienceType($schoolExperience->getType()->getName());
-                    $report->setExperienceTypeId($schoolExperience->getType()->getId());
+                if ($type = $teachLessonExperience->getType()) {
+                    $report->setExperienceType($teachLessonExperience->getType()->getName());
+                    $report->setExperienceTypeId($teachLessonExperience->getType()->getId());
                 }
 
-                if($school = $schoolExperience->getSchool()) {
+                if ($teacher = $teachLessonExperience->getTeacher()) {
+                    $report->setProfessional($teacher->getId());
+                    $report->setProfessionalName($teacher->getFullName());
+                }
+
+                if ($school = $teachLessonExperience->getSchool()) {
+                    $schoolNames[] = $school->getName();
+                    $schoolIds[]   = $school->getId();
                     $report->setSchool($school->getId());
                     $report->setSchoolName($school->getName());
-                    $schoolIds[]   = $school->getId();
-                    $schoolNames[] = $school->getName();
 
                     if ($region = $school->getRegion()) {
                         $regionIds[]   = $region->getId();
                         $regionNames[] = $region->getName();
+                        $report->setRegion($region->getId());
+                        $report->setRegionName($region->getName());
                     }
                 }
 
-                $report->setSchoolNames($schoolNames);
                 $report->setSchools($schoolIds);
-                $report->setRegionNames($regionNames);
+                $report->setSchoolNames($schoolNames);
                 $report->setRegions($regionIds);
+                $report->setRegionNames($regionNames);
 
                 $this->entityManager->persist($report);
+                $this->entityManager->flush();
+                $this->entityManager->clear();
 
-                if ($updateCount % 10 === 0) {
-                    $this->entityManager->flush();
-                    $this->entityManager->clear();
-                }
+                $data         = $this->serializer->serialize($report, 'json', ['groups' => ['REPORT']]);
+                $data         = json_decode($data, true);
+                $cachedData[] = $data;
 
                 $updateCount++;
             }
 
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
-
-        $studentToMeetProfessionalExperienceCollection = $this->generateStudentToMeetProfessionalExperienceCollection();
-        foreach ($studentToMeetProfessionalExperienceCollection as $result) {
-
-            /** @var StudentToMeetProfessionalExperience $studentToMeetProfessionalExperience */
-            $studentToMeetProfessionalExperience = $result[0] ?? null;
-
-            if (!$studentToMeetProfessionalExperience) {
-                continue;
-            }
-
-            if ($studentToMeetProfessionalExperience->getRegistrations()->count() === 0) {
-                continue;
-            }
-
-            foreach ($studentToMeetProfessionalExperience->getRegistrations() as $registration) {
-
-                if (!$registeredUser = $registration->getUser()) {
-                    continue;
-                }
-
-                if (!$registeredUser instanceof ProfessionalUser) {
-                    continue;
-                }
-
-                $report = new Report();
-                $report->setType('professional_volunteer_participation');
-                $report->setExperienceStartDate($studentToMeetProfessionalExperience->getStartDateAndTime());
-                $report->setExperienceName($studentToMeetProfessionalExperience->getTitle());
-                $report->setExperience($studentToMeetProfessionalExperience->getId());
-                $report->setProfessional($registeredUser->getId());
-                $report->setProfessionalName($registeredUser->getFullName());
-
-                if ($type = $studentToMeetProfessionalExperience->getType()) {
-                    $report->setExperienceType($studentToMeetProfessionalExperience->getType()->getName());
-                    $report->setExperienceTypeId($studentToMeetProfessionalExperience->getType()->getId());
-                }
-
-                $this->entityManager->persist($report);
-
-                if ($updateCount % 10 === 0) {
-                    $this->entityManager->flush();
-                    $this->entityManager->clear();
-                }
-
-                $updateCount++;
-            }
-
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
-
-
-        $teachLessonExperienceCollection = $this->generateTeachLessonExperienceCollection();
-        foreach ($teachLessonExperienceCollection as $result) {
-
-            $schoolIds   = [];
-            $schoolNames = [];
-            $regionIds   = [];
-            $regionNames = [];
-
-            /** @var TeachLessonExperience $teachLessonExperience */
-            $teachLessonExperience = $result[0] ?? null;
-
-            if (!$teachLessonExperience) {
-                continue;
-            }
-
-            $report = new Report();
-            $report->setType('professional_volunteer_participation');
-            $report->setExperienceStartDate($teachLessonExperience->getStartDateAndTime());
-            $report->setExperienceName($teachLessonExperience->getTitle());
-            $report->setExperience($teachLessonExperience->getId());
-
-            if ($type = $teachLessonExperience->getType()) {
-                $report->setExperienceType($teachLessonExperience->getType()->getName());
-                $report->setExperienceTypeId($teachLessonExperience->getType()->getId());
-            }
-
-            if($teacher = $teachLessonExperience->getTeacher()) {
-                $report->setProfessional($teacher->getId());
-                $report->setProfessionalName($teacher->getFullName());
-            }
-
-            if($school = $teachLessonExperience->getSchool()) {
-                $schoolNames[] = $school->getName();
-                $schoolIds[] = $school->getId();
-                $report->setSchool($school->getId());
-                $report->setSchoolName($school->getName());
-
-                if($region = $school->getRegion()) {
-                    $regionIds[] = $region->getId();
-                    $regionNames[] = $region->getName();
-                    $report->setRegion($region->getId());
-                    $report->setRegionName($region->getName());
-                }
-            }
-
-            $report->setSchools($schoolIds);
-            $report->setSchoolNames($schoolNames);
-            $report->setRegions($regionIds);
-            $report->setRegionNames($regionNames);
-
-            $this->entityManager->persist($report);
-
-            if ($updateCount % 10 === 0) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-
-            $updateCount++;
-        }
-
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+            return $cachedData;
+        });
 
         $output->writeln('Done with report ("professional_volunteer_participation") Count: ' . $updateCount);
 

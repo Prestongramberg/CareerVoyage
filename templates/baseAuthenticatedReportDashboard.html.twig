@@ -59,8 +59,17 @@
         <li class="uk-nav-header">
             Dashboards
         </li>
-        <li class="{{ dashboardType == 'experience_satisfaction' ? 'uk-active' : '' }}"><a href="{{ path('report_experience_satisfaction_dashboard') }}">Experience Satisfaction</a></li>
-        <li class="{{ dashboardType == 'topic_satisfaction' ? 'uk-active' : '' }}"><a href="{{ path('report_topic_satisfaction_dashboard') }}">Topic Satisfaction</a></li>
+        <li class="{{ dashboardType == 'experience_satisfaction' ? 'uk-active' : '' }}"><a
+                    href="{{ path('report_experience_satisfaction_dashboard') }}">Experience Satisfaction</a></li>
+        <li class="{{ dashboardType == 'topic_satisfaction' ? 'uk-active' : '' }}"><a
+                    href="{{ path('report_topic_satisfaction_dashboard') }}">Topic Satisfaction</a></li>
+
+        {% if user.admin or user.siteAdmin or user.regionalCoordinator %}
+            <li class="{{ dashboardType == 'registration_summary' ? 'uk-active' : '' }}"><a
+                        href="{{ path('registration_summary_dashboard') }}">Registration Summary</a></li>
+        {% endif %}
+        <li class="{{ dashboardType == 'experience_participation' ? 'uk-active' : '' }}"><a
+                    href="{{ path('experience_participation_dashboard') }}">Experience Participation</a></li>
     </ul>
 </div>
 <div class="content-padder content-background">

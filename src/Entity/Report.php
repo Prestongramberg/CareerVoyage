@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ReportRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ReportRepository::class)
@@ -11,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Report
 {
     /**
+     * @Groups({"REPORT"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -18,149 +20,184 @@ class Report
     private $id;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $company;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $companyName;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $companyNames = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $companies = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="date", nullable=true)
      */
     private $registrationDate;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $school;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $schoolName;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $schoolNames = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $schools = [];
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $type;
-
-    /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $professional;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $professionalName;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $professionals = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $professionalNames = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $experience;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $experienceName;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $experienceType;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $experienceTypeId;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $experiences = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $experienceNames = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="date", nullable=true)
      */
     private $experienceStartDate;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $region;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $regionName;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $regions = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="json", nullable=true)
      */
     private $regionNames = [];
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $student;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $studentName;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educator;
 
     /**
+     * @Groups({"REPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educatorName;
+
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $dashboardType;
+
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $participationType;
 
     public function getId(): ?int
     {
@@ -271,18 +308,6 @@ class Report
     public function setSchoolNames(?array $schoolNames): self
     {
         $this->schoolNames = array_values(array_unique($schoolNames));
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(?string $type): self
-    {
-        $this->type = $type;
 
         return $this;
     }
@@ -511,6 +536,30 @@ class Report
     public function setEducatorName(?string $educatorName): self
     {
         $this->educatorName = $educatorName;
+
+        return $this;
+    }
+
+    public function getDashboardType(): ?string
+    {
+        return $this->dashboardType;
+    }
+
+    public function setDashboardType(?string $dashboardType): self
+    {
+        $this->dashboardType = $dashboardType;
+
+        return $this;
+    }
+
+    public function getParticipationType(): ?string
+    {
+        return $this->participationType;
+    }
+
+    public function setParticipationType(?string $participationType): self
+    {
+        $this->participationType = $participationType;
 
         return $this;
     }
