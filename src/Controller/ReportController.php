@@ -16,6 +16,7 @@ use App\Form\Filter\Report\Dashboard\ExperienceSatisfactionFeedbackFilterType;
 use App\Form\Filter\Report\Dashboard\RegistrationFilterType;
 use App\Form\Filter\Report\Dashboard\TopicSatisfactionFeedbackFilterType;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType;
 use App\Util\FeedbackGenerator;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
@@ -1450,8 +1451,8 @@ WHERE u.discr = "professionalUser" :regions',
 
         $filters = [
             'schoolNames' => 'array',
-            'participationType' => 'scalar',
             'regionNames' => 'array',
+            'experienceType' => 'scalar',
         ];
 
         foreach ($filters as $filter => $facetType) {
@@ -1472,20 +1473,22 @@ WHERE u.discr = "professionalUser" :regions',
                 });
         }
 
-        // topic_satisfaction dashboard
-        /*        $cachedFeedback = $cachedFeedback
-                    ->where(function ($row) {
+        $participationType = $request->query->get('participationType', 'Company');
 
-                        if (empty($row['dashboardType'])) {
-                            return false;
-                        }
+        // participation Type
+        $cachedFeedback = $cachedFeedback
+            ->where(function ($row) use($participationType) {
 
-                        return in_array($row['dashboardType'], ['companies_registered_on_platform',
-                                                                'professionals_registered_on_platform',
-                                                                'educators_registered_on_platform',
-                                                                'students_registered_on_platform',
-                        ]);
-                    });*/
+                if (empty($row['dashboardType'])) {
+                    return false;
+                }
+
+                if (empty($row['participationType'])) {
+                    return false;
+                }
+
+                return $row['participationType'] === $participationType;
+            });
 
         $data      = null;
         $filters   = $request->query->get('registrationDate', []);
@@ -1565,10 +1568,14 @@ WHERE u.discr = "professionalUser" :regions',
 
             if ($request->query->has('top')) {
                 $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] = $dashboardOrder;
-            } else if ($request->query->has('bottom')) {
+            } else {
+                if ($request->query->has('bottom')) {
                     $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] = $dashboardOrder;
-            } else if ($request->query->has('full-bottom')) {
-                $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_3] = $dashboardOrder;
+                } else {
+                    if ($request->query->has('full-bottom')) {
+                        $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_3] = $dashboardOrder;
+                    }
+                }
             }
 
             $user->setDashboardOrder($originalDashboardOrder);
@@ -1588,6 +1595,7 @@ WHERE u.discr = "professionalUser" :regions',
                 'left_date' => $leftDate,
                 'right_date' => $rightDate,
             ],
+            'participationType' => $participationType,
         ];
 
         // depending on the user role type that will determine which filters we show.
@@ -1601,46 +1609,49 @@ WHERE u.discr = "professionalUser" :regions',
 
         $form->handleRequest($request);
 
-        $defaultDashboards = [
-            \App\Model\Report\Dashboard\ExperienceParticipation\Summary::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\LineChart\TotalCompanyExperiences::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiences::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerCompany::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerType::class,
+        switch ($participationType) {
+            case 'Company':
 
+                $defaultDashboards = [
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Summary::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\LineChart\TotalCompanyExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerCompany::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerType::class,
+                ];
+                break;
+            case 'School':
 
-            \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\LineChart\TotalSchoolExperiences::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiences::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiencesPerSchool::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiencesPerType::class,
+                $defaultDashboards = [
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Summary::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\LineChart\TotalSchoolExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiencesPerSchool::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiencesPerType::class,
+                ];
 
-            \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\StudentsParticipatingBySchool::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\Student\ListOfExperiencesByStudent::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\StudentParticipationByExperienceType::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\Student\LineChart\TotalRegisteredStudents::class,
-            \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\NumberOfExperiencesByStudents::class,
+                break;
+            case 'Student':
 
+                $defaultDashboards = [
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\StudentsParticipatingBySchool::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\ListOfExperiencesByStudent::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\StudentParticipationByExperienceType::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\LineChart\TotalRegisteredStudents::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\NumberOfExperiencesByStudents::class,
+                ];
 
-            /*\App\Model\Report\Dashboard\RegistrationSummary\Summary::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\ListOfCompanies::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\LineChart\TotalRegisteredCompanies::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\ListOfProfessionals::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\LineChart\TotalRegisteredProfessionals::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\ListOfEducators::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\LineChart\TotalRegisteredEducators::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\ListOfStudents::class,
-            \App\Model\Report\Dashboard\RegistrationSummary\LineChart\TotalRegisteredStudents::class,*/
+                break;
+            case 'Volunteer':
 
-            /* \App\Model\Report\Dashboard\TopicSatisfactionFeedback\Summary::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart\StudentInterestInWorkingForCompany::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart\ExperienceRating::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\PieChart\ExperienceEnjoyableAndEngaging::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\PieChart\LearnedSomethingNew::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\PieChart\LinkedToClassroomWork::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart\LikelihoodToRecommendAFriend::class,
-             \App\Model\Report\Dashboard\TopicSatisfactionFeedback\BarChart\PromoterNeutralDetractor::class,
-             \App\Model\Report\Dashboard\Feedback\NpsScore::class,*/
-        ];
+                $defaultDashboards = [
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\VolunteersByNameAndNumberTimesVolunteered::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType::class,
+
+                ];
+                break;
+        }
+
 
         $dashboardOrder          = $user->getDashboardOrder() ?? [];
         $userSavedPos1Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] ?? [];

@@ -39,9 +39,13 @@ class ExperienceParticipationFilterType extends AbstractType
         $builder->add('participationType', Filters\ChoiceFilterType::class, [
                 'expanded' => false,
                 'multiple' => false,
-                'required' => false,
-                'placeholder' => 'All',
-                'choices' => $this->getScalarFacet($feedback, 'participationType'),
+                'required' => true,
+                'choices' => [
+                    'Company' => 'Company',
+                    'School' => 'School',
+                    'Student' => 'Student',
+                    'Volunteer' => 'Volunteer'
+                ],
             ]
         );
 
@@ -63,7 +67,7 @@ class ExperienceParticipationFilterType extends AbstractType
             ]
         );
 
-        $builder->add('participationExperience', Filters\ChoiceFilterType::class, [
+        $builder->add('experienceType', Filters\ChoiceFilterType::class, [
                 'expanded' => false,
                 'multiple' => false,
                 'required' => false,

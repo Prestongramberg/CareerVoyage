@@ -54,10 +54,10 @@
                      </div>
                  {% endif %}
 
-                 {% if form.participationExperience is defined %}
+                 {% if form.experienceType is defined %}
                      <div class="uk-width-1-4">
-                         {{ form_label(form.participationExperience, 'Participation Experience', {'attr': {'class': 'uk-text-bold'}}) }}
-                         {{ form_widget(form.participationExperience, {'attr': {'class': 'uk-select'}}) }}
+                         {{ form_label(form.experienceType, 'Participation Experience', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.experienceType, {'attr': {'class': 'uk-select'}}) }}
                      </div>
                  {% endif %}
 
