@@ -42,7 +42,6 @@ use App\Repository\ProfessionalVideoRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RegionRepository;
 use App\Repository\RegistrationRepository;
-use App\Repository\ReportRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
@@ -472,11 +471,6 @@ trait ServiceHelper
     private $regionRepository;
 
     /**
-     * @var ReportRepository
-     */
-    private $reportRepository;
-
-    /**
      * @var Liform
      */
     private $liform;
@@ -560,7 +554,6 @@ trait ServiceHelper
      * @param GlobalShare                                                   $globalShare
      * @param SystemUserRepository                                          $systemUserRepository
      * @param RegionRepository                                              $regionRepository
-     * @param ReportRepository                                              $reportRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -606,7 +599,6 @@ trait ServiceHelper
         HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
         SystemUserRepository $systemUserRepository,
         RegionRepository $regionRepository,
-        ReportRepository $reportRepository,
         Liform $liform
     ) {
         $this->entityManager                                                 = $entityManager;
@@ -685,7 +677,6 @@ trait ServiceHelper
         $this->globalShare                                                   = $globalShare;
         $this->systemUserRepository                                          = $systemUserRepository;
         $this->regionRepository                                              = $regionRepository;
-        $this->reportRepository                                              = $reportRepository;
         $this->liform                                                        = $liform;
     }
 

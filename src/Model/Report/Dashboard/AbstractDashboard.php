@@ -17,6 +17,7 @@ abstract class AbstractDashboard
     const PAGE_FEEDBACK            = 'PAGE_FEEDBACK';
     const PAGE_FEEDBACK_POSITION_1 = 'PAGE_FEEDBACK_POSITION_1';
     const PAGE_FEEDBACK_POSITION_2 = 'PAGE_FEEDBACK_POSITION_2';
+    const PAGE_FEEDBACK_POSITION_3 = 'PAGE_FEEDBACK_POSITION_3';
 
     const DASHBOARD_EXPERIENCE_RATING                       = ExperienceRating::class;
     const DASHBOARD_STUDENT_INTEREST_IN_WORKING_FOR_COMPANY = StudentInterestInWorkingForCompany::class;

@@ -2,36 +2,62 @@
 
 namespace App\Repository;
 
-use App\Entity\Request;
-use App\Entity\User;
+use App\Entity\Report;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
-class ReportRepository
+/**
+ * @method Report|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Report|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Report[]    findAll()
+ * @method Report[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */
+class ReportRepository extends ServiceEntityRepository
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * ReportRepository constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(ManagerRegistry $registry)
     {
-        $this->entityManager = $entityManager;
+        parent::__construct($registry, Report::class);
     }
 
-    public function get($query) {
+    // /**
+    //  * @return Report[] Returns an array of Report objects
+    //  */
+    /*
+    public function findByExampleField($value)
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('r.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    */
 
-        $em = $this->entityManager;
+    /*
+    public function findOneBySomeField($value): ?Report
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+    */
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     */
+    public function deleteAllReports() {
+
+        $query = 'DELETE FROM report';
+
+        $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll();
-
     }
-
 }

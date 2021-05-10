@@ -1,0 +1,47 @@
+<div id="{{ chart.name }}">
+    <div class="uk-card uk-card-default">
+        <div class="uk-card-header" style="position: relative">
+            <span style="position: absolute; top: 10px; right: 20px" uk-icon="move" class="uk-sortable-handle"></span>
+            {{ chart.header }} <br>
+            <small>{{ chart.subHeader }}</small>
+        </div>
+        <div class="uk-card-body">
+
+            <div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
+
+                <ul class="uk-slideshow-items">
+                    {% for experienceBatch in chart.experiences|batch(10) %}
+                        <li class="uk-overflow-auto" style="position: absolute">
+                            <table class="uk-table uk-table-small uk-table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="uk-table-shrink">Experience Title</th>
+                                    <th class="uk-table-shrink">Type</th>
+                                    <th class="uk-table-shrink">Company</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for experience in experienceBatch %}
+                                    <tr>
+                                        <td class="uk-table-shrink">{{ experience['title'] }}</td>
+                                        <td class="uk-table-shrink">{{ experience['type'] }}</td>
+                                        <td class="uk-table-shrink">{{ experience['company'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </li>
+
+                    {% endfor %}
+                </ul>
+
+                <a class="uk-slidenav-large uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+                   uk-slideshow-item="previous"></a>
+                <a class="uk-slidenav-large uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+                   uk-slideshow-item="next"></a>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
