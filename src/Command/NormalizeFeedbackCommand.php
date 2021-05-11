@@ -1764,6 +1764,8 @@ class NormalizeFeedbackCommand extends Command
                             }
                         }
                     }
+
+                    $report->setExperienceType('Informational Interviewer');
                 }
 
                 if ($experience instanceof TeachLessonExperience) {
@@ -1791,6 +1793,8 @@ class NormalizeFeedbackCommand extends Command
                             $report->setCompanyName($company->getName());
                         }
                     }
+
+                    $report->setExperienceType('Guest Instructor');
                 }
 
 
