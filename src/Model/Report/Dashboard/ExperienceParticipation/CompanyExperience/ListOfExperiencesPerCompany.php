@@ -26,14 +26,6 @@ class ListOfExperiencesPerCompany extends AbstractDashboard
 
         foreach ($feedbackCollection as $feedback) {
 
-            if (empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'company_experience_participation') {
-                continue;
-            }
-
             if (empty($feedback['company'])) {
                 continue;
             }

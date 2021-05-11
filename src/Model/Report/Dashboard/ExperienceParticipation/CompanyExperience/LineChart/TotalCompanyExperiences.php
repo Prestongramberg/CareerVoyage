@@ -45,14 +45,6 @@ class TotalCompanyExperiences extends AbstractDashboard
                 continue;
             }
 
-            if (empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'company_experience_participation') {
-                continue;
-            }
-
             $experienceStartDate = new \DateTime($feedback['experienceStartDate']);
             $experienceStartDate = $experienceStartDate->format('F Y');
 
@@ -80,6 +72,7 @@ class TotalCompanyExperiences extends AbstractDashboard
                         [
                             'ticks' => [
                                 'beginAtZero' => true,
+                                'precision' => 0
                             ],
                         ],
                     ],

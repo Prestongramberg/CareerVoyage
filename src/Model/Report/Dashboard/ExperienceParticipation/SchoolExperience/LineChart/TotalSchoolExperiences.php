@@ -21,7 +21,7 @@ class TotalSchoolExperiences extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Total school experiences';
+    protected $header = 'Total school experiences each month';
 
     protected $subHeader = '';
 
@@ -41,15 +41,7 @@ class TotalSchoolExperiences extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if(empty($feedback['experienceStartDate'])) {
-                continue;
-            }
-
-            if(empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'school_experience_participation') {
+            if (empty($feedback['experienceStartDate'])) {
                 continue;
             }
 
@@ -64,7 +56,7 @@ class TotalSchoolExperiences extends AbstractDashboard
         }
 
         $this->labels = array_keys($this->data);
-        $this->data = array_values($this->data);
+        $this->data   = array_values($this->data);
     }
 
     public function render()
@@ -73,17 +65,18 @@ class TotalSchoolExperiences extends AbstractDashboard
             'type' => $this->type,
             'options' => [
                 'legend' => [
-                    'display' => false
+                    'display' => false,
                 ],
                 'scales' => [
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
-                            ]
-                        ]
-                    ]
-                ]
+                                'beginAtZero' => true,
+                                'precision' => 0,
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'data' => [
                 'labels' => $this->labels,
