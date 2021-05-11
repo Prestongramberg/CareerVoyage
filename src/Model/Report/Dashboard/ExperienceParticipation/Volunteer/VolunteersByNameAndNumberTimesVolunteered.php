@@ -26,14 +26,6 @@ class VolunteersByNameAndNumberTimesVolunteered extends AbstractDashboard
 
         foreach ($feedbackCollection as $feedback) {
 
-            if(empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'professional_volunteer_participation') {
-                continue;
-            }
-
             if (empty($feedback['professional'])) {
                 continue;
             }
@@ -49,6 +41,7 @@ class VolunteersByNameAndNumberTimesVolunteered extends AbstractDashboard
             $this->professionals[$feedback['professional']]['experience_count']++;
 
             $this->professionals[$feedback['professional']]['name'] = $feedback['professionalName'];
+            $this->professionals[$feedback['professional']]['company'] = $feedback['companyName'] ?? 'No company Affiliation';
         }
     }
 

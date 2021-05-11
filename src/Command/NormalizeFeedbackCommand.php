@@ -1559,6 +1559,8 @@ class NormalizeFeedbackCommand extends Command
                 $report->setExperience($experience->getId());
                 $report->setStudent($user->getId());
                 $report->setStudentName($user->getFullName());
+                $report->setRegistrationDate($registration->getCreatedAt());
+                $report->setRegistration($registration->getId());
 
                 if ($type = $experience->getType()) {
                     $report->setExperienceType($experience->getType()->getName());
@@ -1702,6 +1704,8 @@ class NormalizeFeedbackCommand extends Command
                 $report->setExperience($experience->getId());
                 $report->setProfessional($user->getId());
                 $report->setProfessionalName($user->getFullName());
+                $report->setRegistrationDate($registration->getCreatedAt());
+                $report->setRegistration($registration->getId());
 
                 if ($type = $experience->getType()) {
                     $report->setExperienceType($experience->getType()->getName());

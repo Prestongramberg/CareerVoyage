@@ -22,7 +22,7 @@ class TotalRegisteredCompanies extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Total Companies Registered';
+    protected $header = 'Total companies registered each month';
 
     protected $subHeader = '';
 
@@ -80,7 +80,8 @@ class TotalRegisteredCompanies extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]

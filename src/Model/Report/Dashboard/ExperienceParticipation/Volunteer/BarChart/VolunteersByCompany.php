@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Report\Dashboard\Feedback\BarChart;
+namespace App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart;
 
 use App\Entity\Feedback;
 use App\Model\Collection\FeedbackCollection;
@@ -8,11 +8,11 @@ use App\Model\Report\Dashboard\AbstractDashboard;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class LikelihoodToRecommendAFriend extends AbstractDashboard
+class VolunteersByCompany extends AbstractDashboard
 {
     protected $type = 'bar';
 
-    protected $labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    protected $labels = [];
 
     protected $label = 'Bar Chart';
 
@@ -22,15 +22,13 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = '';
+    protected $header = 'Volunteer by company';
 
     protected $subHeader = '';
 
+    protected $position = 1;
+
     protected $footer = '';
-
-    protected $position = 5;
-
-    protected $average = 0;
 
     /**
      * BarChart constructor.
@@ -39,45 +37,33 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $data           = [];
-        $totalResponses = 0;
-        $cumulative     = 0;
+        $professionals = [];
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if ($feedback['feedbackProvider'] !== 'Student') {
+            if (empty($feedback['professional'])) {
                 continue;
             }
 
-            if ($feedback['likelihoodToRecommendToFriend'] === null) {
+            if (empty($feedback['professionalName'])) {
                 continue;
             }
 
-            $totalResponses++;
-
-            $likelihood = $feedback['likelihoodToRecommendToFriend'];
-
-            $cumulative += (int)$likelihood;
-
-            if (!isset($data[$likelihood])) {
-                $data[$likelihood] = 0;
+            if (empty($this->data[$feedback['companyName']])) {
+                $this->data[$feedback['companyName']] = 0;
             }
 
-            $data[$likelihood]++;
+            $professionals[] = $feedback['professional'];
+            $this->data[$feedback['companyName']]++;
+
         }
 
-        foreach ($this->labels as $label) {
-            $this->data[] = isset($data[$label]) ? $data[$label] : 0;
-        }
+        $this->labels = array_keys($this->data);
+        $this->data = array_values($this->data);
 
-        if($totalResponses !== 0) {
-            $this->average = sprintf("Average: %s", round($cumulative/ $totalResponses, 1));
-        }
+        $this->subHeader = sprintf("Total: %s", count(array_unique($professionals)));
 
-        $this->header = "Likelihood to recommend to a friend";
-
-        $this->subHeader = sprintf("(%s Responses)", $totalResponses);
     }
 
     public function render()
@@ -93,11 +79,10 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
                         [
                             'ticks' => [
                                 'beginAtZero' => true,
-                                'precision' => 0,
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'data' => [
                 'labels' => $this->labels,
@@ -128,10 +113,7 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
         return $this->subHeader;
     }
 
-    /**
-     * @return string
-     */
-    public function getFooter(): string
+    public function getFooter()
     {
         return $this->footer;
     }
@@ -143,7 +125,7 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
 
     public function getLocation()
     {
-        return 'bottom';
+        return 'full-bottom';
     }
 
     public function getPosition()
@@ -154,15 +136,5 @@ class LikelihoodToRecommendAFriend extends AbstractDashboard
     public function setPosition($position)
     {
         $this->position = $position;
-    }
-
-    public function getAverage()
-    {
-        return $this->average;
-    }
-
-    public function setAverage($average)
-    {
-        $this->average = $average;
     }
 }

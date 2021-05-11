@@ -22,11 +22,11 @@ class StudentsParticipatingBySchool extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Students participating by school';
+    protected $header = 'Number of student experiences by school';
 
     protected $subHeader = '';
 
-    protected $position = 7;
+    protected $position = 3;
 
     protected $footer = '';
 
@@ -43,27 +43,28 @@ class StudentsParticipatingBySchool extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if(empty($feedback['dashboardType'])) {
-                continue;
+
+
+            if (!empty($feedback['schoolName']) && !empty($feedback['school'])) {
+
+                if(empty($this->data[$feedback['schoolName']])) {
+                    $this->data[$feedback['schoolName']] = 0;
+                }
+
+                $this->data[$feedback['schoolName']]++;
             }
 
-            if ($feedback['dashboardType'] !== 'student_experience_participation') {
-                continue;
+            if (!empty($feedback['companyName']) && !empty($feedback['company'])) {
+
+                $this->header = 'Number of student experiences by company';
+
+                if(empty($this->data[$feedback['companyName']])) {
+                    $this->data[$feedback['companyName']] = 0;
+                }
+
+                $this->data[$feedback['companyName']]++;
             }
 
-            if(empty($feedback['school'])) {
-                continue;
-            }
-
-            if(empty($feedback['schoolName'])) {
-                continue;
-            }
-
-            if(empty($this->data[$feedback['schoolName']])) {
-                $this->data[$feedback['schoolName']] = 0;
-            }
-
-            $this->data[$feedback['schoolName']]++;
             $students[] = $feedback['student'];
         }
 
@@ -85,7 +86,8 @@ class StudentsParticipatingBySchool extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]
@@ -132,7 +134,7 @@ class StudentsParticipatingBySchool extends AbstractDashboard
 
     public function getLocation()
     {
-        return 'full-bottom';
+        return 'bottom';
     }
 
     public function getPosition()

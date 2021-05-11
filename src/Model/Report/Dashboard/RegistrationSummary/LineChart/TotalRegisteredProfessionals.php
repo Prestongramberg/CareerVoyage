@@ -22,7 +22,7 @@ class TotalRegisteredProfessionals extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Total Professionals Registered';
+    protected $header = 'Total professionals registered each month';
 
     protected $subHeader = '';
 
@@ -80,7 +80,8 @@ class TotalRegisteredProfessionals extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]

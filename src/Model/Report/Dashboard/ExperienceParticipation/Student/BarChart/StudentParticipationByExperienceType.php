@@ -26,7 +26,7 @@ class StudentParticipationByExperienceType extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $position = 9;
+    protected $position = 2;
 
     protected $footer = '';
 
@@ -42,21 +42,6 @@ class StudentParticipationByExperienceType extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if(empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'student_experience_participation') {
-                continue;
-            }
-
-            if(empty($feedback['school'])) {
-                continue;
-            }
-
-            if(empty($feedback['schoolName'])) {
-                continue;
-            }
 
             if (empty($feedback['experienceTypeId'])) {
                 continue;
@@ -92,7 +77,8 @@ class StudentParticipationByExperienceType extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]
@@ -139,7 +125,7 @@ class StudentParticipationByExperienceType extends AbstractDashboard
 
     public function getLocation()
     {
-        return 'full-bottom';
+        return 'bottom';
     }
 
     public function getPosition()

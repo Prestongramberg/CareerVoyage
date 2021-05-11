@@ -199,6 +199,12 @@ class Report
      */
     private $participationType;
 
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $registration;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -560,6 +566,18 @@ class Report
     public function setParticipationType(?string $participationType): self
     {
         $this->participationType = $participationType;
+
+        return $this;
+    }
+
+    public function getRegistration(): ?string
+    {
+        return $this->registration;
+    }
+
+    public function setRegistration(?string $registration): self
+    {
+        $this->registration = $registration;
 
         return $this;
     }

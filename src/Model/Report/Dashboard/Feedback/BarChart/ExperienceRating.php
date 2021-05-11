@@ -86,7 +86,8 @@ class ExperienceRating extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]

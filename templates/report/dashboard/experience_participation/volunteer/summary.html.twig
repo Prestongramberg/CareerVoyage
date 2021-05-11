@@ -1,0 +1,15 @@
+<div id="{{ chart.name }}">
+    <div class="uk-card uk-card-default">
+        <div class="uk-card-header" style="position: relative">
+            <span style="position: absolute; top: 10px; right: 20px" uk-icon="move" class="uk-sortable-handle"></span>
+            {{ chart.header }} <br>
+            <small>{{ chart.subHeader }}</small>
+        </div>
+        <div class="uk-card-body">
+            <p>Total number of professionals volunteering for an experience: <mark><strong>{{ chart.totalRegistrations }}</strong></mark></p>
+        </div>
+        <div class="uk-card-footer" style="text-align: center">
+            {{ chart.footer }}
+        </div>
+    </div>
+</div>

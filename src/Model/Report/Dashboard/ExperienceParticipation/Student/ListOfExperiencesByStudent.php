@@ -12,7 +12,7 @@ class ListOfExperiencesByStudent extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $position = 10;
+    protected $position = 4;
 
     protected $students = [];
 

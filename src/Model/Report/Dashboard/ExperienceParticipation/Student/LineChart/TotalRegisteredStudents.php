@@ -21,13 +21,13 @@ class TotalRegisteredStudents extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Total student experience registrations';
+    protected $header = 'Student experience participation per month';
 
     protected $subHeader = '';
 
     protected $footer = '';
 
-    protected $position = 4;
+    protected $position = 2;
 
     /**
      * BarChart constructor.
@@ -41,26 +41,22 @@ class TotalRegisteredStudents extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if(empty($feedback['experienceStartDate'])) {
+            if(empty($feedback['registrationDate'])) {
                 continue;
             }
 
-            if(empty($feedback['dashboardType'])) {
+            if(empty($feedback['registration'])) {
                 continue;
             }
 
-            if ($feedback['dashboardType'] !== 'student_experience_participation') {
-                continue;
+            $registrationDate = new \DateTime($feedback['registrationDate']);
+            $registrationDate = $registrationDate->format('F Y');
+
+            if (!isset($this->data[$registrationDate])) {
+                $this->data[$registrationDate] = 0;
             }
 
-            $experienceStartDate = new \DateTime($feedback['experienceStartDate']);
-            $experienceStartDate = $experienceStartDate->format('F Y');
-
-            if (!isset($this->data[$experienceStartDate])) {
-                $this->data[$experienceStartDate] = 0;
-            }
-
-            $this->data[$experienceStartDate]++;
+            $this->data[$registrationDate]++;
         }
 
         $this->labels = array_keys($this->data);
