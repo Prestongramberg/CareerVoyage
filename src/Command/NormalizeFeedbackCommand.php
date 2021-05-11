@@ -1344,7 +1344,7 @@ class NormalizeFeedbackCommand extends Command
                     $report->setExperienceTypeId($companyExperience->getType()->getId());
                 }
 
-                foreach($companyExperience->getRegistrations() as $registration) {
+                foreach ($companyExperience->getRegistrations() as $registration) {
 
                     if (!$user = $registration->getUser()) {
                         continue;
@@ -1587,7 +1587,7 @@ class NormalizeFeedbackCommand extends Command
                 if ($experience instanceof CompanyExperience) {
 
                     if ($company = $experience->getCompany()) {
-                        $companyIds[] = $company->getId();
+                        $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
                         $report->setCompany($company->getId());
                         $report->setCompanyName($company->getName());
@@ -1596,16 +1596,16 @@ class NormalizeFeedbackCommand extends Command
 
                 if ($experience instanceof StudentToMeetProfessionalExperience) {
 
-                    if(($originalRequest = $experience->getOriginalRequest()) && $professional = $originalRequest->getProfessional()) {
+                    if (($originalRequest = $experience->getOriginalRequest()) && $professional = $originalRequest->getProfessional()) {
 
-                        if($company = $professional->getCompany()) {
-                            $companyIds[] = $company->getId();
+                        if ($company = $professional->getCompany()) {
+                            $companyIds[]   = $company->getId();
                             $companyNames[] = $company->getName();
                             $report->setCompany($company->getId());
                             $report->setCompanyName($company->getName());
                         }
 
-                        if(($student = $originalRequest->getStudent()) && $school = $student->getSchool()) {
+                        if (($student = $originalRequest->getStudent()) && $school = $student->getSchool()) {
                             $schoolIds[]   = $school->getId();
                             $schoolNames[] = $school->getName();
                             $report->setSchool($school->getId());
@@ -1732,7 +1732,7 @@ class NormalizeFeedbackCommand extends Command
                 if ($experience instanceof CompanyExperience) {
 
                     if ($company = $experience->getCompany()) {
-                        $companyIds[] = $company->getId();
+                        $companyIds[]   = $company->getId();
                         $companyNames[] = $company->getName();
                         $report->setCompany($company->getId());
                         $report->setCompanyName($company->getName());
@@ -1741,16 +1741,16 @@ class NormalizeFeedbackCommand extends Command
 
                 if ($experience instanceof StudentToMeetProfessionalExperience) {
 
-                    if(($originalRequest = $experience->getOriginalRequest()) && $professional = $originalRequest->getProfessional()) {
+                    if (($originalRequest = $experience->getOriginalRequest()) && $professional = $originalRequest->getProfessional()) {
 
-                        if($company = $professional->getCompany()) {
-                            $companyIds[] = $company->getId();
+                        if ($company = $professional->getCompany()) {
+                            $companyIds[]   = $company->getId();
                             $companyNames[] = $company->getName();
                             $report->setCompany($company->getId());
                             $report->setCompanyName($company->getName());
                         }
 
-                        if(($student = $originalRequest->getStudent()) && $school = $student->getSchool()) {
+                        if (($student = $originalRequest->getStudent()) && $school = $student->getSchool()) {
                             $schoolIds[]   = $school->getId();
                             $schoolNames[] = $school->getName();
                             $report->setSchool($school->getId());
@@ -1766,7 +1766,7 @@ class NormalizeFeedbackCommand extends Command
                     }
                 }
 
-                if($experience instanceof TeachLessonExperience) {
+                if ($experience instanceof TeachLessonExperience) {
 
                     if ($school = $experience->getSchool()) {
                         $schoolNames[] = $school->getName();
@@ -1779,6 +1779,16 @@ class NormalizeFeedbackCommand extends Command
                             $regionNames[] = $region->getName();
                             $report->setRegion($region->getId());
                             $report->setRegionName($region->getName());
+                        }
+                    }
+
+                    if (($professional = $experience->getTeacher())) {
+
+                        if ($company = $professional->getCompany()) {
+                            $companyIds[]   = $company->getId();
+                            $companyNames[] = $company->getName();
+                            $report->setCompany($company->getId());
+                            $report->setCompanyName($company->getName());
                         }
                     }
                 }

@@ -37,7 +37,7 @@ class VolunteersByExperienceType extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $professionals = [];
+        $totalCount = 0;
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
@@ -50,27 +50,23 @@ class VolunteersByExperienceType extends AbstractDashboard
                 continue;
             }
 
-            if (empty($feedback['experienceTypeId'])) {
-                continue;
-            }
-
-            if (empty($feedback['experienceType'])) {
-                continue;
+            if(empty($feedback['experienceType'])) {
+                $feedback['experienceType'] = 'Guest Instructor';
             }
 
             if (empty($this->data[$feedback['experienceType']])) {
                 $this->data[$feedback['experienceType']] = 0;
             }
 
-            $professionals[] = $feedback['professional'];
+            $totalCount++;
             $this->data[$feedback['experienceType']]++;
-
         }
 
+        // todo sort alphabetically?
         $this->labels = array_keys($this->data);
         $this->data = array_values($this->data);
 
-        $this->subHeader = sprintf("Total: %s", count(array_unique($professionals)));
+        $this->subHeader = sprintf("Total: %s", $totalCount);
 
     }
 
