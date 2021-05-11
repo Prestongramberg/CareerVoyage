@@ -3,6 +3,7 @@
 namespace App\Form\Filter\Report\Dashboard;
 
 use App\Entity\Feedback;
+use App\Entity\Region;
 use App\Entity\User;
 use App\Repository\FeedbackRepository;
 use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
@@ -41,7 +42,54 @@ class CompanyExperienceFilterType extends AbstractType
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
-                'choices' => $this->getArrayFacet($feedback, 'regionNames'),
+                'choices' => $this->getArrayFacet($feedback, 'regionNames', function () use ($user) {
+
+                    if ($user->isRegionalCoordinator() && $region = $user->getRegion()) {
+                        return [$region->getName()];
+                    }
+
+                    if ($user->isSchoolAdministrator()) {
+                        $regions = [];
+                        foreach($user->getSchools() as $school) {
+                            if($region = $school->getRegion()) {
+                                $regions[] = $region->getName();
+                            }
+                        }
+                        return $regions;
+                    }
+
+                    return [];
+                }),
+            ]
+        );
+
+        $builder->add('schoolNames', Filters\ChoiceFilterType::class, [
+                'expanded' => false,
+                'multiple' => false,
+                'required' => false,
+                'placeholder' => 'All',
+                'choices' => $this->getArrayFacet($feedback, 'schoolNames', function () use ($user) {
+
+                    if ($user->isRegionalCoordinator() && $region = $user->getRegion()) {
+                        $schools = [];
+                        /** @var Region $region */
+                        foreach($region->getSchools() as $school) {
+                            $schools[] = $school->getName();
+                        }
+
+                        return $schools;
+                    }
+
+                    if ($user->isSchoolAdministrator()) {
+                        $schools = [];
+                        foreach($user->getSchools() as $school) {
+                            $schools[] = $school->getName();
+                        }
+                        return $schools;
+                    }
+
+                    return [];
+                }),
             ]
         );
 
@@ -81,12 +129,25 @@ class CompanyExperienceFilterType extends AbstractType
 
     }
 
-    private function getScalarFacet(Traversable $cachedFeedback, $key)
+    private function getScalarFacet(Traversable $cachedFeedback, $key, $includeOnly = null)
     {
 
         $results = $cachedFeedback
-            ->where(function ($row) use ($key) {
-                return $row[$key] !== null && !empty($row[$key]);
+            ->where(function ($row) use ($key, $includeOnly) {
+
+                if(empty($row[$key])) {
+                    return false;
+                }
+
+                if (is_callable($includeOnly)) {
+                    $includeOnly = $includeOnly();
+                }
+
+                if(!empty($includeOnly) && !in_array($row[$key], $includeOnly)) {
+                    return false;
+                }
+
+                return true;
             })
             ->groupBy(function ($row) use ($key) {
                 return $row[$key];
@@ -98,32 +159,45 @@ class CompanyExperienceFilterType extends AbstractType
 
         $choices = [];
         foreach ($results as $result) {
-            $label           = sprintf("%s (%s)", $result['key'], $result['count']);
-            $value           = $result['key'];
+            $label = sprintf("%s (%s)", $result['key'], $result['count']);
+            $value = $result['key'];
+
             $choices[$label] = $value;
         }
 
         return $choices;
     }
 
-    private function getArrayFacet(Traversable $cachedFeedback, $key)
+    private function getArrayFacet(Traversable $cachedFeedback, $key, $includeOnly)
     {
 
         $results = $cachedFeedback
             ->where(function ($row) use ($key) {
+
                 return !empty($row[$key]);
             })->select(function ($row) use ($key) {
                 return $row[$key];
             });
 
-        if(empty($results->asArray())) {
+        if (empty($results->asArray())) {
             return [];
         }
 
         $results = array_merge(...$results->asArray());
-        $results   = Traversable::from($results);
+        $results = Traversable::from($results);
 
-        $results = $results->groupBy(function ($value) {
+        $results = $results->where(function ($value) use($includeOnly) {
+
+            if (is_callable($includeOnly)) {
+                $includeOnly = $includeOnly();
+            }
+
+            if(!empty($includeOnly) && !in_array($value, $includeOnly)) {
+                return false;
+            }
+
+            return true;
+        })->groupBy(function ($value) {
             return $value;
         })->select(function (ITraversable $data) use ($key) {
             return ['key' => $data->last(), 'count' => $data->count()];
@@ -133,8 +207,9 @@ class CompanyExperienceFilterType extends AbstractType
 
         $choices = [];
         foreach ($results as $result) {
-            $label           = sprintf("%s (%s)", $result['key'], $result['count']);
-            $value           = $result['key'];
+            $label = sprintf("%s (%s)", $result['key'], $result['count']);
+            $value = $result['key'];
+
             $choices[$label] = $value;
         }
 
@@ -151,6 +226,7 @@ class CompanyExperienceFilterType extends AbstractType
         $resolver->setDefaults(
             array (
                 'csrf_protection' => false,
+                'allow_extra_fields' => true,
                 'validation_groups' => array ('filtering') // avoid NotBlank() constraint-related message
             )
         );
