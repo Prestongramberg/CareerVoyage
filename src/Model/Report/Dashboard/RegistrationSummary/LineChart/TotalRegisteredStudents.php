@@ -22,7 +22,7 @@ class TotalRegisteredStudents extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Total Students Registered';
+    protected $header = 'Total students registered each month';
 
     protected $subHeader = '';
 
@@ -80,7 +80,8 @@ class TotalRegisteredStudents extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]

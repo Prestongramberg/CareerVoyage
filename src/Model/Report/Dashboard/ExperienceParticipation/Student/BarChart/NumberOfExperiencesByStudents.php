@@ -26,7 +26,7 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
 
     protected $subHeader = '';
 
-    protected $position = 9;
+    protected $position = 1;
 
     protected $footer = '';
 
@@ -42,32 +42,20 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if(empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'student_experience_participation') {
-                continue;
-            }
-
             if (empty($feedback['experience'])) {
                 continue;
             }
 
-            if (empty($feedback['schoolName'])) {
-                continue;
+            if (!empty($feedback['schoolName']) && !empty($feedback['school'])) {
+                if(empty($data[$feedback['schoolName']][$feedback['experience']])) {
+                    $data[$feedback['schoolName']][$feedback['experience']] = true;
+                }
             }
 
-            if (empty($feedback['school'])) {
-                continue;
-            }
-
-            if(empty($data[$feedback['schoolName']])) {
-                $data[$feedback['schoolName']] = [];
-            }
-
-            if(empty($data[$feedback['schoolName']][$feedback['experience']])) {
-                $data[$feedback['schoolName']][$feedback['experience']] = true;
+            if (!empty($feedback['companyName']) && !empty($feedback['company'])) {
+                if(empty($data[$feedback['companyName']][$feedback['experience']])) {
+                    $data[$feedback['companyName']][$feedback['experience']] = true;
+                }
             }
 
             $experiences[] = $feedback['experience'];
@@ -75,8 +63,8 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
 
         $this->subHeader = sprintf("Total: %s", count(array_unique($experiences)));
 
-        foreach($data as $schoolName => $experiences) {
-            $this->labels[] = $schoolName;
+        foreach($data as $name => $experiences) {
+            $this->labels[] = $name;
             $this->data[] = count($experiences);
         }
 
@@ -94,7 +82,8 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
                     'yAxes' => [
                         [
                             'ticks' => [
-                                'beginAtZero' => true
+                                'beginAtZero' => true,
+                                'precision' => 0,
                             ]
                         ]
                     ]
@@ -141,7 +130,7 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
 
     public function getLocation()
     {
-        return 'full-bottom';
+        return 'bottom';
     }
 
     public function getPosition()

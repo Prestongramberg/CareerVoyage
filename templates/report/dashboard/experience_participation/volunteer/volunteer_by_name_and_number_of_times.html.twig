@@ -10,13 +10,14 @@
             <div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
 
                 <ul class="uk-slideshow-items">
-                    {% for professionalBatch in chart.professionals|batch(10) %}
+                    {% for professionalBatch in chart.professionals|sort((a, b) => a.name <=> b.name)|batch(10) %}
                         <li class="uk-overflow-auto" style="position: absolute">
                             <table class="uk-table uk-table-small uk-table-striped">
                                 <thead>
                                 <tr>
                                     <th class="uk-table-shrink">Name</th>
                                     <th class="uk-table-shrink">Volunteer Count</th>
+                                    <th class="uk-table-shrink">Company</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -24,6 +25,7 @@
                                     <tr>
                                         <td class="uk-table-shrink">{{ professional['name'] }}</td>
                                         <td class="uk-table-shrink">{{ professional['experience_count'] }}</td>
+                                        <td class="uk-table-shrink">{{ professional['company'] }}</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>

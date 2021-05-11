@@ -42,14 +42,6 @@ class VolunteersByExperienceType extends AbstractDashboard
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if (empty($feedback['dashboardType'])) {
-                continue;
-            }
-
-            if ($feedback['dashboardType'] !== 'professional_volunteer_participation') {
-                continue;
-            }
-
             if (empty($feedback['professional'])) {
                 continue;
             }
@@ -141,7 +133,7 @@ class VolunteersByExperienceType extends AbstractDashboard
 
     public function getLocation()
     {
-        return 'full-bottom';
+        return 'bottom';
     }
 
     public function getPosition()
