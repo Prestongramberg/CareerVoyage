@@ -1320,6 +1320,8 @@ class NormalizeFeedbackCommand extends Command
 
                 $regionIds   = [];
                 $regionNames = [];
+                $schoolIds   = [];
+                $schoolNames = [];
 
                 /** @var CompanyExperience $companyExperience */
                 $companyExperience = $result[0] ?? null;
@@ -1342,11 +1344,27 @@ class NormalizeFeedbackCommand extends Command
                     $report->setExperienceTypeId($companyExperience->getType()->getId());
                 }
 
-                if ($state = $companyExperience->getState()) {
+                foreach($companyExperience->getRegistrations() as $registration) {
 
-                    foreach ($state->getRegions() as $region) {
-                        $regionIds[]   = $region->getId();
-                        $regionNames[] = $region->getName();
+                    if (!$user = $registration->getUser()) {
+                        continue;
+                    }
+
+                    if ($user instanceof StudentUser || $user instanceof EducatorUser) {
+
+                        if ($school = $user->getSchool()) {
+                            $schoolIds[]   = $school->getId();
+                            $schoolNames[] = $school->getName();
+                            $report->setSchool($school->getId());
+                            $report->setSchoolName($school->getName());
+
+                            if ($region = $school->getRegion()) {
+                                $regionIds[]   = $region->getId();
+                                $regionNames[] = $region->getName();
+                                $report->setRegion($region->getId());
+                                $report->setRegionName($region->getName());
+                            }
+                        }
                     }
                 }
 
@@ -1368,6 +1386,8 @@ class NormalizeFeedbackCommand extends Command
 
                 $report->setRegionNames($regionNames);
                 $report->setRegions($regionIds);
+                $report->setSchools($schoolIds);
+                $report->setSchoolNames($schoolNames);
 
                 $this->entityManager->persist($report);
                 $this->entityManager->flush();

@@ -188,6 +188,7 @@ class TopicSatisfactionFeedbackFilterType extends AbstractType
         $resolver->setDefaults(
             array (
                 'csrf_protection' => false,
+                'allow_extra_fields' => true,
                 'validation_groups' => array ('filtering') // avoid NotBlank() constraint-related message
             )
         );

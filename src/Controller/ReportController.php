@@ -1430,6 +1430,7 @@ WHERE u.discr = "professionalUser" :regions',
         $filters = [
             'companyName' => 'scalar',
             'regionNames' => 'array',
+            'schoolNames' => 'array',
             'experienceType' => 'scalar'
         ];
 
@@ -1476,21 +1477,21 @@ WHERE u.discr = "professionalUser" :regions',
             /** @var ProfessionalUser $user */
             $company = $user->getOwnedCompany();
 
-            /* $cachedFeedback = $cachedFeedback
+             $cachedFeedback = $cachedFeedback
                  ->where(function ($row) use ($company) {
 
                      if (!$company) {
                          return false;
                      }
 
-                     return in_array($company->getId(), $row['companies']);
-                 });*/
+                     return $company->getId() == $row['company'];
+                 });
 
         } elseif ($user->isRegionalCoordinator()) {
             /** @var RegionalCoordinator $user */
             $region = $user->getRegion();
 
-            /* $cachedFeedback = $cachedFeedback
+             $cachedFeedback = $cachedFeedback
                  ->where(function ($row) use ($region) {
 
                      if (!$region) {
@@ -1498,7 +1499,7 @@ WHERE u.discr = "professionalUser" :regions',
                      }
 
                      return in_array($region->getId(), $row['regions']);
-                 });*/
+                 });
 
         } elseif ($user->isSchoolAdministrator()) {
             /** @var SchoolAdministrator $user */
