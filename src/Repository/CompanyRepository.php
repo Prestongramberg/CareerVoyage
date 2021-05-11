@@ -151,4 +151,22 @@ class CompanyRepository extends ServiceEntityRepository
                      ->getResult();
     }
 
+
+    /**
+     * @return int
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function getTotalCompaniesOnPlatform()
+    {
+        $query = "select COUNT(c.id) as total_company_count from company c";
+
+        $em    = $this->getEntityManager();
+        $stmt  = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+
+        return (!empty($results[0]['total_company_count']) ? (int) $results[0]['total_company_count'] : 0);
+    }
+
 }

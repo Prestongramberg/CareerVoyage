@@ -11,6 +11,7 @@ use App\Entity\RolesWillingToFulfill;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
 use App\Form\EventTypeFormType;
+use App\Form\Filter\Report\Dashboard\CompanyExperienceFilterType;
 use App\Form\Filter\Report\Dashboard\ExperienceParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\ExperienceSatisfactionFeedbackFilterType;
 use App\Form\Filter\Report\Dashboard\RegistrationFilterType;
@@ -21,8 +22,6 @@ use App\Util\FeedbackGenerator;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
-use Knp\Bundle\SnappyBundle\Snappy\Response\JpegResponse;
-use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -34,11 +33,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Pinq\ITraversable;
 use Pinq\Traversable;
-use Knp\Snappy\Pdf;
 
-
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 /**
  * Class ReportController
@@ -1406,6 +1401,235 @@ WHERE u.discr = "professionalUser" :regions',
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
+     * @Route("/company-experience-dashboard", name="company_experience_dashboard")
+     *
+     * @param Request $request
+     *
+     * @param         $cacheDirectory
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function companyExperienceDashboard(Request $request, $cacheDirectory): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $cache                                = new FilesystemAdapter('company_experience_participation', 0, $cacheDirectory . '/pintex');
+        $cachedFeedback = $cache->get(CacheKey::COMPANY_EXPERIENCE_PARTICIPATION, function (ItemInterface $item
+        ) {
+            return [];
+        });
+
+        $totalCompanyExperiences = count($cachedFeedback);
+        $hasFilters = (bool)$request->query->count();
+
+        $cachedFeedback   = Traversable::from($cachedFeedback);
+        $filteredFeedback = null;
+
+        $filters = [
+            'companyName' => 'scalar',
+            'regionNames' => 'array',
+            'experienceType' => 'scalar'
+        ];
+
+        foreach ($filters as $filter => $facetType) {
+            $filterValue = $request->query->get($filter, null);
+
+            if (!$filterValue) {
+                continue;
+            }
+
+            $cachedFeedback = $cachedFeedback
+                ->where(function ($row) use ($filter, $filterValue, $facetType) {
+
+                    if ($facetType === 'scalar') {
+                        return $row[$filter] === $filterValue;
+                    } elseif ($facetType === 'array') {
+                        return in_array($filterValue, $row[$filter], true);
+                    }
+                });
+        }
+
+        $data      = null;
+        $filters   = $request->query->get('experienceStartDate', []);
+        $leftDate  = !empty($filters['left_date']) ? new \DateTime($filters['left_date']) : new \DateTime('-1 month');
+        $rightDate = !empty($filters['right_date']) ? new \DateTime($filters['right_date']) : new \DateTime('now');
+
+        $cachedFeedback = $cachedFeedback
+            ->where(function ($row) use ($leftDate, $rightDate) {
+
+                $eventStartDate = !empty($row['experienceStartDate']) ? new \DateTime($row['experienceStartDate']) : null;
+
+                if (!$eventStartDate) {
+                    return false;
+                }
+
+                if ($eventStartDate >= $leftDate && $eventStartDate <= $rightDate) {
+                    return true;
+                }
+
+                return false;
+            });
+
+        if ($user->isProfessional()) {
+            /** @var ProfessionalUser $user */
+            $company = $user->getOwnedCompany();
+
+            /* $cachedFeedback = $cachedFeedback
+                 ->where(function ($row) use ($company) {
+
+                     if (!$company) {
+                         return false;
+                     }
+
+                     return in_array($company->getId(), $row['companies']);
+                 });*/
+
+        } elseif ($user->isRegionalCoordinator()) {
+            /** @var RegionalCoordinator $user */
+            $region = $user->getRegion();
+
+            /* $cachedFeedback = $cachedFeedback
+                 ->where(function ($row) use ($region) {
+
+                     if (!$region) {
+                         return false;
+                     }
+
+                     return in_array($region->getId(), $row['regions']);
+                 });*/
+
+        } elseif ($user->isSchoolAdministrator()) {
+            /** @var SchoolAdministrator $user */
+            $schools = $user->getSchools();
+
+            $cachedFeedback = $cachedFeedback
+                ->where(function ($row) use ($schools) {
+
+                    if (!$schools) {
+                        return false;
+                    }
+
+                    foreach ($schools as $school) {
+
+                        if (in_array($school->getId(), $row['schools'])) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+        }
+
+        $dashboardOrder = $request->request->get('sortableData', null);
+
+        if ($dashboardOrder) {
+            $originalDashboardOrder = $user->getDashboardOrder() ?? [];
+
+            if ($request->query->has('top')) {
+                $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] = $dashboardOrder;
+            } else {
+                if ($request->query->has('bottom')) {
+                    $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] = $dashboardOrder;
+                } else {
+                    if ($request->query->has('full-bottom')) {
+                        $originalDashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_3] = $dashboardOrder;
+                    }
+                }
+            }
+
+            $user->setDashboardOrder($originalDashboardOrder);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                ],
+                Response::HTTP_OK
+            );
+        }
+
+        $data = [
+            'experienceStartDate' => [
+                'left_date' => $leftDate,
+                'right_date' => $rightDate,
+            ],
+        ];
+
+        // depending on the user role type that will determine which filters we show.
+        $form = $this->createForm(
+            CompanyExperienceFilterType::class, $data, [
+                'method' => 'GET',
+                'feedback' => $cachedFeedback,
+                'user' => $user,
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        $defaultDashboards = [
+            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\Summary::class,
+            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\LineChart\TotalCompanyExperiences::class,
+            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiences::class,
+            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerCompany::class,
+            \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerType::class,
+        ];
+
+        $dashboardOrder          = $user->getDashboardOrder() ?? [];
+        $userSavedPos1Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_1] ?? [];
+        $userSavedPos2Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_2] ?? [];
+        $userSavedPos3Dashboards = $dashboardOrder[AbstractDashboard::PAGE_FEEDBACK_POSITION_3] ?? [];
+
+        $charts = [];
+        foreach ($defaultDashboards as $defaultDashboard) {
+
+            if (!class_exists($defaultDashboard)) {
+                continue;
+            }
+
+            if($defaultDashboard === \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\Summary::class) {
+                $dashboardInstance = new $defaultDashboard($cachedFeedback, $totalCompanyExperiences, $hasFilters);
+            } else {
+                /** @var AbstractDashboard $dashboardInstance */
+                $dashboardInstance = new $defaultDashboard($cachedFeedback);
+            }
+
+            if (($position = array_search($defaultDashboard, $userSavedPos1Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            if (($position = array_search($defaultDashboard, $userSavedPos2Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            if (($position = array_search($defaultDashboard, $userSavedPos3Dashboards)) !== false) {
+                $dashboardInstance->setPosition($position);
+            }
+
+            $charts[] = $dashboardInstance;
+        }
+
+        $showFilters = $request->query->has('showFilters');
+
+        return $this->render(
+            'report/dashboard/company_experience.html.twig', [
+                'user' => $user,
+                'charts' => $charts,
+                'leftDate' => $leftDate,
+                'rightDate' => $rightDate,
+                'showFilters' => $showFilters,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl('company_experience_dashboard'),
+                'request' => $request,
+                'dashboardType' => 'company_experience',
+            ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
      * @Route("/experience-participation-dashboard", name="experience_participation_dashboard")
      *
      * @param Request $request
@@ -1453,6 +1677,7 @@ WHERE u.discr = "professionalUser" :regions',
             'schoolNames' => 'array',
             'regionNames' => 'array',
             'experienceType' => 'scalar',
+            'participationType' => 'scalar',
         ];
 
         foreach ($filters as $filter => $facetType) {
@@ -1472,23 +1697,6 @@ WHERE u.discr = "professionalUser" :regions',
                     }
                 });
         }
-
-        $participationType = $request->query->get('participationType', 'Company');
-
-        // participation Type
-        $cachedFeedback = $cachedFeedback
-            ->where(function ($row) use($participationType) {
-
-                if (empty($row['dashboardType'])) {
-                    return false;
-                }
-
-                if (empty($row['participationType'])) {
-                    return false;
-                }
-
-                return $row['participationType'] === $participationType;
-            });
 
         $data      = null;
         $filters   = $request->query->get('registrationDate', []);
@@ -1543,7 +1751,7 @@ WHERE u.discr = "professionalUser" :regions',
             /** @var SchoolAdministrator $user */
             $schools = $user->getSchools();
 
-            /*$cachedFeedback = $cachedFeedback
+            $cachedFeedback = $cachedFeedback
                 ->where(function ($row) use ($schools) {
 
                     if (!$schools) {
@@ -1558,7 +1766,7 @@ WHERE u.discr = "professionalUser" :regions',
                     }
 
                     return false;
-                });*/
+                });
         }
 
         $dashboardOrder = $request->request->get('sortableData', null);
@@ -1595,7 +1803,6 @@ WHERE u.discr = "professionalUser" :regions',
                 'left_date' => $leftDate,
                 'right_date' => $rightDate,
             ],
-            'participationType' => $participationType,
         ];
 
         // depending on the user role type that will determine which filters we show.
@@ -1608,6 +1815,8 @@ WHERE u.discr = "professionalUser" :regions',
         );
 
         $form->handleRequest($request);
+
+        $participationType = $request->query->get('participationType', null);
 
         switch ($participationType) {
             case 'Company':
@@ -1649,6 +1858,29 @@ WHERE u.discr = "professionalUser" :regions',
                     \App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType::class,
 
                 ];
+
+                break;
+            default:
+
+                $defaultDashboards = [
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Summary::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\LineChart\TotalCompanyExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerCompany::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\CompanyExperience\ListOfExperiencesPerType::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\LineChart\TotalSchoolExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiences::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiencesPerSchool::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience\ListOfExperiencesPerType::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\StudentsParticipatingBySchool::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\ListOfExperiencesByStudent::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\StudentParticipationByExperienceType::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\LineChart\TotalRegisteredStudents::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Student\BarChart\NumberOfExperiencesByStudents::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\VolunteersByNameAndNumberTimesVolunteered::class,
+                    \App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType::class,
+                ];
+
                 break;
         }
 

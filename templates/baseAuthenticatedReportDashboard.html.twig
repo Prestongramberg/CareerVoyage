@@ -68,8 +68,12 @@
             <li class="{{ dashboardType == 'registration_summary' ? 'uk-active' : '' }}"><a
                         href="{{ path('registration_summary_dashboard') }}">Registration Summary</a></li>
         {% endif %}
-        <li class="{{ dashboardType == 'experience_participation' ? 'uk-active' : '' }}"><a
-                    href="{{ path('experience_participation_dashboard') }}">Experience Participation</a></li>
+
+        <li class="{{ dashboardType == 'company_experience' ? 'uk-active' : '' }}"><a
+                    href="{{ path('company_experience_dashboard') }}">Company Experience</a></li>
+
+{#        <li class="{{ dashboardType == 'experience_participation' ? 'uk-active' : '' }}"><a
+                    href="{{ path('experience_participation_dashboard') }}">Experience Participation</a></li>#}
     </ul>
 </div>
 <div class="content-padder content-background">
