@@ -37,7 +37,7 @@ class VolunteersByCompany extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $professionals = [];
+        $totalCount = 0;
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
@@ -50,19 +50,23 @@ class VolunteersByCompany extends AbstractDashboard
                 continue;
             }
 
+            if (empty($feedback['companyName'])) {
+                $feedback['companyName'] = 'No Company Affiliation';
+            }
+
             if (empty($this->data[$feedback['companyName']])) {
                 $this->data[$feedback['companyName']] = 0;
             }
 
-            $professionals[] = $feedback['professional'];
+            $totalCount++;
             $this->data[$feedback['companyName']]++;
 
         }
 
         $this->labels = array_keys($this->data);
-        $this->data = array_values($this->data);
+        $this->data   = array_values($this->data);
 
-        $this->subHeader = sprintf("Total: %s", count(array_unique($professionals)));
+        $this->subHeader = sprintf("Total: %s", $totalCount);
 
     }
 
