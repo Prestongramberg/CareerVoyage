@@ -22,11 +22,11 @@ use Pinq\ITraversable;
 use Pinq\Traversable;
 
 /**
- * Class ExperienceParticipationFilterType
+ * Class CompanyExperienceFilterType
  *
  * @package App\Form\Filter
  */
-class ExperienceParticipationFilterType extends AbstractType
+class CompanyExperienceFilterType extends AbstractType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -36,30 +36,21 @@ class ExperienceParticipationFilterType extends AbstractType
         /** @var User $user */
         $user = $options['user'];
 
-        $builder->add('participationType', Filters\ChoiceFilterType::class, [
-                'expanded' => false,
-                'multiple' => false,
-                'required' => false,
-                'placeholder' => 'All',
-                'choices' => $this->getScalarFacet($feedback, 'participationType'),
-            ]
-        );
-
-        $builder->add('schoolNames', Filters\ChoiceFilterType::class, [
-                'expanded' => false,
-                'multiple' => false,
-                'required' => false,
-                'placeholder' => 'All',
-                'choices' => $this->getArrayFacet($feedback, 'schoolNames'),
-            ]
-        );
-
         $builder->add('regionNames', Filters\ChoiceFilterType::class, [
                 'expanded' => false,
                 'multiple' => false,
                 'required' => false,
                 'placeholder' => 'All',
                 'choices' => $this->getArrayFacet($feedback, 'regionNames'),
+            ]
+        );
+
+        $builder->add('companyName', Filters\ChoiceFilterType::class, [
+                'expanded' => false,
+                'multiple' => false,
+                'required' => false,
+                'placeholder' => 'All',
+                'choices' => $this->getScalarFacet($feedback, 'companyName'),
             ]
         );
 
@@ -72,7 +63,7 @@ class ExperienceParticipationFilterType extends AbstractType
             ]
         );
 
-        $builder->add('registrationDate', Filters\DateRangeFilterType::class, [
+        $builder->add('experienceStartDate', Filters\DateRangeFilterType::class, [
                 'left_date_options' => [
                     'widget' => 'single_text',
                     'format' => 'MM/dd/yyyy',

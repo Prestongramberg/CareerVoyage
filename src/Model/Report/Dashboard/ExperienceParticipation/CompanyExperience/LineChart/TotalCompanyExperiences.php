@@ -21,7 +21,7 @@ class TotalCompanyExperiences extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Total company experiences';
+    protected $header = 'Total company experiences each month';
 
     protected $subHeader = '';
 
