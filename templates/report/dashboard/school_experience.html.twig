@@ -1,0 +1,112 @@
+{% extends 'baseAuthenticatedReportDashboard.html.twig' %}
+
+{% block title %}School Experience Report{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/report_dashboard.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('build/report_dashboard.css') }}"/>
+ {% endblock %}
+
+{% block heading %}
+    School Experience Report
+    <mark style="font-size: 14px">{{ leftDate|date("m/d/Y") }} - {{ rightDate|date("m/d/Y") }}</mark>
+{% endblock %}
+
+{% block navTitle %}Data Analysis{% endblock %}
+
+ {% block filters %}
+
+     <div>
+         <button style="position: relative; width: 200px" class="uk-button uk-button-primary" type="button"
+                 uk-toggle="target: #dashboard-filters; animation: uk-animation-slide-left, uk-animation-slide-bottom">
+             Filters <span style="position: absolute; top: 50%; transform: translateY(-50%); right: 20px"
+                           uk-icon="cog"></span></button>
+         <br>
+         <div id="dashboard-filters" {{ showFilters ? '' : 'hidden' }}>
+             <br>
+
+             <form method="get" action="{{ path('school_experience_dashboard') }}"
+                   class="uk-grid uk-grid-small">
+
+                 {% if form.regionNames is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.regionNames, 'Region', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.regionNames, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
+
+                 {% if form.schoolNames is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.schoolNames, 'School', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.schoolNames, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
+
+                 {% if form.experienceType is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.experienceType, 'Participation Experience', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.experienceType, {'attr': {'class': 'uk-select'}}) }}
+                     </div>
+                 {% endif %}
+
+                 {% if form.experienceStartDate is defined %}
+                     <div class="uk-width-1-4">
+                         {{ form_label(form.experienceStartDate, 'Time Period', {'attr': {'class': 'uk-text-bold'}}) }}
+                         {{ form_widget(form.experienceStartDate.left_date, {'attr': {'class': 'uk-datepicker uk-input start-date-picker'}}) }}
+                     </div>
+
+                     <div class="uk-width-1-4">
+                         <label style="visibility: hidden">Time Period</label>
+                         {{ form_widget(form.experienceStartDate.right_date, {'attr': {'class': 'uk-datepicker uk-input end-date-picker'}}) }}
+                     </div>
+                 {% endif %}
+
+                 <input type="hidden" name="showFilters" value="1">
+
+                 <br>
+                 <div class="uk-width-1-1" style="float:right">
+                     <br>
+                     <button class="uk-button uk-button-primary" style="float:right">Search</button>
+                     <a class="uk-button uk-button-danger uk-align-right" style="float:right" href="{{ clearFormUrl }}">Clear</a>
+                 </div>
+
+             </form>
+
+         </div>
+     </div>
+     <br>
+ {% endblock %}
+
+
+ {% block charts %}
+
+     <div data-url="{{ path('school_experience_dashboard') }}?top" uk-grid
+          class="uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-4@xl"
+          uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+         {% for chart in charts|filter(c => c.location == 'top')|sort((a, b) => a.position <=> b.position) %}
+             {% include chart.template %}
+         {% endfor %}
+     </div>
+
+     <div data-url="{{ path('school_experience_dashboard') }}?bottom" uk-grid
+          class="uk-child-width-1-2@s uk-child-width-1-2@l"
+          uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+         {% for chart in charts|filter(c => c.location == 'bottom')|sort((a, b) => a.position <=> b.position) %}
+             {% include chart.template %}
+         {% endfor %}
+     </div>
+
+     <div data-url="{{ path('school_experience_dashboard') }}?full-bottom" uk-grid
+          class="uk-child-width-1-1@s uk-child-width-1-1@l"
+          uk-sortable="handle: .uk-sortable-handle; cls-custom: dashboard-sort-item">
+         {% for chart in charts|filter(c => c.location == 'full-bottom')|sort((a, b) => a.position <=> b.position) %}
+             {% include chart.template %}
+         {% endfor %}
+     </div>
+
+ {% endblock %}

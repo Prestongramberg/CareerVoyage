@@ -2,45 +2,51 @@
 
 namespace App\Model\Report\Dashboard\ExperienceParticipation\SchoolExperience;
 
+use App\Entity\Feedback;
+use App\Model\Collection\FeedbackCollection;
 use App\Model\Report\Dashboard\AbstractDashboard;
+use App\Repository\CompanyRepository;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class ListOfExperiencesPerType extends AbstractDashboard
+class Summary extends AbstractDashboard
 {
-    protected $header = 'School experiences per type';
+    protected $header = 'Summary';
 
     protected $subHeader = '';
 
-    protected $position = 6;
+    protected $position = 0;
 
-    protected $experiences = [];
+    protected $totalSchoolExperiences = 0;
 
     /**
      * BarChart constructor.
      *
      * @param Traversable $feedbackCollection
+     * @param             $totalCompanyExperiences
      */
-    public function __construct(Traversable $feedbackCollection)
+    public function __construct(Traversable $feedbackCollection, $totalSchoolExperiences, $hasFilters)
     {
+        $experiences = [];
 
+        /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if (empty($feedback['experienceTypeId'])) {
+            if (empty($feedback['dashboardType'])) {
                 continue;
             }
 
-            if (empty($feedback['experienceType'])) {
+            if (empty($feedback['experience'])) {
                 continue;
             }
 
-            if(empty($this->experiences[$feedback['experienceTypeId']]['experience_count'])) {
-                $this->experiences[$feedback['experienceTypeId']]['experience_count'] = 0;
-            }
+            $experiences[] = $feedback['experience'];
+        }
 
-            $this->experiences[$feedback['experienceTypeId']]['experience_count']++;
-
-            $this->experiences[$feedback['experienceTypeId']]['type'] = $feedback['experienceType'];
+        if ($hasFilters) {
+            $this->totalSchoolExperiences = count(array_unique($experiences));
+        } else {
+            $this->totalSchoolExperiences = $totalSchoolExperiences;
         }
     }
 
@@ -72,12 +78,12 @@ class ListOfExperiencesPerType extends AbstractDashboard
 
     public function getTemplate()
     {
-        return 'report/dashboard/experience_participation/school_experience/list_of_experiences_per_type.html.twig';
+        return 'report/dashboard/experience_participation/school_experience/summary.html.twig';
     }
 
     public function getLocation()
     {
-        return 'bottom';
+        return 'top';
     }
 
     public function getPosition()
@@ -90,8 +96,8 @@ class ListOfExperiencesPerType extends AbstractDashboard
         $this->position = $position;
     }
 
-    public function getExperiences(): array
+    public function getTotalSchoolExperiences(): int
     {
-        return $this->experiences;
+        return $this->totalSchoolExperiences;
     }
 }
