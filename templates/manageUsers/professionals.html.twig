@@ -38,9 +38,10 @@
                             <th>Email</th>
                             <th>Username</th>
                             <th>Company</th>
+                            <th>Is Owner</th>
                             {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
                                 <th>Login As User</th>{% endif %}
-                            <th>Is Owner</th>
+                            
                             <th>Edit</th>
 
                             {% if user.admin or user.siteAdmin %}
@@ -56,7 +57,13 @@
 
                         {# table body #}
                         {% for paginatedUser in pagination %}
-                            <tr id="user_{{ paginatedUser.id }}">
+
+                            {% set css_class = "" %}
+                            {% if paginatedUser.deleted %}
+                                {% set css_class = "user-deleted" %}
+                            {% endif %}
+
+                            <tr id="user_{{ paginatedUser.id }}" class="{{ css_class }}">
                                 <td><input type="checkbox" class="select-users" value="{{ paginatedUser.id }}"/></td>
                                 <td>{{ paginatedUser.id }}</td>
                                 <td>{{ paginatedUser.firstName }}</td>
@@ -64,19 +71,20 @@
                                 <td>{{ paginatedUser.email }}</td>
                                 <td>{{ paginatedUser.username }}</td>
                                 <td>
-                                    {% if paginatedUser.company is defined and paginatedUser.company is not null %}
-                                        <a href="{{ path('company_edit', {id: paginatedUser.company.id}) }}">{{ paginatedUser.company.name }}</a>
+                                    {% if paginatedUser.deleted %}
+                                        {% if paginatedUser.company is defined and paginatedUser.company is not null %}
+                                            {{ paginatedUser.company.name }}
+                                        {% else %}
+                                            ...
+                                        {% endif %}
                                     {% else %}
-                                        User does not belong to a company
+                                        {% if paginatedUser.company is defined and paginatedUser.company is not null %}
+                                            <a href="{{ path('company_edit', {id: paginatedUser.company.id}) }}">{{ paginatedUser.company.name }}</a>
+                                        {% else %}
+                                            User does not belong to a company
+                                        {% endif %}
                                     {% endif %}
                                 </td>
-                                {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
-                                    <td>
-                                        <a class="uk-button uk-button-small uk-button-default"
-                                           href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
-                                    </td>
-                                {% endif %}
-
                                 <td>
                                     {% if paginatedUser.company is defined and paginatedUser.company is not null and paginatedUser.company.owner.id == paginatedUser.id %}
                                         Yes
@@ -84,8 +92,22 @@
                                         No
                                     {% endif %}
                                 </td>
+                                {% if user.canLoginAsAnotherUser and is_granted('ROLE_PREVIOUS_ADMIN') == false %}
+                                    <td>
+                                        {% if paginatedUser.activated %}
+                                        <a class="uk-button uk-button-small uk-button-default"
+                                           href="/dashboard?_switch_user={{ paginatedUser.email|url_encode }}">Login</a>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
 
-                                <td><a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a></td>
+                                
+
+                                <td>
+                                    {% if paginatedUser.activated %}
+                                        <a href="{{ path('profile_edit', {'id': paginatedUser.id}) }}">Edit</a>
+                                    {% endif %}
+                                </td>
 
                                 {% if user.admin or user.siteAdmin %}
                                     {% if paginatedUser.activated %}
@@ -93,6 +115,12 @@
                                             <button data-href="{{ path('profile_activate_deactivate', {'id': paginatedUser.id}) }}"
                                                     data-id="{{ paginatedUser.id }}"
                                                     class="uk-button uk-button-small uk-label-success">Active</a>
+                                        </td>
+                                    {% elseif paginatedUser.deleted %}
+                                        <td>
+                                            <button data-href="{{ path('profile_list_reactivate', {'id': paginatedUser.id}) }}"
+                                                    data-id="{{ paginatedUser.id }}"
+                                                    class="uk-button uk-button-small uk-label-gray">Deleted</a>
                                         </td>
                                     {% else %}
                                         <td>
