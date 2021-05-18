@@ -10,7 +10,7 @@
             <div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
 
                 <ul class="uk-slideshow-items">
-                    {% for studentBatch in chart.students|sort((a, b) => a.name <=> b.name)|batch(10) %}
+                    {% for studentBatch in chart.students|sort((a, b) => a.last_name <=> b.last_name)|batch(10) %}
                         <li class="uk-overflow-auto" style="position: absolute">
                             <table class="uk-table uk-table-small uk-table-striped">
                                 <thead>

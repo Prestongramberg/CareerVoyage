@@ -1094,6 +1094,8 @@ class NormalizeFeedbackCommand extends Command
                 $report->setRegistrationDate($professional->getCreatedAt());
                 $report->setProfessional($professional->getId());
                 $report->setProfessionalName($professional->getFullName());
+                $report->setProfessionalFirstName($professional->getFirstName());
+                $report->setProfessionalLastName($professional->getLastName());
 
                 foreach ($professional->getSchools() as $school) {
                     $schoolNames[] = $school->getName();
@@ -1559,6 +1561,8 @@ class NormalizeFeedbackCommand extends Command
                 $report->setExperience($experience->getId());
                 $report->setStudent($user->getId());
                 $report->setStudentName($user->getFullName());
+                $report->setStudentFirstName($user->getFirstName());
+                $report->setStudentLastName($user->getLastName());
                 $report->setRegistrationDate($registration->getCreatedAt());
                 $report->setRegistration($registration->getId());
 
@@ -1582,6 +1586,8 @@ class NormalizeFeedbackCommand extends Command
                             $report->setRegionName($region->getName());
                         }
                     }
+
+                    $report->setExperienceClass(SchoolExperience::class);
                 }
 
                 if ($experience instanceof CompanyExperience) {
@@ -1592,6 +1598,8 @@ class NormalizeFeedbackCommand extends Command
                         $report->setCompany($company->getId());
                         $report->setCompanyName($company->getName());
                     }
+
+                    $report->setExperienceClass(CompanyExperience::class);
                 }
 
                 if ($experience instanceof StudentToMeetProfessionalExperience) {
@@ -1619,6 +1627,39 @@ class NormalizeFeedbackCommand extends Command
                             }
                         }
                     }
+
+                    $report->setExperienceType('Informational Interviewer');
+                    $report->setExperienceClass(StudentToMeetProfessionalExperience::class);
+                }
+
+                if($experience instanceof TeachLessonExperience) {
+
+                    if ($school = $experience->getSchool()) {
+                        $schoolIds[]   = $school->getId();
+                        $schoolNames[] = $school->getName();
+                        $report->setSchool($school->getId());
+                        $report->setSchoolName($school->getName());
+
+                        if ($region = $school->getRegion()) {
+                            $regionIds[]   = $region->getId();
+                            $regionNames[] = $region->getName();
+                            $report->setRegion($region->getId());
+                            $report->setRegionName($region->getName());
+                        }
+                    }
+
+                    if (($professional = $experience->getTeacher())) {
+
+                        if ($company = $professional->getCompany()) {
+                            $companyIds[]   = $company->getId();
+                            $companyNames[] = $company->getName();
+                            $report->setCompany($company->getId());
+                            $report->setCompanyName($company->getName());
+                        }
+                    }
+
+                    $report->setExperienceType('Guest Topic Instructor');
+                    $report->setExperienceClass(TeachLessonExperience::class);
                 }
 
                 $report->setSchoolNames($schoolNames);
@@ -1794,7 +1835,7 @@ class NormalizeFeedbackCommand extends Command
                         }
                     }
 
-                    $report->setExperienceType('Guest Instructor');
+                    $report->setExperienceType('Guest Topic Instructor');
                 }
 
 

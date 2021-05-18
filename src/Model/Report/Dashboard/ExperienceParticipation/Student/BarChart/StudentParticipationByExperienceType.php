@@ -37,16 +37,11 @@ class StudentParticipationByExperienceType extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $students = [];
+        $totalCount = 0;
 
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
-
-
-            if (empty($feedback['experienceTypeId'])) {
-                continue;
-            }
-
+            
             if (empty($feedback['experienceType'])) {
                 continue;
             }
@@ -55,14 +50,14 @@ class StudentParticipationByExperienceType extends AbstractDashboard
                 $this->data[$feedback['experienceType']] = 0;
             }
 
-            $students[] = $feedback['student'];
             $this->data[$feedback['experienceType']]++;
+            $totalCount++;
         }
 
         $this->labels = array_keys($this->data);
         $this->data = array_values($this->data);
 
-        $this->subHeader = sprintf("Total: %s", count(array_unique($students)));
+        $this->subHeader = sprintf("Total: %s", $totalCount);
     }
 
     public function render()

@@ -72,8 +72,10 @@
         <li class="{{ dashboardType == 'company_experience' ? 'uk-active' : '' }}"><a
                     href="{{ path('company_experience_dashboard') }}">Company Experience</a></li>
 
-        <li class="{{ dashboardType == 'school_experience' ? 'uk-active' : '' }}"><a
-                    href="{{ path('school_experience_dashboard') }}">School Experience</a></li>
+        {% if user.professional == false %}
+            <li class="{{ dashboardType == 'school_experience' ? 'uk-active' : '' }}"><a
+                        href="{{ path('school_experience_dashboard') }}">School Experience</a></li>
+        {% endif %}
 
         <li class="{{ dashboardType == 'student_participation' ? 'uk-active' : '' }}"><a
                     href="{{ path('student_participation_dashboard') }}">Student Participation</a></li>
@@ -81,8 +83,6 @@
         <li class="{{ dashboardType == 'volunteer_participation' ? 'uk-active' : '' }}"><a
                     href="{{ path('volunteer_participation_dashboard') }}">Volunteer Participation</a></li>
 
-{#        <li class="{{ dashboardType == 'experience_participation' ? 'uk-active' : '' }}"><a
-                    href="{{ path('experience_participation_dashboard') }}">Experience Participation</a></li>#}
     </ul>
 </div>
 <div class="content-padder content-background">

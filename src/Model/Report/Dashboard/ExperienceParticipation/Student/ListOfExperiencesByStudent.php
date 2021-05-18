@@ -53,6 +53,8 @@ class ListOfExperiencesByStudent extends AbstractDashboard
             $this->students[$feedback['student']]['experience_count']++;
 
             $this->students[$feedback['student']]['name'] = $feedback['studentName'];
+            $this->students[$feedback['student']]['first_name'] = $feedback['studentFirstName'];
+            $this->students[$feedback['student']]['last_name'] = $feedback['studentLastName'];
         }
     }
 

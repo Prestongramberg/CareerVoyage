@@ -8,7 +8,7 @@ use App\Model\Report\Dashboard\AbstractDashboard;
 use Pinq\ITraversable;
 use Pinq\Traversable;
 
-class NumberOfExperiencesByStudents extends AbstractDashboard
+class StudentsParticipatingByCompany extends AbstractDashboard
 {
     protected $type = 'bar';
 
@@ -22,11 +22,11 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Number of experiences by students';
+    protected $header = 'Student registrations by company';
 
     protected $subHeader = '';
 
-    protected $position = 1;
+    protected $position = 3;
 
     protected $footer = '';
 
@@ -37,37 +37,28 @@ class NumberOfExperiencesByStudents extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-        $experiences = [];
-        $data = [];
+
+        $totalCount = 0;
+
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-            if (empty($feedback['experience'])) {
-                continue;
-            }
-
-            if (!empty($feedback['schoolName']) && !empty($feedback['school'])) {
-                if(empty($data[$feedback['schoolName']][$feedback['experience']])) {
-                    $data[$feedback['schoolName']][$feedback['experience']] = true;
-                }
-            }
-
             if (!empty($feedback['companyName']) && !empty($feedback['company'])) {
-                if(empty($data[$feedback['companyName']][$feedback['experience']])) {
-                    $data[$feedback['companyName']][$feedback['experience']] = true;
+
+                if(empty($this->data[$feedback['companyName']])) {
+                    $this->data[$feedback['companyName']] = 0;
                 }
+
+                $this->data[$feedback['companyName']]++;
+                $totalCount++;
             }
 
-            $experiences[] = $feedback['experience'];
         }
 
-        $this->subHeader = sprintf("Total: %s", count(array_unique($experiences)));
+        $this->labels = array_keys($this->data);
+        $this->data = array_values($this->data);
 
-        foreach($data as $name => $experiences) {
-            $this->labels[] = $name;
-            $this->data[] = count($experiences);
-        }
-
+        $this->subHeader = sprintf("Total: %s", $totalCount);
     }
 
     public function render()
