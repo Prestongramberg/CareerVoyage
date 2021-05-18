@@ -205,6 +205,36 @@ class Report
      */
     private $registration;
 
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $experienceClass;
+
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $studentFirstName;
+
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $studentLastName;
+
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $professionalFirstName;
+
+    /**
+     * @Groups({"REPORT"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $professionalLastName;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -578,6 +608,66 @@ class Report
     public function setRegistration(?string $registration): self
     {
         $this->registration = $registration;
+
+        return $this;
+    }
+
+    public function getExperienceClass(): ?string
+    {
+        return $this->experienceClass;
+    }
+
+    public function setExperienceClass(?string $experienceClass): self
+    {
+        $this->experienceClass = $experienceClass;
+
+        return $this;
+    }
+
+    public function getStudentFirstName(): ?string
+    {
+        return $this->studentFirstName;
+    }
+
+    public function setStudentFirstName(?string $studentFirstName): self
+    {
+        $this->studentFirstName = $studentFirstName;
+
+        return $this;
+    }
+
+    public function getStudentLastName(): ?string
+    {
+        return $this->studentLastName;
+    }
+
+    public function setStudentLastName(?string $studentLastName): self
+    {
+        $this->studentLastName = $studentLastName;
+
+        return $this;
+    }
+
+    public function getProfessionalFirstName(): ?string
+    {
+        return $this->professionalFirstName;
+    }
+
+    public function setProfessionalFirstName(?string $professionalFirstName): self
+    {
+        $this->professionalFirstName = $professionalFirstName;
+
+        return $this;
+    }
+
+    public function getProfessionalLastName(): ?string
+    {
+        return $this->professionalLastName;
+    }
+
+    public function setProfessionalLastName(?string $professionalLastName): self
+    {
+        $this->professionalLastName = $professionalLastName;
 
         return $this;
     }

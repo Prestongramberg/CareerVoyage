@@ -22,11 +22,11 @@ class StudentsParticipatingBySchool extends AbstractDashboard
 
     protected $borderColor = 'rgb(255, 99, 132)';
 
-    protected $header = 'Number of student experiences by school';
+    protected $header = 'Student registrations by school';
 
     protected $subHeader = '';
 
-    protected $position = 3;
+    protected $position = 1;
 
     protected $footer = '';
 
@@ -37,41 +37,35 @@ class StudentsParticipatingBySchool extends AbstractDashboard
      */
     public function __construct(Traversable $feedbackCollection)
     {
-
-        $students = [];
-
+        $totalCount = 0;
+        $data       = [];
         /** @var Feedback $feedback */
         foreach ($feedbackCollection as $feedback) {
 
-
-
-            if (!empty($feedback['schoolName']) && !empty($feedback['school'])) {
-
-                if(empty($this->data[$feedback['schoolName']])) {
-                    $this->data[$feedback['schoolName']] = 0;
-                }
-
-                $this->data[$feedback['schoolName']]++;
+            if (empty($feedback['experience'])) {
+                continue;
             }
 
-            if (!empty($feedback['companyName']) && !empty($feedback['company'])) {
-
-                $this->header = 'Number of student experiences by company';
-
-                if(empty($this->data[$feedback['companyName']])) {
-                    $this->data[$feedback['companyName']] = 0;
-                }
-
-                $this->data[$feedback['companyName']]++;
+            if (empty($feedback['schoolName']) || empty($feedback['school'])) {
+                continue;
             }
 
-            $students[] = $feedback['student'];
+
+            if (empty($data[$feedback['schoolName']])) {
+                $data[$feedback['schoolName']] = 0;
+            }
+
+            $data[$feedback['schoolName']]++;
+
+            $totalCount++;
+
         }
 
-        $this->labels = array_keys($this->data);
-        $this->data = array_values($this->data);
+        $this->subHeader = sprintf("Total: %s", $totalCount);
 
-        $this->subHeader = sprintf("Total: %s", count(array_unique($students)));
+        $this->labels = array_keys($data);
+        $this->data = array_values($data);
+
     }
 
     public function render()
@@ -80,7 +74,7 @@ class StudentsParticipatingBySchool extends AbstractDashboard
             'type' => $this->type,
             'options' => [
                 'legend' => [
-                    'display' => false
+                    'display' => false,
                 ],
                 'scales' => [
                     'yAxes' => [
@@ -88,10 +82,10 @@ class StudentsParticipatingBySchool extends AbstractDashboard
                             'ticks' => [
                                 'beginAtZero' => true,
                                 'precision' => 0,
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'data' => [
                 'labels' => $this->labels,

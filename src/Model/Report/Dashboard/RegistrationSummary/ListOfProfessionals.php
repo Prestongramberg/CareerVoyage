@@ -44,6 +44,8 @@ class ListOfProfessionals extends AbstractDashboard
 
             $this->professionals[$feedback['professional']] = [
                 'name' => $feedback['professionalName'],
+                'first_name' => $feedback['professionalFirstName'],
+                'last_name' => $feedback['professionalLastName'],
                 'company' => $feedback['companyName'] ?? 'N/A'
             ];
         }

@@ -50,10 +50,6 @@ class VolunteersByExperienceType extends AbstractDashboard
                 continue;
             }
 
-            if(empty($feedback['experienceType'])) {
-                $feedback['experienceType'] = 'Guest Instructor';
-            }
-
             if (empty($this->data[$feedback['experienceType']])) {
                 $this->data[$feedback['experienceType']] = 0;
             }
