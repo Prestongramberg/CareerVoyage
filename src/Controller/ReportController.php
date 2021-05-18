@@ -1477,8 +1477,6 @@ WHERE u.discr = "professionalUser" :regions',
                 });
         }
 
-        $totalCompanyExperiences = $cachedFeedback->count();
-
         $filters = [
             'companyName' => 'scalar',
             'regionNames' => 'array',
@@ -1529,8 +1527,8 @@ WHERE u.discr = "professionalUser" :regions',
 
 
         }
-
-
+        
+        $totalCompanyExperiences = $cachedFeedback->count();
 
         $dashboardOrder = $request->request->get('sortableData', null);
 
@@ -1716,8 +1714,6 @@ WHERE u.discr = "professionalUser" :regions',
                 });
         }
 
-        $totalSchoolExperiences = $cachedFeedback->count();
-
         $filters = [
             'regionNames' => 'array',
             'schoolNames' => 'array',
@@ -1762,6 +1758,8 @@ WHERE u.discr = "professionalUser" :regions',
 
                 return false;
             });
+
+        $totalSchoolExperiences = $cachedFeedback->count();
 
         $dashboardOrder = $request->request->get('sortableData', null);
 
@@ -1945,8 +1943,6 @@ WHERE u.discr = "professionalUser" :regions',
                 });
         }
 
-        $totalRegistrations = $cachedFeedback->count();
-
 
         $filters = [
             'regionNames' => 'array',
@@ -1992,6 +1988,8 @@ WHERE u.discr = "professionalUser" :regions',
 
                 return false;
             });
+
+        $totalRegistrations = $cachedFeedback->count();
 
         $dashboardOrder = $request->request->get('sortableData', null);
 
@@ -2182,8 +2180,6 @@ WHERE u.discr = "professionalUser" :regions',
                 });
         }
 
-        $totalRegistrations = $cachedFeedback->count();
-
         $filters = [
             'regionNames' => 'array',
             'schoolNames' => 'array',
@@ -2229,6 +2225,7 @@ WHERE u.discr = "professionalUser" :regions',
                 return false;
             });
 
+        $totalRegistrations = $cachedFeedback->count();
 
         $dashboardOrder = $request->request->get('sortableData', null);
 
