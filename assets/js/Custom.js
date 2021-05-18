@@ -1301,6 +1301,14 @@ jQuery(document).ready(function ($) {
         }
     });
 
+
+    $('.load-help-video').on('click', function(){
+        var id = $(this).data('id');
+        var video = $(this).data('video');
+
+        $('#video_' + id).html('<iframe src="https://www.youtube.com/embed/' + video + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>');
+    });
+
     function create_mass_action_form(action) {
         var form = document.createElement('form');
         form.setAttribute('method', 'post');
