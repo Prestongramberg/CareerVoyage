@@ -174,7 +174,9 @@ class EducatorEditProfileFormType extends AbstractType
             'query_builder' => function (EntityRepository $er) use ($educator) {
                 return $er->createQueryBuilder('s')
                     ->where('s.school = :school')
+                    ->andWhere('s.deleted = :deleted')
                     ->setParameter('school', $educator->getSchool())
+                    ->setParameter('deleted', false)
                     ->orderBy('s.firstName', 'ASC');
             }
             ]);
