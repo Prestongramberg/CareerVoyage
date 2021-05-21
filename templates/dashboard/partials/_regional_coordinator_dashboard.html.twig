@@ -31,7 +31,7 @@
             </div>
 
             <div class="uk-visible@m uk-grid uk-margin" uk-grid>
-                <div class="uk-width-1-1">
+              {#  <div class="uk-width-1-1">
                     <div class="uk-card uk-card-default">
                         <div class="uk-card-body">
                             <h3>{{ user.region.name }} School Experiences in {{ "now"|date("F, Y") }}</h3>
@@ -47,7 +47,7 @@
                                  data-sets='[{"label": "Company Experiences", "data": [{{ list_pluck( dashboards.companyEventsGroupedByPrimaryIndustry, 'num_of_company_events' )|join(',') }}]},{"label": "Educator Sign Ups", "data": [{{ list_pluck( dashboards.numberOfRegistrationsGroupedByPrimaryIndustryForRegion, 'number_of_registrations' )|join(',') }}]}]' data-labels='[{{ quote_array_elements_for_react( list_pluck( dashboards.companyEventsGroupedByPrimaryIndustry, 'primary_industry_name' ))|join(',') }}]'></div>
                         </div>
                     </div>
-                </div>
+                </div>#}
 
                 <div class="uk-width-1-1">
                     <div class="uk-card uk-card-default">
@@ -102,14 +102,14 @@
             </div>
 
             <!-- My Region -->
-            <div class="quick-links-wrapper uk-margin">
+          {#  <div class="quick-links-wrapper uk-margin">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-body">
                         <h3>{{ user.region.name }} Region</h3>
                         <div class="react-pie-chart" data-set="[{{ dashboards.numberOfSchoolAdminsInRegion }},{{ dashboards.numberOfEducatorsInRegion }},{{ dashboards.numberOfStudentsInRegion }}]" data-labels='["School Administrators", "Educators", "Students"]'></div>
                     </div>
                 </div>
-            </div>
+            </div>#}
 
             <!-- My Schools -->
             <div class="quick-links-wrapper uk-margin">
