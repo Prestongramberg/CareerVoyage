@@ -2509,4 +2509,20 @@ class SchoolController extends AbstractController
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
+
+    /**
+     * @Route("/schools/experiences/{id}/toggle-feedback-view", name="toggle_school_feedback_view", options = { "expose" = true })
+     * @param Request $request
+     * @param SchoolExperience $experience
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function toggleCanViewFeedback(Request $request, SchoolExperience $experience) {
+
+        $experience->setCanViewFeedback($request->request->get('val'));
+        $this->entityManager->persist($experience);
+        $this->entityManager->flush();
+
+        return new JsonResponse(["status" => "success", "canView" => $request->request->get('val')]);
+    }
 }

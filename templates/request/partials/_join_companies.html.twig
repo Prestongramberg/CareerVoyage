@@ -71,7 +71,7 @@
 
         {% if request.wasCreatedByUser(user) %}
             <a class="uk-accordion-title" href="#">
-                Join company request Y
+                Join company request
                 <br /><small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}<br /><strong>{{ request.company.name }}</strong></small>
             </a>
             <div class="uk-accordion-content">

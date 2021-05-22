@@ -313,6 +313,9 @@
     "rollerworks/password-strength-validator": {
         "version": "v1.2.0"
     },
+    "scienta/doctrine-json-functions": {
+        "version": "4.3.0"
+    },
     "sebastian/comparator": {
         "version": "3.0.2"
     },
