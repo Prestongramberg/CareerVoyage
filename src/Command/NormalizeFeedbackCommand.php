@@ -186,7 +186,7 @@ class NormalizeFeedbackCommand extends Command
 
         $this->normalizeFeedbackData($input, $output);
 
-        $this->reportRepository->deleteAllReports();
+        $this->reportRepository->deleteAllDashboardReports();
 
         $this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
         $this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
@@ -1012,6 +1012,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('companies_registered_on_platform');
                 $report->setCompanyName($company->getName());
                 $report->setCompany($company->getId());
@@ -1088,6 +1089,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('professionals_registered_on_platform');
                 $report->setCompanyName($professional->getCompany() ? $professional->getCompany()->getName() : null);
                 $report->setCompany($professional->getCompany() ? $professional->getCompany()->getId() : null);
@@ -1169,6 +1171,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('students_registered_on_platform');
                 $report->setRegistrationDate($student->getCreatedAt());
 
@@ -1251,6 +1254,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('educators_registered_on_platform');
                 $report->setRegistrationDate($educator->getCreatedAt());
 
@@ -1333,6 +1337,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('company_experience_participation');
                 $report->setCompanyName($companyExperience->getCompany() ? $companyExperience->getCompany()->getName() : null);
                 $report->setCompany($companyExperience->getCompany() ? $companyExperience->getCompany()->getId() : null);
@@ -1453,6 +1458,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('school_experience_participation');
                 $report->setSchoolName($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getName() : null);
                 $report->setSchool($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getId() : null);
@@ -1555,6 +1561,7 @@ class NormalizeFeedbackCommand extends Command
                 $companyNames = [];
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('student_experience_participation');
                 $report->setExperienceStartDate($experience->getStartDateAndTime());
                 $report->setExperienceName($experience->getTitle());
@@ -1710,6 +1717,7 @@ class NormalizeFeedbackCommand extends Command
                 $companyNames = [];
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('professional_volunteer_participation');
                 $report->setExperienceStartDate($experience->getStartDateAndTime());
                 $report->setExperienceName($experience->getTitle());

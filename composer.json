@@ -14,6 +14,7 @@
         "ext-intl": "*",
         "ext-json": "*",
         "box/spout": "^3.1",
+        "fourlabs/qbjs-parser": "^1.1",
         "friendsofsymfony/jsrouting-bundle": "^2.3",
         "knplabs/knp-paginator-bundle": "^4.0",
         "lexik/form-filter-bundle": "dev-master",

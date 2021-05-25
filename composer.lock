@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "22a60002ee30fcd9f7421e0778329588",
+    "content-hash": "3a68293f06e1776cda9216ae69c6b9da",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1727,6 +1727,66 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/master"
             },
             "time": "2020-06-29T00:56:53+00:00"
+        },
+        {
+            "name": "fourlabs/qbjs-parser",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fourlabsldn/QBJSParser.git",
+                "reference": "6c233d419556b6b58fd31248009ee9adc5fff560"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fourlabsldn/QBJSParser/zipball/6c233d419556b6b58fd31248009ee9adc5fff560",
+                "reference": "6c233d419556b6b58fd31248009ee9adc5fff560",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0",
+                "symfony/property-info": "~2.8|~3.0|~3.1|^4.0|^5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*",
+                "satooshi/php-coveralls": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FL\\QBJSParser\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Four Labs",
+                    "homepage": "https://fourlabs.co.uk"
+                }
+            ],
+            "description": "Parse JSON coming from jQuery QueryBuilder, into database queries.",
+            "homepage": "https://github.com/fourlabsldn/QBJSParser",
+            "keywords": [
+                "QBJS",
+                "QBJSParser",
+                "doctrine",
+                "jQuery-QueryBuilder",
+                "jquery",
+                "orm",
+                "parser",
+                "php",
+                "querybuilder",
+                "querybuilder.js",
+                "querybuilder.js.org",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/fourlabsldn/QBJSParser/issues",
+                "source": "https://github.com/fourlabsldn/QBJSParser/tree/1.1.3"
+            },
+            "time": "2020-06-10T19:00:04+00:00"
         },
         {
             "name": "friendsofphp/proxy-manager-lts",

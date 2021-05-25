@@ -11,6 +11,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Report
 {
+    const TYPE_DASHBOARD = 'TYPE_DASHBOARD';
+    const TYPE_BUILDER = 'TYPE_BUILDER';
+
     /**
      * @Groups({"REPORT"})
      * @ORM\Id
@@ -234,6 +237,31 @@ class Report
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $professionalLastName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $reportType;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $reportEntityClassName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $reportName;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $reportDescription;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $reportRules;
 
     public function getId(): ?int
     {
@@ -668,6 +696,66 @@ class Report
     public function setProfessionalLastName(?string $professionalLastName): self
     {
         $this->professionalLastName = $professionalLastName;
+
+        return $this;
+    }
+
+    public function getReportType(): ?string
+    {
+        return $this->reportType;
+    }
+
+    public function setReportType(?string $reportType): self
+    {
+        $this->reportType = $reportType;
+
+        return $this;
+    }
+
+    public function getReportEntityClassName(): ?string
+    {
+        return $this->reportEntityClassName;
+    }
+
+    public function setReportEntityClassName(?string $reportEntityClassName): self
+    {
+        $this->reportEntityClassName = $reportEntityClassName;
+
+        return $this;
+    }
+
+    public function getReportName(): ?string
+    {
+        return $this->reportName;
+    }
+
+    public function setReportName(?string $reportName): self
+    {
+        $this->reportName = $reportName;
+
+        return $this;
+    }
+
+    public function getReportDescription(): ?string
+    {
+        return $this->reportDescription;
+    }
+
+    public function setReportDescription(?string $reportDescription): self
+    {
+        $this->reportDescription = $reportDescription;
+
+        return $this;
+    }
+
+    public function getReportRules(): ?string
+    {
+        return $this->reportRules;
+    }
+
+    public function setReportRules(?string $reportRules): self
+    {
+        $this->reportRules = $reportRules;
 
         return $this;
     }

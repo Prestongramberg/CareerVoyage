@@ -7,6 +7,7 @@ use App\Entity\EducatorUser;
 use App\Entity\EmailLog;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\Report;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
@@ -18,8 +19,10 @@ use App\Form\Filter\Report\Dashboard\RegistrationFilterType;
 use App\Form\Filter\Report\Dashboard\SchoolExperienceFilterType;
 use App\Form\Filter\Report\Dashboard\StudentParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\TopicSatisfactionFeedbackFilterType;
+use App\Form\ReportType;
 use App\Model\Report\Dashboard\AbstractDashboard;
 use App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType;
+use App\Report\Service\JavascriptBuilders;
 use App\Util\FeedbackGenerator;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
@@ -1423,7 +1426,7 @@ WHERE u.discr = "professionalUser" :regions',
             return [];
         });
 
-        $hasFilters = (bool)$request->query->count();
+        $hasFilters       = (bool)$request->query->count();
         $cachedFeedback   = Traversable::from($cachedFeedback);
         $filteredFeedback = null;
 
@@ -1523,11 +1526,11 @@ WHERE u.discr = "professionalUser" :regions',
                 return false;
             });
 
-        if($request->query->has('export')) {
+        if ($request->query->has('export')) {
 
 
         }
-        
+
         $totalCompanyExperiences = $cachedFeedback->count();
 
         $dashboardOrder = $request->request->get('sortableData', null);
@@ -2329,6 +2332,67 @@ WHERE u.discr = "professionalUser" :regions',
                 'request' => $request,
                 'dashboardType' => 'volunteer_participation',
             ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/new", name="new_report")
+     *
+     * @param Request $request
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function newReport(Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $report = new Report();
+
+        $form = $this->createForm(ReportType::class, $report, []);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Report $report */
+            $report = $form->getData();
+
+            $this->entityManager->persist($report);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Report successfully created!');
+            return $this->redirectToRoute('new_report', []);
+        }
+
+        return $this->render(
+            'report/builder/index.html.twig', [
+                'user' => $user,
+                'dashboardType' => 'new_report',
+                'form' => $form->createView()
+            ]
+        );
+    }
+
+    /**
+     * @param Request            $request
+     *
+     * @param JavascriptBuilders $javascriptBuilders
+     *
+     * @return JsonResponse
+     * @Route("/related-entity-columns", name="report_related_entity_columns", options = { "expose" = true }, methods={"GET"})
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     */
+    public function relatedEntityColumns(Request $request, JavascriptBuilders $javascriptBuilders) {
+
+        $targetEntityName = $request->query->get('entity');
+        $builder = $javascriptBuilders->get($targetEntityName);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => json_decode($builder->getJsonString(), true),
+            ], Response::HTTP_OK
         );
     }
 

@@ -33,6 +33,8 @@ Encore
     .addEntry('profile', './assets/js/profile.js')
     .addEntry('chat', './assets/js/chat.js')
     .addEntry('report_dashboard', './assets/js/report_dashboard.js')
+    .addEntry('report_builder', './assets/js/report_builder.js')
+
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
 

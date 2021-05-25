@@ -52,9 +52,9 @@ class ReportRepository extends ServiceEntityRepository
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\DBAL\Driver\Exception
      */
-    public function deleteAllReports() {
+    public function deleteAllDashboardReports() {
 
-        $query = 'DELETE FROM report';
+        $query = sprintf('DELETE FROM report where report_type = %s', 'TYPE_DASHBOARD');
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);

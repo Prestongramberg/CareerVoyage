@@ -1,0 +1,71 @@
+{% extends 'baseAuthenticatedReportDashboard.html.twig' %}
+
+{% block title %}Report Builder{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/report_builder.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('build/report_builder.css') }}"/>
+ {% endblock %}
+
+{% block breadcrumbs %}
+    <div class="uk-section-small uk-section-default header">
+        <div class="uk-container uk-container-large">
+            <h1><span class="ion-speedometer"></span> Report Builder</h1>
+            <ul class="uk-breadcrumb">
+                <li><a href="{{ path('dashboard') }}">Home</a></li>
+                <li><span href="">Report Builder</span></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block navTitle %}Report Builder{% endblock %}
+
+{% block content %}
+
+    {#
+    TODO add this to the parent div eventually
+    data-report="{{ report.id|default('') }}" data-report-entity="{{ report.entity.id|default('') }}" data-entity-name="{{ report.getEntityName }}" data-context="{{ context|json_encode }}"
+    #}
+
+    <div id="js-report-builder">
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate', 'class': 'js-report-form uk-grid uk-grid-small'}}) }}
+        {% if form_errors(form) %}
+            {{ form_errors(form) }}
+        {% endif %}
+
+        <div class="uk-width-1-1">
+            {{ form_label(form.reportName, 'Report Name', {'attr': {'class': 'uk-text-bold'}}) }}
+            {{ form_widget(form.reportName, {'attr': {'class': 'uk-input', 'placeholder': 'Report Name'}}) }}
+        </div>
+
+        <div class="uk-width-1-1">
+            {{ form_label(form.reportDescription, 'Report Description', {'attr': {'class': 'uk-text-bold'}}) }}
+            {{ form_widget(form.reportDescription, {'attr': {'class': 'uk-textarea', 'placeholder': 'Report Description'}}) }}
+        </div>
+
+        <div class="uk-width-1-1">
+            {{ form_label(form.reportEntityClassName, 'Entity', {'attr': {'class': 'uk-text-bold'}}) }}
+            {{ form_widget(form.reportEntityClassName, {'attr': {'class': 'uk-select js-entity'}}) }}
+        </div>
+
+        <div class="uk-width-1-1">
+            <br>
+            <br>
+            <div id="builder"></div>
+        </div>
+
+        <div class="uk-width-1-1">
+            <br>
+            <button type="submit" class="uk-button uk-button-primary" id="js-submit-report-button">Save</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+{% endblock %}
