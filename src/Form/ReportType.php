@@ -4,8 +4,10 @@ namespace App\Form;
 
 use App\Entity\Report;
 use App\Entity\User;
+use App\Report\Form\ReportColumnType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -63,7 +65,7 @@ class ReportType extends AbstractType
             ],
         ]);
 
-        /*$builder->add('reportColumns', CollectionType::class, array(
+        $builder->add('reportColumns', CollectionType::class, array(
             'entry_type'   => ReportColumnType::class,
             'allow_add' => true,
             'allow_delete' => true,
@@ -71,7 +73,7 @@ class ReportType extends AbstractType
             'prototype_name' => '__prototype_one__',
             'label' => false,
             'by_reference' => false,
-        ));*/
+        ));
 
     }
 

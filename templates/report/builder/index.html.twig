@@ -10,6 +10,13 @@
  {% block stylesheets %}
      {{ parent() }}
      <link rel="stylesheet" href="{{ asset('build/report_builder.css') }}"/>
+
+     <style>
+         .ui-sortable > div {
+             padding: 10px;
+             margin-bottom: 10px
+         }
+     </style>
  {% endblock %}
 
 {% block breadcrumbs %}
@@ -53,6 +60,27 @@
         <div class="uk-width-1-1">
             {{ form_label(form.reportEntityClassName, 'Entity', {'attr': {'class': 'uk-text-bold'}}) }}
             {{ form_widget(form.reportEntityClassName, {'attr': {'class': 'uk-select js-entity'}}) }}
+        </div>
+
+        <div class="uk-width-1-1">
+            <br>
+            <div id="js-entity-columns"></div>
+        </div>
+
+        <div class="uk-width-1-1">
+            <br>
+            <div id="js-selected-columns">
+                <div>
+                    <div id="js-selected-columns-sortable"
+                         data-template="{% spaceless %}{{ include('report/builder/selected-columns.html.twig', { 'form': form.reportColumns.vars.prototype })|replace({'__prototype_one__': '${index}'})|e }}{% endspaceless %}">
+                        {% for reportColumn in form.reportColumns %}
+                            <div class="js-selected-column uk-card uk-card-default uk-card-body uk-width-1-1">
+                                {% include 'report/builder/selected-columns.html.twig' with {'form': reportColumn} %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="uk-width-1-1">

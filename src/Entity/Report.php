@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ReportRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -262,6 +264,16 @@ class Report
      * @ORM\Column(type="text", nullable=true)
      */
     private $reportRules;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ReportColumn", mappedBy="report", orphanRemoval=true, cascade={"remove", "persist"})
+     */
+    private $reportColumns;
+
+    public function __construct()
+    {
+        $this->reportColumns = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -756,6 +768,36 @@ class Report
     public function setReportRules(?string $reportRules): self
     {
         $this->reportRules = $reportRules;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportColumn[]
+     */
+    public function getReportColumns(): Collection
+    {
+        return $this->reportColumns;
+    }
+
+    public function addReportColumn(ReportColumn $reportColumn): self
+    {
+        if (!$this->reportColumns->contains($reportColumn)) {
+            $this->reportColumns[] = $reportColumn;
+            $reportColumn->setReport($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportColumn(ReportColumn $reportColumn): self
+    {
+        if ($this->reportColumns->removeElement($reportColumn)) {
+            // set the owning side to null (unless already changed)
+            if ($reportColumn->getReport() === $this) {
+                $reportColumn->setReport(null);
+            }
+        }
 
         return $this;
     }

@@ -1,6 +1,5 @@
 'use strict';
 
-import $ from 'jquery';
 import Routing from '../Routing';
 import _ from 'lodash';
 
@@ -46,11 +45,6 @@ class ReportBuilder {
         }
         return null;
     }
-    
-    // Applys a prefix to an ID (e.g. "created", "self" -> "self.created")
-    prefixed(id, prefix = null) {
-        return prefix ? [prefix, id].join('.') : id;
-    }
 
     defineFilterIfNotExist(id) {
         if (!this.filters.some(e => e.id === id)) {
@@ -61,7 +55,6 @@ class ReportBuilder {
             // during initialization or select option building events
         }
     }
-
 
     /**
      * @param $wrapper
@@ -109,7 +102,7 @@ class ReportBuilder {
             $.each(this.context.filter_ids, function(id, className) {
                 let prefix = self.getPrefix(id); // "self"
                 $.each(self.metadata[className].filters, function(i, e) {
-                    self.defineFilterIfNotExist(self.prefixed(e.id, prefix)); // "self.someOtherAttr"
+                    self.defineFilterIfNotExist(self._prefixed(e.id, prefix)); // "self.someOtherAttr"
                 });
             });
             
@@ -141,7 +134,9 @@ class ReportBuilder {
         }*/
         
         //this.initializeSelectizeField('.js-selectize-personGroups');
-        //this.initializeSortableColumnsList();
+
+
+        this.initializeSortableColumnsList();
     }
     
     
@@ -162,7 +157,7 @@ class ReportBuilder {
 
         $group1.append(`<option value="-1">---</option>`);
         $.each(this.metadata[className].filters, function(i, e) {
-            let filterName = self.prefixed(e.id, prefix);
+            let filterName = self._prefixed(e.id, prefix);
             self.defineFilterIfNotExist(filterName);
             $group1.append(`<option value="${filterName}">${e.label}</option>`);
         });
@@ -170,7 +165,7 @@ class ReportBuilder {
         $.each(this.metadata[className].related_entities, function(i, e) {
             $group2.append(`<option class="js-related-entity" 
                 data-entity-name="${e.association_class}"
-                value="${self.prefixed(e.column_machine_name, prefix)}">${e.column_human_readable_name}
+                value="${self._prefixed(e.column_machine_name, prefix)}">${e.column_human_readable_name}
                 </option>`);
         });
         
@@ -187,15 +182,14 @@ class ReportBuilder {
             queryBuilder: '#builder',
             entitySelect: '.js-entity',
             reportForm: '.js-report-form',
-
-            /*
-
             reportColumnsDiv: '#js-entity-columns',
+            addColumnButton: '#js-report-add-column-button',
             reportColumnsSelect: '#report_columns',
             selectedColumnsDiv: '#js-selected-columns',
             selectedColumnsList: '#js-selected-columns-sortable',
-            addColumnButton: '#js-report-add-column-button',
             removeColumnButton: '.js-report-remove-column-button',
+
+            /*
             resetColumnsButton: '.reset-columns-dropdown-btn'
             */
         }
@@ -208,18 +202,15 @@ class ReportBuilder {
     bindEvents() {
 
         /*
-        this.$wrapper.on('click', ReportBuilder._selectors.addColumnButton, this.addColumnHandler.bind(this));
-        this.$wrapper.on('click', ReportBuilder._selectors.removeColumnButton, this.removeColumnHandler.bind(this));
         this.$wrapper.on('click', ReportBuilder._selectors.resetColumnsButton, this.resetColumnsDropdownClickHandler.bind(this));
         */
 
         this.$wrapper.on('change', ReportBuilder._selectors.entitySelect, this.entityChangedHandler.bind(this));
         this.$wrapper.on('submit', ReportBuilder._selectors.reportForm, this.handleReportFormSubmit.bind(this));
-
-        /*
         this.$wrapper.on('change', ReportBuilder._selectors.reportColumnsSelect, this.columnsChangedHandler.bind(this));
+        this.$wrapper.on('click', ReportBuilder._selectors.addColumnButton, this.addColumnHandler.bind(this));
+        this.$wrapper.on('click', ReportBuilder._selectors.removeColumnButton, this.removeColumnHandler.bind(this));
 
-        */
         return this;
     }
 
@@ -230,17 +221,15 @@ class ReportBuilder {
     unbindEvents() {
 
         /*
-        this.$wrapper.off('click', ReportBuilder._selectors.addColumnButton);
-        this.$wrapper.off('click', ReportBuilder._selectors.removeColumnButton);
         this.$wrapper.off('click', ReportBuilder._selectors.resetColumnsButton);
         */
 
+        this.$wrapper.off('click', ReportBuilder._selectors.addColumnButton);
         this.$wrapper.off('change', ReportBuilder._selectors.entitySelect);
         this.$wrapper.off('submit', ReportBuilder._selectors.reportForm);
-
-        /*
         this.$wrapper.off('change', ReportBuilder._selectors.reportColumnsSelect);
-        */
+        this.$wrapper.off('click', ReportBuilder._selectors.removeColumnButton);
+
         return this;
     }
 
@@ -359,7 +348,7 @@ class ReportBuilder {
         
         this.loadRelatedEntityColumns(entityName).then((data) => {
             debugger;
-            //this._renderSelectColumnsDropdown(entityName);
+            this._renderSelectColumnsDropdown(entityName);
         });
 
     }
@@ -371,6 +360,7 @@ class ReportBuilder {
      */
     columnsChangedHandler(e) {
 
+        debugger;
         if (e.cancelable) {
             e.preventDefault();
         }
@@ -387,10 +377,12 @@ class ReportBuilder {
 
         let entityName = $optionSelected.attr('data-entity-name');
         let prefix = $optionSelected.val();
+
+        // todo re-add this for related entities
         
-        this.loadRelatedEntityColumns(entityName, prefix).then((data) => {
+        /*this.loadRelatedEntityColumns(entityName, prefix).then((data) => {
             this._renderSelectColumnsDropdown(entityName, prefix);
-        });
+        });*/
     }
 
     /**
@@ -421,6 +413,9 @@ class ReportBuilder {
      * @param e
      */
     addColumnHandler(e) {
+
+        debugger;
+
         if (e.cancelable) {
             e.preventDefault();
         }
@@ -432,7 +427,7 @@ class ReportBuilder {
         let index = $parentContainer.children('.js-selected-column').length;
         let template = $parentContainer.data('template').replace(/\${index}/g, index).replace(/\${defaultName}/g, columnFieldName);
         let tpl = $.parseHTML(template);
-        let $tplContainer = $('<div class="js-selected-column card bg-light mb-2">');
+        let $tplContainer = $('<div class="js-selected-column uk-card uk-card-default uk-card-body uk-width-1-1">');
         
         if( !columnFieldVal ) {
             alert('Please select an option from the "Columns" dropdown.');
@@ -450,7 +445,6 @@ class ReportBuilder {
         $('select#report_columns').removeClass('is-invalid');
         $('.js-selected-columns-empty-error').hide();
 
-        $('[data-toggle="tooltip"]').tooltip();
         this.updateColumnSelectDropdown();
 
     }
@@ -498,6 +492,7 @@ class ReportBuilder {
      * on if they have already been selected or not.
      */
     updateColumnSelectDropdown() {
+        debugger;
         let $container = $(ReportBuilder._selectors.selectedColumnsList);
         let selectField = ReportBuilder._selectors.reportColumnsSelect;
 
@@ -585,6 +580,7 @@ class ReportBuilder {
      * Initializes the jquery sortable libary for selected columns.
      */
     initializeSortableColumnsList() {
+        debugger;
         let sortableList = ReportBuilder._selectors.selectedColumnsList;
         $(sortableList).sortable({
             axis: "y",
@@ -636,45 +632,6 @@ class ReportBuilder {
         $(builder).queryBuilder('setRules', rules);
     }
 
-    /**
-     * Display entity columns select field based on chosen entity.
-     * @private
-     * @param data
-     * @param associationMap
-     */
-    _renderSelectColumnsDropdown(entityName, prefix = null) {
-
-        let options = ``;
-        let related_entity_options = ``;
-        let self = this;
-        
-        $.each(this.metadata[entityName].filters, function(i, e) {
-            var json = JSON.stringify({
-                'column': self.prefixed(e.id, prefix)
-            });
-            
-            options += `<option value=${json}>${e.label}</option>`;
-        });
-        
-        $.each(this.metadata[entityName].related_entities, function(i, e) {
-            related_entity_options += `<option 
-                class="js-related-entity" 
-                data-entity-name="${e.association_class}"
-                value="${self.prefixed(e.column_machine_name, prefix)}">${e.column_human_readable_name}
-                </option>`;
-        });
-
-        const html = columnsTemplate(options, related_entity_options);
-        const $reportColumnsTemplate = $($.parseHTML(html));
-        
-        this.columnPrettyNames.push(this.metadata[entityName].pretty_class_name);
-        $reportColumnsTemplate.find('.textPrettyColumnNames').text(this.columnPrettyNames.join(' > '));
-        $reportColumnsTemplate.find(ReportBuilder._selectors.addColumnButton).prop('disabled', 'disabled');
-        
-        this.$wrapper.find(ReportBuilder._selectors.reportColumnsDiv).html($reportColumnsTemplate);
-        this.updateColumnSelectDropdown();
-    }
-    
    /**
     * Loads filters for query builder from server, based on building
     * block from entity select field or reportEntityId.
@@ -708,7 +665,7 @@ class ReportBuilder {
                    this.metadata[entityName].filters[filter.id] = filter;
                    
                    // auto-define new filters
-                   let id = this.prefixed(filter.id, prefix);
+                   let id = this._prefixed(filter.id, prefix);
                    this.defineFilterIfNotExist(id);
                }
                
@@ -780,36 +737,73 @@ class ReportBuilder {
         this.$wrapper.off('submit', reportForm);
         $(reportForm).submit();
     }
+
+    _renderSelectColumnsDropdown(entityName, prefix = null) {
+
+        debugger;
+        let options = ``;
+        let related_entity_options = ``;
+        let self = this;
+
+        $.each(this.metadata[entityName].filters, function(i, e) {
+            var json = JSON.stringify({
+                'column': self._prefixed(e.id, prefix)
+            });
+
+            options += `<option value=${json}>${e.label}</option>`;
+        });
+
+        $.each(this.metadata[entityName].related_entities, function(i, e) {
+            related_entity_options += `<option 
+                class="js-related-entity" 
+                data-entity-name="${e.association_class}"
+                value="${self._prefixed(e.column_machine_name, prefix)}">${e.column_human_readable_name}
+                </option>`;
+        });
+
+        const html = columnsTemplate(options, related_entity_options);
+        const $reportColumnsTemplate = $($.parseHTML(html));
+
+        this.columnPrettyNames.push(this.metadata[entityName].pretty_class_name);
+        $reportColumnsTemplate.find('.textPrettyColumnNames').text(this.columnPrettyNames.join(' > '));
+        $reportColumnsTemplate.find(ReportBuilder._selectors.addColumnButton).prop('disabled', 'disabled');
+
+        this.$wrapper.find(ReportBuilder._selectors.reportColumnsDiv).html($reportColumnsTemplate);
+        // todo re-add
+        //this.updateColumnSelectDropdown();
+    }
+
+    // noinspection JSMethodCanBeStatic
+    _prefixed(id, prefix = null) {
+        return prefix ? [prefix, id].join('.') : id;
+    }
 }
 
 const columnsTemplate = (options, related_entity_options) => `
 <div id="js-entity-columns-field-wrap">
-    <div class="form-group">
-        <label class="field-label" for="report_columns">Columns <small class="text-muted textPrettyColumnNames"></small>
-            <span class="invalid-feedback js-selected-columns-empty-error" style="display: none;">
-                <span class="d-block">
-                    <span class="form-error-icon badge badge-danger text-uppercase">Alert</span> <span class="form-error-message">Please add at least one column to use in this report.</span>
-                </span>
-            </span>
-        </label>
-        <div class="reset-and-select-wrap">
-            <div class="input-group">
-                <select id="report_columns" class="js-entity-column form-control custom-select">
-                    <option value="" selected>-- Select a column to add --</option>
-                    <optgroup label="Columns" class="js-selectable-columns-group">
-                        ${options}
-                    </optgroup>
-                    <optgroup label="Related Entities">
-                        ${related_entity_options}
-                    </optgroup>
-                </select>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary reset-columns-dropdown-btn" title="Reset dropdown with base entity values." type="button"><i class="far fa-redo-alt"></i></button>
-                </div>
-            </div>
+    <div class="uk-grid-small" uk-grid>
+    
+        <div class="reset-and-select-wrap uk-width-1-3">
+            <select id="report_columns" class="js-entity-column uk-select custom-select">
+                <option value="" selected>-- Select a column to add --</option>
+                <optgroup label="Columns" class="js-selectable-columns-group">
+                    ${options}
+                </optgroup>
+                <optgroup label="Related Entities">
+                    ${related_entity_options}
+                </optgroup>
+            </select>
         </div>
+        
+        <div class="uk-width-1-3">
+                <a href="" class="uk-icon-button reset-columns-dropdown-btn" uk-icon="history" title="Reset dropdown with base entity values."></a>
+            </div>  
+        
+        <div class="uk-width-1-3">
+            <button type="button" class="uk-button uk-button-primary" id="js-report-add-column-button" style="float:right">Add Column</button>
+        </div>
+        
     </div>
-    <button type="button" class="btn btn-outline-primary-inverse" id="js-report-add-column-button">Add Column</button>
 </div>
 `;
 

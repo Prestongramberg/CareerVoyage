@@ -38,6 +38,7 @@
         "google-maps-react": "^2.0.2",
         "interactjs": "^1.10.11",
         "jQuery-QueryBuilder": "^2.6.0",
+        "jquery-ui-bundle": "^1.12.1-migrate",
         "jquery.transit": "^0.9.12",
         "list.js": "^1.5.0",
         "lodash": "^4.17.14",

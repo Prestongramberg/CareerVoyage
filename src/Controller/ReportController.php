@@ -2350,6 +2350,7 @@ WHERE u.discr = "professionalUser" :regions',
         $user = $this->getUser();
 
         $report = new Report();
+        $report->setReportType(Report::TYPE_BUILDER);
 
         $form = $this->createForm(ReportType::class, $report, []);
 

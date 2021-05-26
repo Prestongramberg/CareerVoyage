@@ -106,8 +106,20 @@
         </div>
     {% endblock %}
 
+    {% set successMessage = '' %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+        {% set successMessage = flashMessage %}
+    {% endfor %}
+
+    {% set errorMessage = '' %}
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        {% set errorMessage = flashMessage %}
+    {% endfor %}
+
     <div class="uk-section-small">
         <div class="uk-container uk-container-large">
+
+            {% include 'flash/messages.html.twig' %}
 
             {% block filters %}{% endblock %}
 
