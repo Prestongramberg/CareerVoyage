@@ -5,7 +5,28 @@ namespace App\Report\Service;
 //use App\Entity\BuildingBlock;
 //use App\Entity\RelationshipField;
 //use App\Entity\RequestStatus;
+use App\Entity\AdminUser;
+use App\Entity\Chat;
+use App\Entity\ChatMessage;
+use App\Entity\Company;
+use App\Entity\CompanyFavorite;
+use App\Entity\Course;
+use App\Entity\EducatorUser;
+use App\Entity\Experience;
+use App\Entity\Grade;
+use App\Entity\Lesson;
+use App\Entity\LessonFavorite;
+use App\Entity\LessonTeachable;
+use App\Entity\ProfessionalUser;
+use App\Entity\Region;
+use App\Entity\RegionalCoordinator;
+use App\Entity\Registration;
 use App\Entity\Report;
+use App\Entity\School;
+use App\Entity\SchoolAdministrator;
+use App\Entity\Share;
+use App\Entity\SiteAdminUser;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Report\Model\Builder\Builder;
 use App\Report\Model\Builder\ResultColumn;
@@ -722,6 +743,253 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
+                ];
+
+                break;
+
+            case Lesson::class:
+
+                $excludedFields = [
+                    'featuredImage',
+                    'thumbnailImage',
+                    'updatedAt',
+                ];
+
+                break;
+
+            case SiteAdminUser::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case StudentUser::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case SchoolAdministrator::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case ProfessionalUser::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case Share::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case School::class:
+
+                $excludedFields = [
+                    'updatedAt'
+                ];
+
+                break;
+
+            case RegionalCoordinator::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case EducatorUser::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case AdminUser::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                    'roles'
+                ];
+
+                break;
+
+            case Registration::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case Region::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case LessonFavorite::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case LessonTeachable::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case Experience::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case Grade::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case Company::class:
+
+                $excludedFields = [
+                    'updatedAt'
+                ];
+
+                break;
+
+            case CompanyFavorite::class:
+
+                $excludedFields = [
+                    'updatedAt'
+                ];
+
+                break;
+
+            case Course::class:
+
+                $excludedFields = [
+                    'updatedAt'
+                ];
+
+                break;
+
+            case Chat::class:
+
+                $excludedFields = [
+                    'updatedAt'
+                ];
+
+                break;
+
+            case ChatMessage::class:
+
+                $excludedFields = [
+                    'updatedAt'
                 ];
 
                 break;

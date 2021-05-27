@@ -2,7 +2,32 @@
 
 namespace App\Form;
 
+use App\Entity\AdminUser;
+use App\Entity\Chat;
+use App\Entity\ChatMessage;
+use App\Entity\Company;
+use App\Entity\CompanyFavorite;
+use App\Entity\Course;
+use App\Entity\EducatorUser;
+use App\Entity\Experience;
+use App\Entity\Feedback;
+use App\Entity\Grade;
+use App\Entity\Industry;
+use App\Entity\Lesson;
+use App\Entity\LessonFavorite;
+use App\Entity\LessonTeachable;
+use App\Entity\Region;
+use App\Entity\RegionalCoordinator;
+use App\Entity\Registration;
 use App\Entity\Report;
+use App\Entity\RolesWillingToFulfill;
+use App\Entity\School;
+use App\Entity\SchoolAdministrator;
+use App\Entity\SecondaryIndustry;
+use App\Entity\Share;
+use App\Entity\SiteAdminUser;
+use App\Entity\State;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Report\Form\ReportColumnType;
 use Symfony\Component\Form\AbstractType;
@@ -54,9 +79,34 @@ class ReportType extends AbstractType
             'constraints' => [new NotBlank()],
             'placeholder' => '-- Select Entity --',
             'choices' => [
+                'Admin User' => AdminUser::class,
+                'Chat' => Chat::class,
+                'Chat message' => ChatMessage::class,
+                'Company' => Company::class,
+                'Company Favorites' => CompanyFavorite::class,
+                'Course' => Course::class,
+                'Educator User' => EducatorUser::class,
+                'Experience' => Experience::class,
+                'Experience Shares' => Share::class,
+                'Feedback' => Feedback::class,
+                'Grade' => Grade::class,
+                'Primary Industries' => Industry::class,
+                'Lesson' => Lesson::class,
+                'Lesson Favorites' => LessonFavorite::class,
+                'Lessons I want taught / Lessons I can teach' => LessonTeachable::class,
+                'Region' => Region::class,
+                'Regional Coordinator User' => RegionalCoordinator::class,
+                'Registration' => Registration::class,
+                'Roles willing to fulfill / Experience types' => RolesWillingToFulfill::class,
+                'School' => School::class,
+                'School Administrator User' => SchoolAdministrator::class,
+                'Secondary Industry' => SecondaryIndustry::class,
+                'Site Admin User' => SiteAdminUser::class,
+                'State' => State::class,
+                'Student User' => StudentUser::class,
                 'User' => User::class,
             ],
-            'label' => 'Entity'
+            'label' => 'Entity',
         ]);
 
         $builder->add('reportRules', HiddenType::class, [
@@ -65,8 +115,8 @@ class ReportType extends AbstractType
             ],
         ]);
 
-        $builder->add('reportColumns', CollectionType::class, array(
-            'entry_type'   => ReportColumnType::class,
+        $builder->add('reportColumns', CollectionType::class, array (
+            'entry_type' => ReportColumnType::class,
             'allow_add' => true,
             'allow_delete' => true,
             'prototype' => true,
