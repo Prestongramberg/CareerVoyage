@@ -5,6 +5,8 @@ namespace App\Report\Service;
 //use App\Entity\BuildingBlock;
 //use App\Entity\RelationshipField;
 //use App\Entity\RequestStatus;
+use App\Entity\Report;
+use App\Entity\User;
 use App\Report\Model\Builder\Builder;
 use App\Report\Model\Builder\ResultColumn;
 use App\Report\Model\Filter\FilterInput;
@@ -203,16 +205,16 @@ class JavascriptBuilders
 
     public function getFilter($fieldMapping, $targetEntityName = null)
     {
-        $fieldName = $fieldMapping['fieldName'];
+        $fieldName      = $fieldMapping['fieldName'];
         $fieldNameArray = preg_split('/(?=[A-Z])/', $fieldName);
-        $label = ucwords(implode(" ", $fieldNameArray));
+        $label          = ucwords(implode(" ", $fieldNameArray));
 
         $context = [
             'id' => $fieldMapping['fieldName'],
             'label' => $label,
             'data' => [
-                'class_name' => $targetEntityName
-            ]
+                'class_name' => $targetEntityName,
+            ],
         ];
 
         // todo pass the type in here from the class metadata
@@ -221,103 +223,114 @@ class JavascriptBuilders
             // todo account for boolean attributes
             case 'string':
 
-                $context['type'] = 'string';
+                $context['type']  = 'string';
                 $context['input'] = 'text';
 
                 break;
- /*           case self::SELECT_FIELD:
+            /*           case self::SELECT_FIELD:
 
-                $context['type'] = 'string';
-                $context['input'] = 'select';
-                $context['values'] = $this->getOptionsWithValuesAsKeys();
+                           $context['type'] = 'string';
+                           $context['input'] = 'select';
+                           $context['values'] = $this->getOptionsWithValuesAsKeys();
 
-                break;
+                           break;
 
-            case self::RADIO_FIELD:
+                       case self::RADIO_FIELD:
 
-                $context['type'] = 'string';
-                $context['input'] = 'radio';
-                $context['values'] = $this->getOptionsWithValuesAsKeys();
+                           $context['type'] = 'string';
+                           $context['input'] = 'radio';
+                           $context['values'] = $this->getOptionsWithValuesAsKeys();
 
-                break;*/
+                           break;*/
 
-       /*     case self::CHECKBOX_FIELD:
+            /*     case self::CHECKBOX_FIELD:
 
-                $context['type'] = 'string';
-                $context['input'] = 'checkbox';
-                $context['values'] = $this->getOptionsWithValuesAsKeys();
+                     $context['type'] = 'string';
+                     $context['input'] = 'checkbox';
+                     $context['values'] = $this->getOptionsWithValuesAsKeys();
 
-                break;*/
+                     break;*/
 
             case 'datetime':
 
-                $context['type'] = 'date';
-                $context['plugin'] = 'datepicker';
+                $context['type']       = 'date';
+                $context['plugin']     = 'datepicker';
                 $context['datepicker'] = [
                     'format' => 'MM/DD/YYYY',
                     'todayBtn' => 'linked',
                     'todayHighlight' => true,
-                    'autoclose' => true
+                    'autoclose' => true,
                 ];
 
                 break;
+            case 'integer':
 
-  /*          case 'time':
-
-                $context['type'] = 'time';
-
-                break;*/
-
-          /*  case self::NUMBER_FIELD:
-
-                $context['type'] = 'integer';
+                $context['type']  = 'integer';
                 $context['input'] = 'number';
 
-                break;*/
+                break;
+            case 'boolean':
+
+                $context['type']      = 'boolean';
+                $context['input']     = 'select';
+                $context['values']    = [
+                    '0' => 'no',
+                    '1' => 'yes',
+                ];
+                $context['operators'] = [
+                    'equal',
+                    'not_equal',
+                    'is_null',
+                    'is_not_null',
+                ];
+
+                break;
             default:
                 // default to string/text to cover the edge cases
-                $context['type'] = 'string';
+                $context['type']  = 'string';
                 $context['input'] = 'text';
                 break;
         }
 
+        $context = $this->contextOverride($fieldName, $targetEntityName, $context);
+
         return $context;
 
 
-      /*  if (preg_match('/^field(\d+)$/', $fieldName, $m)) {
-            if (!($field = $this->fieldRepository->find($m[1]))) {
-                return null;
-            }
+        /*  if (preg_match('/^field(\d+)$/', $fieldName, $m)) {
+              if (!($field = $this->fieldRepository->find($m[1]))) {
+                  return null;
+              }
 
-            return $this->getFilterContext();
-        } else {
-            $fieldType = 'string';
+              return $this->getFilterContext();
+          } else {
+              $fieldType = 'string';
 
-            $classMetadata = $this->entityManager->getClassMetadata($targetEntityName);
-            if (array_key_exists($fieldName, $classMetadata->fieldMappings)) {
-                $mysql_to_qbjs = [
-                    'json' => 'string',
-                    'text' => 'string',
-                ];
-                $fieldMapping  = $classMetadata->fieldMappings[$fieldName];
+              $classMetadata = $this->entityManager->getClassMetadata($targetEntityName);
+              if (array_key_exists($fieldName, $classMetadata->fieldMappings)) {
+                  $mysql_to_qbjs = [
+                      'json' => 'string',
+                      'text' => 'string',
+                  ];
+                  $fieldMapping  = $classMetadata->fieldMappings[$fieldName];
 
-                if (array_key_exists($fieldMapping['type'], $mysql_to_qbjs)) {
-                    $fieldType = $mysql_to_qbjs[$fieldMapping['type']];
-                }
-            }
+                  if (array_key_exists($fieldMapping['type'], $mysql_to_qbjs)) {
+                      $fieldType = $mysql_to_qbjs[$fieldMapping['type']];
+                  }
+              }
 
-            $values = [];
+              $values = [];
 
-            return [
-                'id' => $fieldName,
-                'label' => $fieldName,
-                'type' => $fieldType,
-                'data' => [
-                    'class_name' => $targetEntityName,
-                ],
-                'values' => $values,
-            ];
-        }*/
+              return [
+                  'id' => $fieldName,
+                  'label' => $fieldName,
+                  'type' => $fieldType,
+                  'data' => [
+                      'class_name' => $targetEntityName,
+                  ],
+                  'values' => $values,
+              ];
+          }*/
     }
 
     /**
@@ -404,7 +417,7 @@ class JavascriptBuilders
                           ][log($associationMapping['type'], 2)];
 
                 $fieldNameArray = preg_split('/(?=[A-Z])/', $fieldName);
-                $label = ucwords(implode(" ", $fieldNameArray));
+                $label          = ucwords(implode(" ", $fieldNameArray));
 
                 $buildersConfig[$classMetadata->getTableName()]['related_entities'][] = [
                     'column_machine_name' => $fieldName,
@@ -415,6 +428,10 @@ class JavascriptBuilders
         }
 
         foreach ($classMetadata->getFieldNames() as $fieldName) {
+
+            if ($this->shouldExcludeField($fieldName, $targetEntityName)) {
+                continue;
+            }
 
             $fieldMapping = $classMetadata->getFieldMapping($fieldName);
 
@@ -584,7 +601,7 @@ class JavascriptBuilders
                         1 => 'Yes',
                         0 => 'No',
                     ];
-                    $filter['input']  = 'radio';
+                    $filter['input']  = 'select';
                     $filter['colors'] = [
                         1 => 'success',
                         0 => 'danger',
@@ -685,6 +702,69 @@ class JavascriptBuilders
         ) {
             throw new \LogicException(sprintf('Not enough values found, While building, Builder with ID %s and Filter with ID %s.', $builderId, $filterId));
         }
+    }
+
+    private function shouldExcludeField($fieldName, $entityName)
+    {
+        switch ($entityName) {
+
+            case User::class:
+
+                $excludedFields = [
+                    'password',
+                    'passwordResetToken',
+                    'passwordResetTokenTimestamp',
+                    'notificationPreferenceMask',
+                    'photo',
+                    'dashboardOrder',
+                    'invitationCode',
+                    'activationCode',
+                    'tempPassword',
+                    'temporarySecurityToken',
+                    'updatedAt',
+                ];
+
+                break;
+
+            default:
+                $excludedFields = [];
+                break;
+
+        }
+
+        if (in_array($fieldName, $excludedFields, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function contextOverride($fieldName, $entityName, $context)
+    {
+        switch ($entityName) {
+
+            case User::class:
+
+                if ($fieldName === 'roles') {
+
+                    $context['type']      = 'string';
+                    $context['input']     = 'select';
+                    $context['values']    = Report::getUserRoles();
+                    $context['operators'] = [
+                        'contains',
+                        'not_contains',
+                    ];
+                }
+
+                break;
+
+            default:
+                $excludedFields = [];
+                break;
+
+        }
+
+        return $context;
     }
 
     /**

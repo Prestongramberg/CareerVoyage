@@ -89,4 +89,12 @@ class ReportColumn
 
         return $this;
     }
+
+    // strips sql expression, if present
+    public function getUserAlias(): ?string {
+        if (preg_match('/^(.+) AS (.*)$/i', $this->getName(), $m)) {
+            return $m[2];
+        }
+        return $this->getName();
+    }
 }

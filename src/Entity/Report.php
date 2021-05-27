@@ -14,7 +14,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Report
 {
     const TYPE_DASHBOARD = 'TYPE_DASHBOARD';
-    const TYPE_BUILDER = 'TYPE_BUILDER';
+    const TYPE_BUILDER   = 'TYPE_BUILDER';
+
+    public static $reportEntityClassNameMap = [
+        'User' => User::class,
+    ];
+
+    public static function getUserRoles(): array
+    {
+        return [
+            User::ROLE_PROFESSIONAL_USER => 'Professional User',
+            User::ROLE_EDUCATOR_USER => 'Educator User',
+            User::ROLE_STUDENT_USER => 'Student User',
+            User::ROLE_ADMIN_USER => 'Super Administrator User',
+            User::ROLE_STATE_COORDINATOR_USER => 'State Coordinator User',
+            User::ROLE_REGIONAL_COORDINATOR_USER => 'Regional Coordinator User',
+            User::ROLE_SCHOOL_ADMINISTRATOR_USER => 'School Administrator User',
+            User::ROLE_SITE_ADMIN_USER => 'Site Administrator User',
+        ];
+    }
 
     /**
      * @Groups({"REPORT"})
@@ -800,5 +818,29 @@ class Report
         }
 
         return $this;
+    }
+
+    public function getEntityNameFromEntityClassName($entityClassName)
+    {
+
+        if (($entityName = array_search($entityClassName, self::$reportEntityClassNameMap, true)) !== false) {
+            return $entityName;
+        }
+
+        return $entityClassName;
+    }
+
+    public function prepareResult($results): array
+    {
+        $csv = [];
+        foreach ($this->getReportColumns() as $reportColumn) {
+            $csv[] = $reportColumn->getUserAlias();
+        }
+        $csv = [$csv];
+        foreach ($results as $row) {
+            $csv[] = array_values($row);
+        }
+
+        return $csv;
     }
 }

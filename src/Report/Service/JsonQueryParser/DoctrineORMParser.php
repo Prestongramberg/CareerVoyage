@@ -3,7 +3,6 @@
 namespace App\Report\Service\JsonQueryParser;
 
 use App\Entity\Report;
-use App\Repository\FieldRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FL\QBJSParser\Parsed\Doctrine\ParsedRuleGroup;
 use FL\QBJSParser\Serializer\JsonDeserializer;
@@ -32,29 +31,23 @@ class DoctrineORMParser implements DoctrineORMParserInterface
     private $entityManager;
 
     /**
-     * @var FieldRepository
-     */
-    private $fieldRepository;
-
-    /**
      * DoctrineORMParser constructor.
      * @param JsonDeserializer $jsonDeserializer
      * @param EntityManagerInterface $entityManager
-     * @param FieldRepository $fieldRepository
      */
     public function __construct(
         JsonDeserializer $jsonDeserializer,
-        EntityManagerInterface $entityManager,
-        FieldRepository $fieldRepository
+        EntityManagerInterface $entityManager
     ) {
         $this->jsonDeserializer = $jsonDeserializer;
         $this->entityManager = $entityManager;
-        $this->fieldRepository = $fieldRepository;
     }
 
     /**
      * @param Report $report
+     *
      * @return ParsedRuleGroup
+     * @throws \Exception
      */
     public function parseReport(Report $report) {
 
@@ -66,7 +59,7 @@ class DoctrineORMParser implements DoctrineORMParserInterface
             ];
         }
 
-        return $this->parseJsonString($report->getRules(), $report->getEntity()->getExtendDatabaseNamespace(), $columns);
+        return $this->parseJsonString($report->getReportRules(), $report->getReportEntityClassName(), $columns);
     }
     
     // walk the association
