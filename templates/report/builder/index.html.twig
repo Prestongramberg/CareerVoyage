@@ -47,14 +47,14 @@
                  {% if form.reportName is defined %}
                      <div class="uk-width-1-4">
                          {{ form_label(form.reportName, 'Name', {'attr': {'class': 'uk-text-bold'}}) }}
-                         {{ form_widget(form.reportName, {'attr': {'class': 'uk-input'}}) }}
+                         {{ form_widget(form.reportName, {'attr': {'class': 'uk-input', 'placeholder': 'Report Name'}}) }}
                      </div>
                  {% endif %}
 
                  {% if form.reportDescription is defined %}
                      <div class="uk-width-1-4">
                          {{ form_label(form.reportDescription, 'Description', {'attr': {'class': 'uk-text-bold'}}) }}
-                         {{ form_widget(form.reportDescription, {'attr': {'class': 'uk-input'}}) }}
+                         {{ form_widget(form.reportDescription, {'attr': {'class': 'uk-input', 'placeholder': 'Report Description'}}) }}
                      </div>
                  {% endif %}
 

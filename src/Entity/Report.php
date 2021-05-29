@@ -17,6 +17,31 @@ class Report
     const TYPE_BUILDER   = 'TYPE_BUILDER';
 
     public static $reportEntityClassNameMap = [
+        'Admin User' => AdminUser::class,
+        'Chat' => Chat::class,
+        'Chat message' => ChatMessage::class,
+        'Company' => Company::class,
+        'Company Favorites' => CompanyFavorite::class,
+        'Course' => Course::class,
+        'Educator User' => EducatorUser::class,
+        'Experience' => Experience::class,
+        'Experience Shares' => Share::class,
+        'Feedback' => Feedback::class,
+        'Grade' => Grade::class,
+        'Primary Industries' => Industry::class,
+        'Lesson' => Lesson::class,
+        'Lesson Favorites' => LessonFavorite::class,
+        'Lessons I want taught / Lessons I can teach' => LessonTeachable::class,
+        'Region' => Region::class,
+        'Regional Coordinator User' => RegionalCoordinator::class,
+        'Registration' => Registration::class,
+        'Roles willing to fulfill / Experience types' => RolesWillingToFulfill::class,
+        'School' => School::class,
+        'School Administrator User' => SchoolAdministrator::class,
+        'Secondary Industry' => SecondaryIndustry::class,
+        'Site Admin User' => SiteAdminUser::class,
+        'State' => State::class,
+        'Student User' => StudentUser::class,
         'User' => User::class,
     ];
 
@@ -795,6 +820,10 @@ class Report
      */
     public function getReportColumns(): Collection
     {
+        if(!$this->reportColumns) {
+            return new ArrayCollection();
+        }
+
         return $this->reportColumns;
     }
 

@@ -42,6 +42,7 @@ use App\Repository\ProfessionalVideoRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RegionRepository;
 use App\Repository\RegistrationRepository;
+use App\Repository\ReportColumnRepository;
 use App\Repository\ReportRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
@@ -482,6 +483,11 @@ trait ServiceHelper
     private $reportRepository;
 
     /**
+     * @var ReportColumnRepository
+     */
+    private $reportColumnRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -562,6 +568,7 @@ trait ServiceHelper
      * @param RegionRepository                                              $regionRepository
      * @param Liform                                                        $liform
      * @param ReportRepository                                              $reportRepository
+     * @param ReportColumnRepository                                        $reportColumnRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -608,7 +615,8 @@ trait ServiceHelper
         SystemUserRepository $systemUserRepository,
         RegionRepository $regionRepository,
         Liform $liform,
-        ReportRepository $reportRepository
+        ReportRepository $reportRepository,
+        ReportColumnRepository $reportColumnRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -688,6 +696,7 @@ trait ServiceHelper
         $this->regionRepository                                              = $regionRepository;
         $this->liform                                                        = $liform;
         $this->reportRepository                                              = $reportRepository;
+        $this->reportColumnRepository                                        = $reportColumnRepository;
 
     }
 

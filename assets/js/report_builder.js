@@ -11,6 +11,7 @@ import moment from 'moment';
 import $ from 'jquery';
 //window.$ = $;
 import 'jquery-ui-bundle';
+import 'daterangepicker';
 
 window.interact = interact;
 window.moment = moment;

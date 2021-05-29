@@ -2,7 +2,7 @@
     {%- if errors|length > 0 -%}
         <ul class="errors">
             {%- for error in errors -%}
-                <li>{{ error.message }}</li>
+                <li style="color: #f0506e;">{{ error.message }}</li>
             {%- endfor -%}
         </ul>
     {%- endif -%}

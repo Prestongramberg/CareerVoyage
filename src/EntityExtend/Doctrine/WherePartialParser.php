@@ -143,7 +143,13 @@ abstract class WherePartialParser
         $parameterCount = count(static::$parameters);
 
         if (static::queryBuilderOperator_UsesValue($queryBuilderOperator)) {
-            static::$dqlPartialWhereString .= $safeField.' '.$doctrineOperator.' ?'.$parameterCount.' ';
+
+            if(in_array($rule->getType(), ['datetime', 'date'])) {
+                static::$dqlPartialWhereString .= 'DATE(' . $safeField.') '.$doctrineOperator.' ?'.$parameterCount.' ';
+            } else {
+                static::$dqlPartialWhereString .= $safeField.' '.$doctrineOperator.' ?'.$parameterCount.' ';
+            }
+
             static::$parameters[$parameterCount] = $value;
         } elseif (static::queryBuilderOperator_UsesArray($queryBuilderOperator)) {
             static::$dqlPartialWhereString .= $safeField.' '.$doctrineOperator.' (?'.$parameterCount.') ';

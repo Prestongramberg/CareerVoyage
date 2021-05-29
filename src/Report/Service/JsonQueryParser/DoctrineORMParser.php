@@ -218,7 +218,7 @@ class DoctrineORMParser implements DoctrineORMParserInterface
                 $classToEmbeddablesEmbeddableMapping[$className][$prefix] = $class;
             }
             
-            $this->classNameToDoctrineParser[$className] = new DoctrineParser(
+            $this->classNameToDoctrineParser[$entityClassName] = new DoctrineParser(
                 $className,
                 $classToPropertiesMapping[$className] ?? [],
                 $columns,

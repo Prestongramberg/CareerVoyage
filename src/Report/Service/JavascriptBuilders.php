@@ -80,9 +80,9 @@ class JavascriptBuilders
         $this->entityManager = $entityManager;
     }
 
-    public function getFilterData($report)
+    public function getFilterData(Report $report)
     {
-        $rules   = json_decode($report->getRules(), true);
+        $rules   = json_decode($report->getReportRules(), true);
         $filters = [];
 
         $result = [
@@ -93,7 +93,7 @@ class JavascriptBuilders
         ];
 
         // by default add everything from base entity 
-        if ($className = $report->getEntityName()) {
+        if ($className = $report->getReportEntityClassName()) {
             $x                              = json_decode($this->get($className)->getJsonString(), true);
             $result['metadata'][$className] = [
                 'filters' => array_combine(
@@ -127,7 +127,7 @@ class JavascriptBuilders
 
             // load metadata for intermediary joins (FILTERS)
             if (count($parts) > 1) {
-                $currentEntity = $report->getEntityName();
+                $currentEntity = $report->getReportEntityClassName();
                 for ($i = 0; $i < count($parts) - 1; $i++) {
                     $associationName = $parts[$i];
 
@@ -166,7 +166,7 @@ class JavascriptBuilders
             $parts                  = explode('.', $id);
             // load metadata for intermediary joins (COLUMNS)
             if (count($parts) > 1) {
-                $currentEntity = $report->getEntityName();
+                $currentEntity = $report->getReportEntityClassName();
                 for ($i = 0; $i < count($parts) - 1; $i++) {
                     $associationName = $parts[$i];
 
@@ -274,14 +274,17 @@ class JavascriptBuilders
 
             case 'datetime':
 
-                $context['type']       = 'date';
-                $context['plugin']     = 'datepicker';
-                $context['datepicker'] = [
-                    'format' => 'MM/DD/YYYY',
-                    'todayBtn' => 'linked',
-                    'todayHighlight' => true,
-                    'autoclose' => true,
-                ];
+                $context['type']  = 'date';
+                $context['input'] = 'text';
+
+                /* $context['type']       = 'date';
+                 $context['plugin']     = 'datepicker';
+                 $context['datepicker'] = [
+                     'format' => 'MM/DD/YYYY',
+                     'todayBtn' => 'linked',
+                     'todayHighlight' => true,
+                     'autoclose' => true,
+                 ];*/
 
                 break;
             case 'integer':
@@ -653,23 +656,24 @@ class JavascriptBuilders
             switch ($builderType) {
                 case 'datetime':
                 case 'date':
-                    $filter['validation']    = [
-                        'format' => 'MM/DD/YYYY',
-                    ];
-                    $filter['plugin']        = 'datepicker';
-                    $filter['plugin_config'] = [
+                    $filter['validation'] = [
                         'format' => 'MM/DD/YYYY',
                     ];
 
+                    /* $filter['plugin']        = 'datepicker';
+                     $filter['plugin_config'] = [
+                         'format' => 'MM/DD/YYYY',
+                     ];*/
+
                     break;
                 case 'datetime':
-                    $filter['validation']    = [
-                        'format' => 'MM/DD/YYYY HH:mm',
-                    ];
-                    $filter['plugin']        = 'datetimepicker'; // not found
-                    $filter['plugin_config'] = [
-                        'format' => 'MM/DD/YYYY HH:mm',
-                    ];
+                    /* $filter['validation']    = [
+                         'format' => 'MM/DD/YYYY HH:mm',
+                     ];
+                     $filter['plugin']        = 'datetimepicker'; // not found
+                     $filter['plugin_config'] = [
+                         'format' => 'MM/DD/YYYY HH:mm',
+                     ];*/
 
                     break;
                 case 'time':
@@ -771,7 +775,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -790,7 +794,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -809,7 +813,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -828,7 +832,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -844,7 +848,7 @@ class JavascriptBuilders
             case School::class:
 
                 $excludedFields = [
-                    'updatedAt'
+                    'updatedAt',
                 ];
 
                 break;
@@ -863,7 +867,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -882,7 +886,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -901,7 +905,7 @@ class JavascriptBuilders
                     'tempPassword',
                     'temporarySecurityToken',
                     'updatedAt',
-                    'roles'
+                    'roles',
                 ];
 
                 break;
@@ -957,7 +961,7 @@ class JavascriptBuilders
             case Company::class:
 
                 $excludedFields = [
-                    'updatedAt'
+                    'updatedAt',
                 ];
 
                 break;
@@ -965,7 +969,7 @@ class JavascriptBuilders
             case CompanyFavorite::class:
 
                 $excludedFields = [
-                    'updatedAt'
+                    'updatedAt',
                 ];
 
                 break;
@@ -973,7 +977,7 @@ class JavascriptBuilders
             case Course::class:
 
                 $excludedFields = [
-                    'updatedAt'
+                    'updatedAt',
                 ];
 
                 break;
@@ -981,7 +985,7 @@ class JavascriptBuilders
             case Chat::class:
 
                 $excludedFields = [
-                    'updatedAt'
+                    'updatedAt',
                 ];
 
                 break;
@@ -989,7 +993,7 @@ class JavascriptBuilders
             case ChatMessage::class:
 
                 $excludedFields = [
-                    'updatedAt'
+                    'updatedAt',
                 ];
 
                 break;

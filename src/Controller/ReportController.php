@@ -14,7 +14,6 @@ use App\Entity\User;
 use App\Form\EventTypeFormType;
 use App\Form\Filter\Report\Builder\ManageReportsFilterType;
 use App\Form\Filter\Report\Dashboard\CompanyExperienceFilterType;
-use App\Form\Filter\Report\Dashboard\ExperienceParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\ExperienceSatisfactionFeedbackFilterType;
 use App\Form\Filter\Report\Dashboard\RegistrationFilterType;
 use App\Form\Filter\Report\Dashboard\SchoolExperienceFilterType;
@@ -22,7 +21,6 @@ use App\Form\Filter\Report\Dashboard\StudentParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\TopicSatisfactionFeedbackFilterType;
 use App\Form\ReportType;
 use App\Model\Report\Dashboard\AbstractDashboard;
-use App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType;
 use App\Report\Service\JavascriptBuilders;
 use App\Report\Service\JsonQueryParser\DoctrineORMParser;
 use App\Util\FeedbackGenerator;
@@ -2341,12 +2339,13 @@ WHERE u.discr = "professionalUser" :regions',
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
      * @Route("/new", name="new_report")
      *
-     * @param Request $request
+     * @param Request            $request
+     *
+     * @param JavascriptBuilders $javascriptBuilders
      *
      * @return Response
-     * @throws \Exception
      */
-    public function newReport(Request $request): Response
+    public function newReport(Request $request, JavascriptBuilders $javascriptBuilders): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -2369,9 +2368,16 @@ WHERE u.discr = "professionalUser" :regions',
             return $this->redirectToRoute('new_report', []);
         }
 
+        $reportColumns = $report->getReportColumns();
+
+        $context = $javascriptBuilders->getFilterData($report);
+
         return $this->render(
             'report/builder/new.html.twig', [
                 'user' => $user,
+                'report' => $report,
+                'reportColumns' => $reportColumns,
+                'context' => $context,
                 'dashboardType' => 'new_report',
                 'form' => $form->createView(),
             ]

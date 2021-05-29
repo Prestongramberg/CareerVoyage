@@ -2,6 +2,7 @@
 
 namespace App\Form\Filter\Report\Builder;
 
+use App\Entity\Report;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -31,9 +32,7 @@ class ManageReportsFilterType extends AbstractType
 
         $builder->add('reportEntityClassName', Filters\ChoiceFilterType::class, [
             'required' => false,
-            'choices' => [
-                'User' => User::class,
-            ],
+            'choices' => Report::$reportEntityClassNameMap,
             'placeholder' => '-- All Entities --',
             'label' => 'Entity',
             'label_attr' => [

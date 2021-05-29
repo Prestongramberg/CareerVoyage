@@ -61,6 +61,7 @@ class ReportBuilder {
      * @param globalEventDispatcher
      */
     constructor($wrapper, globalEventDispatcher) {
+        debugger;
         this.$wrapper = $wrapper;
 
         console.log("report builder");
@@ -70,9 +71,10 @@ class ReportBuilder {
         }
         
         this.globalEventDispatcher = globalEventDispatcher;
-        //this.reportId = this.$wrapper.attr('data-report');
-        //this.reportEntityId = this.$wrapper.attr('data-report-entity');
-        //this.reportEntityName = this.$wrapper.data('entity-name');
+        this.reportId = this.$wrapper.attr('data-report');
+        this.reportEntityId = this.$wrapper.attr('data-report-entity');
+        this.reportEntityName = this.$wrapper.data('entity-name');
+        this.reportRules = this.$wrapper.data('report-rules');
         this.columnPrettyNames = [];
         this.filters = [];
         this.metadata = []; // THE BIG KAHUNA CACHE className => [filters, related_entities]
@@ -82,7 +84,7 @@ class ReportBuilder {
         this.bindEvents();
         
         
-/*        if (this.reportEntityName) {
+        if (this.reportEntityName) {
 
             // metadata[]
             // column_ids[]
@@ -108,10 +110,10 @@ class ReportBuilder {
             
             console.log("metadata", this.metadata);
             console.log("filters", this.filters);
-            
-            let rules = JSON.parse(this.$wrapper.find('#report_rules').val());
+
             this.initializeQueryBuilder(this.filters);
-            this.setQueryBuilderRules(rules);
+
+            this.setQueryBuilderRules(this.reportRules);
             this._renderSelectColumnsDropdown(this.reportEntityName);
             
             if (this.$wrapper.find('#js-selected-columns-sortable').children().length) {
@@ -131,11 +133,10 @@ class ReportBuilder {
                 let field = JSON.parse($(this).find('.col-field').val());
                 $(this).find('.col-name').attr('title', self.getFilterDescription(field.column))
             });
-        }*/
-        
+        }
+
+        // todo should I pull this method call?
         //this.initializeSelectizeField('.js-selectize-personGroups');
-
-
         this.initializeSortableColumnsList();
     }
     
@@ -187,7 +188,7 @@ class ReportBuilder {
             reportColumnsSelect: '#report_columns',
             selectedColumnsDiv: '#js-selected-columns',
             selectedColumnsList: '#js-selected-columns-sortable',
-            removeColumnButton: '.js-report-remove-column-button',
+            removeColumnButton: '.js-report-remove-column-button'
 
             /*
             resetColumnsButton: '.reset-columns-dropdown-btn'
@@ -305,8 +306,16 @@ class ReportBuilder {
     }
 
     modifyRuleInputHandler(e, rule, filters) {
+
+        debugger;
         let $input = $(e.value);
-        $input.addClass('uk-input');
+
+        if(rule.filter.type === 'date' || rule.filter.type === 'datetime') {
+            $input.addClass('uk-datepicker uk-input');
+        } else {
+            $input.addClass('uk-input');
+        }
+
         e.value = $input.get(0).outerHTML;
     }
 
@@ -337,7 +346,7 @@ class ReportBuilder {
       /*  if(!entityName) {
             this.$wrapper.find(ReportBuilder._selectors.reportColumnsDiv).empty();
             $(ReportBuilder._selectors.queryBuilder).queryBuilder('destroy');
-            $(this.$wrapper).find('.empty-query-builder-message').show().find('.alert').removeClass('border-danger text-danger');
+            $(this.$wrapper).find('.js-empty-query-builder-message').show().find('.alert').removeClass('border-danger text-danger');
             return;
         }*/
 
@@ -542,7 +551,7 @@ class ReportBuilder {
         debugger;
         let builder = ReportBuilder._selectors.queryBuilder;
         $(builder).queryBuilder('destroy');
-        //$(this.$wrapper).find('.empty-query-builder-message').hide().find('.alert').removeClass('border-danger text-danger');
+        //$(this.$wrapper).find('.js-empty-query-builder-message').hide().find('.alert').removeClass('border-danger text-danger');
 
         let self = this;
        // let filterSelect = '.rule-filter-container [name$=_filter]';
@@ -565,6 +574,30 @@ class ReportBuilder {
             self.modifyFilterListSelectHandler(e, rule, filters);
         }).on('getRuleOperatorSelect.queryBuilder.filter', function (e, rule, filters) {
             self.modifyFilterOperatorSelectHandler(e, rule, filters);
+        }).on('afterCreateRuleInput.queryBuilder', function (e, rule) {
+
+            console.log("test input");
+            debugger;
+
+            $('.uk-datepicker').each(function (index) {
+                debugger;
+                var $elem = $(this);
+
+                $elem.daterangepicker({
+                    singleDatePicker: true,
+                    timePicker: false,
+                    linkedCalendars: false,
+                    showCustomRangeLabel: false,
+                    locale: {
+                        format: 'MM/DD/YYYY'
+                    }
+                }, function (start, end, label) {
+                    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+                });
+
+            });
+
+
         });
 
             /*.off('change.queryBuilder', filterSelect).on('change.queryBuilder', filterSelect, function (e) {
@@ -702,6 +735,8 @@ class ReportBuilder {
 
         debugger;
 
+        $(this.$wrapper).find('.js-empty-query-builder-message').hide();
+
         // TODO GET THE COLUMNS WIRED IN (Might be a heavy lift as I'm not exactly sure how this was done before with the entity associations/relationships, etc)
         //  GET THE REPORT SAVING
         //  GET A DOWNLOAD ENDPOINT WIRED UP
@@ -724,7 +759,7 @@ class ReportBuilder {
         }
 
         if ( !$(builder).children().length ) {
-            $(this.$wrapper).find('.empty-query-builder-message .alert').addClass('border-danger text-danger');
+            $(this.$wrapper).find('.js-empty-query-builder-message').show();
             return;
         } else {
             if( !$(builder).queryBuilder('validate') ) {
