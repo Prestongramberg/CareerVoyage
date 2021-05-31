@@ -190,6 +190,10 @@ class EducatorEditProfileFormType extends AbstractType
             },
             'choice_label' => function (Course $course) {
                 return $course->getTitle();
+            },
+            'query_builder' => function (EntityRepository $er) {
+                return $er->createQueryBuilder('c')
+                    ->orderBy('c.title', 'ASC');
             }
         ]);
 
