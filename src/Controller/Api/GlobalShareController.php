@@ -170,7 +170,7 @@ class GlobalShareController extends AbstractController
         $this->entityManager->persist($share);
         $this->entityManager->flush();
 
-        $this->experienceMailer->genericShareNotification($message, $user);
+        $this->experienceMailer->genericShareNotification($message, $user, $loggedInUser);
 
         return new JsonResponse(
             [

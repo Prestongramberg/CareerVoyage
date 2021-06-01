@@ -243,7 +243,7 @@ class ExperienceMailer extends AbstractMailer
         $this->entityManager->flush();
     }
 
-    private function genericShareNotification($message, User $user) {
+    private function genericShareNotification($message, User $user, User $sentFrom) {
 
         $message = (new \Swift_Message('Shared with you.'))
             ->setFrom($this->siteFromEmail)
@@ -251,7 +251,7 @@ class ExperienceMailer extends AbstractMailer
             ->setBody(
                 $this->templating->render(
                     'email/generic_share_notification.html.twig',
-                    ['user' => $user, 'customMessage' => $message]
+                    ['user' => $user, 'customMessage' => $message, 'sent_from' => $sentFrom]
                 ),
                 'text/html'
             );

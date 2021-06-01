@@ -793,7 +793,7 @@ class ExperienceController extends AbstractController
             $this->entityManager->persist($chatMessage);
             $this->entityManager->flush();
 
-            $this->experienceMailer->genericShareNotification($customMessage, $user);
+            $this->experienceMailer->genericShareNotification($customMessage, $user, $loggedInUser);
         }
 
         return new JsonResponse(

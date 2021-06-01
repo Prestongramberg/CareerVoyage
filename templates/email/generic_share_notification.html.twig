@@ -6,4 +6,6 @@
 
 <p style="font-weight: bold">{{ customMessage | raw }}</p>
 
+<p><em>Sent from: {{ sent_from.firstName }} {{ sent_from.lastName }}</em></p>
+
 {% include 'email/partial/emailFooter.html.twig' %}
