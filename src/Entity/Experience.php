@@ -234,7 +234,22 @@ abstract class Experience
     /**
      * @ORM\OneToMany(targetEntity=Share::class, mappedBy="experience")
      */
-    private $shares;
+    protected $shares;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $npsScore;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $totalResponses;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $averageRating;
 
 
     public function __construct()
@@ -733,6 +748,42 @@ abstract class Experience
                 $share->setExperience(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getNpsScore(): ?int
+    {
+        return $this->npsScore;
+    }
+
+    public function setNpsScore(?int $npsScore): self
+    {
+        $this->npsScore = $npsScore;
+
+        return $this;
+    }
+
+    public function getTotalResponses(): ?int
+    {
+        return $this->totalResponses;
+    }
+
+    public function setTotalResponses(?int $totalResponses): self
+    {
+        $this->totalResponses = $totalResponses;
+
+        return $this;
+    }
+
+    public function getAverageRating(): ?int
+    {
+        return $this->averageRating;
+    }
+
+    public function setAverageRating(?int $averageRating): self
+    {
+        $this->averageRating = $averageRating;
 
         return $this;
     }

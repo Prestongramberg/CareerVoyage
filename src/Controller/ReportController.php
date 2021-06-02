@@ -7,19 +7,22 @@ use App\Entity\EducatorUser;
 use App\Entity\EmailLog;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\Report;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
 use App\Form\EventTypeFormType;
+use App\Form\Filter\Report\Builder\ManageReportsFilterType;
 use App\Form\Filter\Report\Dashboard\CompanyExperienceFilterType;
-use App\Form\Filter\Report\Dashboard\ExperienceParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\ExperienceSatisfactionFeedbackFilterType;
 use App\Form\Filter\Report\Dashboard\RegistrationFilterType;
 use App\Form\Filter\Report\Dashboard\SchoolExperienceFilterType;
 use App\Form\Filter\Report\Dashboard\StudentParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\TopicSatisfactionFeedbackFilterType;
+use App\Form\ReportType;
 use App\Model\Report\Dashboard\AbstractDashboard;
-use App\Model\Report\Dashboard\ExperienceParticipation\Volunteer\BarChart\VolunteersByExperienceType;
+use App\Report\Service\JavascriptBuilders;
+use App\Report\Service\JsonQueryParser\DoctrineORMParser;
 use App\Util\FeedbackGenerator;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
@@ -58,7 +61,7 @@ class ReportController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(Request $request, $reportName = null)
+    public function indexOld(Request $request, $reportName = null)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -1423,7 +1426,7 @@ WHERE u.discr = "professionalUser" :regions',
             return [];
         });
 
-        $hasFilters = (bool)$request->query->count();
+        $hasFilters       = (bool)$request->query->count();
         $cachedFeedback   = Traversable::from($cachedFeedback);
         $filteredFeedback = null;
 
@@ -1523,11 +1526,11 @@ WHERE u.discr = "professionalUser" :regions',
                 return false;
             });
 
-        if($request->query->has('export')) {
+        if ($request->query->has('export')) {
 
 
         }
-        
+
         $totalCompanyExperiences = $cachedFeedback->count();
 
         $dashboardOrder = $request->request->get('sortableData', null);
@@ -2329,6 +2332,185 @@ WHERE u.discr = "professionalUser" :regions',
                 'request' => $request,
                 'dashboardType' => 'volunteer_participation',
             ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/new", name="new_report")
+     *
+     * @param Request            $request
+     *
+     * @param JavascriptBuilders $javascriptBuilders
+     *
+     * @return Response
+     */
+    public function newReport(Request $request, JavascriptBuilders $javascriptBuilders): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $report = new Report();
+        $report->setReportType(Report::TYPE_BUILDER);
+
+        $form = $this->createForm(ReportType::class, $report, []);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Report $report */
+            $report = $form->getData();
+
+            $this->entityManager->persist($report);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Report successfully created!');
+
+            return $this->redirectToRoute('new_report', []);
+        }
+
+        $reportColumns = $report->getReportColumns();
+
+        $context = $javascriptBuilders->getFilterData($report);
+
+        return $this->render(
+            'report/builder/new.html.twig', [
+                'user' => $user,
+                'report' => $report,
+                'reportColumns' => $reportColumns,
+                'context' => $context,
+                'dashboardType' => 'new_report',
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     *
+     * @Route("/{id}/download", name="report_download", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Report            $report
+     * @param Request           $request
+     * @param DoctrineORMParser $doctrineORMParser
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function downloadReport(Report $report, Request $request, DoctrineORMParser $doctrineORMParser)
+    {
+
+        $parsedRuleGroup = $doctrineORMParser->parseReport($report);
+
+        $query = $this->entityManager->createQuery($parsedRuleGroup->getQueryString());
+        $query->setParameters($parsedRuleGroup->getParameters());
+
+        $dql = $query->getDQL();
+
+        if (isset($_GET['debug']) && $_GET['debug']) {
+            dump($dql);
+            exit();
+        }
+
+
+        //$query->setDQL("SELECT object.id AS col_0, object.field249 AS col_1, object.field250 AS col_2, object_field255.field242 AS col_3 FROM App\Entity\User object LEFT JOIN object.field255 object_field255 WHERE ( object.field249 LIKE ?0 AND object_field255.field243 LIKE ?1 )");
+
+        $results  = $query->getResult();
+        $response = new Response($this->serializer->encode($report->prepareResult($results), 'csv', [
+            \Symfony\Component\Serializer\Encoder\CsvEncoder::NO_HEADERS_KEY => true,
+        ]));
+
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', "attachment; filename={$report->getReportName()}.csv");
+
+        return $response;
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     *
+     * @Route("/{id}/delete", name="report_delete", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Report  $report
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteReport(Report $report, Request $request)
+    {
+
+        $this->entityManager->remove($report);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Report successfully removed!');
+
+        return $this->redirectToRoute('report_index_new', []);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     *
+     * todo possibly change to just report_index if you are able to refactor
+     *  the report_index downloads above into the new report builder as Macros
+     *
+     * @Route("/", name="report_index_new", options = { "expose" = true }, methods={"GET", "POST"})
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function index(Request $request)
+    {
+
+        $form = $this->createForm(ManageReportsFilterType::class, null, [
+            'method' => 'GET',
+        ]);
+
+        $form->handleRequest($request);
+
+        $qb = $this->reportRepository->createQueryBuilder('r')
+                                     ->andWhere('r.reportType = :reportType')
+                                     ->setParameter('reportType', Report::TYPE_BUILDER)
+                                     ->orderBy('r.id', 'DESC');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $qb);
+        }
+
+        $pagination = $this->paginator->paginate(
+            $qb->getQuery(), /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+        );
+
+        $showFilters = $request->query->has('showFilters');
+
+        return $this->render('report/builder/index.html.twig', [
+            'user' => $this->getUser(),
+            'pagination' => $pagination,
+            'dashboardType' => 'all_reports',
+            'showFilters' => $showFilters,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('report_index_new', []),
+        ]);
+    }
+
+    /**
+     * @param Request            $request
+     *
+     * @param JavascriptBuilders $javascriptBuilders
+     *
+     * @return JsonResponse
+     * @Route("/related-entity-columns", name="report_related_entity_columns", options = { "expose" = true }, methods={"GET"})
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     */
+    public function relatedEntityColumns(Request $request, JavascriptBuilders $javascriptBuilders)
+    {
+
+        $targetEntityName = $request->query->get('entity');
+        $builder          = $javascriptBuilders->get($targetEntityName);
+
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => json_decode($builder->getJsonString(), true),
+            ], Response::HTTP_OK
         );
     }
 

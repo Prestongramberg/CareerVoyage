@@ -29,3 +29,7 @@ doctrine:
             JSON_SEARCH: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch
             JSON_KEYS: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonKeys
             regexp: DoctrineExtensions\Query\Mysql\Regexp
+          datetime_functions:
+            strtodate: DoctrineExtensions\Query\Mysql\StrToDate
+            DATE_FORMAT: DoctrineExtensions\Query\Mysql\DateFormat
+            DATE: DoctrineExtensions\Query\Mysql\Date

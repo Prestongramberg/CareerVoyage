@@ -3,23 +3,20 @@
 namespace App\Command;
 
 use App\Cache\CacheKey;
-use App\Entity\AdminUser;
 use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\EducatorReviewCompanyExperienceFeedback;
 use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
 use App\Entity\EducatorUser;
+use App\Entity\Experience;
 use App\Entity\Feedback;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalUser;
-use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
 use App\Entity\Report;
-use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
-use App\Entity\SiteAdminUser;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
@@ -29,6 +26,7 @@ use App\Entity\TeachLessonExperience;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
+use App\Repository\ExperienceRepository;
 use App\Repository\FeedbackRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegistrationRepository;
@@ -120,6 +118,11 @@ class NormalizeFeedbackCommand extends Command
     private $registrationRepository;
 
     /**
+     * @var ExperienceRepository
+     */
+    private $experienceRepository;
+
+    /**
      * @var string
      */
     private $cacheDirectory;
@@ -140,6 +143,7 @@ class NormalizeFeedbackCommand extends Command
      * @param StudentToMeetProfessionalExperienceRepository $studentToMeetProfessionalExperienceRepository
      * @param TeachLessonExperienceRepository               $teachLessonExperienceRepository
      * @param RegistrationRepository                        $registrationRepository
+     * @param ExperienceRepository                          $experienceRepository
      * @param string                                        $cacheDirectory
      */
     public function __construct(EntityManagerInterface $entityManager, FeedbackRepository $feedbackRepository,
@@ -152,6 +156,7 @@ class NormalizeFeedbackCommand extends Command
                                 StudentToMeetProfessionalExperienceRepository $studentToMeetProfessionalExperienceRepository,
                                 TeachLessonExperienceRepository $teachLessonExperienceRepository,
                                 RegistrationRepository $registrationRepository,
+                                ExperienceRepository $experienceRepository,
                                 string $cacheDirectory
     ) {
         $this->entityManager                                 = $entityManager;
@@ -167,6 +172,7 @@ class NormalizeFeedbackCommand extends Command
         $this->studentToMeetProfessionalExperienceRepository = $studentToMeetProfessionalExperienceRepository;
         $this->teachLessonExperienceRepository               = $teachLessonExperienceRepository;
         $this->registrationRepository                        = $registrationRepository;
+        $this->experienceRepository                          = $experienceRepository;
         $this->cacheDirectory                                = $cacheDirectory;
 
         parent::__construct();
@@ -184,9 +190,13 @@ class NormalizeFeedbackCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
+        $this->normalizeExperienceData($input, $output);
+
+        return;
+
         $this->normalizeFeedbackData($input, $output);
 
-        $this->reportRepository->deleteAllReports();
+        $this->reportRepository->deleteAllDashboardReports();
 
         $this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
         $this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
@@ -196,6 +206,65 @@ class NormalizeFeedbackCommand extends Command
         $this->normalizeDataForSchoolExperiences($input, $output);
         $this->normalizeDataForStudentParticipation($input, $output);
         $this->normalizeDataForVolunteerParticipation($input, $output);
+    }
+
+    private function normalizeExperienceData(InputInterface $input, OutputInterface $output)
+    {
+
+        $this->entityManager->clear();
+        $output->writeln('Normalizing experience data.');
+
+        $experienceUpdateCount = 0;
+
+        foreach ($this->generateExperienceCollection() as $result) {
+
+            /** @var Experience $experience */
+            $experience           = $result[0] ?? null;
+            $feedbackCount        = 0;
+            $cumulativeRating     = 0;
+            $npsScore             = 0;
+            $cumulativePromoters  = 0;
+            $cumulativeDetractors = 0;
+
+            if (!$experience) {
+                continue;
+            }
+
+            foreach ($experience->getFeedback() as $feedback) {
+                $cumulativeRating += (int)$feedback->getRating();
+                $feedbackCount++;
+
+                if ($feedback->getLikelihoodToRecommendToFriend() !== null) {
+
+                    if ($feedback->getLikelihoodToRecommendToFriend() > 8) {
+                        $cumulativePromoters++;
+                    }
+
+                    if ($feedback->getLikelihoodToRecommendToFriend() < 7) {
+                        $cumulativeDetractors++;
+                    }
+                }
+            }
+
+            if ($feedbackCount > 0) {
+                $cumulativeRating = round($cumulativeRating / $feedbackCount, 1);
+                $npsScore         = round((($cumulativePromoters / $feedbackCount) - ($cumulativeDetractors / $feedbackCount)) * 100);
+            }
+
+            $experience->setAverageRating($cumulativeRating);
+            $experience->setNpsScore($npsScore);
+            $experience->setTotalResponses($feedbackCount);
+
+            $this->entityManager->persist($experience);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $experienceUpdateCount++;
+        }
+
+        $output->writeln('Done..... Count: ' . $experienceUpdateCount);
+
+        return $this;
     }
 
 
@@ -1012,6 +1081,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('companies_registered_on_platform');
                 $report->setCompanyName($company->getName());
                 $report->setCompany($company->getId());
@@ -1088,6 +1158,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('professionals_registered_on_platform');
                 $report->setCompanyName($professional->getCompany() ? $professional->getCompany()->getName() : null);
                 $report->setCompany($professional->getCompany() ? $professional->getCompany()->getId() : null);
@@ -1169,6 +1240,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('students_registered_on_platform');
                 $report->setRegistrationDate($student->getCreatedAt());
 
@@ -1251,6 +1323,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('educators_registered_on_platform');
                 $report->setRegistrationDate($educator->getCreatedAt());
 
@@ -1333,6 +1406,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('company_experience_participation');
                 $report->setCompanyName($companyExperience->getCompany() ? $companyExperience->getCompany()->getName() : null);
                 $report->setCompany($companyExperience->getCompany() ? $companyExperience->getCompany()->getId() : null);
@@ -1453,6 +1527,7 @@ class NormalizeFeedbackCommand extends Command
                 }
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('school_experience_participation');
                 $report->setSchoolName($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getName() : null);
                 $report->setSchool($schoolExperience->getSchool() ? $schoolExperience->getSchool()->getId() : null);
@@ -1555,6 +1630,7 @@ class NormalizeFeedbackCommand extends Command
                 $companyNames = [];
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('student_experience_participation');
                 $report->setExperienceStartDate($experience->getStartDateAndTime());
                 $report->setExperienceName($experience->getTitle());
@@ -1566,7 +1642,7 @@ class NormalizeFeedbackCommand extends Command
                 $report->setRegistrationDate($registration->getCreatedAt());
                 $report->setRegistration($registration->getId());
 
-                if($school = $user->getSchool()) {
+                if ($school = $user->getSchool()) {
                     $schoolIds[]   = $school->getId();
                     $schoolNames[] = $school->getName();
                     $report->setSchool($school->getId());
@@ -1617,7 +1693,7 @@ class NormalizeFeedbackCommand extends Command
                     $report->setExperienceClass(StudentToMeetProfessionalExperience::class);
                 }
 
-                if($experience instanceof TeachLessonExperience) {
+                if ($experience instanceof TeachLessonExperience) {
 
                     if (($professional = $experience->getTeacher())) {
 
@@ -1710,6 +1786,7 @@ class NormalizeFeedbackCommand extends Command
                 $companyNames = [];
 
                 $report = new Report();
+                $report->setReportType(Report::TYPE_DASHBOARD);
                 $report->setDashboardType('professional_volunteer_participation');
                 $report->setExperienceStartDate($experience->getStartDateAndTime());
                 $report->setExperienceName($experience->getTitle());
@@ -1834,6 +1911,20 @@ class NormalizeFeedbackCommand extends Command
         $output->writeln('Done with report ("professional_volunteer_participation") Count: ' . $updateCount);
 
         return $this;
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateExperienceCollection(): iterable
+    {
+        $queryBuilder = $this->experienceRepository->createQueryBuilder('e')->getQuery();
+
+        /** @var Experience $experience */
+        foreach ($queryBuilder->iterate() as $experience) {
+
+            yield $experience;
+        }
     }
 
     /**
