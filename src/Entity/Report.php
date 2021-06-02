@@ -32,16 +32,20 @@ class Report
         'Lesson' => Lesson::class,
         'Lesson Favorites' => LessonFavorite::class,
         'Lessons I want taught / Lessons I can teach' => LessonTeachable::class,
+        'Professional User' => ProfessionalUser::class,
         'Region' => Region::class,
         'Regional Coordinator User' => RegionalCoordinator::class,
         'Registration' => Registration::class,
         'Roles willing to fulfill / Experience types' => RolesWillingToFulfill::class,
         'School' => School::class,
+        'School Experience' => SchoolExperience::class,
         'School Administrator User' => SchoolAdministrator::class,
         'Secondary Industry' => SecondaryIndustry::class,
         'Site Admin User' => SiteAdminUser::class,
         'State' => State::class,
+        'Student To Meet Professional Experience (One on One / Informational Interview)' => StudentToMeetProfessionalExperience::class,
         'Student User' => StudentUser::class,
+        'Teach Lesson Experience (Topic Instructor)' => TeachLessonExperience::class,
         'User' => User::class,
     ];
 
@@ -820,7 +824,7 @@ class Report
      */
     public function getReportColumns(): Collection
     {
-        if(!$this->reportColumns) {
+        if (!$this->reportColumns) {
             return new ArrayCollection();
         }
 

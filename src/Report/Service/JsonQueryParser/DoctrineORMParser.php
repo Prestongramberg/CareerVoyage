@@ -180,7 +180,7 @@ class DoctrineORMParser implements DoctrineORMParserInterface
         
         $classesAndMappings = [
             $classMetadata->getTableName() => [
-                'class' => $classMetadata->rootEntityName,
+                'class' => $entityClassName,
                 // used in the select columns
                 'columns' => $columns,
                 // used in the where statements

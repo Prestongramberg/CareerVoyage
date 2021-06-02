@@ -188,11 +188,8 @@ class ReportBuilder {
             reportColumnsSelect: '#report_columns',
             selectedColumnsDiv: '#js-selected-columns',
             selectedColumnsList: '#js-selected-columns-sortable',
-            removeColumnButton: '.js-report-remove-column-button'
-
-            /*
+            removeColumnButton: '.js-report-remove-column-button',
             resetColumnsButton: '.reset-columns-dropdown-btn'
-            */
         }
     }
 
@@ -202,10 +199,7 @@ class ReportBuilder {
      */
     bindEvents() {
 
-        /*
         this.$wrapper.on('click', ReportBuilder._selectors.resetColumnsButton, this.resetColumnsDropdownClickHandler.bind(this));
-        */
-
         this.$wrapper.on('change', ReportBuilder._selectors.entitySelect, this.entityChangedHandler.bind(this));
         this.$wrapper.on('submit', ReportBuilder._selectors.reportForm, this.handleReportFormSubmit.bind(this));
         this.$wrapper.on('change', ReportBuilder._selectors.reportColumnsSelect, this.columnsChangedHandler.bind(this));
@@ -221,10 +215,7 @@ class ReportBuilder {
      */
     unbindEvents() {
 
-        /*
         this.$wrapper.off('click', ReportBuilder._selectors.resetColumnsButton);
-        */
-
         this.$wrapper.off('click', ReportBuilder._selectors.addColumnButton);
         this.$wrapper.off('change', ReportBuilder._selectors.entitySelect);
         this.$wrapper.off('submit', ReportBuilder._selectors.reportForm);
@@ -235,7 +226,9 @@ class ReportBuilder {
     }
 
     addSelectChangeFilterEvent(e) {
-        
+
+        debugger;
+
         let $select = $(e.target);
         let $optionSelected = $("option:selected", $select);
         let builder = ReportBuilder._selectors.queryBuilder;
@@ -243,6 +236,7 @@ class ReportBuilder {
         let $rule = $select.closest('.rule-container');
         let currentRule = $builder.getModel($rule);
 
+        debugger;
         if(!$optionSelected.hasClass('js-related-entity')) {
             $builder.getModel($rule).filter = $builder.getFilterById($select.val());
         } else {
@@ -257,13 +251,11 @@ class ReportBuilder {
         }
     }
 
-
     setRuleFiltersSelect(e, rule) {
         if(this.currentRule.id === rule.id) {
             rule.$el.find('[name="'+ rule.id + '_filter"]').val('-1').change();
         }
     }
-    
 
     /**
      * Update the html for the select filters
@@ -273,28 +265,31 @@ class ReportBuilder {
      */
     modifyFilterListSelectHandler(e, rule, filters) {
 
+        debugger;
         let $select = $(e.value); // do not trust
 
         $select.addClass('uk-select');
 
         // actual event data
         // our .change() can't seem to overwrite html afterwards so.. do this here
-        //var $actualSelect = $('[name="'+ rule.id + '_filter"]');
-        //var $selectedOption = $('[name="'+ rule.id + '_filter"]').find('option:selected');
+        var $actualSelect = $('[name="'+ rule.id + '_filter"]');
+        var $selectedOption = $('[name="'+ rule.id + '_filter"]').find('option:selected');
         
-        //var className = null;
-        //var prefix = null;
+        var className = null;
+        var prefix = null;
         
-       /* if ($selectedOption.hasClass('js-related-entity')) {
+        if ($selectedOption.hasClass('js-related-entity')) {
             className = $selectedOption.data('entity-name');
             prefix = $selectedOption.val();
         } else {
             className = $actualSelect.data('entity-name') ?? this.reportEntityName;
             prefix = $actualSelect.data('prefix');
         }
-        */
+
+        debugger;
+
         //console.log("modify", e, rule, $select.attr('name'), className, prefix);
-        //$select = this.setFilterOptions($select, className, prefix);
+        $select = this.setFilterOptions($select, className, prefix);
 
         e.value = $select.get(0).outerHTML;
     }
@@ -303,6 +298,26 @@ class ReportBuilder {
         let $select = $(e.value);
         $select.addClass('uk-select');
         e.value = $select.get(0).outerHTML;
+    }
+
+    setupDatepicker(e, rule, filters) {
+
+        $('.uk-datepicker').each(function (index) {
+            debugger;
+            var $elem = $(this);
+
+            $elem.daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                linkedCalendars: false,
+                showCustomRangeLabel: false,
+                locale: {
+                    format: 'MM/DD/YYYY'
+                }
+            }, function (start, end, label) {
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            });
+        });
     }
 
     modifyRuleInputHandler(e, rule, filters) {
@@ -351,9 +366,9 @@ class ReportBuilder {
         }*/
 
         let $builder = $(ReportBuilder._selectors.queryBuilder);
-        //$builder.removeClass('qb-initialized');
-        //this.metadata = [];
-        //this.filters = [];
+        $builder.removeClass('qb-initialized');
+        this.metadata = [];
+        this.filters = [];
         
         this.loadRelatedEntityColumns(entityName).then((data) => {
             debugger;
@@ -380,6 +395,8 @@ class ReportBuilder {
        
         $(ReportBuilder._selectors.addColumnButton).prop('disabled', !$optionSelected.val());
 
+        debugger;
+
         if(!$optionSelected.hasClass('js-related-entity')) {
             return;
         }
@@ -387,11 +404,10 @@ class ReportBuilder {
         let entityName = $optionSelected.attr('data-entity-name');
         let prefix = $optionSelected.val();
 
-        // todo re-add this for related entities
-        
-        /*this.loadRelatedEntityColumns(entityName, prefix).then((data) => {
+        this.loadRelatedEntityColumns(entityName, prefix).then((data) => {
+            debugger;
             this._renderSelectColumnsDropdown(entityName, prefix);
-        });*/
+        });
     }
 
     /**
@@ -400,6 +416,7 @@ class ReportBuilder {
      * @param e
      */
     resetColumnsDropdownClickHandler(e) {
+
         if (e.cancelable) {
             e.preventDefault();
         }
@@ -408,10 +425,10 @@ class ReportBuilder {
         $button.find('.fa-redo-alt').addClass('fa-spin');
         
         let $entityDropdown = $(ReportBuilder._selectors.entitySelect);
-        let entityName = $entityDropdown.find('option:selected').data('entity-name');
-        
+        let entityName = $entityDropdown.find('option:selected').val();
+
         this.columnPrettyNames = [];
-        
+
         this.loadRelatedEntityColumns(entityName).then((data) => {
             this._renderSelectColumnsDropdown(this.reportEntityName);
         });
@@ -553,9 +570,11 @@ class ReportBuilder {
         $(builder).queryBuilder('destroy');
         //$(this.$wrapper).find('.js-empty-query-builder-message').hide().find('.alert').removeClass('border-danger text-danger');
 
+        debugger;
         let self = this;
-       // let filterSelect = '.rule-filter-container [name$=_filter]';
+        let filterSelect = '.rule-filter-container [name$=_filter]';
 
+        debugger;
         $(builder).queryBuilder({
             plugins: [
                 /*'sortable',*/
@@ -568,6 +587,8 @@ class ReportBuilder {
             ],
             filters: filters,
             allow_empty: true
+        }).off('change.queryBuilder', filterSelect).on('change.queryBuilder', filterSelect, function (e) {
+            self.addSelectChangeFilterEvent(e);
         }).on('getRuleInput.queryBuilder.filter', function (e, rule, filters) {
             self.modifyRuleInputHandler(e, rule, filters);
         }).on('getRuleFilterSelect.queryBuilder.filter', function (e, rule, filters) {
@@ -575,30 +596,10 @@ class ReportBuilder {
         }).on('getRuleOperatorSelect.queryBuilder.filter', function (e, rule, filters) {
             self.modifyFilterOperatorSelectHandler(e, rule, filters);
         }).on('afterCreateRuleInput.queryBuilder', function (e, rule) {
-
-            console.log("test input");
-            debugger;
-
-            $('.uk-datepicker').each(function (index) {
-                debugger;
-                var $elem = $(this);
-
-                $elem.daterangepicker({
-                    singleDatePicker: true,
-                    timePicker: false,
-                    linkedCalendars: false,
-                    showCustomRangeLabel: false,
-                    locale: {
-                        format: 'MM/DD/YYYY'
-                    }
-                }, function (start, end, label) {
-                    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-                });
-
-            });
-
-
-        });
+            self.setupDatepicker(e, rule, filters);
+        }).on('afterCreateRuleFilters.queryBuilder', function (e, rule) {
+            self.setRuleFiltersSelect(e, rule);
+        }).addClass('qb-initialized');
 
             /*.off('change.queryBuilder', filterSelect).on('change.queryBuilder', filterSelect, function (e) {
             //self.addSelectChangeFilterEvent(e);
@@ -805,7 +806,8 @@ class ReportBuilder {
 
         this.$wrapper.find(ReportBuilder._selectors.reportColumnsDiv).html($reportColumnsTemplate);
         // todo re-add
-        //this.updateColumnSelectDropdown();
+        debugger;
+        this.updateColumnSelectDropdown();
     }
 
     // noinspection JSMethodCanBeStatic

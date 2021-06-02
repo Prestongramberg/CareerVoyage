@@ -2,9 +2,6 @@
 
 namespace App\Report\Service;
 
-//use App\Entity\BuildingBlock;
-//use App\Entity\RelationshipField;
-//use App\Entity\RequestStatus;
 use App\Entity\AdminUser;
 use App\Entity\Chat;
 use App\Entity\ChatMessage;
@@ -24,9 +21,12 @@ use App\Entity\Registration;
 use App\Entity\Report;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
+use App\Entity\SchoolExperience;
 use App\Entity\Share;
 use App\Entity\SiteAdminUser;
+use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentUser;
+use App\Entity\TeachLessonExperience;
 use App\Entity\User;
 use App\Report\Model\Builder\Builder;
 use App\Report\Model\Builder\ResultColumn;
@@ -34,9 +34,6 @@ use App\Report\Model\Filter\FilterInput;
 use App\Report\Model\Filter\FilterOperators;
 use App\Report\Model\Filter\FilterValueCollection;
 use App\Report\Util\Validator\BuildersToMappings;
-
-//use App\Repository\BuildingBlockRepository;
-//use App\Repository\FieldRepository;
 use App\Util\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -116,12 +113,7 @@ class JavascriptBuilders
 
 
         foreach ($this->searchRulesForFilters($rules) as $rule) {
-            // this is redundant to metadata, we only need the ID
-            $parts = explode('.', $rule['id']); // e.g. "self.created" or "field912.field390"
-            // $fieldName = $parts[count($parts) - 1];
-            // $filter = $this->getFilter($fieldName, $rule['data']['class_name']);
-            // $filter['id'] = $rule['id'];
-            // $result['filters'][] = $filter;
+            $parts                             = explode('.', $rule['id']);
             $result['filter_ids_flat'][]       = $rule['id'];
             $result['filter_ids'][$rule['id']] = $rule['data']['class_name'];
 
@@ -319,42 +311,6 @@ class JavascriptBuilders
         $context = $this->contextOverride($fieldName, $targetEntityName, $context);
 
         return $context;
-
-
-        /*  if (preg_match('/^field(\d+)$/', $fieldName, $m)) {
-              if (!($field = $this->fieldRepository->find($m[1]))) {
-                  return null;
-              }
-
-              return $this->getFilterContext();
-          } else {
-              $fieldType = 'string';
-
-              $classMetadata = $this->entityManager->getClassMetadata($targetEntityName);
-              if (array_key_exists($fieldName, $classMetadata->fieldMappings)) {
-                  $mysql_to_qbjs = [
-                      'json' => 'string',
-                      'text' => 'string',
-                  ];
-                  $fieldMapping  = $classMetadata->fieldMappings[$fieldName];
-
-                  if (array_key_exists($fieldMapping['type'], $mysql_to_qbjs)) {
-                      $fieldType = $mysql_to_qbjs[$fieldMapping['type']];
-                  }
-              }
-
-              $values = [];
-
-              return [
-                  'id' => $fieldName,
-                  'label' => $fieldName,
-                  'type' => $fieldType,
-                  'data' => [
-                      'class_name' => $targetEntityName,
-                  ],
-                  'values' => $values,
-              ];
-          }*/
     }
 
     /**
@@ -403,33 +359,10 @@ class JavascriptBuilders
         foreach ($classMetadata->getAssociationMappings() as $associationMapping) {
             $fieldName = $associationMapping['fieldName'];
 
-            $relatedEntityContext = [
-                'column_machine_name' => $fieldName,
-                'column_human_readable_name' => $fieldName,
-                'association_class' => $associationMapping['targetEntity'],
-            ];
-
-            /*       if ($field instanceof RelationshipField) {
-                       if ($field->getBuildingBlockToJoinOn()->getExtendDatabaseNamespace() == $targetEntityName) {
-                           $label                = $field->getBuildingBlock()->getName();
-                           $relatedEntityContext = [
-                               'column_machine_name' => $fieldName,
-                               'building_block' => $field->getBuildingBlock()->getId(),
-                               'column_human_readable_name' => sprintf("%s (%s)", $field->getBuildingBlock()->getName(), $field->getLabel()),
-                               'association_class' => $field->getBuildingBlock()->getExtendDatabaseNamespace(),
-                           ];
-
-                       } else {
-                           $relatedEntityContext = [
-                               'column_machine_name' => $fieldName,
-                               'building_block' => $field->getBuildingBlockToJoinOn()->getId(),
-                               'column_human_readable_name' => $field->getLabel(),
-                               'association_class' => $field->getBuildingBlockToJoinOn()->getExtendDatabaseNamespace(),
-                           ];
-                       }
-                   }*/
-
-            $buildersConfig[$classMetadata->getTableName()]['related_entities'][] = $relatedEntityContext;
+            // todo build in here
+            if ($this->shouldExcludeAssociation($fieldName, $targetEntityName)) {
+                continue;
+            }
 
             if (in_array($associationMapping['type'], $typesToInclude) && !in_array($fieldName, $bannedProperties)) {
 
@@ -442,10 +375,13 @@ class JavascriptBuilders
 
                 $fieldNameArray = preg_split('/(?=[A-Z])/', $fieldName);
                 $label          = ucwords(implode(" ", $fieldNameArray));
+                $label          = sprintf($format, $label);
+
+                $label = $this->associationLabelOverride($label, $targetEntityName);
 
                 $buildersConfig[$classMetadata->getTableName()]['related_entities'][] = [
                     'column_machine_name' => $fieldName,
-                    'column_human_readable_name' => sprintf($format, $label),
+                    'column_human_readable_name' => $label,
                     'association_class' => $associationMapping['targetEntity'],
                 ];
             }
@@ -998,6 +934,30 @@ class JavascriptBuilders
 
                 break;
 
+            case StudentToMeetProfessionalExperience::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case SchoolExperience::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
+            case TeachLessonExperience::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                ];
+
+                break;
+
             default:
                 $excludedFields = [];
                 break;
@@ -1005,6 +965,328 @@ class JavascriptBuilders
         }
 
         if (in_array($fieldName, $excludedFields, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function shouldExcludeAssociation($fieldName, $entityName)
+    {
+        switch ($entityName) {
+
+            case User::class:
+
+                $excludedAssociations = [
+                    'chatMessages',
+                    'companyViews',
+                    'requests',
+                    'requestPossibleApprovers',
+                    'requestsThatNeedMyApproval',
+                    'sentFromShares',
+                    'sentToShares',
+                    'userRegisterForSchoolExperienceRequests',
+                    'videoFavorites',
+                ];
+
+                break;
+
+            case Lesson::class:
+
+                $excludedAssociations = [
+                    'lessonResources',
+                    'teachLessonRequests'
+                ];
+
+                break;
+
+            case SiteAdminUser::class:
+
+                $excludedAssociations = [
+                    'chatMessages',
+                    'companyFavorites',
+                    'companyViews',
+                    'feedback',
+                    'lessonFavorites',
+                    'lessonTeachables',
+                    'lessons',
+                    'registrations',
+                    'requestPossibleApprovers',
+                    'requests',
+                    'requestsThatNeedMyApproval',
+                    'schoolExperiences',
+                    'sentFromShares',
+                    'sentToShares',
+                    'userRegisterForSchoolExperienceRequests',
+                    'videoFavorites',
+                    'site'
+                ];
+
+                break;
+
+            case StudentUser::class:
+
+                $excludedAssociations = [
+                    'site',
+                    'videoFavorites',
+                    'userRegisterForSchoolExperienceRequests',
+                    'studentToMeetProfessionalRequests',
+                    'studentReviewTeachLessonExperienceFeedback',
+                    'studentReviewExperienceFeedback',
+                    'sentToShares',
+                    'sentFromShares',
+                    'requests',
+                    'requestsThatNeedMyApproval',
+                    'requestPossibleApprovers',
+                    'lessonTeachables',
+                    'educatorRegisterStudentForCompanyExperienceRequests',
+                    'chatMessages',
+                    'allowedCommunications'
+                ];
+
+                break;
+
+            case SchoolAdministrator::class:
+
+                $excludedAssociations = [
+                    'site',
+                    'videoFavorites',
+                    'userRegisterForSchoolExperienceRequests',
+                    'sentToShares',
+                    'sentFromShares',
+                    'requests',
+                    'requestsThatNeedMyApproval',
+                    'requestPossibleApprovers',
+                    'lessonTeachables',
+                    'chatMessages',
+                    'schoolAdminRegisterSAForCompanyExperienceRequests'
+                ];
+
+                break;
+
+            case ProfessionalUser::class:
+
+                $excludedAssociations = [
+                    'allowedCommunications',
+                    'chatMessages',
+                    'registrations',
+                    'requestPossibleApprovers',
+                    'requests',
+                    'requestsThatNeedMyApproval',
+                    'professionalVideos',
+                    'sentToShares',
+                    'sentFromShares',
+                    'studentToMeetProfessionalRequests',
+                    'userRegisterForSchoolExperienceRequests',
+                    'videoFavorites'
+                ];
+
+                break;
+
+            case Share::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case School::class:
+
+                $excludedAssociations = [
+                    'featuredImage',
+                    'thumbnailImage',
+                    'schoolPhotos',
+                    'schoolVideos',
+                    'schoolResources',
+                    'teachLessonRequests',
+                    'site'
+                ];
+
+                break;
+
+            case RegionalCoordinator::class:
+
+                $excludedAssociations = [
+                    'site',
+                    'videoFavorites',
+                    'userRegisterForSchoolExperienceRequests',
+                    'sentToShares',
+                    'sentFromShares',
+                    'requests',
+                    'requestsThatNeedMyApproval',
+                    'requestPossibleApprovers',
+                    'lessonTeachables',
+                    'chatMessages',
+                ];
+
+                break;
+
+            case EducatorUser::class:
+
+                $excludedAssociations = [
+                    'site',
+                    'videoFavorites',
+                    'sentToShares',
+                    'sentFromShares',
+                    'requests',
+                    'educatorVideos',
+                    'requestsThatNeedMyApproval',
+                    'requestPossibleApprovers',
+                    'chatMessages',
+                    'educatorRegisterEducatorForCompanyExperienceRequests',
+                    'userRegisterForSchoolExperienceRequests'
+                ];
+
+                break;
+
+            case AdminUser::class:
+
+                $excludedAssociations = [
+                    'chatMessages',
+                    'companyFavorites',
+                    'companyViews',
+                    'feedback',
+                    'lessonFavorites',
+                    'lessonTeachables',
+                    'lessons',
+                    'registrations',
+                    'requestPossibleApprovers',
+                    'requests',
+                    'requestsThatNeedMyApproval',
+                    'schoolExperiences',
+                    'sentFromShares',
+                    'sentToShares',
+                    'userRegisterForSchoolExperienceRequests',
+                    'videoFavorites',
+                    'site'
+                ];
+
+                break;
+
+            case Registration::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case Region::class:
+
+                $excludedAssociations = [
+                    'site'
+                ];
+
+                break;
+
+            case LessonFavorite::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case LessonTeachable::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case Experience::class:
+
+                $excludedAssociations = [
+                    'experienceFiles',
+                    'shares'
+                ];
+
+                break;
+
+            case Grade::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case Company::class:
+
+                $excludedAssociations = [
+                    'featuredImage',
+                    'newCompanyRequest',
+                    'thumbnailImage',
+                    'companyPhotos',
+                    'companyVideos',
+                    'companyResources',
+                    'joinCompanyRequests'
+                ];
+
+                break;
+
+            case CompanyFavorite::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case Course::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case Chat::class:
+
+                $excludedAssociations = [
+                    'messages'
+                ];
+
+                break;
+
+            case ChatMessage::class:
+
+                $excludedAssociations = [
+                ];
+
+                break;
+
+            case StudentToMeetProfessionalExperience::class:
+
+                $excludedAssociations = [
+                    'experienceFiles',
+                    'originalRequest',
+                    'shares'
+                ];
+
+                break;
+
+            case SchoolExperience::class:
+
+                $excludedAssociations = [
+                    'experienceFiles',
+                    'userRegisterForSchoolExperienceRequests',
+                ];
+
+                break;
+
+            case TeachLessonExperience::class:
+
+                $excludedAssociations = [
+                    'shares',
+                    'experienceFiles',
+                    'originalRequest',
+                ];
+
+                break;
+
+            default:
+                $excludedAssociations = [];
+                break;
+
+        }
+
+        if (in_array($fieldName, $excludedAssociations, true)) {
             return true;
         }
 
@@ -1037,6 +1319,78 @@ class JavascriptBuilders
         }
 
         return $context;
+    }
+
+    private function associationLabelOverride($label, $entityName)
+    {
+        switch ($entityName) {
+
+            case TeachLessonExperience::class:
+
+                if ($label === '1:N Educator Review Teach Lesson Experience Feedback') {
+                    $label = '1:N Educator Feedback';
+                }
+
+                if ($label === '1:N Student Review Teach Lesson Experience Feedback') {
+                    $label = '1:N Student Feedback';
+                }
+
+                break;
+
+            case StudentToMeetProfessionalExperience::class:
+
+                if ($label === '1:N Professional Review Meet Student Experience Feedback') {
+                    $label = '1:N Professional Feedback';
+                }
+
+                break;
+
+            case School::class:
+
+                if ($label === '1:N Teach Lesson Experiences') {
+                    $label = '1:N Teach Lesson Experiences (Topic Instructor)';
+                }
+
+                break;
+
+            case Lesson::class:
+
+                if ($label === '1:N Educator Review Teach Lesson Experience Feedback') {
+                    $label = '1:N Educator Feedback';
+                }
+
+                if ($label === '1:N Student Review Teach Lesson Experience Feedback') {
+                    $label = '1:N Student Feedback';
+                }
+
+                break;
+
+            case EducatorUser::class:
+
+                if ($label === '1:N Educator Review Company Experience Feedback') {
+                    $label = '1:N Educator Company Experience Feedback';
+                }
+
+                if ($label === '1:N Educator Review Teach Lesson Experience Feedback') {
+                    $label = '1:N Educator Teach Lesson Experience Feedback';
+                }
+
+                break;
+
+            case ProfessionalUser::class:
+
+                if ($label === '1:N Professional Review Meet Student Experience Feedback') {
+                    $label = '1:N Professional Feedback';
+                }
+
+                if ($label === '1:N Teach Lesson Experiences') {
+                    $label = '1:N Teach Lesson Experiences (Topic Instructor)';
+                }
+
+                break;
+        }
+
+        return $label;
     }
 
     /**
