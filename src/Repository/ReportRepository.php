@@ -54,7 +54,7 @@ class ReportRepository extends ServiceEntityRepository
      */
     public function deleteAllDashboardReports() {
 
-        $query = sprintf('DELETE FROM report where report_type = %s', 'TYPE_DASHBOARD');
+        $query = "delete from report where report_type = 'TYPE_DASHBOARD'";
 
         $em = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
