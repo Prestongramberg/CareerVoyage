@@ -191,9 +191,7 @@ class NormalizeFeedbackCommand extends Command
     {
 
         $this->normalizeExperienceData($input, $output);
-
-        return;
-
+        
         $this->normalizeFeedbackData($input, $output);
 
         $this->reportRepository->deleteAllDashboardReports();
