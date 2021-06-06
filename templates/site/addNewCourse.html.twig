@@ -10,7 +10,7 @@
 
                 <div class="uk-width-xlarge">
 
-                    <h3>Create a new Course</h3>
+                    <h3>Create a new Course, Club, or Role</h3>
 
                     {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 
@@ -23,12 +23,12 @@
 
                     <fieldset class="uk-fieldset">
                         <div class="uk-margin">
-                            {{ form_label(form.title, 'Course Title*') }}
+                            {{ form_label(form.title, 'Course, Club, or Role Title*') }}
                             {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_errors(form.title) }}
                         </div>
                         <div class="uk-margin">
-                            <button class="uk-button uk-button-primary uk-button-small">Create new Course</button>
+                            <button class="uk-button uk-button-primary uk-button-small">Create</button>
                         </div>
                     </fieldset>
 
