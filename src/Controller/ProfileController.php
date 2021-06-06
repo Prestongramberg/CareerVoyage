@@ -425,6 +425,11 @@ class ProfileController extends AbstractController
 
         //$this->denyAccessUnlessGranted('edit', $user);
 
+        $email = $user->getEmail();
+
+        $email = "DELETED+".$email;
+
+        $user->setEmail($email);
         $user->setDeleted(true);
         $user->setActivated(false);
 
