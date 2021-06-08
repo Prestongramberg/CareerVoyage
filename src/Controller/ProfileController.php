@@ -435,10 +435,12 @@ class ProfileController extends AbstractController
 
         if($user->isProfessional()) {
             $company = $user->getCompany();
-            $company->setOwner(null);
-            $this->entityManager->persist($company);
+                if($company != null) {
+                $company->setOwner(null);
+                $this->entityManager->persist($company);
 
-            $user->setCompany(null);
+                $user->setCompany(null);
+            }
         }
         $this->entityManager->persist($user);
         $this->entityManager->flush();
