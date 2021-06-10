@@ -185,6 +185,26 @@ class ProfessionalUser extends User
      */
     private $regions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ReportVolunteerSchool::class, mappedBy="professionalUser")
+     */
+    private $reportVolunteerSchools;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $reportSchoolsVolunteerAt = [];
+
+    /**
+     * @ORM\OneToMany(targetEntity=ReportVolunteerRegion::class, mappedBy="professionalUser")
+     */
+    private $reportVolunteerRegions;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ReportVolunteerRole::class, mappedBy="professionalUser")
+     */
+    private $reportVolunteerRoles;
+
     public function __construct()
     {
         parent::__construct();
@@ -198,6 +218,9 @@ class ProfessionalUser extends User
         $this->professionalReviewMeetStudentExperienceFeedback = new ArrayCollection();
         $this->professionalVideos = new ArrayCollection();
         $this->regions = new ArrayCollection();
+        $this->reportVolunteerSchools = new ArrayCollection();
+        $this->reportVolunteerRegions = new ArrayCollection();
+        $this->reportVolunteerRoles = new ArrayCollection();
     }
 
     public function getBriefBio(): ?string
@@ -658,29 +681,29 @@ class ProfessionalUser extends User
 	 * @return string
 	 */
 	public function getGeoRadius(): ?string {
-                                                		return $this->geoRadius;
-                                                	}
+                                                                                                                        		return $this->geoRadius;
+                                                                                                                        	}
 
 	/**
 	 * @param string $geoRadius
 	 */
 	public function setGeoRadius( ?string $geoRadius ): void {
-                                                		$this->geoRadius = $geoRadius;
-                                                	}
+                                                                                                                        		$this->geoRadius = $geoRadius;
+                                                                                                                        	}
 
 	/**
 	 * @return string
 	 */
 	public function getGeoZipCode(): ?string {
-                                                		return $this->geoZipCode;
-                                                	}
+                                                                                                                        		return $this->geoZipCode;
+                                                                                                                        	}
 
 	/**
 	 * @param string $geoZipCode
 	 */
 	public function setGeoZipCode( ?string $geoZipCode ): void {
-                                                		$this->geoZipCode = $geoZipCode;
-                                                	}
+                                                                                                                        		$this->geoZipCode = $geoZipCode;
+                                                                                                                        	}
 
     /**
      * @return Collection|ProfessionalVideo[]
@@ -744,6 +767,108 @@ class ProfessionalUser extends User
     {
         if ($this->regions->contains($region)) {
             $this->regions->removeElement($region);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportVolunteerSchool[]
+     */
+    public function getReportVolunteerSchools(): Collection
+    {
+        return $this->reportVolunteerSchools;
+    }
+
+    public function addReportVolunteerSchool(ReportVolunteerSchool $reportVolunteerSchool): self
+    {
+        if (!$this->reportVolunteerSchools->contains($reportVolunteerSchool)) {
+            $this->reportVolunteerSchools[] = $reportVolunteerSchool;
+            $reportVolunteerSchool->setProfessionalUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportVolunteerSchool(ReportVolunteerSchool $reportVolunteerSchool): self
+    {
+        if ($this->reportVolunteerSchools->removeElement($reportVolunteerSchool)) {
+            // set the owning side to null (unless already changed)
+            if ($reportVolunteerSchool->getProfessionalUser() === $this) {
+                $reportVolunteerSchool->setProfessionalUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getReportSchoolsVolunteerAt(): ?array
+    {
+        return $this->reportSchoolsVolunteerAt;
+    }
+
+    public function setReportSchoolsVolunteerAt(?array $reportSchoolsVolunteerAt): self
+    {
+        $this->reportSchoolsVolunteerAt = array_values(array_unique($reportSchoolsVolunteerAt));
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportVolunteerRegion[]
+     */
+    public function getReportVolunteerRegions(): Collection
+    {
+        return $this->reportVolunteerRegions;
+    }
+
+    public function addReportVolunteerRegion(ReportVolunteerRegion $reportVolunteerRegion): self
+    {
+        if (!$this->reportVolunteerRegions->contains($reportVolunteerRegion)) {
+            $this->reportVolunteerRegions[] = $reportVolunteerRegion;
+            $reportVolunteerRegion->setProfessionalUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportVolunteerRegion(ReportVolunteerRegion $reportVolunteerRegion): self
+    {
+        if ($this->reportVolunteerRegions->removeElement($reportVolunteerRegion)) {
+            // set the owning side to null (unless already changed)
+            if ($reportVolunteerRegion->getProfessionalUser() === $this) {
+                $reportVolunteerRegion->setProfessionalUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportVolunteerRole[]
+     */
+    public function getReportVolunteerRoles(): Collection
+    {
+        return $this->reportVolunteerRoles;
+    }
+
+    public function addReportVolunteerRole(ReportVolunteerRole $reportVolunteerRole): self
+    {
+        if (!$this->reportVolunteerRoles->contains($reportVolunteerRole)) {
+            $this->reportVolunteerRoles[] = $reportVolunteerRole;
+            $reportVolunteerRole->setProfessionalUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportVolunteerRole(ReportVolunteerRole $reportVolunteerRole): self
+    {
+        if ($this->reportVolunteerRoles->removeElement($reportVolunteerRole)) {
+            // set the owning side to null (unless already changed)
+            if ($reportVolunteerRole->getProfessionalUser() === $this) {
+                $reportVolunteerRole->setProfessionalUser(null);
+            }
         }
 
         return $this;

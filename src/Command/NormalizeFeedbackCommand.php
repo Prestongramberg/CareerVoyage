@@ -10,12 +10,16 @@ use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Feedback;
+use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\Registration;
 use App\Entity\Report;
+use App\Entity\ReportVolunteerRegion;
+use App\Entity\ReportVolunteerRole;
+use App\Entity\ReportVolunteerSchool;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
@@ -28,6 +32,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\FeedbackRepository;
+use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegistrationRepository;
 use App\Repository\ReportRepository;
@@ -122,6 +127,12 @@ class NormalizeFeedbackCommand extends Command
      */
     private $experienceRepository;
 
+
+    /**
+     * @var LessonTeachableRepository
+     */
+    private $lessonTeachableRepository;
+
     /**
      * @var string
      */
@@ -144,6 +155,7 @@ class NormalizeFeedbackCommand extends Command
      * @param TeachLessonExperienceRepository               $teachLessonExperienceRepository
      * @param RegistrationRepository                        $registrationRepository
      * @param ExperienceRepository                          $experienceRepository
+     * @param LessonTeachableRepository                     $lessonTeachableRepository
      * @param string                                        $cacheDirectory
      */
     public function __construct(EntityManagerInterface $entityManager, FeedbackRepository $feedbackRepository,
@@ -157,6 +169,7 @@ class NormalizeFeedbackCommand extends Command
                                 TeachLessonExperienceRepository $teachLessonExperienceRepository,
                                 RegistrationRepository $registrationRepository,
                                 ExperienceRepository $experienceRepository,
+                                LessonTeachableRepository $lessonTeachableRepository,
                                 string $cacheDirectory
     ) {
         $this->entityManager                                 = $entityManager;
@@ -173,6 +186,7 @@ class NormalizeFeedbackCommand extends Command
         $this->teachLessonExperienceRepository               = $teachLessonExperienceRepository;
         $this->registrationRepository                        = $registrationRepository;
         $this->experienceRepository                          = $experienceRepository;
+        $this->lessonTeachableRepository                     = $lessonTeachableRepository;
         $this->cacheDirectory                                = $cacheDirectory;
 
         parent::__construct();
@@ -189,13 +203,20 @@ class NormalizeFeedbackCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
-        $this->normalizeExperienceData($input, $output);
-        
-        $this->normalizeFeedbackData($input, $output);
-
         $this->reportRepository->deleteAllDashboardReports();
+        $this->reportRepository->deleteReportVolunteerSchoolData();
+        $this->reportRepository->deleteReportVolunteerRegionData();
+        $this->reportRepository->deleteReportVolunteerRoleData();
 
+
+        // report experience data normalization
+        $this->normalizeExperienceData($input, $output);
+        $this->normalizeProfessionalUserData($input, $output);
+        $this->normalizeEducatorUserData($input, $output);
+        $this->normalizeLessonTeachableData($input, $output);
+
+        // report dashboard normalization
+        $this->normalizeFeedbackData($input, $output);
         $this->normalizeDataForCompaniesRegisteredOnPlatform($input, $output);
         $this->normalizeDataForProfessionalsRegisteredOnPlatform($input, $output);
         $this->normalizeDataForStudentsRegisteredOnPlatform($input, $output);
@@ -265,6 +286,129 @@ class NormalizeFeedbackCommand extends Command
         return $this;
     }
 
+    private function normalizeProfessionalUserData(InputInterface $input, OutputInterface $output)
+    {
+
+        $this->entityManager->clear();
+        $output->writeln('Normalizing professional data.');
+
+        $professionalUpdateCount = 0;
+
+        foreach ($this->generateProfessionalCollection() as $result) {
+
+            /** @var ProfessionalUser $professionalUser */
+            $professionalUser = $result[0] ?? null;
+
+            if (!$professionalUser) {
+                continue;
+            }
+
+            $volunteerSchools = [];
+
+            foreach ($professionalUser->getSchools() as $school) {
+                $reportVolunteerSchool = new ReportVolunteerSchool();
+                $reportVolunteerSchool->setSchoolName($school->getName());
+                $reportVolunteerSchool->setProfessionalUser($professionalUser);
+                $reportVolunteerSchool->setSchoolName($school->getName());
+                $reportVolunteerSchool->setSchoolEmail($school->getEmail());
+                $reportVolunteerSchool->setSchoolAddress($school->getAddress());
+                $reportVolunteerSchool->setSchoolPhone($school->getPhone());
+                $reportVolunteerSchool->setSchoolWebsite($school->getWebsite());
+                $this->entityManager->persist($reportVolunteerSchool);
+                $volunteerSchools[] = $school->getName();
+            }
+
+            foreach ($professionalUser->getRegions() as $region) {
+                $reportVolunteerRegion = new ReportVolunteerRegion();
+                $reportVolunteerRegion->setRegionName($region->getName());
+                $reportVolunteerRegion->setProfessionalUser($professionalUser);
+                $this->entityManager->persist($reportVolunteerRegion);
+            }
+
+            foreach ($professionalUser->getRolesWillingToFulfill() as $role) {
+                $reportVolunteerRole = new ReportVolunteerRole();
+                $reportVolunteerRole->setRoleName($role->getName());
+                $reportVolunteerRole->setProfessionalUser($professionalUser);
+                $this->entityManager->persist($reportVolunteerRole);
+            }
+
+            $professionalUser->setReportSchoolsVolunteerAt($volunteerSchools);
+
+            $this->entityManager->persist($professionalUser);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $professionalUpdateCount++;
+        }
+
+        $output->writeln('Done..... Count: ' . $professionalUpdateCount);
+
+        return $this;
+    }
+
+    private function normalizeEducatorUserData(InputInterface $input, OutputInterface $output)
+    {
+
+        $this->entityManager->clear();
+        $output->writeln('Normalizing educator user data.');
+
+        $educatorUpdateCount = 0;
+
+        foreach ($this->generateEducatorCollection() as $result) {
+
+            /** @var EducatorUser $educatorUser */
+            $educatorUser = $result[0] ?? null;
+
+            if (!$educatorUser) {
+                continue;
+            }
+
+            // todo school name
+
+            $this->entityManager->persist($educatorUser);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $educatorUpdateCount++;
+        }
+
+        $output->writeln('Done..... Count: ' . $educatorUpdateCount);
+
+        return $this;
+    }
+
+    private function normalizeLessonTeachableData(InputInterface $input, OutputInterface $output)
+    {
+
+        $this->entityManager->clear();
+        $output->writeln('Normalizing lesson teachable data.');
+
+        $count = 0;
+
+        foreach ($this->generateLessonTeachableCollection() as $result) {
+
+            /** @var LessonTeachable $lessonTeachable */
+            $lessonTeachable = $result[0] ?? null;
+
+            if (!$lessonTeachable) {
+                continue;
+            }
+
+            if($lessonTeachable->getLesson() && $lessonTeachable->getLesson()->getTitle()) {
+                $lessonTeachable->setReportLessonName($lessonTeachable->getLesson()->getTitle());
+            }
+
+            $this->entityManager->persist($lessonTeachable);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $count++;
+        }
+
+        $output->writeln('Done..... Count: ' . $count);
+
+        return $this;
+    }
 
     private function normalizeFeedbackData(InputInterface $input, OutputInterface $output)
     {
@@ -1964,6 +2108,20 @@ class NormalizeFeedbackCommand extends Command
         foreach ($queryBuilder->iterate() as $professionalUser) {
 
             yield $professionalUser;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateLessonTeachableCollection(): iterable
+    {
+        $queryBuilder = $this->lessonTeachableRepository->createQueryBuilder('lt')->getQuery();
+
+        /** @var LessonTeachable $lessonTeachable */
+        foreach ($queryBuilder->iterate() as $lessonTeachable) {
+
+            yield $lessonTeachable;
         }
     }
 
