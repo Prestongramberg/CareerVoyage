@@ -399,6 +399,8 @@ class JavascriptBuilders
                 continue;
             }
 
+            $filterContext['label']  = $this->fieldLabelOverride($filterContext['label'], $targetEntityName);
+
             $buildersConfig[$classMetadata->getTableName()]['result_columns'][] = [
                 'column_machine_name' => $fieldName,
                 'column_human_readable_name' => $filterContext['label'],
@@ -1375,6 +1377,10 @@ class JavascriptBuilders
                     $label = '1:N Educator Teach Lesson Experience Feedback';
                 }
 
+                if ($label === '1:N Lesson Teachables') {
+                    $label = '1:N Lessons I Want Taught';
+                }
+
                 break;
 
             case ProfessionalUser::class:
@@ -1385,6 +1391,49 @@ class JavascriptBuilders
 
                 if ($label === '1:N Teach Lesson Experiences') {
                     $label = '1:N Teach Lesson Experiences (Topic Instructor)';
+                }
+
+                if ($label === '1:N Lesson Teachables') {
+                    $label = '1:N Lessons I Can Teach';
+                }
+
+                if ($label === '1:N Report Volunteer Schools') {
+                    $label = '1:N Volunteer Schools';
+                }
+
+                if ($label === '1:N Report Volunteer Regions') {
+                    $label = '1:N Volunteer Regions';
+                }
+
+                if ($label === '1:N Report Volunteer Roles') {
+                    $label = '1:N Volunteer Roles';
+                }
+
+                break;
+        }
+
+        return $label;
+    }
+
+    private function fieldLabelOverride($label, $entityName)
+    {
+        switch ($entityName) {
+
+            case LessonTeachable::class:
+
+                if ($label === 'Report Lesson Name') {
+                    $label = 'Lesson Name';
+                }
+
+                break;
+        }
+
+        switch ($entityName) {
+
+            case ProfessionalUser::class:
+
+                if ($label === 'Report Schools Volunteer At') {
+                    $label = 'Volunteer Schools';
                 }
 
                 break;

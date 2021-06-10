@@ -35,6 +35,11 @@ class LessonTeachable
      */
     private $lesson;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $reportLessonName;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +65,18 @@ class LessonTeachable
     public function setLesson(?Lesson $lesson): self
     {
         $this->lesson = $lesson;
+
+        return $this;
+    }
+
+    public function getReportLessonName(): ?string
+    {
+        return $this->reportLessonName;
+    }
+
+    public function setReportLessonName(?string $reportLessonName): self
+    {
+        $this->reportLessonName = $reportLessonName;
 
         return $this;
     }
