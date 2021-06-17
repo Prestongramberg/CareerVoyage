@@ -116,6 +116,11 @@ class EducatorUser extends User
      */
     private $myCourses;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $reportSchool;
+
     public function __construct()
     {
         parent::__construct();
@@ -490,6 +495,18 @@ class EducatorUser extends User
                 $educatorVideo->setEducator(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getReportSchool(): ?string
+    {
+        return $this->reportSchool;
+    }
+
+    public function setReportSchool(?string $reportSchool): self
+    {
+        $this->reportSchool = $reportSchool;
 
         return $this;
     }

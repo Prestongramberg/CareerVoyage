@@ -1404,6 +1404,14 @@ class JavascriptBuilders
                     $label = '1:N Lessons I Want Taught';
                 }
 
+                if ($label === '1:N Report Lessons Can Teach') {
+                    $label = '1:N Lessons I Can Teach';
+                }
+
+                if ($label === '1:N Lessons Want Taught') {
+                    $label = '1:N Lessons I Want Taught';
+                }
+
                 break;
 
             case ProfessionalUser::class:
@@ -1457,6 +1465,14 @@ class JavascriptBuilders
 
                 if ($label === 'Report Schools Volunteer At') {
                     $label = 'Volunteer Schools';
+                }
+
+                break;
+
+            case EducatorUser::class:
+
+                if ($label === 'Report School') {
+                    $label = 'School';
                 }
 
                 break;

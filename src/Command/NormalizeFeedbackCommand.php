@@ -17,6 +17,8 @@ use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\Registration;
 use App\Entity\Report;
+use App\Entity\ReportLessonsCanTeach;
+use App\Entity\ReportLessonsWantTaught;
 use App\Entity\ReportVolunteerRegion;
 use App\Entity\ReportVolunteerRole;
 use App\Entity\ReportVolunteerSchool;
@@ -363,7 +365,9 @@ class NormalizeFeedbackCommand extends Command
                 continue;
             }
 
-            // todo school name
+            if($school = $educatorUser->getSchool()) {
+                $educatorUser->setReportSchool($school->getName());
+            }
 
             $this->entityManager->persist($educatorUser);
             $this->entityManager->flush();
@@ -396,6 +400,28 @@ class NormalizeFeedbackCommand extends Command
 
             if($lessonTeachable->getLesson() && $lessonTeachable->getLesson()->getTitle()) {
                 $lessonTeachable->setReportLessonName($lessonTeachable->getLesson()->getTitle());
+            }
+
+            if($lessonTeachable->getUser() instanceof EducatorUser && $lessonTeachable->getLesson()) {
+                $reportLessonWantTaught = new ReportLessonsWantTaught();
+                $reportLessonWantTaught->setUser($lessonTeachable->getUser());
+                $reportLessonWantTaught->setLesson($lessonTeachable->getLesson());
+                $reportLessonWantTaught->setLessonName($lessonTeachable->getLesson()->getTitle());
+                $reportLessonWantTaught->setFirstName($lessonTeachable->getUser()->getFirstName());
+                $reportLessonWantTaught->setLastName($lessonTeachable->getUser()->getLastName());
+                $reportLessonWantTaught->setEmail($lessonTeachable->getUser()->getEmail());
+                $this->entityManager->persist($reportLessonWantTaught);
+            }
+
+            if($lessonTeachable->getUser() instanceof ProfessionalUser && $lessonTeachable->getLesson()) {
+                $reportLessonCanTeach = new ReportLessonsCanTeach();
+                $reportLessonCanTeach->setUser($lessonTeachable->getUser());
+                $reportLessonCanTeach->setLesson($lessonTeachable->getLesson());
+                $reportLessonCanTeach->setLessonName($lessonTeachable->getLesson()->getTitle());
+                $reportLessonCanTeach->setFirstName($lessonTeachable->getUser()->getFirstName());
+                $reportLessonCanTeach->setLastName($lessonTeachable->getUser()->getLastName());
+                $reportLessonCanTeach->setEmail($lessonTeachable->getUser()->getEmail());
+                $this->entityManager->persist($reportLessonCanTeach);
             }
 
             $this->entityManager->persist($lessonTeachable);
