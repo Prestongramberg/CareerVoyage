@@ -106,7 +106,7 @@
                      <td>{{ paginatedReport.reportName }}</td>
                      <td>{{ paginatedReport.reportDescription }}</td>
                      <td>{{ paginatedReport.entityNameFromEntityClassName(paginatedReport.reportEntityClassName) }}</td>
-                     <td><a href="{{ path('report_download', {'id': paginatedReport.id}) }}" download>Download</a></td>
+                     <td><a href="{{ path('report_download', {'id': paginatedReport.id}) }}">Download</a></td>
                      <td><a href="{{ path('report_delete', {'id': paginatedReport.id}) }}">Delete</a></td>
                  </tr>
              {% endfor %}

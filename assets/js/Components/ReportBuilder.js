@@ -355,15 +355,14 @@ class ReportBuilder {
         this.reportEntityName = entityName;
         this.columnPrettyNames = [];
 
-        //this.$wrapper.find(ReportBuilder._selectors.selectedColumnsList).empty();
-        //$(ReportBuilder._selectors.selectedColumnsDiv).hide();
+        this.$wrapper.find(ReportBuilder._selectors.selectedColumnsList).empty();
+        $(ReportBuilder._selectors.selectedColumnsDiv).hide();
 
-      /*  if(!entityName) {
+        if(!entityName) {
             this.$wrapper.find(ReportBuilder._selectors.reportColumnsDiv).empty();
             $(ReportBuilder._selectors.queryBuilder).queryBuilder('destroy');
-            $(this.$wrapper).find('.js-empty-query-builder-message').show().find('.alert').removeClass('border-danger text-danger');
             return;
-        }*/
+        }
 
         let $builder = $(ReportBuilder._selectors.queryBuilder);
         $builder.removeClass('qb-initialized');

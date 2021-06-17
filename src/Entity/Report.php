@@ -21,6 +21,7 @@ class Report
         'Chat' => Chat::class,
         'Chat message' => ChatMessage::class,
         'Company' => Company::class,
+        'Company Experience' => CompanyExperience::class,
         'Company Favorites' => CompanyFavorite::class,
         'Course' => Course::class,
         'Educator User' => EducatorUser::class,

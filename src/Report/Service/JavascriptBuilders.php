@@ -6,6 +6,7 @@ use App\Entity\AdminUser;
 use App\Entity\Chat;
 use App\Entity\ChatMessage;
 use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\CompanyFavorite;
 use App\Entity\Course;
 use App\Entity\EducatorUser;
@@ -771,6 +772,8 @@ class JavascriptBuilders
                     'temporarySecurityToken',
                     'updatedAt',
                     'roles',
+                    'latitude',
+                    'longitude'
                 ];
 
                 break;
@@ -787,6 +790,8 @@ class JavascriptBuilders
 
                 $excludedFields = [
                     'updatedAt',
+                    'latitude',
+                    'longitude'
                 ];
 
                 break;
@@ -884,6 +889,8 @@ class JavascriptBuilders
 
                 $excludedFields = [
                     'updatedAt',
+                    'latitude',
+                    'longitude'
                 ];
 
                 break;
@@ -900,6 +907,8 @@ class JavascriptBuilders
 
                 $excludedFields = [
                     'updatedAt',
+                    'latitude',
+                    'longitude'
                 ];
 
                 break;
@@ -948,6 +957,8 @@ class JavascriptBuilders
 
                 $excludedFields = [
                     'updatedAt',
+                    'latitude',
+                    'longitude'
                 ];
 
                 break;
@@ -956,6 +967,18 @@ class JavascriptBuilders
 
                 $excludedFields = [
                     'updatedAt',
+                    'latitude',
+                    'longitude'
+                ];
+
+                break;
+
+            case CompanyExperience::class:
+
+                $excludedFields = [
+                    'updatedAt',
+                    'latitude',
+                    'longitude'
                 ];
 
                 break;
