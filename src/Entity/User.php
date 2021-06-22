@@ -295,6 +295,16 @@ abstract class User implements UserInterface
     protected $loggedInUserShared = false;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $loginCount = 0;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastLoginDate;
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -1500,5 +1510,33 @@ abstract class User implements UserInterface
     public function setLoggedInUserShared(bool $loggedInUserShared): void
     {
         $this->loggedInUserShared = $loggedInUserShared;
+    }
+
+    public function getLoginCount(): ?int
+    {
+        return $this->loginCount;
+    }
+
+    public function setLoginCount(?int $loginCount): self
+    {
+        $this->loginCount = $loginCount;
+
+        return $this;
+    }
+
+    public function incrementLoginCount() {
+        $this->loginCount++;
+    }
+
+    public function getLastLoginDate(): ?\DateTimeInterface
+    {
+        return $this->lastLoginDate;
+    }
+
+    public function setLastLoginDate(?\DateTimeInterface $lastLoginDate): self
+    {
+        $this->lastLoginDate = $lastLoginDate;
+
+        return $this;
     }
 }
