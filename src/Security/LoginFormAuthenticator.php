@@ -134,6 +134,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         if(!$site) {
             throw new CustomUserMessageAuthenticationException('Issue locating a site connected to user.');
         }
+        
+        $user->incrementLoginCount();
+        $user->setLastLoginDate(new \DateTime());
 
         $user->initializeTemporarySecurityToken();
         $this->entityManager->persist($user);

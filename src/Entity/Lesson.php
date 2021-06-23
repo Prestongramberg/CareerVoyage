@@ -180,7 +180,6 @@ class Lesson
      */
     private $educatorReviewTeachLessonExperienceFeedback;
 
-
     public function __construct()
     {
         $this->grades = new ArrayCollection();

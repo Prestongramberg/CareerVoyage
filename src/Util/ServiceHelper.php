@@ -42,6 +42,8 @@ use App\Repository\ProfessionalVideoRepository;
 use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RegionRepository;
 use App\Repository\RegistrationRepository;
+use App\Repository\ReportColumnRepository;
+use App\Repository\ReportRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
@@ -476,6 +478,16 @@ trait ServiceHelper
     private $liform;
 
     /**
+     * @var ReportRepository
+     */
+    private $reportRepository;
+
+    /**
+     * @var ReportColumnRepository
+     */
+    private $reportColumnRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -554,6 +566,9 @@ trait ServiceHelper
      * @param GlobalShare                                                   $globalShare
      * @param SystemUserRepository                                          $systemUserRepository
      * @param RegionRepository                                              $regionRepository
+     * @param Liform                                                        $liform
+     * @param ReportRepository                                              $reportRepository
+     * @param ReportColumnRepository                                        $reportColumnRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -599,7 +614,9 @@ trait ServiceHelper
         HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
         SystemUserRepository $systemUserRepository,
         RegionRepository $regionRepository,
-        Liform $liform
+        Liform $liform,
+        ReportRepository $reportRepository,
+        ReportColumnRepository $reportColumnRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -678,6 +695,9 @@ trait ServiceHelper
         $this->systemUserRepository                                          = $systemUserRepository;
         $this->regionRepository                                              = $regionRepository;
         $this->liform                                                        = $liform;
+        $this->reportRepository                                              = $reportRepository;
+        $this->reportColumnRepository                                        = $reportColumnRepository;
+
     }
 
     public function getFullQualifiedBaseUrl()

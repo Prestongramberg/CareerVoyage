@@ -83,26 +83,53 @@
         <li class="{{ dashboardType == 'volunteer_participation' ? 'uk-active' : '' }}"><a
                     href="{{ path('volunteer_participation_dashboard') }}">Volunteer Participation</a></li>
 
+        {% if user.admin or user.siteAdmin %}
+            <li class="uk-nav-header">
+                Reports
+            </li>
+
+            <li class="{{ dashboardType == 'new_report' ? 'uk-active' : '' }}"><a
+                        href="{{ path('new_report') }}">Report Builder</a></li>
+
+            <li class="{{ dashboardType == 'all_reports' ? 'uk-active' : '' }}"><a
+                        href="{{ path('report_index_new') }}">All Reports</a></li>
+        {% endif %}
     </ul>
 </div>
 <div class="content-padder content-background">
 
-    <div class="uk-section-small uk-section-default header">
-        <div class="uk-container uk-container-large">
-            <h1><span class="ion-speedometer"></span> {% block heading %}{% endblock %}</h1>
-            <ul class="uk-breadcrumb">
-                <li><a href="{{ path('dashboard') }}">Home</a></li>
-                <li><span href="">Dashboard</span></li>
-            </ul>
+    {% block breadcrumbs %}
+        <div class="uk-section-small uk-section-default header">
+            <div class="uk-container uk-container-large">
+                <h1><span class="ion-speedometer"></span> {% block heading %}{% endblock %}</h1>
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('dashboard') }}">Home</a></li>
+                    <li><span href="">Dashboard</span></li>
+                </ul>
+            </div>
         </div>
-    </div>
+    {% endblock %}
+
+    {% set successMessage = '' %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+        {% set successMessage = flashMessage %}
+    {% endfor %}
+
+    {% set errorMessage = '' %}
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        {% set errorMessage = flashMessage %}
+    {% endfor %}
 
     <div class="uk-section-small">
         <div class="uk-container uk-container-large">
 
+            {% include 'flash/messages.html.twig' %}
+
             {% block filters %}{% endblock %}
 
             {% block charts %}{% endblock %}
+
+            {% block content %}{% endblock %}
         </div>
     </div>
 </div>

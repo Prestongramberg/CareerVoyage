@@ -1,0 +1,13 @@
+// groups
+$group-border-color: #ded7c4 !default;
+
+// rules
+$rule-border-color: #ded7c4 !default;
+
+@import '~jQuery-QueryBuilder/dist/scss/default';
+
+%rule-component {
+    font-size: 14px;
+    max-width: 100%;
+    margin: 0 5px 5px 0;
+}
