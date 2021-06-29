@@ -68,12 +68,14 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'class' => Industry::class,
                 'choice_label' => 'name',
                 'placeholder' => 'Select Industry',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('schools', EntityType::class, [
                 'class' => School::class,
                 'choice_label' => 'name',
                 'multiple' => true,
-                'expanded' => true,
+                'expanded' => false,
                 'choice_attr' => function($choice, $key, $value) {
                     return ['class' => 'uk-checkbox'];
                 },
@@ -86,7 +88,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                         ->setParameter('true', true)
                         ->orderBy('r.name', 'ASC');
                 },
-                'expanded' => true,
+                'expanded' => false,
                 'multiple' => true,
                 'choice_attr' => function($choice, $key, $value) {
                     return ['class' => 'uk-checkbox', 'tooltip' => $choice->getDescription()];
@@ -94,7 +96,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             ])
             ->add('regions', EntityType::class, [
                 'class' => Region::class,
-                'expanded' => true,
+                'expanded' => false,
                 'multiple' => true,
                 'choice_label' => 'friendlyName',
             ])
@@ -209,7 +211,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                     ->orderBy('si.name', 'ASC');
             },
             'choice_label' => 'name',
-            'expanded' => true,
+            'expanded' => false,
             'multiple' => true,
             'choice_attr' => function($choice, $key, $value) {
                 return ['class' => 'uk-checkbox'];

@@ -63,6 +63,11 @@ class PrimaryIndustrySelect {
                 // ... with the returned one from the AJAX response.
                 $(errorData.formMarkup).find('.js-secondary-industry-container')
             );
+
+            $('.js-select2').select2({
+                width: '100%'
+            });
+
         });
 
     }
