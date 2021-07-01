@@ -160,16 +160,6 @@ class ProfessionalUser extends User
     private $professionalReviewMeetStudentExperienceFeedback;
 
     /**
-	 * @var string
-	 */
-    private $geoRadius;
-
-	/**
-	 * @var string
-	 */
-    private $geoZipCode;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalVideo", mappedBy="professional")
      */
     private $professionalVideos;
@@ -204,6 +194,16 @@ class ProfessionalUser extends User
      * @ORM\OneToMany(targetEntity=ReportVolunteerRole::class, mappedBy="professionalUser")
      */
     private $reportVolunteerRoles;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressSearch;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $radiusSearch;
 
     public function __construct()
     {
@@ -676,35 +676,6 @@ class ProfessionalUser extends User
         return $this;
     }
 
-
-    /**
-	 * @return string
-	 */
-	public function getGeoRadius(): ?string {
-                                                                                                                        		return $this->geoRadius;
-                                                                                                                        	}
-
-	/**
-	 * @param string $geoRadius
-	 */
-	public function setGeoRadius( ?string $geoRadius ): void {
-                                                                                                                        		$this->geoRadius = $geoRadius;
-                                                                                                                        	}
-
-	/**
-	 * @return string
-	 */
-	public function getGeoZipCode(): ?string {
-                                                                                                                        		return $this->geoZipCode;
-                                                                                                                        	}
-
-	/**
-	 * @param string $geoZipCode
-	 */
-	public function setGeoZipCode( ?string $geoZipCode ): void {
-                                                                                                                        		$this->geoZipCode = $geoZipCode;
-                                                                                                                        	}
-
     /**
      * @return Collection|ProfessionalVideo[]
      */
@@ -870,6 +841,30 @@ class ProfessionalUser extends User
                 $reportVolunteerRole->setProfessionalUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAddressSearch(): ?string
+    {
+        return $this->addressSearch;
+    }
+
+    public function setAddressSearch(?string $addressSearch): self
+    {
+        $this->addressSearch = $addressSearch;
+
+        return $this;
+    }
+
+    public function getRadiusSearch(): ?int
+    {
+        return $this->radiusSearch;
+    }
+
+    public function setRadiusSearch(?int $radiusSearch): self
+    {
+        $this->radiusSearch = $radiusSearch;
 
         return $this;
     }

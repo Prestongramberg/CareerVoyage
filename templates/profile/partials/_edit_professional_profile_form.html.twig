@@ -1,4 +1,5 @@
-<div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}" data-county-json="{{ countyJson|json_encode }}">
+<div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}"
+     data-county-json="{{ countyJson|json_encode }}">
     <ul class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
         <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
         {% include 'profile/partials/shared/_settings_and_delete_tabs.html.twig' %}
@@ -127,23 +128,46 @@
                                 <div uk-grid>
                                     <div class="uk-width-1-2">
 
-                                        <div class="uk-margin">
-                                            <p>Please Select geographical regions in which you want your profile
-                                                visible:</p>
-                                            {{ form_label(form.regions, 'Regions *') }}
-                                            {{ form_widget(form.regions, {'attr': {'class': 'js-select2' ~ ( form_errors(form.regions) ? ' uk-form-danger' : '' ) }}) }}
-                                            <div class="clear"></div>
-                                            {{ form_errors(form.regions) }}
-                                        </div>
+                                        <fieldset class="uk-fieldset">
 
-                                        <div class="uk-margin">
-                                            {{ form_label(form.schools, 'Schools I volunteer at*') }}
-                                            {{ form_widget(form.schools, {'attr': {'class': 'js-select2' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
-                                            <div class="clear"></div>
-                                            {{ form_errors(form.schools) }}
-                                            {{ form_widget(form.geoZipCode) }}
-                                            {{ form_widget(form.geoRadius) }}
-                                        </div>
+                                            <legend class="uk-legend">Regions</legend>
+
+                                            <small>Please Select geographical regions in which you want your profile visible:</small>
+
+                                            <div class="uk-margin">
+                                                {{ form_label(form.regions, 'Regions *') }}
+                                                {{ form_widget(form.regions, {'attr': {'class': 'js-region' ~ ( form_errors(form.regions) ? ' uk-form-danger' : '' ) }}) }}
+                                                <div class="clear"></div>
+                                                {{ form_errors(form.regions) }}
+                                            </div>
+
+                                        </fieldset>
+
+                                        <fieldset class="uk-fieldset">
+
+                                            <legend class="uk-legend">Schools</legend>
+
+                                            <small>Limit volunteer schools by address and radius proximity</small>
+                                            <div class="uk-margin">
+                                                {{ form_widget(form.addressSearch, {'attr': {'class': 'uk-input' }}) }}
+                                            </div>
+
+                                            <div class="uk-margin">
+                                                {{ form_widget(form.radiusSearch, {'attr': {'class': 'js-radius uk-input'}}) }}
+                                            </div>
+
+                                            <div class="js-schools-container">
+                                                <div class="js-school-json" style="display: none" data-school-json="{{ form.vars.schools|json_encode }}"></div>
+                                                {% if form.schools is defined %}
+                                                    <div class="uk-margin">
+                                                        {{ form_widget(form.schools, {'attr': {'class': '' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                                                        <div class="clear"></div>
+                                                        {{ form_errors(form.schools) }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                        </fieldset>
 
                                     </div>
 

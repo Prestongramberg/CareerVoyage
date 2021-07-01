@@ -83,8 +83,10 @@ class SchoolRepository extends ServiceEntityRepository
      * @param $lonW
      * @param $startingLatitude
      * @param $startingLongitude
+     *
      * @return mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
 

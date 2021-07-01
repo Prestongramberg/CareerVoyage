@@ -178,12 +178,8 @@ class ProfileController extends AbstractController
         ];
 
         $countyJson = [];
-        $counties     = $this->countyRepository->findAll();
+        $counties   = $this->countyRepository->findAll();
         foreach ($counties as $county) {
-
-           /* if(!$county->getColor()) {
-                continue;
-            }*/
 
             $countyJson[] = [
                 'coordinates' => $county->getCoordinates(),
@@ -191,7 +187,7 @@ class ProfileController extends AbstractController
                 'state_name' => $county->getStateName(),
                 'region_name' => $county->getRegionName(),
                 'service_cooperative_name' => $county->getServiceCooperativeName(),
-                'color' => $county->getColor() ?? '#FF0000'
+                'color' => $county->getColor() ?? '#FF0000',
             ];
         }
 
@@ -299,6 +295,22 @@ class ProfileController extends AbstractController
                 ], Response::HTTP_BAD_REQUEST
             );
         }
+
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('profile/edit.html.twig', [
+                        'form' => $form->createView(),
+                        'user' => $user,
+                        'loggedInUser' => $loggedInUser,
+                        'professionalVideo' => $professionalVideo,
+                        'countyJson' => $countyJson,
+                    ]),
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
 
         $this->getDoctrine()->getManager()->refresh($user);
 

@@ -193,8 +193,10 @@ class SchoolController extends AbstractController
      *
      * @Route("/schools-by-radius", name="get_schools_by_radius", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return JsonResponse
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function getSchoolsByRadius(Request $request) {
 
