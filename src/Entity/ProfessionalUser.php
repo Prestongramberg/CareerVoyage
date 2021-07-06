@@ -67,7 +67,7 @@ class ProfessionalUser extends User
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="professionalUsers")
      */
     private $primaryIndustry;
@@ -77,13 +77,19 @@ class ProfessionalUser extends User
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "Please select your profession(s)",
-     *     groups={"SECONDARY_INDUSTRY"}
+     *     groups={"SECONDARY_INDUSTRY", "PROFESSIONAL_PROFILE_PERSONAL"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="professionalUsers")
      */
     private $secondaryIndustries;
 
     /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select at least one school.",
+     *      groups={"PROFESSIONAL_PROFILE_REGION"}
+     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="professionalUsers")
      */
     private $schools;
@@ -94,7 +100,7 @@ class ProfessionalUser extends User
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "Please select at least one role",
-     *     groups={"EDIT"}
+     *     groups={"EDIT", "PROFESSIONAL_PROFILE_PERSONAL"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="professionalUsers")
      */
@@ -160,16 +166,6 @@ class ProfessionalUser extends User
     private $professionalReviewMeetStudentExperienceFeedback;
 
     /**
-	 * @var string
-	 */
-    private $geoRadius;
-
-	/**
-	 * @var string
-	 */
-    private $geoZipCode;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalVideo", mappedBy="professional")
      */
     private $professionalVideos;
@@ -204,6 +200,22 @@ class ProfessionalUser extends User
      * @ORM\OneToMany(targetEntity=ReportVolunteerRole::class, mappedBy="professionalUser")
      */
     private $reportVolunteerRoles;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressSearch;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $radiusSearch;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a work address.", groups={"PROFESSIONAL_PROFILE_PERSONAL"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $personalAddressSearch;
 
     public function __construct()
     {
@@ -676,35 +688,6 @@ class ProfessionalUser extends User
         return $this;
     }
 
-
-    /**
-	 * @return string
-	 */
-	public function getGeoRadius(): ?string {
-                                                                                                                        		return $this->geoRadius;
-                                                                                                                        	}
-
-	/**
-	 * @param string $geoRadius
-	 */
-	public function setGeoRadius( ?string $geoRadius ): void {
-                                                                                                                        		$this->geoRadius = $geoRadius;
-                                                                                                                        	}
-
-	/**
-	 * @return string
-	 */
-	public function getGeoZipCode(): ?string {
-                                                                                                                        		return $this->geoZipCode;
-                                                                                                                        	}
-
-	/**
-	 * @param string $geoZipCode
-	 */
-	public function setGeoZipCode( ?string $geoZipCode ): void {
-                                                                                                                        		$this->geoZipCode = $geoZipCode;
-                                                                                                                        	}
-
     /**
      * @return Collection|ProfessionalVideo[]
      */
@@ -870,6 +853,42 @@ class ProfessionalUser extends User
                 $reportVolunteerRole->setProfessionalUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAddressSearch(): ?string
+    {
+        return $this->addressSearch;
+    }
+
+    public function setAddressSearch(?string $addressSearch): self
+    {
+        $this->addressSearch = $addressSearch;
+
+        return $this;
+    }
+
+    public function getRadiusSearch(): ?int
+    {
+        return $this->radiusSearch;
+    }
+
+    public function setRadiusSearch(?int $radiusSearch): self
+    {
+        $this->radiusSearch = $radiusSearch;
+
+        return $this;
+    }
+
+    public function getPersonalAddressSearch(): ?string
+    {
+        return $this->personalAddressSearch;
+    }
+
+    public function setPersonalAddressSearch(?string $personalAddressSearch): self
+    {
+        $this->personalAddressSearch = $personalAddressSearch;
 
         return $this;
     }

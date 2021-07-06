@@ -23,6 +23,7 @@ use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\CompanyVideoRepository;
+use App\Repository\CountyRepository;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\EducatorRegisterEducatorForCompanyExperienceRequestRepository;
 use App\Repository\EducatorReviewCompanyExperienceFeedbackRepository;
@@ -488,6 +489,11 @@ trait ServiceHelper
     private $reportColumnRepository;
 
     /**
+     * @var CountyRepository
+     */
+    private $countyRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -569,6 +575,7 @@ trait ServiceHelper
      * @param Liform                                                        $liform
      * @param ReportRepository                                              $reportRepository
      * @param ReportColumnRepository                                        $reportColumnRepository
+     * @param CountyRepository                                              $countyRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -616,7 +623,8 @@ trait ServiceHelper
         RegionRepository $regionRepository,
         Liform $liform,
         ReportRepository $reportRepository,
-        ReportColumnRepository $reportColumnRepository
+        ReportColumnRepository $reportColumnRepository,
+        CountyRepository $countyRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -697,6 +705,7 @@ trait ServiceHelper
         $this->liform                                                        = $liform;
         $this->reportRepository                                              = $reportRepository;
         $this->reportColumnRepository                                        = $reportColumnRepository;
+        $this->countyRepository                                              = $countyRepository;
 
     }
 

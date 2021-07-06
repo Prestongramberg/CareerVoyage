@@ -4,17 +4,19 @@ import $ from 'jquery';
 import List from "list.js";
 import Routing from "../Routing";
 
-class PrimaryIndustrySelect {
+class RadiusSelect {
 
     /**
      * @param $wrapper
      * @param globalEventDispatcher
+     * @param initMarkers
      */
-    constructor($wrapper, globalEventDispatcher) {
+    constructor($wrapper, globalEventDispatcher, initMarkers) {
 
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.route = this.$wrapper.attr('data-route');
+        this.initMarkers = initMarkers;
 
         this.unbindEvents();
         this.bindEvents();
@@ -22,7 +24,7 @@ class PrimaryIndustrySelect {
     }
 
     unbindEvents() {
-        this.$wrapper.off('change', PrimaryIndustrySelect._selectors.primaryIndustry);
+        this.$wrapper.off('change', RadiusSelect._selectors.radius);
     }
 
     /**
@@ -30,7 +32,7 @@ class PrimaryIndustrySelect {
      */
     static get _selectors() {
         return {
-            primaryIndustry: '.js-primary-industry'
+            radius: '.js-radius'
         }
     }
 
@@ -38,46 +40,52 @@ class PrimaryIndustrySelect {
 
         this.$wrapper.on(
             'change',
-            PrimaryIndustrySelect._selectors.primaryIndustry,
-            this.handlePrimaryIndustryChange.bind(this)
+            RadiusSelect._selectors.radius,
+            this.handleRadiusChange.bind(this)
         );
     }
 
-    handlePrimaryIndustryChange(e) {
+    handleRadiusChange(e) {
 
         if(e.cancelable) {
             e.preventDefault();
         }
 
-        const formData = {};
+        const $form = this.$wrapper.find('form');
+        let formData = new FormData($form.get(0));
+        formData.delete('professional_edit_profile_form[_token]');
+        formData.append('skip_validation', true);
+        formData.append('changeableField', true);
 
-        formData[$(e.target).attr('name')] = $(e.target).val();
-        formData[$(PrimaryIndustrySelect._selectors.primaryIndustry).attr('name')] = $(PrimaryIndustrySelect._selectors.primaryIndustry).val();
-        formData['skip_validation'] = true;
-        formData['primary_industry_change'] = true;
-
-        this._changePrimaryIndustry(formData)
+        this._changeRadius(formData)
             .then((data) => {
             }).catch((errorData) => {
-            $('.js-secondary-industry-container').replaceWith(
+
+            $('.js-schools-container').replaceWith(
                 // ... with the returned one from the AJAX response.
-                $(errorData.formMarkup).find('.js-secondary-industry-container')
+                $(errorData.formMarkup).find('.js-schools-container')
             );
 
-            $('.js-select2').select2({
+            $('#professional_edit_profile_form_schools').select2({
+                placeholder: "Volunteer schools",
+                allowClear: true,
                 width: '100%'
             });
+
+            this.initMarkers();
 
         });
 
     }
 
-    _changePrimaryIndustry(data) {
+    _changeRadius(data) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: this.route,
                 method: 'POST',
-                data: data
+                data: data,
+                processData: false,
+                contentType: false
             }).then((data, textStatus, jqXHR) => {
                 resolve(data);
             }).catch((jqXHR) => {
@@ -90,4 +98,4 @@ class PrimaryIndustrySelect {
     render() {}
 }
 
-export default PrimaryIndustrySelect;
+export default RadiusSelect;

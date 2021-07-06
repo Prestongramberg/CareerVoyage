@@ -1,0 +1,19 @@
+.select2-selection.select2-selection--multiple {
+  padding: 7px 0 7px 10px !important;
+  background: #fff !important;
+  color: #666 !important;
+  border: 1px solid #e5e5e5 !important;
+}
+
+.select2-selection.select2-selection--single {
+  padding: 7px 0 7px 10px !important;
+  background: #fff !important;
+  color: #666 !important;
+  border: 1px solid #e5e5e5 !important;
+  height: auto;
+
+  .select2-selection__arrow {
+    top: 6px;
+  }
+
+}

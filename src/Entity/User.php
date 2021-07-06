@@ -58,9 +58,9 @@ abstract class User implements UserInterface
      * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EDUCATOR_USER_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT"}
+     *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_ACCOUNT"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER"})
+     * @Assert\NotBlank(message="Don't forget an email.", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER", "PROFESSIONAL_PROFILE_ACCOUNT"})
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $email;
@@ -100,7 +100,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a first name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
+     * @Assert\NotBlank(message="Don't forget a first name.", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -108,7 +108,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a last name for your user!", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
+     * @Assert\NotBlank(message="Don't forget a last name.", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -268,7 +268,7 @@ abstract class User implements UserInterface
     protected $profileCompleted = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="user_id", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="user", orphanRemoval=true)
      */
     private $companyViews;
 

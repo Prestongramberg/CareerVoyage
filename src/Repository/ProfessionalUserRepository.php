@@ -59,48 +59,55 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
      * @throws \Doctrine\DBAL\Driver\Exception
      */
-    public function findBySearchTerm($search) {
+    public function findBySearchTerm($search)
+    {
 
         $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_PROFESSIONAL_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join professional_user pu on u.id = pu.id where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $search);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function findBySearchTermAndRegionIds($search, array $regionIds) {
+    public function findBySearchTermAndRegionIds($search, array $regionIds)
+    {
 
-        if(empty($regionIds)) {
+        if (empty($regionIds)) {
             return [];
         }
 
         $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_PROFESSIONAL_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
           inner join professional_user pu on u.id = pu.id
           INNER JOIN professional_user_region pur on pur.professional_user_id = pu.id
-          where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND pur.region_id IN ('. implode(",", $regionIds) . ')', $search);
+          where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND pur.region_id IN (' . implode(",", $regionIds) . ')', $search);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
     /**
-     * @param $search
+     * @param             $search
      * @param StudentUser $studentUser
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByAllowedCommunication($search, StudentUser $studentUser) {
+    public function findByAllowedCommunication($search, StudentUser $studentUser)
+    {
 
         $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, "ROLE_PROFESSIONAL_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
         inner join professional_user pu on u.id = pu.id inner join allowed_communication ac on pu.id = ac.professional_user_id 
         where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" and ac.student_user_id = "%s"', $search, $studentUser->getId());
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
@@ -116,54 +123,62 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      * @param $lonW
      * @param $startingLatitude
      * @param $startingLongitude
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude) {
+    public function findByRadius($latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude)
+    {
 
         $query = sprintf('SELECT id from professional_user p WHERE p.latitude <= %s AND p.latitude >= %s AND p.longitude <= %s AND p.longitude >= %s AND (p.latitude != %s AND p.longitude != %s)',
             $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
         );
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function search() {
+    public function search()
+    {
 
     }
 
     /**
      * @param $professionalIds
+     *
      * @return mixed
      */
-    public function getByArrayOfIds($professionalIds) {
+    public function getByArrayOfIds($professionalIds)
+    {
 
         return $this->createQueryBuilder('p')
-            ->where('p.id IN (:ids)')
-            ->setParameter('ids', $professionalIds)
-            ->andWhere('p.deleted = 0')
-            ->andWhere('p.activated = 1')
-            ->getQuery()
-            ->getResult();
+                    ->where('p.id IN (:ids)')
+                    ->setParameter('ids', $professionalIds)
+                    ->andWhere('p.deleted = 0')
+                    ->andWhere('p.activated = 1')
+                    ->getQuery()
+                    ->getResult();
     }
 
 
-    public function getAll() {
+    public function getAll()
+    {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.deleted = 0')
-            ->andWhere('p.activated = 1')
-            ->getQuery()
-            ->getResult();
+                    ->andWhere('p.deleted = 0')
+                    ->andWhere('p.activated = 1')
+                    ->getQuery()
+                    ->getResult();
     }
 
     /**
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function fetchAll() {
+    public function fetchAll()
+    {
         $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, pu.phone, c.name as company,
           IF(c.owner_id = u.id, "YES", "NO") as company_owner,
           CASE WHEN c.owner_id = u.id THEN c.street ELSE NULL END as street,
@@ -176,17 +191,21 @@ class ProfessionalUserRepository extends ServiceEntityRepository
           LEFT JOIN state s on c.state_id = s.id
           WHERE u.deleted = 0');
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
+
     /**
      * @param Region $region
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByRegion(Region $region) {
+    public function findByRegion(Region $region)
+    {
 
         $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, pu.phone, c.name as company,
           IF(c.owner_id = u.id, "YES", "NO") as company_owner,
@@ -203,9 +222,10 @@ class ProfessionalUserRepository extends ServiceEntityRepository
           LEFT JOIN state s on c.state_id = s.id
           WHERE r.id = "%s"', $region->getId());
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
@@ -216,7 +236,8 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null) {
+    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null)
+    {
 
         $ids = implode("','", $userIds);
 
@@ -234,38 +255,38 @@ class ProfessionalUserRepository extends ServiceEntityRepository
           LEFT JOIN roles_willing_to_fulfill rwtf on purwtf.roles_willing_to_fulfill_id = rwtf.id
           WHERE u.id IN('$ids')";
 
-        if($filters) {
+        if ($filters) {
 
-            if(!empty($filters->getInterestSearch())) {
+            if (!empty($filters->getInterestSearch())) {
                 $query .= sprintf(' AND pu.interests LIKE "%%%s%%"', $filters->getInterestSearch());
             }
 
-            if(!empty($filters->getVolunteerRoles())) {
+            if (!empty($filters->getVolunteerRoles())) {
                 $volunteerRoles = implode("','", $filters->getVolunteerRoles());
-                $query .= " AND purwtf.roles_willing_to_fulfill_id IN('$volunteerRoles')";
+                $query          .= " AND purwtf.roles_willing_to_fulfill_id IN('$volunteerRoles')";
             }
 
-            if(!empty($filters->getCompanies())) {
+            if (!empty($filters->getCompanies())) {
                 $companies = implode("','", $filters->getCompanies());
-                $query .= " AND c.id IN('$companies')";
+                $query     .= " AND c.id IN('$companies')";
             }
 
-            if(!empty($filters->getCompanyAdmins())) {
+            if (!empty($filters->getCompanyAdmins())) {
                 $companyAdmins = implode("','", $filters->getCompanyAdmins());
-                $query .= " AND c.email_address IN('$companyAdmins')";
+                $query         .= " AND c.email_address IN('$companyAdmins')";
             }
 
-            if(!empty($filters->getPrimaryIndustries())) {
+            if (!empty($filters->getPrimaryIndustries())) {
                 $primaryIndustries = implode("','", $filters->getPrimaryIndustries());
-                $query .= " AND si.primary_industry_id IN('$primaryIndustries')";
+                $query             .= " AND si.primary_industry_id IN('$primaryIndustries')";
             }
 
-            if(!empty($filters->getSecondaryIndustries())) {
+            if (!empty($filters->getSecondaryIndustries())) {
                 $secondaryIndustries = implode("','", $filters->getSecondaryIndustries());
-                $query .= " AND pusi.secondary_industry_id IN('$secondaryIndustries')";
+                $query               .= " AND pusi.secondary_industry_id IN('$secondaryIndustries')";
             }
 
-            if($filters->hasFilterByCompanyAdministrator()) {
+            if ($filters->hasFilterByCompanyAdministrator()) {
                 // grab the users that have the same email as the company email as this means that they are the company admin
                 $query .= " AND u.email = c.email_address";
             }
@@ -274,17 +295,21 @@ class ProfessionalUserRepository extends ServiceEntityRepository
 
         }
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
-    public function getBySchool(School $school) {
+    public function getBySchool(School $school)
+    {
         return $this->createQueryBuilder('p')
                     ->innerJoin('p.schools', 'schools')
-                    ->where('schools.id = :id')
+                    ->andWhere('schools.id = :id')
+                    ->andWhere('p.deleted = 0')
                     ->setParameter('id', $school->getId())
+                    ->orderBy('p.lastName', 'ASC')
                     ->getQuery()
                     ->getResult();
     }
@@ -297,7 +322,8 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      * @return mixed
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getByEmailAddress($emailAddress) {
+    public function getByEmailAddress($emailAddress)
+    {
         return $this->createQueryBuilder('p')
                     ->where('p.email = :email')
                     ->setParameter('email', $emailAddress)

@@ -144,18 +144,6 @@ class SchoolController extends AbstractController
             }
         }
 
-        if ($user->isProfessional()) {
-
-            $useRegionFiltering = true;
-
-            /** @var ProfessionalUser $user */
-
-            foreach ($user->getRegions() as $region) {
-
-                $regions[] = $region->getId();
-            }
-        }
-
         if ($user->isStudent() || $user->isEducator()) {
 
             $useRegionFiltering = true;

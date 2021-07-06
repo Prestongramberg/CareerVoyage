@@ -6,8 +6,9 @@ namespace App\Security;
 use App\Entity\Site;
 use App\Entity\User;
 use App\Repository\SiteRepository;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
-
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -36,16 +37,21 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $siteRepository;
     private $session;
     private $env;
+    private $uploadsPath;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository, SessionInterface $session, $env)
-    {
-        $this->entityManager = $entityManager;
-        $this->router = $router;
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router,
+                                CsrfTokenManagerInterface $csrfTokenManager,
+                                UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository,
+                                SessionInterface $session, $env, $uploadsPath
+    ) {
+        $this->entityManager    = $entityManager;
+        $this->router           = $router;
         $this->csrfTokenManager = $csrfTokenManager;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->siteRepository = $siteRepository;
-        $this->session = $session;
-        $this->env = $env;
+        $this->passwordEncoder  = $passwordEncoder;
+        $this->siteRepository   = $siteRepository;
+        $this->session          = $session;
+        $this->env              = $env;
+        $this->uploadsPath      = $uploadsPath;
     }
 
     public function supports(Request $request)
@@ -95,11 +101,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function checkCredentials($credentials, UserInterface $user)
     {
         // Check to make sure the user account hasn't been deleted
-        if($user->getDeleted()) {
+        if ($user->getDeleted()) {
             throw new CustomUserMessageAuthenticationException('Account has been deleted.');
         }
 
-        if(!$user->getActivated()) {
+        if (!$user->getActivated()) {
             throw new CustomUserMessageAuthenticationException('Account needs to be activated first.');
         }
 
@@ -116,27 +122,42 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         /** @var User $user */
         $user = $token->getUser();
         $site = null;
-        if($user->isProfessional() || $user->isAdmin()) {
+        if ($user->isProfessional() || $user->isAdmin()) {
             /** @var Site $site */
             $site = $this->siteRepository->findOneBy([
-                'parentSite' => 1
+                'parentSite' => 1,
             ]);
-        } else if($user->isSiteAdmin()
-            || $user->isStateCoordinator()
-            || $user->isRegionalCoordinator()
-            || $user->isSchoolAdministrator()
-            || $user->isStudent() ||
-            $user->isEducator()){
-            /** @var Site $site */
-            $site = $user->getSite();
+        } else {
+            if ($user->isSiteAdmin()
+                || $user->isStateCoordinator()
+                || $user->isRegionalCoordinator()
+                || $user->isSchoolAdministrator()
+                || $user->isStudent() ||
+                $user->isEducator()) {
+                /** @var Site $site */
+                $site = $user->getSite();
+            }
         }
 
-        if(!$site) {
+        if (!$site) {
             throw new CustomUserMessageAuthenticationException('Issue locating a site connected to user.');
         }
-        
+
         $user->incrementLoginCount();
         $user->setLastLoginDate(new \DateTime());
+
+        if (!$user->getPhoto() && $user->getFirstName() && $user->getLastName()) {
+
+            $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $user->getFirstName(), $user->getLastName());
+            $fileContents = file_get_contents($avatarUrl);
+
+            $filesystem  = new Filesystem();
+            $destination = $this->uploadsPath . '/' . UploaderHelper::PROFILE_PHOTO;
+            $fileName = uniqid('', true) . '.png';
+            $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
+            $user->setPhoto($fileName);
+        }
+
 
         $user->initializeTemporarySecurityToken();
         $this->entityManager->persist($user);
@@ -146,7 +167,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         // logged in as another user then redirect to our router middleware
         //$sessionData = $this->session->has('previouslyLoggedInAs')
 
-        if($this->env !== 'dev' && $site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl() && !$this->session->get('previouslyLoggedInAs', null)) {
+        if ($this->env !== 'dev' && $site->getFullyQualifiedBaseUrl() !== $this->getFullyQualifiedBaseUrl() && !$this->session->get('previouslyLoggedInAs', null)) {
             return new RedirectResponse($site->getFullyQualifiedBaseUrl() . sprintf('/security-router/%s', $user->getTemporarySecurityToken()));
         } else {
             // once the user is on the correct site URL let's go ahead and direct them to the appropriate place
@@ -154,6 +175,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
                 return new RedirectResponse($targetPath);
             } else {
                 $targetPath = $this->router->generate('dashboard');
+
                 return new RedirectResponse($targetPath);
             }
         }
@@ -172,13 +194,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     protected function getFullyQualifiedBaseUrl()
     {
         $routerContext = $this->router->getContext();
-        $port = $routerContext->getHttpPort();
+        $port          = $routerContext->getHttpPort();
 
         return sprintf(
             '%s://%s%s%s',
             $routerContext->getScheme(),
             $routerContext->getHost(),
-            ($port !== 80 ? ':'.$port : ''),
+            ($port !== 80 ? ':' . $port : ''),
             $routerContext->getBaseUrl()
         );
     }

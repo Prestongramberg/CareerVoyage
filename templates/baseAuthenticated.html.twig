@@ -6,6 +6,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Welcome!{% endblock %}</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
@@ -37,6 +38,20 @@
         })(window,document,'script','dataLayer','GTM-TTHND3F');</script>
         <!-- End Google Tag Manager -->
     {% endif %}
+
+
+
+
+    <style type="text/css">
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 500px;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+    </style>
+
 
 </head>
 <body class="authenticated {% block bodyClass %}{% endblock %} {% if get_env('APP_ENV') == "dev" %}development{% endif %}">
@@ -134,5 +149,11 @@
         {{ encore_entry_script_tags('app') }}
 
     {% endblock %}
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSkK3-PU4VSTu6VfmAxAf76o53zY4Fe9A&libraries=places&v=weekly"
+            async
+    ></script>
 </body>
 </html>
