@@ -166,6 +166,7 @@ class ProfileController extends AbstractController
 
         $loggedInUser = $this->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
+        $tab = $request->request->get('tab', '');
 
         $editVideoId       = $request->query->get('videoEdit', null);
         $professionalVideo = null;
@@ -199,8 +200,10 @@ class ProfileController extends AbstractController
             $form            = $this->createForm(SiteAdminProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isProfessional())) {
+
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $options['user']            = $user;
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
             $form                       = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isSchoolAdministrator())) {
@@ -281,7 +284,9 @@ class ProfileController extends AbstractController
 
                 return $this->redirectToRoute('lesson_index');
             } else {
-                return $this->redirectToRoute('profile_edit', ['id' => $user->getId()]);
+
+                $url = $this->generateUrl('profile_edit', ['id' => $user->getId()]) . $tab;
+                return $this->redirect($url);
             }
         }
 
@@ -289,8 +294,12 @@ class ProfileController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
+                    'formMarkup' => $this->renderView('profile/edit.html.twig', [
                         'form' => $form->createView(),
+                        'user' => $user,
+                        'loggedInUser' => $loggedInUser,
+                        'professionalVideo' => $professionalVideo,
+                        'countyJson' => $countyJson,
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );

@@ -9,12 +9,14 @@ class RegionSelect {
     /**
      * @param $wrapper
      * @param globalEventDispatcher
+     * @param initMarkers
      */
-    constructor($wrapper, globalEventDispatcher) {
+    constructor($wrapper, globalEventDispatcher, initMarkers) {
 
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.route = this.$wrapper.attr('data-route');
+        this.initMarkers = initMarkers;
 
         this.unbindEvents();
         this.bindEvents();
@@ -45,6 +47,7 @@ class RegionSelect {
 
     handleRegionChange(e) {
 
+        debugger;
         if(e.cancelable) {
             e.preventDefault();
         }
@@ -54,8 +57,6 @@ class RegionSelect {
         formData.delete('professional_edit_profile_form[_token]');
         formData.append('skip_validation', true);
         formData.append('changeableField', true);
-
-        // todo remove address search and radius search here
 
         this._changeRegion(formData)
             .then((data) => {
@@ -71,10 +72,12 @@ class RegionSelect {
             );
 
             $('#professional_edit_profile_form_schools').select2({
-                placeholder: "Select school(s)",
+                placeholder: "Volunteer schools",
                 allowClear: true,
                 width: '100%'
             });
+
+            this.initMarkers();
 
         });
 

@@ -9,12 +9,14 @@ class RadiusSelect {
     /**
      * @param $wrapper
      * @param globalEventDispatcher
+     * @param initMarkers
      */
-    constructor($wrapper, globalEventDispatcher) {
+    constructor($wrapper, globalEventDispatcher, initMarkers) {
 
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
         this.route = this.$wrapper.attr('data-route');
+        this.initMarkers = initMarkers;
 
         this.unbindEvents();
         this.bindEvents();
@@ -65,10 +67,12 @@ class RadiusSelect {
             );
 
             $('#professional_edit_profile_form_schools').select2({
-                placeholder: "Select school(s)",
+                placeholder: "Volunteer schools",
                 allowClear: true,
                 width: '100%'
             });
+
+            this.initMarkers();
 
         });
 

@@ -83,8 +83,8 @@ class ProfessionalEditProfileFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var User $loggedInUser */
-        $loggedInUser = $options['user'];
+        /** @var ProfessionalUser $user */
+        $user = $options['user'];
 
         $builder
             ->add('firstName', TextType::class, [
@@ -162,8 +162,15 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('notificationPreferenceMask', HiddenType::class)
             ->add('addressSearch', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'Filter by location',
+                    'placeholder' => 'Filter by your location',
                 ],
+            ])
+            ->add('personalAddressSearch', TextType::class, [
+                'attr' => [
+                    'autocomplete' => true,
+                    'placeholder' => 'Filter by your work location',
+                ],
+                'data' => $user->getFormattedAddress()
             ])
             ->add('radiusSearch', ChoiceType::class, [
                 'choices' => [
@@ -188,7 +195,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             'multiple' => true,
             'expanded' => false,
             'choice_attr' => function ($choice, $key, $value) {
-                return ['class' => 'uk-checkbox'];
+                return ['class' => 'uk-checkbox', 'data-latitude' => $choice->getLatitude(), 'data-longitude' => $choice->getLongitude(), 'data-school' => $choice->getName()];
             },
         ]);
 
@@ -201,7 +208,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             }
         ));
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($loggedInUser) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($user) {
 
             /** @var ProfessionalUser $data */
             $data = $event->getData();
@@ -212,7 +219,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             $notificationPreferences = [];
             foreach (NotificationPreferencesManager::$choices as $label => $bit) {
 
-                if ($this->notificationPreferenceManager->isNotificationDisabled($bit, $loggedInUser)) {
+                if ($this->notificationPreferenceManager->isNotificationDisabled($bit, $user)) {
                     $notificationPreferences[] = $bit;
                 }
             }
@@ -351,7 +358,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
+                    return ['class' => 'uk-checkbox', 'data-latitude' => $choice->getLatitude(), 'data-longitude' => $choice->getLongitude(), 'data-school' => $choice->getName()];
                 },
             ]);
 
@@ -442,7 +449,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox'];
+                    return ['class' => 'uk-checkbox', 'data-latitude' => $choice->getLatitude(), 'data-longitude' => $choice->getLongitude(), 'data-school' => $choice->getName()];
                 },
             ]);
 
@@ -490,32 +497,12 @@ class ProfessionalEditProfileFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ProfessionalUser::class,
-            'validation_groups' => function (FormInterface $form) {
-
-                $skipValidation = $form->getConfig()->getOption('skip_validation');
-
-                if ($skipValidation) {
-                    return [];
-                }
-
-                /** @var ProfessionalUser $data */
-                $data = $form->getData();
-                if (!$data->getPrimaryIndustry()) {
-                    return ['EDIT', 'PROFESSIONAL_USER'];
-                }
-
-                if ($data->getPrimaryIndustry()) {
-                    return ['EDIT', 'SECONDARY_INDUSTRY', 'PROFESSIONAL_USER'];
-                }
-
-                return ['EDIT', 'PROFESSIONAL_USER'];
-            },
+            'data_class' => ProfessionalUser::class
         ]);
 
         $resolver->setRequired([
             'skip_validation',
-            'user',
+            'user'
         ]);
     }
 
@@ -532,8 +519,18 @@ class ProfessionalEditProfileFormType extends AbstractType
         /** @var ProfessionalUser $professionalUser */
         $professionalUser = $form->getData();
 
+        $schools = $options['data']->getSchools();
+
+   /*     $schoolsForm = $form->get('schools');
+        $d = $schoolsForm->getViewData();
+        $schools = $schoolsForm->getData();
+        $f = $schoolsForm->getNormData();
+        $config = $schoolsForm->getConfig();
+        $options = $config->getOptions();
+        $choices = $config->getOption('choices');*/
+
         $schoolsJson = [];
-        foreach ($this->schools as $school) {
+        foreach ($schools as $school) {
 
             if (!$school->getLongitude() || !$school->getLatitude()) {
                 continue;

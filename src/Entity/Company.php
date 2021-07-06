@@ -297,7 +297,7 @@ class Company
     private $regions;
 
     /**
-     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="company_id", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="company", orphanRemoval=true)
      */
     private $companyViews;
 

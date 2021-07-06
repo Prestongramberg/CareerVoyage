@@ -212,6 +212,7 @@ class ProfessionalController extends AbstractController
                     'id'      => $video->getId(),
                     'name'    => $name,
                     'videoId' => $videoId,
+                    'tags' => $video->getTags()
 
                 ], Response::HTTP_OK
             );
@@ -260,6 +261,7 @@ class ProfessionalController extends AbstractController
                     'id'      => $video->getId(),
                     'name'    => $name,
                     'videoId' => $videoId,
+                    'tags' => $video->getTags()
 
                 ], Response::HTTP_OK
             );

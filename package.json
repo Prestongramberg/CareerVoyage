@@ -36,6 +36,7 @@
         "daterangepicker": "^3.1.0",
         "file-saver": "^2.0.2",
         "google-maps-react": "^2.0.2",
+        "inputmask": "^5.0.6",
         "interactjs": "^1.10.11",
         "jQuery-QueryBuilder": "^2.6.0",
         "jquery-ui-bundle": "^1.12.1-migrate",

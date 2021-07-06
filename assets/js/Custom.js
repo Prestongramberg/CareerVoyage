@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
     var today = moment().format('MM/DD/YYYY');
     var tomorrow = moment().add(1, 'days').format('MM/DD/YYYY');
 
-    var youtubeAPIKey = 'AIzaSyDRsAB-EVUDoPlO2Aq4QdB5fGlFrICJqbw';
+    var youtubeAPIKey = 'AIzaSyCSkK3-PU4VSTu6VfmAxAf76o53zY4Fe9A';
 
     /**
      * Smooth Page Transitions
@@ -463,6 +463,70 @@ jQuery(document).ready(function ($) {
 
         $videoField.removeClass('uk-form-success uk-form-error');
 
+        const videoTemplate = ({id, videoId, name, tags}, videoRemoveUrl, videoEditUrl, professionalId) => `
+            <div id="company-video-${id}" class="company-video">
+                <a class="uk-inline" href="https://www.youtube.com/watch?v=${videoId}">
+                    <img src="http://i.ytimg.com/vi/${videoId}/hqdefault.jpg" alt="">
+                    <div class="company-video__overlay">
+                        <div class="company-video__overlay-title">
+                            ${name}
+                        </div>
+                    </div>
+                </a>
+                
+              <a style="position: absolute; top: -6px; left: 10px; z-index: 5000; border: none; color: #999;"
+               class="uk-button uk-button-default"
+               href="#modal-edit-professional-video-${id}"
+               uk-icon="icon: file-edit" uk-toggle></a>
+               
+                    <div class="modal-edit-professional-video" id="modal-edit-professional-video-${id}" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body">
+                            <h3>Edit Video</h3>
+
+                            <input type="hidden" name="professionalId" value="${professionalId}">
+
+                            <div class="uk-margin">
+                                <label for="edit_company_edit_video_name" class="required">Name*</label>
+                                <input type="text" id="edit_company_edit_video_name" name="name"
+                                       required="required" class="uk-input"
+                                       value="${name}"/>
+                            </div>
+
+                            <div class="uk-margin">
+                                <label for="edit_company_edit_video_id" class="required">Youtube Video
+                                    ID*</label>
+                                <div class="uk-position-relative">
+                                    <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                    <input class="uk-input" id="edit_company_edit_video_id" name="videoId"
+                                           required="required" type="text"
+                                           value="${videoId}">
+                                </div>
+                                <small>Please make sure your video is open to public.</small>
+
+                            </div>
+
+                            <div class="uk-margin">
+                                <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                                <div class="uk-position-relative">
+                            <textarea id="edit_company_edit_video_tags" name="tags"
+                                      class="uk-textarea">${tags}</textarea>
+                                </div>
+                            </div>
+
+                            <p class="uk-text-right">
+                                <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                    Cancel
+                                </button>
+                                <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="${videoEditUrl}"/>
+                            </p>
+                        </div>
+                </div>
+                                      
+                <button type="button" data-remove="${videoRemoveUrl}" uk-close></button>
+           </div>
+    
+        `;
+
         // Validate Youtube Video ID
         $.ajax(`https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}`).always(function (response) {
             if (response && response.etag) {
@@ -484,11 +548,16 @@ jQuery(document).ready(function ($) {
                             if (response.success) {
                                 $fields.val('').removeClass('uk-form-success uk-form-danger');
                                 UIkit.modal('#modal-add-professional-video').hide();
-                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+                                window.Pintex.notification("Video uploaded.", "success");
 
-                                setTimeout(function () {
-                                    window.location = Routing.generate('profile_edit', {id: professionalId});
-                                }, 1000);
+
+                                let videoRemoveUrl = Routing.generate('professional_video_remove', {id: response.id});
+                                let videoEditUrl = Routing.generate('professional_video_edit', {id: response.id});
+
+                                const html = videoTemplate(response, videoRemoveUrl, videoEditUrl, professionalId);
+                                const $video = $($.parseHTML(html));
+                                $('#companyVideos').append($video);
+
                             } else {
                                 window.Pintex.notification("Unable to upload video. Please try again.", "danger");
                             }
@@ -508,7 +577,7 @@ jQuery(document).ready(function ($) {
     /**
      * Professional Edit Video Form
      */
-    $(document).on('click', '#modal-edit-professional-video [data-action]', function (e) {
+    $(document).on('click', '.modal-edit-professional-video [data-action]', function (e) {
 
         e.preventDefault();
 
@@ -531,6 +600,70 @@ jQuery(document).ready(function ($) {
 
         $videoField.removeClass('uk-form-success uk-form-error');
 
+        const videoTemplate = ({id, videoId, name, tags}, videoRemoveUrl, videoEditUrl, professionalId) => `
+            <div id="company-video-${id}" class="company-video">
+                <a class="uk-inline" href="https://www.youtube.com/watch?v=${videoId}">
+                    <img src="http://i.ytimg.com/vi/${videoId}/hqdefault.jpg" alt="">
+                    <div class="company-video__overlay">
+                        <div class="company-video__overlay-title">
+                            ${name}
+                        </div>
+                    </div>
+                </a>
+                
+              <a style="position: absolute; top: -6px; left: 10px; z-index: 5000; border: none; color: #999;"
+               class="uk-button uk-button-default"
+               href="#modal-edit-professional-video-${id}"
+               uk-icon="icon: file-edit" uk-toggle></a>
+               
+                    <div class="modal-edit-professional-video" id="modal-edit-professional-video-${id}" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body">
+                            <h3>Edit Video</h3>
+
+                            <input type="hidden" name="professionalId" value="${professionalId}">
+
+                            <div class="uk-margin">
+                                <label for="edit_company_edit_video_name" class="required">Name*</label>
+                                <input type="text" id="edit_company_edit_video_name" name="name"
+                                       required="required" class="uk-input"
+                                       value="${name}"/>
+                            </div>
+
+                            <div class="uk-margin">
+                                <label for="edit_company_edit_video_id" class="required">Youtube Video
+                                    ID*</label>
+                                <div class="uk-position-relative">
+                                    <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                    <input class="uk-input" id="edit_company_edit_video_id" name="videoId"
+                                           required="required" type="text"
+                                           value="${videoId}">
+                                </div>
+                                <small>Please make sure your video is open to public.</small>
+
+                            </div>
+
+                            <div class="uk-margin">
+                                <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                                <div class="uk-position-relative">
+                            <textarea id="edit_company_edit_video_tags" name="tags"
+                                      class="uk-textarea">${tags}</textarea>
+                                </div>
+                            </div>
+
+                            <p class="uk-text-right">
+                                <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                    Cancel
+                                </button>
+                                <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="${videoEditUrl}"/>
+                            </p>
+                        </div>
+                </div>
+                                      
+                <button type="button" data-remove="${videoRemoveUrl}" uk-close></button>
+           </div>
+    
+        `;
+
         // Validate Youtube Video ID
         $.ajax(`https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}`).always(function (response) {
             if (response && response.etag) {
@@ -551,12 +684,17 @@ jQuery(document).ready(function ($) {
 
                             if (response.success) {
                                 $fields.val('').removeClass('uk-form-success uk-form-danger');
-                                UIkit.modal('#modal-edit-professional-video').hide();
-                                window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
+                                UIkit.modal(`#modal-edit-professional-video-${response.id}`).hide();
+                                window.Pintex.notification("Video uploaded.", "success");
 
-                                setTimeout(function () {
-                                    window.location = Routing.generate('profile_edit', {id: professionalId});
-                                }, 1000);
+                                let videoRemoveUrl = Routing.generate('professional_video_remove', {id: response.id});
+                                let videoEditUrl = Routing.generate('professional_video_edit', {id: response.id});
+
+                                const html = videoTemplate(response, videoRemoveUrl, videoEditUrl, professionalId);
+                                const $video = $($.parseHTML(html));
+
+                                $(`#company-video-${response.id}`).replaceWith($video);
+
                             } else {
                                 window.Pintex.notification("Unable to upload video. Please try again.", "danger");
                             }
@@ -847,12 +985,10 @@ jQuery(document).ready(function ($) {
     });
 
 
-
-
     /**
      * Educator Video Form
      */
-    $(document).on('click', '#modal-add-educator-video [data-action]', function(e) {
+    $(document).on('click', '#modal-add-educator-video [data-action]', function (e) {
 
         e.preventDefault();
 
@@ -868,18 +1004,18 @@ jQuery(document).ready(function ($) {
 
         const $tagsField = $modalBody.find('[name="tags"]');
         const tags = $tagsField.val();
-        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+        const videoId = youtube_parser($videoField.val()) || $videoField.val();
 
         // Smart Set
-        $videoField.val( videoId );
+        $videoField.val(videoId);
 
         $videoField.removeClass('uk-form-success uk-form-error');
 
         // Validate Youtube Video ID
-        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
-            if( response && response.etag ) {
+        $.ajax(`https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}`).always(function (response) {
+            if (response && response.etag) {
                 // Turn the youtube Video Field Green/Red Depending
-                if( response.items.length ) {
+                if (response.items.length) {
                     $videoField.addClass('uk-form-success');
                     $.ajax({
                         url: url,
@@ -889,16 +1025,16 @@ jQuery(document).ready(function ($) {
                             tags: tags
                         },
                         method: "POST",
-                        complete: function(serverResponse) {
+                        complete: function (serverResponse) {
 
                             const response = serverResponse.responseJSON;
 
-                            if( response.success ) {
+                            if (response.success) {
                                 $fields.val('').removeClass('uk-form-success uk-form-danger');
-                                UIkit.modal( '#modal-add-educator-video' ).hide();
+                                UIkit.modal('#modal-add-educator-video').hide();
                                 window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
 
-                                setTimeout(function() {
+                                setTimeout(function () {
                                     window.location = Routing.generate('profile_edit', {id: educatorId});
                                 }, 1000);
                             } else {
@@ -920,7 +1056,7 @@ jQuery(document).ready(function ($) {
     /**
      * Educator Edit Video Form
      */
-    $(document).on('click', '#modal-edit-educator-video [data-action]', function(e) {
+    $(document).on('click', '#modal-edit-educator-video [data-action]', function (e) {
 
         e.preventDefault();
 
@@ -936,18 +1072,18 @@ jQuery(document).ready(function ($) {
 
         const $tagsField = $modalBody.find('[name="tags"]');
         const tags = $tagsField.val();
-        const videoId = youtube_parser( $videoField.val() ) || $videoField.val();
+        const videoId = youtube_parser($videoField.val()) || $videoField.val();
 
         // Smart Set
-        $videoField.val( videoId );
+        $videoField.val(videoId);
 
         $videoField.removeClass('uk-form-success uk-form-error');
 
         // Validate Youtube Video ID
-        $.ajax( `https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}` ).always(function( response ) {
-            if( response && response.etag ) {
+        $.ajax(`https://www.googleapis.com/youtube/v3/videos?part=id&id=${videoId}&key=${youtubeAPIKey}`).always(function (response) {
+            if (response && response.etag) {
                 // Turn the youtube Video Field Green/Red Depending
-                if( response.items.length ) {
+                if (response.items.length) {
                     $videoField.addClass('uk-form-success');
                     $.ajax({
                         url: url,
@@ -957,16 +1093,16 @@ jQuery(document).ready(function ($) {
                             tags: tags
                         },
                         method: "POST",
-                        complete: function(serverResponse) {
+                        complete: function (serverResponse) {
 
                             const response = serverResponse.responseJSON;
 
-                            if( response.success ) {
+                            if (response.success) {
                                 $fields.val('').removeClass('uk-form-success uk-form-danger');
-                                UIkit.modal( '#modal-edit-educator-video' ).hide();
+                                UIkit.modal('#modal-edit-educator-video').hide();
                                 window.Pintex.notification("Video uploaded. Reloading Video Results List...", "success");
 
-                                setTimeout(function() {
+                                setTimeout(function () {
                                     window.location = Routing.generate('profile_edit', {id: educatorId});
                                 }, 1000);
                             } else {
@@ -984,15 +1120,6 @@ jQuery(document).ready(function ($) {
         });
 
     });
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -1225,6 +1352,7 @@ jQuery(document).ready(function ($) {
      */
 
     if (window.location.hash) {
+        debugger;
         document.getElementById(window.location.hash.substr(1)).click();
         window.scrollTo(0, 0);
     }
@@ -1302,7 +1430,7 @@ jQuery(document).ready(function ($) {
     });
 
 
-    $('.load-help-video').on('click', function(){
+    $('.load-help-video').on('click', function () {
         var id = $(this).data('id');
         var video = $(this).data('video');
 
