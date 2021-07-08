@@ -230,6 +230,16 @@
 
                     <!-- my calendar -->
                     <div class="user_preferences_calendar">
+
+                        <div class="uk-grid" style="margin-bottom: 50px">
+                            <div class="uk-width-auto">
+                                <h3>My Upcoming Experiences</h3>
+                            </div>
+                            <div class="uk-width-expand">
+                                <a style="display: block; float: right" href="{{ path('experience_index') }}">Browse or Create Experiences <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span></a>
+                            </div>
+                        </div>
+
                         <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
                     </div>
 
