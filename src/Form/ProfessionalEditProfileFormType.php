@@ -113,7 +113,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'expanded' => false,
                 'multiple' => true,
                 'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox', 'tooltip' => $choice->getDescription()];
+                    return ['class' => 'uk-checkbox', 'title' => $choice->getDescription()];
                 },
             ])
             ->add('regions', EntityType::class, [

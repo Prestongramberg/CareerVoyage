@@ -80,7 +80,7 @@
                         <div class="uk-navbar-dropdown">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>
-                                <li><a href="{{ path('requests') }}">My Requests</a></li>
+                                <li><a href="{{ path('requests') }}">My Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
                                 {% if user.professional and user.ownedCompany %}
                                 <li><a href="{{ path('report_experience_satisfaction_dashboard') }}">My Reports</a></li>
                                 {% endif %}
