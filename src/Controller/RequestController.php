@@ -56,6 +56,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -280,7 +281,8 @@ class RequestController extends AbstractController
      * @Route("/requests/{id}/approve", name="approve_request", methods={"POST"}, options = { "expose" = true })
      * @param \App\Entity\Request $request
      * @param Request $httpRequest
-     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @return RedirectResponse|Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -299,37 +301,34 @@ class RequestController extends AbstractController
 
         $this->handleRequestApproval($request, $httpRequest);
 
-
-        
-
-        // return $this->redirectToRoute('requests');
-        // $flashbag = $this->get('session')->getFlashBag();
-        $flashbag = $session->getFlashBag()->all();
-        $flash = [];
-        foreach($flashbag as $type => $messages){
-            foreach($messages as $message){
-                $flash = ["type" => $type, "message" => $message];
+        if($httpRequest->isXmlHttpRequest()) {
+            $flashbag = $session->getFlashBag()->all();
+            $flash = [];
+            foreach($flashbag as $type => $messages){
+                foreach($messages as $message){
+                    $flash = ["type" => $type, "message" => $message];
+                }
             }
-        }
-        
-        return new JsonResponse( ["status" => $flash ]);
 
-        // if(sizeof($flashbag->get('success')) > 0){
-        //     return new JsonResponse( ["status" => $flashbag->peek('success') ]);
-        // } else {
-        //     return new JsonResponse( ["status" => $flashbag->peek('error') ]);
-        // }
+            return new JsonResponse( ["status" => $flash ]);
+        }
+
+        $referer = $httpRequest->headers->get('referer');
+
+        return new RedirectResponse($referer);
     }
 
     /**
      * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
      * @param \App\Entity\Request $request
+     * @param Request             $httpRequest
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function denyRequest(\App\Entity\Request $request) {
+    public function denyRequest(\App\Entity\Request $request, Request $httpRequest) {
 
         $session = new Session();
 
@@ -351,18 +350,20 @@ class RequestController extends AbstractController
         $this->entityManager->flush();
         $this->addFlash('success', 'Request denied.');
 
-        $flashbag = $session->getFlashBag()->all();
-        $flash = [];
-        foreach($flashbag as $type => $messages){
-            foreach($messages as $message){
-                array_push($flash, ["type" => $type, "message" => $message]);
+        if($httpRequest->isXmlHttpRequest()) {
+            $flashbag = $session->getFlashBag()->all();
+            $flash = [];
+            foreach($flashbag as $type => $messages) {
+                foreach($messages as $message) {
+                    $flash = ["type" => $type, "message" => $message];
+                }
             }
+
+            return new JsonResponse( ["status" => $flash ]);
         }
-        
-        return new JsonResponse( ["status" => json_encode($flash) ]);
 
-        // return new JsonResponse( ["status" => "success", "flash" => "Request denied."]);
-
+        $referer = $httpRequest->headers->get('referer');
+        return new RedirectResponse($referer);
     }
 
     /**

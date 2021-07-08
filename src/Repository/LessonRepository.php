@@ -56,9 +56,11 @@ class LessonRepository extends ServiceEntityRepository
 
     /**
      * @param SecondaryIndustry $secondaryIndustries []
-     * @param int $limit
+     * @param int               $limit
+     *
      * @return mixed
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findBySecondaryIndustries($secondaryIndustries, $limit = 6) {
 
@@ -79,8 +81,10 @@ class LessonRepository extends ServiceEntityRepository
 
     /**
      * @param int $days
+     *
      * @return mixed
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findAllLessonsFromPastDays($days = 7) {
         $query = sprintf("select l.id, l.title, l.short_description from lesson l WHERE l.created_at >= DATE(NOW()) - INTERVAL %d DAY AND deleted=0 GROUP BY l.id order by l.created_at DESC", $days);

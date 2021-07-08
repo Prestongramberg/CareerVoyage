@@ -1,0 +1,43 @@
+<div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
+
+    <ul class="uk-slideshow-items" style="{{ lessons|length > 4 ? 'height: 360px' : '' }}">
+        {% for lessonBatch in lessons|sort((a, b) => a.title <=> b.title)|batch(4) %}
+            <li class="uk-overflow-auto" style="position: absolute">
+
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
+                    {% for lesson in lessonBatch %}
+                        <tr>
+                            <td class="uk-table-shrink">
+
+                                <a href="{{ path('lesson_view', {id: lesson.id}) }}">{{ lesson.title }}</a>
+                                <br>
+                                {% if lesson.primaryCourse is not null %}
+                                    <a class="uk-text-meta" href="{{ path('lesson_view', {id: lesson.id}) }}">{{ lesson.primaryCourse.title }}</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a href="{{ path('lesson_index') }}">Browse or Create Topics</a>
+                            <br>
+                            <small class="uk-text-meta"><a href="{{ path('lesson_index') }}">See what else is available on create your own</a></small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        {% else %}
+            <li><a href="{{ path('lesson_index') }}">No New Lessons at this time.</a> <br>
+                <a class="uk-text-meta" href="{{ path('lesson_index') }}">See what else is available or create your own</a></li>
+        {% endfor %}
+    </ul>
+
+    <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+       uk-slideshow-item="previous"></a>
+    <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+       uk-slideshow-item="next"></a>
+    <br>
+    <br>
+</div>
