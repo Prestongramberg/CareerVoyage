@@ -36,7 +36,9 @@
                 </table>
             </li>
         {% else %}
-            <li>No New Experiences at this time.</li>
+            <li><a href="{{ path('experience_index') }}">No New Experiences at this time.</a> <br>
+                <a class="uk-text-meta" href="{{ path('experience_index') }}">See what else is available on FutureForward</a>
+            </li>
         {% endfor %}
     </ul>
 
