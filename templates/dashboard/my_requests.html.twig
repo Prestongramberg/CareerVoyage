@@ -1,0 +1,13 @@
+{% if requestsThatNeedMyApproval|length > 0 %}
+    <div class="requests-landing__my-approvals">
+        <ul class="uk-width-xlarge" uk-accordion>
+            {% for request in requestsThatNeedMyApproval %}
+                {{ render_request( request, user, "my-requests_approval", "my-requests-approval" )|raw }}
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% else %}
+        You have not received any requests at this time. Instead, you can reach out to <a href="{{ path('educator_results_page') }}">educators</a>
+        in your area of expertise and see what help they might need!
+{% endif %}

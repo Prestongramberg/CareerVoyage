@@ -23,23 +23,37 @@
 
     {% if app.request.getSchemeAndHttpHost() == 'https://dev.pintexsolutions.com' %}
         <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-PPS32QQ');</script>
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-PPS32QQ');</script>
         <!-- End Google Tag Manager -->
-    {% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
+        {% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
         <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-TTHND3F');</script>
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-TTHND3F');</script>
         <!-- End Google Tag Manager -->
     {% endif %}
-
-
 
 
     <style type="text/css">
@@ -55,105 +69,115 @@
 
 </head>
 <body class="authenticated {% block bodyClass %}{% endblock %} {% if get_env('APP_ENV') == "dev" %}development{% endif %}">
-    {% if app.request.getSchemeAndHttpHost() == 'https://dev.pintexsolutions.com' %}
-        <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPS32QQ"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <!-- End Google Tag Manager (noscript) -->
-    {% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
-        <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TTHND3F"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <!-- End Google Tag Manager (noscript) -->    
+{% if app.request.getSchemeAndHttpHost() == 'https://dev.pintexsolutions.com' %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPS32QQ"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+{% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TTHND3F"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+{% endif %}
+
+<div class="wrapper">
+
+    {% if user is defined and user.professional %}
+        {% include 'nav/professional/primary-top.html.twig' %}
+    {% else %}
+        {% include 'nav/primary.html.twig' %}
     {% endif %}
 
-    <div class="wrapper">
-        {% include 'nav/primary.html.twig' %}
 
-        {% include 'partials/help-center-logged-in.html.twig' %}
+    {% include 'partials/help-center-logged-in.html.twig' %}
 
-        {% set successMessage = '' %}
-        {% for flashMessage in app.session.flashbag.get('success') %}
-            {% set successMessage = flashMessage %}
-        {% endfor %}
+    {% set successMessage = '' %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+        {% set successMessage = flashMessage %}
+    {% endfor %}
 
-        {% set errorMessage = '' %}
-        {% for flashMessage in app.session.flashbag.get('error') %}
-            {% set errorMessage = flashMessage %}
-        {% endfor %}
+    {% set errorMessage = '' %}
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        {% set errorMessage = flashMessage %}
+    {% endfor %}
 
-        <div class="main-content">
-            {% block flashMessage %}
-                <div class="uk-container uk-margin-bottom">
-                    {% include 'flash/messages.html.twig' %}
-                </div>
-            {% endblock %}
-
+    <div class="main-content">
+        {% block flashMessage %}
             <div class="uk-container uk-margin-bottom">
-                {% include 'flash/notifications.html.twig' %}
+                {% include 'flash/messages.html.twig' %}
             </div>
+        {% endblock %}
 
-            {% block body %}{% endblock %}
-        </div>
-        <div id="global-modal" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <!-- dynamically populated by JS -->
-            </div>
+        <div class="uk-container uk-margin-bottom">
+            {% include 'flash/notifications.html.twig' %}
         </div>
 
-        {% set liveChatRoles = ["ROLE_PROFESSIONAL_USER", "ROLE_EDUCATOR_USER", "ROLE_STUDENT_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"] %}
-
-        {% if liveChatRoles | filter((role) => role in user.roles) | length > 0 %}
-            <div id="react-chat" data-unread-messages="{{ unread_messages( user.id ) }}" data-user-id="{{ user.id }}"></div>
-        {% endif %}
-
+        {% block body %}{% endblock %}
+    </div>
+    <div id="global-modal" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <!-- dynamically populated by JS -->
+        </div>
     </div>
 
-    {% block javascripts %}
+    {% set liveChatRoles = ["ROLE_PROFESSIONAL_USER", "ROLE_EDUCATOR_USER", "ROLE_STUDENT_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"] %}
 
-        <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
-        <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+    {% if liveChatRoles | filter((role) => role in user.roles) | length > 0 %}
+        <div id="react-chat" data-unread-messages="{{ unread_messages( user.id ) }}" data-user-id="{{ user.id }}"></div>
+    {% endif %}
 
-        <script>
-            /**
-             * Global constants
-             *
-             * TODO: ideally these values would be filled in from the server side
-             *
-             * @class SETTINGS
-             * @static
-             */
-            window.SETTINGS = {};
+</div>
 
-            /**
-             * Root path for all JavaScript files
-             *
-             * @property SCRIPT_PATH
-             * @type String
-             * @final
-             */
-            SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
+{% block javascripts %}
 
-            /**
-             * LOGGED in User
-             */
-            SETTINGS.LOGGED_IN_USER_ID = {{ user.id }};
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
-            /**
-             * Photo of User
-             */
-            SETTINGS.LOGGED_IN_USER_PHOTO = "{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}";
-            SETTINGS.DEFAULT_USER_PHOTO = "{{ asset('build/images/avatar.png') }}"
-        </script>
+    <script>
+        /**
+         * Global constants
+         *
+         * TODO: ideally these values would be filled in from the server side
+         *
+         * @class SETTINGS
+         * @static
+         */
+        window.SETTINGS = {};
 
-        {{ encore_entry_script_tags('app') }}
+        /**
+         * Root path for all JavaScript files
+         *
+         * @property SCRIPT_PATH
+         * @type String
+         * @final
+         */
+        SETTINGS.BASE_URL = '{{ app.request.scheme ~'://' ~ app.request.httpHost }}/';
 
-    {% endblock %}
+        /**
+         * LOGGED in User
+         */
+        SETTINGS.LOGGED_IN_USER_ID = {{ user.id }};
 
-    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
-    <script
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSkK3-PU4VSTu6VfmAxAf76o53zY4Fe9A&libraries=places&v=weekly"
-            async
-    ></script>
+        /**
+         * Photo of User
+         */
+        SETTINGS.LOGGED_IN_USER_PHOTO = "{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}";
+        SETTINGS.DEFAULT_USER_PHOTO = "{{ asset('build/images/avatar.png') }}"
+    </script>
+
+    {{ encore_entry_script_tags('app') }}
+
+{% endblock %}
+
+<!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+<script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSkK3-PU4VSTu6VfmAxAf76o53zY4Fe9A&libraries=places&v=weekly"
+        async
+></script>
 </body>
 </html>

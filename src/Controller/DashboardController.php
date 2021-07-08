@@ -36,6 +36,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Class DashboardController
+ *
  * @package App\Controller
  * @Route("/dashboard")
  */
@@ -46,31 +47,34 @@ class DashboardController extends AbstractController
 
     /**
      * @Route("/", name="dashboard", methods={"GET"})
-     * @param Request $request
+     * @param Request          $request
      * @param SessionInterface $session
+     *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
-    public function indexAction(Request $request, SessionInterface $session) {
+    public function indexAction(Request $request, SessionInterface $session)
+    {
 
         /** @var User $user */
         $user = $loggedInUser = $this->getUser();
 
         $dashboards = [];
 
-        if($user->isAdmin()) {
+        if ($user->isAdmin()) {
 
             $dashboards = [
-              'sites' => $this->siteRepository->findAll(),
+                'sites' => $this->siteRepository->findAll(),
             ];
 
-        } elseif($user->isRegionalCoordinator()) {
+        } elseif ($user->isRegionalCoordinator()) {
             /** @var RegionalCoordinator $user */
-            $numberOfStudentsInRegion = count($this->studentUserRepository->getStudentsForRegion($user->getRegion()));
-            $numberOfEducatorsInRegion = count($this->educatorUserRepository->getEducatorsForRegion($user->getRegion()));
-            $numberOfSchoolAdminsInRegion = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
-            $schoolEventsByRegionGroupedBySchool = $this->schoolExperienceRepository->getNumberOfEventsGroupedBySchoolForRegion($user->getRegion());
-            $companyEventsGroupedByPrimaryIndustry = $this->companyExperienceRepository->getNumberOfEventsGroupedByPrimaryIndustry();
+            $numberOfStudentsInRegion                               = count($this->studentUserRepository->getStudentsForRegion($user->getRegion()));
+            $numberOfEducatorsInRegion                              = count($this->educatorUserRepository->getEducatorsForRegion($user->getRegion()));
+            $numberOfSchoolAdminsInRegion                           = count($this->schoolAdministratorRepository->getSchoolAdminsForRegion($user->getRegion()));
+            $schoolEventsByRegionGroupedBySchool                    = $this->schoolExperienceRepository->getNumberOfEventsGroupedBySchoolForRegion($user->getRegion());
+            $companyEventsGroupedByPrimaryIndustry                  = $this->companyExperienceRepository->getNumberOfEventsGroupedByPrimaryIndustry();
             $numberOfRegistrationsGroupedByPrimaryIndustryForRegion = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForRegion($user->getRegion());
 
             $dashboards = [
@@ -83,22 +87,22 @@ class DashboardController extends AbstractController
             ];
         } elseif ($user->isSchoolAdministrator()) {
             /** @var SchoolAdministrator $user */
-            $numberOfStudentsInSchoolNetwork = 0;
-            $numberOfEducatorsInSchoolNetwork = 0;
+            $numberOfStudentsInSchoolNetwork                             = 0;
+            $numberOfEducatorsInSchoolNetwork                            = 0;
             $dashboards['registrationsGroupedByPrimaryIndustryInSchool'] = [];
-            foreach($user->getSchools() as $school) {
-                $numberOfStudentsInSchoolNetwork += count($this->studentUserRepository->findBy(['school' => $school]));
-                $numberOfEducatorsInSchoolNetwork+= count($this->educatorUserRepository->findBy(['school' => $school]));
+            foreach ($user->getSchools() as $school) {
+                $numberOfStudentsInSchoolNetwork  += count($this->studentUserRepository->findBy(['school' => $school]));
+                $numberOfEducatorsInSchoolNetwork += count($this->educatorUserRepository->findBy(['school' => $school]));
 
                 $numberOfRegistrationsGroupedByPrimaryIndustryForSchool = $this->companyExperienceRepository->getNumberOfRegistrationsGroupedByPrimaryIndustryForSchool($school);
 
                 // Get experiences for each school
-                $schoolEvents = $this->experienceRepository->getEventsBySchool($school);
+                $schoolEvents   = $this->experienceRepository->getEventsBySchool($school);
                 $schoolFeedback = [];
 
-                foreach($schoolEvents as $event) {
+                foreach ($schoolEvents as $event) {
 
-                    $allFeedback = $this->feedbackRepository->findByEvent($event);
+                    $allFeedback                            = $this->feedbackRepository->findByEvent($event);
                     $schoolFeedback[$event['id']]['events'] = $allFeedback;
                 }
 
@@ -107,7 +111,7 @@ class DashboardController extends AbstractController
                     'school_id' => $school->getId(),
                     'registrationsGroupedByPrimaryIndustryInSchool' => $numberOfRegistrationsGroupedByPrimaryIndustryForSchool,
                     'schoolEvents' => $schoolEvents,
-                    'schoolFeedback' => $schoolFeedback
+                    'schoolFeedback' => $schoolFeedback,
                 ];
 
 
@@ -119,16 +123,16 @@ class DashboardController extends AbstractController
                 'numberOfStudentsInSchoolNetwork' => $numberOfStudentsInSchoolNetwork,
                 'numberOfEducatorsInSchoolNetwork' => $numberOfEducatorsInSchoolNetwork,
                 'companyEventsGroupedByPrimaryIndustry' => $companyEventsGroupedByPrimaryIndustry,
-                'events' => $dashboards['registrationsGroupedByPrimaryIndustryInSchool']
+                'events' => $dashboards['registrationsGroupedByPrimaryIndustryInSchool'],
             ];
 
         } elseif ($user->isStudent() || $user->isEducator()) {
             /** @var StudentUser|EducatorUser $user */
-            $lessonFavorites = $this->lessonFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-            $companyFavorites = $this->companyFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
+            $lessonFavorites                    = $this->lessonFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+            $companyFavorites                   = $this->companyFavoriteRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+            $upcomingEventsRegisteredForByUser  = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
             $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
-            $primaryIndustries = $this->industryRepository->findAll();
+            $primaryIndustries                  = $this->industryRepository->findAll();
 
             $guestLectures = $this->teachLessonExperienceRepository->findBy([
                 'school' => $user->getSchool(),
@@ -147,7 +151,7 @@ class DashboardController extends AbstractController
             ];
 
             // let's see which events have feedback from the user and which don't
-            foreach($completedEventsRegisteredForByUser as $event) {
+            foreach ($completedEventsRegisteredForByUser as $event) {
 
 
                 // if($user->isStudent() && !$event instanceof StudentToMeetProfessionalExperience) {
@@ -157,12 +161,12 @@ class DashboardController extends AbstractController
 
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,
-                    'deleted' => false
+                    'deleted' => false,
                 ]);
 
                 /** @var Feedback $feedback */
-                foreach($allFeedback as $feedback) {
-                    if($feedback->getUser()->getId() !== $user->getId()) {
+                foreach ($allFeedback as $feedback) {
+                    if ($feedback->getUser()->getId() !== $user->getId()) {
                         $dashboards['eventsWithFeedbackFromOthers'][] = $event;
                         break;
                     }
@@ -170,16 +174,16 @@ class DashboardController extends AbstractController
 
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
-                    'experience' => $event
+                    'experience' => $event,
                 ]);
 
-                if(!$feedback) {
+                if (!$feedback) {
                     $dashboards['eventsMissingFeedback'][] = [
                         'event' => $event,
                         'feedback' => $feedback,
                     ];
                 } else {
-                    if($feedback->getDeleted() === false){
+                    if ($feedback->getDeleted() === false) {
                         $dashboards['eventsWithFeedback'][] = [
                             'event' => $event,
                             'feedback' => $feedback,
@@ -192,27 +196,27 @@ class DashboardController extends AbstractController
             $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
 
             /** @var ProfessionalUser $user */
-            $upcomingEventsRegisteredForByUser = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
+            $upcomingEventsRegisteredForByUser  = $this->experienceRepository->getUpcomingEventsRegisteredForByUser($user);
             $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
-            $dashboards = [
+            $dashboards                         = [
                 'myCompany' => $user->getCompany(),
                 'eventsMissingFeedback' => [],
                 'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
                 'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
                 'eventsWithFeedback' => [],
-                'eventsWithFeedbackFromOthers' => []
+                'eventsWithFeedbackFromOthers' => [],
             ];
 
-            foreach($completedEventsRegisteredForByUser as $event) {
+            foreach ($completedEventsRegisteredForByUser as $event) {
 
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,
-                    'deleted' => false
+                    'deleted' => false,
                 ]);
 
                 /** @var Feedback $feedback */
-                foreach($allFeedback as $feedback) {
-                    if($feedback->getUser()->getId() !== $user->getId()) {
+                foreach ($allFeedback as $feedback) {
+                    if ($feedback->getUser()->getId() !== $user->getId()) {
                         $dashboards['eventsWithFeedbackFromOthers'][] = $event;
                         break;
                     }
@@ -221,16 +225,16 @@ class DashboardController extends AbstractController
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
                     'experience' => $event,
-                    'deleted' => false
+                    'deleted' => false,
                 ]);
 
-                if(!$feedback) {
+                if (!$feedback) {
                     $dashboards['eventsMissingFeedback'][] = [
                         'event' => $event,
                         'feedback' => $feedback,
                     ];
                 } else {
-                    if($feedback->getDeleted() === false ){
+                    if ($feedback->getDeleted() === false) {
                         $dashboards['eventsWithFeedback'][] = [
                             'event' => $event,
                             'feedback' => $feedback,
@@ -240,39 +244,39 @@ class DashboardController extends AbstractController
             }
 
             $teachableLessonIds = [];
-            foreach($user->getLessonTeachables() as $lessonTeachable) {
+            foreach ($user->getLessonTeachables() as $lessonTeachable) {
                 $teachableLessonIds[] = $lessonTeachable->getLesson()->getId();
             }
-            $educatorsWhoFavoritedMyLessons = $this->educatorUserRepository->findByFavoriteLessonIds($teachableLessonIds);
+            $educatorsWhoFavoritedMyLessons               = $this->educatorUserRepository->findByFavoriteLessonIds($teachableLessonIds);
             $dashboards['educatorsWhoFavoritedMyLessons'] = $educatorsWhoFavoritedMyLessons;
 
             $userSecondaryIndustries = $user->getSecondaryIndustries();
             // Get relevant lessons for the user's secondary industry preferences
-            $companiesWithOverlappingSecondaryIndustries = $this->companyRepository->findBySecondaryIndustries($userSecondaryIndustries);
+            $companiesWithOverlappingSecondaryIndustries               = $this->companyRepository->findBySecondaryIndustries($userSecondaryIndustries);
             $dashboards['companiesWithOverlappingSecondaryIndustries'] = $companiesWithOverlappingSecondaryIndustries;
 
             $dashboards['completedTeachLessonExperiences'] = $this->teachLessonExperienceRepository->getCompletedByUser($user);
 
 
             // let's see which events have feedback from the user and which don't
-            foreach($completedEventsRegisteredForByUser as $event) {
+            foreach ($completedEventsRegisteredForByUser as $event) {
                 $feedback = $this->feedbackRepository->findOneBy([
                     'user' => $user,
-                    'experience' => $event
+                    'experience' => $event,
                 ]);
 
                 // For now, just show Student to meet with professional events
-                if($event->getClassName() == 'StudentToMeetProfessionalExperience') {
-                    if(!$feedback) {
+                if ($event->getClassName() == 'StudentToMeetProfessionalExperience') {
+                    if (!$feedback) {
                         $dashboards['eventsMissingFeedback'][] = [
                             'event' => $event,
-                            'feedback' => $feedback
+                            'feedback' => $feedback,
                         ];
                     } else {
-                        if($feedback->getDeleted() === false){
+                        if ($feedback->getDeleted() === false) {
                             $dashboards['eventsWithFeedback'][] = [
                                 'event' => $event,
-                                'feedback' => $feedback
+                                'feedback' => $feedback,
                             ];
                         }
                     }
@@ -285,40 +289,47 @@ class DashboardController extends AbstractController
         // Get relevant events for the user's secondary industry preferences
         // TODO Possibly call findBySecondaryIndustries($secondaryIndustries, $limit = 6)  in
         //  the future to only pull event results if they express interest in that industry
-        $schoolExperiences = $this->schoolExperienceRepository->findAllFromPastDays(7);
+        $schoolExperiences   = $this->schoolExperienceRepository->findAllFromPastDays(7);
         $schoolExperienceIds = [];
-        foreach($schoolExperiences as $schoolExperience) {
+        foreach ($schoolExperiences as $schoolExperience) {
             $schoolExperienceIds[] = $schoolExperience['id'];
         }
 
-        if($loggedInUser->isSchoolAdministrator()){
+        if ($loggedInUser->isSchoolAdministrator()) {
             $u_school_ids = [];
-            foreach($user->getSchools() as $school) {
+            foreach ($user->getSchools() as $school) {
                 $u_school_ids[] = $school->getId();
             }
-            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'school' => $u_school_ids, 'cancelled' => false]);
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds,
+                                                                            'school' => $u_school_ids,
+                                                                            'cancelled' => false,
+            ]);
         } else {
-            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds, 'cancelled' => false]);
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds,
+                                                                            'cancelled' => false,
+            ]);
         }
 
-        $companyExperiences = $this->companyExperienceRepository->findAllFromPastDays(7);
+        $companyExperiences   = $this->companyExperienceRepository->findAllFromPastDays(7);
         $companyExperienceIds = [];
-        foreach($companyExperiences as $companyExperience) {
+        foreach ($companyExperiences as $companyExperience) {
             $companyExperienceIds[] = $companyExperience['id'];
         }
-        $companyExperiences = $this->companyExperienceRepository->findBy(['id' => $companyExperienceIds, 'cancelled' => false]);
+        $companyExperiences = $this->companyExperienceRepository->findBy(['id' => $companyExperienceIds,
+                                                                          'cancelled' => false,
+        ]);
 
 
         $useRegionFiltering = false;
-        $regions = [];
-        if($loggedInUser->isSchoolAdministrator()) {
+        $regions            = [];
+        if ($loggedInUser->isSchoolAdministrator()) {
 
             $useRegionFiltering = true;
 
             /** @var SchoolAdministrator $user */
-            foreach($loggedInUser->getSchools() as $school) {
+            foreach ($loggedInUser->getSchools() as $school) {
 
-                if(!$school->getRegion()) {
+                if (!$school->getRegion()) {
                     continue;
                 }
 
@@ -326,50 +337,53 @@ class DashboardController extends AbstractController
             }
         }
 
-        if($loggedInUser->isProfessional()) {
+        if ($loggedInUser->isProfessional()) {
 
             $useRegionFiltering = true;
 
             /** @var ProfessionalUser $loggedInUser */
 
-            foreach($loggedInUser->getRegions() as $region) {
+            foreach ($loggedInUser->getRegions() as $region) {
 
                 $regions[] = $region->getId();
             }
         }
 
-        if($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
+        if ($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
 
             $useRegionFiltering = true;
 
             /** @var StudentUser|EducatorUser $user */
 
-            if($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
+            if ($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
                 $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
             }
         }
 
         $regions = array_unique($regions);
 
-        if($useRegionFiltering) {
-            $companyExperiences = array_filter($companyExperiences, function(CompanyExperience $companyExperience) use($regions) {
+        if ($useRegionFiltering) {
+            $companyExperiences = array_filter($companyExperiences, function (CompanyExperience $companyExperience) use
+            (
+                $regions
+            ) {
 
-                if($companyExperience->isVirtual()) {
+                if ($companyExperience->isVirtual()) {
                     return true;
                 }
 
-                if(!$companyExperience->getCompany()) {
+                if (!$companyExperience->getCompany()) {
                     return false;
                 }
 
                 $hasMatch = false;
-                foreach($companyExperience->getCompany()->getRegions() as $region) {
-                    if(in_array($region->getId(), $regions)) {
+                foreach ($companyExperience->getCompany()->getRegions() as $region) {
+                    if (in_array($region->getId(), $regions)) {
                         $hasMatch = true;
                     }
                 }
 
-                if(!$hasMatch) {
+                if (!$hasMatch) {
                     return false;
                 }
 
@@ -384,7 +398,88 @@ class DashboardController extends AbstractController
             'dashboards' => $dashboards,
             'lessons' => $lessons,
             'schoolExperiences' => $schoolExperiences,
-            'companyExperiences' => $companyExperiences
+            'companyExperiences' => $companyExperiences,
         ]);
+    }
+
+
+    public function myRequests(Request $request)
+    {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $requestsThatNeedMyApproval = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+
+        return $this->render('dashboard/my_requests.html.twig', [
+            'user' => $user,
+            'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
+        ]);
+
+    }
+
+    public function experiences(Request $request)
+    {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $experienceIds     = [];
+        $schoolExperiences = $this->schoolExperienceRepository->findAllFromPastDays(7);
+        foreach ($schoolExperiences as $schoolExperience) {
+            $experienceIds[] = $schoolExperience['id'];
+        }
+
+        $companyExperiences = $this->companyExperienceRepository->findAllFromPastDays(7);
+
+        foreach ($companyExperiences as $companyExperience) {
+            $experienceIds[] = $companyExperience['id'];
+        }
+
+        $experiences = $this->experienceRepository->findBy([
+            'id' => $experienceIds,
+            'cancelled' => false,
+        ], ['createdAt' => 'DESC']);
+
+        return $this->render('dashboard/experiences.html.twig', [
+            'user' => $user,
+            'experiences' => $experiences,
+        ]);
+
+    }
+
+    public function topics(Request $request)
+    {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $lessonIds = [];
+        $lessons   = $this->lessonRepository->findAllLessonsFromPastDays(7);
+
+        foreach ($lessons as $lesson) {
+            $lessonIds[] = $lesson['id'];
+        }
+
+        $lessons = $this->lessonRepository->findBy([
+            'id' => $lessonIds,
+        ], ['createdAt' => 'DESC']);
+
+        return $this->render('dashboard/topics.html.twig', [
+            'user' => $user,
+            'lessons' => $lessons,
+        ]);
+
+    }
+
+    public function guidesAndBestPractices(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        return $this->render('dashboard/guides_and_best_practices.html.twig', [
+            'user' => $user
+        ]);
+
     }
 }

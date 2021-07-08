@@ -203,6 +203,7 @@ class ProfessionalUserRepository extends ServiceEntityRepository
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findByRegion(Region $region)
     {

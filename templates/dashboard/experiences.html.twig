@@ -1,0 +1,49 @@
+<div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
+
+    <ul class="uk-slideshow-items" style="{{ experiences|length > 4 ? 'height: 360px' : '' }}">
+        {% for experienceBatch in experiences|sort((a, b) => a.title <=> b.title)|batch(4) %}
+            <li class="uk-overflow-auto" style="position: absolute">
+
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
+                    {% for experience in experienceBatch %}
+                        <tr>
+                            <td class="uk-table-shrink">
+
+                                <a href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.title }}</a>
+                                <br>
+
+                                {% if experience.className == 'CompanyExperience' and experience.company is not null %}
+                                    <small class="uk-text-meta"><a href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.company.name }}</a></small>
+                                {% endif %}
+
+                                {% if experience.className == 'SchoolExperience' and experience.school is not null %}
+                                    <small class="uk-text-meta"><a href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.school.name }}</a></small>
+                                {% endif %}
+
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a href="{{ path('experience_index') }}">Browse Experiences</a>
+                            <br>
+                            <small class="uk-text-meta"><a href="{{ path('experience_index') }}">See what else is available on FutureForward</a></small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        {% else %}
+            <li>No New Experiences at this time.</li>
+        {% endfor %}
+    </ul>
+
+    <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+       uk-slideshow-item="previous"></a>
+    <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+       uk-slideshow-item="next"></a>
+    <br>
+    <br>
+</div>

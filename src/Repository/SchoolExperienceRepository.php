@@ -57,6 +57,7 @@ class SchoolExperienceRepository extends ServiceEntityRepository
      *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findBySecondaryIndustries($secondaryIndustries, $limit = 6)
     {
@@ -118,6 +119,7 @@ HERE;
     /**
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findAllFutureEvents()
     {
@@ -140,6 +142,7 @@ HERE;
      *
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function findAllFromPastDays($days = 7)
     {
@@ -180,6 +183,7 @@ HERE;
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function search(
         $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude, $schoolId = null, $startDate = null,
