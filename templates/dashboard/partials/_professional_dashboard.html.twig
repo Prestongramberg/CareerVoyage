@@ -384,7 +384,7 @@
                         {% if user.company is defined and user.company %}
                             <a href="{{ path('company_view', { id: user.company.id }) }}">{{ user.company.name }}</a>
                             <br>
-                            <p>Owner: {{ user.company.owner ? user.company.owner.fullName : 'N/A' }}</p>
+                            <p>Company Contact: {{ user.company.owner ? user.company.owner.fullName : 'N/A' }}</p>
                             <p class="uk-link-muted">Employees: ({{ user.company.professionalUsers|length }})</p>
                             <p class="uk-link-muted">{{ user.company.formattedAddress }}</p>
                             <p class="uk-link-muted">{{ user.company.phone }}</p>
