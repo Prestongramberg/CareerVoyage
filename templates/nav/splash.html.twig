@@ -1,0 +1,14 @@
+<div class="main-navigation uk-background-muted">
+    <div class="uk-container">
+        <nav class="uk-navbar-container" uk-navbar>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+                <div class="nav-overlay uk-navbar-left">
+                    <a class="uk-navbar-item uk-logo" href="javascript:void(0)">
+                        {% set url = 'build/images/' ~ get_site().logo %}
+                        <img src="{{ asset(url) }}" alt="">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>

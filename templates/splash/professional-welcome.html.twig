@@ -1,0 +1,84 @@
+{% extends 'baseSplash.html.twig' %}
+
+{% block title %}Welcome!{% endblock %}
+
+{% block body %}
+
+    <div class="uk-card uk-card-default" style="width: 50%; margin-left: auto; margin-right: auto; margin-top: 50px">
+        <div class="uk-card-header" style="padding: 20px">
+            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                <div class="uk-width-expand">
+                    <h3>Empower students and share your expertise</h3>
+                </div>
+            </div>
+        </div>
+        <div class="uk-card-body" style="padding-top: 10px; padding-bottom: 10px">
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/people.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Access your future talent pipeline</h4>
+                    <p style="margin-top: 0">Develop student interest and educator knowledge in your industry through company visits, internships, job shadows and informational interviews.</p>
+                </div>
+            </div>
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/lecture.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Share your expertise with students</h4>
+                    <p style="margin-top: 0">Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.</p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/mentor.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Mentor students interested in your career field</h4>
+                    <p style="margin-top: 0">Serve your local community by providing high quality opportunities for students to learn about your experience, the skill sets they need for success, and if your career is a fit for them. </p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/megaphone.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Raise student awareness of your company and industry</h4>
+                    <p style="margin-top: 0">Build a company profile. Add videos and other resources, and create events you can share with local students and educators.</p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/map.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Learn best practices on how get involved with local schools</h4>
+                    <p style="margin-top: 0">Not sure how to arrange or deliver a guest topic lecture or a company visit, or how to connect with students and educators? We have you covered with step by step guides.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="uk-card-footer" style="text-align: center">
+            <a href="{{ path('profile_edit', {id: user.id}) }}" class="uk-button uk-button-primary" style="width: 300px">START USING FUTUREFORWARD</a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function(){
+
+        });
+    </script>
+
+{% endblock %}
