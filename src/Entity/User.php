@@ -297,12 +297,12 @@ abstract class User implements UserInterface
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $loginCount = 0;
+    protected $loginCount = 0;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $lastLoginDate;
+    protected $lastLoginDate;
 
     /**
      * @ORM\PrePersist

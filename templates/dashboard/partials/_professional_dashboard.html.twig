@@ -457,7 +457,7 @@
                             <div class="uk-width-expand">
                                 <h3 class="uk-card-title uk-margin-remove-bottom">New Experiences</h3>
                             </div>
-                            {% if user.isAdmin or user.id == user.company.owner.id %}
+                            {% if user.isAdmin or (user.company is not null and user.company.owner is not null and user.id == user.company.owner.id) %}
                                 <div class="uk-width-auto">
                                     <div class="uk-align-right">
                                         <a href="{{ path('company_experience_create', { id: user.company.id }) }}">

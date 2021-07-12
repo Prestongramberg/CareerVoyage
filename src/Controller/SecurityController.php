@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
@@ -284,6 +285,18 @@ class SecurityController extends AbstractController
         // When the account is activated it needs the password set right away we redirect to password reset page
         if($user->getPasswordResetToken()) {
             return $this->redirectToRoute('set_password', ['token' => $user->getPasswordResetToken()]);
+        }
+
+        if($user instanceof ProfessionalUser && !$user->getSplashShown()) {
+
+            $user->setSplashShown(true);
+            $this->entityManager->flush();
+
+            $token = new UsernamePasswordToken($user, null, 'members', $user->getRoles());
+            $this->get('security.token_storage')->setToken($token);
+            $this->get('session')->set('_security_secured_area', serialize($token));
+
+            return $this->redirectToRoute('splash_professional_welcome', ['splash' => 'professional-welcome']);
         }
 
         return $this->redirectToRoute('account_activated');
