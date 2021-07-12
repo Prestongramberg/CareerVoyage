@@ -10,8 +10,10 @@ use App\Form\EducatorRegistrationFormType;
 use App\Form\ProfessionalRegistrationFormType;
 use App\Form\StudentRegistrationFormType;
 use App\Security\LoginFormAuthenticator;
+use App\Service\UploaderHelper;
 use App\Util\ServiceHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,15 +32,17 @@ class WelcomeController extends AbstractController
 
     /**
      * @Route("/", name="welcome")
-     * @param Request $request
-     * @param AuthenticationUtils $authenticationUtils
+     * @param Request                      $request
+     * @param AuthenticationUtils          $authenticationUtils
      * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param GuardAuthenticatorHandler $guardHandler
-     * @param LoginFormAuthenticator $authenticator
+     * @param GuardAuthenticatorHandler    $guardHandler
+     * @param LoginFormAuthenticator       $authenticator
+     * @param string                       $uploadsPath
+     *
      * @return JsonResponse|Response
      * @throws \Exception
      */
-    public function index(Request $request, AuthenticationUtils $authenticationUtils, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator)
+    public function index(Request $request, AuthenticationUtils $authenticationUtils, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator, string $uploadsPath)
     {
 
         $securityContext = $this->container->get('security.authorization_checker');
@@ -138,6 +142,19 @@ class WelcomeController extends AbstractController
                             $user->addRegion($region);
                         }
                     }
+
+                    if (!$user->getPhoto() && $user->getFirstName() && $user->getLastName()) {
+
+                        $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $user->getFirstName(), $user->getLastName());
+                        $fileContents = file_get_contents($avatarUrl);
+
+                        $filesystem  = new Filesystem();
+                        $destination = $uploadsPath . '/' . UploaderHelper::PROFILE_PHOTO;
+                        $fileName = uniqid('', true) . '.png';
+                        $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
+                        $user->setPhoto($fileName);
+                    }
+
 
                     $entityManager = $this->getDoctrine()->getManager();
                     $entityManager->persist($user);

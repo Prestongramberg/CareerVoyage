@@ -2,7 +2,6 @@
 
 namespace App\EventListener;
 
-use App\Entity\Survey;
 use App\Entity\User;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
