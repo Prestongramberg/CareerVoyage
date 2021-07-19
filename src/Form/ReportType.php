@@ -2,34 +2,10 @@
 
 namespace App\Form;
 
-use App\Entity\AdminUser;
-use App\Entity\Chat;
-use App\Entity\ChatMessage;
-use App\Entity\Company;
-use App\Entity\CompanyFavorite;
-use App\Entity\Course;
-use App\Entity\EducatorUser;
-use App\Entity\Experience;
-use App\Entity\Feedback;
-use App\Entity\Grade;
-use App\Entity\Industry;
-use App\Entity\Lesson;
-use App\Entity\LessonFavorite;
-use App\Entity\LessonTeachable;
-use App\Entity\Region;
-use App\Entity\RegionalCoordinator;
-use App\Entity\Registration;
 use App\Entity\Report;
-use App\Entity\RolesWillingToFulfill;
-use App\Entity\School;
-use App\Entity\SchoolAdministrator;
-use App\Entity\SecondaryIndustry;
-use App\Entity\Share;
-use App\Entity\SiteAdminUser;
-use App\Entity\State;
-use App\Entity\StudentUser;
-use App\Entity\User;
+use App\Entity\ReportGroup;
 use App\Report\Form\ReportColumnType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -73,6 +49,14 @@ class ReportType extends AbstractType
             'attr' => [],
         ]);
 
+        $builder->add('reportGroups', EntityType::class, [
+                'class'         => ReportGroup::class,
+                'choice_label'  => 'name',
+                'expanded'      => false,
+                'multiple'      => true,
+                'placeholder'   => '-- All Groups --',
+            ]
+        );
 
         $builder->add('reportEntityClassName', ChoiceType::class, [
             'required' => true,
@@ -97,6 +81,8 @@ class ReportType extends AbstractType
             'label' => false,
             'by_reference' => false,
         ));
+
+        $builder->add('reportShare', ReportShareType::class);
 
     }
 

@@ -291,7 +291,7 @@ class CompanyController extends AbstractController
      */
     public function newAction(Request $request)
     {
-
+        /** @var User $user */
         $user = $this->getUser();
 
         // if user already has company created then don't let them create another
@@ -321,6 +321,7 @@ class CompanyController extends AbstractController
             }
             $company->setOwner($user);
             $user->setCompany($company);
+            $user->addRole(User::ROLE_COMPANY_ADMINISTRATOR);
             $adminUsers = $this->adminUserRepository->findAll();
             $adminUser  = $adminUsers[0];
 

@@ -3,7 +3,9 @@
 namespace App\Form\Filter\Report\Builder;
 
 use App\Entity\Report;
+use App\Entity\ReportGroup;
 use App\Entity\User;
+use Lexik\Bundle\FormFilterBundle\Filter\Query\QueryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -41,6 +43,26 @@ class ManageReportsFilterType extends AbstractType
             'expanded' => false,
             'multiple' => false
         ]);
+
+        $builder->add('reportGroups', Filters\EntityFilterType::class, [
+                'class'         => ReportGroup::class,
+                'choice_label'  => 'name',
+                'expanded'      => false,
+                'multiple'      => false,
+                'placeholder'   => '-- All Groups --',
+                'apply_filter'  => function (QueryInterface $filterQuery, $field, $values)
+                {
+                    $query = $filterQuery->getQueryBuilder();
+                    $query->leftJoin($field, 'rg');
+
+                    if(!empty($values['value']) && $values['value'] instanceof ReportGroup) {
+                        /** @var ReportGroup $reportGroup */
+                        $reportGroup = $values['value'];
+                        $query->andWhere($query->expr()->in('rg.id', $reportGroup->getId()));
+                    }
+                },
+            ]
+        );
     }
 
     public function getBlockPrefix()

@@ -44,6 +44,7 @@ use App\Repository\RegionalCoordinatorRepository;
 use App\Repository\RegionRepository;
 use App\Repository\RegistrationRepository;
 use App\Repository\ReportColumnRepository;
+use App\Repository\ReportGroupRepository;
 use App\Repository\ReportRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
@@ -72,6 +73,7 @@ use App\Service\Geocoder;
 use App\Service\GlobalShare;
 use App\Service\ImageCacheGenerator;
 use App\Service\PhpSpreadsheetHelper;
+use App\Service\ReportService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -494,6 +496,16 @@ trait ServiceHelper
     private $countyRepository;
 
     /**
+     * @var ReportService
+     */
+    private $reportService;
+
+    /**
+     * @var ReportGroupRepository
+     */
+    private $reportGroupRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -576,6 +588,8 @@ trait ServiceHelper
      * @param ReportRepository                                              $reportRepository
      * @param ReportColumnRepository                                        $reportColumnRepository
      * @param CountyRepository                                              $countyRepository
+     * @param ReportService                                                 $reportService
+     * @param ReportGroupRepository                                         $reportGroupRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -624,7 +638,9 @@ trait ServiceHelper
         Liform $liform,
         ReportRepository $reportRepository,
         ReportColumnRepository $reportColumnRepository,
-        CountyRepository $countyRepository
+        CountyRepository $countyRepository,
+        ReportService $reportService,
+        ReportGroupRepository $reportGroupRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -706,6 +722,8 @@ trait ServiceHelper
         $this->reportRepository                                              = $reportRepository;
         $this->reportColumnRepository                                        = $reportColumnRepository;
         $this->countyRepository                                              = $countyRepository;
+        $this->reportService                                                 = $reportService;
+        $this->reportGroupRepository                                         = $reportGroupRepository;
 
     }
 

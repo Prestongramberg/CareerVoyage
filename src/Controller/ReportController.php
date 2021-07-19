@@ -6,9 +6,12 @@ use App\Cache\CacheKey;
 use App\Entity\EducatorUser;
 use App\Entity\EmailLog;
 use App\Entity\ProfessionalUser;
+use App\Entity\Region;
 use App\Entity\RegionalCoordinator;
 use App\Entity\Report;
+use App\Entity\ReportGroup;
 use App\Entity\RolesWillingToFulfill;
+use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\User;
 use App\Form\EventTypeFormType;
@@ -19,6 +22,7 @@ use App\Form\Filter\Report\Dashboard\RegistrationFilterType;
 use App\Form\Filter\Report\Dashboard\SchoolExperienceFilterType;
 use App\Form\Filter\Report\Dashboard\StudentParticipationFilterType;
 use App\Form\Filter\Report\Dashboard\TopicSatisfactionFeedbackFilterType;
+use App\Form\ReportGroupType;
 use App\Form\ReportType;
 use App\Model\Report\Dashboard\AbstractDashboard;
 use App\Report\Service\JavascriptBuilders;
@@ -31,6 +35,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -2372,6 +2377,22 @@ WHERE u.discr = "professionalUser" :regions',
 
         $context = $javascriptBuilders->getFilterData($report);
 
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('report/builder/new.html.twig', [
+                        'user' => $user,
+                        'report' => $report,
+                        'reportColumns' => $reportColumns,
+                        'context' => $context,
+                        'dashboardType' => 'new_report',
+                        'form' => $form->createView(),
+                    ]),
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
         return $this->render(
             'report/builder/new.html.twig', [
                 'user' => $user,
@@ -2386,17 +2407,192 @@ WHERE u.discr = "professionalUser" :regions',
 
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/{id}/edit", name="edit_report")
      *
+     * @param Request            $request
+     *
+     * @param Report             $report
+     * @param JavascriptBuilders $javascriptBuilders
+     *
+     * @return Response
+     */
+    public function editReport(Request $request, Report $report, JavascriptBuilders $javascriptBuilders): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $report->setReportType(Report::TYPE_BUILDER);
+
+        $form = $this->createForm(ReportType::class, $report, []);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Report $report */
+            $report = $form->getData();
+
+            $this->entityManager->persist($report);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Report successfully updated!');
+
+            return $this->redirectToRoute('edit_report', ['id' => $report->getId()]);
+        }
+
+        $reportColumns = $report->getReportColumns();
+
+        $context = $javascriptBuilders->getFilterData($report);
+
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('report/builder/new.html.twig', [
+                        'user' => $user,
+                        'report' => $report,
+                        'reportColumns' => $reportColumns,
+                        'context' => $context,
+                        'dashboardType' => 'new_report',
+                        'form' => $form->createView(),
+                    ]),
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        return $this->render(
+            'report/builder/new.html.twig', [
+                'user' => $user,
+                'report' => $report,
+                'reportColumns' => $reportColumns,
+                'context' => $context,
+                'dashboardType' => 'new_report',
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     * @Route("/groups/new", name="new_report_group")
+     *
+     * @param Request            $request
+     *
+     * @return Response
+     */
+    public function newReportGroup(Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $reportGroup = new ReportGroup();
+
+        $form = $this->createForm(ReportGroupType::class, $reportGroup, []);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var ReportGroup $reportGroup */
+            $reportGroup = $form->getData();
+
+            $this->entityManager->persist($reportGroup);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Report group successfully created!');
+
+            return $this->redirectToRoute('new_report_group', []);
+        }
+
+        return $this->render(
+            'report/builder/new_group.html.twig', [
+                'user' => $user,
+                'reportGroup' => $reportGroup,
+                'dashboardType' => 'new_report_group',
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     *
+     * @Route("/groups", name="report_group_index", options = { "expose" = true }, methods={"GET", "POST"})
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function reportGroupIndex(Request $request)
+    {
+        $qb = $this->reportGroupRepository->createQueryBuilder('rg')
+                                     ->orderBy('rg.name', 'ASC');
+
+        $pagination = $this->paginator->paginate(
+            $qb->getQuery(), /* query NOT result */
+            $request->query->getInt('page', 1)
+        );
+
+        return $this->render('report/builder/group_index.html.twig', [
+            'user' => $this->getUser(),
+            'pagination' => $pagination,
+            'dashboardType' => 'report_group_index'
+        ]);
+    }
+
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     *
+     * @Route("/groups/{id}/delete", name="report_group_delete", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param ReportGroup $reportGroup
+     * @param Request     $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteReportGroup(ReportGroup $reportGroup, Request $request)
+    {
+
+        $this->entityManager->remove($reportGroup);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Report group successfully removed!');
+
+        return $this->redirectToRoute('report_group_index', []);
+    }
+
+    /**
      * @Route("/{id}/download", name="report_download", options = { "expose" = true }, methods={"GET", "POST"})
      * @param Report            $report
      * @param Request           $request
      * @param DoctrineORMParser $doctrineORMParser
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      * @throws \Exception
      */
     public function downloadReport(Report $report, Request $request, DoctrineORMParser $doctrineORMParser)
     {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $hasPermission = false;
+
+        if ($user->isAdmin() || $user->isSiteAdmin()) {
+            $hasPermission = true;
+        }
+
+        if (!$hasPermission) {
+            $results = $this->reportService->searchReports($user);
+            /** @var Report $result */
+            foreach ($results as $result) {
+
+                if ($result->getId() === $report->getId()) {
+                    $hasPermission = true;
+                }
+            }
+        }
+
+        if (!$hasPermission) {
+            $this->addFlash('error', 'Report not found.');
+            $referer = $request->headers->get('referer');
+            return new RedirectResponse($referer);
+        }
 
         $parsedRuleGroup = $doctrineORMParser->parseReport($report);
 
@@ -2409,7 +2605,6 @@ WHERE u.discr = "professionalUser" :regions',
             dump($dql);
             exit();
         }
-
 
         //$query->setDQL("SELECT object.id AS col_0, object.field249 AS col_1, object.field250 AS col_2, object_field255.field242 AS col_3 FROM App\Entity\User object LEFT JOIN object.field255 object_field255 WHERE ( object.field249 LIKE ?0 AND object_field255.field243 LIKE ?1 )");
 
@@ -2440,6 +2635,45 @@ WHERE u.discr = "professionalUser" :regions',
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Report successfully removed!');
+
+        return $this->redirectToRoute('report_index_new', []);
+    }
+
+    /**
+     * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER"})
+     *
+     * @Route("/{id}/duplicate", name="report_duplicate", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Report  $report
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function duplicateReport(Report $report, Request $request)
+    {
+
+        if($report->getReportType() !== Report::TYPE_BUILDER) {
+            $this->addFlash('error', 'Report cannot be duplicated!');
+            return $this->redirectToRoute('report_index_new', []);
+        }
+
+        $newReport = clone $report;
+
+        foreach($report->getReportColumns() as $reportColumn) {
+            $newReportColumn = clone $reportColumn;
+            $newReportColumn->setReport($newReport);
+            $this->entityManager->persist($newReportColumn);
+        }
+
+        if($reportShare = $report->getReportShare()) {
+            $newReportShare = clone $reportShare;
+            $newReportShare->setReport($newReport);
+            $this->entityManager->persist($newReportShare);
+        }
+
+        $this->entityManager->persist($newReport);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Report successfully duplicated!');
 
         return $this->redirectToRoute('report_index_new', []);
     }
@@ -2488,6 +2722,45 @@ WHERE u.discr = "professionalUser" :regions',
             'showFilters' => $showFilters,
             'form' => $form->createView(),
             'clearFormUrl' => $this->generateUrl('report_index_new', []),
+        ]);
+    }
+
+    /**
+     * @Route("/my-reports", name="my_reports", options = { "expose" = true }, methods={"GET", "POST"})
+     *
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function myReports(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(ManageReportsFilterType::class, null, [
+            'method' => 'GET',
+        ]);
+
+        $form->handleRequest($request);
+
+        $queryBuilder = $this->reportService->searchReports($user, true);
+
+        // todo need logic above in the download function to make sure the user can download the report and has permissions
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->filterBuilder->addFilterConditions($form, $queryBuilder);
+        }
+
+        $pagination = $this->paginator->paginate(
+            $queryBuilder->getQuery(), /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+        );
+
+        return $this->render('report/builder/my-reports.html.twig', [
+            'user' => $user,
+            'pagination' => $pagination,
+            'dashboardType' => 'my_reports',
+            'form' => $form->createView(),
         ]);
     }
 

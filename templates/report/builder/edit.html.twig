@@ -40,7 +40,7 @@
     <div id="js-report-builder" data-report-rules="{{ report.reportRules|default('') }}"
          data-report="{{ report.id|default('') }}" data-report-entity="{{ report.entity.id|default('') }}"
          data-entity-name="{{ report.getReportEntityClassName|default('') }}" data-context="{{ context|json_encode }}"
-         data-route="{{ path('new_report') }}">
+         data-route="{{ path('edit_report', {id: report.id}) }}">
 
         <div class="uk-alert-danger js-empty-query-builder-message" uk-alert style="display: none">
             <a class="uk-alert-close" uk-close></a>

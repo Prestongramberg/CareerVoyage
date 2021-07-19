@@ -66,12 +66,18 @@ class Region
      */
     private $companies;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=ReportShare::class, mappedBy="regions")
+     */
+    private $reportShares;
+
     public function __construct()
     {
         $this->regionalCoordinators = new ArrayCollection();
         $this->schools = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
         $this->companies = new ArrayCollection();
+        $this->reportShares = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -240,6 +246,33 @@ class Region
         if ($this->companies->contains($company)) {
             $this->companies->removeElement($company);
             $company->removeRegion($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportShare[]
+     */
+    public function getReportShares(): Collection
+    {
+        return $this->reportShares;
+    }
+
+    public function addReportShare(ReportShare $reportShare): self
+    {
+        if (!$this->reportShares->contains($reportShare)) {
+            $this->reportShares[] = $reportShare;
+            $reportShare->addRegion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportShare(ReportShare $reportShare): self
+    {
+        if ($this->reportShares->removeElement($reportShare)) {
+            $reportShare->removeRegion($this);
         }
 
         return $this;

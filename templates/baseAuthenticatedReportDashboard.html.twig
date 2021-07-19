@@ -83,16 +83,23 @@
         <li class="{{ dashboardType == 'volunteer_participation' ? 'uk-active' : '' }}"><a
                     href="{{ path('volunteer_participation_dashboard') }}">Volunteer Participation</a></li>
 
+        <li class="uk-nav-header">
+            Reports
+        </li>
+
+        <li class="{{ dashboardType == 'my_reports' ? 'uk-active' : '' }}"><a
+                    href="{{ path('my_reports') }}">My Reports</a></li>
+
         {% if user.admin or user.siteAdmin %}
-            <li class="uk-nav-header">
-                Reports
-            </li>
 
             <li class="{{ dashboardType == 'new_report' ? 'uk-active' : '' }}"><a
                         href="{{ path('new_report') }}">Report Builder</a></li>
 
             <li class="{{ dashboardType == 'all_reports' ? 'uk-active' : '' }}"><a
                         href="{{ path('report_index_new') }}">All Reports</a></li>
+
+            <li class="{{ dashboardType == 'report_group_index' ? 'uk-active' : '' }}"><a
+                        href="{{ path('report_group_index') }}">Report Groups</a></li>
         {% endif %}
     </ul>
 </div>

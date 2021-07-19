@@ -45,6 +45,15 @@ abstract class User implements UserInterface
     const ROLE_REGIONAL_COORDINATOR_USER = 'ROLE_REGIONAL_COORDINATOR_USER';
     const ROLE_SCHOOL_ADMINISTRATOR_USER = 'ROLE_SCHOOL_ADMINISTRATOR_USER';
     const ROLE_SITE_ADMIN_USER           = 'ROLE_SITE_ADMIN_USER';
+    const ROLE_COMPANY_ADMINISTRATOR     = 'ROLE_COMPANY_ADMINISTRATOR';
+
+    public static $reportPermissionUserRoleChoices = [
+        'Professional User' => self::ROLE_PROFESSIONAL_USER,
+        'Educator User' => self::ROLE_EDUCATOR_USER,
+        'Regional Coordinator' => self::ROLE_REGIONAL_COORDINATOR_USER,
+        'School Administrator' => self::ROLE_SCHOOL_ADMINISTRATOR_USER,
+        'Company Administrator' => self::ROLE_COMPANY_ADMINISTRATOR,
+    ];
 
     /**
      * @Groups({"ALL_USER_DATA", "PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
@@ -305,6 +314,11 @@ abstract class User implements UserInterface
     protected $lastLoginDate;
 
     /**
+     * @ORM\ManyToMany(targetEntity=ReportShare::class, mappedBy="users")
+     */
+    private $reportShares;
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -326,7 +340,8 @@ abstract class User implements UserInterface
         $this->userRegisterForSchoolExperienceRequests = new ArrayCollection();
         $this->requestPossibleApprovers                = new ArrayCollection();
         $this->videoFavorites                          = new ArrayCollection();
-        $this->companyViews = new ArrayCollection();
+        $this->companyViews                            = new ArrayCollection();
+        $this->reportShares                            = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -520,6 +535,22 @@ abstract class User implements UserInterface
         return $this;
     }
 
+
+    /**
+     * @param string $role
+     *
+     * @return $this
+     */
+    public function addRole($role)
+    {
+
+        if(!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
     public function friendlyRoleName()
     {
         if ($this->isProfessional()) {
@@ -657,6 +688,21 @@ abstract class User implements UserInterface
         $roles = $this->getRoles();
 
         if (in_array(self::ROLE_SCHOOL_ADMINISTRATOR_USER, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Groups({"ALL_USER_DATA"})
+     * @return bool
+     */
+    public function isCompanyAdministrator()
+    {
+        $roles = $this->getRoles();
+
+        if (in_array(self::ROLE_COMPANY_ADMINISTRATOR, $roles)) {
             return true;
         }
 
@@ -1406,7 +1452,7 @@ abstract class User implements UserInterface
             $this->companyViews[] = $companyView;
             $companyView->setUserId($this);
         }
-        
+
         return $this;
     }
 
@@ -1447,12 +1493,12 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($companyView->getUserId() === $this) {
                 $companyView->setUserId(null);
-              }
+            }
         }
 
         return $this;
     }
-  
+
     public function removeSentToShareShare(Share $sentToShare): self
     {
         if ($this->sentToShares->removeElement($sentToShare)) {
@@ -1524,7 +1570,8 @@ abstract class User implements UserInterface
         return $this;
     }
 
-    public function incrementLoginCount() {
+    public function incrementLoginCount()
+    {
         $this->loginCount++;
     }
 
@@ -1536,6 +1583,33 @@ abstract class User implements UserInterface
     public function setLastLoginDate(?\DateTimeInterface $lastLoginDate): self
     {
         $this->lastLoginDate = $lastLoginDate;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportShare[]
+     */
+    public function getReportShares(): Collection
+    {
+        return $this->reportShares;
+    }
+
+    public function addReportShare(ReportShare $reportShare): self
+    {
+        if (!$this->reportShares->contains($reportShare)) {
+            $this->reportShares[] = $reportShare;
+            $reportShare->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportShare(ReportShare $reportShare): self
+    {
+        if ($this->reportShares->removeElement($reportShare)) {
+            $reportShare->removeUser($this);
+        }
 
         return $this;
     }
