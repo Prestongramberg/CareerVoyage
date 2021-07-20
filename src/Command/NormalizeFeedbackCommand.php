@@ -29,6 +29,7 @@ use App\Entity\StudentReviewTeachLessonExperienceFeedback;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
+use App\Entity\User;
 use App\Repository\CompanyExperienceRepository;
 use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
@@ -210,6 +211,8 @@ class NormalizeFeedbackCommand extends Command
         $this->reportRepository->deleteReportVolunteerRegionData();
         $this->reportRepository->deleteReportVolunteerRoleData();
 
+        // add company administrator roles to company owners
+        $this->addCompanyAdministratorRoles($input, $output);
 
         // report experience data normalization
         $this->normalizeExperienceData($input, $output);
@@ -2077,6 +2080,40 @@ class NormalizeFeedbackCommand extends Command
         });
 
         $output->writeln('Done with report ("professional_volunteer_participation") Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    private function addCompanyAdministratorRoles(InputInterface $input, OutputInterface $output) {
+
+        $output->writeln('Adding roles for company administrators.');
+
+        $updateCount = 0;
+
+        foreach ($this->generateCompanyCollection() as $result) {
+
+            /** @var Company $company */
+            $company = $result[0] ?? null;
+
+            if (!$company) {
+                continue;
+            }
+
+            /** @var User $owner */
+            if(!$owner = $company->getOwner()) {
+                continue;
+            }
+
+            $owner->addRole(User::ROLE_COMPANY_ADMINISTRATOR);
+
+            $this->entityManager->persist($owner);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $updateCount++;
+        }
+
+        $output->writeln('Done with adding company administrator roles. Count: ' . $updateCount);
 
         return $this;
     }

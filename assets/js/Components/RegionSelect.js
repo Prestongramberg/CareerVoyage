@@ -55,6 +55,7 @@ class RegionSelect {
         const $form = this.$wrapper.find('form');
         let formData = new FormData($form.get(0));
         formData.delete('professional_edit_profile_form[_token]');
+        formData.delete('report[_token]');
         formData.append('skip_validation', true);
         formData.append('changeableField', true);
 
@@ -77,8 +78,15 @@ class RegionSelect {
                 width: '100%'
             });
 
-            this.initMarkers();
+            $('#report_reportShare_schools').select2({
+                placeholder: "Schools",
+                allowClear: true,
+                width: '100%'
+            });
 
+            if(this.initMarkers) {
+                this.initMarkers();
+            }
         });
 
     }

@@ -319,9 +319,20 @@ class Report
      */
     private $reportColumns;
 
+    /**
+     * @ORM\OneToOne(targetEntity=ReportShare::class, mappedBy="report", cascade={"persist", "remove"})
+     */
+    private $reportShare;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=ReportGroup::class, inversedBy="reports")
+     */
+    private $reportGroups;
+
     public function __construct()
     {
         $this->reportColumns = new ArrayCollection();
+        $this->reportGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -877,5 +888,51 @@ class Report
         }
 
         return $csv;
+    }
+
+    public function getReportShare(): ?ReportShare
+    {
+        return $this->reportShare;
+    }
+
+    public function setReportShare(?ReportShare $reportShare): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($reportShare === null && $this->reportShare !== null) {
+            $this->reportShare->setReport(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($reportShare !== null && $reportShare->getReport() !== $this) {
+            $reportShare->setReport($this);
+        }
+
+        $this->reportShare = $reportShare;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportGroup[]
+     */
+    public function getReportGroups(): Collection
+    {
+        return $this->reportGroups;
+    }
+
+    public function addReportGroup(ReportGroup $reportGroup): self
+    {
+        if (!$this->reportGroups->contains($reportGroup)) {
+            $this->reportGroups[] = $reportGroup;
+        }
+
+        return $this;
+    }
+
+    public function removeReportGroup(ReportGroup $reportGroup): self
+    {
+        $this->reportGroups->removeElement($reportGroup);
+
+        return $this;
     }
 }

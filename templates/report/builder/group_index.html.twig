@@ -1,0 +1,68 @@
+{% extends 'baseAuthenticatedReportDashboard.html.twig' %}
+
+{% block title %}Report Groups{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/report_builder.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('build/report_builder.css') }}"/>
+ {% endblock %}
+
+{% block heading %}
+    Report Groups
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="uk-section-small uk-section-default header">
+        <div class="uk-container uk-container-large">
+            <h1><span class="ion-speedometer"></span> Report Groups</h1>
+            <ul class="uk-breadcrumb">
+                <li><a href="{{ path('dashboard') }}">Home</a></li>
+                <li><span href="">Report Groups</span></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block navTitle %}Report Groups{% endblock %}
+
+ {% block content %}
+
+     <a style="float:right" class="uk-button uk-button-primary" href="{{ path('new_report_group') }}">New Report Group</a>
+
+     <br>
+     <br>
+     <div class="count">
+         Total Report Groups: {{ pagination.getTotalItemCount }}
+     </div>
+
+     <div class="uk-overflow-auto">
+
+         <table class="uk-table uk-table-small uk-table-divider">
+             <tr>
+                 <th>ID</th>
+                 <th>Name</th>
+                 <th>Actions</th>
+             </tr>
+
+             {% for paginatedReportGroup in pagination %}
+                 <tr id="report_group_{{ paginatedReportGroup.id }}">
+                     <td>{{ paginatedReportGroup.id }}</td>
+                     <td>{{ paginatedReportGroup.name }}</td>
+                     <td><a href="{{ path('report_group_delete', {'id': paginatedReportGroup.id}) }}">Delete</a></td>
+                 </tr>
+             {% endfor %}
+         </table>
+
+     </div>
+
+     {# display navigation #}
+     <div class="navigation">
+         {{ knp_pagination_render(pagination) }}
+     </div>
+
+ {% endblock %}

@@ -1,6 +1,6 @@
 {%- block form_errors -%}
     {%- if errors|length > 0 -%}
-        <ul class="errors">
+        <ul class="errors" style="list-style-type: none; padding-left: 0">
             {%- for error in errors -%}
                 <li style="color: #f0506e;">{{ error.message }}</li>
             {%- endfor -%}

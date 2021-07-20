@@ -820,6 +820,7 @@ const columnsTemplate = (options, related_entity_options) => `
     <div class="uk-grid-small" uk-grid>
     
         <div class="reset-and-select-wrap uk-width-1-3">
+            <label for="report_columns" class="required">Columns*</label>
             <select id="report_columns" class="js-entity-column uk-select custom-select">
                 <option value="" selected>-- Select a column to add --</option>
                 <optgroup label="Columns" class="js-selectable-columns-group">

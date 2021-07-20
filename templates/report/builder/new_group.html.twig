@@ -1,0 +1,62 @@
+{% extends 'baseAuthenticatedReportDashboard.html.twig' %}
+
+{% form_theme form with _self %}
+
+{% block title %}New Report Group{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/report_builder.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+     <link rel="stylesheet" href="{{ asset('build/report_builder.css') }}"/>
+
+     <style>
+         .ui-sortable > div {
+             padding: 10px;
+             margin-bottom: 10px
+         }
+     </style>
+ {% endblock %}
+
+{% block breadcrumbs %}
+    <div class="uk-section-small uk-section-default header">
+        <div class="uk-container uk-container-large">
+            <h1><span class="ion-speedometer"></span> New Report Group</h1>
+            <ul class="uk-breadcrumb">
+                <li><a href="{{ path('dashboard') }}">Home</a></li>
+                <li><a href="{{ path('report_group_index') }}">Report Groups</a></li>
+                <li><span href="">New Report Group</span></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block navTitle %}New Report Group{% endblock %}
+
+{% block content %}
+
+        {{ form_start(form, {attr: {'novalidate' : 'novalidate', 'class': 'js-report-form uk-grid uk-grid-small'}}) }}
+
+        {% if form_errors(form) %}
+            {{ form_errors(form) }}
+        {% endif %}
+
+        <div class="uk-width-1-1">
+            <div class="uk-margin">
+                {{ form_label(form.name, 'Report Group Name*', {'attr': {'class': 'uk-text-bold'}}) }}
+                {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ), 'placeholder': 'e.g. Metro ECSU Reports'}}) }}
+                {{ form_errors(form.name) }}
+            </div>
+        </div>
+
+        <div class="uk-width-1-1">
+            <br>
+            <button type="submit" class="uk-button uk-button-primary">Save</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+{% endblock %}

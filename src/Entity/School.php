@@ -243,6 +243,11 @@ class School
      */
     private $allowEventCreation = false;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=ReportShare::class, mappedBy="schools")
+     */
+    private $reportShares;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -256,6 +261,7 @@ class School
         $this->teachLessonRequests = new ArrayCollection();
         $this->teachLessonExperiences = new ArrayCollection();
         $this->schoolResources = new ArrayCollection();
+        $this->reportShares = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -931,6 +937,33 @@ class School
     public function setAllowEventCreation(?bool $allowEventCreation): self
     {
         $this->allowEventCreation = $allowEventCreation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReportShare[]
+     */
+    public function getReportShares(): Collection
+    {
+        return $this->reportShares;
+    }
+
+    public function addReportShare(ReportShare $reportShare): self
+    {
+        if (!$this->reportShares->contains($reportShare)) {
+            $this->reportShares[] = $reportShare;
+            $reportShare->addSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReportShare(ReportShare $reportShare): self
+    {
+        if ($this->reportShares->removeElement($reportShare)) {
+            $reportShare->removeSchool($this);
+        }
 
         return $this;
     }
