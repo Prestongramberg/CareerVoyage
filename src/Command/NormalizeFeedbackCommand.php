@@ -10,6 +10,7 @@ use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Feedback;
+use App\Entity\Lesson;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
@@ -35,6 +36,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\EducatorUserRepository;
 use App\Repository\ExperienceRepository;
 use App\Repository\FeedbackRepository;
+use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
 use App\Repository\ProfessionalUserRepository;
 use App\Repository\RegistrationRepository;
@@ -137,6 +139,11 @@ class NormalizeFeedbackCommand extends Command
     private $lessonTeachableRepository;
 
     /**
+     * @var LessonRepository
+     */
+    private $lessonRepository;
+
+    /**
      * @var string
      */
     private $cacheDirectory;
@@ -159,6 +166,7 @@ class NormalizeFeedbackCommand extends Command
      * @param RegistrationRepository                        $registrationRepository
      * @param ExperienceRepository                          $experienceRepository
      * @param LessonTeachableRepository                     $lessonTeachableRepository
+     * @param LessonRepository                              $lessonRepository
      * @param string                                        $cacheDirectory
      */
     public function __construct(EntityManagerInterface $entityManager, FeedbackRepository $feedbackRepository,
@@ -173,6 +181,7 @@ class NormalizeFeedbackCommand extends Command
                                 RegistrationRepository $registrationRepository,
                                 ExperienceRepository $experienceRepository,
                                 LessonTeachableRepository $lessonTeachableRepository,
+                                LessonRepository $lessonRepository,
                                 string $cacheDirectory
     ) {
         $this->entityManager                                 = $entityManager;
@@ -190,6 +199,7 @@ class NormalizeFeedbackCommand extends Command
         $this->registrationRepository                        = $registrationRepository;
         $this->experienceRepository                          = $experienceRepository;
         $this->lessonTeachableRepository                     = $lessonTeachableRepository;
+        $this->lessonRepository                              = $lessonRepository;
         $this->cacheDirectory                                = $cacheDirectory;
 
         parent::__construct();
@@ -219,6 +229,7 @@ class NormalizeFeedbackCommand extends Command
         $this->normalizeProfessionalUserData($input, $output);
         $this->normalizeEducatorUserData($input, $output);
         $this->normalizeLessonTeachableData($input, $output);
+        $this->normalizeLessonData($input, $output);
 
         // report dashboard normalization
         $this->normalizeFeedbackData($input, $output);
@@ -368,7 +379,7 @@ class NormalizeFeedbackCommand extends Command
                 continue;
             }
 
-            if($school = $educatorUser->getSchool()) {
+            if ($school = $educatorUser->getSchool()) {
                 $educatorUser->setReportSchool($school->getName());
             }
 
@@ -401,11 +412,11 @@ class NormalizeFeedbackCommand extends Command
                 continue;
             }
 
-            if($lessonTeachable->getLesson() && $lessonTeachable->getLesson()->getTitle()) {
+            if ($lessonTeachable->getLesson() && $lessonTeachable->getLesson()->getTitle()) {
                 $lessonTeachable->setReportLessonName($lessonTeachable->getLesson()->getTitle());
             }
 
-            if($lessonTeachable->getUser() instanceof EducatorUser && $lessonTeachable->getLesson()) {
+            if ($lessonTeachable->getUser() instanceof EducatorUser && $lessonTeachable->getLesson()) {
                 $reportLessonWantTaught = new ReportLessonsWantTaught();
                 $reportLessonWantTaught->setUser($lessonTeachable->getUser());
                 $reportLessonWantTaught->setLesson($lessonTeachable->getLesson());
@@ -416,7 +427,7 @@ class NormalizeFeedbackCommand extends Command
                 $this->entityManager->persist($reportLessonWantTaught);
             }
 
-            if($lessonTeachable->getUser() instanceof ProfessionalUser && $lessonTeachable->getLesson()) {
+            if ($lessonTeachable->getUser() instanceof ProfessionalUser && $lessonTeachable->getLesson()) {
                 $reportLessonCanTeach = new ReportLessonsCanTeach();
                 $reportLessonCanTeach->setUser($lessonTeachable->getUser());
                 $reportLessonCanTeach->setLesson($lessonTeachable->getLesson());
@@ -428,6 +439,50 @@ class NormalizeFeedbackCommand extends Command
             }
 
             $this->entityManager->persist($lessonTeachable);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $count++;
+        }
+
+        $output->writeln('Done..... Count: ' . $count);
+
+        return $this;
+    }
+
+    private function normalizeLessonData(InputInterface $input, OutputInterface $output)
+    {
+
+        $this->entityManager->clear();
+        $output->writeln('Normalizing lesson data.');
+
+        $count = 0;
+
+        foreach ($this->generateLessonCollection() as $result) {
+
+            /** @var Lesson $lesson */
+            $lesson = $result[0] ?? null;
+
+            if (!$lesson) {
+                continue;
+            }
+
+            foreach($lesson->getLessonTeachables() as $lessonTeachable) {
+
+                if(!$user = $lessonTeachable->getUser()) {
+                    continue;
+                }
+
+                if($user instanceof ProfessionalUser) {
+                    $lesson->setHasExpertPresenters(true);
+                }
+
+                if($user instanceof EducatorUser) {
+                    $lesson->setHasEducatorRequestors(true);
+                }
+            }
+
+            $this->entityManager->persist($lesson);
             $this->entityManager->flush();
             $this->entityManager->clear();
 
@@ -2185,6 +2240,20 @@ class NormalizeFeedbackCommand extends Command
         foreach ($queryBuilder->iterate() as $lessonTeachable) {
 
             yield $lessonTeachable;
+        }
+    }
+
+    /**
+     * @return iterable
+     */
+    private function generateLessonCollection(): iterable
+    {
+        $queryBuilder = $this->lessonRepository->createQueryBuilder('l')->getQuery();
+
+        /** @var Lesson $lesson */
+        foreach ($queryBuilder->iterate() as $lesson) {
+
+            yield $lesson;
         }
     }
 

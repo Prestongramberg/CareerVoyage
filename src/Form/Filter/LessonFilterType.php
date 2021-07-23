@@ -17,8 +17,10 @@ use App\Entity\SiteAdminUser;
 use App\Entity\State;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
+use App\Entity\User;
 use App\Form\CompanyFilterType;
 use App\Service\Geocoder;
+use Lexik\Bundle\FormFilterBundle\Filter\Condition\ConditionBuilderInterface;
 use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderExecuterInterface;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterOperands;
@@ -45,52 +47,50 @@ class LessonFilterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('title', Filters\TextFilterType::class, [
-                       'condition_pattern' => FilterOperands::STRING_CONTAINS,
-                   ]
+                'condition_pattern' => FilterOperands::STRING_CONTAINS,
+            ]
         );
 
         $builder->add(
             'primaryCourse', Filters\EntityFilterType::class, [
-                               'class'         => Course::class,
-                               'choice_label'  => 'title',
-                               'expanded'      => false,
-                               'multiple'      => false,
-                               'placeholder'   => 'FILTER BY COURSE',
-                               'query_builder' => function (\App\Repository\CourseRepository $courseRepository) {
-                                   return $courseRepository->createQueryBuilder('c')
-                                                           ->orderBy('c.title', 'ASC');
-                               },
-                           ]
+                'class' => Course::class,
+                'choice_label' => 'title',
+                'expanded' => false,
+                'multiple' => false,
+                'placeholder' => 'FILTER BY COURSE',
+                'query_builder' => function (\App\Repository\CourseRepository $courseRepository) {
+                    return $courseRepository->createQueryBuilder('c')
+                                            ->orderBy('c.title', 'ASC');
+                },
+            ]
         );
 
         $builder->add(
             'primaryIndustry', Filters\EntityFilterType::class, [
-                                 'class'         => Industry::class,
-                                 'choice_label'  => 'name',
-                                 'expanded'      => false,
-                                 'multiple'      => false,
-                                 'placeholder'   => 'FILTER BY INDUSTRY',
-                                 'query_builder' => function (
-                                     \App\Repository\IndustryRepository $industryRepository
-                                 ) {
-                                     return $industryRepository->createQueryBuilder('i')
-                                                               ->orderBy('i.name', 'ASC');
-                                 },
-                             ]
+                'class' => Industry::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => false,
+                'placeholder' => 'FILTER BY INDUSTRY',
+                'query_builder' => function (
+                    \App\Repository\IndustryRepository $industryRepository
+                ) {
+                    return $industryRepository->createQueryBuilder('i')
+                                              ->orderBy('i.name', 'ASC');
+                },
+            ]
         );
 
-        $builder->add(
-            'hasExpertPresenters', Filters\BooleanFilterType::class, [
-                                     'placeholder' => 'Expert Presenter Available',
-                                     'label'       => 'Expert Presenter Available',
-                                 ]
+        $builder->add('hasExpertPresenters', Filters\BooleanFilterType::class, [
+                'placeholder' => 'Expert Presenter Available',
+                'label' => 'Expert Presenter Available',
+            ]
         );
 
-        $builder->add(
-            'hasEducatorRequestors', Filters\BooleanFilterType::class, [
-                                       'placeholder' => 'Educator Requested',
-                                       'label'       => 'Educator Requested',
-                                   ]
+        $builder->add('hasEducatorRequestors', Filters\BooleanFilterType::class, [
+                'placeholder' => 'Educator Requested',
+                'label' => 'Educator Requested',
+            ]
         );
     }
 
@@ -103,8 +103,19 @@ class LessonFilterType extends AbstractType
     {
         $resolver->setDefaults(
             array (
-                'csrf_protection'   => false,
-                'validation_groups' => array ('filtering') // avoid NotBlank() constraint-related message
+                'csrf_protection' => false,
+                'validation_groups' => array ('filtering'),
+                'filter_condition_builder' => function (ConditionBuilderInterface $builder) {
+                    $builder
+                        ->root('and')
+                        ->field('title')
+                        ->field('primaryCourse')
+                        ->field('primaryIndustry')
+                        ->orX()
+                        ->field('hasExpertPresenters')
+                        ->field('hasEducatorRequestors')
+                        ->end();
+                },
             )
         );
     }

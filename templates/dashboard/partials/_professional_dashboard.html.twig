@@ -27,16 +27,67 @@
                     <div class="uk-card-body">
 
                         {% if user.company is not null %}
-                            <div class="uk-grid">
-                                <div class="uk-width-auto">
-                                    <img src="{{ asset('build/images/calendar.svg') }}">
+
+                            {% set company = user.company %}
+
+                            {% if user.isOwner(company) %}
+
+                                <div class="uk-grid">
+                                    <div class="uk-width-auto">
+                                        <img src="{{ asset('build/images/calendar.svg') }}">
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <h4>Host a Student Experience</h4>
+                                        <p>Develop student interest and educator knowledge in your industry through
+                                            company
+                                            visits, internships, job shadows and informational interviews.</p>
+                                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}"
+                                           class="uk-button uk-button-primary" style="width: 300px">GET STARTED</a>
+                                    </div>
                                 </div>
-                                <div class="uk-width-expand">
-                                    <h4>Host a Student Experience</h4>
-                                    <p>Develop student interest and educator knowledge in your industry through company visits, internships, job shadows and informational interviews.</p>
-                                    <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary" style="width: 300px">GET STARTED</a>
+
+                            {% else %}
+
+                                <div id="modal-contact-company-administrator" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                                        <h3>Host a Student Experience</h3>
+                                        <p>To host a student experience at your company, please contact your company's
+                                            FutureForward coordinator</p>
+
+                                        {% if company.owner is not null %}
+                                            <table class="uk-table">
+                                                <caption>Contact Information</caption>
+                                                <tr>
+                                                    <th>Company Contact</th>
+                                                    <td>{{ company.owner.fullName }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Company Email</th>
+                                                    <td><a href="mailto:{{ company.owner.email }}">{{ company.owner.email }}</a></td>
+                                                </tr>
+                                            </table>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
+
+                                <div class="uk-grid">
+                                    <div class="uk-width-auto">
+                                        <img src="{{ asset('build/images/calendar.svg') }}">
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <h4>Host a Student Experience</h4>
+                                        <p>Develop student interest and educator knowledge in your industry through
+                                            company
+                                            visits, internships, job shadows and informational interviews.</p>
+                                        <a href="#modal-contact-company-administrator"
+                                           class="uk-button uk-button-primary" style="width: 300px" uk-toggle>GET
+                                            STARTED</a>
+                                    </div>
+                                </div>
+
+                            {% endif %}
+
                         {% endif %}
 
                         <div class="uk-grid">
@@ -45,8 +96,11 @@
                             </div>
                             <div class="uk-width-expand">
                                 <h4>Share your expertise with students</h4>
-                                <p>Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.</p>
-                                <a href="{{ path('lesson_index') }}" class="uk-button uk-button-primary" style="width: 300px">BROWSE LESSON TOPICS</a>
+                                <p>Become a guest topic instructor in your area of expertise. Help students see the
+                                    applicability of their schooling to the workplace and spark interest amongst
+                                    students in your career field.</p>
+                                <a href="{{ path('lesson_index') }}" class="uk-button uk-button-primary"
+                                   style="width: 300px">BROWSE LESSON TOPICS</a>
                             </div>
                         </div>
 
@@ -56,8 +110,11 @@
                             </div>
                             <div class="uk-width-expand">
                                 <h4>Connect with educators to see if you can help support their students</h4>
-                                <p>Serve your community by connecting with educators in your field. Start a conversation and see what they might want help with, from mentoring to teaching a guest lesson topic.</p>
-                                <a href="{{ path('educator_results_page') }}" class="uk-button uk-button-primary" style="width: 300px">BROWSE EDUCATORS</a>
+                                <p>Serve your community by connecting with educators in your field. Start a conversation
+                                    and see what they might want help with, from mentoring to teaching a guest lesson
+                                    topic.</p>
+                                <a href="{{ path('educator_results_page') }}" class="uk-button uk-button-primary"
+                                   style="width: 300px">BROWSE EDUCATORS</a>
                             </div>
                         </div>
 
@@ -236,7 +293,9 @@
                                 <h3>My Upcoming Experiences</h3>
                             </div>
                             <div class="uk-width-expand">
-                                <a style="display: block; float: right" href="{{ path('experience_index') }}">Browse or Create Experiences <span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span></a>
+                                <a style="display: block; float: right" href="{{ path('experience_index') }}">Browse or
+                                    Create Experiences <span class="uk-margin-small-right"
+                                                             uk-icon="icon: file-edit; ratio: 1"></span></a>
                             </div>
                         </div>
 

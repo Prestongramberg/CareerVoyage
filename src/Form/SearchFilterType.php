@@ -61,77 +61,81 @@ class SearchFilterType extends AbstractType
 
         $builder->add(
             'search', Filters\TextFilterType::class, [
-                        'apply_filter' => function (QueryInterface $filterQuery, $field, $values) use ($userRole) {
+                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) use ($userRole) {
 
-                            if (empty($values['value'])) {
-                                return null;
-                            }
+                    if (empty($values['value'])) {
+                        return null;
+                    }
 
-                            $searchTerm = $values['value'];
+                    $searchTerm = $values['value'];
 
-                            $queryBuilder = $filterQuery->getQueryBuilder();
+                    $queryBuilder = $filterQuery->getQueryBuilder();
 
-                            if ($userRole === User::ROLE_PROFESSIONAL_USER) {
-                                $queryBuilder->andWhere('u.firstName LIKE :searchTerm OR u.lastName LIKE :searchTerm OR u.email LIKE :searchTerm OR u.username Like :searchTerm OR u.interests LIKE :searchTerm')
-                                             ->setParameter('searchTerm', '%' . $searchTerm . '%');
-                            } else {
-                                $queryBuilder->andWhere('u.firstName LIKE :searchTerm OR u.lastName LIKE :searchTerm OR u.email LIKE :searchTerm OR u.username Like :searchTerm')
-                                             ->setParameter('searchTerm', '%' . $searchTerm . '%');
-                            }
+                    if ($userRole === User::ROLE_PROFESSIONAL_USER) {
 
-                            $newFilterQuery = new ORMQuery($queryBuilder);
+                        $queryBuilder->andWhere("u.firstName IS NOT NULL and u.lastName IS NOT NULL and u.firstName != '' and u.lastName != ''")
+                                     ->andWhere('CONCAT(u.firstName, \' \', u.lastName) LIKE :searchTerm OR u.interests LIKE :searchTerm')
+                                     ->setParameter('searchTerm', '%' . $searchTerm . '%');
 
-                            $expression = $newFilterQuery->getExpr()->eq('1', '1');
+                    } else {
+                        $queryBuilder->andWhere("u.firstName IS NOT NULL and u.lastName IS NOT NULL and u.firstName != '' and u.lastName != ''")
+                                     ->andWhere('CONCAT(u.firstName, \' \', u.lastName) LIKE :searchTerm')
+                                     ->setParameter('searchTerm', '%' . $searchTerm . '%');
+                    }
 
-                            return $newFilterQuery->createCondition($expression);
-                        },
-                        'mapped'       => false,
-                        'label'        => $userRole === User::ROLE_PROFESSIONAL_USER ? 'Search by interest, name, email, or username' : 'Search by name, email, or username',
-                    ]
+                    $newFilterQuery = new ORMQuery($queryBuilder);
+
+                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
+
+                    return $newFilterQuery->createCondition($expression);
+                },
+                'mapped' => false,
+                'label' => $userRole === User::ROLE_PROFESSIONAL_USER ? 'Search by interest, name, email, or username' : 'Search by name, email, or username',
+            ]
         );
 
         $builder->add(
             'userRole', Filters\ChoiceFilterType::class, [
-                          'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
+                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
 
-                              if (empty($values['value'])) {
-                                  return null;
-                              }
+                    if (empty($values['value'])) {
+                        return null;
+                    }
 
-                              $roles = is_array($values['value']) ? $values['value'] : [$values['value']];
+                    $roles = is_array($values['value']) ? $values['value'] : [$values['value']];
 
-                              $queryBuilder = $filterQuery->getQueryBuilder();
+                    $queryBuilder = $filterQuery->getQueryBuilder();
 
 
-                              foreach ($roles as $role) {
-                                  $queries[] = sprintf('u.roles LIKE :%s', $role);
-                              }
+                    foreach ($roles as $role) {
+                        $queries[] = sprintf('u.roles LIKE :%s', $role);
+                    }
 
-                              $queryString = implode(" OR ", $queries);
+                    $queryString = implode(" OR ", $queries);
 
-                              $queryBuilder->andWhere($queryString);
+                    $queryBuilder->andWhere($queryString);
 
-                              foreach ($roles as $role) {
-                                  $queryBuilder->setParameter($role, '%"' . $role . '"%');
-                              }
+                    foreach ($roles as $role) {
+                        $queryBuilder->setParameter($role, '%"' . $role . '"%');
+                    }
 
-                              $newFilterQuery = new ORMQuery($queryBuilder);
+                    $newFilterQuery = new ORMQuery($queryBuilder);
 
-                              return $newFilterQuery->getExpr();
-                          },
-                          'expanded'     => false,
-                          'multiple'     => false,
-                          'required'     => false,
-                          'mapped'       => false,
-                          'choices'      => [
-                              'Educator'             => 'ROLE_EDUCATOR_USER',
-                              'Professional'         => 'ROLE_PROFESSIONAL_USER',
-                              'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
-                              'Student'              => 'ROLE_STUDENT_USER',
-                          ],
-                          'label'        => 'FILTER BY USER ROLE',
-                          'placeholder'  => 'FILTER BY USER ROLE',
-                      ]
+                    return $newFilterQuery->getExpr();
+                },
+                'expanded' => false,
+                'multiple' => false,
+                'required' => false,
+                'mapped' => false,
+                'choices' => [
+                    'Educator' => 'ROLE_EDUCATOR_USER',
+                    'Professional' => 'ROLE_PROFESSIONAL_USER',
+                    'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
+                    'Student' => 'ROLE_STUDENT_USER',
+                ],
+                'label' => 'FILTER BY USER ROLE',
+                'placeholder' => 'FILTER BY USER ROLE',
+            ]
         );
 
 
@@ -186,52 +190,52 @@ class SearchFilterType extends AbstractType
 
         $form->add(
             'company', Filters\EntityFilterType::class, [
-                         'class'         => Company::class,
-                         'choice_label'  => 'name',
-                         'expanded'      => false,
-                         'multiple'      => true,
-                         'label'         => 'FILTER BY COMPANY',
-                         'placeholder'   => 'FILTER BY COMPANY',
-                         'query_builder' => function (\App\Repository\CompanyRepository $companyRepository) {
-                             return $companyRepository->createQueryBuilder('c')
-                                                      ->orderBy('c.name', 'ASC');
-                         },
-                     ]
+                'class' => Company::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'label' => 'FILTER BY COMPANY',
+                'placeholder' => 'FILTER BY COMPANY',
+                'query_builder' => function (\App\Repository\CompanyRepository $companyRepository) {
+                    return $companyRepository->createQueryBuilder('c')
+                                             ->orderBy('c.name', 'ASC');
+                },
+            ]
         );
 
         $form->add(
             'rolesWillingToFulfill', Filters\EntityFilterType::class, [
-                                       'class'         => RolesWillingToFulfill::class,
-                                       'choice_label'  => 'name',
-                                       'expanded'      => false,
-                                       'multiple'      => true,
-                                       'placeholder'   => 'FILTER BY ROLES',
-                                       'label'         => 'FILTER BY ROLES',
-                                       'query_builder' => function (
-                                           \App\Repository\RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
-                                       ) {
-                                           return $rolesWillingToFulfillRepository->createQueryBuilder('r')
-                                                                                  ->orderBy('r.name', 'ASC');
-                                       },
-                                   ]
+                'class' => RolesWillingToFulfill::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY ROLES',
+                'label' => 'FILTER BY ROLES',
+                'query_builder' => function (
+                    \App\Repository\RolesWillingToFulfillRepository $rolesWillingToFulfillRepository
+                ) {
+                    return $rolesWillingToFulfillRepository->createQueryBuilder('r')
+                                                           ->orderBy('r.name', 'ASC');
+                },
+            ]
         );
 
         $builder = $form->getConfig()->getFormFactory()->createNamedBuilder(
             'primaryIndustry', Filters\EntityFilterType::class, null, [
-                                 'class'           => Industry::class,
-                                 'choice_label'    => 'name',
-                                 'expanded'        => false,
-                                 'multiple'        => true,
-                                 'placeholder'     => 'FILTER BY INDUSTRY',
-                                 'label'           => 'FILTER BY INDUSTRY',
-                                 'auto_initialize' => false,
-                                 'query_builder'   => function (
-                                     \App\Repository\IndustryRepository $industryRepository
-                                 ) {
-                                     return $industryRepository->createQueryBuilder('i')
-                                                               ->orderBy('i.name', 'ASC');
-                                 },
-                             ]
+                'class' => Industry::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY INDUSTRY',
+                'label' => 'FILTER BY INDUSTRY',
+                'auto_initialize' => false,
+                'query_builder' => function (
+                    \App\Repository\IndustryRepository $industryRepository
+                ) {
+                    return $industryRepository->createQueryBuilder('i')
+                                              ->orderBy('i.name', 'ASC');
+                },
+            ]
         );
 
         $builder->addEventListener(
@@ -268,22 +272,22 @@ class SearchFilterType extends AbstractType
 
             $form->add(
                 'secondaryIndustries', Filters\EntityFilterType::class, [
-                                         'class'         => SecondaryIndustry::class,
-                                         'choice_label'  => 'name',
-                                         'expanded'      => false,
-                                         'multiple'      => true,
-                                         'placeholder'   => 'FILTER BY CAREER',
-                                         'label'         => 'FILTER BY CAREER',
-                                         'query_builder' => function (
-                                             \App\Repository\SecondaryIndustryRepository $secondaryIndustryRepository
-                                         ) use ($industryIds) {
-                                             return $secondaryIndustryRepository->createQueryBuilder('si')
-                                                                                ->innerJoin('si.primaryIndustry', 'primaryIndustry')
-                                                                                ->andWhere('primaryIndustry.id IN (:ids)')
-                                                                                ->setParameter('ids', $industryIds)
-                                                                                ->orderBy('si.name', 'ASC');
-                                         },
-                                     ]
+                    'class' => SecondaryIndustry::class,
+                    'choice_label' => 'name',
+                    'expanded' => false,
+                    'multiple' => true,
+                    'placeholder' => 'FILTER BY CAREER',
+                    'label' => 'FILTER BY CAREER',
+                    'query_builder' => function (
+                        \App\Repository\SecondaryIndustryRepository $secondaryIndustryRepository
+                    ) use ($industryIds) {
+                        return $secondaryIndustryRepository->createQueryBuilder('si')
+                                                           ->innerJoin('si.primaryIndustry', 'primaryIndustry')
+                                                           ->andWhere('primaryIndustry.id IN (:ids)')
+                                                           ->setParameter('ids', $industryIds)
+                                                           ->orderBy('si.name', 'ASC');
+                    },
+                ]
             );
 
 
@@ -312,83 +316,83 @@ class SearchFilterType extends AbstractType
 
         $form->add(
             'school', Filters\EntityFilterType::class, [
-                        'class'         => School::class,
-                        'choice_label'  => 'name',
-                        'expanded'      => false,
-                        'multiple'      => true,
-                        'placeholder'   => 'FILTER BY SCHOOL',
-                        'label'         => 'FILTER BY SCHOOL',
-                        'query_builder' => function (EntityRepository $er) {
-                            return $er->createQueryBuilder('s')
-                                      ->orderBy('s.name', 'ASC');
-                        },
-                    ]
+                'class' => School::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY SCHOOL',
+                'label' => 'FILTER BY SCHOOL',
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('s')
+                              ->orderBy('s.name', 'ASC');
+                },
+            ]
         );
 
         $form->add(
             'myCourses', Filters\EntityFilterType::class, [
-                           'class'         => Course::class,
-                           'choice_label'  => 'title',
-                           'expanded'      => false,
-                           'multiple'      => true,
-                           'placeholder'   => 'FILTER BY COURSE',
-                           'label'         => 'FILTER BY COURSE',
-                           'query_builder' => function (
-                               EntityRepository $er
-                           ) {
-                               return $er->createQueryBuilder('c')
-                                         ->orderBy('c.title', 'ASC');
-                           },
-                       ]
+                'class' => Course::class,
+                'choice_label' => 'title',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY COURSE',
+                'label' => 'FILTER BY COURSE',
+                'query_builder' => function (
+                    EntityRepository $er
+                ) {
+                    return $er->createQueryBuilder('c')
+                              ->orderBy('c.title', 'ASC');
+                },
+            ]
         );
 
         $builder = $form->getConfig()->getFormFactory()->createNamedBuilder(
             'primaryIndustry', Filters\EntityFilterType::class, null, [
-                                 'class'           => Industry::class,
-                                 'choice_label'    => 'name',
-                                 'expanded'        => false,
-                                 'multiple'        => true,
-                                 'placeholder'     => 'FILTER BY INDUSTRY',
-                                 'auto_initialize' => false,
-                                 'label'           => 'FILTER BY INDUSTRY',
-                                 'query_builder'   => function (
-                                     EntityRepository $er
-                                 ) {
-                                     return $er->createQueryBuilder('i')
-                                               ->orderBy('i.name', 'ASC');
-                                 },
-                                 'apply_filter'    => function (QueryInterface $filterQuery, $field, $values) {
+                'class' => Industry::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY INDUSTRY',
+                'auto_initialize' => false,
+                'label' => 'FILTER BY INDUSTRY',
+                'query_builder' => function (
+                    EntityRepository $er
+                ) {
+                    return $er->createQueryBuilder('i')
+                              ->orderBy('i.name', 'ASC');
+                },
+                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
 
-                                     $industries = $values['value'];
-                                     if ($industries instanceof ArrayCollection) {
-                                         $industries = $values['value']->toArray();
-                                     }
+                    $industries = $values['value'];
+                    if ($industries instanceof ArrayCollection) {
+                        $industries = $values['value']->toArray();
+                    }
 
-                                     if (empty($industries)) {
-                                         return null;
-                                     }
+                    if (empty($industries)) {
+                        return null;
+                    }
 
-                                     $industryIds = array_map(
-                                         function (Industry $industry) {
-                                             return $industry->getId();
-                                         }, $industries
-                                     );
+                    $industryIds = array_map(
+                        function (Industry $industry) {
+                            return $industry->getId();
+                        }, $industries
+                    );
 
 
-                                     $queryBuilder = $filterQuery->getQueryBuilder();
+                    $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                     $queryBuilder->innerJoin('u.secondaryIndustries', 'si')
-                                                  ->innerJoin('si.primaryIndustry', 'pi')
-                                                  ->andWhere('pi.id IN (:ids)')
-                                                  ->setParameter('ids', $industryIds);
+                    $queryBuilder->innerJoin('u.secondaryIndustries', 'si')
+                                 ->innerJoin('si.primaryIndustry', 'pi')
+                                 ->andWhere('pi.id IN (:ids)')
+                                 ->setParameter('ids', $industryIds);
 
-                                     $newFilterQuery = new ORMQuery($queryBuilder);
+                    $newFilterQuery = new ORMQuery($queryBuilder);
 
-                                     $expression = $newFilterQuery->getExpr()->eq('1', '1');
+                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
 
-                                     return $newFilterQuery->createCondition($expression);
-                                 },
-                             ]
+                    return $newFilterQuery->createCondition($expression);
+                },
+            ]
         );
 
         $builder->addEventListener(
@@ -425,52 +429,52 @@ class SearchFilterType extends AbstractType
 
             $form->add(
                 'secondaryIndustries', Filters\EntityFilterType::class, [
-                                         'class'         => SecondaryIndustry::class,
-                                         'choice_label'  => 'name',
-                                         'expanded'      => false,
-                                         'multiple'      => true,
-                                         'placeholder'   => 'FILTER BY CAREER',
-                                         'label'         => 'FILTER BY CAREER',
-                                         'query_builder' => function (
-                                             EntityRepository $er
-                                         ) use ($industryIds) {
-                                             return $er->createQueryBuilder('si')
-                                                       ->innerJoin('si.primaryIndustry', 'primaryIndustry')
-                                                       ->andWhere('primaryIndustry.id IN (:ids)')
-                                                       ->setParameter('ids', $industryIds)
-                                                       ->orderBy('si.name', 'ASC');
-                                         },
-                                         'apply_filter'  => function (QueryInterface $filterQuery, $field, $values) {
+                    'class' => SecondaryIndustry::class,
+                    'choice_label' => 'name',
+                    'expanded' => false,
+                    'multiple' => true,
+                    'placeholder' => 'FILTER BY CAREER',
+                    'label' => 'FILTER BY CAREER',
+                    'query_builder' => function (
+                        EntityRepository $er
+                    ) use ($industryIds) {
+                        return $er->createQueryBuilder('si')
+                                  ->innerJoin('si.primaryIndustry', 'primaryIndustry')
+                                  ->andWhere('primaryIndustry.id IN (:ids)')
+                                  ->setParameter('ids', $industryIds)
+                                  ->orderBy('si.name', 'ASC');
+                    },
+                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
 
-                                             $industries = $values['value'];
+                        $industries = $values['value'];
 
-                                             if ($industries instanceof ArrayCollection) {
-                                                 $industries = $values['value']->toArray();
-                                             }
+                        if ($industries instanceof ArrayCollection) {
+                            $industries = $values['value']->toArray();
+                        }
 
-                                             if (empty($industries)) {
-                                                 return null;
-                                             }
+                        if (empty($industries)) {
+                            return null;
+                        }
 
-                                             $industryIds = array_map(
-                                                 function (SecondaryIndustry $industry) {
-                                                     return $industry->getId();
-                                                 }, $industries
-                                             );
+                        $industryIds = array_map(
+                            function (SecondaryIndustry $industry) {
+                                return $industry->getId();
+                            }, $industries
+                        );
 
 
-                                             $queryBuilder = $filterQuery->getQueryBuilder();
+                        $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                             $queryBuilder->andWhere('si.id IN (:ids)')
-                                                          ->setParameter('ids', $industryIds);
+                        $queryBuilder->andWhere('si.id IN (:ids)')
+                                     ->setParameter('ids', $industryIds);
 
-                                             $newFilterQuery = new ORMQuery($queryBuilder);
+                        $newFilterQuery = new ORMQuery($queryBuilder);
 
-                                             $expression = $newFilterQuery->getExpr()->eq('1', '1');
+                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
 
-                                             return $newFilterQuery->createCondition($expression);
-                                         },
-                                     ]
+                        return $newFilterQuery->createCondition($expression);
+                    },
+                ]
             );
 
 
@@ -494,66 +498,66 @@ class SearchFilterType extends AbstractType
 
         $form->add(
             'school', Filters\EntityFilterType::class, [
-                        'class'         => School::class,
-                        'choice_label'  => 'name',
-                        'expanded'      => false,
-                        'multiple'      => true,
-                        'placeholder'   => 'FILTER BY SCHOOL',
-                        'label'         => 'FILTER BY SCHOOL',
-                        'query_builder' => function (\App\Repository\SchoolRepository $schoolRepository) {
-                            return $schoolRepository->createQueryBuilder('s')
-                                                    ->orderBy('s.name', 'ASC');
-                        },
-                    ]
+                'class' => School::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY SCHOOL',
+                'label' => 'FILTER BY SCHOOL',
+                'query_builder' => function (\App\Repository\SchoolRepository $schoolRepository) {
+                    return $schoolRepository->createQueryBuilder('s')
+                                            ->orderBy('s.name', 'ASC');
+                },
+            ]
         );
 
         $builder = $form->getConfig()->getFormFactory()->createNamedBuilder(
             'primaryIndustry', Filters\EntityFilterType::class, null, [
-                                 'class'           => Industry::class,
-                                 'choice_label'    => 'name',
-                                 'expanded'        => false,
-                                 'multiple'        => true,
-                                 'placeholder'     => 'FILTER BY INDUSTRY',
-                                 'auto_initialize' => false,
-                                 'label'           => 'FILTER BY INDUSTRY',
-                                 'query_builder'   => function (
-                                     EntityRepository $er
-                                 ) {
-                                     return $er->createQueryBuilder('i')
-                                               ->orderBy('i.name', 'ASC');
-                                 },
-                                 'apply_filter'    => function (QueryInterface $filterQuery, $field, $values) {
+                'class' => Industry::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY INDUSTRY',
+                'auto_initialize' => false,
+                'label' => 'FILTER BY INDUSTRY',
+                'query_builder' => function (
+                    EntityRepository $er
+                ) {
+                    return $er->createQueryBuilder('i')
+                              ->orderBy('i.name', 'ASC');
+                },
+                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
 
-                                     $industries = $values['value'];
-                                     if ($industries instanceof ArrayCollection) {
-                                         $industries = $values['value']->toArray();
-                                     }
+                    $industries = $values['value'];
+                    if ($industries instanceof ArrayCollection) {
+                        $industries = $values['value']->toArray();
+                    }
 
-                                     if (empty($industries)) {
-                                         return null;
-                                     }
+                    if (empty($industries)) {
+                        return null;
+                    }
 
-                                     $industryIds = array_map(
-                                         function (Industry $industry) {
-                                             return $industry->getId();
-                                         }, $industries
-                                     );
+                    $industryIds = array_map(
+                        function (Industry $industry) {
+                            return $industry->getId();
+                        }, $industries
+                    );
 
 
-                                     $queryBuilder = $filterQuery->getQueryBuilder();
+                    $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                     $queryBuilder->innerJoin('u.secondaryIndustries', 'si')
-                                                  ->innerJoin('si.primaryIndustry', 'pi')
-                                                  ->andWhere('pi.id IN (:ids)')
-                                                  ->setParameter('ids', $industryIds);
+                    $queryBuilder->innerJoin('u.secondaryIndustries', 'si')
+                                 ->innerJoin('si.primaryIndustry', 'pi')
+                                 ->andWhere('pi.id IN (:ids)')
+                                 ->setParameter('ids', $industryIds);
 
-                                     $newFilterQuery = new ORMQuery($queryBuilder);
+                    $newFilterQuery = new ORMQuery($queryBuilder);
 
-                                     $expression = $newFilterQuery->getExpr()->eq('1', '1');
+                    $expression = $newFilterQuery->getExpr()->eq('1', '1');
 
-                                     return $newFilterQuery->createCondition($expression);
-                                 },
-                             ]
+                    return $newFilterQuery->createCondition($expression);
+                },
+            ]
         );
 
         $builder->addEventListener(
@@ -590,52 +594,52 @@ class SearchFilterType extends AbstractType
 
             $form->add(
                 'secondaryIndustries', Filters\EntityFilterType::class, [
-                                         'class'         => SecondaryIndustry::class,
-                                         'choice_label'  => 'name',
-                                         'expanded'      => false,
-                                         'multiple'      => true,
-                                         'placeholder'   => 'FILTER BY CAREER',
-                                         'label'         => 'FILTER BY CAREER',
-                                         'query_builder' => function (
-                                             EntityRepository $er
-                                         ) use ($industryIds) {
-                                             return $er->createQueryBuilder('si')
-                                                       ->innerJoin('si.primaryIndustry', 'primaryIndustry')
-                                                       ->andWhere('primaryIndustry.id IN (:ids)')
-                                                       ->setParameter('ids', $industryIds)
-                                                       ->orderBy('si.name', 'ASC');
-                                         },
-                                         'apply_filter'  => function (QueryInterface $filterQuery, $field, $values) {
+                    'class' => SecondaryIndustry::class,
+                    'choice_label' => 'name',
+                    'expanded' => false,
+                    'multiple' => true,
+                    'placeholder' => 'FILTER BY CAREER',
+                    'label' => 'FILTER BY CAREER',
+                    'query_builder' => function (
+                        EntityRepository $er
+                    ) use ($industryIds) {
+                        return $er->createQueryBuilder('si')
+                                  ->innerJoin('si.primaryIndustry', 'primaryIndustry')
+                                  ->andWhere('primaryIndustry.id IN (:ids)')
+                                  ->setParameter('ids', $industryIds)
+                                  ->orderBy('si.name', 'ASC');
+                    },
+                    'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
 
-                                             $industries = $values['value'];
+                        $industries = $values['value'];
 
-                                             if ($industries instanceof ArrayCollection) {
-                                                 $industries = $values['value']->toArray();
-                                             }
+                        if ($industries instanceof ArrayCollection) {
+                            $industries = $values['value']->toArray();
+                        }
 
-                                             if (empty($industries)) {
-                                                 return null;
-                                             }
+                        if (empty($industries)) {
+                            return null;
+                        }
 
-                                             $industryIds = array_map(
-                                                 function (SecondaryIndustry $industry) {
-                                                     return $industry->getId();
-                                                 }, $industries
-                                             );
+                        $industryIds = array_map(
+                            function (SecondaryIndustry $industry) {
+                                return $industry->getId();
+                            }, $industries
+                        );
 
 
-                                             $queryBuilder = $filterQuery->getQueryBuilder();
+                        $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                             $queryBuilder->andWhere('si.id IN (:ids)')
-                                                          ->setParameter('ids', $industryIds);
+                        $queryBuilder->andWhere('si.id IN (:ids)')
+                                     ->setParameter('ids', $industryIds);
 
-                                             $newFilterQuery = new ORMQuery($queryBuilder);
+                        $newFilterQuery = new ORMQuery($queryBuilder);
 
-                                             $expression = $newFilterQuery->getExpr()->eq('1', '1');
+                        $expression = $newFilterQuery->getExpr()->eq('1', '1');
 
-                                             return $newFilterQuery->createCondition($expression);
-                                         },
-                                     ]
+                        return $newFilterQuery->createCondition($expression);
+                    },
+                ]
             );
 
 
@@ -654,17 +658,17 @@ class SearchFilterType extends AbstractType
 
         $form->add(
             'schools', Filters\EntityFilterType::class, [
-                         'class'         => School::class,
-                         'choice_label'  => 'name',
-                         'expanded'      => false,
-                         'multiple'      => true,
-                         'placeholder'   => 'FILTER BY SCHOOL',
-                         'label'         => 'FILTER BY SCHOOL',
-                         'query_builder' => function (\App\Repository\SchoolRepository $schoolRepository) {
-                             return $schoolRepository->createQueryBuilder('s')
-                                                     ->orderBy('s.name', 'ASC');
-                         },
-                     ]
+                'class' => School::class,
+                'choice_label' => 'name',
+                'expanded' => false,
+                'multiple' => true,
+                'placeholder' => 'FILTER BY SCHOOL',
+                'label' => 'FILTER BY SCHOOL',
+                'query_builder' => function (\App\Repository\SchoolRepository $schoolRepository) {
+                    return $schoolRepository->createQueryBuilder('s')
+                                            ->orderBy('s.name', 'ASC');
+                },
+            ]
         );
     }
 
@@ -677,9 +681,9 @@ class SearchFilterType extends AbstractType
     {
         $resolver->setDefaults(
             array (
-                'csrf_protection'   => false,
+                'csrf_protection' => false,
                 'validation_groups' => array ('filtering'), // avoid NotBlank() constraint-related message
-                'userRole'          => null,
+                'userRole' => null,
             )
         );
     }
