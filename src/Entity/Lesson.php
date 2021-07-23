@@ -120,16 +120,16 @@ class Lesson
     private $isTeachable;
 
     /**
-     * @var boolean
+     * @ORM\Column(type="boolean", nullable=false)
      * @Groups({"LESSON_DATA"})
      */
-    private $hasEducatorRequestors;
+    private $hasEducatorRequestors = false;
 
     /**
-     * @var boolean
+     * @ORM\Column(type="boolean", nullable=false)
      * @Groups({"LESSON_DATA"})
      */
-    private $hasExpertPresenters;
+    private $hasExpertPresenters = false;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="lesson", orphanRemoval=true)
@@ -477,6 +477,14 @@ class Lesson
     }
 
     /**
+     * @return mixed
+     */
+    public function getHasEducatorRequestors()
+    {
+        return $this->hasEducatorRequestors;
+    }
+
+    /**
      * @Groups({"LESSON_DATA"})
      * @return bool
      */
@@ -491,6 +499,14 @@ class Lesson
     public function setHasExpertPresenters($hasExpertPresenters) 
     {
         $this->hasExpertPresenters = $hasExpertPresenters;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHasExpertPresenters()
+    {
+        return $this->hasExpertPresenters;
     }
 
     /**

@@ -69,6 +69,8 @@ class LessonController extends AbstractController
      */
     public function indexAction(Request $request)
     {
+        // pretty sure this function is deprecated so let's redirect to the new results page
+        return $this->redirectToRoute('lessons_results_page');
 
         $favoritedLessons = $this->lessonFavoriteRepository->findBy(
             [
@@ -87,10 +89,10 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/index.html.twig', [
-                                        'user'             => $user,
-                                        'favoritedLessons' => $favoritedLessons,
-                                        'teachableLessons' => $teachableLessons,
-                                    ]
+                'user' => $user,
+                'favoritedLessons' => $favoritedLessons,
+                'teachableLessons' => $teachableLessons,
+            ]
         );
     }
 
@@ -121,8 +123,8 @@ class LessonController extends AbstractController
 
         $form = $this->createForm(
             LessonFilterType::class, null, [
-                                       'method' => 'GET',
-                                   ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -150,13 +152,13 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/results.html.twig', [
-                                          'favoritedLessons' => $favoritedLessons,
-                                          'teachableLessons' => $teachableLessons,
-                                          'user'             => $user,
-                                          'pagination'       => $pagination,
-                                          'form'             => $form->createView(),
-                                          'clearFormUrl'     => $this->generateUrl('lessons_results_page'),
-                                      ]
+                'favoritedLessons' => $favoritedLessons,
+                'teachableLessons' => $teachableLessons,
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl('lessons_results_page'),
+            ]
         );
     }
 
@@ -181,8 +183,8 @@ class LessonController extends AbstractController
 
         $form = $this->createForm(
             LessonFilterType::class, null, [
-                                       'method' => 'GET',
-                                   ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -212,11 +214,11 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/teachable.html.twig', [
-                                            'user'         => $user,
-                                            'pagination'   => $pagination,
-                                            'form'         => $form->createView(),
-                                            'clearFormUrl' => $this->generateUrl('lessons_results_page'),
-                                        ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl('lessons_results_page'),
+            ]
         );
     }
 
@@ -233,8 +235,8 @@ class LessonController extends AbstractController
 
         $form = $this->createForm(
             LessonFilterType::class, null, [
-                                       'method' => 'GET',
-                                   ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -261,11 +263,11 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/my_created.html.twig', [
-                                             'user'         => $user,
-                                             'pagination'   => $pagination,
-                                             'form'         => $form->createView(),
-                                             'clearFormUrl' => $this->generateUrl('lessons_my_created'),
-                                         ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl('lessons_my_created'),
+            ]
         );
     }
 
@@ -282,7 +284,7 @@ class LessonController extends AbstractController
         $lesson = new Lesson();
 
         $options = [
-            'method'          => 'POST',
+            'method' => 'POST',
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
@@ -316,9 +318,9 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/new.html.twig', [
-                                      'user' => $user,
-                                      'form' => $form->createView(),
-                                  ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -376,11 +378,11 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/view.html.twig', [
-                                       'user'               => $user,
-                                       'lesson'             => $lesson,
-                                       'primary_industries' => $primaryIndustries,
-                                       'lessonTeachables'   => $lessonTeachables,
-                                   ]
+                'user' => $user,
+                'lesson' => $lesson,
+                'primary_industries' => $primaryIndustries,
+                'lessonTeachables' => $lessonTeachables,
+            ]
         );
     }
 
@@ -444,7 +446,7 @@ class LessonController extends AbstractController
         $user = $this->getUser();
 
         $options = [
-            'method'          => 'POST',
+            'method' => 'POST',
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
@@ -467,10 +469,10 @@ class LessonController extends AbstractController
 
         return $this->render(
             'lesson/edit.html.twig', [
-                                       'user'   => $user,
-                                       'form'   => $form->createView(),
-                                       'lesson' => $lesson,
-                                   ]
+                'user' => $user,
+                'form' => $form->createView(),
+                'lesson' => $lesson,
+            ]
         );
     }
 
@@ -527,7 +529,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::LESSON_THUMBNAIL . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::LESSON_THUMBNAIL . '/' . $newFilename, 'squared_thumbnail_small'),
                 ], Response::HTTP_OK
             );
         }
@@ -568,7 +570,7 @@ class LessonController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::LESSON_FEATURED . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::LESSON_FEATURED . '/' . $newFilename, 'squared_thumbnail_small'),
                 ], Response::HTTP_OK
             );
         }
@@ -615,10 +617,10 @@ class LessonController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $newFilename,
-                    'id'          => $lessonResource->getId(),
-                    'title'       => $title,
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $newFilename,
+                    'id' => $lessonResource->getId(),
+                    'title' => $title,
                     'description' => $description,
 
                 ], Response::HTTP_OK
@@ -642,10 +644,10 @@ class LessonController extends AbstractController
 
                 return new JsonResponse(
                     [
-                        'success'     => true,
-                        'url'         => $linkToWebsite,
-                        'id'          => $lessonResource->getId(),
-                        'title'       => $title,
+                        'success' => true,
+                        'url' => $linkToWebsite,
+                        'id' => $lessonResource->getId(),
+                        'title' => $title,
                         'description' => $description,
 
                     ], Response::HTTP_OK
@@ -676,10 +678,10 @@ class LessonController extends AbstractController
         if ($file->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -687,10 +689,10 @@ class LessonController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -752,10 +754,10 @@ class LessonController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -763,10 +765,10 @@ class LessonController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -806,10 +808,10 @@ class LessonController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => 'uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $newFilename,
-                    'id'          => $lessonResource->getId(),
-                    'title'       => $title,
+                    'success' => true,
+                    'url' => 'uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $newFilename,
+                    'id' => $lessonResource->getId(),
+                    'title' => $title,
                     'description' => $description,
 
                 ], Response::HTTP_OK
