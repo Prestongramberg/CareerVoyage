@@ -3,6 +3,8 @@
 namespace App\Util;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -25,14 +27,23 @@ trait FormHelper
             $builder->get($immutableField)
                 ->addModelTransformer(new CallbackTransformer(
                     function ($value) {
+
+                        //return [];
                         return $value;
                     },
                     function ($value) use($options, $immutableField) {
                         $originalObject = $options['data'];
                         $callable = "get" . ucfirst($immutableField);
                         if(is_callable(array($originalObject, $callable))){
-                            $j = $originalObject->$callable();
-                            return $originalObject->$callable();
+                            $value = $originalObject->$callable();
+
+                         /*   if($value instanceof Collection) {
+                                return array_map(function($v) {
+                                    return $v->getId();
+                                }, $value->toArray());
+                            }*/
+
+                            return $value;
                         }
                         throw new NotFoundHttpException(sprintf("Method %s not found in class %s", $callable, get_class($originalObject)));
                     }
@@ -41,14 +52,39 @@ trait FormHelper
             $builder->get($immutableField)
                 ->addViewTransformer(new CallbackTransformer(
                     function ($value) {
+
+                        //return [];
                         return $value;
                     },
                     function ($value) use($options, $immutableField) {
                         $originalObject = $options['data'];
                         $callable = "get" . ucfirst($immutableField);
                         if(is_callable(array($originalObject, $callable))){
-                            $i = $originalObject->$callable();
-                            return $originalObject->$callable();
+                            $value = $originalObject->$callable();
+
+                            if(is_object($value) && !$value instanceof Collection && !$value instanceof ArrayCollection) {
+                                return (string) $value->getId();
+                            }
+
+                            if(is_int($value)) {
+                                return (string) $value;
+                            }
+
+                            if($value === false) {
+                                return '0';
+                            }
+
+                            if($value === true) {
+                                return '1';
+                            }
+
+                            if($value instanceof Collection) {
+                                return array_map(function($v) {
+                                    return $v->getId();
+                                }, $value->toArray());
+                            }
+
+                            return $value;
                         }
                         throw new NotFoundHttpException(sprintf("Method %s not found in class %s", $callable, get_class($originalObject)));
                     }

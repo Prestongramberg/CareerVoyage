@@ -53,12 +53,18 @@ class Industry
      */
     private $url;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=EducatorUser::class, mappedBy="primaryIndustries")
+     */
+    private $educatorUsers;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
         $this->lessons = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
+        $this->educatorUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,6 +216,33 @@ class Industry
     public function setUrl(string $url): self
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EducatorUser[]
+     */
+    public function getEducatorUsers(): Collection
+    {
+        return $this->educatorUsers;
+    }
+
+    public function addEducatorUser(EducatorUser $educatorUser): self
+    {
+        if (!$this->educatorUsers->contains($educatorUser)) {
+            $this->educatorUsers[] = $educatorUser;
+            $educatorUser->addPrimaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducatorUser(EducatorUser $educatorUser): self
+    {
+        if ($this->educatorUsers->removeElement($educatorUser)) {
+            $educatorUser->removePrimaryIndustry($this);
+        }
 
         return $this;
     }

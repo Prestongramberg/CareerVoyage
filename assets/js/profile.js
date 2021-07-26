@@ -93,6 +93,11 @@ $(document).ready(function () {
         width: '100%'
     });
 
+    $('#professional_edit_profile_form_secondaryIndustries').select2({
+        placeholder: "Select Professions",
+        allowClear: true,
+        width: '100%'
+    });
 
     let countyJson = $('.js-form').attr('data-county-json')
 
@@ -419,21 +424,26 @@ $(document).ready(function () {
 
             if ($(ev.target).hasClass('account_details_personal')) {
                 $('#tab').val('#account-details-profile');
+                $('#validation_groups').val('PROFESSIONAL_PROFILE_PERSONAL');
+                location.hash = 'account-details-profile';
             }
 
             if ($(ev.target).hasClass('account_details_regions')) {
                 $('#validation_groups').val('PROFESSIONAL_PROFILE_REGION');
                 $('#tab').val('#account-details-profile-region');
+                location.hash = 'account-details-profile-region';
             }
 
             if ($(ev.target).hasClass('account_details_videos')) {
                 $('#validation_groups').val('PROFESSIONAL_PROFILE_VIDEO');
                 $('#tab').val('#account-details-profile-videos');
+                location.hash = 'account-details-profile-videos';
             }
 
             if ($(ev.target).hasClass('account_details_account')) {
                 $('#validation_groups').val('PROFESSIONAL_PROFILE_ACCOUNT');
                 $('#tab').val('#account-details-profile-account');
+                location.hash = 'account-details-profile-account';
             }
         });
     }
