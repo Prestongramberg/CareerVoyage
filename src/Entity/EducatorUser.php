@@ -7,20 +7,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EducatorUserRepository")
- *
- * @UniqueEntity(
- *     fields={"school", "educatorId"},
- *     errorPath="educatorId",
- *     message="This educator Id already belongs to another user at this school",
- *     groups={"EDUCATOR_USER"}
- * )
  *
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"EDUCATOR_USER"}, repositoryMethod="findByUniqueCriteria")
  * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"EDUCATOR_USER"}, repositoryMethod="findByUniqueCriteria")
@@ -60,6 +51,13 @@ class EducatorUser extends User
 
     /**
      * @Groups({"EDUCATOR_USER_DATA"})
+     *
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select your profession(s)",
+     *     groups={"EDUCATOR_PROFILE_PERSONAL"}
+     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="educatorUsers", cascade={"persist", "remove"})
      */
     private $secondaryIndustries;
@@ -71,14 +69,10 @@ class EducatorUser extends User
     private $interests;
 
     /**
+     * @Assert\NotBlank(message="Don't forget a display name", groups={"EDUCATOR_USER", "EDUCATOR_PROFILE_PERSONAL"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $displayName;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $educatorId;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="educatorUsers")
@@ -86,6 +80,13 @@ class EducatorUser extends User
     private $site;
 
     /**
+     *
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select your students",
+     *     groups={"EDUCATOR_PROFILE_STUDENT"}
+     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\StudentUser", inversedBy="educatorUsers", cascade={"persist"})
      */
     private $studentUsers;
@@ -112,6 +113,12 @@ class EducatorUser extends User
 
     /**
      * @Groups({"EDUCATOR_USER_DATA"})
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select your course(s), club(s), positions(s)",
+     *     groups={"EDUCATOR_PROFILE_PERSONAL"}
+     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="educatorUsers")
      */
     private $myCourses;
@@ -120,6 +127,17 @@ class EducatorUser extends User
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $reportSchool;
+
+    /**
+     *  @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select at least one career sector",
+     *     groups={"EDUCATOR_PROFILE_PERSONAL"}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Industry::class, inversedBy="educatorUsers")
+     */
+    private $primaryIndustries;
 
     public function __construct()
     {
@@ -130,6 +148,7 @@ class EducatorUser extends User
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->myCourses                                   = new ArrayCollection();
         $this->educatorVideos                              = new ArrayCollection();
+        $this->primaryIndustries                           = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -238,18 +257,6 @@ class EducatorUser extends User
     public function setDisplayName(?string $displayName): self
     {
         $this->displayName = $displayName;
-
-        return $this;
-    }
-
-    public function getEducatorId()
-    {
-        return $this->educatorId;
-    }
-
-    public function setEducatorId($educatorId): self
-    {
-        $this->educatorId = $educatorId;
 
         return $this;
     }
@@ -507,6 +514,30 @@ class EducatorUser extends User
     public function setReportSchool(?string $reportSchool): self
     {
         $this->reportSchool = $reportSchool;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Industry[]
+     */
+    public function getPrimaryIndustries(): Collection
+    {
+        return $this->primaryIndustries;
+    }
+
+    public function addPrimaryIndustry(Industry $primaryIndustry): self
+    {
+        if (!$this->primaryIndustries->contains($primaryIndustry)) {
+            $this->primaryIndustries[] = $primaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removePrimaryIndustry(Industry $primaryIndustry): self
+    {
+        $this->primaryIndustries->removeElement($primaryIndustry);
 
         return $this;
     }

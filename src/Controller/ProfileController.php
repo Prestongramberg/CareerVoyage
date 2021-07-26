@@ -212,8 +212,15 @@ class ProfileController extends AbstractController
             $form                       = $this->createForm(SchoolAdministratorEditProfileFormType::class, $user, $options);
             /** @var SchoolAdministrator $user */
         } elseif (($user->isEducator())) {
+
+            /** @var EducatorUser $user */
+            foreach($user->getSecondaryIndustries() as $secondaryIndustry) {
+                $user->addPrimaryIndustry($secondaryIndustry->getPrimaryIndustry());
+            }
+
             $options['skip_validation'] = $request->request->get('skip_validation', false);
             $options['educator']        = $user;
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
             $form                       = $this->createForm(EducatorEditProfileFormType::class, $user, $options);
             /** @var EducatorUser $user */
         } elseif (($user->isStudent())) {
@@ -239,6 +246,7 @@ class ProfileController extends AbstractController
 
             /** @var User $user */
             $user = $form->getData();
+            $user->setProfileCompleted(true);
 
             if ($user->isProfessional()) {
                 /** @var ProfessionalUser $user */
@@ -299,7 +307,7 @@ class ProfileController extends AbstractController
                         'user' => $user,
                         'loggedInUser' => $loggedInUser,
                         'professionalVideo' => $professionalVideo,
-                        'countyJson' => $countyJson,
+                        'countyJson' => $countyJson
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -314,7 +322,7 @@ class ProfileController extends AbstractController
                         'user' => $user,
                         'loggedInUser' => $loggedInUser,
                         'professionalVideo' => $professionalVideo,
-                        'countyJson' => $countyJson,
+                        'countyJson' => $countyJson
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -328,7 +336,7 @@ class ProfileController extends AbstractController
             'user' => $user,
             'loggedInUser' => $loggedInUser,
             'professionalVideo' => $professionalVideo,
-            'countyJson' => $countyJson,
+            'countyJson' => $countyJson
         ]);
     }
 
@@ -436,8 +444,6 @@ class ProfileController extends AbstractController
     {
 
         $this->denyAccessUnlessGranted('edit', $user);
-
-        $user = $this->getUser();
 
         /** @var UploadedFile $uploadedFile */
         $profilePhoto = $request->files->get('file');

@@ -1,6 +1,9 @@
 <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
-    {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    {{ form_start(form, {attr: {'id': 'educator-profile-form', 'novalidate' : 'novalidate'}}) }}
+
+    <input id="validation_groups" type="hidden" name="validation_groups" value="EDUCATOR_PROFILE_PERSONAL">
+    <input id="tab" type="hidden" name="tab" value="">
 
     {% if form_errors(form) %}
         <div class="uk-alert-danger" uk-alert>
@@ -9,359 +12,368 @@
         </div>
     {% endif %}
 
-    <ul id="test" class="uk-tab" uk-switcher="connect: #tab-account" uk-tab>
-        <li class="uk-active"><a href="#account-details">Edit Profile</a></li>
-        <li><a href="#account-career-fields">Career Fields of Interest</a></li>
-        <li><a href="#account-courses">Courses, Clubs, Positions</a></li>
-        <li><a href="#account-students">Students</a></li>
-        <li><a href="#account-videos">Videos</a></li>
-        <li id="account-account"><a href="#account-account">Account</a></li>
-    </ul>
-
-    <div class="uk-switcher" id="tab-account">
-
-        <div class="account_details">
-            <div class="uk-width-xlarge">
-
-                <fieldset class="uk-fieldset">
-                    <div class="uk-margin">
-                        {{ form_label(form.firstName, 'First Name*') }}
-                        {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.firstName) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.lastName, 'Last Name*') }}
-                        {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.lastName) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.displayName, 'Display Name') }}
-                        {{ form_widget(form.displayName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.displayName) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.displayName) }}
-                    </div>
-                    {% include 'profile/partials/shared/_edit_profile_image.html.twig' %}
-                    <div class="uk-margin">
-                        {{ form_label(form.briefBio, 'Brief Bio *') }}
-                        <div class="uk-text-meta">Tell us a little about yourself to be featured on our platform</div>
-                        {{ form_widget(form.briefBio, {'attr': {'class': 'uk-textarea uk-height-small' ~ ( form_errors(form.briefBio) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.briefBio) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.interests, 'Interests') }}
-                        <div class="uk-text-meta">Tell us about your professional interests related to your career.</div>
-                        {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.interests) }}
-                    </div>
-
-                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="1">Next</button>
-                </fieldset>
-            </div>
+    <div uk-grid>
+        <div class="uk-width-1-1 uk-width-small@m">
+            <ul id="test" class="uk-tab-left"
+                uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                <li><a href="#account-details-profile" id="account-details-profile">Personal</a></li>
+                <li><a href="#account-details-profile-students" id="account-details-profile-students">Students</a></li>
+                <li><a href="#account-details-profile-videos" id="account-details-profile-videos">Videos</a></li>
+                <li><a href="#account-details-profile-account" id="account-details-profile-account">Account</a></li>
+            </ul>
         </div>
-        <div class="account_career_fields">
-            <div class="uk-width-xlarge">
-                <fieldset class="uk-fieldset">
-                    {% if user.secondaryIndustries is defined %}
-                        <div class="page-company-experience-edit__careers">
-                            <div class="uk-width-xlarge">
-                                <fieldset class="uk-fieldset">
-                                    <div id="subscribe-secondary-industries"
-                                         data-field-name="educator_edit_profile_form[secondaryIndustries]"
-                                         data-secondary-industries="{{ encode_secondary_industries(user.secondaryIndustries) }}"
-                                         data-remove-dom-id="educator_edit_profile_form_secondaryIndustries"
-                                         data-user-kind="educator"
-                                    ></div>
-                                </fieldset>
-                            </div>
-                        </div>
-                    {% endif %}
+        <div class="uk-width-1-1 uk-width-expand@m">
+            <ul id="tab-account-inner" class="uk-switcher">
 
-                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="2">Next</button>
-                </fieldset>
-            </div>
-        </div>
-        <div class="account_courses">
-            <div class="uk-width-xlarge">
-                <p><input type="text" id="filter_courses" placeholder="Type to filter results" class="uk-input" /></p>
-                <fieldset class="uk-fieldset">
-                    <div class="uk-margin">
-                        <p>{{ form_label(form.myCourses, 'Courses, Clubs, Positions*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[myCourses][]">Select All</a></p>
-                        
-                        {{ form_widget(form.myCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.myCourses) ? ' uk-form-danger' : '' ) }}) }}
-                        <div class="clear"></div>
-                        {{ form_errors(form.myCourses) }}
-                    </div>
-                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="3">Next</button>
-                </fieldset>
-            </div>
-        </div>
-        <div class="account_students">
-            <div class="uk-width-xlarge">
-                <fieldset class="uk-fieldset">
-                    <div class="uk-margin">
-                        {{ form_label(form.studentUsers, 'Students*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="educator_edit_profile_form[studentUsers][]">Select All</a>
-                        {{ form_widget(form.studentUsers, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
-                        <div class="clear"></div>
-                        {{ form_errors(form.studentUsers) }}
-                    </div>
-                    <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button>
-                </fieldset>
-            </div>
-        </div>
+                <div class="account_details_personal">
+
+                    <div class="uk-text-danger" style="float:right; margin-top: -50px">* indicates required</div>
+
+                    <div class="{#uk-width-xlarge#}">
+                        <fieldset class="uk-fieldset">
 
 
+                            <div class="uk-grid">
 
-        <div class="account_details_videos">
+                                <div class="uk-width-2-3">
+                                    <div class="uk-margin">
+                                        {{ form_label(form.firstName, 'First Name*') }}
+                                        {{ form_widget(form.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.firstName) }}
+                                    </div>
 
-            <div class="uk-width-xlarge">
-                <p>Videos can help showcase your knowledge as an educator.  Upload your videos to Youtube and then attach them here.</p>
-            </div>
-            <div class="uk-margin">
-                <div class="uk-text-center uk-placeholder">
-                    <a class="uk-button uk-button-default uk-button-small" href="#modal-add-educator-video" uk-toggle>Add a Video</a>
-                    <div id="modal-add-educator-video" uk-modal>
-                        <div class="uk-modal-dialog uk-modal-body">
-                            <h3>Add a Video</h3>
-
-                            <input type="hidden" name="educatorId" value="{{ user.id }}">
-
-                            <div class="uk-margin">
-                                <label for="edit_educator_add_video_name" class="required">Name*</label>
-                                <input type="text" id="edit_educator_add_video_name" name="name" required="required" class="uk-input" />
-                            </div>
-
-                            <div class="uk-margin">
-                                <label for="edit_educator_add_video_id" class="required">Youtube Video ID*</label>
-                                <div class="uk-position-relative">
-                                    <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
-                                    <input class="uk-input" id="edit_educator_add_video_id" name="videoId" required="required" type="text">
+                                    <div class="uk-margin">
+                                        {{ form_label(form.lastName, 'Last Name*') }}
+                                        {{ form_widget(form.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.lastName) }}
+                                    </div>
                                 </div>
-                                <small>Please make sure your video is open to public.</small>
+
+                                <div class="uk-width-1-3">
+
+                                    <img style="float:right; height: 100px" class="uk-border-pill"
+                                         id="userThumbnailImage"
+                                         src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                         uk-img/>
+
+                                    <div class="uk-text-meta">Upload a square image if possible. Will auto resize to
+                                        300x300.
+                                    </div>
+                                    <div style="cursor: copy"
+                                         data-upload-url="{{ path('profile_photo_add', { id: user.id }) }}"
+                                         data-type="image:userThumbnailImage"></div>
+                                </div>
 
                             </div>
 
                             <div class="uk-margin">
-                                <label for="edit_educator_add_video_tags" class="required">Keywords</label>
-                                <div class="uk-position-relative">
-                                    <textarea id="edit_educator_add_video_tags" name="tags" class="uk-textarea"></textarea>
+                                {{ form_label(form.displayName, 'Display Name*') }}
+                                {{ form_widget(form.displayName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.displayName) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.displayName) }}
+
+                                <small class="uk-text-muted">This is how your name will be displayed on your profile</small>
+                            </div>
+
+                            {% if form.primaryIndustries is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.primaryIndustries, 'Career Sector*') }}
+                                    <a href="javascript:void(0)" class="js-select-all-primary-industries"
+                                       style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                        All</a>
+                                    {{ form_widget(form.primaryIndustries, {'attr': {'class': 'js-primary-industry' ~ ( form_errors(form.primaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.primaryIndustries) }}
+                                </div>
+                            {% endif %}
+
+                            <div class="js-secondary-industry-container">
+                                {% if form.secondaryIndustries is defined %}
+                                    <div class="uk-margin">
+                                        {{ form_label(form.secondaryIndustries, 'Professions*') }}
+                                        <a href="javascript:void(0)" class="js-select-all-secondary-industries"
+                                           style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                            All</a>
+                                        {{ form_widget(form.secondaryIndustries, {'attr': {'class': '' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                        <div class="clear"></div>
+                                        {{ form_errors(form.secondaryIndustries) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if form.myCourses is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.myCourses, 'Courses, Clubs, Positions*') }}
+                                    <a href="javascript:void(0)" class="js-select-all-courses"
+                                       style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                        All</a>
+                                    {{ form_widget(form.myCourses, {'attr': {'class': '' ~ ( form_errors(form.myCourses) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.myCourses) }}
+                                </div>
+                            {% endif %}
+
+                            <div class="uk-margin">
+                                {{ form_label(form.briefBio, 'Brief Bio') }}
+                                <div class="uk-text-meta">Tell us a little about yourself to be featured on our
+                                    platform
+                                </div>
+                                {{ form_widget(form.briefBio, {'attr': {'class': 'uk-textarea uk-height-small' ~ ( form_errors(form.briefBio) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.briefBio) }}
+                            </div>
+                            <div class="uk-margin">
+                                {{ form_label(form.linkedinProfile, 'Linked In Profile') }}
+                                {{ form_widget(form.linkedinProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.linkedinProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.linkedinProfile) }}
+                            </div>
+                            <div class="uk-margin">
+                                {{ form_label(form.interests, 'Interests') }}
+                                <div class="uk-text-meta">Tell us about professional interests and skills
+                                    related to your career and experience which educators and students would
+                                    benefit from.
+                                </div>
+                                {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.interests) }}
+                            </div>
+
+                            <div class="uk-grid">
+                                <div class="uk-width-2-3">
+                                    {{ form_label(form.phone, 'Phone') }}
+                                    {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.phone) }}
+                                </div>
+
+                                <div class="uk-width-1-3">
+                                    {{ form_label(form.phoneExt, 'Ext.') }}
+                                    {{ form_widget(form.phoneExt, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phoneExt) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.phoneExt) }}
                                 </div>
                             </div>
 
-                            <p class="uk-text-right">
-                                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('educator_video_add', {'id' : user.id}) }}" />
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div id="companyVideosTemplate" style="display: none;">
-                    <div class="company-video">
-                        <a class="uk-inline" href="https://www.youtube.com/watch?v=VIDEO_ID">
-                            <img src="http://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg" alt="">
-                            <div class="company-video__overlay">
-                                <div class="company-video__overlay-title">
-                                    VIDEO_NAME
-                                </div>
+                            <br>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
                             </div>
-                        </a>
-                        <a onclick="event.stopPropagation();" style="position: absolute; top: -8px; left: 5px; z-index: 5000; border: none; color: #999;" class="uk-button uk-button-default" href="{{ path('profile_edit', {'id' : user.id }) }}?videoEdit=RESOURCE_ID" uk-icon="icon: file-edit"></a>
-                        <button type="button" data-remove="{{ path('educator_video_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
+                        </fieldset>
                     </div>
                 </div>
 
-            </div>
-            <div class="uk-margin">
-                {% if user.educatorVideos|length %}
-                    <h4>Current Videos</h4>
-                {% endif %}
-                <div id="educatorVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
-                    {% if user.educatorVideos|length %}
-                        {% for video in user.educatorVideos %}
-                            <div class="company-video">
-                                <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
-                                    <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
-                                    <div class="company-video__overlay">
-                                        <div class="company-video__overlay-title">
-                                            {{ video.name }}
+                <div class="account_details_students">
+                    <div class="uk-text-danger" style="float:right; margin-top: -50px">* indicates required</div>
+                    <div class="{#uk-width-xlarge#}">
+                        <fieldset class="uk-fieldset">
+                            {% if form.studentUsers is defined %}
+                                <div class="uk-margin">
+                                    {{ form_label(form.studentUsers, 'Students*') }}
+                                    <a href="javascript:void(0)" class="js-select-all-students"
+                                       style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                        All</a>
+                                    {{ form_widget(form.studentUsers, {'attr': {'class': '' ~ ( form_errors(form.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.studentUsers) }}
+                                </div>
+                            {% endif %}
+
+                            <br>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="account_details_videos">
+
+                    <div class="uk-width-xlarge">
+                        <p>Videos can help showcase your knowledge as an educator.  Upload your videos to Youtube and then attach them here.</p>
+                    </div>
+                    <div class="uk-margin">
+                        <div class="uk-text-center uk-placeholder">
+                            <a class="uk-button uk-button-default uk-button-small" href="#modal-add-educator-video" uk-toggle>Add a Video</a>
+                            <div id="modal-add-educator-video" uk-modal>
+                                <div class="uk-modal-dialog uk-modal-body">
+                                    <h3>Add a Video</h3>
+
+                                    <input type="hidden" name="educatorId" value="{{ user.id }}">
+
+                                    <div class="uk-margin">
+                                        <label for="edit_educator_add_video_name" class="required">Name*</label>
+                                        <input type="text" id="edit_educator_add_video_name" name="name" required="required" class="uk-input" />
+                                    </div>
+
+                                    <div class="uk-margin">
+                                        <label for="edit_educator_add_video_id" class="required">Youtube Video ID*</label>
+                                        <div class="uk-position-relative">
+                                            <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                            <input class="uk-input" id="edit_educator_add_video_id" name="videoId" required="required" type="text">
+                                        </div>
+                                        <small>Please make sure your video is open to public.</small>
+
+                                    </div>
+
+                                    <div class="uk-margin">
+                                        <label for="edit_educator_add_video_tags" class="required">Keywords</label>
+                                        <div class="uk-position-relative">
+                                            <textarea id="edit_educator_add_video_tags" name="tags" class="uk-textarea"></textarea>
                                         </div>
                                     </div>
-                                </a>
 
-                                <a onclick="event.stopPropagation();" style="position: absolute; top: -8px; left: 5px; z-index: 5000; border: none; color: #999;" class="uk-button uk-button-default" href="{{ path('profile_edit', {'id' : user.id }) }}?videoEdit={{ video.id }}" uk-icon="icon: file-edit"></a>
+                                    <p class="uk-text-right">
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('educator_video_add', {'id' : user.id}) }}" />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                                <button type="button" data-remove="{{ path('educator_video_remove', {'id' : video.id }) }}" uk-close></button>
+                    </div>
+                    <div class="uk-margin">
+                        <div id="educatorVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                            {% if user.educatorVideos|length %}
+                                {% for video in user.educatorVideos %}
+                                    <div id="company-video-{{ video.id }}" class="company-video">
+                                        <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                            <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
+                                            <div class="company-video__overlay">
+                                                <div class="company-video__overlay-title">
+                                                    {{ video.name }}
+                                                </div>
+                                            </div>
+                                        </a>
+
+                                        <a style="position: absolute; top: -6px; left: 10px; z-index: 5000; border: none; color: #999;"
+                                           class="uk-button uk-button-default"
+                                           href="#modal-edit-educator-video-{{ video.id }}"
+                                           uk-icon="icon: file-edit" uk-toggle></a>
+
+                                        <div class="modal-edit-educator-video" id="modal-edit-educator-video-{{ video.id }}" uk-modal>
+                                            <div class="uk-modal-dialog uk-modal-body">
+                                                <h3>Edit Video</h3>
+
+                                                <input type="hidden" name="educatorId" value="{{ user.id }}">
+
+                                                <div class="uk-margin">
+                                                    <label for="edit_company_edit_video_name" class="required">Name*</label>
+                                                    <input type="text" id="edit_company_edit_video_name" name="name"
+                                                           required="required" class="uk-input"
+                                                           value="{{ video.name }}"/>
+                                                </div>
+
+                                                <div class="uk-margin">
+                                                    <label for="edit_company_edit_video_id" class="required">Youtube Video
+                                                        ID*</label>
+                                                    <div class="uk-position-relative">
+                                                        <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                                        <input class="uk-input" id="edit_company_edit_video_id" name="videoId"
+                                                               required="required" type="text"
+                                                               value="{{ video.videoId }}">
+                                                    </div>
+                                                    <small>Please make sure your video is open to public.</small>
+
+                                                </div>
+
+                                                <div class="uk-margin">
+                                                    <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                                                    <div class="uk-position-relative">
+                                                <textarea id="edit_company_edit_video_tags" name="tags"
+                                                          class="uk-textarea">{{ video.tags }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <p class="uk-text-right">
+                                                    <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                                        Cancel
+                                                    </button>
+                                                    <input class="uk-button uk-button-primary" type="submit" value="Save"
+                                                           data-action="{{ path('educator_video_edit', {id: video.id}) }}"/>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" data-remove="{{ path('educator_video_remove', {'id' : video.id }) }}" uk-close></button>
+                                    </div>
+
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="account_details_account">
+
+                    <div class="uk-text-danger" style="float: right; margin-top: -50px">* indicates required</div>
+
+                    <fieldset class="uk-fieldset uk-margin">
+
+                        <fieldset class="uk-fieldset">
+                            <legend class="uk-legend">
+                                Authentication
+                            </legend>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.username, 'Username*') }}
+                                {{ form_widget(form.username, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.username) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.username) }}
                             </div>
 
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
+                            <div class="uk-margin">
+                                {{ form_label(form.email, 'Email*') }}
+                                {{ form_widget(form.email, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                            <div class="uk-margin">
+                                {{ form_label(form.plainPassword, 'Change Password') }}
+                                {{ form_widget(form.plainPassword, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.plainPassword) }}
+                            </div>
+                        </fieldset>
 
-            {% if professionalVideo %}
+                        <fieldset class="uk-fieldset uk-margin">
+                            <legend class="uk-legend">
+                                Contact Preferences
+                            </legend>
 
-                <div id="modal-edit-educator-video" uk-modal>
-                    <div class="uk-modal-dialog uk-modal-body">
-                        <h3>Edit Video</h3>
+                            <div class="uk-margin">
+                                {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
+                                {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.isEmailHiddenFromProfile) }}
+                            </div>
+                            <div class="uk-margin">
+                                {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
+                                {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.isPhoneHiddenFromProfile) }}
+                            </div>
+                            <div class="uk-margin">
+                                {% for pref in form.notificationPreferences %}
+                                    <div>
+                                        <label class="check">
+                                            {{ form_errors(pref) }}
+                                            {{ form_widget(pref) }}
+                                            <span>{{ pref.vars.label }}</span>
+                                        </label>
 
-                        <input type="hidden" name="educatorId" value="{{ user.id }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
 
                         <div class="uk-margin">
-                            <label for="edit_educator_edit_video_name" class="required">Name*</label>
-                            <input type="text" id="edit_educator_edit_video_name" name="name" required="required" class="uk-input" value="{{ professionalVideo.name }}"/>
+                            <button class="uk-button uk-button-primary">
+                                Save
+                            </button>
                         </div>
+                    </fieldset>
 
-                        <div class="uk-margin">
-                            <label for="edit_educator_edit_video_id" class="required">Youtube Video ID*</label>
-                            <div class="uk-position-relative">
-                                <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
-                                <input class="uk-input" id="edit_educator_edit_video_id" name="videoId" required="required" type="text" value="{{ professionalVideo.videoId }}">
-                            </div>
-                            <small>Please make sure your video is open to public.</small>
-
-                        </div>
-
-                        <div class="uk-margin">
-                            <label for="edit_educator_edit_video_tags" class="required">Keywords</label>
-                            <div class="uk-position-relative">
-                                <textarea id="edit_educator_edit_video_tags" name="tags" class="uk-textarea">{{ professionalVideo.tags }}</textarea>
-                            </div>
-                        </div>
-
-                        <p class="uk-text-right">
-                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                            <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('educator_video_edit', {id: professionalVideo.id}) }}" />
-                        </p>
-                    </div>
                 </div>
-
-
-            {% endif %}
-
-            <div class="uk-margin">
-                <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="5">Next</button>
-            </div>
-
-
-        </div>
-
-
-
-
-        <div class="account_account">
-            <div class="uk-width-xlarge">
-                <fieldset class="uk-fieldset">
-                    <div class="uk-margin">
-                        {{ form_label(form.educatorId, 'Educator Id*') }}
-                        {{ form_widget(form.educatorId, {'attr': {'class': 'uk-input' ~ ( form_errors(form.educatorId) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.educatorId) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.username, 'Username*') }}
-                        {{ form_widget(form.username, {'attr': {'class': 'uk-input' ~ ( form_errors(form.username) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.username) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.email, 'Email*') }}
-                        {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.email) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.plainPassword, 'Change Password') }}
-                        {{ form_widget(form.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.plainPassword) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.linkedinProfile, 'Linked In Profile') }}
-                        {{ form_widget(form.linkedinProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.linkedinProfile) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.linkedinProfile) }}
-                    </div>
-                    <div class="uk-margin">
-                        <div class="uk-column-1-2">
-                            <div>
-                                {{ form_label(form.phone, 'Phone') }}
-                                {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(form.phone) }}
-                            </div>
-                            <div>
-                                {{ form_label(form.phoneExt, 'Ext.') }}
-                                {{ form_widget(form.phoneExt, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phoneExt) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(form.phoneExt) }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="uk-margin">
-                        <h4 class="uk-heading-divider">Contact Preferences</h4>
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
-                        {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.isEmailHiddenFromProfile) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
-                        {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.isPhoneHiddenFromProfile) }}
-                    </div>
-                    <div class="uk-margin">
-
-                        {{ form_label(form.notificationPreferences, 'Notification Preferences') }}
-                        {{ form_widget(form.notificationPreferences, {'attr': {'class': ( form_errors(form.notificationPreferences) ? ' uk-form-danger' : '' ) }}) }}
-                        {{ form_errors(form.notificationPreferences) }}
-                    </div>
-                </fieldset>
-
-                <div class="uk-margin">
-                    <button class="uk-button uk-button-primary uk-button-small">Save</button>
-                </div>
-            </div>
+            </ul>
         </div>
     </div>
 
 
     {{ form_end(form) }}
 </div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    $( document ).ready(function() {
-
-        debugger;
-        $('.js-navigate').click(function(e) {
-            debugger;
-            let indexToNavigateTo = $(e.target).attr('data-navigate-to-index');
-
-            UIkit.tab('#test').show(indexToNavigateTo);
-        })
-
-        var hash = location.hash.substr(1);
-        if (hash === 'account') {
-            UIkit.tab('#test').show(4);
-        }
-
-
-        $('#filter_courses').on('keyup', function(){
-            var txt = $(this).val();
-            $("#educator_edit_profile_form_myCourses label").each(function(){
-                $(this).show();
-                $('#' + $(this).attr('for')).show();
-            });
-
-            $("#educator_edit_profile_form_myCourses label").each(function(){
-                if($(this).text().toUpperCase().indexOf(txt.toUpperCase()) == -1){
-                    $(this).hide();
-                    $('#' + $(this).attr('for')).hide();
-                }
-            });
-        });
-    });
-</script>
-
-
-
-{% if professionalVideo %}
-    <script>
-        window.onload = function() {
-            debugger;
-            UIkit.modal('#modal-edit-educator-video').show()
-        };
-    </script>
-{% endif %}

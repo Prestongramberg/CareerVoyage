@@ -399,6 +399,7 @@ class EducatorUserController extends AbstractController
                     'id'      => $video->getId(),
                     'name'    => $name,
                     'videoId' => $videoId,
+                    'tags' => $video->getTags()
 
                 ], Response::HTTP_OK
             );
@@ -447,6 +448,7 @@ class EducatorUserController extends AbstractController
                     'id'      => $video->getId(),
                     'name'    => $name,
                     'videoId' => $videoId,
+                    'tags' => $video->getTags()
 
                 ], Response::HTTP_OK
             );

@@ -67,7 +67,7 @@ class ProfessionalUser extends User
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a primary industry!", groups={"CREATE", "EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
+     * @Assert\NotBlank(message="Don't forget a primary industry", groups={"CREATE", "EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="professionalUsers")
      */
     private $primaryIndustry;
@@ -86,7 +86,7 @@ class ProfessionalUser extends User
     /**
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "Please select at least one school.",
+     *      minMessage = "Please select at least one school",
      *      groups={"PROFESSIONAL_PROFILE_REGION"}
      * )
      *
@@ -137,25 +137,25 @@ class ProfessionalUser extends User
     private $longitude;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a street!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a street", groups={"PROFESSIONAL_USER"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $street;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a city", groups={"PROFESSIONAL_USER"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $city;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a zipcode", groups={"PROFESSIONAL_USER"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $zipcode;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"PROFESSIONAL_USER"})
+     * @Assert\NotBlank(message="Don't forget a state", groups={"PROFESSIONAL_USER"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="professionalUsers")
      */
     private $state;
@@ -212,7 +212,7 @@ class ProfessionalUser extends User
     private $radiusSearch;
 
     /**
-     * @Assert\NotBlank(message="Don't forget a work address.", groups={"PROFESSIONAL_PROFILE_PERSONAL"})
+     * @Assert\NotBlank(message="Don't forget a work address", groups={"PROFESSIONAL_PROFILE_PERSONAL"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $personalAddressSearch;

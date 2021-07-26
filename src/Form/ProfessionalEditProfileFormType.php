@@ -12,6 +12,7 @@ use App\Entity\State;
 use App\Entity\User;
 use App\Repository\SchoolRepository;
 use App\Service\Geocoder;
+use App\Util\FormHelper;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -31,6 +32,8 @@ use App\Service\NotificationPreferencesManager;
 
 class ProfessionalEditProfileFormType extends AbstractType
 {
+    use FormHelper;
+
     /**
      * @var NotificationPreferencesManager $notificationPreferenceManager
      */
@@ -454,6 +457,67 @@ class ProfessionalEditProfileFormType extends AbstractType
             ]);
 
         });
+
+        if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_PERSONAL', $options['validation_groups'], true)) {
+            $this->setupImmutableFields($builder, $options, [
+                'schools',
+                'regions',
+                'radiusSearch',
+                'personalAddressSearch',
+                'email',
+                'plainPassword',
+                'isPhoneHiddenFromProfile',
+                'isEmailHiddenFromProfile',
+                'notificationPreferenceMask'
+            ]);
+        }
+
+        if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_REGION', $options['validation_groups'], true)) {
+            $this->setupImmutableFields($builder, $options, [
+                'email',
+                'plainPassword',
+                'isPhoneHiddenFromProfile',
+                'isEmailHiddenFromProfile',
+                'notificationPreferenceMask',
+                'rolesWillingToFulfill',
+                'primaryIndustry',
+                'firstName',
+                'lastName',
+                'street',
+                'city',
+                'state',
+                'zipcode',
+                'personalAddressSearch',
+                'briefBio',
+                'linkedinProfile',
+                'phone',
+                'phoneExt',
+                'interests'
+            ]);
+        }
+
+        if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_ACCOUNT', $options['validation_groups'], true)) {
+            $this->setupImmutableFields($builder, $options, [
+                'schools',
+                'regions',
+                'radiusSearch',
+                'personalAddressSearch',
+                'rolesWillingToFulfill',
+                'primaryIndustry',
+                'firstName',
+                'lastName',
+                'street',
+                'city',
+                'state',
+                'zipcode',
+                'personalAddressSearch',
+                'briefBio',
+                'linkedinProfile',
+                'phone',
+                'phoneExt',
+                'interests'
+            ]);
+        }
 
     }
 

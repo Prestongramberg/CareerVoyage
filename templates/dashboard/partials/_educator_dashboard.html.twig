@@ -1,6 +1,6 @@
 <div class="uk-container">
     <div class="uk-grid" uk-grid>
-        {% if user.briefBio is null %}
+        {% if user.profileCompleted == false %}
             <div class="uk-width-1-1">
                 <div class="uk-alert-warning" uk-alert>
                     <h3>Warning: Incomplete Profile</h3>

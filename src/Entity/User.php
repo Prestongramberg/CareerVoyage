@@ -66,19 +66,19 @@ abstract class User implements UserInterface
     /**
      * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EDUCATOR_USER_DATA"})
      * @Assert\Email(
-     *     message = "The email '{{ value }}' is not a valid email.",
+     *     message = "The email '{{ value }}' is not a valid email",
      *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_ACCOUNT"}
      * )
-     * @Assert\NotBlank(message="Don't forget an email.", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER", "PROFESSIONAL_PROFILE_ACCOUNT"})
+     * @Assert\NotBlank(message="Don't forget an email", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER", "PROFESSIONAL_PROFILE_ACCOUNT", "EDUCATOR_PROFILE_ACCOUNT"})
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     protected $email;
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER"})
-     * @Assert\NotBlank(message="Don't forget a username for your user!", groups={"EDUCATOR_USER", "STUDENT_USER"})
+     * @Assert\NotBlank(message="Don't forget a username for your user", groups={"EDUCATOR_USER", "STUDENT_USER", "EDUCATOR_PROFILE_ACCOUNT"})
      *
-     * @CustomAssert\UsernameInvalid(groups={"EDUCATOR_USER", "STUDENT_USER"})
+     * @CustomAssert\UsernameInvalid(groups={"EDUCATOR_USER", "STUDENT_USER", "EDUCATOR_PROFILE_ACCOUNT"})
      *
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
@@ -92,7 +92,7 @@ abstract class User implements UserInterface
 
     /**
      * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT", "STUDENT_USER", "EDUCATOR_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
-     * @Assert\NotBlank(message="Don't forget a password for your user!", groups={"CREATE"})
+     * @Assert\NotBlank(message="Don't forget a password for your user", groups={"CREATE"})
      */
     protected $plainPassword;
 
@@ -109,7 +109,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a first name.", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
+     * @Assert\NotBlank(message="Don't forget a first name", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL", "EDUCATOR_PROFILE_PERSONAL"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -117,7 +117,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a last name.", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL"})
+     * @Assert\NotBlank(message="Don't forget a last name", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL", "EDUCATOR_PROFILE_PERSONAL"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
