@@ -310,6 +310,7 @@ class ProfessionalUserRepository extends ServiceEntityRepository
                     ->andWhere('schools.id = :id')
                     ->andWhere('p.deleted = 0')
                     ->setParameter('id', $school->getId())
+                    ->orderBy('p.createdAt', 'DESC')
                     ->orderBy('p.lastName', 'ASC')
                     ->getQuery()
                     ->getResult();

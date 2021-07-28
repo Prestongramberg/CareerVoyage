@@ -1,0 +1,86 @@
+{% extends 'baseSplash.html.twig' %}
+
+{% block title %}Welcome!{% endblock %}
+
+{% block body %}
+
+    <div class="uk-card uk-card-default" style="width: 50%; margin-left: auto; margin-right: auto; margin-top: 50px">
+        <div class="uk-card-header" style="padding: 20px">
+            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                <div class="uk-width-expand">
+                    <h3>Empower students with FutureForward</h3>
+                </div>
+            </div>
+        </div>
+        <div class="uk-card-body" style="padding-top: 10px; padding-bottom: 10px">
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/lecture.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Host a guest topic instructor for your students</h4>
+                    <p style="margin-top: 0">Bring the real world into the classroom. Use our tools to find expert professionals to teach topics of interest, and use our pre-made surveys to gather student feedback.</p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/calendar.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Invite your students to career experiences</h4>
+                    <p style="margin-top: 0">Browse company or school hosted events that you or your students are interested in, then register attend and give feedback on the experience.</p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/mentor.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Find volunteer mentors in your area to connect with your students</h4>
+                    <p style="margin-top: 0">Browse a list of professionals who have volunteered to mentor individual students.
+                        Filter by location, industry, or profession to find the perfect fit.</p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/video.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Access videos and resources to help students learn about careers</h4>
+                    <p style="margin-top: 0">Use our library of career videos to help students learn about potential careers and pathways into them.</p>
+                </div>
+            </div>
+
+            <div class="uk-grid" style="margin-top: 10px">
+                <div class="uk-width-auto">
+                    <img src="{{ asset('build/images/map.svg') }}">
+                </div>
+                <div class="uk-width-expand">
+                    <h4 style="margin-bottom: 0;">Learn best practices on how to leverage your local community</h4>
+                    <p style="margin-top: 0">Not sure how to arrange a guest topic lecture or a company visit, or how to connect students with industry professionals? We have you covered with step by step guides.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="uk-card-footer" style="text-align: center">
+            <a href="{{ path('profile_edit', {id: user.id}) }}" class="uk-button uk-button-primary" style="width: 300px">START USING FUTUREFORWARD</a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function(){
+
+        });
+    </script>
+
+{% endblock %}

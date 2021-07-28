@@ -287,18 +287,6 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('set_password', ['token' => $user->getPasswordResetToken()]);
         }
 
-        if($user instanceof ProfessionalUser && !$user->getSplashShown()) {
-
-            $user->setSplashShown(true);
-            $this->entityManager->flush();
-
-            $token = new UsernamePasswordToken($user, null, 'members', $user->getRoles());
-            $this->get('security.token_storage')->setToken($token);
-            $this->get('session')->set('_security_secured_area', serialize($token));
-
-            return $this->redirectToRoute('splash_professional_welcome', ['splash' => 'professional-welcome']);
-        }
-
         return $this->redirectToRoute('account_activated');
     }
 

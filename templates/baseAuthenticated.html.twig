@@ -89,6 +89,8 @@
 
     {% if user is defined and user.professional %}
         {% include 'nav/professional/primary-top.html.twig' %}
+    {% elseif user is defined and user.educator %}
+        {% include 'nav/educator/primary-top.html.twig' %}
     {% else %}
         {% include 'nav/primary.html.twig' %}
     {% endif %}

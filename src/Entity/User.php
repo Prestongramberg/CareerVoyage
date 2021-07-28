@@ -319,6 +319,13 @@ abstract class User implements UserInterface
     private $reportShares;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     * @var array
+     */
+    private $splashPagesShown = [];
+
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -1405,9 +1412,8 @@ abstract class User implements UserInterface
         $user = $this;
 
         if ($user->isProfessional()) {
-
             /** @var ProfessionalUser $user */
-            if (!$user->getCity()) {
+            if (!$user->getSchools()->count() || !$user->getRolesWillingToFulfill()->count() || !$user->getPersonalAddressSearch()) {
                 return false;
             } else {
                 return true;
@@ -1415,13 +1421,21 @@ abstract class User implements UserInterface
         }
 
         if ($user->isEducator()) {
-
             /** @var EducatorUser $user */
-            if (!$user->getBriefBio()) {
+
+            if(!$user->getPrimaryIndustries()->count()) {
                 return false;
-            } else {
-                return true;
             }
+
+            if(!$user->getSecondaryIndustries()->count()) {
+                return false;
+            }
+
+            if(!$user->getMyCourses()->count()) {
+                return false;
+            }
+
+            return true;
         }
 
         if ($user->isStudent()) {
@@ -1587,6 +1601,7 @@ abstract class User implements UserInterface
         return $this;
     }
 
+
     /**
      * @return Collection|ReportShare[]
      */
@@ -1602,15 +1617,52 @@ abstract class User implements UserInterface
             $reportShare->addUser($this);
         }
 
-        return $this;
     }
 
     public function removeReportShare(ReportShare $reportShare): self
     {
         if ($this->reportShares->removeElement($reportShare)) {
             $reportShare->removeUser($this);
+
+        }
+    }
+
+    public function getSplashPagesShown(): ?array
+    {
+        if(!$this->splashPagesShown) {
+            return [];
+        }
+
+        return $this->splashPagesShown;
+    }
+
+    public function setSplashPagesShown(?array $splashPagesShown): self
+    {
+        $this->splashPagesShown = $splashPagesShown;
+
+        return $this;
+    }
+
+    public function addSplashPageShown($splashPage): self
+    {
+
+        if(!in_array($splashPage, $this->getSplashPagesShown(), true)) {
+            $this->splashPagesShown[] = $splashPage;
         }
 
         return $this;
+    }
+
+    public function splashPageShown($splashPage): bool
+    {
+        if(in_array($splashPage, $this->getSplashPagesShown(), true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getPotentialSplashPages() {
+        return [];
     }
 }

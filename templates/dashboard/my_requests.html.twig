@@ -7,7 +7,14 @@
         </ul>
     </div>
 
-    {% else %}
-        You have not received any requests at this time. Instead, you can reach out to <a href="{{ path('educator_results_page') }}">educators</a>
+{% else %}
+
+    {% if user.professional %}
+        You have not received any requests at this time. Instead, you can reach out to <a
+            href="{{ path('educator_results_page') }}">educators</a>
         in your area of expertise and see what help they might need!
+    {% elseif user.educator %}
+        You do not have any open requests yet.
+    {% endif %}
+
 {% endif %}

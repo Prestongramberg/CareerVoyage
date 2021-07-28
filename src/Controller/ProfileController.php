@@ -163,8 +163,7 @@ class ProfileController extends AbstractController
      */
     public function editAction(Request $request, User $user)
     {
-
-        $loggedInUser = $this->getUser();
+        //$loggedInUser = $this->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
         $tab = $request->request->get('tab', '');
 
@@ -305,7 +304,6 @@ class ProfileController extends AbstractController
                     'formMarkup' => $this->renderView('profile/edit.html.twig', [
                         'form' => $form->createView(),
                         'user' => $user,
-                        'loggedInUser' => $loggedInUser,
                         'professionalVideo' => $professionalVideo,
                         'countyJson' => $countyJson
                     ]),
@@ -320,7 +318,6 @@ class ProfileController extends AbstractController
                     'formMarkup' => $this->renderView('profile/edit.html.twig', [
                         'form' => $form->createView(),
                         'user' => $user,
-                        'loggedInUser' => $loggedInUser,
                         'professionalVideo' => $professionalVideo,
                         'countyJson' => $countyJson
                     ]),
@@ -328,13 +325,11 @@ class ProfileController extends AbstractController
             );
         }
 
-
-        $this->getDoctrine()->getManager()->refresh($user);
+        //$this->getDoctrine()->getManager()->refresh($user);
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,
-            'loggedInUser' => $loggedInUser,
             'professionalVideo' => $professionalVideo,
             'countyJson' => $countyJson
         ]);

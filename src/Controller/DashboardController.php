@@ -393,6 +393,12 @@ class DashboardController extends AbstractController
 
         $companyExperiences = array_values($companyExperiences);
 
+        /*$callToActions = $this->renderView('calltoaction/index.json.twig', [
+            'user' => $user
+        ]);
+
+        $callToActions = json_decode($callToActions, true);*/
+
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,
             'dashboards' => $dashboards,
@@ -425,21 +431,26 @@ class DashboardController extends AbstractController
         $user = $this->getUser();
 
         $experienceIds     = [];
-        $schoolExperiences = $this->schoolExperienceRepository->findAllFromPastDays(7);
+        $schoolExperiences = $this->schoolExperienceRepository->findBy(['cancelled' => false], [
+           'createdAt' => 'DESC',
+        ], 50);
+
+        $companyExperiences = $this->companyExperienceRepository->findBy(['cancelled' => false,], [
+            'createdAt' => 'DESC'
+        ], 50);
+
         foreach ($schoolExperiences as $schoolExperience) {
-            $experienceIds[] = $schoolExperience['id'];
+            $experienceIds[] = $schoolExperience->getId();
         }
 
-        $companyExperiences = $this->companyExperienceRepository->findAllFromPastDays(7);
-
         foreach ($companyExperiences as $companyExperience) {
-            $experienceIds[] = $companyExperience['id'];
+            $experienceIds[] = $companyExperience->getId();
         }
 
         $experiences = $this->experienceRepository->findBy([
             'id' => $experienceIds,
             'cancelled' => false,
-        ], ['createdAt' => 'DESC']);
+        ], ['createdAt' => 'DESC', 'title' => 'ASC']);
 
         return $this->render('dashboard/experiences.html.twig', [
             'user' => $user,
@@ -454,20 +465,37 @@ class DashboardController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $lessonIds = [];
-        $lessons   = $this->lessonRepository->findAllLessonsFromPastDays(7);
-
-        foreach ($lessons as $lesson) {
-            $lessonIds[] = $lesson['id'];
-        }
-
         $lessons = $this->lessonRepository->findBy([
-            'id' => $lessonIds,
-        ], ['createdAt' => 'DESC']);
+            'deleted' => false
+        ], [
+            'createdAt' => 'DESC',
+            'title' => 'ASC'
+        ], 50);
 
         return $this->render('dashboard/topics.html.twig', [
             'user' => $user,
             'lessons' => $lessons,
+        ]);
+
+    }
+
+    public function volunteerProfessionals(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if($user->isEducator() && $school = $user->getSchool()) {
+            $volunteerProfessionals = $this->professionalUserRepository->getBySchool($school);
+        } else {
+            $volunteerProfessionals = $this->professionalUserRepository->findBy([], [
+                'createdAt' => 'DESC',
+                'lastName' => 'ASC'
+            ], 50);
+        }
+
+        return $this->render('dashboard/volunteer_professionals.html.twig', [
+            'user' => $user,
+            'volunteerProfessionals' => $volunteerProfessionals,
         ]);
 
     }

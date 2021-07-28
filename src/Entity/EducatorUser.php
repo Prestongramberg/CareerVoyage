@@ -542,4 +542,7 @@ class EducatorUser extends User
         return $this;
     }
 
+    public function getPotentialSplashPages() {
+        return ['educator-welcome'];
+    }
 }

@@ -21,6 +21,7 @@ class PrimaryIndustrySelect {
         this.primaryIndustrySelector = primaryIndustrySelector;
         this.secondaryIndustrySelector = secondaryIndustrySelector;
         this.clearSecondaryIndustries = clearSecondaryIndustries;
+        this.selectCache = null;
 
         this.unbindEvents();
         this.bindEvents();
@@ -36,57 +37,62 @@ class PrimaryIndustrySelect {
         this.$wrapper.on('change', this.primaryIndustrySelector, this.handlePrimaryIndustryChange.bind(this));
     }
 
-    handlePrimaryIndustryChange(e) {
+    handlePrimaryIndustryChange(event) {
 
-        if (e.cancelable) {
-            e.preventDefault();
+        if (event.cancelable) {
+            event.preventDefault();
         }
 
         debugger;
-        const formData = {};
+        let $form = this.$wrapper.find('form');
+        let formName = $form.attr('name');
+        let tokenName = formName + "[_token]";
+        var formData = new FormData($form.get(0));
 
-        if(!this.clearSecondaryIndustries) {
-            formData[$(this.secondaryIndustrySelector).attr('name')] = $(this.secondaryIndustrySelector).val();
+        formData.delete(tokenName);
+        formData.append('primary_industry_change', "1");
+        formData.append('changeableField', "1");
+
+        if (!this.selectCache) {
+            setTimeout(() => {
+
+                this._changePrimaryIndustry(formData)
+                    .then((data) => {
+                    }).catch((errorData) => {
+
+                        debugger;
+
+                        console.log(errorData);
+                    $('.js-secondary-industry-container').replaceWith(
+                        // ... with the returned one from the AJAX response.
+                        $(errorData.formMarkup).find('.js-secondary-industry-container')
+                    );
+
+                    $('.js-select2').select2({
+                        width: '100%'
+                    });
+
+                    $('#educator_edit_profile_form_secondaryIndustries').select2({
+                        placeholder: "Select Profession",
+                        allowClear: true,
+                        width: '100%',
+                        sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
+                    });
+
+                    $('#professional_edit_profile_form_secondaryIndustries').select2({
+                        placeholder: "Select Profession",
+                        allowClear: true,
+                        width: '100%',
+                        sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
+                    });
+                });
+
+                this.selectCache = null;
+            }, 100)
         }
 
-        formData[$(e.target).attr('name')] = $(e.target).val();
 
-        //formData[$(PrimaryIndustrySelect._selectors.primaryIndustry).attr('name')] = $(PrimaryIndustrySelect._selectors.primaryIndustry).val();
-
-        formData['skip_validation'] = true;
-        formData['primary_industry_change'] = true;
-
-        debugger;
-
-        this._changePrimaryIndustry(formData)
-            .then((data) => {
-            }).catch((errorData) => {
-            $('.js-secondary-industry-container').replaceWith(
-                // ... with the returned one from the AJAX response.
-                $(errorData.formMarkup).find('.js-secondary-industry-container')
-            );
-
-            $('.js-select2').select2({
-                width: '100%'
-            });
-
-            $('#educator_edit_profile_form_secondaryIndustries').select2({
-                placeholder: "Select Profession",
-                allowClear: true,
-                width: '100%',
-                sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
-            });
-
-            $('#professional_edit_profile_form_secondaryIndustries').select2({
-                placeholder: "Select Profession",
-                allowClear: true,
-                width: '100%',
-                sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
-            });
-
-
-        });
-
+        this.selectCache = event;
     }
 
     _changePrimaryIndustry(data) {
@@ -94,7 +100,9 @@ class PrimaryIndustrySelect {
             $.ajax({
                 url: this.route,
                 method: 'POST',
-                data: data
+                data: data,
+                processData: false,
+                contentType: false
             }).then((data, textStatus, jqXHR) => {
                 resolve(data);
             }).catch((jqXHR) => {

@@ -1,0 +1,48 @@
+<div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
+
+    <ul class="uk-slideshow-items" style="{{ volunteerProfessionals|length > 4 ? 'height: 360px' : '' }}">
+        {% for volunteerProfessionalBatch in volunteerProfessionals|sort((a, b) => a.lastName <=> b.lastName)|batch(3) %}
+            <li class="uk-overflow-auto" style="position: absolute">
+
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
+                    {% for volunteerProfessional in volunteerProfessionalBatch %}
+                        <tr>
+                            <td class="uk-table-shrink">
+
+                                <a href="{{ path('profile_index', {id: volunteerProfessional.id}) }}">{{ volunteerProfessional.fullName }}</a>
+                                {% if volunteerProfessional.primaryIndustry is defined %}
+                                    <br>
+                                    <a class="uk-text-meta" href="{{ path('profile_index', {id: volunteerProfessional.id}) }}">
+                                        {{ volunteerProfessional.primaryIndustry.name|length > 50 ? volunteerProfessional.primaryIndustry.name|slice(0, 50) ~ '...' : volunteerProfessional.primaryIndustry.name }}
+                                    </a>
+                                {% endif %}
+                                {% if volunteerProfessional.state is not null and volunteerProfessional.city is not null %}
+                                    <br>
+                                    <a class="uk-text-meta" href="{{ path('profile_index', {id: volunteerProfessional.id}) }}">{{ volunteerProfessional.city }}, {{ volunteerProfessional.state.abbreviation }}</a>
+                                {% endif %}
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a href="{{ path('professional_index') }}">Browse Professionals</a>
+                            <br>
+                            <small class="uk-text-meta"><a href="{{ path('professional_index') }}">See more
+                                    professionals on Future Forward</a></small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+       uk-slideshow-item="previous"></a>
+    <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+       uk-slideshow-item="next"></a>
+    <br>
+    <br>
+</div>

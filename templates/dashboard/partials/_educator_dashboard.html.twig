@@ -3,33 +3,114 @@
         {% if user.profileCompleted == false %}
             <div class="uk-width-1-1">
                 <div class="uk-alert-warning" uk-alert>
-                    <h3>Warning: Incomplete Profile</h3>
-                    <p>Your profile is incomplete. Please enter a brief bio. <br /><strong><a href="{{ path('profile_edit', {'id': user.id}) }}">Click here to begin.</a></strong></p>
+                    <p>Your profile is incomplete. <strong><a href="{{ path('profile_edit', {'id': user.id}) }}">Click here to finish setting up your account.</a></strong>
+                    </p>
                 </div>
             </div>
         {% endif %}
         <div class="uk-width-2-3@m uk-width-1-1">
+
+            <!-- CALL TO ACTIONS -->
+            <div class="profile-card-wrapper">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header" style="padding: 40px">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 style="padding-left: 40px">Empower students with FutureForward</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+
+                        <div id="modal-create-request-coming-soon" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <button class="uk-modal-close-default" type="button" uk-close></button>
+                                <h3>Create a Request - Coming Soon!</h3>
+                                <p>Create a request that will be listed on the site for volunteer professionals</p>
+                                <p>Your request will be visible to volunteer professionals who might be interested in
+                                    helping. If a professional thinks they might be
+                                    able to contribute, they’ll reach out via chat or email to start a conversation and
+                                    learn more. You can always update or remove the request as needs change.</p>
+                            </div>
+                        </div>
+
+                        <div class="uk-grid">
+                            <div class="uk-width-auto">
+                                <img src="{{ asset('build/images/mentor.svg') }}">
+                            </div>
+                            <div class="uk-width-expand">
+                                <h4 style="margin-bottom: 0">Make a request for whatever help you need, and we’ll
+                                    broadcast it</h4>
+                                <p style="margin-top: 0; margin-bottom: 10px">Spend under 5 minutes to fill out a
+                                    request form for a volunteer professional, such as a mentor or expert presenter.
+                                    Volunteers can respond to your request via chat to start planning.</p>
+                                <a href="#modal-create-request-coming-soon"
+                                   class="uk-button uk-button-primary" style="width: 240px; line-height: 30px"
+                                   uk-toggle>CREATE A REQUEST</a>
+                            </div>
+                        </div>
+
+                        <div class="uk-grid">
+                            <div class="uk-width-auto">
+                                <img src="{{ asset('build/images/lecture.svg') }}">
+                            </div>
+                            <div class="uk-width-expand">
+                                <h4 style="margin-bottom: 0">Host an expert presenter for your students</h4>
+                                <p style="margin-top: 0; margin-bottom: 10px;">Bring the real world into the classroom.
+                                    Create a lesson topic to share with professionals whom you invite in to teach to
+                                    your students.</p>
+                                <a href="{{ path('lesson_index') }}" class="uk-button uk-button-primary"
+                                   style="width: 240px; line-height: 30px">PLAN A LESSON</a>
+                            </div>
+                        </div>
+
+                        <div class="uk-grid">
+                            <div class="uk-width-auto">
+                                <img src="{{ asset('build/images/calendar.svg') }}">
+                            </div>
+                            <div class="uk-width-expand">
+                                <h4 style="margin-bottom: 0">Invite your students to experiences and events</h4>
+                                <p style="margin-top: 0; margin-bottom: 10px;">Browse company or school hosted events
+                                    that you or your students are interested in, then register attend and give feedback
+                                    on the experience.</p>
+                                <a href="{{ path('experience_index') }}" class="uk-button uk-button-primary"
+                                   style="width: 240px; line-height: 30px">SEE EXPERIENCES</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <br>
+            <br>
+            <!-- END CALL TO ACTIONS -->
+
             <!-- PROFILE -->
             <div class="profile-card-wrapper">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-auto">
-                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                <img class="uk-border-circle" width="40" height="40"
+                                     src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
                                 <a href="{{ path('profile_index', {'id': user.id}) }}">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                 </a>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    {# TODO: Add link to school view #}
-                                    <a href="#">{{ user.school.name }}</a> - Educator
+
+                                    {% if user.school is not null %}
+                                        <a href="{{ path('school_view', {id: user.school.id}) }}">{{ user.school.name }}</a> - Educator
+                                    {% endif %}
                                 </p>
                             </div>
                             <div class="uk-width-auto">
                                 <div class="uk-align-right">
                                     <a href="{{ path('profile_index', {'id': user.id}) }}">My Public Profile</a>
-                                    <a href="{{ path('profile_edit', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: file-edit; ratio: 1"></span></a>
+                                    <a href="{{ path('profile_edit', {'id': user.id}) }}"><span
+                                                class="uk-margin-small-right"
+                                                uk-icon="icon: file-edit; ratio: 1"></span></a>
                                 </div>
                             </div>
                         </div>
@@ -38,30 +119,31 @@
                         {% if user.briefBio %}
                             {{ user.briefBio }}
                         {% else %}
-                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief bio</a> so others know more about you.</p>
+                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add
+                                    a brief bio</a> so others know more about you.</p>
                         {% endif %}
-                            <div class="professional-links">
-                                {% if user.email %}
-                                    <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
-                                {% endif %}
-                            </div>
+                        <div class="professional-links">
+                            {% if user.email %}
+                                <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right"
+                                   uk-icon="mail"></a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
-                    <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">Favorites</a></li>
-                    <li><a href="#user-events">Experiences / Guest Topics</a></li>
+                    <li><a href="#user-events">My Experiences</a></li>
                     <li><a href="#user-students">My Students</a></li>
                     <li><a href="#user-feedback">Provide Feedback</a></li>
                     <li><a href="#view-feedback">View Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
-                    <div class="user_preferences_calendar">
+                  {#  <div class="user_preferences_calendar">
                         <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
-                    </div>
+                    </div>#}
                     <div class="user_preferences_favorites">
                         <div class="uk-card uk-card-default">
                             <div class="uk-card-body">
@@ -77,7 +159,8 @@
                                             <ul class="uk-list uk-list-divider">
                                                 {% for favorite in user.lessonTeachables %}
                                                     <li>
-                                                        <a class="uk-link-text" href="{{ path('lesson_view', {'id': favorite.lesson.id}) }}">{{ favorite.lesson.title }}</a>
+                                                        <a class="uk-link-text"
+                                                           href="{{ path('lesson_view', {'id': favorite.lesson.id}) }}">{{ favorite.lesson.title }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -90,7 +173,8 @@
                                             <ul class="uk-list uk-list-divider">
                                                 {% for favorite in user.companyFavorites %}
                                                     <li>
-                                                        <a class="uk-link-text" href="{{ path('company_view', {'id': favorite.company.id}) }}">{{ favorite.company.name }}</a>
+                                                        <a class="uk-link-text"
+                                                           href="{{ path('company_view', {'id': favorite.company.id}) }}">{{ favorite.company.name }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -102,20 +186,24 @@
                                     <div class="tab-favorites__career_videos">
                                         {% if user.videoFavorites|length > 0 %}
                                             <ul class="uk-list uk-list-divider">
-                                                <div id="companyVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
-                                                {% for favorite in user.videoFavorites %}
-                                                    {% set video = favorite.video %}
-                                                    <div class="company-video">
-                                                        <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
-                                                            <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
-                                                            <div class="company-video__overlay">
-                                                                <div class="company-video__overlay-title">
-                                                                    {{ video.name }}
+                                                <div id="companyVideos" class="uk-child-width-1-3@m"
+                                                     uk-grid="masonry: true"
+                                                     uk-lightbox="animation: slide; video-autoplay: 1">
+                                                    {% for favorite in user.videoFavorites %}
+                                                        {% set video = favorite.video %}
+                                                        <div class="company-video">
+                                                            <a class="uk-inline"
+                                                               href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                                                <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg"
+                                                                     alt="">
+                                                                <div class="company-video__overlay">
+                                                                    <div class="company-video__overlay-title">
+                                                                        {{ video.name }}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                {% endfor %}
+                                                            </a>
+                                                        </div>
+                                                    {% endfor %}
                                                 </div>
                                             </ul>
                                         {% else %}
@@ -130,13 +218,15 @@
                     <div class="user_preferences_events">
                         <div>
 
-                            {% if user.school.allowEventCreation %}
+                            {% if user.school is not null and user.school.allowEventCreation %}
                                 <div class="uk-placeholder uk-text-center">
-                                    <p><a class="uk-button uk-button-primary uk-button-small" href="{{ path('school_experience_create', {'id': user.school.id}) }}">Create an Experience</a></p>
+                                    <p><a class="uk-button uk-button-primary uk-button-small"
+                                          href="{{ path('school_experience_create', {'id': user.school.id}) }}">Create
+                                            an Experience</a></p>
                                 </div>
                             {% endif %}
 
-                            {% if user.school.schoolExperiences|length %}
+                            {% if user.school is not null and user.school.schoolExperiences|length %}
                                 <div class="school__educators">
                                     <dl class="uk-description-list uk-description-list-divider">
                                         {% for experience in user.school.schoolExperiences %}
@@ -149,21 +239,35 @@
                                                         <dt>{{ experience.title }}</dt>
                                                     </div>
                                                     <div class="uk-width-1-1 uk-width-auto@m">
-                                                        <a href="{{ path('school_experience_view', { "id": experience.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                                        <a href="{{ path('school_experience_view', { "id": experience.id }) }}"
+                                                           class="uk-button uk-button-default uk-button-small">View</a>
 
-                                                        <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Delete</a>
+                                                        <a class="uk-button uk-button-danger uk-button-small"
+                                                           href="#modal-remove-school-event-{{ experience.id }}"
+                                                           uk-toggle>Delete</a>
 
-                                                        <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
+                                                        <div id="modal-remove-school-event-{{ experience.id }}"
+                                                             uk-modal>
                                                             <div class="uk-modal-dialog uk-modal-body">
                                                                 <h3>Delete Experience</h3>
-                                                                <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >
+                                                                <form class="uk-inline" method="post"
+                                                                      action="{{ path('school_experience_remove', { "id": experience.id }) }}">
 
-                                                                    <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
-                                                                    <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                                                                    <textarea class="uk-textarea" name="cancellationMessage" style="width: 100%"></textarea>
+                                                                    <label class="uk-form-label">Cancellation Message
+                                                                        (this will be sent to all users currently
+                                                                        registered to attend your experience):</label>
+                                                                    <input type="hidden" name="schoolAdminId"
+                                                                           value="{{ user.id }}">
+                                                                    <textarea class="uk-textarea"
+                                                                              name="cancellationMessage"
+                                                                              style="width: 100%"></textarea>
                                                                     <p>
-                                                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                                                        <button class="uk-button uk-button-danger" type="submit">Remove</button>
+                                                                        <button class="uk-button uk-button-default uk-modal-close"
+                                                                                type="button">Cancel
+                                                                        </button>
+                                                                        <button class="uk-button uk-button-danger"
+                                                                                type="submit">Remove
+                                                                        </button>
                                                                     </p>
                                                                 </form>
                                                             </div>
@@ -178,7 +282,8 @@
 
                             <div class="uk-card uk-card-default">
                                 <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences and Guest Instructor Topics</h3>
+                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences and Guest
+                                        Instructor Topics</h3>
                                     <ul class="uk-tab" uk-switcher="connect: #tab-events" uk-tab>
                                         <li class="uk-active"><a href="#events-upcoming">Upcoming</a></li>
                                         <li><a href="#events-completed">Completed</a></li>
@@ -188,7 +293,9 @@
                                             {% if dashboards.upcomingEventsRegisteredForByUser|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for event in dashboards.upcomingEventsRegisteredForByUser %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        <li><a class="uk-link-text"
+                                                               href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -199,7 +306,9 @@
                                             {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for event in dashboards.completedEventsRegisteredForByUser %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        <li><a class="uk-link-text"
+                                                               href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -220,13 +329,15 @@
 
                                         <div class="uk-grid uk-flex-middle" uk-grid>
                                             <div class="uk-width-auto">
-                                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                                <img class="uk-border-circle" width="40" height="40"
+                                                     src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                             </div>
                                             <div class="uk-width-expand">
-                                                <dt>{{ studentUser.lastName }},  {{ studentUser.firstName }}</dt>
+                                                <dt>{{ studentUser.lastName }}, {{ studentUser.firstName }}</dt>
                                             </div>
                                             <div class="uk-width-auto">
-                                                <a href="{{ path('profile_index', { "id": studentUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                                <a href="{{ path('profile_index', { "id": studentUser.id }) }}"
+                                                   class="uk-button uk-button-default uk-button-small">View</a>
                                             </div>
                                         </div>
 
@@ -234,7 +345,8 @@
 
                                 {% endfor %}
                             {% else %}
-                                <p>You currently do not have any students assigned to you.  You can change this in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a>.</p>
+                                <p>You currently do not have any students assigned to you. You can change this in your
+                                    <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a>.</p>
                             {% endif %}
                         </dl>
                     </div>
@@ -252,9 +364,13 @@
                                             {% if dashboards.eventsMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
-                                                            <span class="uk-position-center-right"><button class="uk-button uk-button-text delete-feedback uk-text-danger" data-id="{{ eventProps.event.id }}">X</button></span> 
-                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
+                                                        <li class="uk-position-relative"
+                                                            id="feedback_{{ eventProps.event.id }}">
+                                                            <span class="uk-position-center-right"><button
+                                                                        class="uk-button uk-button-text delete-feedback uk-text-danger"
+                                                                        data-id="{{ eventProps.event.id }}">X</button></span>
+                                                            <a class="uk-link-text"
+                                                               href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -266,7 +382,9 @@
                                             {% if dashboards.eventsWithFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsWithFeedback %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a></li>
+                                                        <li><a class="uk-link-text"
+                                                               href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -286,7 +404,9 @@
                                     {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
                                         <ul class="uk-list uk-list-divider">
                                             {% for event in dashboards.completedEventsRegisteredForByUser %}
-                                                <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                <li><a class="uk-link-text"
+                                                       href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
+                                                </li>
                                             {% endfor %}
                                         </ul>
                                     {% else %}
@@ -301,144 +421,108 @@
         </div>
         <div class="uk-width-1-3@m uk-width-1-1">
 
-            <!-- What's New This Week -->
-              <div class="quick-links-wrapper uk-margin">
-                <div class="uk-card uk-card-default">
-                    <div class="uk-card-header">
-                        <div class="uk-grid-small uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">What's New This Week</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="uk-card-body">
-                        <h4>New Topics (Created within past 7 days)</h4>
-                        <hr>
-                        <div style="text-align: left">
-                            {% for lesson in lessons %}
-                                <p><a href="/dashboard/lessons/{{lesson.id}}/view">{{lesson.title }}</a></p>
-                            {% else %}
-                                <p>No New Topics exist at this time.</p>
-                            {% endfor %}
-                        </div>
-
-                        {# Relevant School Events #}
-                        <hr>
-                        <h4>New School Experiences</h4>
-                        <hr>
-                        <div style="text-align: left">
-                        {% for schoolExperience in schoolExperiences %}
-                            <p><a href="/dashboard/schools/experiences/{{schoolExperience.id}}/view">{{ schoolExperience.title }}</a></p>
-                            {% else %}
-                            <p>No New School Experiences at this time.</p>
-                        {% endfor %}
-                        </div>
-
-                        {# Relevant Company Events #}
-                        <hr>
-                        <h4>New Company Experiences</h4>
-                        <hr>
-                        <div style="text-align: left">
-                        {% for companyExperience in companyExperiences %}
-                            <p><a href="/dashboard/companies/experiences/{{companyExperience.id}}/view">{{ companyExperience.title }}</a></p>
-                        {% else %}
-                            <p>No New Company Experiences at this time.</p>
-                        {% endfor %}
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Quick Links -->
-            <div class="quick-links-wrapper">
-                <div class="uk-card uk-card-default">
-                    <div class="uk-card-header">
-                        <div class="uk-grid-small uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">Explore</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="uk-card-body">
-                        <ul class="uk-list">
-                            <li><a href="{{ path('lesson_index') }}">Find a Topic</a></li>
-                            <li><a href="{{ path('professional_index') }}">Search for Professionals</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <br>
-            <div class="quick-links-wrapper">
-                <div class="uk-card uk-card-default">
-                    <div class="uk-card-header">
-                        <div class="uk-grid-small uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">Feedback</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="uk-card-body">
-                        <ul class="uk-list">
-
-                            <a href="{{ path('feedback_view_all') }}" target="_blank">View All Relevant Feedback</a>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Salary Exploration -->
+            <!-- Start My Requests -->
             <div class="quick-links-wrapper uk-margin">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">Exploration</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">My Requests</h3>
+                            </div>
+                            <div class="uk-width-auto">
+                                <div class="uk-align-right">
+                                    <a href="{{ path('requests') }}">
+                                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <ul class="uk-list">
-                            <li>
-                                <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Learn about Careers</a>
-                            </li>
-                            <li>
-                                <a class="uk-link" href="{{ path('company_index') }}">Learn about Companies</a>
-                            </li>
-                            <li>
-                                <a class="uk-link" href="{{ path('experience_index') }}">Career Experiences</a>
-                            </li>
-                        </ul>
+                        {{ render(controller('App\\Controller\\DashboardController::myRequests')) }}
                     </div>
+
+                    <div class="uk-card-footer" style="text-align: center">
+                        <a href="{{ path('requests') }}">Manage all requests</a>
+                    </div>
+
                 </div>
             </div>
+            <!-- End My Requests -->
 
-            <!-- My Lessons -->
+            <!-- Start Guides and Best Practices -->
             <div class="quick-links-wrapper uk-margin">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">Topics For My Class</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">Guides and Best Practices</h3>
                             </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        {% if user.lessonTeachables|length > 0 %}
-                            <ul class="uk-list uk-list-divider">
-                                {% for teachable in user.lessonTeachables %}
-                                    <li>
-                                        <a class="uk-link-text" href="{{ path('lesson_view', {'id': teachable.lesson.id}) }}">{{ teachable.lesson.title }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No teachable topics added yet.</p>
-                        {% endif %}
+                        {{ render(controller('App\\Controller\\DashboardController::guidesAndBestPractices')) }}
                     </div>
                 </div>
             </div>
+            <!-- End Guides and Best Practices -->
+
+            <!-- Start New Experiences -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Experiences</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        {{ render(controller('App\\Controller\\DashboardController::experiences')) }}
+                    </div>
+                </div>
+            </div>
+            <!-- End New Experiences -->
+
+            <!-- Start New Volunteer Professionals -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Volunteer Professionals</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        <div style="text-align: left">
+                            {{ render(controller('App\\Controller\\DashboardController::volunteerProfessionals')) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End New Volunteer Professionals -->
+
+
+            <!-- Start New Topics -->
+            <div class="quick-links-wrapper uk-margin">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Topics</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        <div style="text-align: left">
+                            {{ render(controller('App\\Controller\\DashboardController::topics')) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End New Topics -->
+
         </div>
     </div>
 </div>
@@ -446,10 +530,10 @@
 
 <div id="delete-modal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">Delete Feedback Review Request</h2>  
-            <p>Are you sure you do not want to provide feedback for this experience?</p>
-            <div id="delete-feedback-request-form-holder">
-            </div>
+        <h2 class="uk-modal-title">Delete Feedback Review Request</h2>
+        <p>Are you sure you do not want to provide feedback for this experience?</p>
+        <div id="delete-feedback-request-form-holder">
+        </div>
         </form>
     </div>
 </div>
