@@ -305,6 +305,11 @@ abstract class User implements UserInterface
     protected $lastLoginDate;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $splashPagesShown = [];
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -1359,9 +1364,8 @@ abstract class User implements UserInterface
         $user = $this;
 
         if ($user->isProfessional()) {
-
             /** @var ProfessionalUser $user */
-            if (!$user->getCity()) {
+            if (!$user->getSchools()->count() || !$user->getRolesWillingToFulfill()->count() || !$user->getPersonalAddressSearch()) {
                 return false;
             } else {
                 return true;
@@ -1369,13 +1373,21 @@ abstract class User implements UserInterface
         }
 
         if ($user->isEducator()) {
-
             /** @var EducatorUser $user */
-            if (!$user->getBriefBio()) {
+
+            if(!$user->getPrimaryIndustries()->count()) {
                 return false;
-            } else {
-                return true;
             }
+
+            if(!$user->getSecondaryIndustries()->count()) {
+                return false;
+            }
+
+            if(!$user->getMyCourses()->count()) {
+                return false;
+            }
+
+            return true;
         }
 
         if ($user->isStudent()) {
@@ -1538,5 +1550,44 @@ abstract class User implements UserInterface
         $this->lastLoginDate = $lastLoginDate;
 
         return $this;
+    }
+
+    public function getSplashPagesShown(): ?array
+    {
+        if(!$this->splashPagesShown) {
+            return [];
+        }
+
+        return $this->splashPagesShown;
+    }
+
+    public function setSplashPagesShown(?array $splashPagesShown): self
+    {
+        $this->splashPagesShown = $splashPagesShown;
+
+        return $this;
+    }
+
+    public function addSplashPageShown($splashPage): self
+    {
+
+        if(!in_array($splashPage, $this->getSplashPagesShown(), true)) {
+            $this->splashPagesShown[] = $splashPage;
+        }
+
+        return $this;
+    }
+
+    public function splashPageShown($splashPage): bool
+    {
+        if(in_array($splashPage, $this->getSplashPagesShown(), true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getPotentialSplashPages() {
+        return [];
     }
 }

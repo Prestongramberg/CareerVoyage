@@ -217,11 +217,6 @@ class ProfessionalUser extends User
      */
     private $personalAddressSearch;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $splashShown;
-
     public function __construct()
     {
         parent::__construct();
@@ -898,15 +893,7 @@ class ProfessionalUser extends User
         return $this;
     }
 
-    public function getSplashShown(): ?bool
-    {
-        return $this->splashShown;
-    }
-
-    public function setSplashShown(?bool $splashShown): self
-    {
-        $this->splashShown = $splashShown;
-
-        return $this;
+    public function getPotentialSplashPages() {
+        return ['professional-welcome'];
     }
 }

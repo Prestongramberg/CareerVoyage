@@ -11,6 +11,7 @@ use App\Entity\SecondaryIndustry;
 use App\Entity\State;
 use App\Entity\User;
 use App\Repository\SchoolRepository;
+use App\Repository\SecondaryIndustryRepository;
 use App\Service\Geocoder;
 use App\Util\FormHelper;
 use Doctrine\ORM\EntityRepository;
@@ -45,6 +46,11 @@ class ProfessionalEditProfileFormType extends AbstractType
     private $schoolRepository;
 
     /**
+     * @var SecondaryIndustryRepository
+     */
+    private $secondaryIndustryRepository;
+
+    /**
      * @var Geocoder
      */
     private $geocoder;
@@ -74,13 +80,16 @@ class ProfessionalEditProfileFormType extends AbstractType
      *
      * @param NotificationPreferencesManager $notificationPreferenceManager
      * @param SchoolRepository               $schoolRepository
+     * @param SecondaryIndustryRepository    $secondaryIndustryRepository
      * @param Geocoder                       $geocoder
      */
     public function __construct(NotificationPreferencesManager $notificationPreferenceManager,
-                                SchoolRepository $schoolRepository, Geocoder $geocoder
+                                SchoolRepository $schoolRepository,
+                                SecondaryIndustryRepository $secondaryIndustryRepository, Geocoder $geocoder
     ) {
         $this->notificationPreferenceManager = $notificationPreferenceManager;
         $this->schoolRepository              = $schoolRepository;
+        $this->secondaryIndustryRepository   = $secondaryIndustryRepository;
         $this->geocoder                      = $geocoder;
     }
 
@@ -173,7 +182,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                     'autocomplete' => true,
                     'placeholder' => 'Filter by your work location',
                 ],
-                'data' => $user->getFormattedAddress()
+                'data' => $user->getFormattedAddress(),
             ])
             ->add('radiusSearch', ChoiceType::class, [
                 'choices' => [
@@ -198,7 +207,11 @@ class ProfessionalEditProfileFormType extends AbstractType
             'multiple' => true,
             'expanded' => false,
             'choice_attr' => function ($choice, $key, $value) {
-                return ['class' => 'uk-checkbox', 'data-latitude' => $choice->getLatitude(), 'data-longitude' => $choice->getLongitude(), 'data-school' => $choice->getName()];
+                return ['class' => 'uk-checkbox',
+                        'data-latitude' => $choice->getLatitude(),
+                        'data-longitude' => $choice->getLongitude(),
+                        'data-school' => $choice->getName(),
+                ];
             },
         ]);
 
@@ -231,19 +244,12 @@ class ProfessionalEditProfileFormType extends AbstractType
                 $this->modifyNotificationPreferencesField($event->getForm(), $notificationPreferences);
             }
 
-            if (!$data->getPrimaryIndustry()) {
-                return;
-            }
             $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
         });
 
         $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             /** @var Industry $industry */
             $industry = $event->getForm()->getData();
-
-            if (!$industry) {
-                return;
-            }
 
             $this->modifyForm($event->getForm()->getParent(), $industry);
         });
@@ -260,18 +266,18 @@ class ProfessionalEditProfileFormType extends AbstractType
                 $data['notificationPreferenceMask'] = null;
             }
 
-            if(!isset($data['schools'])) {
+            if (!isset($data['schools'])) {
                 $data['schools'] = [];
             }
 
             $originalSchoolIds = $data['schools'];
-            $schools = [];
+            $schools           = [];
 
-            if(!empty($data['addressSearch']) && !empty($data['radiusSearch'])) {
+            if (!empty($data['addressSearch']) && !empty($data['radiusSearch'])) {
 
                 if ($coordinates = $this->geocoder->geocode($data['addressSearch'])) {
                     list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($coordinates['lat'], $coordinates['lng'], $data['radiusSearch']);
-                    $schools   = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $coordinates['lat'], $coordinates['lng']);
+                    $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $coordinates['lat'], $coordinates['lng']);
 
                     $schoolIds = [];
                     foreach ($schools as $school) {
@@ -282,9 +288,9 @@ class ProfessionalEditProfileFormType extends AbstractType
                 }
             }
 
-            if(!empty($data['regions'])) {
+            if (!empty($data['regions'])) {
 
-                if(count($schools)) {
+                if (count($schools)) {
 
                     $regionIds = $data['regions'];
 
@@ -299,12 +305,12 @@ class ProfessionalEditProfileFormType extends AbstractType
                 } else {
 
                     $schools = $this->schoolRepository->findBy([
-                        'region' => $data['regions']
+                        'region' => $data['regions'],
                     ]);
                 }
             }
 
-            $newSchoolIds = array_map(function(School $school) {
+            $newSchoolIds = array_map(function (School $school) {
                 return $school->getId();
             }, $schools);
 
@@ -316,9 +322,36 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'id' => $schoolIds,
             ], ['name' => 'ASC']);
 
-            $data['schools'] = array_map(function(School $school) {
+            $data['schools'] = array_map(function (School $school) {
                 return $school->getId();
             }, $schools);
+
+
+            if (!isset($data['secondaryIndustries'])) {
+                $data['secondaryIndustries'] = [];
+            }
+
+            if (!isset($data['primaryIndustry'])) {
+                $data['primaryIndustry'] = null;
+            }
+
+            $secondaryIndustryIds = [];
+
+            if (!empty($data['secondaryIndustries'])) {
+
+                $secondaryIndustries = $this->secondaryIndustryRepository->findBy([
+                    'id' => $data['secondaryIndustries'],
+                ]);
+
+                foreach ($secondaryIndustries as $secondaryIndustry) {
+
+                    if ($secondaryIndustry->getPrimaryIndustry()->getId() == $data['primaryIndustry']) {
+                        $secondaryIndustryIds[] = $secondaryIndustry->getId();
+                    }
+                }
+            }
+
+            $data['secondaryIndustries'] = $secondaryIndustryIds;
 
             $event->setData($data);
         });
@@ -361,7 +394,11 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox', 'data-latitude' => $choice->getLatitude(), 'data-longitude' => $choice->getLongitude(), 'data-school' => $choice->getName()];
+                    return ['class' => 'uk-checkbox',
+                            'data-latitude' => $choice->getLatitude(),
+                            'data-longitude' => $choice->getLongitude(),
+                            'data-school' => $choice->getName(),
+                    ];
                 },
             ]);
 
@@ -452,7 +489,11 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox', 'data-latitude' => $choice->getLatitude(), 'data-longitude' => $choice->getLongitude(), 'data-school' => $choice->getName()];
+                    return ['class' => 'uk-checkbox',
+                            'data-latitude' => $choice->getLatitude(),
+                            'data-longitude' => $choice->getLongitude(),
+                            'data-school' => $choice->getName(),
+                    ];
                 },
             ]);
 
@@ -463,12 +504,12 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'schools',
                 'regions',
                 'radiusSearch',
-                'personalAddressSearch',
+                'addressSearch',
                 'email',
                 'plainPassword',
                 'isPhoneHiddenFromProfile',
                 'isEmailHiddenFromProfile',
-                'notificationPreferenceMask'
+                'notificationPreferenceMask',
             ]);
         }
 
@@ -492,7 +533,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'linkedinProfile',
                 'phone',
                 'phoneExt',
-                'interests'
+                'interests',
             ]);
         }
 
@@ -502,6 +543,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'regions',
                 'radiusSearch',
                 'personalAddressSearch',
+                'addressSearch',
                 'rolesWillingToFulfill',
                 'primaryIndustry',
                 'firstName',
@@ -510,28 +552,30 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'city',
                 'state',
                 'zipcode',
-                'personalAddressSearch',
                 'briefBio',
                 'linkedinProfile',
                 'phone',
                 'phoneExt',
-                'interests'
+                'interests',
             ]);
         }
 
     }
 
-    private function modifyForm(FormInterface $form, Industry $industry)
+    private function modifyForm(FormInterface $form, Industry $industry = null)
     {
+
+        if (!$industry) {
+            $choices = [];
+        } else {
+            $choices = $this->secondaryIndustryRepository->findBy([
+                'primaryIndustry' => $industry->getId(),
+            ]);
+        }
 
         $form->add('secondaryIndustries', EntityType::class, [
             'class' => SecondaryIndustry::class,
-            'query_builder' => function (EntityRepository $er) use ($industry) {
-                return $er->createQueryBuilder('si')
-                          ->where('si.primaryIndustry = :primaryIndustry')
-                          ->setParameter('primaryIndustry', $industry->getId())
-                          ->orderBy('si.name', 'ASC');
-            },
+            'choices' => $choices,
             'choice_label' => 'name',
             'expanded' => false,
             'multiple' => true,
@@ -561,12 +605,12 @@ class ProfessionalEditProfileFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ProfessionalUser::class
+            'data_class' => ProfessionalUser::class,
         ]);
 
         $resolver->setRequired([
             'skip_validation',
-            'user'
+            'user',
         ]);
     }
 
@@ -585,13 +629,13 @@ class ProfessionalEditProfileFormType extends AbstractType
 
         $schools = $options['data']->getSchools();
 
-   /*     $schoolsForm = $form->get('schools');
-        $d = $schoolsForm->getViewData();
-        $schools = $schoolsForm->getData();
-        $f = $schoolsForm->getNormData();
-        $config = $schoolsForm->getConfig();
-        $options = $config->getOptions();
-        $choices = $config->getOption('choices');*/
+        /*     $schoolsForm = $form->get('schools');
+             $d = $schoolsForm->getViewData();
+             $schools = $schoolsForm->getData();
+             $f = $schoolsForm->getNormData();
+             $config = $schoolsForm->getConfig();
+             $options = $config->getOptions();
+             $choices = $config->getOption('choices');*/
 
         $schoolsJson = [];
         foreach ($schools as $school) {

@@ -1,58 +1,137 @@
-<div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
+{% if user.professional %}
 
-    <ul class="uk-slideshow-items" style="height: 320px">
-        <li class="uk-overflow-auto" style="position: absolute">
+    <div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
 
-            <table class="uk-table uk-table-small uk-table-divider">
-                <tbody>
+        <ul class="uk-slideshow-items" style="height: 320px">
+            <li class="uk-overflow-auto" style="position: absolute">
 
-                <tr>
-                    <td class="uk-table-shrink">
-                        <a href="javascript:void(0)" uk-toggle="target: #offcanvas-help">Using FutureForward</a>
-                        <br>
-                        <a class="uk-text-meta" href="javascript:void(0)" uk-toggle="target: #offcanvas-help">
-                            How to gain the most from the platform
-                        </a>
-                    </td>
-                </tr>
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
 
-                <tr>
-                    <td class="uk-table-shrink">
-                        <a target="_blank" href="{{ path('knowledge-base') }}#knowledge-professionals">Serving as an expert presenter</a>
-                        <br>
-                        <a target="_blank" class="uk-text-meta" href="{{ path('knowledge-base') }}#knowledge-professionals">
-                            Best practices for teaching students
-                        </a>
-                    </td>
-                </tr>
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a href="javascript:void(0)" uk-toggle="target: #offcanvas-help">Using FutureForward</a>
+                            <br>
+                            <a class="uk-text-meta" href="javascript:void(0)" uk-toggle="target: #offcanvas-help">
+                                How to gain the most from the platform
+                            </a>
+                        </td>
+                    </tr>
 
-                <tr>
-                    <td class="uk-table-shrink">
-                        <a target="_blank" href="{{ path('knowledge-base') }}#knowledge-professionals">Serving as a student mentor</a>
-                        <br>
-                        <a target="_blank" class="uk-text-meta" href="{{ path('knowledge-base') }}#knowledge-professionals">
-                            Best practices for mentoring and advising students
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="uk-table-shrink">
-                        <a target="_blank" href="https://sites.google.com/apritonadvisors.com/resourcesforprofessionals/home">Additional Resources</a>
-                        <br>
-                        <a target="_blank" class="uk-text-meta" href="https://sites.google.com/apritonadvisors.com/resourcesforprofessionals/home">
-                            A wealth of guides for serving in your community
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </li>
-    </ul>
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a target="_blank" href="{{ path('knowledge-base') }}#knowledge-professionals">Serving as an
+                                expert presenter</a>
+                            <br>
+                            <a target="_blank" class="uk-text-meta"
+                               href="{{ path('knowledge-base') }}#knowledge-professionals">
+                                Best practices for teaching students
+                            </a>
+                        </td>
+                    </tr>
 
-    <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
-       uk-slideshow-item="previous"></a>
-    <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
-       uk-slideshow-item="next"></a>
-    <br>
-    <br>
-</div>
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a target="_blank" href="{{ path('knowledge-base') }}#knowledge-professionals">Serving as a
+                                student mentor</a>
+                            <br>
+                            <a target="_blank" class="uk-text-meta"
+                               href="{{ path('knowledge-base') }}#knowledge-professionals">
+                                Best practices for mentoring and advising students
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a target="_blank"
+                               href="https://sites.google.com/apritonadvisors.com/resourcesforprofessionals/home">Additional
+                                Resources</a>
+                            <br>
+                            <a target="_blank" class="uk-text-meta"
+                               href="https://sites.google.com/apritonadvisors.com/resourcesforprofessionals/home">
+                                A wealth of guides for serving in your community
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        </ul>
+
+        <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+           uk-slideshow-item="previous"></a>
+        <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+           uk-slideshow-item="next"></a>
+        <br>
+        <br>
+    </div>
+
+
+{% elseif user.educator %}
+
+    <div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
+
+        <ul class="uk-slideshow-items" style="height: 320px">
+            <li class="uk-overflow-auto" style="position: absolute">
+
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
+
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a href="javascript:void(0)" uk-toggle="target: #offcanvas-help">Using FutureForward</a>
+                            <br>
+                            <a class="uk-text-meta" href="javascript:void(0)" uk-toggle="target: #offcanvas-help">
+                                How to gain the most from the platform
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a target="_blank" href="https://drive.google.com/file/d/18vtMM-GWrKeoxVbk-3Cf-Xq-n_eM-tsW/view">Hosting Guest Lessons With Professionals</a>
+                            <br>
+                            <a target="_blank" class="uk-text-meta"
+                               href="https://drive.google.com/file/d/18vtMM-GWrKeoxVbk-3Cf-Xq-n_eM-tsW/view">
+                                Best practices for bringing professionals into class
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a target="_blank"
+                               href="{{ path('knowledge-base') }}#knowledge-professionals">Connecting With Professionals</a>
+                            <br>
+                            <a target="_blank" class="uk-text-meta"
+                               href="{{ path('knowledge-base') }}#knowledge-professionals">How to build your network of professionals
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a target="_blank"
+                               href="{{ path('knowledge-base') }}">Using Career Videos</a>
+                            <br>
+                            <a target="_blank" class="uk-text-meta"
+                               href="{{ path('knowledge-base') }}">
+                                How to take advantage of our pre made video library
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        </ul>
+
+        <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+           uk-slideshow-item="previous"></a>
+        <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+           uk-slideshow-item="next"></a>
+        <br>
+        <br>
+    </div>
+
+
+{% endif %}

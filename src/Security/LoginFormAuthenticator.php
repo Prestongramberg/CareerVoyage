@@ -3,6 +3,7 @@
 // src/Security/LoginFormAuthenticator.php
 namespace App\Security;
 
+use App\Entity\EducatorUser;
 use App\Entity\ProfessionalUser;
 use App\Entity\Site;
 use App\Entity\User;
@@ -159,18 +160,18 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             $user->setPhoto($fileName);
         }
 
-
         $user->initializeTemporarySecurityToken();
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
+        $potentialSplashPages = $user->getPotentialSplashPages();
+        foreach($potentialSplashPages as $potentialSplashPage) {
 
-        if($user instanceof ProfessionalUser && !$user->getSplashShown()) {
-
-            $user->setSplashShown(true);
-            $this->entityManager->flush();
-
-            return new RedirectResponse($this->router->generate('splash_professional_welcome', ['splash' => 'professional-welcome']));
+            if(!$user->splashPageShown($potentialSplashPage)) {
+                $user->addSplashPageShown($potentialSplashPage);
+                $this->entityManager->flush();
+                return new RedirectResponse($this->router->generate('splash_index', ['splash' => $potentialSplashPage]));
+            }
         }
 
         // if the user is not on the correct site URL and an admin isn't logged temporarily

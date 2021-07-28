@@ -125,20 +125,6 @@ class EducatorEditProfileFormType extends AbstractType
             },
         ]);
 
-        $builder->add('secondaryIndustries', EntityType::class, [
-            'class' => SecondaryIndustry::class,
-            'choice_label' => 'name',
-            'expanded' => false,
-            'multiple' => true,
-            'choice_attr' => function ($choice, $key, $value) {
-                return ['class' => 'uk-checkbox'];
-            },
-            'group_by' => function ($choice, $key, $value) {
-
-                return $choice->getPrimaryIndustry()->getName();
-            },
-        ]);
-
         $builder->add('myCourses', EntityType::class, [
             'class' => Course::class,
             'multiple' => true,
@@ -228,10 +214,6 @@ class EducatorEditProfileFormType extends AbstractType
 
             $industries = $event->getForm()->getData();
 
-            if (!$industries) {
-                return;
-            }
-
             $this->modifyForm($event->getForm()->getParent(), $industries);
         });
 
@@ -253,9 +235,7 @@ class EducatorEditProfileFormType extends AbstractType
                 $this->modifyNotificationPreferencesField($event->getForm(), $notificationPreferences);
             }
 
-            if ($data->getPrimaryIndustries()->count() > 0) {
-                $this->modifyForm($event->getForm(), $data->getPrimaryIndustries());
-            }
+            $this->modifyForm($event->getForm(), $data->getPrimaryIndustries());
         });
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
@@ -377,6 +357,7 @@ class EducatorEditProfileFormType extends AbstractType
             'validation_groups' => function (FormInterface $form) {
                 return ['EDUCATOR_USER'];
             },
+            'csrf_protection' => true
         ]);
 
         $resolver->setRequired([

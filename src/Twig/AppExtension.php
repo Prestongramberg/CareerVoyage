@@ -103,16 +103,17 @@ class AppExtension extends AbstractExtension
 
     /**
      * AppExtension constructor.
-     * @param UploaderHelper $uploadHelper
-     * @param SerializerInterface $serializer
-     * @param RequestRepository $requestRepository
-     * @param UserRepository $userRepository
-     * @param ChatRepository $chatRepository
+     *
+     * @param UploaderHelper        $uploadHelper
+     * @param SerializerInterface   $serializer
+     * @param RequestRepository     $requestRepository
+     * @param UserRepository        $userRepository
+     * @param ChatRepository        $chatRepository
      * @param ChatMessageRepository $chatMessageRepository
-     * @param Environment $twig
-     * @param SiteRepository $siteRepository
-     * @param RouterInterface $router
-     * @param Security $security
+     * @param Environment           $twig
+     * @param SiteRepository        $siteRepository
+     * @param RouterInterface       $router
+     * @param Security              $security
      */
     public function __construct(
         UploaderHelper $uploadHelper,
@@ -127,16 +128,16 @@ class AppExtension extends AbstractExtension
         Security $security,
         EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
     ) {
-        $this->uploadHelper = $uploadHelper;
-        $this->serializer = $serializer;
-        $this->requestRepository = $requestRepository;
-        $this->userRepository = $userRepository;
-        $this->chatRepository = $chatRepository;
-        $this->chatMessageRepository = $chatMessageRepository;
-        $this->twig = $twig;
-        $this->siteRepository = $siteRepository;
-        $this->router = $router;
-        $this->security = $security;
+        $this->uploadHelper                                          = $uploadHelper;
+        $this->serializer                                            = $serializer;
+        $this->requestRepository                                     = $requestRepository;
+        $this->userRepository                                        = $userRepository;
+        $this->chatRepository                                        = $chatRepository;
+        $this->chatMessageRepository                                 = $chatMessageRepository;
+        $this->twig                                                  = $twig;
+        $this->siteRepository                                        = $siteRepository;
+        $this->router                                                = $router;
+        $this->security                                              = $security;
         $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
     }
 
@@ -169,7 +170,86 @@ class AppExtension extends AbstractExtension
             new TwigFunction('user_can_teach_lesson', [$this, 'userCanTeachLesson']),
             new TwigFunction('user_favorited_company', [$this, 'userFavoritedCompany']),
             new TwigFunction('user_favorited_video', [$this, 'userFavoritedVideo']),
+            new TwigFunction('call_to_action_href', [$this, 'callToActionHref']),
+            new TwigFunction('call_to_action_should_render', [$this, 'callToActionShouldRender']),
         ];
+    }
+
+    public function getFilters()
+    {
+        return [
+            new TwigFilter('boolean', [$this, 'toBoolean']),
+        ];
+    }
+
+    public function toBoolean($value)
+    {
+
+        return true;
+
+        return (bool)$value;
+    }
+
+    /**
+     * @param User $user
+     * @param      $route
+     *
+     * @return null
+     */
+    public function callToActionHref(User $user, $route)
+    {
+        switch ($route) {
+            case 'company_experience_create':
+
+                if(!$user instanceof ProfessionalUser) {
+                    return "";
+                }
+
+                if(!$user->getCompany()) {
+                    return "";
+                }
+
+                if(!$user->isOwner($user->getCompany())) {
+                    return "";
+                }
+
+                return $this->router->generate('company_experience_create', [
+                   'id' => $user->getCompany()->getId()
+                ]);
+
+                break;
+        }
+    }
+
+
+    /**
+     * @param User $user
+     *
+     * @param      $guid
+     *
+     * @return null
+     */
+    public function callToActionShouldRender(User $user, $guid)
+    {
+        switch ($guid) {
+            case 'f9u00c8Gtn2BIrn5eH#J':
+
+                if(!$user instanceof ProfessionalUser) {
+                    return "false";
+                }
+
+                if(!$user->getCompany()) {
+                    return "false";
+                }
+
+                if(!$user->isOwner($user->getCompany())) {
+                    return "false";
+                }
+
+                return true;
+
+                break;
+        }
     }
 
     /**
@@ -178,13 +258,15 @@ class AppExtension extends AbstractExtension
      *
      * @return bool
      */
-    public function userFavoritedVideo(User $user, Video $video) {
+    public function userFavoritedVideo(User $user, Video $video)
+    {
 
-        foreach($video->getVideoFavorites() as $videoFavorite) {
-            if($videoFavorite->getUser() && $videoFavorite->getUser()->getId() === $user->getId()) {
+        foreach ($video->getVideoFavorites() as $videoFavorite) {
+            if ($videoFavorite->getUser() && $videoFavorite->getUser()->getId() === $user->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -194,13 +276,15 @@ class AppExtension extends AbstractExtension
      *
      * @return bool
      */
-    public function userFavoritedCompany(User $user, Company $company) {
+    public function userFavoritedCompany(User $user, Company $company)
+    {
 
-        foreach($company->getCompanyFavorites() as $companyFavorite) {
-            if($companyFavorite->getUser() && $companyFavorite->getUser()->getId() === $user->getId()) {
+        foreach ($company->getCompanyFavorites() as $companyFavorite) {
+            if ($companyFavorite->getUser() && $companyFavorite->getUser()->getId() === $user->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -210,13 +294,15 @@ class AppExtension extends AbstractExtension
      *
      * @return bool
      */
-    public function userFavoritedLesson(User $user, Lesson $lesson) {
+    public function userFavoritedLesson(User $user, Lesson $lesson)
+    {
 
-        foreach($lesson->getLessonFavorites() as $lessonFavorite) {
-            if($lessonFavorite->getUser()->getId() === $user->getId()) {
+        foreach ($lesson->getLessonFavorites() as $lessonFavorite) {
+            if ($lessonFavorite->getUser()->getId() === $user->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -227,14 +313,16 @@ class AppExtension extends AbstractExtension
      * @return bool
      *
      */
-    public function userCanTeachLesson(User $user, Lesson $lesson) {
+    public function userCanTeachLesson(User $user, Lesson $lesson)
+    {
 
-        foreach($lesson->getLessonTeachables() as $lessonTeachable) {
+        foreach ($lesson->getLessonTeachables() as $lessonTeachable) {
 
-            if($lessonTeachable->getUser()->getId() === $user->getId()) {
+            if ($lessonTeachable->getUser()->getId() === $user->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -253,25 +341,25 @@ class AppExtension extends AbstractExtension
         return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
     }
 
-	public function encodeCompanies($objects): string
-	{
-		return $this->serializer->serialize($objects, 'json', ['groups' => ['RESULTS_PAGE']]);
-	}
+    public function encodeCompanies($objects): string
+    {
+        return $this->serializer->serialize($objects, 'json', ['groups' => ['RESULTS_PAGE']]);
+    }
 
-	public function encodeSchool(School $object): string
-	{
-		return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
-	}
+    public function encodeSchool(School $object): string
+    {
+        return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
+    }
 
     public function encodeUser(User $object): string
     {
         return $this->serializer->serialize($object, 'json', ['groups' => ['ALL_USER_DATA']]);
     }
 
-	public function encodeSchools($objects): string
-	{
-		return $this->serializer->serialize($objects, 'json', ['groups' => ['RESULTS_PAGE']]);
-	}
+    public function encodeSchools($objects): string
+    {
+        return $this->serializer->serialize($objects, 'json', ['groups' => ['RESULTS_PAGE']]);
+    }
 
     public function encodeCompanyResources($companyResources): string
     {
@@ -283,65 +371,67 @@ class AppExtension extends AbstractExtension
         return $this->serializer->serialize($secondaryIndustries, 'json', ['groups' => ['RESULTS_PAGE']]);
     }
 
-    public function validateUrl( $url ) : string
+    public function validateUrl($url): string
     {
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
             $url = 'http://' . ltrim($url, '/');
         }
+
         return $url;
     }
 
-    public function excerptLength( $content, $limit = 200 )
+    public function excerptLength($content, $limit = 200)
     {
-        if(!$content) {
+        if (!$content) {
             return '';
         }
 
-        if ( strlen( $content ) <= $limit) {
+        if (strlen($content) <= $limit) {
             return $content;
         } else {
-            return substr( $content, 0, $limit) . '...';
+            return substr($content, 0, $limit) . '...';
         }
     }
 
-    public function pendingRequests(User $user) {
+    public function pendingRequests(User $user)
+    {
 
         $requests_total = 0;
-        if($user->isStudent()) {
-            $my_requests = $this->requestRepository->getUnreadMyRequestsStudent($user);
+        if ($user->isStudent()) {
+            $my_requests    = $this->requestRepository->getUnreadMyRequestsStudent($user);
             $requests_total = $requests_total + count($my_requests);
 
             $my_company_experiences = $this->requestRepository->getUnreadErsfceStudent($user);
-            $requests_total = $requests_total + count($my_company_experiences);
+            $requests_total         = $requests_total + count($my_company_experiences);
 
             $my_school_experiences = $this->requestRepository->getUndreadSchoolExperiencesStudent($user);
-            $requests_total = $requests_total + count($my_school_experiences);
+            $requests_total        = $requests_total + count($my_school_experiences);
         }
 
-        if($user->isEducator()) {
+        if ($user->isEducator()) {
 
-            $my_requests = $this->requestRepository->getUnreadMyRequestsEducator($user);
+            $my_requests    = $this->requestRepository->getUnreadMyRequestsEducator($user);
             $requests_total = $requests_total + count($my_requests);
 
-            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeEducator($user);
+            $my_approvals   = $this->requestRepository->getUnreadApprovalsByMeEducator($user);
             $requests_total = $requests_total + count($my_approvals);
-            
+
 
             // $companyExperienceRequests = $this->educatorRegisterStudentForExperienceRequestRepository->getUnreadEducatorCompanyRequests($user);
             // $addtl_total = $addtl_total + count($companyExperienceRequests);
         }
 
-        if($user->isProfessional()) {
-            $my_requests = $this->requestRepository->getUnreadMyRequestsProfessional($user);
+        if ($user->isProfessional()) {
+            $my_requests    = $this->requestRepository->getUnreadMyRequestsProfessional($user);
             $requests_total = $requests_total + count($my_requests);
 
-            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeProfessional($user);
+            $my_approvals   = $this->requestRepository->getUnreadApprovalsByMeProfessional($user);
             $requests_total = $requests_total + count($my_approvals);
         }
 
-        if($user->isSchoolAdministrator()) {
-            $my_approvals = $this->requestRepository->getUnreadApprovalsByMeSchoolAdmin($user);
+        if ($user->isSchoolAdministrator()) {
+            $my_approvals   = $this->requestRepository->getUnreadApprovalsByMeSchoolAdmin($user);
             $requests_total = $requests_total + count($my_approvals);
         }
 
@@ -351,34 +441,40 @@ class AppExtension extends AbstractExtension
         return $requests_total;
     }
 
-    public function ucwords($text) {
+    public function ucwords($text)
+    {
         return $this->ucwords($text);
     }
 
-    public function userCanEditUser( User $user, User $userToVoteOn ) {
-        return ProfileVoter::canEdit( $userToVoteOn, $user );
+    public function userCanEditUser(User $user, User $userToVoteOn)
+    {
+        return ProfileVoter::canEdit($userToVoteOn, $user);
     }
 
-    public function getEnv( $variable ) {
-        return $_ENV[ $variable ];
+    public function getEnv($variable)
+    {
+        return $_ENV[$variable];
     }
 
-    public function unreadMessages( $userId ) {
-        $user = $this->userRepository->find($userId);
-        $unreadMessages = $this->chatMessageRepository->findBy(['sentTo' => $user,'hasBeenRead' => false]);
+    public function unreadMessages($userId)
+    {
+        $user           = $this->userRepository->find($userId);
+        $unreadMessages = $this->chatMessageRepository->findBy(['sentTo' => $user, 'hasBeenRead' => false]);
+
         return count($unreadMessages);
     }
 
-    public function renderRequest( $request, $user, $location = "", $parentTab = "" ) {
+    public function renderRequest($request, $user, $location = "", $parentTab = "")
+    {
 
         switch ($request->getClassName()) {
             case "JoinCompanyRequest":
 
                 /** @var JoinCompanyRequest $request */
-                if($this->containsNullObjects([
+                if ($this->containsNullObjects([
                     $request->getCompany(),
                     $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy()
+                    $request->getNeedsApprovalBy(),
                 ])) {
                     return '';
                 }
@@ -387,54 +483,56 @@ class AppExtension extends AbstractExtension
                     'request' => $request,
                     'user' => $user,
                     'location' => $location,
-                    'parentTab' => $parentTab
+                    'parentTab' => $parentTab,
                 ]);
                 break;
             case "NewCompanyRequest":
                 /** @var NewCompanyRequest $request */
-                if($this->containsNullObjects([
+                if ($this->containsNullObjects([
                     $request->getCompany(),
                     $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy()
-                ])) {
-                    return '';
-                }
-                return $this->twig->render('request/partials/_new_companies.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab
-                ]);
-                break;
-            case "TeachLessonRequest":
-                /** @var TeachLessonRequest $request */
-                if($this->containsNullObjects([
-                    $request->getLesson(),
-                    $request->getSchool(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy()
-                ])) {
-                    return '';
-                }
-                return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab
-                ]);
-                break;
-            case "EducatorRegisterStudentForCompanyExperienceRequest":
-                /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
-                if($this->containsNullObjects([
-                    $request->getCompanyExperience(),
-                    $request->getStudentUser(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy()
+                    $request->getNeedsApprovalBy(),
                 ])) {
                     return '';
                 }
 
-                if(!$request->getStudentUser()) {
+                return $this->twig->render('request/partials/_new_companies.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab,
+                ]);
+                break;
+            case "TeachLessonRequest":
+                /** @var TeachLessonRequest $request */
+                if ($this->containsNullObjects([
+                    $request->getLesson(),
+                    $request->getSchool(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy(),
+                ])) {
+                    return '';
+                }
+
+                return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
+                    'request' => $request,
+                    'user' => $user,
+                    'location' => $location,
+                    'parentTab' => $parentTab,
+                ]);
+                break;
+            case "EducatorRegisterStudentForCompanyExperienceRequest":
+                /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
+                if ($this->containsNullObjects([
+                    $request->getCompanyExperience(),
+                    $request->getStudentUser(),
+                    $request->getCreatedBy(),
+                    $request->getNeedsApprovalBy(),
+                ])) {
+                    return '';
+                }
+
+                if (!$request->getStudentUser()) {
                     return '';
                 }
 
@@ -442,18 +540,18 @@ class AppExtension extends AbstractExtension
                     'request' => $request,
                     'user' => $user,
                     'location' => $location,
-                    'parentTab' => $parentTab
+                    'parentTab' => $parentTab,
                 ]);
                 break;
             case "StudentToMeetProfessionalRequest":
 
                 /** @var StudentToMeetProfessionalRequest $request */
-                if($this->containsNullObjects([
+                if ($this->containsNullObjects([
                     $request->getStudent(),
                     $request->getProfessional(),
                     $request->getCreatedBy(),
                     $request->getNeedsApprovalBy(),
-                    $request->getReasonToMeet()
+                    $request->getReasonToMeet(),
                 ])) {
                     return '';
                 }
@@ -462,36 +560,36 @@ class AppExtension extends AbstractExtension
                     'request' => $request,
                     'user' => $user,
                     'location' => $location,
-                    'parentTab' => $parentTab
+                    'parentTab' => $parentTab,
                 ]);
                 break;
             case "UserRegisterForSchoolExperienceRequest":
 
                 /** @var UserRegisterForSchoolExperienceRequest $request */
-                if($this->containsNullObjects([
+                if ($this->containsNullObjects([
                     $request->getSchoolExperience(),
                     $request->getUser(),
                     $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy()
+                    $request->getNeedsApprovalBy(),
                 ])) {
                     return '';
                 }
 
-                if($location === "my-requests_pending" or $location === "history_approval-i-requested_approved" or $location === "history_approval-i-requested_denied" or $location === "school-experience_approval" or $location === "school-experience_denial") {
+                if ($location === "my-requests_pending" or $location === "history_approval-i-requested_approved" or $location === "history_approval-i-requested_denied" or $location === "school-experience_approval" or $location === "school-experience_denial") {
                     return $this->twig->render('request/partials/my_created/_user_register_for_school_experience_request.html.twig', [
                         'request' => $request,
                         'user' => $user,
                         'location' => $location,
-                        'parentTab' => $parentTab
+                        'parentTab' => $parentTab,
                     ]);
                 }
 
-                if($location === "my-requests_approval" or $location === "history_approval-needed-by-me_approved" or $location === "history_approval-needed-by-me_denied") {
+                if ($location === "my-requests_approval" or $location === "history_approval-needed-by-me_approved" or $location === "history_approval-needed-by-me_denied") {
                     return $this->twig->render('request/partials/need_my_approval/_user_register_for_school_experience_request.html.twig', [
                         'request' => $request,
                         'user' => $user,
                         'location' => $location,
-                        'parentTab' => $parentTab
+                        'parentTab' => $parentTab,
                     ]);
                 }
                 break;
@@ -501,32 +599,35 @@ class AppExtension extends AbstractExtension
 
     }
 
-    public function renderRequestStatusText( $request ) {
+    public function renderRequestStatusText($request)
+    {
 
-        if ( $request->getApproved() === true ) {
+        if ($request->getApproved() === true) {
             return "Approved";
         }
 
-        if ( $request->getDenied() === true ) {
+        if ($request->getDenied() === true) {
             return "Denied";
         }
 
         return "Pending";
     }
 
-    public function listPluck ( $list, $field, $index_key = null ) {
-        if ( ! $index_key ) {
+    public function listPluck($list, $field, $index_key = null)
+    {
+        if (!$index_key) {
             /*
              * This is simple. Could at some point wrap array_column()
              * if we knew we had an array of arrays.
              */
-            foreach ( $list as $key => $value ) {
-                if ( is_object( $value ) ) {
-                    $list[ $key ] = $value->$field;
+            foreach ($list as $key => $value) {
+                if (is_object($value)) {
+                    $list[$key] = $value->$field;
                 } else {
-                    $list[ $key ] = $value[ $field ];
+                    $list[$key] = $value[$field];
                 }
             }
+
             return $list;
         }
 
@@ -534,19 +635,19 @@ class AppExtension extends AbstractExtension
          * When index_key is not set for a particular item, push the value
          * to the end of the stack. This is how array_column() behaves.
          */
-        $newlist = array();
-        foreach ( $list as $value ) {
-            if ( is_object( $value ) ) {
-                if ( isset( $value->$index_key ) ) {
-                    $newlist[ $value->$index_key ] = $value->$field;
+        $newlist = array ();
+        foreach ($list as $value) {
+            if (is_object($value)) {
+                if (isset($value->$index_key)) {
+                    $newlist[$value->$index_key] = $value->$field;
                 } else {
                     $newlist[] = $value->$field;
                 }
             } else {
-                if ( isset( $value[ $index_key ] ) ) {
-                    $newlist[ $value[ $index_key ] ] = $value[ $field ];
+                if (isset($value[$index_key])) {
+                    $newlist[$value[$index_key]] = $value[$field];
                 } else {
-                    $newlist[] = $value[ $field ];
+                    $newlist[] = $value[$field];
                 }
             }
         }
@@ -554,10 +655,11 @@ class AppExtension extends AbstractExtension
         return $newlist;
     }
 
-    public function quoteArrayElementsForReact( $array ) {
-        return array_map( function( $value ) {
+    public function quoteArrayElementsForReact($array)
+    {
+        return array_map(function ($value) {
             return '"' . $value . '"';
-        }, $array );
+        }, $array);
     }
 
     /**
@@ -567,60 +669,64 @@ class AppExtension extends AbstractExtension
      * 1. We go ahead and try to get the site object from the logged in user depending on the user type.
      * 2. Admins, professionals, and non logged in users don't have a site object attached so in this case we look to the site url as the source of truth
      * 3. For some reason if we still aren't getting a site we don't want to break anything so just return an empty site object
+     *
      * @return Site|null
      */
-    public function getSite() {
+    public function getSite()
+    {
 
         $user = $this->security->getUser();
 
-        if($user && ($user instanceof SiteAdminUser ||
-            $user instanceof RegionalCoordinator ||
-            $user instanceof StateCoordinator ||
-            $user instanceof SchoolAdministrator ||
-            $user instanceof EducatorUser ||
-            $user instanceof StudentUser) ) {
+        if ($user && ($user instanceof SiteAdminUser ||
+                $user instanceof RegionalCoordinator ||
+                $user instanceof StateCoordinator ||
+                $user instanceof SchoolAdministrator ||
+                $user instanceof EducatorUser ||
+                $user instanceof StudentUser)) {
             $site = $user->getSite();
         } else {
 
             $site = $this->siteRepository->findOneBy([
-                'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl()
+                'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl(),
             ]);
 
-            if(!$site) {
+            if (!$site) {
                 $site = new Site();
             }
         }
+
         return $site;
     }
 
-    public function userCanChatWithUser( User $user, User $userToBeChatted ) {
+    public function userCanChatWithUser(User $user, User $userToBeChatted)
+    {
 
         // Users should not chat with themselves
-        if( $user && $userToBeChatted && $user->getId() === $userToBeChatted->getId() ) {
+        if ($user && $userToBeChatted && $user->getId() === $userToBeChatted->getId()) {
             return false;
         }
 
         // Educators can chat with Educators, Professionals, and Students
-        if($user && ($user instanceof EducatorUser) ) {
-            if ( $userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
-                $userToBeChatted instanceof ProfessionalUser ||
-                $userToBeChatted instanceof StudentUser ) ) {
+        if ($user && ($user instanceof EducatorUser)) {
+            if ($userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
+                    $userToBeChatted instanceof ProfessionalUser ||
+                    $userToBeChatted instanceof StudentUser)) {
                 return true;
             }
         }
 
         // Students can chat with Students and Educators
-        if($user && ($user instanceof StudentUser) ) {
-            if ( $userToBeChatted && ($userToBeChatted instanceof StudentUser ||
-                $userToBeChatted instanceof EducatorUser ) ) {
+        if ($user && ($user instanceof StudentUser)) {
+            if ($userToBeChatted && ($userToBeChatted instanceof StudentUser ||
+                    $userToBeChatted instanceof EducatorUser)) {
                 return true;
             }
         }
 
         // Professionals can chat with Educators and Professionals
-        if($user && ($user instanceof ProfessionalUser) ) {
-            if ( $userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
-                $userToBeChatted instanceof ProfessionalUser ) ) {
+        if ($user && ($user instanceof ProfessionalUser)) {
+            if ($userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
+                    $userToBeChatted instanceof ProfessionalUser)) {
                 return true;
             }
         }
@@ -636,13 +742,13 @@ class AppExtension extends AbstractExtension
     protected function getFullyQualifiedBaseUrl()
     {
         $routerContext = $this->router->getContext();
-        $port = $routerContext->getHttpPort();
+        $port          = $routerContext->getHttpPort();
 
         return sprintf(
             '%s://%s%s%s',
             $routerContext->getScheme(),
             $routerContext->getHost(),
-            ($port !== 80 ? ':'.$port : ''),
+            ($port !== 80 ? ':' . $port : ''),
             $routerContext->getBaseUrl()
         );
     }
@@ -650,15 +756,19 @@ class AppExtension extends AbstractExtension
     /**
      * Some weird bugs where requests view showing errors for some values being null
      * This is more of a safety check incase that happens again in the future
+     *
      * @param $objs
+     *
      * @return bool
      */
-    private function containsNullObjects($objs) {
-        foreach($objs as $obj) {
-            if(!$obj) {
+    private function containsNullObjects($objs)
+    {
+        foreach ($objs as $obj) {
+            if (!$obj) {
                 return true;
             }
         }
+
         return false;
     }
 }

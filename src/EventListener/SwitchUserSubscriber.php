@@ -55,10 +55,11 @@ class SwitchUserSubscriber implements EventSubscriberInterface
                 $fileName = uniqid('', true) . '.png';
                 $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
                 $user->setPhoto($fileName);
+
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
             }
 
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
         }
     }
 

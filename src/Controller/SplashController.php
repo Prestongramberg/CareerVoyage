@@ -42,13 +42,13 @@ class SplashController extends AbstractController
     use ServiceHelper;
 
     /**
-     * @Route("/splash/{splash}", name="splash_professional_welcome", methods={"GET"})
+     * @Route("/splash/{splash}", name="splash_index", methods={"GET"})
      * @param Request $request
      * @param         $splash
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function professionalWelcome(Request $request, $splash)
+    public function index(Request $request, $splash)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -57,7 +57,15 @@ class SplashController extends AbstractController
 
             case 'professional-welcome':
 
-                return $this->render('splash/professional-welcome.html.twig', [
+                return $this->render('splash/professional/welcome.html.twig', [
+                    'user' => $user
+                ]);
+
+                break;
+
+            case 'educator-welcome':
+
+                return $this->render('splash/educator/welcome.html.twig', [
                     'user' => $user
                 ]);
 

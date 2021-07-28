@@ -1,7 +1,7 @@
 <div class="uk-container">
 
     <div class="uk-grid" uk-grid>
-        {% if user.city is null %}
+        {% if user.profileCompleted == false %}
             <div class="uk-width-1-1">
                 <div class="uk-alert-warning" uk-alert>
                     <h3>Warning: Incomplete Profile</h3>
@@ -17,10 +17,10 @@
             <!-- CALL TO ACTIONS -->
             <div class="profile-card-wrapper">
                 <div class="uk-card uk-card-default">
-                    <div class="uk-card-header" style="padding: 50px">
+                    <div class="uk-card-header" style="padding: 40px">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h2>Empower students and share your expertise</h2>
+                                <h3 style="padding-left: 40px" class="uk-card-title">Empower students and share your expertise</h3>
                             </div>
                         </div>
                     </div>
@@ -37,12 +37,12 @@
                                         <img src="{{ asset('build/images/calendar.svg') }}">
                                     </div>
                                     <div class="uk-width-expand">
-                                        <h4>Host a Student Experience</h4>
-                                        <p>Develop student interest and educator knowledge in your industry through
+                                        <h4 style="margin-bottom: 0">Host a Student Experience</h4>
+                                        <p style="margin-top: 0; margin-botom: 0">Develop student interest and educator knowledge in your industry through
                                             company
                                             visits, internships, job shadows and informational interviews.</p>
                                         <a href="{{ path('company_experience_create', {id: user.company.id}) }}"
-                                           class="uk-button uk-button-primary" style="width: 300px">GET STARTED</a>
+                                           class="uk-button uk-button-primary" style="width: 240px; line-height: 30px">GET STARTED</a>
                                     </div>
                                 </div>
 
@@ -55,19 +55,17 @@
                                         <p>To host a student experience at your company, please contact your company's
                                             FutureForward coordinator</p>
 
-                                        {% if company.owner is not null %}
-                                            <table class="uk-table">
-                                                <caption>Contact Information</caption>
-                                                <tr>
-                                                    <th>Company Contact</th>
-                                                    <td>{{ company.owner.fullName }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Company Email</th>
-                                                    <td><a href="mailto:{{ company.owner.email }}">{{ company.owner.email }}</a></td>
-                                                </tr>
-                                            </table>
-                                        {% endif %}
+                                        <table class="uk-table">
+                                            <caption>Contact Information</caption>
+                                            <tr>
+                                                <th>Company Contact</th>
+                                                <td>{{ company.owner.fullName }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Company Email</th>
+                                                <td><a href="mailto:{{ company.owner.email }}">{{ company.owner.email }}</a></td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 </div>
 
@@ -76,17 +74,19 @@
                                         <img src="{{ asset('build/images/calendar.svg') }}">
                                     </div>
                                     <div class="uk-width-expand">
-                                        <h4>Host a Student Experience</h4>
-                                        <p>Develop student interest and educator knowledge in your industry through
+                                        <h4 style="margin-bottom: 0">Host a Student Experience</h4>
+                                        <p style="margin-top: 0; margin-bottom: 10px">Develop student interest and educator knowledge in your industry through
                                             company
                                             visits, internships, job shadows and informational interviews.</p>
                                         <a href="#modal-contact-company-administrator"
-                                           class="uk-button uk-button-primary" style="width: 300px" uk-toggle>GET
+                                           class="uk-button uk-button-primary" style="width: 240px; line-height: 30px" uk-toggle>GET
                                             STARTED</a>
                                     </div>
                                 </div>
 
                             {% endif %}
+
+                            <hr>
 
                         {% endif %}
 
@@ -95,26 +95,28 @@
                                 <img src="{{ asset('build/images/lecture.svg') }}">
                             </div>
                             <div class="uk-width-expand">
-                                <h4>Share your expertise with students</h4>
-                                <p>Become a guest topic instructor in your area of expertise. Help students see the
+                                <h4 style="margin-bottom: 0">Share your expertise with students</h4>
+                                <p style="margin-top: 0; margin-bottom: 10px">Become a guest topic instructor in your area of expertise. Help students see the
                                     applicability of their schooling to the workplace and spark interest amongst
                                     students in your career field.</p>
                                 <a href="{{ path('lesson_index') }}" class="uk-button uk-button-primary"
-                                   style="width: 300px">BROWSE LESSON TOPICS</a>
+                                   style="width: 240px; line-height: 30px">BROWSE LESSON TOPICS</a>
                             </div>
                         </div>
+
+                        <hr>
 
                         <div class="uk-grid">
                             <div class="uk-width-auto">
                                 <img src="{{ asset('build/images/mentor.svg') }}">
                             </div>
                             <div class="uk-width-expand">
-                                <h4>Connect with educators to see if you can help support their students</h4>
-                                <p>Serve your community by connecting with educators in your field. Start a conversation
+                                <h4 style="margin-bottom: 0">Connect with educators to see if you can help support their students</h4>
+                                <p style="margin-top: 0; margin-bottom: 10px">Serve your community by connecting with educators in your field. Start a conversation
                                     and see what they might want help with, from mentoring to teaching a guest lesson
                                     topic.</p>
                                 <a href="{{ path('educator_results_page') }}" class="uk-button uk-button-primary"
-                                   style="width: 300px">BROWSE EDUCATORS</a>
+                                   style="width: 240px; line-height: 30px">BROWSE EDUCATORS</a>
                             </div>
                         </div>
 

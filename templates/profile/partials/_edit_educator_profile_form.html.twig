@@ -76,7 +76,7 @@
 
                             {% if form.primaryIndustries is defined %}
                                 <div class="uk-margin">
-                                    {{ form_label(form.primaryIndustries, 'Career Sector*') }}
+                                    {{ form_label(form.primaryIndustries, 'Career Sectors related to my courses, clubs or student interest*') }}
                                     <a href="javascript:void(0)" class="js-select-all-primary-industries"
                                        style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
                                         All</a>
@@ -89,7 +89,7 @@
                             <div class="js-secondary-industry-container">
                                 {% if form.secondaryIndustries is defined %}
                                     <div class="uk-margin">
-                                        {{ form_label(form.secondaryIndustries, 'Professions*') }}
+                                        {{ form_label(form.secondaryIndustries, 'Professions related to my courses, clubs or student interest*') }}
                                         <a href="javascript:void(0)" class="js-select-all-secondary-industries"
                                            style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
                                             All</a>
@@ -126,10 +126,9 @@
                                 {{ form_errors(form.linkedinProfile) }}
                             </div>
                             <div class="uk-margin">
-                                {{ form_label(form.interests, 'Interests') }}
+                                {{ form_label(form.interests, 'Professional Interests') }}
                                 <div class="uk-text-meta">Tell us about professional interests and skills
-                                    related to your career and experience which educators and students would
-                                    benefit from.
+                                    related to your career and experience which professionals could be interested in connecting with you about.
                                 </div>
                                 {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(form.interests) }}
