@@ -23,11 +23,6 @@ class ReportLessonsWantTaught
     private $lesson;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     */
-    private $user;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $lessonName;
@@ -47,6 +42,11 @@ class ReportLessonsWantTaught
      */
     private $email;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=EducatorUser::class, inversedBy="reportLessonsWantTaughts")
+     */
+    private $educatorUser;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,18 +60,6 @@ class ReportLessonsWantTaught
     public function setLesson(?Lesson $lesson): self
     {
         $this->lesson = $lesson;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
 
         return $this;
     }
@@ -120,6 +108,18 @@ class ReportLessonsWantTaught
     public function setEmail(?string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getEducatorUser(): ?EducatorUser
+    {
+        return $this->educatorUser;
+    }
+
+    public function setEducatorUser(?EducatorUser $educatorUser): self
+    {
+        $this->educatorUser = $educatorUser;
 
         return $this;
     }

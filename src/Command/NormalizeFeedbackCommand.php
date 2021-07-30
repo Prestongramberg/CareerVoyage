@@ -418,7 +418,7 @@ class NormalizeFeedbackCommand extends Command
 
             if ($lessonTeachable->getUser() instanceof EducatorUser && $lessonTeachable->getLesson()) {
                 $reportLessonWantTaught = new ReportLessonsWantTaught();
-                $reportLessonWantTaught->setUser($lessonTeachable->getUser());
+                $reportLessonWantTaught->setEducatorUser($lessonTeachable->getUser());
                 $reportLessonWantTaught->setLesson($lessonTeachable->getLesson());
                 $reportLessonWantTaught->setLessonName($lessonTeachable->getLesson()->getTitle());
                 $reportLessonWantTaught->setFirstName($lessonTeachable->getUser()->getFirstName());
@@ -429,7 +429,7 @@ class NormalizeFeedbackCommand extends Command
 
             if ($lessonTeachable->getUser() instanceof ProfessionalUser && $lessonTeachable->getLesson()) {
                 $reportLessonCanTeach = new ReportLessonsCanTeach();
-                $reportLessonCanTeach->setUser($lessonTeachable->getUser());
+                $reportLessonCanTeach->setProfessionalUser($lessonTeachable->getUser());
                 $reportLessonCanTeach->setLesson($lessonTeachable->getLesson());
                 $reportLessonCanTeach->setLessonName($lessonTeachable->getLesson()->getTitle());
                 $reportLessonCanTeach->setFirstName($lessonTeachable->getUser()->getFirstName());
