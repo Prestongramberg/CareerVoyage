@@ -150,7 +150,7 @@ class ReportService
 
             $queryParts[] = sprintf('users.id = %s', $user->getId());
 
-            $queryParts[] = sprintf("reportShare.userRole = '%s'", User::ROLE_PROFESSIONAL_USER);
+            $queryParts[] = sprintf("reportShare.userRole = '%s'", User::ROLE_SCHOOL_ADMINISTRATOR_USER);
 
             $queryString = implode(" OR ", $queryParts);
 
@@ -186,7 +186,7 @@ class ReportService
 
             $queryParts[] = sprintf('users.id = %s', $user->getId());
 
-            $queryParts[] = sprintf("reportShare.userRole = '%s'", User::ROLE_PROFESSIONAL_USER);
+            $queryParts[] = sprintf("reportShare.userRole = '%s'", User::ROLE_REGIONAL_COORDINATOR_USER);
 
             $queryString = implode(" OR ", $queryParts);
 
