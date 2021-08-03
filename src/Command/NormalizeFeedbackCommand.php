@@ -220,6 +220,8 @@ class NormalizeFeedbackCommand extends Command
         $this->reportRepository->deleteReportVolunteerSchoolData();
         $this->reportRepository->deleteReportVolunteerRegionData();
         $this->reportRepository->deleteReportVolunteerRoleData();
+        $this->reportRepository->deleteReportLessonsCanTeachData();
+        $this->reportRepository->deleteReportLessonsWantTaughtData();
 
         // add company administrator roles to company owners
         $this->addCompanyAdministratorRoles($input, $output);

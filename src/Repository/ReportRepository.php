@@ -99,4 +99,30 @@ class ReportRepository extends ServiceEntityRepository
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
     }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     */
+    public function deleteReportLessonsCanTeachData() {
+
+        $query = "delete from report_lessons_can_teach";
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     */
+    public function deleteReportLessonsWantTaughtData() {
+
+        $query = "delete from report_lessons_want_taught";
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+    }
 }
