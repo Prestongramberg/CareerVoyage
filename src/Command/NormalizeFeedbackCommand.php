@@ -469,6 +469,9 @@ class NormalizeFeedbackCommand extends Command
                 continue;
             }
 
+            $lesson->setHasExpertPresenters(false);
+            $lesson->setHasEducatorRequestors(false);
+
             foreach($lesson->getLessonTeachables() as $lessonTeachable) {
 
                 if(!$user = $lessonTeachable->getUser()) {
