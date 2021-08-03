@@ -105,17 +105,6 @@ class LessonFilterType extends AbstractType
             array (
                 'csrf_protection' => false,
                 'validation_groups' => array ('filtering'),
-                'filter_condition_builder' => function (ConditionBuilderInterface $builder) {
-                    $builder
-                        ->root('and')
-                        ->field('title')
-                        ->field('primaryCourse')
-                        ->field('primaryIndustry')
-                        ->orX()
-                        ->field('hasExpertPresenters')
-                        ->field('hasEducatorRequestors')
-                        ->end();
-                },
             )
         );
     }
