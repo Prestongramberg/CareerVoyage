@@ -27,7 +27,18 @@ export function loadInitialData() {
             url = window.Routing.generate("search_users", {experience: state.search.experience});
         }
 
-        return api.post(url, {})
+        if (state.search.request) {
+            url = window.Routing.generate("search_users", {request: state.search.request});
+        }
+
+        debugger;
+        const data = {
+            filters: state.form
+        };
+
+        debugger;
+
+        return api.post(url, data)
             .then((response) => {
 
 
@@ -123,7 +134,7 @@ export function pageChanged(pageNumber) {
     }
 }
 
-export function sendNotifications(userId, experienceId, message) {
+export function sendNotifications(userId, experienceId, requestId, message) {
 
     return (dispatch, getState) => {
 
@@ -135,7 +146,8 @@ export function sendNotifications(userId, experienceId, message) {
         return api.post(url, {
             message: message,
             userId: userId,
-            experienceId: experienceId
+            experienceId: experienceId,
+            requestId: requestId
         })
             .then((response) => {
 

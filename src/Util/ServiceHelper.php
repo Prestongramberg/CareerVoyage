@@ -62,6 +62,7 @@ use App\Repository\StudentUserRepository;
 use App\Repository\SystemUserRepository;
 use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\TeachLessonRequestRepository;
+use App\Repository\UserMetaRepository;
 use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
 use App\Repository\UserRepository;
 use App\Repository\VideoFavoriteRepository;
@@ -506,6 +507,11 @@ trait ServiceHelper
     private $reportGroupRepository;
 
     /**
+     * @var UserMetaRepository
+     */
+    private $userMetaRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -590,6 +596,7 @@ trait ServiceHelper
      * @param CountyRepository                                              $countyRepository
      * @param ReportService                                                 $reportService
      * @param ReportGroupRepository                                         $reportGroupRepository
+     * @param UserMetaRepository                                            $userMetaRepository
      */
     public function __construct(
         EntityManagerInterface $entityManager, FileUploader $fileUploader,
@@ -640,7 +647,8 @@ trait ServiceHelper
         ReportColumnRepository $reportColumnRepository,
         CountyRepository $countyRepository,
         ReportService $reportService,
-        ReportGroupRepository $reportGroupRepository
+        ReportGroupRepository $reportGroupRepository,
+        UserMetaRepository $userMetaRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -724,6 +732,7 @@ trait ServiceHelper
         $this->countyRepository                                              = $countyRepository;
         $this->reportService                                                 = $reportService;
         $this->reportGroupRepository                                         = $reportGroupRepository;
+        $this->userMetaRepository                                            = $userMetaRepository;
 
     }
 

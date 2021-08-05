@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RequestRepository")
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({
+ *     "request" = "Request",
  *     "newCompanyRequest" = "NewCompanyRequest",
  *     "joinCompanyRequest" = "JoinCompanyRequest",
  *     "teachLessonRequest" = "TeachLessonRequest",
@@ -23,14 +25,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     "schoolAdminRegisterSAForCompanyExperienceRequest" = "SchoolAdminRegisterSAForCompanyExperienceRequest",
  *     "studentToMeetProfessionalRequest" = "StudentToMeetProfessionalRequest",
  *     "userRegisterForSchoolExperienceRequest" = "UserRegisterForSchoolExperienceRequest",
- 
  * })
  */
-abstract class Request
+class Request
 {
     use Timestampable;
 
     const BECOME_STATE_COORDINATOR = 'BECOME_STATE_COORDINATOR';
+
+    const OPPORTUNITY_TYPE_VIRTUAL              = 'VIRTUAL';
+    const OPPORTUNITY_TYPE_IN_PERSON            = 'IN_PERSON';
+    const OPPORTUNITY_TYPE_VIRTUAL_OR_IN_PERSON = 'VIRTUAL_OR_IN_PERSON';
+    const OPPORTUNITY_TYPE_TO_BE_DETERMINED     = 'TO_BE_DETERMINED';
+
+    const REQUEST_TYPE_JOB_BOARD = 'JOB_BOARD';
+
+    public static $opportunityTypes = [
+        'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
+        'In person' => self::OPPORTUNITY_TYPE_IN_PERSON,
+        'Virtual or in person' => self::OPPORTUNITY_TYPE_VIRTUAL_OR_IN_PERSON,
+        'To be determined' => self::OPPORTUNITY_TYPE_TO_BE_DETERMINED,
+    ];
 
     /**
      * @Groups({"RESULTS_PAGE", "REQUEST"})
@@ -80,7 +95,6 @@ abstract class Request
      */
     private $requestPossibleApprovers;
 
-
     /**
      * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
@@ -101,11 +115,80 @@ abstract class Request
      */
     protected $schoolAdminHasSeen = false;
 
+    /**
+     * @Assert\NotBlank(message="Please enter a short summary", groups={"CREATE_REQUEST", "EDIT_REQUEST"})
+     * @Assert\Length(
+     *      max = 70,
+     *      maxMessage = "Your summary cannot be longer than {{ limit }} characters",
+     *      groups={"CREATE_REQUEST", "EDIT_REQUEST"}
+     * )
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $summary;
 
+    /**
+     * @Assert\NotBlank(message="Please enter a description", groups={"CREATE_REQUEST", "EDIT_REQUEST"})
+     * @Assert\Length(
+     *      max = 280,
+     *      maxMessage = "Your description cannot be longer than {{ limit }} characters",
+     *      groups={"CREATE_REQUEST", "EDIT_REQUEST"}
+     * )
+     *
+     * @ORM\Column(type="text", nullable=true)
+     */
+    protected $description;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select volunteer role(s)",
+     *      groups={"CREATE_REQUEST", "EDIT_REQUEST"}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=RolesWillingToFulfill::class, inversedBy="requests")
+     */
+    protected $volunteerRoles;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please select career sector(s)",
+     *      groups={"CREATE_REQUEST", "EDIT_REQUEST"}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Industry::class, inversedBy="requests")
+     */
+    protected $primaryIndustries;
+
+    /**
+     * @Assert\NotBlank(message="Pleas select an opportunity type", groups={"CREATE_REQUEST", "EDIT_REQUEST"})
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $opportunityType;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $published = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="request", orphanRemoval=true)
+     */
+    private $shares;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $requestType;
 
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
+        $this->volunteerRoles           = new ArrayCollection();
+        $this->primaryIndustries        = new ArrayCollection();
+        $this->shares                   = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -154,11 +237,13 @@ abstract class Request
         return (new \ReflectionClass($this))->getShortName();
     }
 
-    public function wasCreatedByUser(User $user) {
+    public function wasCreatedByUser(User $user)
+    {
         return $user->getId() === $this->created_by->getId();
     }
 
-    public function needsApprovalByUser(User $user) {
+    public function needsApprovalByUser(User $user)
+    {
         return $user->getId() === $this->getNeedsApprovalBy()->getId();
     }
 
@@ -207,6 +292,7 @@ abstract class Request
     public function setStudentHasSeen(?bool $studentHasSeen): self
     {
         $this->studentHasSeen = $studentHasSeen;
+
         return $this;
     }
 
@@ -218,6 +304,7 @@ abstract class Request
     public function setEducatorHasSeen(?bool $educatorHasSeen): self
     {
         $this->educatorHasSeen = $educatorHasSeen;
+
         return $this;
     }
 
@@ -229,6 +316,7 @@ abstract class Request
     public function setProfessionalHasSeen(?bool $professionalHasSeen): self
     {
         $this->professionalHasSeen = $professionalHasSeen;
+
         return $this;
     }
 
@@ -240,6 +328,7 @@ abstract class Request
     public function setSchoolAdminHasSeen(?bool $schoolAdminHasSeen): self
     {
         $this->schoolAdminHasSeen = $schoolAdminHasSeen;
+
         return $this;
     }
 
@@ -279,5 +368,156 @@ abstract class Request
         }
 
         return $this;
+    }
+
+    public function getSummary(): ?string
+    {
+        return $this->summary;
+    }
+
+    public function setSummary(?string $summary): self
+    {
+        $this->summary = $summary;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RolesWillingToFulfill[]
+     */
+    public function getVolunteerRoles(): Collection
+    {
+        return $this->volunteerRoles;
+    }
+
+    public function addVolunteerRole(RolesWillingToFulfill $volunteerRole): self
+    {
+        if (!$this->volunteerRoles->contains($volunteerRole)) {
+            $this->volunteerRoles[] = $volunteerRole;
+        }
+
+        return $this;
+    }
+
+    public function removeVolunteerRole(RolesWillingToFulfill $volunteerRole): self
+    {
+        $this->volunteerRoles->removeElement($volunteerRole);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Industry[]
+     */
+    public function getPrimaryIndustries(): Collection
+    {
+        return $this->primaryIndustries;
+    }
+
+    public function addPrimaryIndustry(Industry $primaryIndustry): self
+    {
+        if (!$this->primaryIndustries->contains($primaryIndustry)) {
+            $this->primaryIndustries[] = $primaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removePrimaryIndustry(Industry $primaryIndustry): self
+    {
+        $this->primaryIndustries->removeElement($primaryIndustry);
+
+        return $this;
+    }
+
+    public function getOpportunityType(): ?string
+    {
+        return $this->opportunityType;
+    }
+
+    public function setOpportunityType(?string $opportunityType): self
+    {
+        $this->opportunityType = $opportunityType;
+
+        return $this;
+    }
+
+    public function getPublished(): ?bool
+    {
+        if (!$this->published) {
+            return false;
+        }
+
+        return $this->published;
+    }
+
+    public function setPublished(?bool $published): self
+    {
+        $this->published = $published;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Share[]
+     */
+    public function getShares(): Collection
+    {
+        return $this->shares;
+    }
+
+    public function addShare(Share $share): self
+    {
+        if (!$this->shares->contains($share)) {
+            $this->shares[] = $share;
+            $share->setRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShare(Share $share): self
+    {
+        if ($this->shares->removeElement($share)) {
+            // set the owning side to null (unless already changed)
+            if ($share->getRequest() === $this) {
+                $share->setRequest(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getRequestType(): ?string
+    {
+        return $this->requestType;
+    }
+
+    public function setRequestType(?string $requestType): self
+    {
+        $this->requestType = $requestType;
+
+        return $this;
+    }
+
+    public function getOpportunityTypeFriendlyName($opportunityType) {
+
+        if(($key = array_search($opportunityType, self::$opportunityTypes, true)) !== false) {
+            return $key;
+        }
+
+        return $opportunityType;
     }
 }

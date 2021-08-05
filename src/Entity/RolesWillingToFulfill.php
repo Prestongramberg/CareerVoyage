@@ -70,10 +70,16 @@ class RolesWillingToFulfill
      */
     private $inRoleDropdown = false;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Request::class, mappedBy="volunteerRoles")
+     */
+    private $requests;
+
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
         $this->experiences = new ArrayCollection();
+        $this->requests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -213,6 +219,33 @@ class RolesWillingToFulfill
     public function setInRoleDropdown(?bool $inRoleDropdown): self
     {
         $this->inRoleDropdown = $inRoleDropdown;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Request[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(Request $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->addVolunteerRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(Request $request): self
+    {
+        if ($this->requests->removeElement($request)) {
+            $request->removeVolunteerRole($this);
+        }
 
         return $this;
     }

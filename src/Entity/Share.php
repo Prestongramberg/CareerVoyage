@@ -35,6 +35,11 @@ class Share
      */
     private $experience;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="shares")
+     */
+    private $request;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -72,6 +77,18 @@ class Share
     public function setExperience(?Experience $experience): self
     {
         $this->experience = $experience;
+
+        return $this;
+    }
+
+    public function getRequest(): ?Request
+    {
+        return $this->request;
+    }
+
+    public function setRequest(?Request $request): self
+    {
+        $this->request = $request;
 
         return $this;
     }

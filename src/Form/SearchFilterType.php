@@ -9,6 +9,7 @@ use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
 use App\Entity\Region;
 use App\Entity\RegionalCoordinator;
+use App\Entity\Request;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
@@ -58,6 +59,8 @@ class SearchFilterType extends AbstractType
     {
 
         $userRole = $options['userRole'];
+        /** @var Request $requestEntity */
+        $requestEntity = $options['requestEntity'];
 
         $builder->add(
             'search', Filters\TextFilterType::class, [
@@ -168,9 +171,7 @@ class SearchFilterType extends AbstractType
             if ($userRole === User::ROLE_SCHOOL_ADMINISTRATOR_USER) {
                 $this->addSchoolAdministratorFiltersToForm($event->getForm()->getParent());
             }
-        }
-        );
-
+        });
     }
 
     private function addProfessionalFiltersToForm(FormInterface $form)
@@ -684,6 +685,7 @@ class SearchFilterType extends AbstractType
                 'csrf_protection' => false,
                 'validation_groups' => array ('filtering'), // avoid NotBlank() constraint-related message
                 'userRole' => null,
+                'requestEntity' => null,
             )
         );
     }

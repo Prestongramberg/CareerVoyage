@@ -44,9 +44,8 @@
                                 <p style="margin-top: 0; margin-bottom: 10px">Spend under 5 minutes to fill out a
                                     request form for a volunteer professional, such as a mentor or expert presenter.
                                     Volunteers can respond to your request via chat to start planning.</p>
-                                <a href="#modal-create-request-coming-soon"
-                                   class="uk-button uk-button-primary" style="width: 240px; line-height: 30px"
-                                   uk-toggle>CREATE A REQUEST</a>
+                                <a href="{{ path('new_request') }}"
+                                   class="uk-button uk-button-primary" style="width: 240px; line-height: 30px">CREATE A REQUEST</a>
                             </div>
                         </div>
 
@@ -431,8 +430,9 @@
                             </div>
                             <div class="uk-width-auto">
                                 <div class="uk-align-right">
-                                    <a href="{{ path('requests') }}">
-                                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                    <a href="{{ path('new_request') }}">
+                                        <span class="uk-margin-small-right"
+                                              uk-icon="icon: plus; ratio: 1"></span>
                                     </a>
                                 </div>
                             </div>

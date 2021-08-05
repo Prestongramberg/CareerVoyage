@@ -1,26 +1,34 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { applyMiddleware, compose, createStore } from "redux";
-import { Provider } from "react-redux";
+import {applyMiddleware, compose, createStore} from "redux";
+import {Provider} from "react-redux";
 import thunk from 'redux-thunk';
 import reducers from "./reducers";
 import App from "./App";
-import { reducer as formReducer } from 'redux-form';
+import {reducer as formReducer} from 'redux-form';
 
 const globalShare = document.getElementById("react-global-share");
 
-if(globalShare) {
+if (globalShare) {
 
 
-    const user = JSON.parse( globalShare.getAttribute("data-user") ) || {};
+    debugger;
+    const user = JSON.parse(globalShare.getAttribute("data-user")) || {};
     const message = globalShare.getAttribute("data-message") || "";
     const experience = globalShare.getAttribute("data-experience") || null;
+    const request = globalShare.getAttribute("data-request") || null;
+    let hiddenFilters = globalShare.getAttribute("data-hidden-filters") || "[]";
+    let defaultFilters = globalShare.getAttribute("data-default-filters") || "{}";
     const title = globalShare.textContent;
+    hiddenFilters = JSON.parse(hiddenFilters);
+    defaultFilters = JSON.parse(defaultFilters);
+
+    debugger;
 
     const store = createStore(
         reducers,
         {
-            form: {},
+            form: defaultFilters || {},
             filters: {
                 activePage: 1
             },
@@ -39,7 +47,9 @@ if(globalShare) {
                 loading: false,
                 currentNotifiedUser: null,
                 notifiedUsers: [],
-                experience: experience
+                experience: experience,
+                request: request,
+                hiddenFilters: hiddenFilters
             }
         },
         compose(
@@ -53,6 +63,7 @@ if(globalShare) {
             <Provider store={store}>
                 <App message={message}
                      experience={experience}
+                     request={request}
                      title={title}
                      user={user}
                 />

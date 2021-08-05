@@ -232,7 +232,7 @@ abstract class Experience
     protected $requireApproval = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="experience")
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="experience", orphanRemoval=true)
      */
     protected $shares;
 

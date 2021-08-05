@@ -3,74 +3,45 @@
 namespace App\Controller;
 
 use App\Entity\AllowedCommunication;
-use App\Entity\Company;
-use App\Entity\CompanyPhoto;
-use App\Entity\CompanyResource;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
-use App\Entity\Image;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
-use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
 use App\Entity\School;
-use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
-use App\Entity\SiteAdminUser;
-use App\Entity\StateCoordinator;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonExperience;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
+use App\Entity\UserMeta;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
-use App\Form\EditCompanyFormType;
-use App\Form\NewCompanyFormType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Mailer\RequestsMailer;
-use App\Repository\CompanyPhotoRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
-use App\Repository\EducatorRegisterEducatorForExperienceRequestRepository;
-use App\Repository\SchoolAdminRegisterSAForExperienceRequestRepository;
-use App\Repository\JoinCompanyRequestRepository;
-use App\Repository\NewCompanyRequestRepository;
-use App\Repository\RegistrationRepository;
-use App\Repository\RequestRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
+use App\Form\CreateRequestFormType;
+use App\Form\EditRequestFormType;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateInterval;
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
-
 use Symfony\Component\HttpFoundation\Session\Session;
+use App\Entity\Request as RequestEntity;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 
 /**
  * Class RequestController
+ *
  * @package App\Controller
  * @Route("/dashboard")
  */
@@ -82,9 +53,11 @@ class RequestController extends AbstractController
     /**
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function requests(Request $request) {
+    public function requests(Request $request)
+    {
 
         /** @var User $user */
         $user = $this->getUser();
@@ -97,7 +70,7 @@ class RequestController extends AbstractController
             'created_by' => $user,
             'denied' => false,
             'approved' => false,
-            'allowApprovalByActivationCode' => false
+            'allowApprovalByActivationCode' => false,
         ], ['createdAt' => 'DESC']);
 
         $deniedByMeRequests = $this->requestRepository->findBy([
@@ -280,7 +253,7 @@ class RequestController extends AbstractController
     /**
      * @Route("/requests/{id}/approve", name="approve_request", methods={"POST"}, options = { "expose" = true })
      * @param \App\Entity\Request $request
-     * @param Request $httpRequest
+     * @param Request             $httpRequest
      *
      * @return RedirectResponse|Response
      * @throws \Twig\Error\LoaderError
@@ -288,7 +261,8 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\SyntaxError
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function approveRequest(\App\Entity\Request $request, Request $httpRequest) {
+    public function approveRequest(\App\Entity\Request $request, Request $httpRequest)
+    {
 
 
         $session = new Session();
@@ -301,16 +275,16 @@ class RequestController extends AbstractController
 
         $this->handleRequestApproval($request, $httpRequest);
 
-        if($httpRequest->isXmlHttpRequest()) {
+        if ($httpRequest->isXmlHttpRequest()) {
             $flashbag = $session->getFlashBag()->all();
-            $flash = [];
-            foreach($flashbag as $type => $messages){
-                foreach($messages as $message){
+            $flash    = [];
+            foreach ($flashbag as $type => $messages) {
+                foreach ($messages as $message) {
                     $flash = ["type" => $type, "message" => $message];
                 }
             }
 
-            return new JsonResponse( ["status" => $flash ]);
+            return new JsonResponse(["status" => $flash]);
         }
 
         $referer = $httpRequest->headers->get('referer');
@@ -328,17 +302,18 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function denyRequest(\App\Entity\Request $request, Request $httpRequest) {
+    public function denyRequest(\App\Entity\Request $request, Request $httpRequest)
+    {
 
         $session = new Session();
 
         $this->denyAccessUnlessGranted('edit', $request);
 
 
-        switch($request->getClassName()) {
+        switch ($request->getClassName()) {
             case 'TeachLessonRequest':
                 // not all educators have an email address.
-                if($request->getCreatedBy()->getEmail()) {
+                if ($request->getCreatedBy()->getEmail()) {
                     $this->requestsMailer->teachLessonRequestDenied($request);
                 }
                 break;
@@ -350,33 +325,36 @@ class RequestController extends AbstractController
         $this->entityManager->flush();
         $this->addFlash('success', 'Request denied.');
 
-        if($httpRequest->isXmlHttpRequest()) {
+        if ($httpRequest->isXmlHttpRequest()) {
             $flashbag = $session->getFlashBag()->all();
-            $flash = [];
-            foreach($flashbag as $type => $messages) {
-                foreach($messages as $message) {
+            $flash    = [];
+            foreach ($flashbag as $type => $messages) {
+                foreach ($messages as $message) {
                     $flash = ["type" => $type, "message" => $message];
                 }
             }
 
-            return new JsonResponse( ["status" => $flash ]);
+            return new JsonResponse(["status" => $flash]);
         }
 
         $referer = $httpRequest->headers->get('referer');
+
         return new RedirectResponse($referer);
     }
 
     /**
      * @param \App\Entity\Request $request
-     * @param Request $httpRequest
+     * @param Request             $httpRequest
+     *
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    private function handleRequestApproval(\App\Entity\Request $request, Request $httpRequest) {
+    private function handleRequestApproval(\App\Entity\Request $request, Request $httpRequest)
+    {
 
-        switch($request->getClassName()) {
+        switch ($request->getClassName()) {
             case 'NewCompanyRequest':
                 /** @var NewCompanyRequest $request */
                 $request->setApproved(true);
@@ -389,7 +367,7 @@ class RequestController extends AbstractController
             case 'JoinCompanyRequest':
                 /** @var JoinCompanyRequest $request */
                 $request->setApproved(true);
-                if($request->getIsFromCompany()) {
+                if ($request->getIsFromCompany()) {
                     /** @var ProfessionalUser $needsApprovalBy */
                     $needsApprovalBy = $request->getNeedsApprovalBy();
                     $needsApprovalBy->setupAsProfessional();
@@ -423,15 +401,15 @@ class RequestController extends AbstractController
                 $teachLessonExperience->setEndDateAndTime($endDate);
                 $teachLessonExperience->setTitle(sprintf("
                 Topics: %s with Guest Instructor %s, %s in %s Class
-                ", $request->getLesson()->getTitle(), $needsApprovalBy->getFullName(), date_format($date,'F jS Y'), $request->getCreatedBy()->getFullName()));
+                ", $request->getLesson()->getTitle(), $needsApprovalBy->getFullName(), date_format($date, 'F jS Y'), $request->getCreatedBy()->getFullName()));
                 $teachLessonExperience->setBriefDescription(sprintf("%s", $request->getLesson()->getShortDescription()));
                 $teachLessonExperience->setOriginalRequest($request);
 
 
                 // let's go ahead and add the professional as a registration on this event
                 $professionalRegistration = new Registration();
-                $educatorRegistration = new Registration();
-                if($request->getIsFromProfessional()) {
+                $educatorRegistration     = new Registration();
+                if ($request->getIsFromProfessional()) {
                     $professionalRegistration->setUser($request->getCreatedBy());
                     $educatorRegistration->setUser($request->getNeedsApprovalBy());
                     $teachLessonExperience->setTeacher($request->getCreatedBy());
@@ -449,14 +427,14 @@ class RequestController extends AbstractController
                 $this->entityManager->persist($educatorRegistration);
 
                 // let's go ahead and add the students as registrations to the event
-                if($request->getIsFromProfessional()) {
+                if ($request->getIsFromProfessional()) {
                     /** @var EducatorUser $educator */
                     $educator = $request->getNeedsApprovalBy();
                 } else {
                     /** @var EducatorUser $educator */
                     $educator = $request->getCreatedBy();
                 }
-                foreach($educator->getStudentUsers() as $studentUser) {
+                foreach ($educator->getStudentUsers() as $studentUser) {
                     $studentRegistration = new Registration();
                     $studentRegistration->setExperience($teachLessonExperience);
                     $studentRegistration->setUser($studentUser);
@@ -467,23 +445,23 @@ class RequestController extends AbstractController
                 $school = $request->getCreatedBy()->getSchool();
 
                 // the CSV school import fixtures did not have emails so we need to check for them!
-                if($school->getEmail()) {
+                if ($school->getEmail()) {
                     $teachLessonExperience->setEmail($school->getEmail());
                 }
 
-                if($school->getStreet()) {
+                if ($school->getStreet()) {
                     $teachLessonExperience->setStreet($school->getStreet());
                 }
 
-                if($school->getCity()) {
+                if ($school->getCity()) {
                     $teachLessonExperience->setCity($school->getCity());
                 }
 
-                if($school->getState()) {
+                if ($school->getState()) {
                     $teachLessonExperience->setState($school->getState());
                 }
 
-                if($school->getZipcode()) {
+                if ($school->getZipcode()) {
                     $teachLessonExperience->setZipcode($school->getZipcode());
                 }
 
@@ -491,20 +469,20 @@ class RequestController extends AbstractController
                 $this->addFlash('success', 'You have accepted the invite to teach!');
 
                 // not all educators have an email address.
-                if($request->getCreatedBy()->getEmail()) {
+                if ($request->getCreatedBy()->getEmail()) {
                     $this->requestsMailer->teachLessonRequestApproval($request);
                 }
                 break;
             case 'EducatorRegisterStudentForCompanyExperienceRequest':
                 /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
                 $studentUser = $request->getStudentUser();
-                $experience = $request->getCompanyExperience();
+                $experience  = $request->getCompanyExperience();
 
-                if($experience->getAvailableSpaces() === 0) {
+                if ($experience->getAvailableSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
 
-                if($experience->getAvailableSpaces() !== 0) {
+                if ($experience->getAvailableSpaces() !== 0) {
                     $experience->setAvailableSpaces($experience->getAvailableSpaces() - 1);
                 }
                 $this->entityManager->persist($experience);
@@ -516,18 +494,18 @@ class RequestController extends AbstractController
                 $this->entityManager->persist($registration);
                 // make sure the teacher has a registration as well
                 $previousTeacherRegistration = $this->registrationRepository->getByUserAndExperience($request->getCreatedBy(), $request->getCompanyExperience());
-                if(!$previousTeacherRegistration) {
+                if (!$previousTeacherRegistration) {
                     $registration = new Registration();
                     $registration->setUser($request->getCreatedBy());
                     $registration->setExperience($request->getCompanyExperience());
                     $this->entityManager->persist($registration);
                 }
                 // an educator who created the request might not have an email
-                if($request->getCreatedBy()->getEmail()) {
+                if ($request->getCreatedBy()->getEmail()) {
                     $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApproval($request);
                 }
 
-                if($request->getStudentUser()->getEmail()) {
+                if ($request->getStudentUser()->getEmail()) {
                     $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent($request);
                 }
 
@@ -537,7 +515,7 @@ class RequestController extends AbstractController
             case 'EducatorRegisterEducatorForCompanyExperienceRequest':
                 /** @var EducatorRegisterEducatorForCompanyExperienceRequest $request */
                 $educatorUser = $request->getEducatorUser();
-                $experience = $request->getCompanyExperience();
+                $experience   = $request->getCompanyExperience();
 
                 $this->entityManager->persist($experience);
                 $request->setApproved(true);
@@ -554,7 +532,7 @@ class RequestController extends AbstractController
             case 'SchoolAdminRegisterSAForCompanyExperienceRequest':
                 /** @var SchoolAdminRegisterSAForCompanyExperienceRequest $request */
                 $schoolAdminUser = $request->getSchoolAdminUser();
-                $experience = $request->getCompanyExperience();
+                $experience      = $request->getCompanyExperience();
 
                 $this->entityManager->persist($experience);
                 $request->setApproved(true);
@@ -570,11 +548,11 @@ class RequestController extends AbstractController
                 break;
             case 'StudentToMeetProfessionalRequest':
                 /** @var StudentToMeetProfessionalRequest $request */
-                $student = $request->getStudent();
+                $student      = $request->getStudent();
                 $professional = $request->getProfessional();
                 $request->setApproved(true);
                 $reasonToMeet = $request->getReasonToMeet();
-                if($httpRequest->request->has('isFromEducator')) {
+                if ($httpRequest->request->has('isFromEducator')) {
                     // if the request is from the educator this means teacher approval was required and they have approved
                     // next thing you need to do is create a request to be sent to the professional
                     $newRequest = new StudentToMeetProfessionalRequest();
@@ -587,12 +565,12 @@ class RequestController extends AbstractController
                     $this->addFlash('success', 'Request being sent to professional to setup 3 dates to meet with student!');
                     $this->requestsMailer->studentToMeetProfessionalApproval($newRequest);
                 }
-                if($httpRequest->request->has('isFromProfessional')) {
+                if ($httpRequest->request->has('isFromProfessional')) {
                     // if the request is from the professional send off the next request to the student to finalize the date
-                    $dateOptionOne = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionOne'));
-                    $dateOptionTwo = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionTwo'));
+                    $dateOptionOne   = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionOne'));
+                    $dateOptionTwo   = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionTwo'));
                     $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionThree'));
-                    $newRequest = new StudentToMeetProfessionalRequest();
+                    $newRequest      = new StudentToMeetProfessionalRequest();
                     $newRequest->setDateOptionOne($dateOptionOne);
                     $newRequest->setDateOptionTwo($dateOptionTwo);
                     $newRequest->setDateOptionThree($dateOptionThree);
@@ -606,7 +584,7 @@ class RequestController extends AbstractController
                     $this->requestsMailer->studentToMeetProfessionalApproval($newRequest);
                 }
 
-                if($httpRequest->request->has('isFromStudent')) {
+                if ($httpRequest->request->has('isFromStudent')) {
                     // if the request is from the student then they are approving the final date. Go ahead and add it to both the
                     // students calendar and professionals calendar by creating a new experience object for both of them.
                     $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
@@ -614,7 +592,7 @@ class RequestController extends AbstractController
                     $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
                     $endDate->add(new DateInterval('PT2H'));
                     $request->setConfirmedDate($date);
-                    $descriptionDate = date_format($date,'F jS Y');
+                    $descriptionDate = date_format($date, 'F jS Y');
 
                     $experience = new StudentToMeetProfessionalExperience();
                     $experience->setOriginalRequest($request);
@@ -658,18 +636,18 @@ class RequestController extends AbstractController
                 $user = $request->getUser();
                 /** @var SchoolExperience $experience */
                 $experience = $request->getSchoolExperience();
-                if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
+                if ($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
-                if(($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
+                if (($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
                     $this->addFlash('error', 'Could not approve registration. 0 spots left.');
                 }
 
-                if($user->isProfessional() && $experience->getAvailableProfessionalSpaces() !== 0) {
+                if ($user->isProfessional() && $experience->getAvailableProfessionalSpaces() !== 0) {
                     $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() - 1);
 
                 }
-                if(($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() !== 0) {
+                if (($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() !== 0) {
                     $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() - 1);
                 }
 
@@ -693,93 +671,256 @@ class RequestController extends AbstractController
      * @IsGranted("ROLE_STUDENT_USER")
      * @Route("/requests/student-to-meet-professional", name="student_request_to_meet_professional", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function studentRequestToMeetProfessionalAction(Request $request) {
-        $studentId = $request->request->get('studentId');
-        $student = $this->studentUserRepository->find($studentId);
+    public function studentRequestToMeetProfessionalAction(Request $request)
+    {
+        $studentId      = $request->request->get('studentId');
+        $student        = $this->studentUserRepository->find($studentId);
         $professionalId = $request->request->get('professionalId');
-        $professional = $this->professionalUserRepository->find($professionalId);
-        $reasonToMeet = $request->request->get('reasonToMeet');
-        $reasonToMeet = $this->rolesWillingToFulfillRepository->findOneBy([
-           'eventName' => $reasonToMeet
+        $professional   = $this->professionalUserRepository->find($professionalId);
+        $reasonToMeet   = $request->request->get('reasonToMeet');
+        $reasonToMeet   = $this->rolesWillingToFulfillRepository->findOneBy([
+            'eventName' => $reasonToMeet,
         ]);
         // let's determine who gets the first request. Professional or the Educator
-        $request = new StudentToMeetProfessionalRequest();
-        if($student->isCommunicationEnabled() && $student->isTeacherApprovalNotRequired()) {
-            $request->initializeForProfessional($student, $professional,  $reasonToMeet);
+        $requestEntity = new StudentToMeetProfessionalRequest();
+        if ($student->isCommunicationEnabled() && $student->isTeacherApprovalNotRequired()) {
+            $requestEntity->initializeForProfessional($student, $professional, $reasonToMeet);
         } elseif ($student->isCommunicationEnabled() && $student->isTeacherApprovalRequired()) {
             $teachers = $student->getEducatorUsers();
-            if(count($teachers) === 0) {
+            if (count($teachers) === 0) {
                 $this->addFlash('error', 'You must have at least one educator setup in your profile to perform this action.');
+
                 return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
             }
             // todo we might need to refactor this so there is a designated teacher that receives the request
             //  right now just sending the request to the first teacher in the collection
-            $request->initializeForEducator($student, $professional, $teachers[0], $reasonToMeet);
+            $requestEntity->initializeForEducator($student, $professional, $teachers[0], $reasonToMeet);
         }
-        $this->requestsMailer->studentToMeetProfessionalApproval($request);
-        $this->entityManager->persist($request);
+        $this->requestsMailer->studentToMeetProfessionalApproval($requestEntity);
+        $this->entityManager->persist($requestEntity);
         $this->entityManager->flush();
         /*$this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);*/
         $this->addFlash('success', 'Request to meet successfully sent.');
+
         return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
     }
 
     /**
      * @Route("/requests/{id}/user_has_seen_request", name="user_has_seen_request", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function toggleHasUserSeenRequest(\App\Entity\Request $request) {
+    public function toggleHasUserSeenRequest(\App\Entity\Request $request)
+    {
 
         /** @var User $user */
         $user = $this->getUser();
 
-        if($user->isStudent()) {
+        if ($user->isStudent()) {
             $request->setStudentHasSeen(true);
         }
-        if($user->isEducator()) {
+        if ($user->isEducator()) {
             $request->setEducatorHasSeen(true);
         }
-        if($user->isProfessional()) {
+        if ($user->isProfessional()) {
             $request->setProfessionalHasSeen(true);
         }
-        if($user->isSchoolAdministrator()) {
+        if ($user->isSchoolAdministrator()) {
             $request->setSchoolAdminHasSeen(true);
         }
 
         $this->entityManager->persist($request);
         $this->entityManager->flush();
-        
+
         return new JsonResponse(
             Response::HTTP_OK
         );
     }
 
     /**
-     * @Route("/requests/{id}/view", name="view_request", options = { "expose" = true })
+     * @Security("is_granted('ROLE_EDUCATOR_USER')")
+     *
+     * @Route("/requests/new", name="new_request", options = { "expose" = true })
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      */
-    public function viewRequest(Request $request) {
+    public function newRequest(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $requestEntity = new RequestEntity();
+        $requestEntity->setRequestType(RequestEntity::REQUEST_TYPE_JOB_BOARD);
+
+        $form = $this->createForm(CreateRequestFormType::class, $requestEntity, [
+            'skip_validation' => $request->request->get('skip_validation', false)
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->get('delete')->isClicked()) {
+            $this->addFlash('success', 'Your request has been deleted.');
+            return $this->redirectToRoute('new_request');
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            /** @var RequestEntity $requestEntity */
+            $requestEntity = $form->getData();
+            $requestEntity->setCreatedBy($user);
+
+            if($form->get('postAndReview')->isClicked()) {
+
+                $requestEntity->setPublished(true);
+                $this->entityManager->persist($requestEntity);
+                $this->entityManager->flush();
+                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+            }
+
+            if($form->get('saveAndPreview')->isClicked()) {
+                $requestEntity->setPublished(false);
+                $this->entityManager->persist($requestEntity);
+                $this->entityManager->flush();
+                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+            }
+
+            $this->entityManager->persist($requestEntity);
+            $this->entityManager->flush();
+        }
+
+        return $this->render('request/new.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_EDUCATOR_USER')")
+     *
+     * @Route("/requests/{id}/edit", name="edit_request", options = { "expose" = true })
+     * @param RequestEntity $requestEntity
+     * @param Request       $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editRequest(RequestEntity $requestEntity, Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $publish = $request->query->get('publish', null);
+
+        $accessDenied = (
+          $requestEntity->getCreatedBy() &&
+          $requestEntity->getCreatedBy()->getId() !== $user->getId()
+        );
+
+        if($accessDenied) {
+            throw new AccessDeniedException();
+        }
+
+        if($publish) {
+            $requestEntity->setPublished(true);
+            $this->entityManager->persist($requestEntity);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+        }
+
+        $form = $this->createForm(EditRequestFormType::class, $requestEntity, [
+            'skip_validation' => $request->request->get('skip_validation', false),
+            'requestEntity' => $requestEntity
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->get('delete')->isClicked()) {
+            $this->entityManager->remove($requestEntity);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Your request has been deleted.');
+            return $this->redirectToRoute('new_request');
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            /** @var RequestEntity $requestEntity */
+            $requestEntity = $form->getData();
+
+            if($form->get('postAndReview')->isClicked()) {
+
+                $requestEntity->setPublished(true);
+                $this->entityManager->persist($requestEntity);
+                $this->entityManager->flush();
+                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+            }
+
+            if($form->get('saveAndPreview')->isClicked()) {
+                $requestEntity->setPublished(false);
+                $this->entityManager->persist($requestEntity);
+                $this->entityManager->flush();
+                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+            }
+
+            $this->entityManager->persist($requestEntity);
+            $this->entityManager->flush();
+        }
+
+        return $this->render('request/edit.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * @Route("/requests/{id}/view", name="view_request", options = { "expose" = true })
+     * @param RequestEntity $requestEntity
+     * @param Request       $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewRequest(RequestEntity $requestEntity, Request $request)
+    {
 
         $user = $this->getUser();
-        $reqId = $request->get('id');
-
-        $myRequest = $this->requestRepository->find($reqId);
 
         return $this->render('request/view.html.twig', [
             'user' => $user,
-            'request' => $myRequest
+            'request' => $requestEntity
         ]);
+    }
+
+    /**
+     * @Route("/requests/{id}/hide", name="hide_request", options = { "expose" = true })
+     * @param RequestEntity $requestEntity
+     * @param Request       $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function hideRequest(RequestEntity $requestEntity, Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $userMeta = new UserMeta();
+        $userMeta->setUser($user);
+        $userMeta->setName(UserMeta::HIDE_REQUEST);
+        $userMeta->setValue($requestEntity->getId());
+        $this->entityManager->persist($userMeta);
+        $this->entityManager->flush();
+
+        $referer = $request->headers->get('referer');
+
+        return new RedirectResponse($referer);
     }
 
 }
