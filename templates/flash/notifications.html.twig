@@ -1,7 +1,9 @@
-
 {% if user.tempPassword %}
-<div class="uk-alert-warning" uk-alert>
-    <a class="uk-alert-close" uk-close></a>
-    <p>Your account still uses a temporary password. <strong><a href="{{ url('profile_edit', {id: user.id}) }}">Click here to set your password</a></strong></p>
-</div>
+    <div class="uk-container uk-margin-bottom">
+        <div class="uk-alert-warning" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>Your account still uses a temporary password. <strong><a href="{{ url('profile_edit', {id: user.id}) }}">Click
+                        here to set your password</a></strong></p>
+        </div>
+    </div>
 {% endif %}

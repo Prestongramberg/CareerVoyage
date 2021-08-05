@@ -1,0 +1,121 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Edit Request{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/edit_request.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+ {% endblock %}
+
+{% block body %}
+    <div class="uk-width-1-1">
+
+        <div class="uk-container js-form">
+
+            {{ form_start(form, {attr: {'id': 'create-request-form', 'novalidate' : 'novalidate'}}) }}
+
+
+            {% if form_errors(form) %}
+                <div class="uk-alert-danger" uk-alert>
+                    <a class="uk-alert-close" uk-close></a>
+                    <div>{{ form_errors(form) }}</div>
+                </div>
+            {% endif %}
+
+            <div uk-grid>
+
+                <div class="uk-width-1-1 uk-width-expand@m">
+
+                    <div class="uk-text-danger" style="float:right; margin-top: -50px">* indicates required
+                    </div>
+
+                    <fieldset class="uk-fieldset">
+
+                        <legend class="uk-legend" style="margin-bottom: 30px">
+                            <div class="uk-grid">
+                                <div class="uk-width-2-3">
+                                    <div style="margin-bottom: 10px">
+                                        Create a request that will be listed on the site for volunteer professionals
+                                    </div>
+
+                                    <div class="uk-text-meta">
+                                        After you fill out this form, your request will be visible to volunteer
+                                        professionals who might be interested in helping. If a professional thinks they
+                                        might be
+                                        able to contribute, they’ll reach out via chat or email to start a conversation
+                                        and learn more. You can always update or remove the request as needs change.
+                                    </div>
+                                </div>
+                            </div>
+                        </legend>
+
+                        <div class="uk-grid">
+
+                            <div class="uk-width-2-3" style="margin-bottom: 20px">
+                                <div class="uk-margin">
+                                    {{ form_label(form.summary, 'Write a one-sentence summary of what you’re looking for*') }}
+                                    <div class="uk-text-meta">
+                                        This will serve as the title of the request
+                                    </div>
+                                    {{ form_widget(form.summary, {'attr': {'placeholder': 'Mentor for students interested in graphic design...', 'class': 'uk-input' ~ ( form_errors(form.summary) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.summary) }}
+                                </div>
+                            </div>
+
+                            <div class="uk-width-2-3">
+                                <div class="uk-margin">
+                                    {{ form_label(form.description, 'Write a ~3 sentence description so volunteers can read a bit more about your request before reaching out*') }}
+                                    {{ form_widget(form.description, {'attr': {'rows':'4', 'placeholder': 'Mentor for students interested in graphic design...', 'class': 'uk-textarea' ~ ( form_errors(form.description) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.volunteerRoles, 'Which kinds of volunteers are you looking for?*') }}
+                            {{ form_widget(form.volunteerRoles, {'attr': {'class': 'js-select2' ~ ( form_errors(form.volunteerRoles) ? ' uk-form-danger' : '' ) }}) }}
+                            <div class="clear"></div>
+                            {{ form_errors(form.volunteerRoles) }}
+                        </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.primaryIndustries, 'Which are the most relevant career sector(s) you are searching for volunteers from?*') }}
+                            <a href="javascript:void(0)" class="js-select-all-career-sectors"
+                               style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                All</a>
+                            {{ form_widget(form.primaryIndustries, {'attr': {'class': 'js-select2' ~ ( form_errors(form.primaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.primaryIndustries) }}
+                        </div>
+
+                        <div class="uk-margin">
+                            {{ form_label(form.opportunityType, 'Will this opportunity be virtual or in person?*') }}
+                            {{ form_widget(form.opportunityType, {'attr': {'class': '' ~ ( form_errors(form.primaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(form.opportunityType) }}
+                        </div>
+
+                        <p>
+                            Ready to post this opportunity? You can always edit or remove the request.
+                        </p>
+
+                        <div class="uk-margin">
+                            {{ form_widget(form.postAndReview, {'attr': {'style': 'margin-right: 20px'}}) }}
+                            {{ form_widget(form.saveAndPreview, {'attr': {'style': 'margin-right: 20px'}}) }}
+                            {{ form_widget(form.delete) }}
+                        </div>
+                    </fieldset>
+
+                </div>
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+
+
+    </div>
+{% endblock %}

@@ -5,34 +5,20 @@ namespace App\Controller;
 use App\Entity\CompanyExperience;
 use App\Entity\EducatorUser;
 use App\Entity\Feedback;
-use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolAdministrator;
-use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentUser;
-use App\Entity\TeachLessonExperience;
 use App\Entity\User;
-use App\Form\AdminProfileFormType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Repository\RegionalCoordinatorRepository;
-use App\Repository\UserRepository;
-use App\Repository\IndustryRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
+use App\Entity\UserMeta;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Entity\Request as RequestEntity;
 
 /**
  * Class DashboardController
@@ -432,11 +418,11 @@ class DashboardController extends AbstractController
 
         $experienceIds     = [];
         $schoolExperiences = $this->schoolExperienceRepository->findBy(['cancelled' => false], [
-           'createdAt' => 'DESC',
+            'createdAt' => 'DESC',
         ], 50);
 
         $companyExperiences = $this->companyExperienceRepository->findBy(['cancelled' => false,], [
-            'createdAt' => 'DESC'
+            'createdAt' => 'DESC',
         ], 50);
 
         foreach ($schoolExperiences as $schoolExperience) {
@@ -466,10 +452,10 @@ class DashboardController extends AbstractController
         $user = $this->getUser();
 
         $lessons = $this->lessonRepository->findBy([
-            'deleted' => false
+            'deleted' => false,
         ], [
             'createdAt' => 'DESC',
-            'title' => 'ASC'
+            'title' => 'ASC',
         ], 50);
 
         return $this->render('dashboard/topics.html.twig', [
@@ -484,12 +470,12 @@ class DashboardController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if($user->isEducator() && $school = $user->getSchool()) {
+        if ($user->isEducator() && $school = $user->getSchool()) {
             $volunteerProfessionals = $this->professionalUserRepository->getBySchool($school);
         } else {
             $volunteerProfessionals = $this->professionalUserRepository->findBy([], [
                 'createdAt' => 'DESC',
-                'lastName' => 'ASC'
+                'lastName' => 'ASC',
             ], 50);
         }
 
@@ -506,8 +492,40 @@ class DashboardController extends AbstractController
         $user = $this->getUser();
 
         return $this->render('dashboard/guides_and_best_practices.html.twig', [
-            'user' => $user
+            'user' => $user,
+        ]);
+    }
+
+    public function jobBoard(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $requestEntities = $this->requestRepository->findBy([
+            'requestType' => RequestEntity::REQUEST_TYPE_JOB_BOARD,
+            'published' => true,
+        ], ['createdAt' => 'DESC']);
+
+        $hiddenRequests = $this->userMetaRepository->findBy([
+            'user' => $user,
+            'name' => UserMeta::HIDE_REQUEST,
         ]);
 
+        $hiddenRequestIds = array_map(function (UserMeta $hiddenRequest) {
+            return (int) $hiddenRequest->getValue();
+        }, $hiddenRequests);
+
+        $requestEntities = array_filter($requestEntities, function (RequestEntity $requestEntity) use ($hiddenRequestIds) {
+            return !in_array($requestEntity->getId(), $hiddenRequestIds, true);
+        });
+
+        if (!count($requestEntities)) {
+            return new Response("");
+        }
+
+        return $this->render('dashboard/job_board.html.twig', [
+            'user' => $user,
+            'requestEntities' => $requestEntities,
+        ]);
     }
 }
