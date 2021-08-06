@@ -62,6 +62,14 @@ class SearchFilterType extends AbstractType
         /** @var Request $requestEntity */
         $requestEntity = $options['requestEntity'];
 
+        if ($requestEntity && $requestEntity->getRequestType() === Request::REQUEST_TYPE_JOB_BOARD) {
+            $searchLabel = 'Search by professional\'s first and/or last name';
+        } elseif ($userRole && $userRole === User::ROLE_PROFESSIONAL_USER) {
+            $searchLabel = 'Search by interest, name, email, or username';
+        } else {
+            $searchLabel = 'Search by name, email, or username';
+        }
+
         $builder->add(
             'search', Filters\TextFilterType::class, [
                 'apply_filter' => function (QueryInterface $filterQuery, $field, $values) use ($userRole) {
@@ -93,7 +101,7 @@ class SearchFilterType extends AbstractType
                     return $newFilterQuery->createCondition($expression);
                 },
                 'mapped' => false,
-                'label' => $userRole === User::ROLE_PROFESSIONAL_USER ? 'Search by interest, name, email, or username' : 'Search by name, email, or username',
+                'label' => $searchLabel,
             ]
         );
 
