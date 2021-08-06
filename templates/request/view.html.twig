@@ -1,116 +1,252 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
 {% block title %}View Request{% endblock %}
-{% block bodyClass %}requests-view{% endblock %}
+{% block bodyClass %}page-request-view{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
 
 {% block body %}
-  <div class="uk-container">
-    
-    <table class="uk-table uk-table-small uk-table-divider">
-      <tbody>
-      <tr>
-          <td>Request type</td>
-          <td>Teach lesson</td>
-      </tr>
-      <tr>
-          <td>Lesson title</td>
-          <td>{{ request.lesson.title }}</td>
-      </tr>
-      <tr>
-          <td>School name</td>
-          <td>{{ request.createdBy.school.name }}</td>
-      </tr>
-      <tr>
-          <td>Dates Available</td>
-          <td>
-              <p>{{ request.dateOptionOne|date("m/d/Y h:i:s A") }}</p>
-              <p>{{ request.dateOptionTwo|date("m/d/Y h:i:s A") }}</p>
-              <p>{{ request.dateOptionThree|date("m/d/Y h:i:s A") }}</p>
-          </td>
-      </tr>
-      <tr>
-          <td>Professional</td>
-          <td>
-              {{ request.needsApprovalBy.fullName }}
-          </td>
-      </tr>
-      {% if render_request_status_text( request ) == "Approved" %}
-          <tr>
-              <td>Date Confirmed</td>
-              <td>
-                  {{ request.teachLessonExperience.startDateAndTime|date("m/d/Y h:i:s A") }}<br /><br />
-                  <div class="react-calendar-button"
-                      data-event-start-time="{{ request.teachLessonExperience.startDateAndTimeTimeStamp }}"
-                      data-event-end-time="{{ request.teachLessonExperience.endDateAndTimeTimeStamp }}"
-                      data-title="{{ request.teachLessonExperience.title }}"
-                      data-description="{{ request.teachLessonExperience.briefDescription }}"
-                      data-location="{{ request.teachLessonExperience.school.name ~ " - " ~ request.teachLessonExperience.school.address }}"
-                  ></div>
 
-                  <a class="uk-button uk-button-danger uk-button-small" href="#modal-change-date-{{ request.teachLessonExperience.id }}" uk-toggle>Request Change of Date</a>
-                  <br>
-                  <div id="modal-change-date-{{ request.teachLessonExperience.id }}" uk-modal>
-                      <div class="uk-modal-dialog uk-modal-body">
-                          <h3>Request to Change Date of Experience</h3>
-                          <form class="uk-inline" action="{{ path('experience_teach_lesson_event_request_new_dates', { "id": request.teachLessonExperience.id }) }}" method="POST">
-                              <p>Please select 3 different date/times that work for the Guest Instructor to visit.</p>
-                              <label>New Date Choice 1</label>
-                              <input class="uk-timepicker uk-input" name="date_option_one" type="text"><br /><br />
-                              <label>New Date Choice 2</label>
-                              <input class="uk-timepicker uk-input" name="date_option_two" type="text"><br /><br />
-                              <label>New Date Choice 3</label>
-                              <input class="uk-timepicker uk-input" name="date_option_three" type="text"><br /><br />
+    <div class="uk-container">
 
-                              <label>Custom Message</label>
-                              <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
+        {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
+            {% if request.published %}
+                <div class="uk-alert-success" uk-alert>
+                    <h3 class="uk-margin-remove-bottom" style="color: #333">Your request is live on FutureForward!</h3>
+                    <p class="uk-margin-remove-top" style="color: #666">
+                        Professionals will see your request in their dashboard. If they click to view more, these are
+                        the details they’ll see. <br>
+                        If they’re interested in helping out, they’ll reach out via chat to start a conversation.
+                    </p>
+                </div>
+            {% else %}
+                <div class="uk-alert-warning" uk-alert>
+                    <h3 class="uk-margin-remove-bottom" style="color: #333">This is a draft request and is hidden from
+                        professionals on FutureForward</h3>
+                    <p class="uk-margin-remove-top" style="color: #666">
+                        Professionals will see your request in their dashboard. If they click to view more, these are
+                        the details they’ll see.
+                        If they’re interested in helping out, they’ll reach out via chat to start a conversation.
+                    </p>
 
-                              <p>
-                                  <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                  <button class="uk-button uk-button-danger" type="submit">Submit</button>
-                              </p>
-                          </form>
-                      </div>
-                  </div>
-
-                  <br>
-
-                  <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-toggle>Cancel Experience</a>
-                  <br>
-                  <div id="modal-delete-experience-{{ request.teachLessonExperience.id }}" uk-modal>
-                      <div class="uk-modal-dialog uk-modal-body">
-                          <h3>Cancel Experience</h3>
-                          <form class="uk-inline" action="{{ path('experience_teach_lesson_event_delete', { "id": request.teachLessonExperience.id }) }}" method="POST">
-
-                              <label>Custom Message</label>
-                              <textarea class="uk-textarea" name="customMessage" style="width: 100%"></textarea>
-
-                              <p>
-                                  <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                                  <button class="uk-button uk-button-danger" type="submit">Submit</button>
-                              </p>
-                          </form>
-                      </div>
-                  </div>
-              </td>
-          </tr>
-      {% endif %}
-      <tr>
-          <td>Status</td>
-          <td>
-              <span class="uk-label">
-                  {{ render_request_status_text( request ) }}
-              </span>
-          </td>
-      </tr>
-      <tr>
-          <td>Created On</td>
-          <td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>
-      </tr>
-      </tbody>
-    </table>
+                    <a style="color:#2185E6" href="{{ path('edit_request', {id: request.id}) }}?publish=1">Publish to
+                        professionals by converting this request from a draft to a live request.</a>
+                </div>
+            {% endif %}
+        {% endif %}
 
 
+        <div class="uk-section" style="padding-top: 20px; padding-bottom: 0">
+            <h3 class="uk-margin-remove-bottom">{{ request.summary }}
+
+                {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
+                    <a style="float:right" href="{{ path('edit_request', {'id': request.id}) }}">
+                        Edit, convert to draft, or delete request <span class="uk-margin-small-right"
+                                                                        uk-icon="icon: file-edit; ratio: 1"></span>
+                    </a>
+                {% endif %}
+
+            </h3>
+
+            <p class="uk-margin-remove-top">Created by {{ request.createdBy.fullName }}
+                on {{ request.createdAt|date("F j, Y") }}</p>
+
+            <h4>Description</h4>
+
+            <p>{{ request.description }}</p>
+        </div>
+
+        <h4>Details</h4>
+
+        <table class="uk-table uk-table-justify uk-table-divider">
+            <tbody>
+            <tr>
+                <td>Most relevant volunteer types</td>
+                <td>
+                    {% for role in request.volunteerRoles %}
+                        {{ role.name }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>Event type</td>
+                <td>
+                    {% if request.opportunityType == constant('App\\Entity\\Request::OPPORTUNITY_TYPE_TO_BE_DETERMINED') %}
+                        In person or virtual to be determined
+                    {% else %}
+                        {{ request.opportunityTypeFriendlyName(request.opportunityType) }}
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% if request.createdBy is not null and request.createdBy.isEducator and request.createdBy.school is not null %}
+                <tr>
+                    <td>School</td>
+                    <td>{{ request.createdBy.school.name }}</td>
+                </tr>
+            {% endif %}
+
+            <tr>
+                <td>Most relevant industry sector(s)</td>
+                <td>
+                    {% for industry in request.primaryIndustries %}
+                        {{ industry.name }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        {% if request.createdBy is not null and request.createdBy.id != user.id %}
+            <h4>Are you interested in helping out? {{ request.createdBy.firstName }} and our students would be very
+                appreciative!</h4>
+
+            <p style="margin-bottom: 5px">The first step is to have a high-level conversation with Austin to confirm that the request is still open
+                and to ask any questions you might have about the request..</p>
+
+            <p style="margin-top: 5px; margin-bottom: 5px"><strong>You’re not committing to anything by starting a conversation.</strong> If it’s a good fit for both of you, then
+                you’ll start discussing the details!</p>
+
+            <button style="margin-top: 5px" class="uk-button uk-button-primary uk-button-small" type="button" data-message-user-id="{{ request.createdBy.id }}">Start a chat with {{ request.createdBy.firstName }}</button>
+
+        {% endif %}
+
+        {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
+            <h4>Share this request with specific professionals who you think may be a good fit</h4>
+
+            <p style="margin-bottom: 5px">If you have found professionals on FutureForward who you may think are a good fit for this request, you
+                can
+                share it with them to see if they’re interested. Once you share the request with a professional, they
+                will
+                get a chat message from you that says “Hi [name], would you be interested in helping with this request?
+                It
+                might be a good fit for you.”
+                Don’t know who to ask? Browse professionals on FutureForward.</p>
+        {% elseif request.createdBy is not null %}
+            <h4 style="margin-bottom: 5px">Know someone else who might be able to help?</h4>
+        {% endif %}
 
 
-  </div>
+        <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: true">
+            <div class="uk-offcanvas-bar uk-offcanvas-bar-large">
+
+                <div>
+                    <h3>Share Request</h3>
+                    <button class="uk-offcanvas-close" type="button" uk-close></button>
+                </div>
+
+
+                {% set requestUrl = url('view_request', {id: request.id}) %}
+
+                <div id="react-global-share"
+                     data-user="{{ encode_user(request.createdBy) }}"
+                     data-request="{{ request.id }}"
+                     data-message="Hi [name], would you be interested in helping with this request? It might be a good fit for you! <a href='{{ requestUrl }}'>{{ request.summary }}</a>"
+                     data-hidden-filters='["userRole"]'
+                     data-default-filters='{"userRole": "ROLE_PROFESSIONAL_USER"}'
+                >
+                    Share this Request
+                </div>
+
+            </div>
+        </div>
+
+        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+            <div class="uk-width-expand">
+                <div class="uk-align-left">
+                    <button class="uk-button uk-button-primary uk-button-small" type="button"
+                            uk-toggle="target: #offcanvas-flip">Share Request
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="uk-grid" uk-grid>
+
+            <div class="uk-width-2-3@m uk-width-1-1 uk-first-column">
+                {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
+                    <h4>Remember to update your educator profile! It is shown to professionals along <br>with the
+                        request
+                        details.</h4>
+                {% elseif request.createdBy is not null %}
+                    <h4>{{ request.createdBy.firstName }}'s educator profile</h4>
+                {% endif %}
+            </div>
+
+
+            <div class="uk-width-2-3@m uk-width-1-1 uk-first-column" style="margin-top: 20px">
+
+                <div class="profile-card-wrapper">
+                    <div class="uk-card uk-card-default">
+                        <div class="uk-card-header">
+                            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                <div class="uk-width-auto">
+                                    <img class="uk-border-circle" width="40" height="40"
+                                         src="{{ ( attribute(request.createdBy, 'photo') is defined and request.createdBy.photo ) ? asset(uploaded_asset(request.createdBy.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                </div>
+                                <div class="uk-width-expand">
+                                    <a href="{{ path('profile_index', {'id': request.createdBy.id}) }}" target="_blank">
+                                        <h3 class="uk-card-title uk-margin-remove-bottom">{{ request.createdBy.getFullName }}</h3>
+                                    </a>
+                                    <p class="uk-text-meta uk-margin-remove-top">
+
+                                        {% if request.createdBy is not null and request.createdBy.educator and request.createdBy.school is defined and request.createdBy.school is not null %}
+                                            <a href="{{ path('school_view', {id: request.createdBy.school.id}) }}"
+                                               target="_blank">{{ request.createdBy.school.name }}</a> - Educator
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
+                                    <div class="uk-width-auto">
+                                        <div class="uk-align-right">
+                                            <a href="{{ path('profile_index', {'id': request.createdBy.id}) }}"
+                                               target="_blank">My Public
+                                                Profile</a>
+                                            <a href="{{ path('profile_edit', {'id': request.createdBy.id}) }}"
+                                               target="_blank"><span
+                                                        class="uk-margin-small-right"
+                                                        uk-icon="icon: file-edit; ratio: 1"></span></a>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="uk-width-auto">
+                                        <div class="uk-align-right">
+                                            <a href="{{ path('profile_index', {'id': request.createdBy.id}) }}"
+                                               target="_blank">View Profile</a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+
+                            </div>
+                        </div>
+                        <div class="uk-card-body">
+                            {% if request.createdBy.briefBio %}
+                                {{ request.createdBy.briefBio }}
+                            {% else %}
+                                {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
+                                    <p>Welcome to {{ get_site().name }}! <a
+                                                href="{{ path('profile_edit', {'id': request.createdBy.id}) }}"
+                                                target="_blank">Add
+                                            a brief bio</a> so others know more about you.</p>
+                                {% endif %}
+                            {% endif %}
+                            <div class="professional-links">
+                                {% if request.createdBy.email %}
+                                    <a href="mailto:{{ request.createdBy.email }}"
+                                       class="uk-icon-button uk-margin-small-right"
+                                       uk-icon="mail"></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 {% endblock %}

@@ -27,7 +27,18 @@ export function loadInitialData() {
             url = window.Routing.generate("search_users", {experience: state.search.experience});
         }
 
-        return api.post(url, {})
+        if (state.search.request) {
+            url = window.Routing.generate("search_users", {request: state.search.request});
+        }
+
+        debugger;
+        const data = {
+            filters: state.form
+        };
+
+        debugger;
+
+        return api.post(url, data)
             .then((response) => {
 
 
@@ -77,7 +88,15 @@ export function filterChanged(context) {
                     filters: {...form, [context.fieldName]: context.value}
                 };
 
-                const url = window.Routing.generate("search_users");
+                let url = window.Routing.generate("search_users");
+
+                if (state.search.experience) {
+                    url = window.Routing.generate("search_users", {experience: state.search.experience});
+                }
+
+                if (state.search.request) {
+                    url = window.Routing.generate("search_users", {request: state.search.request});
+                }
 
                 return api.post(url, data)
                     .then((response) => {
@@ -102,12 +121,21 @@ export function pageChanged(pageNumber) {
 
     return (dispatch, getState) => {
 
+        let state = getState();
 
         dispatch({
             type: actionTypes.PAGE_CHANGE_REQUESTED
         });
 
-        const url = window.Routing.generate("search_users", {page: pageNumber});
+        let url = window.Routing.generate("search_users", {page: pageNumber});
+
+        if (state.search.experience) {
+            url = window.Routing.generate("search_users", {experience: state.search.experience, page: pageNumber});
+        }
+
+        if (state.search.request) {
+            url = window.Routing.generate("search_users", {request: state.search.request, page: pageNumber});
+        }
 
         return api.post(url, {})
             .then((response) => {
@@ -123,7 +151,7 @@ export function pageChanged(pageNumber) {
     }
 }
 
-export function sendNotifications(userId, experienceId, message) {
+export function sendNotifications(userId, experienceId, requestId, message) {
 
     return (dispatch, getState) => {
 
@@ -135,7 +163,8 @@ export function sendNotifications(userId, experienceId, message) {
         return api.post(url, {
             message: message,
             userId: userId,
-            experienceId: experienceId
+            experienceId: experienceId,
+            requestId: requestId
         })
             .then((response) => {
 

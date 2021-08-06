@@ -158,6 +158,11 @@ export class App extends Component {
         const filters = [];
 
         for (let fieldName in this.props.search.schema.properties) {
+
+            if(this.props.search.hiddenFilters.includes(fieldName)) {
+                continue;
+            }
+
             let field = this.props.search.schema.properties[fieldName];
 
             if (field.items && field.items.enum && field.items.enum_titles) {
@@ -349,6 +354,7 @@ export class App extends Component {
         }
 
         let message = this.props.message;
+        message = message.replace("[name]", item.fullName);
         if (this.props.search.user_modified_messages[item.id]) {
             message = this.props.search.user_messages[item.id];
         }
@@ -361,25 +367,12 @@ export class App extends Component {
                 }} value={message}></textarea>}
                 {<button className="uk-button uk-button-primary"
                          style={{'width': '100%'}} onClick={() => {
-                    this.props.sendNotifications(item.id, this.props.experience, message)
+                    this.props.sendNotifications(item.id, this.props.experience, this.props.request, message)
                 }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
                 }
             </div>
         );
 
-        /*   return (
-               <div id={"toggle-usage-" + item.id} hidden={this.props.search.notifiedUsers.includes(item.id)}>
-                   {<textarea id={"toggle-usage-textarea-" + item.id} className="uk-textarea" cols="30"
-                              rows="5" onChange={(e) => {
-                       this.props.updateMessage(e.target.value)
-                   }} value={this.props.message}></textarea>}
-                   {<button className="uk-button uk-button-primary"
-                            style={{'width': '100%'}} onClick={() => {
-                       this.props.sendNotifications(item.id, this.props.experience, this.props.message)
-                   }}>{this.props.search.currentNotifiedUser == item.id ? "Sending..." : "Share"}</button>
-                   }
-               </div>
-           );*/
     }
 
 }
@@ -404,7 +397,7 @@ export const mapDispatchToProps = dispatch => ({
     loadInitialData: () => dispatch(loadInitialData()),
     filterChanged: (context) => dispatch(filterChanged(context)),
     pageChanged: (pageNumber) => dispatch(pageChanged(pageNumber)),
-    sendNotifications: (userId, experienceId, message) => dispatch(sendNotifications(userId, experienceId, message)),
+    sendNotifications: (userId, experienceId, requestId, message) => dispatch(sendNotifications(userId, experienceId, requestId, message)),
     updateMessage: (message, userId) => dispatch(updateMessage(message, userId)),
 });
 

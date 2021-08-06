@@ -96,7 +96,7 @@ class GlobalShareController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data'    => $payload,
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );
@@ -114,14 +114,31 @@ class GlobalShareController extends AbstractController
      */
     public function experienceNotifyUsersAction(Request $request)
     {
-        $experienceId = $request->request->get('experienceId');
-        $message      = $request->request->get('message');
-        $userId       = $request->request->get('userId');
+        $experienceId  = $request->request->get('experienceId', null);
+        $requestId     = $request->request->get('requestId', null);
+        $message       = $request->request->get('message');
+        $userId        = $request->request->get('userId');
+        $experience    = null;
+        $requestEntity = null;
 
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
-        $experience = $this->experienceRepository->find($experienceId);
+        if ($experienceId) {
+            $experience = $this->experienceRepository->find($experienceId);
+        }
+
+        if ($requestId) {
+            $requestEntity = $this->requestRepository->find($requestId);
+        }
+
+        if (!$experience && !$requestEntity) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
 
         /** @var User $user */
         $user = $this->userRepository->find($userId);
@@ -164,7 +181,14 @@ class GlobalShareController extends AbstractController
         $share = new Share();
         $share->setSentFrom($loggedInUser);
         $share->setSentTo($userToMessage);
-        $share->setExperience($experience);
+
+        if ($experience) {
+            $share->setExperience($experience);
+        }
+
+        if ($requestEntity) {
+            $share->setRequest($requestEntity);
+        }
 
         $this->entityManager->persist($chatMessage);
         $this->entityManager->persist($share);

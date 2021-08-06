@@ -58,6 +58,11 @@ class Industry
      */
     private $educatorUsers;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Request::class, mappedBy="primaryIndustries")
+     */
+    private $requests;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -65,6 +70,7 @@ class Industry
         $this->lessons = new ArrayCollection();
         $this->professionalUsers = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
+        $this->requests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,6 +248,33 @@ class Industry
     {
         if ($this->educatorUsers->removeElement($educatorUser)) {
             $educatorUser->removePrimaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Request[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(Request $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->addPrimaryIndustry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(Request $request): self
+    {
+        if ($this->requests->removeElement($request)) {
+            $request->removePrimaryIndustry($this);
         }
 
         return $this;

@@ -324,6 +324,11 @@ abstract class User implements UserInterface
      */
     private $splashPagesShown = [];
 
+    /**
+     * @ORM\OneToMany(targetEntity=UserMeta::class, mappedBy="user")
+     */
+    private $userMetas;
+
 
     /**
      * @ORM\PrePersist
@@ -349,6 +354,7 @@ abstract class User implements UserInterface
         $this->videoFavorites                          = new ArrayCollection();
         $this->companyViews                            = new ArrayCollection();
         $this->reportShares                            = new ArrayCollection();
+        $this->userMetas = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1664,5 +1670,35 @@ abstract class User implements UserInterface
 
     public function getPotentialSplashPages() {
         return [];
+    }
+
+    /**
+     * @return Collection|UserMeta[]
+     */
+    public function getUserMetas(): Collection
+    {
+        return $this->userMetas;
+    }
+
+    public function addUserMeta(UserMeta $userMeta): self
+    {
+        if (!$this->userMetas->contains($userMeta)) {
+            $this->userMetas[] = $userMeta;
+            $userMeta->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserMeta(UserMeta $userMeta): self
+    {
+        if ($this->userMetas->removeElement($userMeta)) {
+            // set the owning side to null (unless already changed)
+            if ($userMeta->getUser() === $this) {
+                $userMeta->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

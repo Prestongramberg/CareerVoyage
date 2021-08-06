@@ -1,0 +1,96 @@
+<!-- Start New Experiences -->
+<div class="quick-links-wrapper uk-margin">
+    <div class="uk-card uk-card-default">
+        <div class="uk-card-header">
+            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                <div class="uk-width-expand">
+                    <h3 style="padding-left: 40px" class="uk-card-title uk-margin-remove-bottom">Live volunteer requests
+                        from educators on FutureForward</h3>
+                </div>
+            </div>
+        </div>
+        <div class="uk-card-body" style="">
+
+            {% if requestEntities|length >= 5 %}
+                {% set height = 500 %}
+            {% elseif requestEntities|length == 4 %}
+                {% set height = 400 %}
+            {% elseif requestEntities|length == 3 %}
+                {% set height = 300 %}
+            {% elseif requestEntities|length == 2 %}
+                {% set height = 200 %}
+            {% elseif requestEntities|length <= 1 %}
+                {% set height = 100 %}
+            {% endif %}
+
+            <div class="uk-visible-toggle" tabindex="-1" uk-slideshow="min-height: {{ height }}; max-height: {{ height }}">
+
+                <ul class="uk-slideshow-items">
+                    {% for requestEntityBatch in requestEntities|sort((a, b) => a.summary <=> b.summary)|batch(5) %}
+                        <li class="uk-overflow-auto" style="position: absolute">
+
+                            {% for requestEntity in requestEntityBatch %}
+
+                                <div class="uk-grid" style="margin-bottom: 10px">
+                                    <div class="uk-width-1-1">
+                                        <a style="float:left"
+                                           href="{{ path('view_request', {'id': requestEntity.id}) }}">{{ requestEntity.summary }}</a>
+
+                                        <a style="float:right; margin-right: 20px"
+                                           href="{{ path('hide_request', {'id': requestEntity.id}) }}">
+                                            <img src="{{ asset('build/images/clear.svg') }}">
+                                        </a>
+
+                                    </div>
+                                </div>
+
+                                <div class="uk-grid" style="margin-bottom: 20px; margin-top: 0">
+
+                                    <div class="uk-width-1-3">
+                                        <div class="uk-margin">
+                                            {% for role in requestEntity.volunteerRoles %}
+                                                {{ role.name }}{% if not loop.last %},{% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="uk-width-1-3">
+                                        <div class="uk-margin">
+                                            {% for industry in requestEntity.primaryIndustries %}
+                                                {{ industry.name }}{% if not loop.last %},{% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="uk-width-1-3">
+                                        <div class="uk-margin">
+                                            {% if requestEntity.opportunityType == constant('App\\Entity\\Request::OPPORTUNITY_TYPE_TO_BE_DETERMINED') %}
+                                                In person or virtual to be determined
+                                            {% else %}
+                                                {{ requestEntity.opportunityTypeFriendlyName(requestEntity.opportunityType) }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if loop.last == false %}
+                                    <hr>
+                                {% endif %}
+                            {% endfor %}
+
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+                   uk-slideshow-item="previous"></a>
+                <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+                   uk-slideshow-item="next"></a>
+                <br>
+                <br>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- End New Experiences -->

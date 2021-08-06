@@ -55,6 +55,8 @@ class StudentToMeetProfessionalRequest extends Request
     public function __construct()
     {
         $this->studentToMeetProfessionalExperiences = new ArrayCollection();
+
+        parent::__construct();
     }
 
     public function getReasonToMeet(): ?RolesWillingToFulfill

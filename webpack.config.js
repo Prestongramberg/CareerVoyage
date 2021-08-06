@@ -32,6 +32,8 @@ Encore
     .addEntry('companies', './assets/js/companies.js')
     .addEntry('lessons', './assets/js/lessons.js')
     .addEntry('profile', './assets/js/profile.js')
+    .addEntry('create_request', './assets/js/create_request.js')
+    .addEntry('edit_request', './assets/js/edit_request.js')
     .addEntry('educator_profile', './assets/js/educator_profile.js')
     .addEntry('chat', './assets/js/chat.js')
     .addEntry('report_dashboard', './assets/js/report_dashboard.js')
