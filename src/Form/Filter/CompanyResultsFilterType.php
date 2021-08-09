@@ -124,7 +124,7 @@ class CompanyResultsFilterType extends AbstractType
 
                                 $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                $queryBuilder->andWhere("u.latitude <= :latN AND u.latitude >= :latS AND u.longitude <= :lonE AND u.longitude >= :lonW AND (u.latitude != :lat AND u.longitude != :lng)");
+                                $queryBuilder->andWhere("c.latitude <= :latN AND c.latitude >= :latS AND c.longitude <= :lonE AND c.longitude >= :lonW AND (c.latitude != :lat AND c.longitude != :lng)");
 
                                 // todo make sure to change the lat long entity field types to decimal if you want this to work.
                                 // todo see ProfessionalUser Entity
