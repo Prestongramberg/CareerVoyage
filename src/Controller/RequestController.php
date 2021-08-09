@@ -64,9 +64,13 @@ class RequestController extends AbstractController
 
         $requestsByType = [];
 
-        $requestsThatNeedMyApproval = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
 
-        $myCreatedRequests = $this->requestRepository->findBy([
+
+
+
+        // TODO SECOND DRAFT
+/*        $myCreatedRequests = $this->requestRepository->findBy([
             'created_by' => $user,
             'denied' => false,
             'approved' => false,
@@ -146,6 +150,12 @@ class RequestController extends AbstractController
 
         $userRegisterSchoolDenial = $qb->getQuery()->getResult();
 
+
+        */
+
+
+
+        // TODO FIRST DRAFT
         // $studentHasSeenCompanyRequestsApproval = [];
         // $studentHasSeenCompanyRequestsDenial = [];
         // if($user->isStudent()) {
@@ -229,9 +239,12 @@ class RequestController extends AbstractController
         // }
 
         // todo you could return a different view per user role as well
-        return $this->render('request/index.html.twig', [
+        return $this->render('request/index_new.html.twig', [
             'user' => $user,
-            'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
+            'reviewRequests' => $reviewRequests,
+
+
+            /*'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
             'myCreatedRequests' => $myCreatedRequests,
             'approvedByMeRequests' => $approvedByMeRequests,
             'deniedByMeRequests' => $deniedByMeRequests,
@@ -240,7 +253,9 @@ class RequestController extends AbstractController
             'studentRegisterApproval' => $studentRegisterApproval,
             'studentRegisterDenial' => $studentRegisterDenial,
             'userRegisterSchoolApproval' => $userRegisterSchoolApproval,
-            'userRegisterSchoolDenial' => $userRegisterSchoolDenial
+            'userRegisterSchoolDenial' => $userRegisterSchoolDenial*/
+
+
             // 'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
             // 'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial),
             // 'educatorHasSeenCompanyRequestsApproval' => count($educatorHasSeenCompanyRequestsApproval),
@@ -248,6 +263,22 @@ class RequestController extends AbstractController
             // 'professionalHasSeenCompanyRequestsApproval' => count($professionalHasSeenCompanyRequestsApproval),
             // 'professionalHasSeenCompanyRequestsDenial' => count($professionalHasSeenCompanyRequestsDenial)
         ]);
+    }
+
+    /**
+     * @Route("/requests/request-action", name="request_action", options = { "expose" = true })
+     * @param Request $httpRequest
+     *
+     * @return Response
+     */
+    public function requestAction(Request $httpRequest) {
+
+
+        return new Response("new request action endpoint");
+
+
+
+
     }
 
     /**

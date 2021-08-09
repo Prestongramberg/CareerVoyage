@@ -1,0 +1,144 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Requests{% endblock %}
+{% block bodyClass %}requests-landing{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+        <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
+
+
+            <li class="uk-active"><a href="#requests-mine" id="my-requests_pending">
+                    <small><em class="fa fa-circle"></em></small>
+                    Requests To Review</a></li>
+
+        </ul>
+
+        <div class="uk-switcher" id="tab-requests">
+            <div class="requests-landing__my-requests">
+
+                {% if reviewRequests|length > 0 %}
+
+                    <ul class="uk-width-xlarge" uk-accordion>
+                        {% for request in reviewRequests %}
+                            {#{{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}#}
+
+                            <li id="nc_{{ request.id }}">
+                                <a class="uk-accordion-title" href="#">
+                                    Request to create a new company
+                                    <br/>
+                                    {#<small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
+                                        <br/>{{ request.company.name }}</small>#}
+                                </a>
+                                <div class="uk-accordion-content">
+                                    <table class="uk-table uk-table-small uk-table-divider">
+                                        <tbody>
+                                        <tr>
+                                            <td>Request Type</td>
+                                            <td>NEW COMPANY</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Initiated By</td>
+                                            {#<td>{{ request.createdBy.firstName }} {{ request.createdBy.lastName }}</td>#}
+                                        </tr>
+                                        <tr>
+                                            <td>Company Name</td>
+                                            {#<td>{{ request.company.name }}</td>#}
+                                        </tr>
+                                        <tr>
+                                            <td>Website</td>
+                                            {#<td>{{ request.company.website }}</td>#}
+                                        </tr>
+                                        <tr>
+                                            <td>Phone</td>
+                                            {#<td>{{ request.company.phone }}</td>#}
+                                        </tr>
+                                        {#{% if request.company.primaryIndustry %}
+                                            <tr>
+                                                <td>Industry</td>
+                                                <td>{{ request.company.primaryIndustry.name }}</td>
+                                            </tr>
+                                        {% endif %}#}
+                                        <tr>
+                                            <td>Status</td>
+                                            <td>
+                                            <span class="uk-label">
+                                                {#{{ render_request_status_text( request ) }}#}
+                                            </span>
+
+
+                                                {% for possibleRequestAction in request.possibleActions %}
+                                                    <a class="uk-button uk-button-small {{ request.getPossibleActionCssClass(possibleRequestAction) }}"
+                                                       href="{{ request.actionUrl }}&action={{ possibleRequestAction }}">{{ possibleRequestAction }}</a>
+                                                {% endfor %}
+
+
+                                                <br>
+                                                {#   {% if render_request_status_text( request ) == "Pending" %}
+                                                       <form method="post" class="uk-inline nc-approval"
+                                                             action="{{ path('approve_request', {'id': request.id}) }}">
+                                                           <input class="uk-label uk-label-success" type="submit"
+                                                                  value="Approve">
+                                                           <input type="hidden" name="request" value="{{ request.id }}">
+                                                           <input type="hidden" name="element" value="nc_{{ request.id }}">
+                                                       </form>
+                                                       <form method="post" class="uk-inline nc-denial"
+                                                             action="{{ path('deny_request', {'id': request.id}) }}">
+                                                           <input class="uk-label uk-label-danger" type="submit" value="Deny">
+                                                           <input type="hidden" name="request" value="{{ request.id }}">
+                                                           <input type="hidden" name="element" value="nc_{{ request.id }}">
+                                                       </form>
+                                                   {% elseif render_request_status_text( request ) == "Approved" %}
+                                                       Approved
+                                                   {% elseif render_request_status_text( request ) == "Denied" %}
+                                                       Denied
+                                                   {% endif %}#}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Created On</td>
+                                            {#<td>{{ request.createdAt|date("m/d/Y h:i:s A") }}</td>#}
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+
+
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+                    <div class="uk-placeholder">
+                        {% if user.educator %}
+                            <p>You do not have any open requests yet, but you can draft a new volunteer request by
+                                filling
+                                out <a href="{{ path('new_request') }}">this quick form.</a> <br>
+                                Professionals on FutureForward can then see your request and reach out via chat if they
+                                are
+                                interested in helping out.
+                            </p>
+                        {% else %}
+                            There are no requests for you to review at this time.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+
+                {# {% if myCreatedRequests|length > 0 %}
+                     <ul class="uk-width-xlarge" uk-accordion>
+                         {% for request in myCreatedRequests %}
+                             {{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}
+                         {% endfor %}
+                     </ul>
+                 {% else %}
+                     <div class="uk-placeholder">
+                         You have not sent any requests that are pending.
+                     </div>
+                 {% endif %}#}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

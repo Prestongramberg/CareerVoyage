@@ -12,6 +12,7 @@ use App\Entity\CompanyVideo;
 use App\Entity\CompanyView;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\RequestAction;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
@@ -101,8 +102,8 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/index.html.twig', [
-                                         'user' => $user,
-                                     ]
+                'user' => $user,
+            ]
         );
     }
 
@@ -120,8 +121,8 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             CompanyResultsFilterType::class, null, [
-                                               'method' => 'GET',
-                                           ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -198,12 +199,12 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/results.html.twig', [
-                                           'user'         => $user,
-                                           'pagination'   => $pagination,
-                                           'form'         => $form->createView(),
-                                           'zipcode'      => $request->query->get('zipcode', ''),
-                                           'clearFormUrl' => $this->generateUrl('company_results_page'),
-                                       ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'zipcode' => $request->query->get('zipcode', ''),
+                'clearFormUrl' => $this->generateUrl('company_results_page'),
+            ]
         );
     }
 
@@ -221,8 +222,8 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             CompanyResultsFilterType::class, null, [
-                                               'method' => 'GET',
-                                           ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -251,12 +252,12 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/my_favorites.html.twig', [
-                                           'user'         => $user,
-                                           'pagination'   => $pagination,
-                                           'form'         => $form->createView(),
-                                           'zipcode'      => $request->query->get('zipcode', ''),
-                                           'clearFormUrl' => $this->generateUrl('company_favorites_page'),
-                                       ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'zipcode' => $request->query->get('zipcode', ''),
+                'clearFormUrl' => $this->generateUrl('company_favorites_page'),
+            ]
         );
     }
 
@@ -264,7 +265,7 @@ class CompanyController extends AbstractController
      * @Security("is_granted('ROLE_PROFESSIONAL_USER')")
      *
      * @Route("/companies/mine", name="company_mine_page", methods={"GET"}, options = { "expose" = true })
-     * @param Request          $request
+     * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -276,8 +277,8 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/mine.html.twig', [
-                                           'user'         => $user
-                                       ]
+                'user' => $user,
+            ]
         );
     }
 
@@ -302,8 +303,8 @@ class CompanyController extends AbstractController
         $company = new Company();
 
         $options = [
-            'method'          => 'POST',
-            'company'         => $company,
+            'method' => 'POST',
+            'company' => $company,
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
@@ -325,14 +326,22 @@ class CompanyController extends AbstractController
             $adminUsers = $this->adminUserRepository->findAll();
             $adminUser  = $adminUsers[0];
 
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+
             // create a new company request
-            $newCompanyRequest = new NewCompanyRequest();
+            $newCompanyRequest = new \App\Entity\Request();
+            $newCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_NEW_COMPANY);
             $newCompanyRequest->setCreatedBy($user);
-            $newCompanyRequest->setCompany($company);
+            $newCompanyRequest->addNeedsApprovalByRole(User::ROLE_ADMIN_USER);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
+            $newCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                                   RequestAction::REQUEST_ACTION_NAME_DENY,
+            ]);
+            $newCompanyRequest->setCompany($company);
 
+            // todo can I remove this?
             $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
-
             foreach ($adminUsers as $adminUser) {
                 $possibleApprover = new RequestPossibleApprovers();
                 $possibleApprover->setPossibleApprover($adminUser);
@@ -341,8 +350,16 @@ class CompanyController extends AbstractController
             }
 
             $this->entityManager->persist($newCompanyRequest);
-            $this->entityManager->persist($company);
             $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            $requestActionUrl = $this->generateUrl('request_action', [
+                'company_id' => $company->getId(),
+                'request_id' => $newCompanyRequest->getId(),
+            ]);
+
+            $newCompanyRequest->setActionUrl($requestActionUrl);
+
             $this->entityManager->flush();
 
             $this->requestsMailer->newCompanyRequest($newCompanyRequest);
@@ -357,11 +374,11 @@ class CompanyController extends AbstractController
         if ($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
-                    'success'    => false,
+                    'success' => false,
                     'formMarkup' => $this->renderView(
                         'api/form/secondary_industry_form_new_company_field.html.twig', [
-                                                                                          'form' => $form->createView(),
-                                                                                      ]
+                            'form' => $form->createView(),
+                        ]
                     ),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -369,9 +386,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/new.html.twig', [
-                                       'user' => $user,
-                                       'form' => $form->createView(),
-                                   ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -391,22 +408,22 @@ class CompanyController extends AbstractController
 
         // Create company_view record for the user.
         $userViews = $this->getDoctrine()->getRepository(CompanyView::class)->getLastCompanyView($company->getId(), $user->getId());
-        if(sizeof($userViews) == 0) {
+        if (sizeof($userViews) == 0) {
             $entityManager = $this->getDoctrine()->getManager();
-            $view = new CompanyView();
+            $view          = new CompanyView();
             $view->setCompany($company);
             $view->setUser($user);
-            $view->setCreatedAt( new DateTime() );
+            $view->setCreatedAt(new DateTime());
             $entityManager->persist($view);
             $entityManager->flush();
         } else {
             $dt = new DateTime();
-            if($userViews[0]->getCreatedAt() <= $dt->modify("-1 day")){
+            if ($userViews[0]->getCreatedAt() <= $dt->modify("-1 day")) {
                 $entityManager = $this->getDoctrine()->getManager();
-                $view = new CompanyView();
+                $view          = new CompanyView();
                 $view->setCompany($company);
                 $view->setUser($user);
-                $view->setCreatedAt( new DateTime() );
+                $view->setCreatedAt(new DateTime());
                 $entityManager->persist($view);
                 $entityManager->flush();
             }
@@ -415,10 +432,10 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/view.html.twig', [
-                                        'user'              => $user,
-                                        'company'           => $company,
-                                        'professionalUsers' => $professional_users,
-                                    ]
+                'user' => $user,
+                'company' => $company,
+                'professionalUsers' => $professional_users,
+            ]
         );
     }
 
@@ -482,8 +499,8 @@ class CompanyController extends AbstractController
         $user = $this->getUser();
         $form = $this->createForm(
             CompanyInviteFormType::class, null, [
-                                            'method' => 'POST',
-                                        ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -522,9 +539,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/invite.html.twig', [
-                                          'form' => $form->createView(),
-                                          'user' => $user,
-                                      ]
+                'form' => $form->createView(),
+                'user' => $user,
+            ]
         );
     }
 
@@ -549,10 +566,10 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/professionals.html.twig', [
-                                                 'user'          => $user,
-                                                 'company'       => $company,
-                                                 'professionals' => $professionals,
-                                             ]
+                'user' => $user,
+                'company' => $company,
+                'professionals' => $professionals,
+            ]
         );
     }
 
@@ -635,8 +652,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -682,8 +699,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -754,10 +771,10 @@ class CompanyController extends AbstractController
 
         return new JsonResponse(
             [
-                'success'     => true,
-                'url'         => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::COMPANY_RESOURCE . '/' . $newFilename : $companyResource->getLinkToWebsite(),
-                'id'          => $companyResource->getId(),
-                'title'       => $title,
+                'success' => true,
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::COMPANY_RESOURCE . '/' . $newFilename : $companyResource->getLinkToWebsite(),
+                'id' => $companyResource->getId(),
+                'title' => $title,
                 'description' => $description,
 
             ], Response::HTTP_OK
@@ -779,10 +796,10 @@ class CompanyController extends AbstractController
         if ($companyResource->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $companyResource->getFileName(),
-                    'id'          => $companyResource->getId(),
-                    'title'       => $companyResource->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $companyResource->getFileName(),
+                    'id' => $companyResource->getId(),
+                    'title' => $companyResource->getTitle(),
                     'description' => $companyResource->getDescription(),
 
                 ], Response::HTTP_OK
@@ -790,10 +807,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $companyResource->getLinkToWebsite(),
-                    'id'          => $companyResource->getId(),
-                    'title'       => $companyResource->getTitle(),
+                    'success' => true,
+                    'website' => $companyResource->getLinkToWebsite(),
+                    'id' => $companyResource->getId(),
+                    'title' => $companyResource->getTitle(),
                     'description' => $companyResource->getDescription(),
 
                 ], Response::HTTP_OK
@@ -852,10 +869,10 @@ class CompanyController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -863,10 +880,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -942,8 +959,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $video->getId(),
-                    'name'    => $name,
+                    'id' => $video->getId(),
+                    'name' => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -990,8 +1007,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $video->getId(),
-                    'name'    => $name,
+                    'id' => $video->getId(),
+                    'name' => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -1089,8 +1106,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::COMPANY_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::COMPANY_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -1148,8 +1165,8 @@ class CompanyController extends AbstractController
         $user = $this->getUser();
 
         $options = [
-            'method'          => 'POST',
-            'company'         => $company,
+            'method' => 'POST',
+            'company' => $company,
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
@@ -1203,11 +1220,11 @@ class CompanyController extends AbstractController
         if ($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
-                    'success'    => false,
+                    'success' => false,
                     'formMarkup' => $this->renderView(
                         'api/form/secondary_industry_form_field.html.twig', [
-                                                                              'form' => $form->createView(),
-                                                                          ]
+                            'form' => $form->createView(),
+                        ]
                     ),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -1215,11 +1232,11 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/edit.html.twig', [
-                                        'company'      => $company,
-                                        'form'         => $form->createView(),
-                                        'user'         => $user,
-                                        'companyVideo' => $companyVideo,
-                                    ]
+                'company' => $company,
+                'form' => $form->createView(),
+                'user' => $user,
+                'companyVideo' => $companyVideo,
+            ]
         );
     }
 
@@ -1273,9 +1290,9 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             NewCompanyExperienceType::class, $experience, [
-                                               'method'  => 'POST',
-                                               'company' => $company,
-                                           ]
+                'method' => 'POST',
+                'company' => $company,
+            ]
         );
 
         $form->handleRequest($request);
@@ -1384,20 +1401,20 @@ class CompanyController extends AbstractController
 
             return $this->render(
                 'company/new_experience.html.twig', [
-                                                      'company'             => $company,
-                                                      'form'                => $form->createView(),
-                                                      'user'                => $user,
-                                                      'secondaryIndustries' => $secondaryIndustries,
-                                                  ]
+                    'company' => $company,
+                    'form' => $form->createView(),
+                    'user' => $user,
+                    'secondaryIndustries' => $secondaryIndustries,
+                ]
             );
         } else {
             return $this->render(
                 'company/new_experience.html.twig', [
-                                                      'company'             => $company,
-                                                      'form'                => $form->createView(),
-                                                      'user'                => $user,
-                                                      'secondaryIndustries' => null,
-                                                  ]
+                    'company' => $company,
+                    'form' => $form->createView(),
+                    'user' => $user,
+                    'secondaryIndustries' => null,
+                ]
             );
         }
     }
@@ -1420,9 +1437,9 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             EditCompanyExperienceType::class, $experience, [
-                                                'method'  => 'POST',
-                                                'company' => $company,
-                                            ]
+                'method' => 'POST',
+                'company' => $company,
+            ]
         );
 
         $form->handleRequest($request);
@@ -1501,11 +1518,11 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/edit_experience.html.twig', [
-                                                   'company'    => $company,
-                                                   'form'       => $form->createView(),
-                                                   'user'       => $user,
-                                                   'experience' => $experience,
-                                               ]
+                'company' => $company,
+                'form' => $form->createView(),
+                'user' => $user,
+                'experience' => $experience,
+            ]
         );
     }
 
@@ -1525,9 +1542,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/view_experience.html.twig', [
-                                                   'user'       => $user,
-                                                   'experience' => $experience,
-                                               ]
+                'user' => $user,
+                'experience' => $experience,
+            ]
         );
     }
 
@@ -1595,11 +1612,11 @@ class CompanyController extends AbstractController
             // AJAX request
             return new JsonResponse(
                 [
-                    "status"      => "success",
+                    "status" => "success",
                     "educator_id" => $educatorToRegister->getId(),
-                    'id'          => $experience->getId(),
-                    "approval"    => $experience->getRequireApproval(),
-                    "request_id"  => $registerRequest->getId(),
+                    'id' => $experience->getId(),
+                    "approval" => $experience->getRequireApproval(),
+                    "request_id" => $registerRequest->getId(),
                 ]
             );
         } else {
@@ -1643,9 +1660,9 @@ class CompanyController extends AbstractController
             // AJAX request
             return new JsonResponse(
                 [
-                    "status"      => "success",
+                    "status" => "success",
                     "educator_id" => $educatorIdToDeregister,
-                    'id'          => $experience->getId(),
+                    'id' => $experience->getId(),
                 ]
             );
         } else {
@@ -1700,11 +1717,11 @@ class CompanyController extends AbstractController
             // AJAX request
             return new JsonResponse(
                 [
-                    "status"          => "success",
+                    "status" => "success",
                     "school_admin_id" => $schoolAdminToRegister->getId(),
-                    'id'              => $experience->getId(),
-                    "approval"        => $experience->getRequireApproval(),
-                    "request_id"      => $registerRequest->getId(),
+                    'id' => $experience->getId(),
+                    "approval" => $experience->getRequireApproval(),
+                    "request_id" => $registerRequest->getId(),
                 ]
             );
         } else {
@@ -1748,9 +1765,9 @@ class CompanyController extends AbstractController
             // AJAX request
             return new JsonResponse(
                 [
-                    "status"          => "success",
+                    "status" => "success",
                     "school_admin_id" => $schoolAdminIdToDeregister,
-                    'id'              => $experience->getId(),
+                    'id' => $experience->getId(),
                 ]
             );
         } else {
@@ -1782,10 +1799,10 @@ class CompanyController extends AbstractController
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(
                     [
-                        "status"     => "failure",
-                        "message"    => 'Could not register students. 0 spots left.',
+                        "status" => "failure",
+                        "message" => 'Could not register students. 0 spots left.',
                         "student_id" => $studentIdToRegister,
-                        'id'         => $experience->getId(),
+                        'id' => $experience->getId(),
                     ]
                 );
             } else {
@@ -1828,10 +1845,10 @@ class CompanyController extends AbstractController
             // AJAX request
             return new JsonResponse(
                 [
-                    "status"     => "success",
+                    "status" => "success",
                     "student_id" => $studentIdToRegister,
-                    'id'         => $experience->getId(),
-                    "approval"   => $experience->getRequireApproval(),
+                    'id' => $experience->getId(),
+                    "approval" => $experience->getRequireApproval(),
                     "request_id" => $registerRequest->getId(),
                 ]
             );
@@ -1896,9 +1913,9 @@ class CompanyController extends AbstractController
             // AJAX request
             return new JsonResponse(
                 [
-                    "status"     => "success",
+                    "status" => "success",
                     "student_id" => $studentIdToDeregister,
-                    'id'         => $experience->getId(),
+                    'id' => $experience->getId(),
                 ]
             );
         } else {
@@ -1984,10 +2001,10 @@ class CompanyController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $newFilename,
-                    'id'          => $file->getId(),
-                    'title'       => $title,
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
                     'description' => $description,
 
                 ], Response::HTTP_OK
@@ -2010,10 +2027,10 @@ class CompanyController extends AbstractController
 
                 return new JsonResponse(
                     [
-                        'success'     => true,
-                        'url'         => $linkToWebsite,
-                        'id'          => $file->getId(),
-                        'title'       => $title,
+                        'success' => true,
+                        'url' => $linkToWebsite,
+                        'id' => $file->getId(),
+                        'title' => $title,
                         'description' => $description,
 
                     ], Response::HTTP_OK
@@ -2045,10 +2062,10 @@ class CompanyController extends AbstractController
         if ($file->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2056,10 +2073,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2119,10 +2136,10 @@ class CompanyController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2130,10 +2147,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2281,9 +2298,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/manage.html.twig', [
-                                          'companies' => $companies,
-                                          'user'      => $user,
-                                      ]
+                'companies' => $companies,
+                'user' => $user,
+            ]
         );
     }
 
@@ -2331,32 +2348,33 @@ class CompanyController extends AbstractController
      */
     public function pageVisitsAction(Request $request, Company $company)
     {
-        $visits_7            = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(7, $company->getId());
-        $visits_30           = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(30, $company->getId());
-        $visits_90           = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(90, $company->getId());
-        $visits_365          = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(365, $company->getId());
-        $user                = $this->getUser();
+        $visits_7   = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(7, $company->getId());
+        $visits_30  = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(30, $company->getId());
+        $visits_90  = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(90, $company->getId());
+        $visits_365 = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(365, $company->getId());
+        $user       = $this->getUser();
 
         return $this->render(
             'company/page_visits.html.twig', [
-                                        'company'           => $company,
-                                        'user'              => $user,
-                                        'visits_7'          => $visits_7,
-                                        'visits_30'         => $visits_30,
-                                        'visits_90'         => $visits_90,
-                                        'visits_365'        => $visits_365
-                                    ]
+                'company' => $company,
+                'user' => $user,
+                'visits_7' => $visits_7,
+                'visits_30' => $visits_30,
+                'visits_90' => $visits_90,
+                'visits_365' => $visits_365,
+            ]
         );
     }
 
     /**
      * @Route("/companies/experiences/{id}/toggle-feedback-view", name="toggle_company_feedback_view", options = { "expose" = true })
-     * @param Request $request
+     * @param Request           $request
      * @param CompanyExperience $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function toggleCanViewFeedback(Request $request, CompanyExperience $experience) {
+    public function toggleCanViewFeedback(Request $request, CompanyExperience $experience)
+    {
 
         $experience->setCanViewFeedback($request->request->get('val'));
         $this->entityManager->persist($experience);

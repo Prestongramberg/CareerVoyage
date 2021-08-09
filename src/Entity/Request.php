@@ -17,8 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({
  *     "request" = "Request",
- *     "newCompanyRequest" = "NewCompanyRequest",
- *     "joinCompanyRequest" = "JoinCompanyRequest",
  *     "teachLessonRequest" = "TeachLessonRequest",
  *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
  *     "educatorRegisterEducatorForCompanyExperienceRequest" = "EducatorRegisterEducatorForCompanyExperienceRequest",
@@ -38,7 +36,8 @@ class Request
     const OPPORTUNITY_TYPE_VIRTUAL_OR_IN_PERSON = 'VIRTUAL_OR_IN_PERSON';
     const OPPORTUNITY_TYPE_TO_BE_DETERMINED     = 'TO_BE_DETERMINED';
 
-    const REQUEST_TYPE_JOB_BOARD = 'JOB_BOARD';
+    const REQUEST_TYPE_JOB_BOARD   = 'JOB_BOARD';
+    const REQUEST_TYPE_NEW_COMPANY = 'NEW_COMPANY';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -183,12 +182,43 @@ class Request
      */
     private $requestType;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $actionUrl;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $needsApprovalByRoles = [];
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Company::class, inversedBy="requests")
+     */
+    private $company;
+
+    /**
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request")
+     */
+    private $requestActions;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $possibleActions = [];
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $content = [];
+
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
         $this->volunteerRoles           = new ArrayCollection();
         $this->primaryIndustries        = new ArrayCollection();
         $this->shares                   = new ArrayCollection();
+        $this->requestActions           = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -512,12 +542,183 @@ class Request
         return $this;
     }
 
-    public function getOpportunityTypeFriendlyName($opportunityType) {
+    public function getOpportunityTypeFriendlyName($opportunityType)
+    {
 
-        if(($key = array_search($opportunityType, self::$opportunityTypes, true)) !== false) {
+        if (($key = array_search($opportunityType, self::$opportunityTypes, true)) !== false) {
             return $key;
         }
 
         return $opportunityType;
+    }
+
+    public function getActionUrl(): ?string
+    {
+        return $this->actionUrl;
+    }
+
+    public function setActionUrl(?string $actionUrl): self
+    {
+        $this->actionUrl = $actionUrl;
+
+        return $this;
+    }
+
+    public function getNeedsApprovalByRoles(): ?array
+    {
+        return $this->needsApprovalByRoles;
+    }
+
+    public function setNeedsApprovalByRoles(?array $needsApprovalByRoles): self
+    {
+        $this->needsApprovalByRoles = $needsApprovalByRoles;
+
+        return $this;
+    }
+
+    /**
+     * @param $needsApprovalByRole
+     *
+     * @return $this
+     */
+    public function addNeedsApprovalByRole($needsApprovalByRole)
+    {
+
+        if (!in_array($needsApprovalByRole, $this->needsApprovalByRoles, true)) {
+            $this->needsApprovalByRoles[] = $needsApprovalByRole;
+        }
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?Company $company): self
+    {
+        $this->company = $company;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RequestAction[]
+     */
+    public function getRequestActions(): Collection
+    {
+        return $this->requestActions;
+    }
+
+    public function addRequestAction(RequestAction $requestAction): self
+    {
+        if (!$this->requestActions->contains($requestAction)) {
+            $this->requestActions[] = $requestAction;
+            $requestAction->setRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestAction(RequestAction $requestAction): self
+    {
+        if ($this->requestActions->removeElement($requestAction)) {
+            // set the owning side to null (unless already changed)
+            if ($requestAction->getRequest() === $this) {
+                $requestAction->setRequest(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isApproved()
+    {
+
+        foreach ($this->getRequestActions() as $requestAction) {
+            if ($requestAction->getName() === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isDenied()
+    {
+
+        foreach ($this->getRequestActions() as $requestAction) {
+            if ($requestAction->getName() === RequestAction::REQUEST_ACTION_NAME_DENY) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isHidden()
+    {
+
+        foreach ($this->getRequestActions() as $requestAction) {
+            if ($requestAction->getName() === RequestAction::REQUEST_ACTION_NAME_HIDE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getPossibleActions(): ?array
+    {
+        return $this->possibleActions;
+    }
+
+    public function setPossibleActions(?array $possibleActions): self
+    {
+        $this->possibleActions = $possibleActions;
+
+        return $this;
+    }
+
+    public function addPossibleAction($actions)
+    {
+        $actions = is_array($actions) ? $actions : [$actions];
+
+        foreach($actions as $action) {
+            if (!in_array($action, $this->possibleActions, true)) {
+                $this->possibleActions[] = $action;
+            }
+        }
+
+
+        return $this;
+    }
+
+    public function getPossibleActionCssClass($action) {
+
+        switch ($action) {
+            case RequestAction::REQUEST_ACTION_NAME_APPROVE:
+                return 'uk-button-primary';
+                break;
+            case RequestAction::REQUEST_ACTION_NAME_DENY:
+                return 'uk-button-danger';
+                break;
+            default:
+                return 'uk-button-default';
+                break;
+        }
+    }
+
+    public function getContent(): ?array
+    {
+        return $this->content;
+    }
+
+    public function setContent(?array $content): self
+    {
+        $this->content = $content;
+
+        return $this;
     }
 }

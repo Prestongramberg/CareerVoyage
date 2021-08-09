@@ -329,6 +329,11 @@ abstract class User implements UserInterface
      */
     private $userMetas;
 
+    /**
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user")
+     */
+    private $requestActions;
+
 
     /**
      * @ORM\PrePersist
@@ -355,6 +360,7 @@ abstract class User implements UserInterface
         $this->companyViews                            = new ArrayCollection();
         $this->reportShares                            = new ArrayCollection();
         $this->userMetas = new ArrayCollection();
+        $this->requestActions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1696,6 +1702,36 @@ abstract class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($userMeta->getUser() === $this) {
                 $userMeta->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RequestAction[]
+     */
+    public function getRequestActions(): Collection
+    {
+        return $this->requestActions;
+    }
+
+    public function addRequestAction(RequestAction $requestAction): self
+    {
+        if (!$this->requestActions->contains($requestAction)) {
+            $this->requestActions[] = $requestAction;
+            $requestAction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestAction(RequestAction $requestAction): self
+    {
+        if ($this->requestActions->removeElement($requestAction)) {
+            // set the owning side to null (unless already changed)
+            if ($requestAction->getUser() === $this) {
+                $requestAction->setUser(null);
             }
         }
 

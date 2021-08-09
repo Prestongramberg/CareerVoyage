@@ -49,21 +49,38 @@ class RequestRepository extends ServiceEntityRepository
     }
     */
 
-    public function getRequestsThatNeedMyApproval(User $user) {
-        return $this->createQueryBuilder('r')
-            ->leftJoin('r.requestPossibleApprovers', 'rpa')
-            ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
-            ->andWhere('r.denied = :denied')
-            ->andWhere('r.approved = :approved')
-            ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode')
-            ->setParameter('possibleApprover', $user)
-            ->setParameter('needsApprovalBy', $user)
-            ->setParameter('denied', false)
-            ->setParameter('approved', false)
-            ->setParameter('allowApprovalByActivationCode', false)
-            ->orderBy('r.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+    public function getRequestsThatNeedMyApproval(User $user)
+    {
+        $queryBuilder = $this->createQueryBuilder('r')
+                             ->leftJoin('r.requestPossibleApprovers', 'rpa')
+                             ->andWhere('r.denied = :denied')
+                             ->andWhere('r.approved = :approved')
+                             ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode');
+
+
+        foreach ($user->getRoles() as $role) {
+            $queryParts[] = sprintf("r.needsApprovalByRoles LIKE :%s", $role);
+        }
+
+        $queryString = implode(" OR ", $queryParts);
+
+        $queryString .= ' OR r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover';
+
+        $queryBuilder->andWhere($queryString);
+
+        foreach ($user->getRoles() as $role) {
+            $queryBuilder->setParameter($role, '%' . $role . '%');
+        }
+
+        $queryBuilder->setParameter('possibleApprover', $user)
+                     ->setParameter('needsApprovalBy', $user)
+                     ->setParameter('denied', false)
+                     ->setParameter('approved', false)
+                     ->setParameter('allowApprovalByActivationCode', false)
+                     ->orderBy('r.createdAt', 'DESC');
+
+        return $queryBuilder->getQuery()
+                            ->getResult();
     }
 
 
@@ -71,136 +88,143 @@ class RequestRepository extends ServiceEntityRepository
     // //////////////////////////////////////////////////
 
     // Students
-        public function getUnreadMyRequestsStudent($user) {
-            return $this->createQueryBuilder('r')
-                ->where('r.created_by = :user')
-                ->andWhere('r.studentHasSeen = :false')
-                ->setParameter('user', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadMyRequestsStudent($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->where('r.created_by = :user')
+                    ->andWhere('r.studentHasSeen = :false')
+                    ->setParameter('user', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
-        public function getUnreadErsfceStudent($user) {
-            return $this->createQueryBuilder('r')
-                ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                ->andWhere('e.studentUser = :user')
-                ->andWhere('r.studentHasSeen = :false')
-                ->setParameter('user', $user)
-                ->setParameter('false', false)
-                ->groupBy('e.id')
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadErsfceStudent($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.studentUser = :user')
+                    ->andWhere('r.studentHasSeen = :false')
+                    ->setParameter('user', $user)
+                    ->setParameter('false', false)
+                    ->groupBy('e.id')
+                    ->getQuery()
+                    ->getResult();
+    }
 
-        public function getUnreadApprovalsByMeStudent($user) {
-            return $this->createQueryBuilder('r')
-                ->andWhere('r.needsApprovalBy = :user')
-                ->andWhere('r.studentHasSeen = :false')
-                ->setParameter('user', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadApprovalsByMeStudent($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->andWhere('r.needsApprovalBy = :user')
+                    ->andWhere('r.studentHasSeen = :false')
+                    ->setParameter('user', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
-        public function getUndreadSchoolExperiencesStudent($user) {
-            return $this->createQueryBuilder('r')
-            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                ->andWhere('e.user = :user')    
-                ->andWhere('r.studentHasSeen = :false')
-                ->setParameter('user', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUndreadSchoolExperiencesStudent($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.user = :user')
+                    ->andWhere('r.studentHasSeen = :false')
+                    ->setParameter('user', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
     // Educators
-        public function getUnreadMyRequestsEducator($user) {
-            return $this->createQueryBuilder('r')
-                ->where('r.created_by = :user')
-                ->andWhere('r.educatorHasSeen = :false')
-                ->setParameter('user', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadMyRequestsEducator($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->where('r.created_by = :user')
+                    ->andWhere('r.educatorHasSeen = :false')
+                    ->setParameter('user', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
-        public function getUnreadApprovalsByMeEducator($user) {
-            return $this->createQueryBuilder('r')
-                ->leftJoin('r.requestPossibleApprovers', 'rpa')
-                ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
-                ->andWhere('r.educatorHasSeen = :false')
-                ->setParameter('needsApprovalBy', $user)
-                ->setParameter('possibleApprover', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadApprovalsByMeEducator($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->leftJoin('r.requestPossibleApprovers', 'rpa')
+                    ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+                    ->andWhere('r.educatorHasSeen = :false')
+                    ->setParameter('needsApprovalBy', $user)
+                    ->setParameter('possibleApprover', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
 
     // Professionals
-        public function getUnreadMyRequestsProfessional($user) {
-            return $this->createQueryBuilder('r')
-                ->where('r.created_by = :user')
-                ->andWhere('r.professionalHasSeen = :false')
-                ->setParameter('user', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadMyRequestsProfessional($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->where('r.created_by = :user')
+                    ->andWhere('r.professionalHasSeen = :false')
+                    ->setParameter('user', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
-        public function getUnreadApprovalsByMeProfessional($user) {
-            return $this->createQueryBuilder('r')
-                ->leftJoin('r.requestPossibleApprovers', 'rpa')
-                ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
-                ->andWhere('r.professionalHasSeen = :false')
-                ->setParameter('needsApprovalBy', $user)
-                ->setParameter('possibleApprover', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
+    public function getUnreadApprovalsByMeProfessional($user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->leftJoin('r.requestPossibleApprovers', 'rpa')
+                    ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+                    ->andWhere('r.professionalHasSeen = :false')
+                    ->setParameter('needsApprovalBy', $user)
+                    ->setParameter('possibleApprover', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
 
 
     // School Admin
-        public function getUnreadApprovalsByMeSchoolAdmin($user) {
-            return $this->createQueryBuilder('r')
-                ->leftJoin('r.requestPossibleApprovers', 'rpa')
-                ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
-                ->andWhere('r.schoolAdminHasSeen = :false')
-                ->setParameter('needsApprovalBy', $user)
-                ->setParameter('possibleApprover', $user)
-                ->setParameter('false', false)
-                ->getQuery()
-                ->getResult();
-        }
-
-        // $deniedByMeRequests = $this->requestRepository->findBy([
-        //     'needsApprovalBy' => $user,
-        //     'denied' => true,
-        // ], ['createdAt' => 'DESC']);
-
-        // $approvedByMeRequests = $this->requestRepository->findBy([
-        //     'needsApprovalBy' => $user,
-        //     'approved' => true,
-        // ], ['createdAt' => 'DESC']);
-
-
-
-
-
-    public function getAllMyApprovedRequests(User $user) {
+    public function getUnreadApprovalsByMeSchoolAdmin($user)
+    {
         return $this->createQueryBuilder('r')
-            ->leftJoin('r.requestPossibleApprovers', 'rpa')
-            ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
-            ->andWhere('r.denied = :denied')
-            ->andWhere('r.approved = :approved')
-            ->setParameter('possibleApprover', $user)
-            ->setParameter('needsApprovalBy', $user)
-            ->setParameter('denied', false)
-            ->setParameter('approved', true)
-            ->orderBy('r.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+                    ->leftJoin('r.requestPossibleApprovers', 'rpa')
+                    ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+                    ->andWhere('r.schoolAdminHasSeen = :false')
+                    ->setParameter('needsApprovalBy', $user)
+                    ->setParameter('possibleApprover', $user)
+                    ->setParameter('false', false)
+                    ->getQuery()
+                    ->getResult();
+    }
+
+    // $deniedByMeRequests = $this->requestRepository->findBy([
+    //     'needsApprovalBy' => $user,
+    //     'denied' => true,
+    // ], ['createdAt' => 'DESC']);
+
+    // $approvedByMeRequests = $this->requestRepository->findBy([
+    //     'needsApprovalBy' => $user,
+    //     'approved' => true,
+    // ], ['createdAt' => 'DESC']);
+
+
+    public function getAllMyApprovedRequests(User $user)
+    {
+        return $this->createQueryBuilder('r')
+                    ->leftJoin('r.requestPossibleApprovers', 'rpa')
+                    ->andWhere('r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover')
+                    ->andWhere('r.denied = :denied')
+                    ->andWhere('r.approved = :approved')
+                    ->setParameter('possibleApprover', $user)
+                    ->setParameter('needsApprovalBy', $user)
+                    ->setParameter('denied', false)
+                    ->setParameter('approved', true)
+                    ->orderBy('r.createdAt', 'DESC')
+                    ->getQuery()
+                    ->getResult();
     }
 }

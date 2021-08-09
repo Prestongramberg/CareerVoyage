@@ -1,5 +1,5 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName} %}
 
-<p>Your company <strong>{{ request.company.name }}</strong> is awaiting approval! Once approved it will be visible on the site!</p>
+<p>Your company <strong>{{ company.name }}</strong> is awaiting approval! Once approved it will be visible on the site!</p>
 
 {% include 'email/partial/emailFooter.html.twig' %}
