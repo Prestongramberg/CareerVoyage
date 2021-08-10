@@ -210,7 +210,7 @@ class Request
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private $content = [];
+    private $notification = [];
 
     public function __construct()
     {
@@ -710,14 +710,14 @@ class Request
         }
     }
 
-    public function getContent(): ?array
+    public function getNotification(): ?array
     {
-        return $this->content;
+        return $this->notification;
     }
 
-    public function setContent(?array $content): self
+    public function setNotification(?array $notification): self
     {
-        $this->content = $content;
+        $this->notification = $notification;
 
         return $this;
     }

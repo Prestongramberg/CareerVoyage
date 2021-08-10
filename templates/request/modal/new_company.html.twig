@@ -1,0 +1,46 @@
+{% set notification = request.notification %}
+{% set title = notification['title'] %}
+{% set body = notification['body'] %}
+{% set createdOn = notification['created_on'] %}
+{% set userPhoto = notification['user_photo'] %}
+
+<h4>{{ title|raw }}</h4>
+
+<table class="uk-table uk-table-small uk-table-divider">
+    <tbody>
+
+    {% for key, array in body|sort((a, b) => a['order'] <=> b['order']) %}
+        {% set value = array['value'] %}
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ value|raw }}</td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td>Status</td>
+        <td>
+
+            {% for requestAction in request.requestActions %}
+                <span class="uk-label {{ requestAction.labelCssClass }}">
+                    {{ requestAction.friendlyName() }}
+                </span>
+            {% else %}
+                <span class="uk-label uk-label-warning">
+                Pending
+            </span>
+            {% endfor %}
+        </td>
+    </tr>
+
+    </tbody>
+</table>
+
+
+<p class="uk-text-right">
+    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+    {% for possibleRequestAction in request.possibleActions %}
+        {# TODO WILL NEED TO CHANGE THIS TO A POST REQUEST MAYBE??? #}
+        <a class="uk-button {{ request.getPossibleActionCssClass(possibleRequestAction) }}"
+           href="{{ request.actionUrl }}&action={{ possibleRequestAction }}&_method=post">{{ possibleRequestAction }}</a>
+    {% endfor %}
+</p>

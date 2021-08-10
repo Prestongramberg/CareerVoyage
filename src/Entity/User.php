@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -1736,5 +1737,24 @@ abstract class User implements UserInterface
         }
 
         return $this;
+    }
+
+    public function setAvatarProfilePhotoIfNeeded($uploadsPath) {
+
+        if (!$this->getPhoto() && $this->getFirstName() && $this->getLastName()) {
+
+            $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $user->getFirstName(), $user->getLastName());
+            $fileContents = file_get_contents($avatarUrl);
+
+            $filesystem  = new Filesystem();
+            $destination = $uploadsPath . '/' . UploaderHelper::PROFILE_PHOTO;
+            $fileName = uniqid('', true) . '.png';
+            $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
+            $user->setPhoto($fileName);
+
+            return true;
+        }
+
+        return false;
     }
 }

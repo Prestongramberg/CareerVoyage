@@ -5,10 +5,9 @@ namespace App\Controller;
 use App\Entity\AllowedCommunication;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\RequestAction;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
-use App\Entity\JoinCompanyRequest;
-use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\Registration;
 use App\Entity\School;
@@ -64,95 +63,100 @@ class RequestController extends AbstractController
 
         $requestsByType = [];
 
+
+        // todo should we change this endpoint to be more of a search-requests endpoint?
+        //  then you can pass up ?student-requests=true, ?pending-requests=true and the various filters for each tab?
+        //  also you are probably going to need to do a refresh on each tab and make it so it's a page reload.
+        //  look at the resources page for how I did this. I'm pretty sure I did it here with the
+        //  different videos, etc and tabs at the top of the page
+
+
         $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
 
 
-
-
         // TODO SECOND DRAFT
-/*        $myCreatedRequests = $this->requestRepository->findBy([
-            'created_by' => $user,
-            'denied' => false,
-            'approved' => false,
-            'allowApprovalByActivationCode' => false,
-        ], ['createdAt' => 'DESC']);
+        /*        $myCreatedRequests = $this->requestRepository->findBy([
+                    'created_by' => $user,
+                    'denied' => false,
+                    'approved' => false,
+                    'allowApprovalByActivationCode' => false,
+                ], ['createdAt' => 'DESC']);
 
-        $deniedByMeRequests = $this->requestRepository->findBy([
-            'needsApprovalBy' => $user,
-            'denied' => true,
-        ], ['createdAt' => 'DESC']);
+                $deniedByMeRequests = $this->requestRepository->findBy([
+                    'needsApprovalBy' => $user,
+                    'denied' => true,
+                ], ['createdAt' => 'DESC']);
 
-        $approvedByMeRequests = $this->requestRepository->findBy([
-            'needsApprovalBy' => $user,
-            'approved' => true,
-        ], ['createdAt' => 'DESC']);
+                $approvedByMeRequests = $this->requestRepository->findBy([
+                    'needsApprovalBy' => $user,
+                    'approved' => true,
+                ], ['createdAt' => 'DESC']);
 
-        $myDeniedAccessRequests = $this->requestRepository->findBy([
-            'created_by' => $user,
-            'denied' => true,
-        ], ['createdAt' => 'DESC']);
+                $myDeniedAccessRequests = $this->requestRepository->findBy([
+                    'created_by' => $user,
+                    'denied' => true,
+                ], ['createdAt' => 'DESC']);
 
-        $myApprovedAccessRequests = $this->requestRepository->findBy([
-            'created_by' => $user,
-            'approved' => true,
-        ], ['createdAt' => 'DESC']);
-
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.studentUser = :user')
-            ->andWhere('r.approved = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
-
-        $studentRegisterApproval = $qb->getQuery()->getResult();
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.studentUser = :user')
-            ->andWhere('r.denied = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
-
-        $studentRegisterDenial = $qb->getQuery()->getResult();
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.user = :user')
-            ->andWhere('r.approved = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
-
-        $userRegisterSchoolApproval = $qb->getQuery()->getResult();
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.user = :user')
-            ->andWhere('r.denied = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
-
-        $userRegisterSchoolDenial = $qb->getQuery()->getResult();
+                $myApprovedAccessRequests = $this->requestRepository->findBy([
+                    'created_by' => $user,
+                    'approved' => true,
+                ], ['createdAt' => 'DESC']);
 
 
-        */
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.studentUser = :user')
+                    ->andWhere('r.approved = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
 
+                $studentRegisterApproval = $qb->getQuery()->getResult();
+
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.studentUser = :user')
+                    ->andWhere('r.denied = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
+
+                $studentRegisterDenial = $qb->getQuery()->getResult();
+
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.user = :user')
+                    ->andWhere('r.approved = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
+
+                $userRegisterSchoolApproval = $qb->getQuery()->getResult();
+
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.user = :user')
+                    ->andWhere('r.denied = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
+
+                $userRegisterSchoolDenial = $qb->getQuery()->getResult();
+
+
+                */
 
 
         // TODO FIRST DRAFT
@@ -271,14 +275,87 @@ class RequestController extends AbstractController
      *
      * @return Response
      */
-    public function requestAction(Request $httpRequest) {
+    public function requestAction(Request $httpRequest)
+    {
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
+        $requestId = $httpRequest->query->get('request_id');
+        $request   = $this->requestRepository->find($requestId);
 
+        if (!$request) {
+            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+        }
 
-        return new Response("new request action endpoint");
+        // todo if it's a get request and it's ajax return the modal
+        // todo if it's a get request and it's not ajax return a normal page?
 
+        switch ($request->getRequestType()) {
+            case \App\Entity\Request::REQUEST_TYPE_NEW_COMPANY:
 
+                $companyId = $httpRequest->query->get('company_id');
+                $company   = $this->companyRepository->find($companyId);
+                $template  = 'request/modal/new_company.html.twig';
+                $context   = [
+                    'request' => $request,
+                    'company' => $company,
+                ];
 
+                break;
+            default:
+                $template = 'request/modal/default.html.twig';
+                $context  = [
+                    'request' => $request,
+                ];
+                break;
+        }
 
+        if ($httpRequest->getMethod() === 'POST') {
+
+            $action = $httpRequest->query->get('action');
+
+            switch ($action) {
+
+                case RequestAction::REQUEST_ACTION_NAME_APPROVE:
+
+                    // todo What happens on the request management page if you hit approve then
+                    //  deny then approve then deny. Which action do we stick with/show?
+                    //  should we delete any old request deny actions?
+
+                    $requestAction = new RequestAction();
+                    $requestAction->setUser($loggedInUser);
+                    $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                    $requestAction->setRequest($request);
+                    $this->entityManager->persist($requestAction);
+                    $this->entityManager->flush();
+
+                    // todo I should return a JSONResponse here or perform a redirect right?
+
+                    break;
+                case RequestAction::REQUEST_ACTION_NAME_DENY:
+
+                    // todo What happens on the request management page if you hit approve then
+                    //  deny then approve then deny. Which action do we stick with/show?
+                    //  should we delete any old request approve actions?
+
+                    $requestAction = new RequestAction();
+                    $requestAction->setUser($loggedInUser);
+                    $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                    $requestAction->setRequest($request);
+                    $this->entityManager->persist($requestAction);
+                    $this->entityManager->flush();
+
+                    break;
+                default:
+                    // TODO???
+                    break;
+            }
+        }
+
+        return new JsonResponse(
+            [
+                'formMarkup' => $this->renderView($template, $context),
+            ], Response::HTTP_OK
+        );
     }
 
     /**
@@ -796,13 +873,14 @@ class RequestController extends AbstractController
         $requestEntity->setRequestType(RequestEntity::REQUEST_TYPE_JOB_BOARD);
 
         $form = $this->createForm(CreateRequestFormType::class, $requestEntity, [
-            'skip_validation' => $request->request->get('skip_validation', false)
+            'skip_validation' => $request->request->get('skip_validation', false),
         ]);
 
         $form->handleRequest($request);
 
-        if($form->get('delete')->isClicked()) {
+        if ($form->get('delete')->isClicked()) {
             $this->addFlash('success', 'Your request has been deleted.');
+
             return $this->redirectToRoute('new_request');
         }
 
@@ -812,18 +890,20 @@ class RequestController extends AbstractController
             $requestEntity = $form->getData();
             $requestEntity->setCreatedBy($user);
 
-            if($form->get('postAndReview')->isClicked()) {
+            if ($form->get('postAndReview')->isClicked()) {
 
                 $requestEntity->setPublished(true);
                 $this->entityManager->persist($requestEntity);
                 $this->entityManager->flush();
+
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
 
-            if($form->get('saveAndPreview')->isClicked()) {
+            if ($form->get('saveAndPreview')->isClicked()) {
                 $requestEntity->setPublished(false);
                 $this->entityManager->persist($requestEntity);
                 $this->entityManager->flush();
+
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
 
@@ -833,7 +913,7 @@ class RequestController extends AbstractController
 
         return $this->render('request/new.html.twig', [
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -849,36 +929,38 @@ class RequestController extends AbstractController
     public function editRequest(RequestEntity $requestEntity, Request $request)
     {
         /** @var User $user */
-        $user = $this->getUser();
+        $user    = $this->getUser();
         $publish = $request->query->get('publish', null);
 
         $accessDenied = (
-          $requestEntity->getCreatedBy() &&
-          $requestEntity->getCreatedBy()->getId() !== $user->getId()
+            $requestEntity->getCreatedBy() &&
+            $requestEntity->getCreatedBy()->getId() !== $user->getId()
         );
 
-        if($accessDenied) {
+        if ($accessDenied) {
             throw new AccessDeniedException();
         }
 
-        if($publish) {
+        if ($publish) {
             $requestEntity->setPublished(true);
             $this->entityManager->persist($requestEntity);
             $this->entityManager->flush();
+
             return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
         }
 
         $form = $this->createForm(EditRequestFormType::class, $requestEntity, [
             'skip_validation' => $request->request->get('skip_validation', false),
-            'requestEntity' => $requestEntity
+            'requestEntity' => $requestEntity,
         ]);
 
         $form->handleRequest($request);
 
-        if($form->get('delete')->isClicked()) {
+        if ($form->get('delete')->isClicked()) {
             $this->entityManager->remove($requestEntity);
             $this->entityManager->flush();
             $this->addFlash('success', 'Your request has been deleted.');
+
             return $this->redirectToRoute('new_request');
         }
 
@@ -887,18 +969,20 @@ class RequestController extends AbstractController
             /** @var RequestEntity $requestEntity */
             $requestEntity = $form->getData();
 
-            if($form->get('postAndReview')->isClicked()) {
+            if ($form->get('postAndReview')->isClicked()) {
 
                 $requestEntity->setPublished(true);
                 $this->entityManager->persist($requestEntity);
                 $this->entityManager->flush();
+
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
 
-            if($form->get('saveAndPreview')->isClicked()) {
+            if ($form->get('saveAndPreview')->isClicked()) {
                 $requestEntity->setPublished(false);
                 $this->entityManager->persist($requestEntity);
                 $this->entityManager->flush();
+
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
 
@@ -908,7 +992,7 @@ class RequestController extends AbstractController
 
         return $this->render('request/edit.html.twig', [
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -926,7 +1010,7 @@ class RequestController extends AbstractController
 
         return $this->render('request/view.html.twig', [
             'user' => $user,
-            'request' => $requestEntity
+            'request' => $requestEntity,
         ]);
     }
 

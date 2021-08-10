@@ -11,6 +11,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
+ *
  * @ORM\Entity(repositoryClass=RequestActionRepository::class)
  */
 class RequestAction
@@ -83,5 +85,37 @@ class RequestAction
         $this->name = $name;
 
         return $this;
+    }
+
+    public function getFriendlyName() {
+
+        if($this->name === self::REQUEST_ACTION_NAME_APPROVE) {
+            return 'Approved';
+        }
+
+        if($this->name === self::REQUEST_ACTION_NAME_DENY) {
+            return 'Denied';
+        }
+
+        if($this->name === self::REQUEST_ACTION_NAME_HIDE) {
+            return 'Hidden';
+        }
+
+        return $this->name;
+    }
+
+    public function getLabelCssClass() {
+
+        switch ($this->name) {
+            case self::REQUEST_ACTION_NAME_APPROVE:
+                return 'uk-label-success';
+                break;
+            case self::REQUEST_ACTION_NAME_DENY:
+                return 'uk-label-danger';
+                break;
+            default:
+                return 'uk-label';
+                break;
+        }
     }
 }

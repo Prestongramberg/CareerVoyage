@@ -9,6 +9,7 @@ use App\Entity\Experience;
 use App\Entity\JoinCompanyRequest;
 use App\Entity\NewCompanyRequest;
 use App\Entity\Request;
+use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
@@ -68,22 +69,31 @@ class RequestsMailer extends AbstractMailer
             return false;
         }
 
-        /** @var User $possibleApprover */
+        /** @var RequestPossibleApprovers $possibleApprover */
         foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
 
-            if (!$possibleApprover->getEmail()) {
+            $recipient = $possibleApprover->getPossibleApprover();
+
+            $skipSendingEmail = (
+                !$recipient ||
+                !$possibleApprover->getPossibleApprover()->getEmail()
+            );
+
+            if($skipSendingEmail) {
                 continue;
             }
 
+            $recipient = $possibleApprover->getPossibleApprover();
+
             $message = (new \Swift_Message('New Company Needs Approval!'))
                 ->setFrom($this->siteFromEmail)
-                ->setTo($possibleApprover->getEmail())
+                ->setTo($recipient->getEmail())
                 ->setBody(
                     $this->templating->render(
                         'email/requests/newCompanyRequest.html.twig',
                         [
                             'request' => $request,
-                            'recipientFirstName' => $possibleApprover->getFirstName(),
+                            'recipientFirstName' => $recipient->getFirstName(),
                             'company' => $request->getCompany()
                         ]
                     ),
@@ -95,7 +105,7 @@ class RequestsMailer extends AbstractMailer
             $log = new EmailLog();
             $log->setFromEmail($this->siteFromEmail);
             $log->setSubject('New Company Needs Approval!');
-            $log->setToEmail($possibleApprover->getEmail());
+            $log->setToEmail($recipient->getEmail());
             $log->setStatus($status);
             $log->setBody($message->getBody());
 

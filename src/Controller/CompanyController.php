@@ -289,6 +289,7 @@ class CompanyController extends AbstractController
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function newAction(Request $request)
     {
@@ -335,10 +336,40 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setCreatedBy($user);
             $newCompanyRequest->addNeedsApprovalByRole(User::ROLE_ADMIN_USER);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
-            $newCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                                   RequestAction::REQUEST_ACTION_NAME_DENY,
-            ]);
+            $newCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_DENY, RequestAction::REQUEST_ACTION_NAME_APPROVE]);
             $newCompanyRequest->setCompany($company);
+            $newCompanyRequest->setNotification([
+                'title' => "<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}",
+                'user_photo' => $user->getPhotoPath(),
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => 'New Company',
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                    ],
+                    'Company Name' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
+                    ],
+                    'Website' => [
+                        'order' => 4,
+                        'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
+
+                    ],
+                    'Phone' => [
+                        'order' => 5,
+                        'value' => $company->getPhone(),
+                    ],
+                    'Created On' => [
+                        'order' => 6,
+                        'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                    ]
+                ]
+            ]);
 
             // todo can I remove this?
             $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
@@ -361,6 +392,7 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setActionUrl($requestActionUrl);
 
             $this->entityManager->flush();
+            $this->entityManager->refresh($newCompanyRequest);
 
             $this->requestsMailer->newCompanyRequest($newCompanyRequest);
             $this->requestsMailer->companyAwaitingApproval($newCompanyRequest);
