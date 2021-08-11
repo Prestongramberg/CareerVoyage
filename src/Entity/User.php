@@ -1743,14 +1743,14 @@ abstract class User implements UserInterface
 
         if (!$this->getPhoto() && $this->getFirstName() && $this->getLastName()) {
 
-            $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $user->getFirstName(), $user->getLastName());
+            $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $this->getFirstName(), $this->getLastName());
             $fileContents = file_get_contents($avatarUrl);
 
             $filesystem  = new Filesystem();
             $destination = $uploadsPath . '/' . UploaderHelper::PROFILE_PHOTO;
             $fileName = uniqid('', true) . '.png';
             $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
-            $user->setPhoto($fileName);
+            $this->setPhoto($fileName);
 
             return true;
         }

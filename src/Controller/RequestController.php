@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection NullPointerExceptionInspection */
 
 namespace App\Controller;
 
@@ -278,16 +278,22 @@ class RequestController extends AbstractController
     public function requestAction(Request $httpRequest)
     {
         /** @var User $loggedInUser */
-        $loggedInUser = $this->getUser();
-        $requestId = $httpRequest->query->get('request_id');
-        $request   = $this->requestRepository->find($requestId);
+        $loggedInUser         = $this->getUser();
+        $requestId            = $httpRequest->query->get('request_id');
+        $request              = $this->requestRepository->find($requestId);
+        $action               = $httpRequest->query->get('action', null);
+        $emailHandler         = function () {
+        };
+        $requestActionHandler = function () {
+        };
 
         if (!$request) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
         }
 
-        // todo if it's a get request and it's ajax return the modal
-        // todo if it's a get request and it's not ajax return a normal page?
+        $requestAction = new RequestAction();
+        $requestAction->setUser($loggedInUser);
+        $requestAction->setRequest($request);
 
         switch ($request->getRequestType()) {
             case \App\Entity\Request::REQUEST_TYPE_NEW_COMPANY:
@@ -300,6 +306,158 @@ class RequestController extends AbstractController
                     'company' => $company,
                 ];
 
+                $emailHandler = function () use ($request, $company) {
+                    $this->requestsMailer->newCompanyRequestApproval($request, $company);
+                };
+
+                $requestActionHandler = function () use ($request, $company, $requestAction, $action) {
+
+                    $deletableRequestActions = $this->requestActionRepository->findBy([
+                        'request' => $request,
+                        'name' => [RequestAction::REQUEST_ACTION_NAME_APPROVE, RequestAction::REQUEST_ACTION_NAME_DENY],
+                    ]);
+
+                    foreach ($deletableRequestActions as $deletableRequestAction) {
+                        $this->entityManager->remove($deletableRequestAction);
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                        $company->setApproved(true);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $this->addFlash('success', 'Company has been approved');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+                        $company->setApproved(false);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $this->addFlash('success', 'Company has been denied');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+                };
+
+                break;
+            case \App\Entity\Request::REQUEST_TYPE_JOIN_COMPANY:
+
+                $companyId = $httpRequest->query->get('company_id');
+                $company   = $this->companyRepository->find($companyId);
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+                $template  = 'request/modal/new_company.html.twig';
+                $context   = [
+                    'request' => $request,
+                    'company' => $company,
+                ];
+
+                $emailHandler = function () use ($request, $company) {
+                    $this->requestsMailer->joinCompanyRequestApproval($request, $company);
+                };
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser
+                ) {
+
+                    $deletableRequestActions = $this->requestActionRepository->findBy([
+                        'request' => $request,
+                        'name' => [
+                            RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                            RequestAction::REQUEST_ACTION_NAME_DENY,
+                            RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY,
+                        ],
+                    ]);
+
+                    foreach ($deletableRequestActions as $deletableRequestAction) {
+                        $this->entityManager->remove($deletableRequestAction);
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $isAuthorized = (
+                            $createdBy instanceof ProfessionalUser &&
+                            (
+                                !$createdBy->getCompany() ||
+                                $createdBy->getCompany()->getId() === $company->getId()
+                            )
+                        );
+
+                        if (!$isAuthorized) {
+                            $this->addFlash('error', 'You are not authorized to perform this action anymore.');
+
+                            return;
+                        }
+
+                        $request->addPossibleAction(RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY);
+                        $request->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                                        RequestAction::REQUEST_ACTION_NAME_DENY,
+                        ]);
+
+                        $createdBy->setCompany($company);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                        $this->addFlash('success', 'Professional has been added to your company');
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        $isAuthorized = (
+                            $loggedInUser instanceof ProfessionalUser &&
+                            $loggedInUser->getCompany() &&
+                            $loggedInUser->getCompany()->getId() === $company->getId()
+                        );
+
+                        if (!$isAuthorized) {
+                            $this->addFlash('error', 'You are not authorized to perform this action anymore.');
+
+                            return;
+                        }
+
+                        $request->addPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY,
+                                                        RequestAction::REQUEST_ACTION_NAME_DENY,
+                        ]);
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                        $this->addFlash('success', 'Professional has been denied access to your company');
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+
+                        $isAuthorized = (
+                            $loggedInUser instanceof ProfessionalUser &&
+                            $loggedInUser->getCompany() &&
+                            $loggedInUser->getCompany()->getId() === $company->getId() &&
+                            $createdBy instanceof ProfessionalUser &&
+                            (
+                                !$createdBy->getCompany() ||
+                                $createdBy->getCompany()->getId() === $company->getId()
+                            )
+                        );
+
+                        if (!$isAuthorized) {
+                            $this->addFlash('error', 'You are not authorized to perform this action anymore.');
+
+                            return;
+                        }
+
+                        $request->addPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY,
+                                                        RequestAction::REQUEST_ACTION_NAME_DENY,
+                        ]);
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY);
+                        $createdBy->setCompany(null);
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                        $this->addFlash('success', 'Professional has been removed from your company');
+                    }
+
+                };
+
                 break;
             default:
                 $template = 'request/modal/default.html.twig';
@@ -310,45 +468,10 @@ class RequestController extends AbstractController
         }
 
         if ($httpRequest->getMethod() === 'POST') {
+            $requestActionHandler();
+            $emailHandler();
 
-            $action = $httpRequest->query->get('action');
-
-            switch ($action) {
-
-                case RequestAction::REQUEST_ACTION_NAME_APPROVE:
-
-                    // todo What happens on the request management page if you hit approve then
-                    //  deny then approve then deny. Which action do we stick with/show?
-                    //  should we delete any old request deny actions?
-
-                    $requestAction = new RequestAction();
-                    $requestAction->setUser($loggedInUser);
-                    $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
-                    $requestAction->setRequest($request);
-                    $this->entityManager->persist($requestAction);
-                    $this->entityManager->flush();
-
-                    // todo I should return a JSONResponse here or perform a redirect right?
-
-                    break;
-                case RequestAction::REQUEST_ACTION_NAME_DENY:
-
-                    // todo What happens on the request management page if you hit approve then
-                    //  deny then approve then deny. Which action do we stick with/show?
-                    //  should we delete any old request approve actions?
-
-                    $requestAction = new RequestAction();
-                    $requestAction->setUser($loggedInUser);
-                    $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
-                    $requestAction->setRequest($request);
-                    $this->entityManager->persist($requestAction);
-                    $this->entityManager->flush();
-
-                    break;
-                default:
-                    // TODO???
-                    break;
-            }
+            return $this->redirectToRoute('requests');
         }
 
         return new JsonResponse(
@@ -463,15 +586,6 @@ class RequestController extends AbstractController
     {
 
         switch ($request->getClassName()) {
-            case 'NewCompanyRequest':
-                /** @var NewCompanyRequest $request */
-                $request->setApproved(true);
-                $company = $request->getCompany();
-                $company->setApproved(true);
-                $this->entityManager->persist($company);
-                $this->addFlash('success', 'Company approved');
-                $this->requestsMailer->newCompanyRequestApproval($request);
-                break;
             case 'JoinCompanyRequest':
                 /** @var JoinCompanyRequest $request */
                 $request->setApproved(true);

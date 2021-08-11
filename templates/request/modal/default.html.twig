@@ -4,6 +4,8 @@
 {% set createdOn = notification['created_on'] %}
 {% set userPhoto = notification['user_photo'] %}
 
+<button class="uk-modal-close-default" type="button" uk-close></button>
+
 <h4>{{ title|raw }}</h4>
 
 <table class="uk-table uk-table-small uk-table-divider">
@@ -36,10 +38,9 @@
 
 
 <p class="uk-text-right">
-    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
     {% for possibleRequestAction in request.possibleActions %}
         {# TODO WILL NEED TO CHANGE THIS TO A POST REQUEST MAYBE??? #}
         <a class="uk-button {{ request.getPossibleActionCssClass(possibleRequestAction) }}"
-           href="{{ request.actionUrl }}&action={{ possibleRequestAction }}">{{ possibleRequestAction }}</a>
+           href="{{ request.actionUrl }}&action={{ possibleRequestAction }}">{{ request.buttonFriendlyNameForRequestAction(possibleRequestAction) }}</a>
     {% endfor %}
 </p>

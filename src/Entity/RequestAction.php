@@ -19,9 +19,11 @@ class RequestAction
 {
     use Timestampable;
 
-    const REQUEST_ACTION_NAME_APPROVE = 'APPROVE';
-    const REQUEST_ACTION_NAME_DENY   = 'DENY';
-    const REQUEST_ACTION_NAME_HIDE   = 'HIDE';
+    const REQUEST_ACTION_NAME_APPROVE             = 'APPROVE';
+    const REQUEST_ACTION_NAME_DENY                = 'DENY';
+    const REQUEST_ACTION_NAME_HIDE                = 'HIDE';
+    const REQUEST_ACTION_NAME_READ_RECEIPT        = 'READ_RECEIPT';
+    const REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY = 'REMOVE_FROM_COMPANY';
 
 
     /**
@@ -87,30 +89,41 @@ class RequestAction
         return $this;
     }
 
-    public function getFriendlyName() {
+    public function getFriendlyName()
+    {
 
-        if($this->name === self::REQUEST_ACTION_NAME_APPROVE) {
+        if ($this->name === self::REQUEST_ACTION_NAME_APPROVE) {
             return 'Approved';
         }
 
-        if($this->name === self::REQUEST_ACTION_NAME_DENY) {
+        if ($this->name === self::REQUEST_ACTION_NAME_DENY) {
             return 'Denied';
         }
 
-        if($this->name === self::REQUEST_ACTION_NAME_HIDE) {
+        if ($this->name === self::REQUEST_ACTION_NAME_HIDE) {
             return 'Hidden';
+        }
+
+        if ($this->name === self::REQUEST_ACTION_NAME_READ_RECEIPT) {
+            return 'Your request has been seen';
+        }
+
+        if ($this->name === self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+            return 'Removed from company';
         }
 
         return $this->name;
     }
 
-    public function getLabelCssClass() {
+    public function getLabelCssClass()
+    {
 
         switch ($this->name) {
             case self::REQUEST_ACTION_NAME_APPROVE:
                 return 'uk-label-success';
                 break;
             case self::REQUEST_ACTION_NAME_DENY:
+            case self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
                 return 'uk-label-danger';
                 break;
             default:

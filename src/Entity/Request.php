@@ -36,8 +36,11 @@ class Request
     const OPPORTUNITY_TYPE_VIRTUAL_OR_IN_PERSON = 'VIRTUAL_OR_IN_PERSON';
     const OPPORTUNITY_TYPE_TO_BE_DETERMINED     = 'TO_BE_DETERMINED';
 
-    const REQUEST_TYPE_JOB_BOARD   = 'JOB_BOARD';
-    const REQUEST_TYPE_NEW_COMPANY = 'NEW_COMPANY';
+    const REQUEST_TYPE_JOB_BOARD      = 'JOB_BOARD';
+    const REQUEST_TYPE_NEW_COMPANY    = 'NEW_COMPANY';
+    const REQUEST_TYPE_JOIN_COMPANY   = 'JOIN_COMPANY';
+    const REQUEST_TYPE_COMPANY_INVITE = 'COMPANY_INVITE';
+    const REQUEST_TYPE_NOTIFICATION   = 'NOTIFICATION';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -685,7 +688,7 @@ class Request
     {
         $actions = is_array($actions) ? $actions : [$actions];
 
-        foreach($actions as $action) {
+        foreach ($actions as $action) {
             if (!in_array($action, $this->possibleActions, true)) {
                 $this->possibleActions[] = $action;
             }
@@ -695,7 +698,31 @@ class Request
         return $this;
     }
 
-    public function getPossibleActionCssClass($action) {
+    public function removePossibleAction($actions)
+    {
+        $actions = is_array($actions) ? $actions : [$actions];
+
+        foreach ($actions as $action) {
+
+            if (($key = array_search($action, $this->possibleActions)) !== false) {
+                unset($this->possibleActions[$key]);
+            }
+        }
+
+        return $this;
+    }
+
+    public function hasPossibleAction($action)
+    {
+        if (in_array($action, $this->possibleActions, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getPossibleActionCssClass($action)
+    {
 
         switch ($action) {
             case RequestAction::REQUEST_ACTION_NAME_APPROVE:
@@ -704,10 +731,35 @@ class Request
             case RequestAction::REQUEST_ACTION_NAME_DENY:
                 return 'uk-button-danger';
                 break;
+            case RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
+                return 'uk-button-danger';
+                break;
             default:
                 return 'uk-button-default';
                 break;
         }
+    }
+
+    public function getButtonFriendlyNameForRequestAction($action)
+    {
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+            return 'Approve';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+            return 'Deny';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_HIDE) {
+            return 'Hide';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+            return 'Remove from company';
+        }
+
+        return $action;
     }
 
     public function getNotification(): ?array

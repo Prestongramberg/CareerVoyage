@@ -15,11 +15,8 @@ use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\RequestAction;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
-use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
-use App\Entity\JoinCompanyRequest;
-use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
@@ -27,55 +24,26 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
-use App\Entity\Video;
 use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
-use App\Form\EducatorRegisterStudentsForExperienceFormType;
 use App\Form\Filter\CompanyResultsFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Mailer\RequestsMailer;
-use App\Mailer\SecurityMailer;
-use App\Mailer\ExperienceMailer;
-use App\Repository\AdminUserRepository;
-use App\Repository\CompanyPhotoRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\CompanyViewRepository;
-use App\Repository\JoinCompanyRequestRepository;
-use App\Repository\ProfessionalUserRepository;
-use App\Repository\UserRepository;
-use App\Repository\SchoolAdministratorRepository;
-use App\Repository\EducatorUserRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\Form;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -97,6 +65,8 @@ class CompanyController extends AbstractController
      */
     public function indexAction(Request $request)
     {
+
+        return $this->redirectToRoute('company_results_page');
 
         $user = $this->getUser();
 
@@ -430,6 +400,7 @@ class CompanyController extends AbstractController
      * @param Company $company
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function viewAction(Request $request, Company $company)
     {
@@ -488,23 +459,64 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsByCompanyAndUser($company, $user);
-
-        if (count($requests) > 0) {
-            $this->addFlash('error', 'You have already made a request to join that company.');
-
-            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
-        }
-
-        $joinCompanyRequest = new JoinCompanyRequest();
-        $joinCompanyRequest->setCompany($company);
+        // create a new company request
+        $joinCompanyRequest = new \App\Entity\Request();
+        $joinCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_JOIN_COMPANY);
         $joinCompanyRequest->setCreatedBy($user);
-        $joinCompanyRequest->setNeedsApprovalBy($company->getOwner());
-        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_USER_TO_COMPANY);
+        $joinCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_DENY, RequestAction::REQUEST_ACTION_NAME_APPROVE]);
+        $joinCompanyRequest->setNotification([
+            'title' => "<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}",
+            'user_photo' => $user->getPhotoPath(),
+            'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'body' => [
+                'Request Type' => [
+                    'order' => 1,
+                    'value' => 'Join Company',
+                ],
+                'Initiated By' => [
+                    'order' => 2,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                ],
+                'Company Name' => [
+                    'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
+                ],
+                'Website' => [
+                    'order' => 4,
+                    'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
+
+                ],
+                'Phone' => [
+                    'order' => 5,
+                    'value' => $company->getPhone(),
+                ],
+                'Created On' => [
+                    'order' => 6,
+                    'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                ]
+            ]
+        ]);
+
+
+        $possibleApprover = new RequestPossibleApprovers();
+        $possibleApprover->setPossibleApprover($company->getOwner());
+        $possibleApprover->setRequest($joinCompanyRequest);
+        $this->entityManager->persist($possibleApprover);
+
         $this->entityManager->persist($joinCompanyRequest);
         $this->entityManager->flush();
 
-        $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
+        $requestActionUrl = $this->generateUrl('request_action', [
+            'company_id' => $company->getId(),
+            'request_id' => $joinCompanyRequest->getId(),
+        ]);
+
+        $joinCompanyRequest->setActionUrl($requestActionUrl);
+
+        $this->entityManager->flush();
+        $this->entityManager->refresh($joinCompanyRequest);
+
+        $this->requestsMailer->joinCompanyRequest($joinCompanyRequest, $company);
 
         $this->addFlash('success', 'Request successfully sent!');
 
