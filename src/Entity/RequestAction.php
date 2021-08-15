@@ -21,9 +21,14 @@ class RequestAction
 
     const REQUEST_ACTION_NAME_APPROVE             = 'APPROVE';
     const REQUEST_ACTION_NAME_DENY                = 'DENY';
+    const REQUEST_ACTION_NAME_MARK_AS_PENDING     = 'MARK_AS_PENDING';
     const REQUEST_ACTION_NAME_HIDE                = 'HIDE';
     const REQUEST_ACTION_NAME_READ_RECEIPT        = 'READ_RECEIPT';
     const REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY = 'REMOVE_FROM_COMPANY';
+    const REQUEST_ACTION_NAME_LEAVE_COMPANY       = 'LEAVE_COMPANY';
+    const REQUEST_ACTION_NAME_SUGGEST_NEW_DATES   = 'SUGGEST_NEW_DATES';
+    const REQUEST_ACTION_NAME_SEND_MESSAGE        = 'SEND_MESSAGE';
+    const REQUEST_ACTION_NAME_DEFAULT             = 'DEFAULT';
 
 
     /**
@@ -91,28 +96,62 @@ class RequestAction
 
     public function getFriendlyName()
     {
+        $friendlyName = $this->name;
 
-        if ($this->name === self::REQUEST_ACTION_NAME_APPROVE) {
-            return 'Approved';
+        switch ($this->getRequest()->getRequestType()) {
+            case Request::REQUEST_TYPE_COMPANY_INVITE:
+                if ($this->name === self::REQUEST_ACTION_NAME_APPROVE) {
+                    $friendlyName = 'Company Invite Accepted';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_DENY) {
+                    $friendlyName = 'Company Invite Denied';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_HIDE) {
+                    $friendlyName = 'Hidden';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_READ_RECEIPT) {
+                    $friendlyName = 'Your request has been seen';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+                    $friendlyName = 'Removed from company';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_LEAVE_COMPANY) {
+                    $friendlyName = 'Left company';
+                }
+                break;
+            default:
+                if ($this->name === self::REQUEST_ACTION_NAME_APPROVE) {
+                    $friendlyName = 'Approved';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_DENY) {
+                    $friendlyName = 'Denied';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_HIDE) {
+                    $friendlyName = 'Hidden';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_READ_RECEIPT) {
+                    $friendlyName = 'Your request has been seen';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+                    $friendlyName = 'Removed from company';
+                }
+
+                if ($this->name === self::REQUEST_ACTION_NAME_LEAVE_COMPANY) {
+                    $friendlyName = 'Left company';
+                }
+                break;
         }
 
-        if ($this->name === self::REQUEST_ACTION_NAME_DENY) {
-            return 'Denied';
-        }
-
-        if ($this->name === self::REQUEST_ACTION_NAME_HIDE) {
-            return 'Hidden';
-        }
-
-        if ($this->name === self::REQUEST_ACTION_NAME_READ_RECEIPT) {
-            return 'Your request has been seen';
-        }
-
-        if ($this->name === self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
-            return 'Removed from company';
-        }
-
-        return $this->name;
+        return $friendlyName;
     }
 
     public function getLabelCssClass()
@@ -124,6 +163,7 @@ class RequestAction
                 break;
             case self::REQUEST_ACTION_NAME_DENY:
             case self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
+            case self::REQUEST_ACTION_NAME_LEAVE_COMPANY:
                 return 'uk-label-danger';
                 break;
             default:

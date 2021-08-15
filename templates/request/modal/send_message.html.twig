@@ -1,0 +1,82 @@
+{% set notification = request.notification %}
+{% set title = notification['title'] %}
+{% set body = notification['body'] %}
+{% set createdOn = notification['created_on'] %}
+{% set userPhoto = notification['user_photo'] %}
+{% set messages = notification['messages'] is defined ? notification['messages'] : [] %}
+
+<div class="uk-modal-dialog">
+    <button class="uk-modal-close-outside" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        <h4>{{ title|raw }}</h4>
+        <ul class="uk-breadcrumb">
+            <li><a class="js-request-item" data-action-url="{{ request.actionUrl }}&action={{ constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_DEFAULT') }}" href="javascript:void(0)">< Back</a></li>
+        </ul>
+    </div>
+
+    {{ form_start(sendMessageForm, {attr: {'id': 'js-manage-request-form', 'novalidate' : 'novalidate'}}) }}
+
+    <div class="uk-modal-body">
+
+        <div class="live-chat__window-thread" style="padding: 20px">
+            {% for message in messages %}
+
+                {% set body = message['body'] %}
+                {% set userId = message['user']['id'] %}
+                {% set userFullName = message['user']['full_name'] %}
+                {% set userPhoto = message['user']['photo'] %}
+                {% set date = message['date'] %}
+                {% set messageMarginTop = '0' %}
+
+                {% if loop.index > 1 %}
+                    {% set messageMarginTop = '40px' %}
+                {% endif %}
+
+                {% if userId == loggedInUser.id %}
+                    <div style="position: relative; margin-top: {{ messageMarginTop }}" class="live-chat__window-thread-message live-chat__window-thread-message--to">
+
+                        <img style="height: 30px" class="uk-border-pill center-vertically" src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}" uk-img/>
+
+                        <div style="margin-right: 40px" class="live-chat__window-thread-message-text live-chat__window-thread-message-text--to">{{ body }}</div>
+                        <div style="position: absolute; bottom: -20px; right: 40px">{{ userFullName }} {{ date }}</div>
+                    </div>
+                {% else %}
+                    <div style="position: relative; margin-top: {{ messageMarginTop }}" class="live-chat__window-thread-message live-chat__window-thread-message--from">
+
+                        <img style="height: 30px" class="uk-border-pill center-vertically" src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}" uk-img/>
+
+                        <div style="margin-left: 40px" class="live-chat__window-thread-message-text live-chat__window-thread-message-text--from">{{ body }}</div>
+                        <div style="position: absolute; bottom: -20px; left: 40px">{{ userFullName }} {{ date }}</div>
+                    </div>
+                {% endif %}
+
+                {# TODO add message formatting here and profile image of user that send the message #}
+            {% endfor %}
+        </div>
+
+        {% if form_errors(sendMessageForm) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(sendMessageForm) }}</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <fieldset class="uk-fieldset">
+        <div class="uk-margin">
+            {{ form_widget(sendMessageForm.message, {'attr': {'style': 'margin-bottom: 20px; resize: none; border-left: none; border-right: none; border-bottom: none',
+                'placeholder': 'Type your message here...', 'class': 'js-send-message-textarea uk-textarea' ~ ( form_errors(sendMessageForm.message) ? ' uk-form-danger' : '' ), 'rows': '3' }}) }}
+            {{ form_errors(sendMessageForm.message) }}
+        </div>
+        <div class="uk-margin">
+            <button style="position: absolute; bottom: 0; width: 100%" class="uk-button uk-button-primary uk-inline">
+                Send
+            </button>
+        </div>
+    </fieldset>
+
+    {{ form_end(sendMessageForm) }}
+</div>
+
+
+

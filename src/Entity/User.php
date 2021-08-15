@@ -729,6 +729,44 @@ abstract class User implements UserInterface
         return false;
     }
 
+    public function isCompanyOwner() {
+
+        if(!$this instanceof ProfessionalUser) {
+            return false;
+        }
+
+        if(!$this->getCompany()) {
+            return false;
+        }
+
+        if(!$this->getCompany()->getOwner()) {
+            return false;
+        }
+
+        if($this->getCompany()->getOwner()->getId() !== $this->getId()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canBeInvitedToCompany($company) {
+
+        if(!$this instanceof ProfessionalUser) {
+            return false;
+        }
+
+        if($this->isCompanyOwner()) {
+            return false;
+        }
+
+        if($this->getCompany()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function setupAsAdmin()
     {
 

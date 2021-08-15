@@ -40,7 +40,12 @@ class Request
     const REQUEST_TYPE_NEW_COMPANY    = 'NEW_COMPANY';
     const REQUEST_TYPE_JOIN_COMPANY   = 'JOIN_COMPANY';
     const REQUEST_TYPE_COMPANY_INVITE = 'COMPANY_INVITE';
+    const REQUEST_TYPE_TEACH_LESSON   = 'TEACH_LESSON';
     const REQUEST_TYPE_NOTIFICATION   = 'NOTIFICATION';
+
+    const REQUEST_STATUS_PENDING  = 'PENDING';
+    const REQUEST_STATUS_APPROVED = 'APPROVED';
+    const REQUEST_STATUS_DENIED   = 'DENIED';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -196,11 +201,6 @@ class Request
     private $needsApprovalByRoles = [];
 
     /**
-     * @ORM\ManyToOne(targetEntity=Company::class, inversedBy="requests")
-     */
-    private $company;
-
-    /**
      * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request")
      */
     private $requestActions;
@@ -214,6 +214,16 @@ class Request
      * @ORM\Column(type="json", nullable=true)
      */
     private $notification = [];
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $statusLabel;
 
     public function __construct()
     {
@@ -401,6 +411,50 @@ class Request
         }
 
         return $this;
+    }
+
+    public function getAssociatedRequestPossibleApproverForUser(User $user) {
+
+        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function(RequestPossibleApprovers $requestPossibleApprovers) use($user) {
+            if(!$requestPossibleApprovers->getPossibleApprover()) {
+                return false;
+            }
+
+            if($user->getId() !== $requestPossibleApprovers->getPossibleApprover()->getId()) {
+                return false;
+            }
+            return true;
+        });
+
+        $requestPossibleApprovers = array_values($requestPossibleApprovers);
+
+        if(!empty($requestPossibleApprovers)) {
+            return $requestPossibleApprovers[0];
+        }
+
+        return null;
+    }
+
+    public function getAssociatedRequestPossibleApproversNotEqualToUser(User $user) {
+
+        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function(RequestPossibleApprovers $requestPossibleApprovers) use($user) {
+            if(!$requestPossibleApprovers->getPossibleApprover()) {
+                return false;
+            }
+
+            if($user->getId() === $requestPossibleApprovers->getPossibleApprover()->getId()) {
+                return false;
+            }
+            return true;
+        });
+
+        $requestPossibleApprovers = array_values($requestPossibleApprovers);
+
+        if(!empty($requestPossibleApprovers)) {
+            return $requestPossibleApprovers;
+        }
+
+        return [];
     }
 
     public function getSummary(): ?string
@@ -594,18 +648,6 @@ class Request
         return $this;
     }
 
-    public function getCompany(): ?Company
-    {
-        return $this->company;
-    }
-
-    public function setCompany(?Company $company): self
-    {
-        $this->company = $company;
-
-        return $this;
-    }
-
     /**
      * @return Collection|RequestAction[]
      */
@@ -732,10 +774,29 @@ class Request
                 return 'uk-button-danger';
                 break;
             case RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
+            case RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY:
                 return 'uk-button-danger';
                 break;
             default:
                 return 'uk-button-default';
+                break;
+        }
+    }
+
+    public function getStatusCssClass()
+    {
+        switch ($this->status) {
+            case self::REQUEST_STATUS_PENDING:
+                return 'uk-label-warning';
+                break;
+            case self::REQUEST_STATUS_APPROVED:
+                return 'uk-label-success';
+                break;
+            case self::REQUEST_STATUS_DENIED:
+                return 'uk-label-danger';
+                break;
+            default:
+                return 'uk-label';
                 break;
         }
     }
@@ -751,12 +812,28 @@ class Request
             return 'Deny';
         }
 
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+            return 'Pending';
+        }
+
         if ($action === RequestAction::REQUEST_ACTION_NAME_HIDE) {
             return 'Hide';
         }
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
             return 'Remove from company';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY) {
+            return 'Leave company';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
+            return 'Suggest new dates';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+            return 'Send Message';
         }
 
         return $action;
@@ -770,6 +847,30 @@ class Request
     public function setNotification(?array $notification): self
     {
         $this->notification = $notification;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatusLabel(): ?string
+    {
+        return $this->statusLabel;
+    }
+
+    public function setStatusLabel(?string $statusLabel): self
+    {
+        $this->statusLabel = $statusLabel;
 
         return $this;
     }

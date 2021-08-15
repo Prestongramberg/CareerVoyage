@@ -3,17 +3,13 @@
 
 namespace App\Twig;
 
-use App\Entity\CompanyResource;
 use App\Entity\Company;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
-use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
-use App\Entity\Experience;
-use App\Entity\JoinCompanyRequest;
 use App\Entity\Lesson;
-use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\Request;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\Site;
@@ -26,7 +22,6 @@ use App\Entity\User;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Entity\Video;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
-use App\Repository\EducatorRegisterEducatorForExperienceRequestRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
 use App\Repository\RequestRepository;
@@ -35,7 +30,6 @@ use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Twig\Extension\AbstractExtension;
@@ -173,6 +167,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('call_to_action_href', [$this, 'callToActionHref']),
             new TwigFunction('call_to_action_should_render', [$this, 'callToActionShouldRender']),
             new TwigFunction('time_elapsed_string', [$this, 'timeElapsedString']),
+            new TwigFunction('request_sent', [$this, 'requestSent']),
         ];
     }
 
@@ -762,6 +757,15 @@ class AppExtension extends AbstractExtension
 
         if (!$full) $string = array_slice($string, 0, 1);
         return $string ? implode(', ', $string) . ' ago' : 'just now';
+    }
+
+    public function requestSent(User $createdBy, $requestType, $to, $actionUrlPatternSearch = null) {
+
+        return $this->requestRepository->search($createdBy, $requestType, $to, $actionUrlPatternSearch);
+    }
+
+    public function requestHasAction($requestActionName, $requestPossibleApprovers = []) {
+        // todo?
     }
 
     /**

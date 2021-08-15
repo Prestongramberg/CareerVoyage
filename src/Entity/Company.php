@@ -289,11 +289,6 @@ class Company
      */
     private $companyViews;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Request::class, mappedBy="company")
-     */
-    private $requests;
-
     public function __construct()
     {
         $this->professionalUsers = new ArrayCollection();
@@ -307,7 +302,6 @@ class Company
         $this->studentUsers = new ArrayCollection();
         $this->regions = new ArrayCollection();
         $this->companyViews = new ArrayCollection();
-        $this->requests = new ArrayCollection();
     }
 
     public function getId()
@@ -1069,36 +1063,6 @@ class Company
             // set the owning side to null (unless already changed)
             if ($companyView->getCompanyId() === $this) {
                 $companyView->setCompanyId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Request[]
-     */
-    public function getRequests(): Collection
-    {
-        return $this->requests;
-    }
-
-    public function addRequest(Request $request): self
-    {
-        if (!$this->requests->contains($request)) {
-            $this->requests[] = $request;
-            $request->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRequest(Request $request): self
-    {
-        if ($this->requests->removeElement($request)) {
-            // set the owning side to null (unless already changed)
-            if ($request->getCompany() === $this) {
-                $request->setCompany(null);
             }
         }
 

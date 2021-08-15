@@ -29,11 +29,23 @@
 {% block body %}
 
     <div id="js-manage-request-modal" uk-modal>
-        <div class="uk-modal-dialog uk-modal-body">
-        </div>
     </div>
 
     <div class="uk-container js-manage-requests-container">
+
+{#        <div style="float: right" uk-form-custom="target: > * > span:first-child">
+            <select>
+                <option value="">Filters</option>
+                <option value="">Created by me</option>
+                <option value="">Archived</option>
+            </select>
+            <button class="uk-button uk-button-primary" type="button" tabindex="-1">
+                <span></span>
+                <span uk-icon="icon: chevron-down"></span>
+            </button>
+        </div>#}
+
+
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
 
 
@@ -56,22 +68,55 @@
                             {% set body = notification['body'] %}
                             {% set createdOn = notification['created_on'] %}
                             {% set userPhoto = notification['user_photo'] %}
+                            {% set userPhotos = notification['user_photos'] is defined ? notification['user_photos'] : [] %}
+                            {% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(user) %}
 
                             {#{{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}#}
 
-                            <li id="nc_{{ request.id }}" class="js-request-item" data-action-url="{{ request.actionUrl }}">
+                            <li style="position: relative; padding-left: 70px" id="nc_{{ request.id }}"
+                                class="js-request-item"
+                                data-action-url="{{ request.actionUrl }}">
 
-                                <a class="uk-accordion-title" href="#">
+                                <div class="uk-grid">
 
-                                    <img style="height: 30px" class="uk-border-pill"
-                                         src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
-                                         uk-img/>
-                                    {{ title|raw }}
-                                    <span class="uk-text-muted" style="float: right; line-height: 1.5">{{ time_elapsed_string(createdOn) }}</span>
-                                    <br/>
-                                    {#<small class="x-small">{{ request.createdAt|date("m/d/Y h:i:s A") }}
-                                        <br/>{{ request.company.name }}</small>#}
-                                </a>
+                                    <div class="uk-width-5-6">
+                                        <a style="font-size: 18px" class="uk-accordion-title" href="javascript:void(0)">
+
+                                            {% if userPhotos|length %}
+                                                {% set photo_z_index = 1 %}
+                                                {% set photo_left_position = 0 %}
+                                                {% for key, array in userPhotos|sort((a, b) => a['order'] <=> b['order']) %}
+                                                    {% set userPhoto = array['path'] %}
+
+                                                    <img style="height: 30px; position: absolute; left: {{ photo_left_position ~ "px" }}; z-index: {{ photo_z_index }}" class="uk-border-pill center-vertically"
+                                                         src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                                         uk-img/>
+
+                                                    {% set photo_z_index = photo_z_index - 1 %}
+                                                    {% set photo_left_position = photo_left_position + 12 %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <img style="height: 30px; position: absolute; left: 0" class="uk-border-pill center-vertically"
+                                                     src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                                     uk-img/>
+
+                                            {% endif %}
+
+                                            {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+                                                <span class="center-vertically">{{ requestPossibleApprover.notificationTitle|raw }}</span>
+                                            {% else %}
+                                                <span class="center-vertically">{{ title|raw }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+
+                                    <div class="uk-width-1-6">
+                                        <span class="uk-text-muted center-vertically" style="float: right; line-height: 1.5">{{ time_elapsed_string(createdOn) }}</span>
+                                    </div>
+
+                                </div>
+
+
                                 <div class="uk-accordion-content">
 
                                 </div>

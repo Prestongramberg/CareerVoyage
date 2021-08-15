@@ -41,6 +41,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -306,11 +307,17 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setCreatedBy($user);
             $newCompanyRequest->addNeedsApprovalByRole(User::ROLE_ADMIN_USER);
             $newCompanyRequest->setNeedsApprovalBy($adminUser);
-            $newCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_DENY, RequestAction::REQUEST_ACTION_NAME_APPROVE]);
-            $newCompanyRequest->setCompany($company);
+            $newCompanyRequest->addPossibleAction([
+                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                RequestAction::REQUEST_ACTION_NAME_DENY,
+                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+            ]);
+            $newCompanyRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+            $newCompanyRequest->setStatusLabel('Company Pending Approval');
             $newCompanyRequest->setNotification([
                 'title' => "<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}",
                 'user_photo' => $user->getPhotoPath(),
+                'user_photos' => [],
                 'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
                 'body' => [
                     'Request Type' => [
@@ -337,8 +344,8 @@ class CompanyController extends AbstractController
                     'Created On' => [
                         'order' => 6,
                         'value' => (new \DateTime())->format("m/d/Y h:i A"),
-                    ]
-                ]
+                    ],
+                ],
             ]);
 
             // todo can I remove this?
@@ -364,8 +371,8 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
             $this->entityManager->refresh($newCompanyRequest);
 
-            $this->requestsMailer->newCompanyRequest($newCompanyRequest);
-            $this->requestsMailer->companyAwaitingApproval($newCompanyRequest);
+            $this->requestsMailer->newCompanyRequest($newCompanyRequest, $company);
+            $this->requestsMailer->companyAwaitingApproval($newCompanyRequest, $company);
 
             $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
 
@@ -463,10 +470,16 @@ class CompanyController extends AbstractController
         $joinCompanyRequest = new \App\Entity\Request();
         $joinCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_JOIN_COMPANY);
         $joinCompanyRequest->setCreatedBy($user);
-        $joinCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_DENY, RequestAction::REQUEST_ACTION_NAME_APPROVE]);
+        $joinCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                                RequestAction::REQUEST_ACTION_NAME_DENY,
+                                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+        ]);
+        $joinCompanyRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+        $joinCompanyRequest->setStatusLabel('Join Company Pending Approval');
         $joinCompanyRequest->setNotification([
             'title' => "<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}",
             'user_photo' => $user->getPhotoPath(),
+            'user_photos' => [],
             'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
             'body' => [
                 'Request Type' => [
@@ -493,8 +506,8 @@ class CompanyController extends AbstractController
                 'Created On' => [
                     'order' => 6,
                     'value' => (new \DateTime())->format("m/d/Y h:i A"),
-                ]
-            ]
+                ],
+            ],
         ]);
 
 
@@ -518,75 +531,97 @@ class CompanyController extends AbstractController
 
         $this->requestsMailer->joinCompanyRequest($joinCompanyRequest, $company);
 
-        $this->addFlash('success', 'Request successfully sent!');
+        $this->addFlash('success', 'Request to join this company has been sent to the company administrator');
 
         return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
     }
 
     /**
-     * @Route("/companies/{id}/invite", name="company_invite", options = { "expose" = true }, methods={"GET", "POST"})
-     * @param Request $request
-     * @param Company $company
+     * @Route("/companies/{company}/users/{professionalUser}/invite", name="company_invite", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Request          $request
+     * @param Company          $company
      *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @param ProfessionalUser $professionalUser
+     *
+     * @return RedirectResponse|Response
+     * @throws \Exception
      */
-    public function inviteAction(Request $request, Company $company)
+    public function inviteAction(Request $request, Company $company, ProfessionalUser $professionalUser)
     {
 
         $this->denyAccessUnlessGranted('edit', $company);
 
         /** @var User $user */
         $user = $this->getUser();
-        $form = $this->createForm(
-            CompanyInviteFormType::class, null, [
-                'method' => 'POST',
-            ]
-        );
 
-        $form->handleRequest($request);
+        // create a new company request
+        $companyInviteRequest = new \App\Entity\Request();
+        $companyInviteRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_COMPANY_INVITE);
+        $companyInviteRequest->setCreatedBy($user);
+        $companyInviteRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                                  RequestAction::REQUEST_ACTION_NAME_DENY,
+                                                  RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+        ]);
+        $companyInviteRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+        $companyInviteRequest->setStatusLabel('Company invite is pending approval');
+        $companyInviteRequest->setNotification([
+            'title' => "<strong>{$user->getFullName()}</strong> has invited you to join their company {$company->getName()}",
+            'user_photo' => $user->getPhotoPath(),
+            'user_photos' => [],
+            'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'body' => [
+                'Request Type' => [
+                    'order' => 1,
+                    'value' => 'Company Invite',
+                ],
+                'Initiated By' => [
+                    'order' => 2,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                ],
+                'Company Name' => [
+                    'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
+                ],
+                'Website' => [
+                    'order' => 4,
+                    'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $emails = $form->get('emails')->getData();
-            $emails = explode(',', $emails);
-            foreach ($emails as $email) {
+                ],
+                'Phone' => [
+                    'order' => 5,
+                    'value' => $company->getPhone(),
+                ],
+                'Created On' => [
+                    'order' => 6,
+                    'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                ],
+            ],
+        ]);
 
-                // for now we are just skipping users that already exist in the system
-                $existingUser = $this->userRepository->getByEmailAddress($email);
-                if ($existingUser) {
-                    continue;
-                } else {
-                    $professionalUser = new ProfessionalUser();
-                    $professionalUser->setEmail($email);
-                    $professionalUser->initializeNewUser();
-                    $professionalUser->setPasswordResetToken();
-                    $this->entityManager->persist($professionalUser);
-                }
-                $joinCompanyRequest = new JoinCompanyRequest();
-                $joinCompanyRequest->setCompany($company);
-                $joinCompanyRequest->setCreatedBy($this->getUser());
-                $joinCompanyRequest->setIsFromCompany(true);
-                $joinCompanyRequest->setNeedsApprovalBy($professionalUser);
-            }
 
-            $this->entityManager->flush();
-            $this->securityMailer->sendAccountActivation($professionalUser);
-            $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
+        $possibleApprover = new RequestPossibleApprovers();
+        $possibleApprover->setPossibleApprover($professionalUser);
+        $possibleApprover->setRequest($companyInviteRequest);
+        $this->entityManager->persist($possibleApprover);
 
-            $this->addFlash('success', 'Company invites successfully sent. ');
+        $this->entityManager->persist($companyInviteRequest);
+        $this->entityManager->flush();
 
-            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
-        }
+        $requestActionUrl = $this->generateUrl('request_action', [
+            'company_id' => $company->getId(),
+            'request_id' => $companyInviteRequest->getId(),
+        ]);
 
-        return $this->render(
-            'company/invite.html.twig', [
-                'form' => $form->createView(),
-                'user' => $user,
-            ]
-        );
+        $companyInviteRequest->setActionUrl($requestActionUrl);
+
+        $this->entityManager->flush();
+        $this->entityManager->refresh($companyInviteRequest);
+
+        $this->addFlash('success', 'Request successfully sent!');
+
+        $referer = $request->headers->get('referer');
+
+        return new RedirectResponse($referer);
     }
 
     /**

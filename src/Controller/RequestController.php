@@ -6,6 +6,7 @@ use App\Entity\AllowedCommunication;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
 use App\Entity\RequestAction;
+use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\ProfessionalUser;
@@ -21,6 +22,9 @@ use App\Entity\UserMeta;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Form\CreateRequestFormType;
 use App\Form\EditRequestFormType;
+use App\Form\SelectSuggestedDatesFormType;
+use App\Form\SendMessageFormType;
+use App\Form\SuggestNewDatesFormType;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateInterval;
@@ -312,19 +316,11 @@ class RequestController extends AbstractController
 
                 $requestActionHandler = function () use ($request, $company, $requestAction, $action) {
 
-                    $deletableRequestActions = $this->requestActionRepository->findBy([
-                        'request' => $request,
-                        'name' => [RequestAction::REQUEST_ACTION_NAME_APPROVE, RequestAction::REQUEST_ACTION_NAME_DENY],
-                    ]);
-
-                    foreach ($deletableRequestActions as $deletableRequestAction) {
-                        $this->entityManager->remove($deletableRequestAction);
-                    }
-
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
                         $company->setApproved(true);
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
-                        $this->addFlash('success', 'Company has been approved');
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Company has been approved');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -332,7 +328,17 @@ class RequestController extends AbstractController
                     if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
                         $company->setApproved(false);
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
-                        $this->addFlash('success', 'Company has been denied');
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Company has been denied');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+                        $company->setApproved(false);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Company is pending approval');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -359,101 +365,321 @@ class RequestController extends AbstractController
                     $request, $createdBy, $company, $requestAction, $action, $loggedInUser
                 ) {
 
-                    $deletableRequestActions = $this->requestActionRepository->findBy([
-                        'request' => $request,
-                        'name' => [
-                            RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                            RequestAction::REQUEST_ACTION_NAME_DENY,
-                            RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY,
-                        ],
-                    ]);
-
-                    foreach ($deletableRequestActions as $deletableRequestAction) {
-                        $this->entityManager->remove($deletableRequestAction);
-                    }
-
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
-
-                        $isAuthorized = (
-                            $createdBy instanceof ProfessionalUser &&
-                            (
-                                !$createdBy->getCompany() ||
-                                $createdBy->getCompany()->getId() === $company->getId()
-                            )
-                        );
-
-                        if (!$isAuthorized) {
-                            $this->addFlash('error', 'You are not authorized to perform this action anymore.');
-
-                            return;
-                        }
-
-                        $request->addPossibleAction(RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY);
-                        $request->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                                        RequestAction::REQUEST_ACTION_NAME_DENY,
-                        ]);
 
                         $createdBy->setCompany($company);
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Professional has been approved');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
-                        $this->addFlash('success', 'Professional has been added to your company');
                     }
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
 
-                        $isAuthorized = (
-                            $loggedInUser instanceof ProfessionalUser &&
-                            $loggedInUser->getCompany() &&
-                            $loggedInUser->getCompany()->getId() === $company->getId()
-                        );
-
-                        if (!$isAuthorized) {
-                            $this->addFlash('error', 'You are not authorized to perform this action anymore.');
-
-                            return;
+                        if ($createdBy->getCompany()->getId() === $company->getId()) {
+                            $createdBy->setCompany(null);
                         }
-
-                        $request->addPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE);
-                        $request->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY,
-                                                        RequestAction::REQUEST_ACTION_NAME_DENY,
-                        ]);
 
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Professional has been denied');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
-                        $this->addFlash('success', 'Professional has been denied access to your company');
                     }
 
-                    if ($action === RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
 
-                        $isAuthorized = (
-                            $loggedInUser instanceof ProfessionalUser &&
-                            $loggedInUser->getCompany() &&
-                            $loggedInUser->getCompany()->getId() === $company->getId() &&
-                            $createdBy instanceof ProfessionalUser &&
-                            (
-                                !$createdBy->getCompany() ||
-                                $createdBy->getCompany()->getId() === $company->getId()
-                            )
-                        );
-
-                        if (!$isAuthorized) {
-                            $this->addFlash('error', 'You are not authorized to perform this action anymore.');
-
-                            return;
+                        if ($createdBy->getCompany()->getId() === $company->getId()) {
+                            $createdBy->setCompany(null);
                         }
 
-                        $request->addPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE);
-                        $request->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY,
-                                                        RequestAction::REQUEST_ACTION_NAME_DENY,
-                        ]);
-
-                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY);
-                        $createdBy->setCompany(null);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Professional is pending approval');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
-                        $this->addFlash('success', 'Professional has been removed from your company');
+                    }
+                };
+
+                break;
+            case \App\Entity\Request::REQUEST_TYPE_COMPANY_INVITE:
+
+                $companyId = $httpRequest->query->get('company_id');
+                $company   = $this->companyRepository->find($companyId);
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+                $template  = 'request/modal/new_company.html.twig';
+                $context   = [
+                    'request' => $request,
+                    'company' => $company,
+                ];
+
+                $emailHandler = function () use ($request, $company) {
+                    $this->requestsMailer->joinCompanyRequestApproval($request, $company);
+                };
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $loggedInUser->setCompany($company);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Company invite has been accepted');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        if ($loggedInUser->getCompany()->getId() === $company->getId()) {
+                            $loggedInUser->setCompany(null);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Company invite has been denied');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        if ($loggedInUser->getCompany()->getId() === $company->getId()) {
+                            $loggedInUser->setCompany(null);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Company invite is pending approval');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                };
+
+                break;
+            case \App\Entity\Request::REQUEST_TYPE_TEACH_LESSON:
+
+                $lessonId     = $httpRequest->query->get('lesson_id');
+                $lesson       = $this->lessonRepository->find($lessonId);
+                $data         = null;
+                $notification = $request->getNotification();
+                $messages     = $notification['messages'] ?? [];
+
+                $setDates = (
+                    !empty($notification['suggested_dates']['date_option_one']) &&
+                    !empty($notification['suggested_dates']['date_option_two']) &&
+                    !empty($notification['suggested_dates']['date_option_three'])
+                );
+
+                if ($setDates) {
+                    $data = [
+                        'dateOptionOne' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_one']),
+                        'dateOptionTwo' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_two']),
+                        'dateOptionThree' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_three']),
+                    ];
+                }
+
+                $selectSuggestedDatesForm = $this->createForm(SelectSuggestedDatesFormType::class, null, [
+                    'request' => $request,
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                ]);
+
+                $suggestNewDatesForm = $this->createForm(SuggestNewDatesFormType::class, $data, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                ]);
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+                $template  = 'request/modal/teach_lesson.html.twig';
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
+                    $template = 'request/modal/suggest_new_dates.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                    $template = 'request/modal/select_suggested_dates.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'lesson' => $lesson,
+                    'suggestNewDatesForm' => $suggestNewDatesForm->createView(),
+                    'selectSuggestedDatesForm' => $selectSuggestedDatesForm->createView(),
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                    'loggedInUser' => $loggedInUser,
+                    'messages' => $messages,
+                ];
+
+                $emailHandler = function () use ($request, $lesson) {
+                    // $this->requestsMailer->joinCompanyRequestApproval($request, $company);
+                };
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $lesson, $requestAction, $action, $loggedInUser, $selectSuggestedDatesForm,
+                    $suggestNewDatesForm, $sendMessageForm, $httpRequest, &$template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $selectSuggestedDatesForm->handleRequest($httpRequest);
+
+                        if ($selectSuggestedDatesForm->isSubmitted() && $selectSuggestedDatesForm->isValid()) {
+
+                            $notification = $request->getNotification();
+
+                            if ($selectSuggestedDatesForm->get('dateOptionOne')->isClicked()) {
+                                $selectedDate = $notification['suggested_dates']['date_option_one'];
+                            }
+
+                            if ($selectSuggestedDatesForm->get('dateOptionTwo')->isClicked()) {
+                                $selectedDate = $notification['suggested_dates']['date_option_two'];
+                            }
+
+                            if ($selectSuggestedDatesForm->get('dateOptionThree')->isClicked()) {
+                                $selectedDate = $notification['suggested_dates']['date_option_three'];
+                            }
+
+                            $notification['body']['Selected Date'] = [
+                                'order' => 5,
+                                'value' => $selectedDate ?? '',
+                            ];
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                    ->setStatusLabel('Guest instructor invite has been approved')
+                                    ->setNotification($notification);
+                            $this->entityManager->persist($requestAction);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+                            $possibleApprover->removePossibleAction([
+                                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                            ]);
+                            $this->entityManager->persist($possibleApprover);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
+                                $possibleApprover->removePossibleAction([
+                                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                ]);
+                                $this->entityManager->persist($possibleApprover);
+                            }
+
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/teach_lesson.html.twig';
+                        }
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Guest instructor invite has been denied');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Guest instructor invite is pending approval');
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
+
+                        $suggestNewDatesForm->handleRequest($httpRequest);
+
+                        if ($suggestNewDatesForm->isSubmitted() && $suggestNewDatesForm->isValid()) {
+
+                            $formData        = $suggestNewDatesForm->getData();
+                            $dateOptionOne   = $formData['dateOptionOne']->format("m/d/Y g:i A");
+                            $dateOptionTwo   = $formData['dateOptionTwo']->format("m/d/Y g:i A");
+                            $dateOptionThree = $formData['dateOptionThree']->format("m/d/Y g:i A");
+
+                            $notification                                         = $request->getNotification();
+                            $notification['suggested_dates']['date_option_one']   = $dateOptionOne;
+                            $notification['suggested_dates']['date_option_two']   = $dateOptionTwo;
+                            $notification['suggested_dates']['date_option_three'] = $dateOptionThree;
+                            $notification['body']['Suggested Dates']              = [
+                                'order' => 4,
+                                'value' => "{$dateOptionOne} <br> {$dateOptionTwo} <br> {$dateOptionThree}",
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES);
+
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                    ->setStatusLabel('New suggested dates pending approval');
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
+                                $possibleApprover->addPossibleAction([
+                                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                ]);
+                                $this->entityManager->persist($possibleApprover);
+                            }
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/teach_lesson.html.twig';
+                        }
+
                     }
 
                 };
@@ -471,7 +697,7 @@ class RequestController extends AbstractController
             $requestActionHandler();
             $emailHandler();
 
-            return $this->redirectToRoute('requests');
+            //return $this->redirectToRoute('requests');
         }
 
         return new JsonResponse(
@@ -586,28 +812,6 @@ class RequestController extends AbstractController
     {
 
         switch ($request->getClassName()) {
-            case 'JoinCompanyRequest':
-                /** @var JoinCompanyRequest $request */
-                $request->setApproved(true);
-                if ($request->getIsFromCompany()) {
-                    /** @var ProfessionalUser $needsApprovalBy */
-                    $needsApprovalBy = $request->getNeedsApprovalBy();
-                    $needsApprovalBy->setupAsProfessional();
-                    $needsApprovalBy->setCompany($request->getCompany());
-                    $needsApprovalBy->agreeToTerms();
-                    $this->entityManager->persist($needsApprovalBy);
-                    $this->addFlash('success', 'You have joined the company!');
-                } else {
-                    /** @var ProfessionalUser $createdBy */
-                    $createdBy = $request->getCreatedBy();
-                    $createdBy->setupAsProfessional();
-                    $createdBy->setCompany($request->getCompany());
-                    $createdBy->agreeToTerms();
-                    $this->entityManager->persist($createdBy);
-                    $this->addFlash('success', 'User successfully added to company!');
-                }
-                $this->requestsMailer->joinCompanyRequestApproval($request);
-                break;
             case 'TeachLessonRequest':
                 /** @var TeachLessonRequest $request */
                 $request->setApproved(true);

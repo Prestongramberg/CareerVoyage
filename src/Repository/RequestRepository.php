@@ -83,6 +83,38 @@ class RequestRepository extends ServiceEntityRepository
                             ->getResult();
     }
 
+    public function search(
+        User $createdBy = null,
+        $requestType = null,
+        User $possibleApprover = null,
+        $actionUrlPatternSearch = null
+    ) {
+        $queryBuilder = $this->createQueryBuilder('r')
+                             ->leftJoin('r.requestPossibleApprovers', 'rpa');
+
+        if ($createdBy) {
+            $queryBuilder->andWhere('r.created_by = :createdBy')
+                         ->setParameter('createdBy', $createdBy);
+        }
+
+        if ($requestType) {
+            $queryBuilder->andWhere('r.requestType = :requestType')
+                         ->setParameter('requestType', $requestType);
+        }
+
+        if ($possibleApprover) {
+            $queryBuilder->andWhere('rpa.possibleApprover = :possibleApprover')
+                         ->setParameter('possibleApprover', $possibleApprover);
+        }
+
+        if ($actionUrlPatternSearch) {
+            $queryBuilder->andWhere('r.actionUrl LIKE :actionUrlPatternSearch')
+                         ->setParameter('actionUrlPatternSearch', '%' . $actionUrlPatternSearch . '%');
+        }
+
+        return $queryBuilder->getQuery()
+                            ->getResult();
+    }
 
     // Functions used to calculate the notification count
     // //////////////////////////////////////////////////
