@@ -1,4 +1,4 @@
-<?php /** @noinspection NullPointerExceptionInspection */
+<?php
 
 namespace App\Controller;
 
@@ -16,15 +16,14 @@ use App\Entity\SchoolExperience;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonExperience;
-use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Entity\UserMeta;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Form\CreateRequestFormType;
 use App\Form\EditRequestFormType;
-use App\Form\SelectSuggestedDatesFormType;
-use App\Form\SendMessageFormType;
-use App\Form\SuggestNewDatesFormType;
+use App\Form\Request\SelectSuggestedDatesFormType;
+use App\Form\Request\SendMessageFormType;
+use App\Form\Request\SuggestNewDatesFormType;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateInterval;
@@ -55,17 +54,15 @@ class RequestController extends AbstractController
 
     /**
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
-     * @param Request $request
+     * @param Request $httpRequest
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function requests(Request $request)
+    public function requests(Request $httpRequest)
     {
 
         /** @var User $user */
         $user = $this->getUser();
-
-        $requestsByType = [];
 
 
         // todo should we change this endpoint to be more of a search-requests endpoint?
@@ -74,9 +71,16 @@ class RequestController extends AbstractController
         //  look at the resources page for how I did this. I'm pretty sure I did it here with the
         //  different videos, etc and tabs at the top of the page
 
+        $requestId = $httpRequest->query->get('id', null);
 
-        $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
 
+        if ($requestId) {
+            $reviewRequests = $this->requestRepository->findBy([
+                'id' => $requestId,
+            ]);
+        } else {
+            $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        }
 
         // TODO SECOND DRAFT
         /*        $myCreatedRequests = $this->requestRepository->findBy([
@@ -249,7 +253,7 @@ class RequestController extends AbstractController
         // todo you could return a different view per user role as well
         return $this->render('request/index_new.html.twig', [
             'user' => $user,
-            'reviewRequests' => $reviewRequests,
+            'reviewRequests' => $reviewRequests
 
 
             /*'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
@@ -406,7 +410,7 @@ class RequestController extends AbstractController
                     $template = 'request/modal/send_message.html.twig';
                 }
 
-                $context   = [
+                $context = [
                     'request' => $request,
                     'company' => $company,
                     'loggedInUser' => $loggedInUser,
@@ -414,7 +418,8 @@ class RequestController extends AbstractController
                 ];
 
                 $requestActionHandler = function () use (
-                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm,
+                    $httpRequest, &
                     $template
                 ) {
 
@@ -507,7 +512,7 @@ class RequestController extends AbstractController
                     $template = 'request/modal/send_message.html.twig';
                 }
 
-                $context   = [
+                $context = [
                     'request' => $request,
                     'company' => $company,
                     'loggedInUser' => $loggedInUser,
@@ -515,7 +520,8 @@ class RequestController extends AbstractController
                 ];
 
                 $requestActionHandler = function () use (
-                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm,
+                    $httpRequest, &
                     $template
                 ) {
 
@@ -662,6 +668,7 @@ class RequestController extends AbstractController
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
 
+                        $selectedDate = null;
                         $selectSuggestedDatesForm->handleRequest($httpRequest);
 
                         if ($selectSuggestedDatesForm->isSubmitted() && $selectSuggestedDatesForm->isValid()) {
@@ -709,6 +716,50 @@ class RequestController extends AbstractController
                                 ]);
                                 $this->entityManager->persist($possibleApprover);
                             }
+
+                            $hasProfessional = (
+                                !empty($notification['data']['professional_id']) &&
+                                $professional = $this->professionalUserRepository->find($notification['data']['professional_id'])
+                            );
+
+                            $hasSchool = (
+                                !empty($notification['data']['school_id']) &&
+                                $school = $this->schoolRepository->find($notification['data']['school_id'])
+                            );
+
+                            $hasEducator = (
+                                !empty($notification['data']['educator_id']) &&
+                                $educator = $this->educatorUserRepository->find($notification['data']['educator_id'])
+                            );
+
+                            $shouldCreateExperience = (
+                                $hasProfessional &&
+                                $hasSchool &&
+                                $hasEducator
+                            );
+
+                            if ($shouldCreateExperience) {
+                                $teachLessonExperience = new TeachLessonExperience();
+                                $teachLessonExperience->setStartDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate) : null);
+                                $teachLessonExperience->setEndDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate)->add(new DateInterval('PT2H')) : null);
+                                $teachLessonExperience->setTitle(sprintf("Topic: %s with Guest Instructor %s, in %s Class", $lesson->getTitle(), $professional->getFullName(), $educator->getFullName()));
+                                $teachLessonExperience->setBriefDescription(sprintf("%s", $lesson->getShortDescription()));
+                                $teachLessonExperience->setRequest($request);
+                                $teachLessonExperience->setLesson($lesson);
+                                $teachLessonExperience->setSchool($school);
+                                $teachLessonExperience->setTeacher($professional);
+
+                                $registrationUsers = [$educator, $professional];
+                                foreach ($registrationUsers as $registrationUser) {
+                                    $registration = new Registration();
+                                    $registration->setUser($registrationUser);
+                                    $registration->setExperience($teachLessonExperience);
+                                    $this->entityManager->persist($registration);
+                                }
+
+                                $this->entityManager->persist($teachLessonExperience);
+                            }
+
 
                             $this->entityManager->flush();
 
@@ -802,6 +853,16 @@ class RequestController extends AbstractController
 
                             $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
                                     ->setStatusLabel('New suggested dates pending approval');
+
+
+                            $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+
+                            if ($possibleApprover) {
+                                $possibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+                            }
 
                             /** @var RequestPossibleApprovers $possibleApprover */
                             foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {

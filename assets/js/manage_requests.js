@@ -6,7 +6,27 @@ require('./vendor/jquery-datetimepicker.js');
 
 $(document).ready(function () {
 
-    console.log("manage requests page");
+    const urlParams = new URLSearchParams(location.search);
+    for (const [key, value] of urlParams) {
+
+        if(key === 'id') {
+            let url = $(`#nc_${value}`).attr('data-action-url');
+
+
+            $.ajax({
+                url: url,
+                method: 'GET'
+            }).then((data, textStatus, jqXHR) => {
+
+                UIkit.modal('#js-manage-request-modal').show();
+
+                $('#js-manage-request-modal').html(data.formMarkup);
+
+            }).catch((jqXHR) => {
+                const errorData = JSON.parse(jqXHR.responseText);
+            });
+        }
+    }
 
     $('.js-manage-requests-container').on('click', '.js-request-item', function (event) {
 

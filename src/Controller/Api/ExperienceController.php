@@ -4,58 +4,25 @@ namespace App\Controller\Api;
 
 use App\Entity\Chat;
 use App\Entity\ChatMessage;
-use App\Entity\Company;
 use App\Entity\CompanyExperience;
-use App\Entity\CompanyPhoto;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
-use App\Entity\Image;
-use App\Entity\Lesson;
-use App\Entity\LessonFavorite;
-use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentUser;
-use App\Entity\StudentToMeetProfessionalExperience;
-use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\SystemUser;
 use App\Entity\TeachLessonExperience;
-use App\Entity\TeachLessonRequest;
 use App\Entity\User;
-use App\Form\EditCompanyFormType;
-use App\Form\NewCompanyFormType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Repository\CompanyExperienceRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\ExperienceRepository;
-use App\Repository\IndustryRepository;
-use App\Repository\LessonFavoriteRepository;
-use App\Repository\LessonRepository;
-use App\Repository\LessonTeachableRepository;
-use App\Repository\SchoolExperienceRepository;
-use App\Repository\StudentToMeetProfessionalExperienceRepository;
-use App\Service\FileUploader;
 use App\Service\FilterGenerator;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
 
 /**
  * Class ExperienceController
@@ -177,6 +144,7 @@ class ExperienceController extends AbstractController
      *
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function getExperiencesByRadius(Request $request, FilterGenerator $filterGenerator)
     {
@@ -324,6 +292,7 @@ class ExperienceController extends AbstractController
      *
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function getExperiencesForListByRadius(Request $request)
     {
@@ -994,13 +963,53 @@ class ExperienceController extends AbstractController
             $url = "";
             $requestId = "";
             $className = $r->getClassName();
+            $street = "";
+            $city = "";
+            $abbreviation = "";
+            $zipcode = "";
 
             if($className == 'TeachLessonExperience') {
-                $url = $this->generateUrl('lesson_view', ['id' => $r->getOriginalRequest()->getLesson()->getId()]);
+                /** @var TeachLessonExperience $r */
+                $url = $this->generateUrl('lesson_view', ['id' => $r->getLesson()->getId()]);
                 $requestId = $r->getOriginalRequest()->getId();
+
+                if($r->getSchool() && $r->getSchool()->getStreet()) {
+                    $street = $r->getSchool()->getStreet();
+                }
+
+                if($r->getSchool() && $r->getSchool()->getCity()) {
+                    $city = $r->getSchool()->getCity();
+                }
+
+                if($r->getSchool() && $r->getSchool()->getState() && $r->getSchool()->getState()->getAbbreviation()) {
+                    $abbreviation = $r->getSchool()->getState()->getAbbreviation();
+                }
+
+                if($r->getSchool() && $r->getSchool()->getZipcode()) {
+                    $zipcode = $r->getSchool()->getZipcode();
+                }
+
             }
 
-            $experiences[] = array("id" => $r->getId(), "requestId" => $requestId, "title" => $r->getTitle(), "about" => $r->getAbout(), "briefDescription" => $r->getBriefDescription(), "startDateAndTime" => $r->getStartDateAndTime()->format('Y-m-d H:i:s'), "endDateAndTime" => $r->getEndDateAndTime()->format("Y-m-d H:i:s"), "className" => $className, "url" => $url);
+            $experiences[] = array(
+                "id" => $r->getId(),
+                "requestId" => $requestId,
+                "title" => $r->getTitle(),
+                "about" => $r->getAbout(),
+                "briefDescription" => $r->getBriefDescription(),
+                "startDateAndTimeTimestamp" => $r->getStartDateAndTimeTimeStamp(),
+                "endDateAndTimeTimestamp" => $r->getEndDateAndTimeTimeStamp(),
+                "startDateAndTime" => $r->getStartDateAndTime()->format('Y-m-d H:i:s'),
+                "endDateAndTime" => $r->getEndDateAndTime()->format("Y-m-d H:i:s"),
+                "className" => $className,
+                "url" => $url,
+                "street" => $street,
+                "city" => $city,
+                "zipcode" => $zipcode,
+                "state" => [
+                    "abbreviation" => $abbreviation
+                ]
+            );
         }
 
         return new JsonResponse(

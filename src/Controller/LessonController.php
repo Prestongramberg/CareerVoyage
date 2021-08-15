@@ -394,6 +394,11 @@ class LessonController extends AbstractController
         $teachLessonRequest->setStatusLabel('Guest instructor invite is pending approval');
         $teachLessonRequest->setNotification([
             'title' => "<strong>{$user->getFullName()}</strong> has invited you to guest instruct <strong>{$lesson->getTitle()}</strong>",
+            'data' => [
+                'professional_id' => $professionalUser->getId(),
+                'school_id' => $school->getId(),
+                'educator_id' => $user->getId(),
+            ],
             'user_photo' => $user->getPhotoPath(),
             'user_photos' => [
                 [
@@ -448,7 +453,8 @@ class LessonController extends AbstractController
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($teachLessonRequest);
         $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
-                                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
         $createdByApprover->setNotificationTitle("<strong>{$professionalUser->getFullName()}</strong> has been invited by you to guest instruct <strong>{$lesson->getTitle()}</strong>");
 
         $possibleApprover = new RequestPossibleApprovers();

@@ -140,11 +140,6 @@ class School
     private $state;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonRequest", mappedBy="school")
-     */
-    private $teachLessonRequests;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonExperience", mappedBy="school")
      */
     private $teachLessonExperiences;
@@ -617,37 +612,6 @@ class School
     public function setState(?State $state): self
     {
         $this->state = $state;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|TeachLessonRequest[]
-     */
-    public function getTeachLessonRequests(): Collection
-    {
-        return $this->teachLessonRequests;
-    }
-
-    public function addTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
-    {
-        if (!$this->teachLessonRequests->contains($teachLessonRequest)) {
-            $this->teachLessonRequests[] = $teachLessonRequest;
-            $teachLessonRequest->setSchool($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
-    {
-        if ($this->teachLessonRequests->contains($teachLessonRequest)) {
-            $this->teachLessonRequests->removeElement($teachLessonRequest);
-            // set the owning side to null (unless already changed)
-            if ($teachLessonRequest->getSchool() === $this) {
-                $teachLessonRequest->setSchool(null);
-            }
-        }
 
         return $this;
     }

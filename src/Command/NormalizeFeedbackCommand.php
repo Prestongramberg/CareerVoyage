@@ -23,6 +23,7 @@ use App\Entity\ReportLessonsWantTaught;
 use App\Entity\ReportVolunteerRegion;
 use App\Entity\ReportVolunteerRole;
 use App\Entity\ReportVolunteerSchool;
+use App\Entity\Request;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
@@ -472,17 +473,17 @@ class NormalizeFeedbackCommand extends Command
             $lesson->setHasExpertPresenters(false);
             $lesson->setHasEducatorRequestors(false);
 
-            foreach($lesson->getLessonTeachables() as $lessonTeachable) {
+            foreach ($lesson->getLessonTeachables() as $lessonTeachable) {
 
-                if(!$user = $lessonTeachable->getUser()) {
+                if (!$user = $lessonTeachable->getUser()) {
                     continue;
                 }
 
-                if($user instanceof ProfessionalUser) {
+                if ($user instanceof ProfessionalUser) {
                     $lesson->setHasExpertPresenters(true);
                 }
 
-                if($user instanceof EducatorUser) {
+                if ($user instanceof EducatorUser) {
                     $lesson->setHasEducatorRequestors(true);
                 }
             }
@@ -1034,6 +1035,7 @@ class NormalizeFeedbackCommand extends Command
                         $feedback->setFeedbackProvider('Educator');
 
                         // todo how do we really determine who the experience provider is? Ask Chris?
+                        /** @var Request $request */
                         if ($feedback->getTeachLessonExperience() && $request = $feedback->getTeachLessonExperience()->getOriginalRequest()) {
 
                             if ($request->getIsFromProfessional()) {
@@ -2144,7 +2146,8 @@ class NormalizeFeedbackCommand extends Command
         return $this;
     }
 
-    private function addCompanyAdministratorRoles(InputInterface $input, OutputInterface $output) {
+    private function addCompanyAdministratorRoles(InputInterface $input, OutputInterface $output)
+    {
 
         $output->writeln('Adding roles for company administrators.');
 
@@ -2160,7 +2163,7 @@ class NormalizeFeedbackCommand extends Command
             }
 
             /** @var User $owner */
-            if(!$owner = $company->getOwner()) {
+            if (!$owner = $company->getOwner()) {
                 continue;
             }
 

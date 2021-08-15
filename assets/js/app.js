@@ -97,8 +97,8 @@ window.Pintex = {
 
         let eventHtml = "";
         const eventPayload = deepObject(event, 'extendedProps.customEventPayload') || { className: "default" };
-        const eventStartDate = parseInt( eventPayload.startDateAndTime );
-        const eventEndDate = parseInt( eventPayload.endDateAndTime );
+        const eventStartDate = parseInt( eventPayload.startDateAndTimeTimestamp );
+        const eventEndDate = parseInt( eventPayload.endDateAndTimeTimestamp );
         const eventTitle = eventPayload.title;
         const eventAbout = eventPayload.about;
         const eventDescription = eventPayload.briefDescription;
@@ -152,7 +152,7 @@ window.Pintex = {
                 this_level.openModal(eventHtml);
             });
         } else if( eventPayload.className == 'TeachLessonExperience' ) {
-            eventHtml += `<a href="/dashboard/requests/${ eventPayload.requestId }/view" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
+            eventHtml += `<a href="/dashboard/requests?id=${ eventPayload.requestId }" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
             this_level.openModal(eventHtml);
 
         } else {
@@ -161,9 +161,11 @@ window.Pintex = {
     },
     generateAddToCalendarButton: function( epochStartTime, epochEndTime, title = '', description = '', location = '' ) {
 
+        debugger;
+
         // Get the dates from CST to EPOCH
-        const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+00:00').format("YYYYMMDDTHHmmss");
-        const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+00:00').format("YYYYMMDDTHHmmss");
+        const startISOtoSeconds = moment.unix(epochStartTime).format("YYYYMMDDTHHmmss");
+        const endISOtoSeconds = moment.unix(epochEndTime).format("YYYYMMDDTHHmmss");
 
 
         // Encode all our user inputs

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Request;
 
 use App\Entity\AdminUser;
 use Symfony\Component\Form\AbstractType;

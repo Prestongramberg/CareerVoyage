@@ -68,20 +68,23 @@
                     <tbody>
                     <tr>
                         <td>Name</td>
-                        {% if experience.originalRequest.isFromProfessional %}
-                            <td>{{ experience.originalRequest.needsApprovalBy.fullName }}</td>
-                        {% else %}
-                            <td>{{ experience.originalRequest.createdBy.fullName }}</td>
-                        {% endif %}
+                        <td>{{ experience.request.createdBy.fullName }}</td>
                     </tr>
                     <tr>
                         <td>Address</td>
                         <td>
                             <p>
-                                {{ experience.street }}<br />
-                                {{ experience.city }} {{ experience.state.name }}, {{ experience.zipcode }}
+                                {{ experience.school.address }}
                             </p>
                         </td>
+                    </tr>
+                    <tr>
+                    <td>Phone</td>
+                    <td>
+                        <p>
+                            {{ experience.request.createdBy.phone }}
+                        </p>
+                    </td>
                     </tr>
                     </tbody>
                 </table>

@@ -17,7 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({
  *     "request" = "Request",
- *     "teachLessonRequest" = "TeachLessonRequest",
  *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
  *     "educatorRegisterEducatorForCompanyExperienceRequest" = "EducatorRegisterEducatorForCompanyExperienceRequest",
  *     "schoolAdminRegisterSAForCompanyExperienceRequest" = "SchoolAdminRegisterSAForCompanyExperienceRequest",
@@ -224,6 +223,11 @@ class Request
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $statusLabel;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Experience::class, mappedBy="request", cascade={"persist", "remove"})
+     */
+    private $experience;
 
     public function __construct()
     {
@@ -438,7 +442,7 @@ class Request
         return null;
     }
 
-    public function getAssociatedRequestPossibleApproversNotEqualToUser(User $user)
+    public function getAssociatedRequestPossibleApproversNotEqualToUser(User $user, $oneOrNull = false)
     {
 
         $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function (RequestPossibleApprovers $requestPossibleApprovers
@@ -456,11 +460,11 @@ class Request
 
         $requestPossibleApprovers = array_values($requestPossibleApprovers);
 
-        if (!empty($requestPossibleApprovers)) {
-            return $requestPossibleApprovers;
+        if ($oneOrNull) {
+            return $requestPossibleApprovers[0] ?? null;
         }
 
-        return [];
+        return $requestPossibleApprovers ?? [];
     }
 
     public function getSummary(): ?string
@@ -879,5 +883,37 @@ class Request
         $this->statusLabel = $statusLabel;
 
         return $this;
+    }
+
+    public function getExperience(): ?Experience
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(?Experience $experience): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($experience === null && $this->experience !== null) {
+            $this->experience->setRequest(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($experience !== null && $experience->getRequest() !== $this) {
+            $experience->setRequest($this);
+        }
+
+        $this->experience = $experience;
+
+        return $this;
+    }
+
+    public function getIsFromProfessional()
+    {
+        return $this->getCreatedBy() instanceof ProfessionalUser;
+    }
+
+    public function getIsFromEducator()
+    {
+        return $this->getCreatedBy() instanceof EducatorUser;
     }
 }
