@@ -388,7 +388,7 @@ class LessonController extends AbstractController
         $dateOptionThree = $request->request->get('dateOptionThree');
 
         $teachLessonRequest = new \App\Entity\Request();
-        $teachLessonRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_TEACH_LESSON);
+        $teachLessonRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_TEACH_LESSON_INVITE);
         $teachLessonRequest->setCreatedBy($user);
         $teachLessonRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
         $teachLessonRequest->setStatusLabel('Guest instructor invite is pending approval');
@@ -478,7 +478,7 @@ class LessonController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($teachLessonRequest);
 
-        //$this->requestsMailer->teachLessonRequest($teachLessonRequest);
+        $this->requestsMailer->teachLessonInviteApproval($teachLessonRequest, $lesson);
 
         $this->addFlash('success', 'Request successfully sent!');
 

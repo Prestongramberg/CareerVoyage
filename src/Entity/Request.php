@@ -36,12 +36,12 @@ class Request
     const OPPORTUNITY_TYPE_VIRTUAL_OR_IN_PERSON = 'VIRTUAL_OR_IN_PERSON';
     const OPPORTUNITY_TYPE_TO_BE_DETERMINED     = 'TO_BE_DETERMINED';
 
-    const REQUEST_TYPE_JOB_BOARD      = 'JOB_BOARD';
-    const REQUEST_TYPE_NEW_COMPANY    = 'NEW_COMPANY';
-    const REQUEST_TYPE_JOIN_COMPANY   = 'JOIN_COMPANY';
-    const REQUEST_TYPE_COMPANY_INVITE = 'COMPANY_INVITE';
-    const REQUEST_TYPE_TEACH_LESSON   = 'TEACH_LESSON';
-    const REQUEST_TYPE_NOTIFICATION   = 'NOTIFICATION';
+    const REQUEST_TYPE_JOB_BOARD           = 'JOB_BOARD';
+    const REQUEST_TYPE_NEW_COMPANY         = 'NEW_COMPANY';
+    const REQUEST_TYPE_JOIN_COMPANY        = 'JOIN_COMPANY';
+    const REQUEST_TYPE_COMPANY_INVITE      = 'COMPANY_INVITE';
+    const REQUEST_TYPE_TEACH_LESSON_INVITE = 'TEACH_LESSON_INVITE';
+    const REQUEST_TYPE_NOTIFICATION        = 'NOTIFICATION';
 
     const REQUEST_STATUS_PENDING  = 'PENDING';
     const REQUEST_STATUS_APPROVED = 'APPROVED';
@@ -413,44 +413,50 @@ class Request
         return $this;
     }
 
-    public function getAssociatedRequestPossibleApproverForUser(User $user) {
+    public function getAssociatedRequestPossibleApproverForUser(User $user)
+    {
 
-        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function(RequestPossibleApprovers $requestPossibleApprovers) use($user) {
-            if(!$requestPossibleApprovers->getPossibleApprover()) {
+        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function (RequestPossibleApprovers $requestPossibleApprovers
+        ) use ($user) {
+            if (!$requestPossibleApprovers->getPossibleApprover()) {
                 return false;
             }
 
-            if($user->getId() !== $requestPossibleApprovers->getPossibleApprover()->getId()) {
+            if ($user->getId() !== $requestPossibleApprovers->getPossibleApprover()->getId()) {
                 return false;
             }
+
             return true;
         });
 
         $requestPossibleApprovers = array_values($requestPossibleApprovers);
 
-        if(!empty($requestPossibleApprovers)) {
+        if (!empty($requestPossibleApprovers)) {
             return $requestPossibleApprovers[0];
         }
 
         return null;
     }
 
-    public function getAssociatedRequestPossibleApproversNotEqualToUser(User $user) {
+    public function getAssociatedRequestPossibleApproversNotEqualToUser(User $user)
+    {
 
-        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function(RequestPossibleApprovers $requestPossibleApprovers) use($user) {
-            if(!$requestPossibleApprovers->getPossibleApprover()) {
+        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function (RequestPossibleApprovers $requestPossibleApprovers
+        ) use ($user) {
+            if (!$requestPossibleApprovers->getPossibleApprover()) {
                 return false;
             }
 
-            if($user->getId() === $requestPossibleApprovers->getPossibleApprover()->getId()) {
+            if ($user->getId() === $requestPossibleApprovers->getPossibleApprover()->getId()) {
                 return false;
             }
+
             return true;
         });
 
         $requestPossibleApprovers = array_values($requestPossibleApprovers);
 
-        if(!empty($requestPossibleApprovers)) {
+        if (!empty($requestPossibleApprovers)) {
             return $requestPossibleApprovers;
         }
 

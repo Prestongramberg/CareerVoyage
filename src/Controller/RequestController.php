@@ -591,7 +591,7 @@ class RequestController extends AbstractController
                 };
 
                 break;
-            case \App\Entity\Request::REQUEST_TYPE_TEACH_LESSON:
+            case \App\Entity\Request::REQUEST_TYPE_TEACH_LESSON_INVITE:
 
                 $lessonId     = $httpRequest->query->get('lesson_id');
                 $lesson       = $this->lessonRepository->find($lessonId);
@@ -691,19 +691,21 @@ class RequestController extends AbstractController
                                     ->setNotification($notification);
                             $this->entityManager->persist($requestAction);
 
+                            $this->requestsMailer->teachLessonInviteApproved($request, $lesson);
+
                             /** @var RequestPossibleApprovers $possibleApprover */
                             $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
-                            $possibleApprover->removePossibleAction([
-                                RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                             ]);
                             $this->entityManager->persist($possibleApprover);
 
                             /** @var RequestPossibleApprovers $possibleApprover */
                             foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
-                                $possibleApprover->removePossibleAction([
-                                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                $possibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                                 ]);
                                 $this->entityManager->persist($possibleApprover);
                             }
@@ -749,8 +751,20 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
                                 ->setStatusLabel('Guest instructor invite has been denied');
+
+                        $this->requestsMailer->teachLessonInviteDenied($request, $lesson);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+                        $possibleApprover->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_DENY]);
+                        $possibleApprover->setPossibleActions([
+                            RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                            RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                        ]);
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
+
                     }
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
@@ -791,10 +805,12 @@ class RequestController extends AbstractController
 
                             /** @var RequestPossibleApprovers $possibleApprover */
                             foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
-                                $possibleApprover->addPossibleAction([
+                                $possibleApprover->setPossibleActions([
                                     RequestAction::REQUEST_ACTION_NAME_APPROVE,
                                     RequestAction::REQUEST_ACTION_NAME_DENY,
                                     RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                                 ]);
                                 $this->entityManager->persist($possibleApprover);
                             }
