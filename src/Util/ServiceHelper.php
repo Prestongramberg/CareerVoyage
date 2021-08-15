@@ -55,7 +55,6 @@ use App\Repository\StudentReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\SystemUserRepository;
 use App\Repository\TeachLessonExperienceRepository;
-use App\Repository\TeachLessonRequestRepository;
 use App\Repository\UserMetaRepository;
 use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
 use App\Repository\UserRepository;
@@ -216,11 +215,6 @@ trait ServiceHelper
      * @var RegionalCoordinatorRepository
      */
     private $regionalCoordinatorRepository;
-
-    /**
-     * @var TeachLessonRequestRepository
-     */
-    private $teachLessonRequestRepository;
 
     /**
      * @var SchoolExperienceRepository
@@ -526,7 +520,6 @@ trait ServiceHelper
      * @param IndustryRepository                                            $industryRepository
      * @param SecondaryIndustryRepository                                   $secondaryIndustryRepository
      * @param RegionalCoordinatorRepository                                 $regionalCoordinatorRepository
-     * @param TeachLessonRequestRepository                                  $teachLessonRequestRepository
      * @param SchoolExperienceRepository                                    $schoolExperienceRepository
      * @param RequestRepository                                             $requestRepository
      * @param ChatRepository                                                $chatRepository
@@ -599,7 +592,6 @@ trait ServiceHelper
                                 IndustryRepository $industryRepository,
                                 SecondaryIndustryRepository $secondaryIndustryRepository,
                                 RegionalCoordinatorRepository $regionalCoordinatorRepository,
-                                TeachLessonRequestRepository $teachLessonRequestRepository,
                                 SchoolExperienceRepository $schoolExperienceRepository,
                                 RequestRepository $requestRepository, ChatRepository $chatRepository,
                                 PaginatorInterface $paginator, SiteAdminUserRepository $siteAdminRepository,
@@ -665,7 +657,6 @@ trait ServiceHelper
         $this->industryRepository                                            = $industryRepository;
         $this->secondaryIndustryRepository                                   = $secondaryIndustryRepository;
         $this->regionalCoordinatorRepository                                 = $regionalCoordinatorRepository;
-        $this->teachLessonRequestRepository                                  = $teachLessonRequestRepository;
         $this->schoolExperienceRepository                                    = $schoolExperienceRepository;
         $this->requestRepository                                             = $requestRepository;
         $this->chatRepository                                                = $chatRepository;
@@ -722,7 +713,6 @@ trait ServiceHelper
         $this->userMetaRepository                                            = $userMetaRepository;
         $this->requestActionRepository                                       = $requestActionRepository;
     }
-
 
     public function getFullQualifiedBaseUrl()
     {

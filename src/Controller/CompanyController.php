@@ -306,12 +306,6 @@ class CompanyController extends AbstractController
             $newCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_NEW_COMPANY);
             $newCompanyRequest->setCreatedBy($user);
             $newCompanyRequest->addNeedsApprovalByRole(User::ROLE_ADMIN_USER);
-            $newCompanyRequest->setNeedsApprovalBy($adminUser);
-            $newCompanyRequest->addPossibleAction([
-                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
-                RequestAction::REQUEST_ACTION_NAME_DENY,
-                RequestAction::REQUEST_ACTION_NAME_APPROVE,
-            ]);
             $newCompanyRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
             $newCompanyRequest->setStatusLabel('Company Pending Approval');
             $newCompanyRequest->setNotification([
@@ -319,6 +313,7 @@ class CompanyController extends AbstractController
                 'user_photo' => $user->getPhotoPath(),
                 'user_photos' => [],
                 'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => [],
                 'body' => [
                     'Request Type' => [
                         'order' => 1,
@@ -348,10 +343,25 @@ class CompanyController extends AbstractController
                 ],
             ]);
 
-            // todo can I remove this?
+            $createdByApprover = new RequestPossibleApprovers();
+            $createdByApprover->setPossibleApprover($user);
+            $createdByApprover->setRequest($newCompanyRequest);
+            $createdByApprover->setPossibleActions([
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE
+            ]);
+            $createdByApprover->setNotificationTitle("<strong>You</strong> have created a new company {$company->getName()}");
+            $this->entityManager->persist($createdByApprover);
+
             $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
             foreach ($adminUsers as $adminUser) {
                 $possibleApprover = new RequestPossibleApprovers();
+                $possibleApprover->setPossibleActions([
+                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE
+                ]);
+                $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}");
                 $possibleApprover->setPossibleApprover($adminUser);
                 $possibleApprover->setRequest($newCompanyRequest);
                 $this->entityManager->persist($possibleApprover);
@@ -371,8 +381,8 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
             $this->entityManager->refresh($newCompanyRequest);
 
-            $this->requestsMailer->newCompanyRequest($newCompanyRequest, $company);
-            $this->requestsMailer->companyAwaitingApproval($newCompanyRequest, $company);
+            $this->requestsMailer->newCompanyApproval($newCompanyRequest, $company);
+            $this->requestsMailer->newCompanyAwaitingApproval($newCompanyRequest, $company);
 
             $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
 
@@ -2272,6 +2282,7 @@ class CompanyController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \ReflectionException
      */
     public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience)
     {
@@ -2400,7 +2411,8 @@ class CompanyController extends AbstractController
 
         if ($request->request->get('newStatus') == 1) {
 
-            $this->requestsMailer->newCompanyRequestApproval($company->getNewCompanyRequest());
+            // todo make sure in the RequestController we are sending this email as well
+            $this->requestsMailer->newCompanyApproved($company);
 
             $button = '<button class="uk-button uk-button-small uk-label-success" data-id="' . $company->getId() . '" data-newstatus="0">Approved</button>';
         } else {

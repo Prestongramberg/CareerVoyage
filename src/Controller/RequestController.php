@@ -305,22 +305,36 @@ class RequestController extends AbstractController
                 $companyId = $httpRequest->query->get('company_id');
                 $company   = $this->companyRepository->find($companyId);
                 $template  = 'request/modal/new_company.html.twig';
-                $context   = [
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
                     'request' => $request,
                     'company' => $company,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
                 ];
 
-                $emailHandler = function () use ($request, $company) {
-                    $this->requestsMailer->newCompanyRequestApproval($request, $company);
-                };
-
-                $requestActionHandler = function () use ($request, $company, $requestAction, $action) {
+                $requestActionHandler = function () use (
+                    $request, $company, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $template
+                ) {
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
                         $company->setApproved(true);
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
                                 ->setStatusLabel('Company has been approved');
+
+                        $this->requestsMailer->newCompanyApproved($company);
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -342,6 +356,36 @@ class RequestController extends AbstractController
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
                 };
 
                 break;
@@ -351,10 +395,11 @@ class RequestController extends AbstractController
                 $company   = $this->companyRepository->find($companyId);
                 /** @var User $createdBy */
                 $createdBy = $request->getCreatedBy();
-                $template  = 'request/modal/new_company.html.twig';
+                $template  = 'request/modal/default.html.twig';
                 $context   = [
                     'request' => $request,
                     'company' => $company,
+                    'loggedInUser' => $loggedInUser,
                 ];
 
                 $emailHandler = function () use ($request, $company) {
@@ -409,10 +454,11 @@ class RequestController extends AbstractController
                 $company   = $this->companyRepository->find($companyId);
                 /** @var User $createdBy */
                 $createdBy = $request->getCreatedBy();
-                $template  = 'request/modal/new_company.html.twig';
+                $template  = 'request/modal/default.html.twig';
                 $context   = [
                     'request' => $request,
                     'company' => $company,
+                    'loggedInUser' => $loggedInUser,
                 ];
 
                 $emailHandler = function () use ($request, $company) {
@@ -525,10 +571,6 @@ class RequestController extends AbstractController
                     'loggedInUser' => $loggedInUser,
                     'messages' => $messages,
                 ];
-
-                $emailHandler = function () use ($request, $lesson) {
-                    // $this->requestsMailer->joinCompanyRequestApproval($request, $company);
-                };
 
                 $requestActionHandler = function () use (
                     $request, $createdBy, $lesson, $requestAction, $action, $loggedInUser, $selectSuggestedDatesForm,

@@ -6,16 +6,12 @@ use App\Entity\Company;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EmailLog;
 use App\Entity\Experience;
-use App\Entity\JoinCompanyRequest;
-use App\Entity\NewCompanyRequest;
 use App\Entity\Request;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
-use App\Mailer\AbstractMailer;
-use App\Repository\AdminUserRepository;
 
 /**
  * Class RequestsMailer
@@ -24,6 +20,178 @@ use App\Repository\AdminUserRepository;
  */
 class RequestsMailer extends AbstractMailer
 {
+
+    /************************************************ START NEW COMPANY ***********************************************/
+
+    public function newCompanyApproval(Request $request, Company $company)
+    {
+
+        $skip = (
+            $request->getRequestType() !== Request::REQUEST_TYPE_NEW_COMPANY
+        );
+
+        if($skip) {
+            return false;
+        }
+
+        /** @var RequestPossibleApprovers $possibleApprover */
+        foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
+
+            $recipient = $possibleApprover->getPossibleApprover();
+
+            $skipSendingEmail = (
+                !$recipient ||
+                !$possibleApprover->getPossibleApprover()->getEmail()
+            );
+
+            if($skipSendingEmail) {
+                continue;
+            }
+
+            $recipient = $possibleApprover->getPossibleApprover();
+
+            $message = (new \Swift_Message('New Company Needs Approval'))
+                ->setFrom($this->siteFromEmail)
+                ->setTo($recipient->getEmail())
+                ->setBody(
+                    $this->templating->render(
+                        'email/requests/newCompanyApproval.html.twig',
+                        [
+                            'recipientFirstName' => $recipient->getFirstName(),
+                            'company' => $company
+                        ]
+                    ),
+                    'text/html'
+                );
+
+            $status = $this->mailer->send($message);
+
+            $log = new EmailLog();
+            $log->setFromEmail($this->siteFromEmail);
+            $log->setSubject('New Company Needs Approval!');
+            $log->setToEmail($recipient->getEmail());
+            $log->setStatus($status);
+            $log->setBody($message->getBody());
+
+            $this->entityManager->persist($log);
+        }
+
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function newCompanyAwaitingApproval(Request $request, Company $company)
+    {
+        $skip = (
+            $request->getRequestType() !== Request::REQUEST_TYPE_NEW_COMPANY ||
+            !$request->getCreatedBy() ||
+            !$request->getCreatedBy()->getEmail() ||
+            !$request->getCreatedBy()->getFirstName()
+        );
+
+        if($skip) {
+            return false;
+        }
+
+        $message = (new \Swift_Message('Your company is waiting approval'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($request->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/newCompanyAwaitingApproval.html.twig',
+                    [
+                        'request' => $request,
+                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
+                        'company' => $company
+                    ]
+                ),
+                'text/html'
+            );
+
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Your company is waiting approval!');
+        $log->setToEmail($request->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function newCompanyApproved(Company $company)
+    {
+        $skip = (
+            !$company->getOwner() ||
+            !$company->getOwner()->getEmail() ||
+            !$company->getOwner()->getFirstName()
+        );
+
+        if($skip) {
+            return false;
+        }
+
+        $message = (new \Swift_Message('Your company has been approved'))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($company->getOwner()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/newCompanyApproved.html.twig',
+                    [
+                        'recipientFirstName' => $company->getOwner()->getFirstName(),
+                        'company' => $company
+                    ]
+                ),
+                'text/html'
+            );
+
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject('Your company has been approved!');
+        $log->setToEmail($company->getOwner()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    /************************************************ END NEW COMPANY ***********************************************/
+
+
+
+    /* START JOIN COMPANY */
+
+
+
+    /* END JOIN COMPANY */
+
+
+
+
+    /* START COMPANY INVITE */
+
+
+
+    /* END COMPANY INVITE */
+
+
+
+    /* START TEACH LESSON */
+
+
+
+    /* END TEACH LESSON */
+
 
     /**
      * Join company request
@@ -181,139 +349,6 @@ class RequestsMailer extends AbstractMailer
             $this->entityManager->flush();
 
         }
-
-        return true;
-    }
-
-
-    public function newCompanyRequest(Request $request, Company $company)
-    {
-
-        if($request->getRequestType() !== Request::REQUEST_TYPE_NEW_COMPANY) {
-            return false;
-        }
-
-        /** @var RequestPossibleApprovers $possibleApprover */
-        foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
-
-            $recipient = $possibleApprover->getPossibleApprover();
-
-            $skipSendingEmail = (
-                !$recipient ||
-                !$possibleApprover->getPossibleApprover()->getEmail()
-            );
-
-            if($skipSendingEmail) {
-                continue;
-            }
-
-            $recipient = $possibleApprover->getPossibleApprover();
-
-            $message = (new \Swift_Message('New Company Needs Approval!'))
-                ->setFrom($this->siteFromEmail)
-                ->setTo($recipient->getEmail())
-                ->setBody(
-                    $this->templating->render(
-                        'email/requests/newCompanyRequest.html.twig',
-                        [
-                            'request' => $request,
-                            'recipientFirstName' => $recipient->getFirstName(),
-                            'company' => $company
-                        ]
-                    ),
-                    'text/html'
-                );
-
-            $status = $this->mailer->send($message);
-
-            $log = new EmailLog();
-            $log->setFromEmail($this->siteFromEmail);
-            $log->setSubject('New Company Needs Approval!');
-            $log->setToEmail($recipient->getEmail());
-            $log->setStatus($status);
-            $log->setBody($message->getBody());
-
-            $this->entityManager->persist($log);
-        }
-
-        $this->entityManager->flush();
-
-        return true;
-    }
-
-    public function companyAwaitingApproval(Request $request, Company $company)
-    {
-
-        if($request->getRequestType() !== Request::REQUEST_TYPE_NEW_COMPANY) {
-            return false;
-        }
-
-        if(!$request->getCreatedBy() || !$request->getCreatedBy()->getEmail()) {
-            return false;
-        }
-
-        $message = (new \Swift_Message('Your company is waiting approval!'))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($request->getCreatedBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/newCompanyAwaitingApproval.html.twig',
-                    [
-                        'request' => $request,
-                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
-                        'company' => $company
-                    ]
-                ),
-                'text/html'
-            );
-
-        $status = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject('Your company is waiting approval!');
-        $log->setToEmail($request->getCreatedBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-        return true;
-    }
-
-    public function newCompanyRequestApproval(Request $request, Company $company)
-    {
-        if(!$request->getCreatedBy() || !$request->getCreatedBy()->getEmail()) {
-            return false;
-        }
-
-        $message = (new \Swift_Message('Your company has been approved!'))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($request->getCreatedBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/newCompanyRequestApproval.html.twig',
-                    [
-                        'request' => $request,
-                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
-                        'company' => $company
-                    ]
-                ),
-                'text/html'
-            );
-
-        $status = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject('Your company has been approved!');
-        $log->setToEmail($request->getCreatedBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
 
         return true;
     }
