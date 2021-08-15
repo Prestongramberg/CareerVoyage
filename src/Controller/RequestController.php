@@ -813,6 +813,14 @@ class RequestController extends AbstractController
                             RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                         ]);
 
+                        $teachLessonExperience = $this->teachLessonExperienceRepository->findOneBy([
+                            'request' => $request->getId()
+                        ]);
+
+                        if($teachLessonExperience) {
+                            $this->entityManager->remove($teachLessonExperience);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
 
@@ -823,6 +831,15 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
                                 ->setStatusLabel('Guest instructor invite is pending approval');
+
+                        $teachLessonExperience = $this->teachLessonExperienceRepository->findOneBy([
+                            'request' => $request->getId()
+                        ]);
+
+                        if($teachLessonExperience) {
+                            $this->entityManager->remove($teachLessonExperience);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }

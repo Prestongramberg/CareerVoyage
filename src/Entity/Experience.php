@@ -252,7 +252,7 @@ abstract class Experience
     protected $averageRating;
 
     /**
-     * @ORM\OneToOne(targetEntity=Request::class, inversedBy="experience", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Request::class, inversedBy="experience")
      */
     private $request;
 
