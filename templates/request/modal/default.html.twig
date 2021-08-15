@@ -4,6 +4,7 @@
 {% set createdOn = notification['created_on'] %}
 {% set userPhoto = notification['user_photo'] %}
 {% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(loggedInUser) %}
+{% set messages = notification['messages'] is defined ? notification['messages'] : [] %}
 
 <div class="uk-modal-dialog">
     <button class="uk-modal-close-outside" type="button" uk-close></button>
@@ -22,7 +23,11 @@
                     <option value="">Actions</option>
                     {% if requestPossibleApprover %}
                         {% for possibleRequestAction in requestPossibleApprover.possibleActions %}
-                            <option value="{{ request.actionUrl }}&action={{ possibleRequestAction }}&_method=post">{{ request.buttonFriendlyNameForRequestAction(possibleRequestAction) }}</option>
+                            {% if possibleRequestAction == constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE') %}
+                                <option value="{{ request.actionUrl }}&action={{ possibleRequestAction }}">{{ request.buttonFriendlyNameForRequestAction(possibleRequestAction) }} ({{ messages|length }})</option>
+                            {% else %}
+                                <option value="{{ request.actionUrl }}&action={{ possibleRequestAction }}&_method=post">{{ request.buttonFriendlyNameForRequestAction(possibleRequestAction) }}</option>
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                 </select>

@@ -396,18 +396,26 @@ class RequestController extends AbstractController
                 /** @var User $createdBy */
                 $createdBy = $request->getCreatedBy();
                 $template  = 'request/modal/default.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
                 $context   = [
                     'request' => $request,
                     'company' => $company,
                     'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
                 ];
 
-                $emailHandler = function () use ($request, $company) {
-                    $this->requestsMailer->joinCompanyRequestApproval($request, $company);
-                };
-
                 $requestActionHandler = function () use (
-                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $template
                 ) {
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
@@ -415,7 +423,10 @@ class RequestController extends AbstractController
                         $createdBy->setCompany($company);
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
-                                ->setStatusLabel('Professional has been approved');
+                                ->setStatusLabel('Company invite accepted');
+
+                        $this->requestsMailer->joinCompanyApproved($request, $company);
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -428,7 +439,7 @@ class RequestController extends AbstractController
 
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
-                                ->setStatusLabel('Professional has been denied');
+                                ->setStatusLabel('Company invite denied');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -441,10 +452,41 @@ class RequestController extends AbstractController
 
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
-                                ->setStatusLabel('Professional is pending approval');
+                                ->setStatusLabel('Company invite pending');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+
                 };
 
                 break;
@@ -455,18 +497,26 @@ class RequestController extends AbstractController
                 /** @var User $createdBy */
                 $createdBy = $request->getCreatedBy();
                 $template  = 'request/modal/default.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
                 $context   = [
                     'request' => $request,
                     'company' => $company,
                     'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
                 ];
 
-                $emailHandler = function () use ($request, $company) {
-                    $this->requestsMailer->joinCompanyRequestApproval($request, $company);
-                };
-
                 $requestActionHandler = function () use (
-                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $template
                 ) {
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
@@ -474,7 +524,10 @@ class RequestController extends AbstractController
                         $loggedInUser->setCompany($company);
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
-                                ->setStatusLabel('Company invite has been accepted');
+                                ->setStatusLabel('Company invite accepted');
+
+                        $this->requestsMailer->companyInviteApproved($request, $company);
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -487,7 +540,7 @@ class RequestController extends AbstractController
 
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
-                                ->setStatusLabel('Company invite has been denied');
+                                ->setStatusLabel('Company invite denied');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -500,9 +553,39 @@ class RequestController extends AbstractController
 
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
-                                ->setStatusLabel('Company invite is pending approval');
+                                ->setStatusLabel('Company invite pending');
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
                     }
 
                 };

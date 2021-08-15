@@ -347,7 +347,7 @@ class CompanyController extends AbstractController
             $createdByApprover->setPossibleApprover($user);
             $createdByApprover->setRequest($newCompanyRequest);
             $createdByApprover->setPossibleActions([
-                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
             ]);
             $createdByApprover->setNotificationTitle("<strong>You</strong> have created a new company {$company->getName()}");
             $this->entityManager->persist($createdByApprover);
@@ -359,7 +359,7 @@ class CompanyController extends AbstractController
                     RequestAction::REQUEST_ACTION_NAME_APPROVE,
                     RequestAction::REQUEST_ACTION_NAME_DENY,
                     RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
-                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE
+                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                 ]);
                 $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}");
                 $possibleApprover->setPossibleApprover($adminUser);
@@ -469,6 +469,7 @@ class CompanyController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \Exception
      */
     public function joinAction(Request $request, Company $company)
     {
@@ -480,10 +481,6 @@ class CompanyController extends AbstractController
         $joinCompanyRequest = new \App\Entity\Request();
         $joinCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_JOIN_COMPANY);
         $joinCompanyRequest->setCreatedBy($user);
-        $joinCompanyRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                                RequestAction::REQUEST_ACTION_NAME_DENY,
-                                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
-        ]);
         $joinCompanyRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
         $joinCompanyRequest->setStatusLabel('Join Company Pending Approval');
         $joinCompanyRequest->setNotification([
@@ -491,6 +488,7 @@ class CompanyController extends AbstractController
             'user_photo' => $user->getPhotoPath(),
             'user_photos' => [],
             'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'messages' => [],
             'body' => [
                 'Request Type' => [
                     'order' => 1,
@@ -520,10 +518,28 @@ class CompanyController extends AbstractController
             ],
         ]);
 
+        $createdByApprover = new RequestPossibleApprovers();
+        $createdByApprover->setPossibleApprover($user);
+        $createdByApprover->setRequest($joinCompanyRequest);
+        $createdByApprover->setPossibleActions([
+            RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
+        $createdByApprover->setNotificationTitle("You have requested to join company <strong>{$company->getName()}</strong>");
+        $this->entityManager->persist($createdByApprover);
+
 
         $possibleApprover = new RequestPossibleApprovers();
         $possibleApprover->setPossibleApprover($company->getOwner());
+        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}");
         $possibleApprover->setRequest($joinCompanyRequest);
+        $possibleApprover->setPossibleActions(
+            [
+                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                RequestAction::REQUEST_ACTION_NAME_DENY,
+                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]
+        );
         $this->entityManager->persist($possibleApprover);
 
         $this->entityManager->persist($joinCompanyRequest);
@@ -539,7 +555,7 @@ class CompanyController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($joinCompanyRequest);
 
-        $this->requestsMailer->joinCompanyRequest($joinCompanyRequest, $company);
+        $this->requestsMailer->joinCompanyApproval($joinCompanyRequest, $company);
 
         $this->addFlash('success', 'Request to join this company has been sent to the company administrator');
 
@@ -568,10 +584,6 @@ class CompanyController extends AbstractController
         $companyInviteRequest = new \App\Entity\Request();
         $companyInviteRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_COMPANY_INVITE);
         $companyInviteRequest->setCreatedBy($user);
-        $companyInviteRequest->addPossibleAction([RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                                  RequestAction::REQUEST_ACTION_NAME_DENY,
-                                                  RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
-        ]);
         $companyInviteRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
         $companyInviteRequest->setStatusLabel('Company invite is pending approval');
         $companyInviteRequest->setNotification([
@@ -588,30 +600,51 @@ class CompanyController extends AbstractController
                     'order' => 2,
                     'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
                 ],
-                'Company Name' => [
+                'Sent To' => [
                     'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $professionalUser->getId()])}'>{$professionalUser->getFullName()}</a>",
+                ],
+                'Company Name' => [
+                    'order' => 4,
                     'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
                 ],
                 'Website' => [
-                    'order' => 4,
+                    'order' => 5,
                     'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
 
                 ],
                 'Phone' => [
-                    'order' => 5,
+                    'order' => 6,
                     'value' => $company->getPhone(),
                 ],
                 'Created On' => [
-                    'order' => 6,
+                    'order' => 7,
                     'value' => (new \DateTime())->format("m/d/Y h:i A"),
                 ],
             ],
         ]);
 
+        $createdByApprover = new RequestPossibleApprovers();
+        $createdByApprover->setPossibleApprover($user);
+        $createdByApprover->setRequest($companyInviteRequest);
+        $createdByApprover->setPossibleActions([
+            RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
+        $createdByApprover->setNotificationTitle("You have invited <strong>{$professionalUser->getFullName()}</strong> to join your company {$company->getName()}");
+        $this->entityManager->persist($createdByApprover);
 
         $possibleApprover = new RequestPossibleApprovers();
         $possibleApprover->setPossibleApprover($professionalUser);
         $possibleApprover->setRequest($companyInviteRequest);
+        $possibleApprover->setPossibleActions(
+            [
+                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                RequestAction::REQUEST_ACTION_NAME_DENY,
+                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]
+        );
+        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has invited you to join their company {$company->getName()}");
         $this->entityManager->persist($possibleApprover);
 
         $this->entityManager->persist($companyInviteRequest);
@@ -626,6 +659,8 @@ class CompanyController extends AbstractController
 
         $this->entityManager->flush();
         $this->entityManager->refresh($companyInviteRequest);
+
+        $this->requestsMailer->companyInviteApproval($companyInviteRequest, $company);
 
         $this->addFlash('success', 'Request successfully sent!');
 

@@ -12,12 +12,19 @@
         <div class="uk-width-2-3@m uk-width-1-1">
             <!-- PROFILE -->
             <div class="profile-card-wrapper">
+
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
 
                         {% if user.isCompanyOwner %}
-                            {% for request in request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_COMPANY_INVITE'), profileUser, 'company_id=' ~ user.company.id) %}
-                                <button style="float:right" href="javascript:void(0)" class="uk-button uk-button-small uk-button-primary" disabled>{{ request.statusLabel }}</button>
+
+                            {% set requests = request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_COMPANY_INVITE'), profileUser, 'company_id=' ~ user.company.id) %}
+                            {% set requests = requests|merge(request_sent(profileUser, constant('App\\Entity\\Request::REQUEST_TYPE_JOIN_COMPANY'), user, 'company_id=' ~ user.company.id)) %}
+
+                            {% for request in requests %}
+                                <button style="float:right" href="javascript:void(0)"
+                                        class="uk-button uk-button-small uk-button-primary"
+                                        disabled>{{ request.statusLabel }}</button>
                             {% else %}
                                 <a style="float:right"
                                    href="{{ path('company_invite', {company: user.company.id, professionalUser: profileUser.id}) }}"
@@ -97,9 +104,9 @@
                             <p>This user has not added a bio yet.</p>
                         {% endif %}
 
-                        {% if profileUser.interests %}
                         <div class="uk-margin">
-                            <strong>Interests:</strong> {{ profileUser.interests }}
+                            {% if profileUser.interests %}
+                                <strong>Interests:</strong> {{ profileUser.interests }}
                             {% endif %}
                             <div class="professional-links">
                                 {% if user_can_chat_with_user( user, profileUser ) %}
@@ -282,39 +289,43 @@
                     </div>
                 </div>
 
-
             </div>
-            <div class="uk-width-1-3@m uk-width-1-1">
-                <!-- Quick Links -->
-                <div class="quick-links-wrapper">
-                    <div class="uk-card uk-card-default">
-                        <div class="uk-card-header">
-                            <div class="uk-grid-small uk-flex-middle" uk-grid>
-                                <div class="uk-width-expand">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My volunteer roles</h3>
-                                </div>
+        </div>
+
+        <div class="uk-width-1-3@m uk-width-1-1">
+            <!-- Quick Links -->
+            <div class="quick-links-wrapper">
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle" uk-grid>
+                            <div class="uk-width-expand">
+                                <h3 class="uk-card-title uk-margin-remove-bottom">My volunteer roles</h3>
                             </div>
                         </div>
-                        <div class="uk-card-body">
-                            {% if profileUser.rolesWillingToFulfill|length %}
-                                <ul class="uk-list uk-list-divider">
-                                    {% for role in profileUser.rolesWillingToFulfill %}
-                                        <li>{{ role.name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p>This user hasn't added any roles yet.</p>
-                            {% endif %}
-                            {% if user_can_chat_with_user( user, profileUser ) %}
-                                <p>
-                                    <button class="uk-button uk-button-default uk-button-small"
-                                            data-message-user-id="{{ profileUser.id }}">Chat
-                                        with {{ profileUser.firstName }}</button>
-                                </p>
-                            {% endif %}
-                        </div>
+                    </div>
+                    <div class="uk-card-body">
+                        {% if profileUser.rolesWillingToFulfill|length %}
+                            <ul class="uk-list uk-list-divider">
+                                {% for role in profileUser.rolesWillingToFulfill %}
+                                    <li>{{ role.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>This user hasn't added any roles yet.</p>
+                        {% endif %}
+                        {% if user_can_chat_with_user( user, profileUser ) %}
+                            <p>
+                                <button class="uk-button uk-button-default uk-button-small"
+                                        data-message-user-id="{{ profileUser.id }}">Chat
+                                    with {{ profileUser.firstName }}</button>
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
+
+
     </div>
+
+</div>

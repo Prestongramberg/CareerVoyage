@@ -7,6 +7,7 @@ use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EmailLog;
 use App\Entity\Experience;
 use App\Entity\Request;
+use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonRequest;
@@ -30,7 +31,7 @@ class RequestsMailer extends AbstractMailer
             $request->getRequestType() !== Request::REQUEST_TYPE_NEW_COMPANY
         );
 
-        if($skip) {
+        if ($skip) {
             return false;
         }
 
@@ -41,10 +42,11 @@ class RequestsMailer extends AbstractMailer
 
             $skipSendingEmail = (
                 !$recipient ||
-                !$possibleApprover->getPossibleApprover()->getEmail()
+                !$possibleApprover->getPossibleApprover()->getEmail() ||
+                !$possibleApprover->hasPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE)
             );
 
-            if($skipSendingEmail) {
+            if ($skipSendingEmail) {
                 continue;
             }
 
@@ -58,7 +60,7 @@ class RequestsMailer extends AbstractMailer
                         'email/requests/newCompanyApproval.html.twig',
                         [
                             'recipientFirstName' => $recipient->getFirstName(),
-                            'company' => $company
+                            'company' => $company,
                         ]
                     ),
                     'text/html'
@@ -90,7 +92,7 @@ class RequestsMailer extends AbstractMailer
             !$request->getCreatedBy()->getFirstName()
         );
 
-        if($skip) {
+        if ($skip) {
             return false;
         }
 
@@ -103,7 +105,7 @@ class RequestsMailer extends AbstractMailer
                     [
                         'request' => $request,
                         'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
-                        'company' => $company
+                        'company' => $company,
                     ]
                 ),
                 'text/html'
@@ -132,7 +134,7 @@ class RequestsMailer extends AbstractMailer
             !$company->getOwner()->getFirstName()
         );
 
-        if($skip) {
+        if ($skip) {
             return false;
         }
 
@@ -144,7 +146,7 @@ class RequestsMailer extends AbstractMailer
                     'email/requests/newCompanyApproved.html.twig',
                     [
                         'recipientFirstName' => $company->getOwner()->getFirstName(),
-                        'company' => $company
+                        'company' => $company,
                     ]
                 ),
                 'text/html'
@@ -168,127 +170,10 @@ class RequestsMailer extends AbstractMailer
     /************************************************ END NEW COMPANY ***********************************************/
 
 
-
-    /* START JOIN COMPANY */
-
-
-
-    /* END JOIN COMPANY */
-
-
-
-
-    /* START COMPANY INVITE */
-
-
-
-    /* END COMPANY INVITE */
-
-
-
-    /* START TEACH LESSON */
-
-
-
-    /* END TEACH LESSON */
-
+    /************************************************ START JOIN COMPANY ***********************************************/
 
     /**
      * Join company request
-     *
-     * @param Request $request
-     *
-     * @return bool
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function joinCompanyRequestApproval(Request $request, Company $company)
-    {
-
-        if(!$request->getCreatedBy() || !$request->getCreatedBy()->getEmail()) {
-            return false;
-        }
-
-        $message = (new \Swift_Message("Join Company Request Approval."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($request->getCreatedBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/joinCompanyRequestApproval.html.twig',
-                    [
-                        'request' => $request,
-                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
-                        'company' => $company
-                    ]
-                ),
-                'text/html'
-            );
-
-        $status = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Join Company Request Approval.");
-        $log->setToEmail($request->getCreatedBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-        return true;
-    }
-
-    /**
-     * Join company request
-     *
-     * @param Request $request
-     *
-     * @return bool
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function companyInviteApproval(Request $request, Company $company)
-    {
-
-        if(!$request->getCreatedBy() || !$request->getCreatedBy()->getEmail()) {
-            return false;
-        }
-
-        $message = (new \Swift_Message("Join Company Request Approval."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($request->getCreatedBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/joinCompanyRequestApproval.html.twig',
-                    [
-                        'request' => $request,
-                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
-                        'company' => $company
-                    ]
-                ),
-                'text/html'
-            );
-
-        $status = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Join Company Request Approval.");
-        $log->setToEmail($request->getCreatedBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-        return true;
-    }
-
-    /**
-     * company invite request
      *
      * @param Request $request
      * @param Company $company
@@ -298,14 +183,14 @@ class RequestsMailer extends AbstractMailer
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function companyInviteRequest(Request $request, Company $company)
+    public function joinCompanyApproval(Request $request, Company $company)
     {
         $skipSendingEmail = (
             $request->getRequestType() !== Request::REQUEST_TYPE_JOIN_COMPANY ||
             !$request->getCreatedBy()
         );
 
-        if($skipSendingEmail) {
+        if ($skipSendingEmail) {
             return false;
         }
 
@@ -314,23 +199,23 @@ class RequestsMailer extends AbstractMailer
 
             $skipSendingEmail = (
                 !$possibleApprover->getPossibleApprover() ||
-                !$possibleApprover->getPossibleApprover()->getEmail()
+                !$possibleApprover->getPossibleApprover()->getEmail() ||
+                !$possibleApprover->hasPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE)
             );
 
             if ($skipSendingEmail) {
                 continue;
             }
 
-            $message = (new \Swift_Message("Join Company Request."))
+            $message = (new \Swift_Message("Join Company Request Approval."))
                 ->setFrom($this->siteFromEmail)
                 ->setTo($possibleApprover->getPossibleApprover()->getEmail())
                 ->setBody(
                     $this->templating->render(
-                        'email/requests/joinCompanyRequest.html.twig',
+                        'email/requests/joinCompanyApproval.html.twig',
                         [
-                            'request' => $request,
                             'recipient' => $possibleApprover->getPossibleApprover(),
-                            'createdBy' => $request->getCreatedBy()
+                            'createdBy' => $request->getCreatedBy(),
                         ]
                     ),
                     'text/html'
@@ -350,8 +235,210 @@ class RequestsMailer extends AbstractMailer
 
         }
 
+
         return true;
     }
+
+    /**
+     * Join company request
+     *
+     * @param Request $request
+     *
+     * @return bool
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function joinCompanyApproved(Request $request, Company $company)
+    {
+
+        $skipSendingEmail = (
+            $request->getRequestType() !== Request::REQUEST_TYPE_JOIN_COMPANY ||
+            !$request->getCreatedBy() ||
+            !$request->getCreatedBy()->getEmail()
+        );
+
+        if ($skipSendingEmail) {
+            return false;
+        }
+
+        $message = (new \Swift_Message("Join Company Request Approved."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($request->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/joinCompanyApproved.html.twig',
+                    [
+                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
+                        'company' => $company,
+                    ]
+                ),
+                'text/html'
+            );
+
+        $status = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Join Company Request Approval.");
+        $log->setToEmail($request->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+
+
+    /************************************************ END JOIN COMPANY ***********************************************/
+
+
+    /************************************************ START COMPANY INVITE ***********************************************/
+
+    /**
+     * company invite request
+     *
+     * @param Request $request
+     * @param Company $company
+     *
+     * @return bool
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function companyInviteApproval(Request $request, Company $company)
+    {
+        $skipSendingEmail = (
+            $request->getRequestType() !== Request::REQUEST_TYPE_COMPANY_INVITE ||
+            !$request->getCreatedBy()
+        );
+
+        if ($skipSendingEmail) {
+            return false;
+        }
+
+        /** @var RequestPossibleApprovers $possibleApprover */
+        foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
+
+            $skipSendingEmail = (
+                !$possibleApprover->getPossibleApprover() ||
+                !$possibleApprover->getPossibleApprover()->getEmail() ||
+                !$possibleApprover->getPossibleApprover()->getFirstName() ||
+                !$possibleApprover->hasPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE)
+            );
+
+            if ($skipSendingEmail) {
+                continue;
+            }
+
+            $message = (new \Swift_Message("Company Invite Approval"))
+                ->setFrom($this->siteFromEmail)
+                ->setTo($possibleApprover->getPossibleApprover()->getEmail())
+                ->setBody(
+                    $this->templating->render(
+                        'email/requests/companyInviteApproval.html.twig',
+                        [
+                            'recipientFirstName' => $possibleApprover->getPossibleApprover()->getFirstName(),
+                            'createdBy' => $request->getCreatedBy(),
+                            'company' => $company
+                        ]
+                    ),
+                    'text/html'
+                );
+
+            $status = $this->mailer->send($message);
+
+            $log = new EmailLog();
+            $log->setFromEmail($this->siteFromEmail);
+            $log->setSubject("Company Invite Approval");
+            $log->setToEmail($possibleApprover->getPossibleApprover()->getEmail());
+            $log->setStatus($status);
+            $log->setBody($message->getBody());
+
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Join company request
+     *
+     * @param Request $request
+     *
+     * @return bool
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function companyInviteApproved(Request $request, Company $company)
+    {
+
+        if (!$request->getCreatedBy() || !$request->getCreatedBy()->getEmail()) {
+            return false;
+        }
+
+        /** @var RequestPossibleApprovers $possibleApprover */
+        foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
+
+            $skipSendingEmail = (
+                !$possibleApprover->getPossibleApprover() ||
+                !$possibleApprover->getPossibleApprover()->getEmail() ||
+                !$possibleApprover->getPossibleApprover()->getFullName() ||
+                !$possibleApprover->hasPossibleAction(RequestAction::REQUEST_ACTION_NAME_APPROVE)
+            );
+
+            if ($skipSendingEmail) {
+                continue;
+            }
+
+            $message = (new \Swift_Message("Company Invite Approved"))
+                ->setFrom($this->siteFromEmail)
+                ->setTo($request->getCreatedBy()->getEmail())
+                ->setBody(
+                    $this->templating->render(
+                        'email/requests/companyInviteApproved.html.twig',
+                        [
+                            'needsApprovalByFullName' => $possibleApprover->getPossibleApprover()->getFullName(),
+                            'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
+                            'company' => $company,
+                        ]
+                    ),
+                    'text/html'
+                );
+
+            $status = $this->mailer->send($message);
+
+            $log = new EmailLog();
+            $log->setFromEmail($this->siteFromEmail);
+            $log->setSubject("Company Invite Approved");
+            $log->setToEmail($request->getCreatedBy()->getEmail());
+            $log->setStatus($status);
+            $log->setBody($message->getBody());
+
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+
+        }
+
+        return true;
+    }
+
+
+    /************************************************ END COMPANY INVITE ***********************************************/
+
+
+    /* START TEACH LESSON */
+
+
+    /* END TEACH LESSON */
+
 
     public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest
     ) {
@@ -482,74 +569,6 @@ class RequestsMailer extends AbstractMailer
 
         $this->entityManager->persist($log);
         $this->entityManager->flush();
-    }
-
-    /**
-     * Join company request
-     *
-     * @param Request $request
-     * @param Company $company
-     *
-     * @return bool
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function joinCompanyRequest(Request $request, Company $company)
-    {
-        $skipSendingEmail = (
-            $request->getRequestType() !== Request::REQUEST_TYPE_JOIN_COMPANY ||
-            !$request->getCreatedBy()
-        );
-
-        if($skipSendingEmail) {
-            return false;
-        }
-
-        /** @var RequestPossibleApprovers $possibleApprover */
-        foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
-
-            $skipSendingEmail = (
-                !$possibleApprover->getPossibleApprover() ||
-                !$possibleApprover->getPossibleApprover()->getEmail()
-            );
-
-            if ($skipSendingEmail) {
-                continue;
-            }
-
-            $message = (new \Swift_Message("Join Company Request."))
-                ->setFrom($this->siteFromEmail)
-                ->setTo($possibleApprover->getPossibleApprover()->getEmail())
-                ->setBody(
-                    $this->templating->render(
-                        'email/requests/joinCompanyRequest.html.twig',
-                        [
-                            'request' => $request,
-                            'recipient' => $possibleApprover->getPossibleApprover(),
-                            'createdBy' => $request->getCreatedBy()
-                        ]
-                    ),
-                    'text/html'
-                );
-
-            $status = $this->mailer->send($message);
-
-            $log = new EmailLog();
-            $log->setFromEmail($this->siteFromEmail);
-            $log->setSubject("Join Company Request.");
-            $log->setToEmail($possibleApprover->getPossibleApprover()->getEmail());
-            $log->setStatus($status);
-            $log->setBody($message->getBody());
-
-            $this->entityManager->persist($log);
-            $this->entityManager->flush();
-
-        }
-
-
-
-        return true;
     }
 
     /**

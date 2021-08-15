@@ -1,0 +1,5 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName } %}
+
+<p>Your request for <strong>{{ needsApprovalByFullName }}</strong> to join your company page has been accepted.</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

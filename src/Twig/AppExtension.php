@@ -464,41 +464,6 @@ class AppExtension extends AbstractExtension
     {
 
         switch ($request->getClassName()) {
-            case "JoinCompanyRequest":
-
-                /** @var JoinCompanyRequest $request */
-                if ($this->containsNullObjects([
-                    $request->getCompany(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy(),
-                ])) {
-                    return '';
-                }
-
-                return $this->twig->render('request/partials/_join_companies.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab,
-                ]);
-                break;
-            case "NewCompanyRequest":
-                /** @var NewCompanyRequest $request */
-                if ($this->containsNullObjects([
-                    $request->getCompany(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy(),
-                ])) {
-                    return '';
-                }
-
-                return $this->twig->render('request/partials/_new_companies.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab,
-                ]);
-                break;
             case "TeachLessonRequest":
                 /** @var TeachLessonRequest $request */
                 if ($this->containsNullObjects([
