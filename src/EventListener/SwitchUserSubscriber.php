@@ -45,21 +45,10 @@ class SwitchUserSubscriber implements EventSubscriberInterface
             /** @var User $user */
             $user = $event->getToken()->getUser();
 
-            if (!$user->getPhoto() && $user->getFirstName() && $user->getLastName()) {
-
-                $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $user->getFirstName(), $user->getLastName());
-                $fileContents = file_get_contents($avatarUrl);
-
-                $filesystem  = new Filesystem();
-                $destination = $this->uploadsPath . '/' . UploaderHelper::PROFILE_PHOTO;
-                $fileName = uniqid('', true) . '.png';
-                $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
-                $user->setPhoto($fileName);
-
+            if($user->setAvatarProfilePhotoIfNeeded($this->uploadsPath)) {
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
             }
-
         }
     }
 

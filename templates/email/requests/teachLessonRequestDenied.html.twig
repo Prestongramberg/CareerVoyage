@@ -1,9 +1,0 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : request.createdBy.firstName } %}
-
-{% if request.isFromProfessional %}
-    <p>Your request to teach topic has been denied</p>
-{% else %}
-    <p>Your request for <strong>{{ request.needsApprovalBy.fullName }}</strong> to teach topic has been denied.</p>
-{% endif %}
-
-{% include 'email/partial/emailFooter.html.twig' %}

@@ -1,0 +1,6 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName } %}
+
+<p>You have a request from <strong>{{ company.name }}</strong> to join their company!</p>
+<p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to approve request.</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

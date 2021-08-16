@@ -1,0 +1,161 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}New Requests{% endblock %}
+{% block bodyClass %}requests-landing{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/manage_requests.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+
+     <style>
+         .uk-accordion-title:before {
+             content: '';
+             width: auto;
+             background: none;
+             float: none;
+             margin-left: auto;
+             height: auto;
+         }
+     </style>
+
+ {% endblock %}
+
+
+{% block body %}
+
+    <div id="js-manage-request-modal" uk-modal>
+    </div>
+
+    <div class="uk-container js-manage-requests-container">
+
+{#        <div style="float: right" uk-form-custom="target: > * > span:first-child">
+            <select>
+                <option value="">Filters</option>
+                <option value="">Created by me</option>
+                <option value="">Archived</option>
+            </select>
+            <button class="uk-button uk-button-primary" type="button" tabindex="-1">
+                <span></span>
+                <span uk-icon="icon: chevron-down"></span>
+            </button>
+        </div>#}
+
+
+        <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
+
+
+            <li class="uk-active"><a href="#requests-mine" id="my-requests_pending">
+                    <small><em class="fa fa-circle"></em></small>
+                    Requests To Review</a></li>
+
+        </ul>
+
+        <div class="uk-switcher" id="tab-requests">
+            <div class="requests-landing__my-requests">
+
+                {% if reviewRequests|length > 0 %}
+
+                    <ul class="uk-list">
+                        {% for request in reviewRequests %}
+
+                            {% set notification = request.notification %}
+                            {% set title = notification['title'] %}
+                            {% set body = notification['body'] %}
+                            {% set createdOn = notification['created_on'] %}
+                            {% set userPhoto = notification['user_photo'] %}
+                            {% set userPhotos = notification['user_photos'] is defined ? notification['user_photos'] : [] %}
+                            {% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(user) %}
+
+                            {#{{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}#}
+
+                            <li style="position: relative; padding-left: 70px; margin-bottom: 30px" id="nc_{{ request.id }}"
+                                class="js-request-item"
+                                data-action-url="{{ request.actionUrl }}">
+
+                                <div class="uk-grid">
+
+                                    <div class="uk-width-5-6">
+                                        <a style="font-size: 18px" class="uk-accordion-title" href="javascript:void(0)">
+
+                                            {% if userPhotos|length %}
+                                                {% set photo_z_index = 1 %}
+                                                {% set photo_left_position = 0 %}
+                                                {% for key, array in userPhotos|sort((a, b) => a['order'] <=> b['order']) %}
+                                                    {% set userPhoto = array['path'] %}
+
+                                                    <img style="height: 30px; position: absolute; left: {{ photo_left_position ~ "px" }}; z-index: {{ photo_z_index }}" class="uk-border-pill center-vertically"
+                                                         src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                                         uk-img/>
+
+                                                    {% set photo_z_index = photo_z_index - 1 %}
+                                                    {% set photo_left_position = photo_left_position + 12 %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <img style="height: 30px; position: absolute; left: 0" class="uk-border-pill center-vertically"
+                                                     src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                                     uk-img/>
+
+                                            {% endif %}
+
+                                            {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+                                                <span style="width: 75%" class="center-vertically">{{ requestPossibleApprover.notificationTitle|raw }}</span>
+                                            {% else %}
+                                                <span style="width: 75%" class="center-vertically">{{ title|raw }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+
+                                    <div class="uk-width-1-6">
+                                        <span class="uk-text-muted center-vertically" style="float: right; line-height: 1.5">{{ time_elapsed_string(createdOn) }}</span>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="uk-accordion-content">
+
+                                </div>
+                            </li>
+
+
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+                    <div class="uk-placeholder">
+                        {% if user.educator %}
+                            <p>You do not have any open requests yet, but you can draft a new volunteer request by
+                                filling
+                                out <a href="{{ path('new_request') }}">this quick form.</a> <br>
+                                Professionals on FutureForward can then see your request and reach out via chat if they
+                                are
+                                interested in helping out.
+                            </p>
+                        {% else %}
+                            There are no requests for you to review at this time.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+
+                {# {% if myCreatedRequests|length > 0 %}
+                     <ul class="uk-width-xlarge" uk-accordion>
+                         {% for request in myCreatedRequests %}
+                             {{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}
+                         {% endfor %}
+                     </ul>
+                 {% else %}
+                     <div class="uk-placeholder">
+                         You have not sent any requests that are pending.
+                     </div>
+                 {% endif %}#}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

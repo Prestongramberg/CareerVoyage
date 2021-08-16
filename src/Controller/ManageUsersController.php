@@ -2,12 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Company;
-use App\Entity\CompanyPhoto;
-use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
-use App\Entity\Image;
-use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolAdministrator;
@@ -15,40 +10,15 @@ use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentUser;
 use App\Entity\User;
-use App\Form\EditCompanyFormType;
 use App\Form\ManageUserFilterType;
-use App\Form\NewCompanyFormType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Repository\AdminUserRepository;
-use App\Repository\CompanyFavoriteRepository;
-use App\Repository\CompanyPhotoRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\LessonFavoriteRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Class ManageUsersController

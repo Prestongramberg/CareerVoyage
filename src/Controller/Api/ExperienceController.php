@@ -4,58 +4,25 @@ namespace App\Controller\Api;
 
 use App\Entity\Chat;
 use App\Entity\ChatMessage;
-use App\Entity\Company;
 use App\Entity\CompanyExperience;
-use App\Entity\CompanyPhoto;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
-use App\Entity\Image;
-use App\Entity\Lesson;
-use App\Entity\LessonFavorite;
-use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentUser;
-use App\Entity\StudentToMeetProfessionalExperience;
-use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\SystemUser;
 use App\Entity\TeachLessonExperience;
-use App\Entity\TeachLessonRequest;
 use App\Entity\User;
-use App\Form\EditCompanyFormType;
-use App\Form\NewCompanyFormType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Repository\CompanyExperienceRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\ExperienceRepository;
-use App\Repository\IndustryRepository;
-use App\Repository\LessonFavoriteRepository;
-use App\Repository\LessonRepository;
-use App\Repository\LessonTeachableRepository;
-use App\Repository\SchoolExperienceRepository;
-use App\Repository\StudentToMeetProfessionalExperienceRepository;
-use App\Service\FileUploader;
 use App\Service\FilterGenerator;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
 
 /**
  * Class ExperienceController
@@ -177,6 +144,7 @@ class ExperienceController extends AbstractController
      *
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function getExperiencesByRadius(Request $request, FilterGenerator $filterGenerator)
     {
@@ -324,6 +292,7 @@ class ExperienceController extends AbstractController
      *
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function getExperiencesForListByRadius(Request $request)
     {
@@ -843,70 +812,6 @@ class ExperienceController extends AbstractController
         return $this->redirectToRoute('requests');
     }
 
-
-    // Request New Dates, this function will cancel the original request and create a new one.
-
-    /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
-     *
-     * @Route("/experiences/{id}/teach-lesson-event-request-new-dates", name="experience_teach_lesson_event_request_new_dates", options = { "expose" = true }, methods={"POST"})
-     * @param Request $request
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function experienceTeachLessonEventRequestNewDatesAction(Request $request)
-    {
-
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $experience        = $this->experienceRepository->find($request->get('id'));
-        $professionalUser  = $experience->getOriginalRequest()->getNeedsApprovalBy();
-        $lesson            = $experience->getOriginalRequest()->getLesson();
-        $origin_request_id = $experience->getOriginalRequest()->getId();
-
-        // Cancel existing experience
-        $exp = $this->entityManager->getRepository(Experience::class)->find($request->get('id'));
-        $exp->setCancelled(true);
-        $this->entityManager->flush();
-
-        // Change status from approved to denied on origin request. (need to call request class this way becuase we are importing another class named "Request" above)
-        $exp2 = $this->entityManager->getRepository('App\\Entity\\Request')->find($origin_request_id);
-        $exp2->setApproved(false);
-        $exp2->setDenied(true);
-        $this->entityManager->flush();
-
-        // Create new experience request
-        $dateOptionOne      = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('date_option_one'));
-        $dateOptionTwo      = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('date_option_two'));
-        $dateOptionThree    = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('date_option_three'));
-        $teachLessonRequest = new TeachLessonRequest();
-        $teachLessonRequest->setDateOptionOne($dateOptionOne);
-        $teachLessonRequest->setDateOptionTwo($dateOptionTwo);
-        $teachLessonRequest->setDateOptionThree($dateOptionThree);
-        $teachLessonRequest->setLesson($lesson);
-        $teachLessonRequest->setCreatedBy($user);
-        $teachLessonRequest->setNeedsApprovalBy($professionalUser);
-        $teachLessonRequest->setSchool($user->getSchool());
-        $teachLessonRequest->setMessage($request->request->get('customMessage'));
-        $this->entityManager->persist($teachLessonRequest);
-        $this->entityManager->flush();
-
-        $this->requestsMailer->teachLessonRequest($teachLessonRequest);
-
-        $this->addFlash('success', 'Request successfully sent!');
-
-        /*   if($redirectUrl) {
-               return $this->redirect($redirectUrl);
-           }*/
-
-        return $this->redirectToRoute('requests');
-    }
-
-
     /**
      * @Route("/experiences/{id}/teach_lesson_event_delete", name="experience_teach_lesson_event_delete", options = { "expose" = true }, methods={"POST"}, requirements={"id": "\d+"})
      * @param Request               $request
@@ -1058,13 +963,53 @@ class ExperienceController extends AbstractController
             $url = "";
             $requestId = "";
             $className = $r->getClassName();
+            $street = "";
+            $city = "";
+            $abbreviation = "";
+            $zipcode = "";
 
             if($className == 'TeachLessonExperience') {
-                $url = $this->generateUrl('lesson_view', ['id' => $r->getOriginalRequest()->getLesson()->getId()]);
+                /** @var TeachLessonExperience $r */
+                $url = $this->generateUrl('lesson_view', ['id' => $r->getLesson()->getId()]);
                 $requestId = $r->getOriginalRequest()->getId();
+
+                if($r->getSchool() && $r->getSchool()->getStreet()) {
+                    $street = $r->getSchool()->getStreet();
+                }
+
+                if($r->getSchool() && $r->getSchool()->getCity()) {
+                    $city = $r->getSchool()->getCity();
+                }
+
+                if($r->getSchool() && $r->getSchool()->getState() && $r->getSchool()->getState()->getAbbreviation()) {
+                    $abbreviation = $r->getSchool()->getState()->getAbbreviation();
+                }
+
+                if($r->getSchool() && $r->getSchool()->getZipcode()) {
+                    $zipcode = $r->getSchool()->getZipcode();
+                }
+
             }
 
-            $experiences[] = array("id" => $r->getId(), "requestId" => $requestId, "title" => $r->getTitle(), "about" => $r->getAbout(), "briefDescription" => $r->getBriefDescription(), "startDateAndTime" => $r->getStartDateAndTime()->format('Y-m-d H:i:s'), "endDateAndTime" => $r->getEndDateAndTime()->format("Y-m-d H:i:s"), "className" => $className, "url" => $url);
+            $experiences[] = array(
+                "id" => $r->getId(),
+                "requestId" => $requestId,
+                "title" => $r->getTitle(),
+                "about" => $r->getAbout(),
+                "briefDescription" => $r->getBriefDescription(),
+                "startDateAndTimeTimestamp" => $r->getStartDateAndTimeTimeStamp(),
+                "endDateAndTimeTimestamp" => $r->getEndDateAndTimeTimeStamp(),
+                "startDateAndTime" => $r->getStartDateAndTime()->format('Y-m-d H:i:s'),
+                "endDateAndTime" => $r->getEndDateAndTime()->format("Y-m-d H:i:s"),
+                "className" => $className,
+                "url" => $url,
+                "street" => $street,
+                "city" => $city,
+                "zipcode" => $zipcode,
+                "state" => [
+                    "abbreviation" => $abbreviation
+                ]
+            );
         }
 
         return new JsonResponse(

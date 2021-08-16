@@ -251,6 +251,10 @@ abstract class Experience
      */
     protected $averageRating;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Request::class, inversedBy="experience")
+     */
+    private $request;
 
     public function __construct()
     {
@@ -786,5 +790,21 @@ abstract class Experience
         $this->averageRating = $averageRating;
 
         return $this;
+    }
+
+    public function getRequest(): ?Request
+    {
+        return $this->request;
+    }
+
+    public function setRequest(?Request $request): self
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    public function getOriginalRequest() {
+        return $this->request;
     }
 }

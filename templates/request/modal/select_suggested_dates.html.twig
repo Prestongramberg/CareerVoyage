@@ -1,0 +1,50 @@
+{% set notification = request.notification %}
+{% set title = notification['title'] %}
+{% set body = notification['body'] %}
+{% set createdOn = notification['created_on'] %}
+{% set userPhoto = notification['user_photo'] %}
+{% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(loggedInUser) %}
+
+<div class="uk-modal-dialog">
+    <button class="uk-modal-close-outside" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+            <h4>{{ requestPossibleApprover.notificationTitle|raw }}</h4>
+        {% else %}
+            <h4>{{ title|raw }}</h4>
+        {% endif %}
+        <ul class="uk-breadcrumb">
+            <li><a class="js-request-item" data-action-url="{{ request.actionUrl }}&action={{ constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_DEFAULT') }}" href="javascript:void(0)">< Back</a></li>
+        </ul>
+    </div>
+    <div class="uk-modal-body">
+        <p>Please select the date/time that work for you.</p>
+
+        {{ form_start(selectSuggestedDatesForm, {attr: {'id': 'js-manage-request-form', 'novalidate' : 'novalidate'}}) }}
+
+        {% if form_errors(selectSuggestedDatesForm) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(selectSuggestedDatesForm) }}</div>
+            </div>
+        {% endif %}
+
+        <fieldset class="uk-fieldset">
+            <div class="uk-margin">
+                {{ form_widget(selectSuggestedDatesForm.dateOptionOne, {'attr': {'class': 'js-request-management-submit uk-button uk-button-primary', 'style': 'width: 100%'}}) }}
+            </div>
+            <div class="uk-margin">
+                {{ form_widget(selectSuggestedDatesForm.dateOptionTwo, {'attr': {'class': 'js-request-management-submit uk-button uk-button-primary', 'style': 'width: 100%'}}) }}
+            </div>
+            <div class="uk-margin">
+                {{ form_widget(selectSuggestedDatesForm.dateOptionThree, {'attr': {'class': 'js-request-management-submit uk-button uk-button-primary', 'style': 'width: 100%'}}) }}
+            </div>
+        </fieldset>
+
+        {{ form_end(selectSuggestedDatesForm) }}
+        
+    </div>
+</div>
+
+
+

@@ -80,6 +80,10 @@ services:
         tags:
           - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
 
+    App\EventListener\VerbListener:
+      tags:
+        - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 100 }
+
     FL\QBJSParser\Serializer\JsonDeserializer:
       public: false
 

@@ -1,0 +1,60 @@
+{% set notification = request.notification %}
+{% set title = notification['title'] %}
+{% set body = notification['body'] %}
+{% set createdOn = notification['created_on'] %}
+{% set userPhoto = notification['user_photo'] %}
+{% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(loggedInUser) %}
+{% set messages = notification['messages'] is defined ? notification['messages'] : [] %}
+
+<div class="uk-modal-dialog">
+    <button class="uk-modal-close-outside" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+            <h4>{{ requestPossibleApprover.notificationTitle|raw }}</h4>
+        {% else %}
+            <h4>{{ title|raw }}</h4>
+        {% endif %}
+    </div>
+    <div class="uk-modal-body">
+
+        <div class="uk-margin">
+            <div style="float: right" uk-form-custom="target: > * > span:first-child">
+                <select class="js-actions">
+                    <option value="">Actions</option>
+                    {% if requestPossibleApprover %}
+                        {% for possibleRequestAction in requestPossibleApprover.possibleActions %}
+                            {% if possibleRequestAction == constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE') %}
+                                <option value="{{ request.actionUrl }}&action={{ possibleRequestAction }}">{{ request.buttonFriendlyNameForRequestAction(possibleRequestAction) }} ({{ messages|length }})</option>
+                            {% else %}
+                                <option value="{{ request.actionUrl }}&action={{ possibleRequestAction }}&_method=post">{{ request.buttonFriendlyNameForRequestAction(possibleRequestAction) }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                <button class="uk-button uk-button-primary" type="button" tabindex="-1">
+                    <span></span>
+                    <span uk-icon="icon: chevron-down"></span>
+                </button>
+            </div>
+        </div>
+
+        <table class="uk-table uk-table-small uk-table-divider">
+            <tbody>
+
+            {% for key, array in body|sort((a, b) => a['order'] <=> b['order']) %}
+                {% set value = array['value'] %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ value|raw }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>Status</td>
+                <td><span class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
