@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\AllowedCommunication;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\Industry;
 use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
+use App\Entity\RolesWillingToFulfill;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\ProfessionalUser;
@@ -814,10 +816,10 @@ class RequestController extends AbstractController
                         ]);
 
                         $teachLessonExperience = $this->teachLessonExperienceRepository->findOneBy([
-                            'request' => $request->getId()
+                            'request' => $request->getId(),
                         ]);
 
-                        if($teachLessonExperience) {
+                        if ($teachLessonExperience) {
                             $this->entityManager->remove($teachLessonExperience);
                         }
 
@@ -833,10 +835,10 @@ class RequestController extends AbstractController
                                 ->setStatusLabel('Guest instructor invite is pending approval');
 
                         $teachLessonExperience = $this->teachLessonExperienceRepository->findOneBy([
-                            'request' => $request->getId()
+                            'request' => $request->getId(),
                         ]);
 
-                        if($teachLessonExperience) {
+                        if ($teachLessonExperience) {
                             $this->entityManager->remove($teachLessonExperience);
                         }
 
@@ -904,6 +906,64 @@ class RequestController extends AbstractController
                 };
 
                 break;
+
+            case \App\Entity\Request::REQUEST_TYPE_JOB_BOARD:
+
+                $template  = 'request/modal/job_board.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+                };
+
+                break;
+
             default:
                 $template = 'request/modal/default.html.twig';
                 $context  = [
@@ -1406,10 +1466,10 @@ class RequestController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $requestEntity = new RequestEntity();
-        $requestEntity->setRequestType(RequestEntity::REQUEST_TYPE_JOB_BOARD);
+        $jobBoardRequest = new RequestEntity();
+        $jobBoardRequest->setRequestType(RequestEntity::REQUEST_TYPE_JOB_BOARD);
 
-        $form = $this->createForm(CreateRequestFormType::class, $requestEntity, [
+        $form = $this->createForm(CreateRequestFormType::class, $jobBoardRequest, [
             'skip_validation' => $request->request->get('skip_validation', false),
         ]);
 
@@ -1423,28 +1483,95 @@ class RequestController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var RequestEntity $requestEntity */
-            $requestEntity = $form->getData();
-            $requestEntity->setCreatedBy($user);
+            /** @var RequestEntity $jobBoardRequest */
+            $jobBoardRequest = $form->getData();
+            $jobBoardRequest->setCreatedBy($user);
+            $this->entityManager->persist($jobBoardRequest);
+            $this->entityManager->flush();
+
+            $requestActionUrl = $this->generateUrl('request_action', [
+                'request_id' => $jobBoardRequest->getId(),
+            ]);
+
+            $jobBoardRequest->setActionUrl($requestActionUrl);
+
+            $jobBoardRequest->setNotification([
+                'title' => "<strong>{$user->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"",
+                'data' => [
+                    'educator_id' => $user->getId(),
+                ],
+                'user_photo' => $user->getPhotoPath(),
+                'user_photos' => [],
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => [],
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>Job Board Request</a>",
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                    ],
+                    'Summary' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>{$jobBoardRequest->getSummary()}</a>",
+                    ],
+                    'Description' => [
+                        'order' => 4,
+                        'value' => $jobBoardRequest->getDescription(),
+                    ],
+                    'Volunteers Needed' => [
+                        'order' => 5,
+                        'value' => implode(", ", array_map(function (RolesWillingToFulfill $rolesWillingToFulfill) {
+                            return $rolesWillingToFulfill->getName();
+                        }, $jobBoardRequest->getVolunteerRoles()->toArray())),
+                    ],
+                    'Volunteer Career Sector(s)' => [
+                        'order' => 6,
+                        'value' => implode(", ", array_map(function (Industry $industry) {
+                            return $industry->getName();
+                        }, $jobBoardRequest->getPrimaryIndustries()->toArray())),
+                    ],
+                    'Created On' => [
+                        'order' => 7,
+                        'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                    ],
+                ],
+            ]);
+
+            $createdByApprover = new RequestPossibleApprovers();
+            $createdByApprover->setPossibleApprover($user);
+            $createdByApprover->setRequest($jobBoardRequest);
+            $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+            $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
+            $this->entityManager->persist($createdByApprover);
 
             if ($form->get('postAndReview')->isClicked()) {
 
-                $requestEntity->setPublished(true);
-                $this->entityManager->persist($requestEntity);
+                $jobBoardRequest->setPublished(true);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
+                $jobBoardRequest->setStatusLabel('Active job posting');
+                $jobBoardRequest->setNeedsApprovalByRoles([User::ROLE_PROFESSIONAL_USER]);
+                $jobBoardRequest->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+
                 $this->entityManager->flush();
 
-                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+                return $this->redirectToRoute('view_request', ['id' => $jobBoardRequest->getId()]);
             }
 
             if ($form->get('saveAndPreview')->isClicked()) {
-                $requestEntity->setPublished(false);
-                $this->entityManager->persist($requestEntity);
+                $jobBoardRequest->setPublished(false);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE);
+                $jobBoardRequest->setStatusLabel('Inactive job posting');
+
+                $this->entityManager->persist($jobBoardRequest);
                 $this->entityManager->flush();
 
-                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
+                return $this->redirectToRoute('view_request', ['id' => $jobBoardRequest->getId()]);
             }
 
-            $this->entityManager->persist($requestEntity);
+            $this->entityManager->persist($jobBoardRequest);
             $this->entityManager->flush();
         }
 
@@ -1462,6 +1589,7 @@ class RequestController extends AbstractController
      * @param Request       $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function editRequest(RequestEntity $requestEntity, Request $request)
     {
@@ -1478,6 +1606,7 @@ class RequestController extends AbstractController
             throw new AccessDeniedException();
         }
 
+        // todo we are going to need to remove this as we need to setup the notification when it's published
         if ($publish) {
             $requestEntity->setPublished(true);
             $this->entityManager->persist($requestEntity);
@@ -1503,13 +1632,63 @@ class RequestController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var RequestEntity $requestEntity */
-            $requestEntity = $form->getData();
+            /** @var RequestEntity $jobBoardRequest */
+            $jobBoardRequest = $form->getData();
+            $mesages = $jobBoardRequest->getNotification()['messages'];
+            $createdOn = $jobBoardRequest->getNotification()['body']['Created On'];
+
+            $jobBoardRequest->setNotification([
+                'title' => "<strong>{$user->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"",
+                'data' => [
+                    'educator_id' => $user->getId(),
+                ],
+                'user_photo' => $user->getPhotoPath(),
+                'user_photos' => [],
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => $mesages,
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>Job Board Request</a>",
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                    ],
+                    'Summary' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>{$jobBoardRequest->getSummary()}</a>",
+                    ],
+                    'Description' => [
+                        'order' => 4,
+                        'value' => $jobBoardRequest->getDescription(),
+                    ],
+                    'Volunteers Needed' => [
+                        'order' => 5,
+                        'value' => implode(", ", array_map(function (RolesWillingToFulfill $rolesWillingToFulfill) {
+                            return $rolesWillingToFulfill->getName();
+                        }, $jobBoardRequest->getVolunteerRoles()->toArray())),
+                    ],
+                    'Volunteer Career Sector(s)' => [
+                        'order' => 6,
+                        'value' => implode(", ", array_map(function (Industry $industry) {
+                            return $industry->getName();
+                        }, $jobBoardRequest->getPrimaryIndustries()->toArray())),
+                    ],
+                    'Created On' => $createdOn,
+                ],
+            ]);
+
 
             if ($form->get('postAndReview')->isClicked()) {
 
-                $requestEntity->setPublished(true);
-                $this->entityManager->persist($requestEntity);
+                $jobBoardRequest->setPublished(true);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
+                $jobBoardRequest->setStatusLabel('Active job posting');
+                $jobBoardRequest->setNeedsApprovalByRoles([User::ROLE_PROFESSIONAL_USER]);
+                $jobBoardRequest->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+
+                $this->entityManager->persist($jobBoardRequest);
                 $this->entityManager->flush();
 
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
@@ -1517,6 +1696,8 @@ class RequestController extends AbstractController
 
             if ($form->get('saveAndPreview')->isClicked()) {
                 $requestEntity->setPublished(false);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE);
+                $jobBoardRequest->setStatusLabel('Inactive job posting');
                 $this->entityManager->persist($requestEntity);
                 $this->entityManager->flush();
 

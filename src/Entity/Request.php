@@ -45,6 +45,8 @@ class Request
     const REQUEST_STATUS_PENDING  = 'PENDING';
     const REQUEST_STATUS_APPROVED = 'APPROVED';
     const REQUEST_STATUS_DENIED   = 'DENIED';
+    const REQUEST_STATUS_ACTIVE   = 'ACTIVE';
+    const REQUEST_STATUS_INACTIVE = 'INACTIVE';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -200,7 +202,7 @@ class Request
     private $needsApprovalByRoles = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request")
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request", cascade={"remove"})
      */
     private $requestActions;
 
@@ -225,7 +227,7 @@ class Request
     private $statusLabel;
 
     /**
-     * @ORM\OneToOne(targetEntity=Experience::class, mappedBy="request", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Experience::class, mappedBy="request")
      */
     private $experience;
 
@@ -800,9 +802,11 @@ class Request
                 return 'uk-label-warning';
                 break;
             case self::REQUEST_STATUS_APPROVED:
+            case self::REQUEST_STATUS_ACTIVE:
                 return 'uk-label-success';
                 break;
             case self::REQUEST_STATUS_DENIED:
+            case self::REQUEST_STATUS_INACTIVE:
                 return 'uk-label-danger';
                 break;
             default:

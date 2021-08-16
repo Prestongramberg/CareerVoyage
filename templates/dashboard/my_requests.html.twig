@@ -1,20 +1,42 @@
-{% if requestsThatNeedMyApproval|length > 0 %}
-    <div class="requests-landing__my-approvals">
-        <ul class="uk-width-xlarge" uk-accordion>
-            {% for request in requestsThatNeedMyApproval %}
-                {{ render_request( request, user, "my-requests_approval", "my-requests-approval" )|raw }}
-            {% endfor %}
-        </ul>
-    </div>
+<div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
 
-{% else %}
+    <ul class="uk-slideshow-items" style="{{ requestsThatNeedMyApproval|length > 4 ? 'height: 360px' : '' }}">
+        {% for requestBatch in requestsThatNeedMyApproval|batch(4) %}
+            <li class="uk-overflow-auto" style="position: absolute">
 
-    {% if user.professional %}
-        You have not received any requests at this time. Instead, you can reach out to <a
-            href="{{ path('educator_results_page') }}">educators</a>
-        in your area of expertise and see what help they might need!
-    {% elseif user.educator %}
-        You do not have any open requests yet.
-    {% endif %}
+                <table class="uk-table uk-table-small uk-table-divider">
+                    <tbody>
+                    {% for request in requestBatch %}
+                        <tr>
+                            <td class="uk-table-shrink">
+                                {% if request.requestType == constant('App\\Entity\\Request::REQUEST_TYPE_JOB_BOARD')  %}
+                                    <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">Job Board Request</a></small>
+                                    <br>
+                                {% endif %}
+                                <a href="{{ path('requests', {id: request.id}) }}">{{ request.summary }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="uk-table-shrink">
+                            <a href="{{ path('requests') }}">Browse Requests</a>
+                            <br>
+                            <small class="uk-text-meta"><a href="{{ path('requests') }}">See what other requests you may have or might be missing out on</a></small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </li>
+        {% else %}
+            <li><a href="{{ path('requests') }}">No New Requests at this time.</a> <br>
+            </li>
+        {% endfor %}
+    </ul>
 
-{% endif %}
+    <a class="uk-slidenav-small uk-position-bottom-left uk-position-small" href="#" uk-slidenav-previous
+       uk-slideshow-item="previous"></a>
+    <a class="uk-slidenav-small uk-position-bottom-right uk-position-small" href="#" uk-slidenav-next
+       uk-slideshow-item="next"></a>
+    <br>
+    <br>
+</div>
