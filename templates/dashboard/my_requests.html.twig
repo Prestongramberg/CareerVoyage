@@ -7,13 +7,21 @@
                 <table class="uk-table uk-table-small uk-table-divider">
                     <tbody>
                     {% for request in requestBatch %}
+
+                        {% set notification = request.notification %}
+                        {% set title = notification['title'] %}
+                        {% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(user) %}
+                        {% set createdOn = notification['created_on'] %}
+
                         <tr>
                             <td class="uk-table-shrink">
-                                {% if request.requestType == constant('App\\Entity\\Request::REQUEST_TYPE_JOB_BOARD')  %}
-                                    <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">Job Board Request</a></small>
-                                    <br>
+                                {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+                                    <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ requestPossibleApprover.notificationTitle|raw }}</a></small>
+                                {% else %}
+                                    <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ title|raw }}</a></small>
                                 {% endif %}
-                                <a href="{{ path('requests', {id: request.id}) }}">{{ request.summary }}</a>
+                                <br>
+                                <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ time_elapsed_string(createdOn) }}</a></small>
                             </td>
                         </tr>
                     {% endfor %}
