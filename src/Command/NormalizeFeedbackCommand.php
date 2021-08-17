@@ -1096,7 +1096,7 @@ class NormalizeFeedbackCommand extends Command
                             }
                         }
 
-                        if (($experience = $feedback->getTeachLessonExperience()) && ($request = $experience->getOriginalRequest()) && $lesson = $request->getLesson()) {
+                        if (($experience = $feedback->getTeachLessonExperience()) && ($lesson = $experience->getLesson())) {
                             $feedback->setTopic($lesson->getTitle());
 
                             if ($teacher = $experience->getTeacher()) {
