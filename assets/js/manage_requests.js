@@ -7,25 +7,37 @@ require('./vendor/jquery-datetimepicker.js');
 $(document).ready(function () {
 
     const urlParams = new URLSearchParams(location.search);
+    let onPageLoadActionUrl = null,
+        action = null;
     for (const [key, value] of urlParams) {
 
-        if(key === 'id') {
-            let url = $(`#nc_${value}`).attr('data-action-url');
-
-
-            $.ajax({
-                url: url,
-                method: 'GET'
-            }).then((data, textStatus, jqXHR) => {
-
-                UIkit.modal('#js-manage-request-modal').show();
-
-                $('#js-manage-request-modal').html(data.formMarkup);
-
-            }).catch((jqXHR) => {
-                const errorData = JSON.parse(jqXHR.responseText);
-            });
+        if (key === 'action') {
+            action = value;
         }
+
+        if (key === 'id') {
+            onPageLoadActionUrl = $(`#nc_${value}`).attr('data-action-url');
+        }
+    }
+
+    if(onPageLoadActionUrl) {
+
+        if(action) {
+            onPageLoadActionUrl += "&action=" + action;
+        }
+
+        $.ajax({
+            url: onPageLoadActionUrl,
+            method: 'GET'
+        }).then((data, textStatus, jqXHR) => {
+
+            UIkit.modal('#js-manage-request-modal').show();
+
+            $('#js-manage-request-modal').html(data.formMarkup);
+
+        }).catch((jqXHR) => {
+            const errorData = JSON.parse(jqXHR.responseText);
+        });
     }
 
     $('.js-manage-requests-container').on('click', '.js-request-item', function (event) {
@@ -99,11 +111,11 @@ $(document).ready(function () {
 
             $('#js-manage-request-modal').html(data.formMarkup);
 
-            if($('.live-chat__window-thread').length) {
+            if ($('.live-chat__window-thread').length) {
                 $('.live-chat__window-thread').scrollTop($('.live-chat__window-thread').get(0).scrollHeight);
             }
 
-            if($('.js-send-message-textarea').length) {
+            if ($('.js-send-message-textarea').length) {
                 $('.js-send-message-textarea').focus();
             }
 
@@ -170,11 +182,11 @@ $(document).ready(function () {
 
             $('#js-manage-request-modal').html(data.formMarkup);
 
-            if($('.live-chat__window-thread').length) {
+            if ($('.live-chat__window-thread').length) {
                 $('.live-chat__window-thread').scrollTop($('.live-chat__window-thread').get(0).scrollHeight);
             }
 
-            if($('.js-send-message-textarea').length) {
+            if ($('.js-send-message-textarea').length) {
                 $('.js-send-message-textarea').focus();
             }
 

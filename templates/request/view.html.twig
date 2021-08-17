@@ -109,7 +109,7 @@
             <p style="margin-top: 5px; margin-bottom: 5px"><strong>You’re not committing to anything by starting a conversation.</strong> If it’s a good fit for both of you, then
                 you’ll start discussing the details!</p>
 
-            <button style="margin-top: 5px" class="uk-button uk-button-primary uk-button-small" type="button" data-message-user-id="{{ request.createdBy.id }}">Start a chat with {{ request.createdBy.firstName }}</button>
+            <a class="uk-button uk-button-primary uk-button-small" href="{{ path('requests', {id: request.id, action: constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE')}) }}">Start a chat with {{ request.createdBy.firstName }}</a>
 
         {% endif %}
 

@@ -62,7 +62,6 @@ class RequestController extends AbstractController
      */
     public function requests(Request $httpRequest)
     {
-
         /** @var User $user */
         $user = $this->getUser();
 
