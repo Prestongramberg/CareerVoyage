@@ -231,6 +231,26 @@ class Request
      */
     private $experience;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $hasNewNotification = false;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="parentRequest")
+     */
+    private $request;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="requests")
+     */
+    private $parentRequest;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Request::class, mappedBy="parentRequest")
+     */
+    private $requests;
+
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
@@ -238,6 +258,7 @@ class Request
         $this->primaryIndustries        = new ArrayCollection();
         $this->shares                   = new ArrayCollection();
         $this->requestActions           = new ArrayCollection();
+        $this->requests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -780,9 +801,11 @@ class Request
 
         switch ($action) {
             case RequestAction::REQUEST_ACTION_NAME_APPROVE:
+            case RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE:
                 return 'uk-button-primary';
                 break;
             case RequestAction::REQUEST_ACTION_NAME_DENY:
+            case RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE:
                 return 'uk-button-danger';
                 break;
             case RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
@@ -848,6 +871,14 @@ class Request
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
             return 'Send Message';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE) {
+            return 'Active';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE) {
+            return 'Inactive';
         }
 
         return $action;
@@ -919,5 +950,68 @@ class Request
     public function getIsFromEducator()
     {
         return $this->getCreatedBy() instanceof EducatorUser;
+    }
+
+    public function getHasNewNotification(): ?bool
+    {
+        return $this->hasNewNotification;
+    }
+
+    public function setHasNewNotification(?bool $hasNewNotification): self
+    {
+        $this->hasNewNotification = $hasNewNotification;
+
+        return $this;
+    }
+
+    public function getTimeElapsedSinceHasNotification() {
+
+        if($this->updatedAt) {
+            return $this->updatedAt->format("m/d/Y h:i A");
+        }
+
+        return $this->createdAt->format("m/d/Y h:i A");
+    }
+
+    public function getParentRequest(): ?self
+    {
+        return $this->parentRequest;
+    }
+
+    public function setParentRequest(?self $parentRequest): self
+    {
+        $this->parentRequest = $parentRequest;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(self $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->setParentRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(self $request): self
+    {
+        if ($this->requests->removeElement($request)) {
+            // set the owning side to null (unless already changed)
+            if ($request->getParentRequest() === $this) {
+                $request->setParentRequest(null);
+            }
+        }
+
+        return $this;
     }
 }

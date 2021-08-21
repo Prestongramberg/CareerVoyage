@@ -26,6 +26,7 @@ use App\Form\EditRequestFormType;
 use App\Form\Request\SelectSuggestedDatesFormType;
 use App\Form\Request\SendMessageFormType;
 use App\Form\Request\SuggestNewDatesFormType;
+use App\Message\CreateJobBoardRequest;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateInterval;
@@ -908,7 +909,7 @@ class RequestController extends AbstractController
 
             case \App\Entity\Request::REQUEST_TYPE_JOB_BOARD:
 
-                $template  = 'request/modal/job_board.html.twig';
+                $template = 'request/modal/job_board.html.twig';
 
                 $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
                     'method' => 'post',
@@ -929,6 +930,36 @@ class RequestController extends AbstractController
                     $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
                     $template
                 ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE)
+                                ->setStatusLabel('Active Job Posting');
+
+                        foreach($request->getRequests() as $childRequest) {
+                            $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE)
+                                          ->setStatusLabel('Active Job Posting');
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
+                                ->setStatusLabel('Inactive Job Posting');
+
+                        foreach($request->getRequests() as $childRequest) {
+                            $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
+                                         ->setStatusLabel('Inactive Job Posting');
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
 
@@ -954,6 +985,18 @@ class RequestController extends AbstractController
 
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
                             $this->entityManager->persist($requestAction);
+
+                            $possibleApprover = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser, true);
+
+                            if (!$possibleApprover) {
+                                $possibleApprover = new RequestPossibleApprovers();
+                                $possibleApprover->setPossibleApprover($request->getCreatedBy());
+                                $possibleApprover->setRequest($request);
+                                $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                                $possibleApprover->setNotificationTitle("<strong>{$loggedInUser->getFullName()}</strong> responded to your job board request - \"{$request->getSummary()}\"");
+                                $this->entityManager->persist($possibleApprover);
+                            }
+
                             $this->entityManager->flush();
 
                             $template = 'request/modal/send_message.html.twig';
@@ -1542,19 +1585,29 @@ class RequestController extends AbstractController
             $createdByApprover = new RequestPossibleApprovers();
             $createdByApprover->setPossibleApprover($user);
             $createdByApprover->setRequest($jobBoardRequest);
-            $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+            $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE,
+                                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE,
+            ]);
             $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
             $this->entityManager->persist($createdByApprover);
+
+            $requestAction = new RequestAction();
+            $requestAction->setUser($user);
+            $requestAction->setRequest($jobBoardRequest);
+            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_CREATE);
+            $this->entityManager->persist($requestAction);
 
             if ($form->get('postAndReview')->isClicked()) {
 
                 $jobBoardRequest->setPublished(true);
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
                 $jobBoardRequest->setStatusLabel('Active job posting');
-                $jobBoardRequest->setNeedsApprovalByRoles([User::ROLE_PROFESSIONAL_USER]);
+                //$jobBoardRequest->setNeedsApprovalByRoles();
                 $jobBoardRequest->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
-
                 $this->entityManager->flush();
+
+                // dispatch message
+                $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
 
                 return $this->redirectToRoute('view_request', ['id' => $jobBoardRequest->getId()]);
             }
@@ -1563,15 +1616,10 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setPublished(false);
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE);
                 $jobBoardRequest->setStatusLabel('Inactive job posting');
-
-                $this->entityManager->persist($jobBoardRequest);
                 $this->entityManager->flush();
 
                 return $this->redirectToRoute('view_request', ['id' => $jobBoardRequest->getId()]);
             }
-
-            $this->entityManager->persist($jobBoardRequest);
-            $this->entityManager->flush();
         }
 
         return $this->render('request/new.html.twig', [
@@ -1633,8 +1681,8 @@ class RequestController extends AbstractController
 
             /** @var RequestEntity $jobBoardRequest */
             $jobBoardRequest = $form->getData();
-            $mesages = $jobBoardRequest->getNotification()['messages'];
-            $createdOn = $jobBoardRequest->getNotification()['body']['Created On'];
+            $mesages         = $jobBoardRequest->getNotification()['messages'];
+            $createdOn       = $jobBoardRequest->getNotification()['body']['Created On'];
 
             $jobBoardRequest->setNotification([
                 'title' => "<strong>{$user->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"",

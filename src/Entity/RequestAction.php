@@ -31,6 +31,8 @@ class RequestAction
     const REQUEST_ACTION_NAME_DEFAULT             = 'DEFAULT';
     const REQUEST_ACTION_NAME_MARK_AS_ACTIVE      = 'MARK_AS_ACTIVE';
     const REQUEST_ACTION_NAME_MARK_AS_INACTIVE    = 'MARK_AS_INACTIVE';
+    const REQUEST_ACTION_NAME_CREATE              = 'CREATE';
+    const REQUEST_ACTION_NAME_REMOVE              = 'REMOVE';
 
 
     /**
@@ -161,9 +163,11 @@ class RequestAction
 
         switch ($this->name) {
             case self::REQUEST_ACTION_NAME_APPROVE:
+            case self::REQUEST_ACTION_NAME_MARK_AS_ACTIVE:
                 return 'uk-label-success';
                 break;
             case self::REQUEST_ACTION_NAME_DENY:
+            case self::REQUEST_ACTION_NAME_MARK_AS_INACTIVE:
             case self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
             case self::REQUEST_ACTION_NAME_LEAVE_COMPANY:
                 return 'uk-label-danger';

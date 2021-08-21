@@ -38,6 +38,11 @@ class RequestPossibleApprovers
      */
     private $notificationTitle;
 
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $viewedActions = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -127,4 +132,39 @@ class RequestPossibleApprovers
 
         return $this;
     }
+
+    public function getViewedActions(): ?array
+    {
+        if(!$this->viewedActions) {
+            return [];
+        }
+
+        return $this->viewedActions;
+    }
+
+    public function setViewedActions(?array $viewedActions): self
+    {
+        $this->viewedActions = $viewedActions;
+
+        return $this;
+    }
+
+    public function hasNewNotifications()
+    {
+        if (!$this->getRequest()) {
+            return false;
+        }
+
+        $unseenActions = array_filter($this->getRequest()->getRequestActions()->toArray(), function (RequestAction $requestAction) {
+
+            if (!$requestAction->getUser()) {
+                return false;
+            }
+
+            return $requestAction->getUser()->getId() !== $this->getPossibleApprover()->getId();
+        });
+
+        return count($this->getViewedActions()) < count($unseenActions);
+    }
+
 }

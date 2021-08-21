@@ -24,7 +24,6 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
-use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
 use App\Form\Filter\CompanyResultsFilterType;

@@ -55,7 +55,8 @@ class RequestRepository extends ServiceEntityRepository
                              ->leftJoin('r.requestPossibleApprovers', 'rpa')
                              ->andWhere('r.denied = :denied')
                              ->andWhere('r.approved = :approved')
-                             ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode');
+                             ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode')
+                             ->andWhere('r.requestType IS NOT NULL');
 
 
         foreach ($user->getRoles() as $role) {
@@ -77,7 +78,7 @@ class RequestRepository extends ServiceEntityRepository
                      ->setParameter('denied', false)
                      ->setParameter('approved', false)
                      ->setParameter('allowApprovalByActivationCode', false)
-                     ->orderBy('r.createdAt', 'DESC');
+                     ->orderBy('r.updatedAt', 'DESC');
 
         return $queryBuilder->getQuery()
                             ->getResult();
