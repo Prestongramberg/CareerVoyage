@@ -1,7 +1,7 @@
 {% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName } %}
 
 <p>You have a new registration from <strong>{{ createdByFullName }}</strong>
-    for experience <strong>{{ experience.title }}</strong>
+    for experience: <strong>{{ experience.title }}</strong>
 </p>
 
 {% if experience.requireApproval %}

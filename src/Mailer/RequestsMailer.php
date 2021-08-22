@@ -654,6 +654,8 @@ class RequestsMailer extends AbstractMailer
 
     public function userRegistrationApproval(Request $request, Experience $experience) {
 
+        $this->entityManager->refresh($request);
+
         $skip = (
             !$request->getCreatedBy() ||
             !$request->getCreatedBy()->getEmail() ||
