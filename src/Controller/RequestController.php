@@ -301,6 +301,12 @@ class RequestController extends AbstractController
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
         }
 
+        /** @var RequestPossibleApprovers $possibleApprover */
+        if($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+            $possibleApprover->readNotifications();
+            $this->entityManager->flush();
+        }
+
         $requestAction = new RequestAction();
         $requestAction->setUser($loggedInUser);
         $requestAction->setRequest($request);
@@ -1602,8 +1608,7 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setPublished(true);
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
                 $jobBoardRequest->setStatusLabel('Active job posting');
-                //$jobBoardRequest->setNeedsApprovalByRoles();
-                $jobBoardRequest->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                $jobBoardRequest->setRequestActionAt(new \DateTime());
                 $this->entityManager->flush();
 
                 // dispatch message
@@ -1732,11 +1737,12 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setPublished(true);
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
                 $jobBoardRequest->setStatusLabel('Active job posting');
-                $jobBoardRequest->setNeedsApprovalByRoles([User::ROLE_PROFESSIONAL_USER]);
-                $jobBoardRequest->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                $jobBoardRequest->setRequestActionAt(new \DateTime());
 
                 $this->entityManager->persist($jobBoardRequest);
                 $this->entityManager->flush();
+
+                $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
 
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }

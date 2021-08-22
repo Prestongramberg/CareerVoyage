@@ -38,6 +38,32 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
                 continue;
             }
 
+            $results = $this->requestRepository->search($request->getCreatedBy(), Request::REQUEST_TYPE_JOB_BOARD, $professional);
+
+            if(!empty($results)) {
+
+                /** @var Request $jobBoardRequest */
+                $jobBoardRequest = $results[0];
+                $messages = $jobBoardRequest->getNotification()['messages'] ?? [];
+                $notification = $request->getNotification();
+                $notification['messages'] = $messages;
+                $jobBoardRequest->setNotification($notification);
+                $jobBoardRequest->setStatusLabel($request->getStatusLabel());
+                $jobBoardRequest->setStatus($request->getStatus());
+                $jobBoardRequest->setDescription($request->getDescription());
+                $jobBoardRequest->setPublished($request->getPublished());
+                $jobBoardRequest->setSummary($request->getSummary());
+                $jobBoardRequest->setOpportunityType($request->getOpportunityType());
+
+                /** @var RequestPossibleApprovers $possibleApprover */
+                if($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($professional)) {
+                    $possibleApprover->setNotificationTitle("<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$request->getSummary()}\"");
+                }
+
+                $this->entityManager->flush();
+                continue;
+            }
+
             // todo we need to do an edit here on all the request objects already assigned to the professioals
 
             $jobBoardRequest = clone $request;

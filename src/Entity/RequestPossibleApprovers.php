@@ -135,7 +135,7 @@ class RequestPossibleApprovers
 
     public function getViewedActions(): ?array
     {
-        if(!$this->viewedActions) {
+        if (!$this->viewedActions) {
             return [];
         }
 
@@ -155,7 +155,8 @@ class RequestPossibleApprovers
             return false;
         }
 
-        $unseenActions = array_filter($this->getRequest()->getRequestActions()->toArray(), function (RequestAction $requestAction) {
+        $unseenActions = array_filter($this->getRequest()->getRequestActions()->toArray(), function (RequestAction $requestAction
+        ) {
 
             if (!$requestAction->getUser()) {
                 return false;
@@ -165,6 +166,36 @@ class RequestPossibleApprovers
         });
 
         return count($this->getViewedActions()) < count($unseenActions);
+    }
+
+    public function getNotifications()
+    {
+
+        if (!$this->getRequest()) {
+            return [];
+        }
+
+        return array_filter($this->getRequest()->getRequestActions()->toArray(), function (RequestAction $requestAction
+        ) {
+
+            if (!$requestAction->getUser()) {
+                return false;
+            }
+
+            return $requestAction->getUser()->getId() !== $this->getPossibleApprover()->getId();
+        });
+    }
+
+    public function readNotifications()
+    {
+
+        $viewedActions = [];
+        /** @var RequestAction $notification */
+        foreach ($this->getNotifications() as $notification) {
+            $viewedActions[] = $notification->getId();
+        }
+
+        $this->setViewedActions(array_unique($viewedActions));
     }
 
 }

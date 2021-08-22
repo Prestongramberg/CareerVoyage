@@ -35,6 +35,8 @@ $(document).ready(function () {
 
             $('#js-manage-request-modal').html(data.formMarkup);
 
+            $(event.target).closest('.js-request-item').find('.js-notification-circle').remove();
+
         }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);
         });
@@ -59,6 +61,8 @@ $(document).ready(function () {
             UIkit.modal('#js-manage-request-modal').show();
 
             $('#js-manage-request-modal').html(data.formMarkup);
+
+            $(event.target).closest('.js-request-item').find('.js-notification-circle').remove();
 
         }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);

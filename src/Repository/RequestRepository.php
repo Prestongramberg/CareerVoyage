@@ -78,7 +78,7 @@ class RequestRepository extends ServiceEntityRepository
                      ->setParameter('denied', false)
                      ->setParameter('approved', false)
                      ->setParameter('allowApprovalByActivationCode', false)
-                     ->orderBy('r.updatedAt', 'DESC');
+                     ->orderBy('r.requestActionAt', 'DESC');
 
         return $queryBuilder->getQuery()
                             ->getResult();

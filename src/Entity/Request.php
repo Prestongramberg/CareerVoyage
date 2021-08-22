@@ -251,6 +251,11 @@ class Request
      */
     private $requests;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $requestActionAt;
+
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
@@ -258,7 +263,7 @@ class Request
         $this->primaryIndustries        = new ArrayCollection();
         $this->shares                   = new ArrayCollection();
         $this->requestActions           = new ArrayCollection();
-        $this->requests = new ArrayCollection();
+        $this->requests                 = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -964,10 +969,10 @@ class Request
         return $this;
     }
 
-    public function getTimeElapsedSinceHasNotification() {
-
-        if($this->updatedAt) {
-            return $this->updatedAt->format("m/d/Y h:i A");
+    public function getTimeElapsedSinceHasNotification()
+    {
+        if($this->requestActionAt) {
+            return $this->requestActionAt->format("m/d/Y h:i A");
         }
 
         return $this->createdAt->format("m/d/Y h:i A");
@@ -1011,6 +1016,18 @@ class Request
                 $request->setParentRequest(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRequestActionAt(): ?\DateTimeInterface
+    {
+        return $this->requestActionAt;
+    }
+
+    public function setRequestActionAt(?\DateTimeInterface $requestActionAt): self
+    {
+        $this->requestActionAt = $requestActionAt;
 
         return $this;
     }
