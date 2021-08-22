@@ -1,0 +1,44 @@
+{% set notification = request.notification %}
+{% set title = notification['title'] %}
+{% set body = notification['body'] %}
+{% set createdOn = notification['created_on'] %}
+{% set userPhoto = notification['user_photo'] %}
+{% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(loggedInUser) %}
+{% set messages = notification['messages'] is defined ? notification['messages'] : [] %}
+
+<div class="uk-modal-dialog">
+    <button class="uk-modal-close-outside" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+            <h4>{{ requestPossibleApprover.notificationTitle|raw }}</h4>
+        {% else %}
+            <h4>{{ title|raw }}</h4>
+        {% endif %}
+        <ul class="uk-breadcrumb">
+            <li><a class="js-request-item"
+                   data-action-url="{{ request.actionUrl }}&action={{ constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_DEFAULT') }}"
+                   href="javascript:void(0)">< Back</a></li>
+        </ul>
+    </div>
+    <div class="uk-modal-body" uk-overflow-auto>
+        <table class="uk-table uk-table-small uk-table-divider">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for registration in experience.registrations %}
+                <tr>
+                    <td><a href="{{ path('profile_index', {id: registration.user.id}) }}"
+                           target="_blank">{{ registration.user.fullName }}</a></td>
+
+                    <td>{{ registration.user.friendlyRoleName|capitalize }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+

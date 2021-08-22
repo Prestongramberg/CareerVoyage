@@ -41,12 +41,14 @@ class Request
     const REQUEST_TYPE_COMPANY_INVITE      = 'COMPANY_INVITE';
     const REQUEST_TYPE_TEACH_LESSON_INVITE = 'TEACH_LESSON_INVITE';
     const REQUEST_TYPE_NOTIFICATION        = 'NOTIFICATION';
+    const REQUEST_TYPE_NEW_REGISTRATION    = 'NEW_REGISTRATION';
 
-    const REQUEST_STATUS_PENDING  = 'PENDING';
-    const REQUEST_STATUS_APPROVED = 'APPROVED';
-    const REQUEST_STATUS_DENIED   = 'DENIED';
-    const REQUEST_STATUS_ACTIVE   = 'ACTIVE';
-    const REQUEST_STATUS_INACTIVE = 'INACTIVE';
+    const REQUEST_STATUS_PENDING      = 'PENDING';
+    const REQUEST_STATUS_APPROVED     = 'APPROVED';
+    const REQUEST_STATUS_DENIED       = 'DENIED';
+    const REQUEST_STATUS_ACTIVE       = 'ACTIVE';
+    const REQUEST_STATUS_INACTIVE     = 'INACTIVE';
+    const REQUEST_STATUS_UNREGISTERED = 'UNREGISTERED';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -231,6 +233,31 @@ class Request
      */
     private $experience;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $hasNewNotification = false;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="parentRequest")
+     */
+    private $request;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="requests")
+     */
+    private $parentRequest;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Request::class, mappedBy="parentRequest")
+     */
+    private $requests;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $requestActionAt;
+
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
@@ -238,6 +265,7 @@ class Request
         $this->primaryIndustries        = new ArrayCollection();
         $this->shares                   = new ArrayCollection();
         $this->requestActions           = new ArrayCollection();
+        $this->requests                 = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -775,18 +803,22 @@ class Request
         return false;
     }
 
-    public function getPossibleActionCssClass($action)
+    public function getButtonCssClass($action = null)
     {
+        if (!$action) {
+            $action = $this->status;
+        }
 
         switch ($action) {
             case RequestAction::REQUEST_ACTION_NAME_APPROVE:
+            case RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE:
                 return 'uk-button-primary';
                 break;
             case RequestAction::REQUEST_ACTION_NAME_DENY:
-                return 'uk-button-danger';
-                break;
+            case RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE:
             case RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
             case RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY:
+            case RequestAction::REQUEST_ACTION_NAME_UNREGISTER:
                 return 'uk-button-danger';
                 break;
             default:
@@ -807,6 +839,7 @@ class Request
                 break;
             case self::REQUEST_STATUS_DENIED:
             case self::REQUEST_STATUS_INACTIVE:
+            case self::REQUEST_STATUS_UNREGISTERED:
                 return 'uk-label-danger';
                 break;
             default:
@@ -848,6 +881,26 @@ class Request
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
             return 'Send Message';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE) {
+            return 'Active';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE) {
+            return 'Inactive';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST) {
+            return 'Registrations';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_UNREGISTER) {
+            return 'Unregister';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_REGISTER) {
+            return 'Register';
         }
 
         return $action;
@@ -919,5 +972,80 @@ class Request
     public function getIsFromEducator()
     {
         return $this->getCreatedBy() instanceof EducatorUser;
+    }
+
+    public function getHasNewNotification(): ?bool
+    {
+        return $this->hasNewNotification;
+    }
+
+    public function setHasNewNotification(?bool $hasNewNotification): self
+    {
+        $this->hasNewNotification = $hasNewNotification;
+
+        return $this;
+    }
+
+    public function getTimeElapsedSinceHasNotification()
+    {
+        if ($this->requestActionAt) {
+            return $this->requestActionAt->format("m/d/Y h:i A");
+        }
+
+        return $this->createdAt->format("m/d/Y h:i A");
+    }
+
+    public function getParentRequest(): ?self
+    {
+        return $this->parentRequest;
+    }
+
+    public function setParentRequest(?self $parentRequest): self
+    {
+        $this->parentRequest = $parentRequest;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(self $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->setParentRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(self $request): self
+    {
+        if ($this->requests->removeElement($request)) {
+            // set the owning side to null (unless already changed)
+            if ($request->getParentRequest() === $this) {
+                $request->setParentRequest(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getRequestActionAt(): ?\DateTimeInterface
+    {
+        return $this->requestActionAt;
+    }
+
+    public function setRequestActionAt(?\DateTimeInterface $requestActionAt): self
+    {
+        $this->requestActionAt = $requestActionAt;
+
+        return $this;
     }
 }

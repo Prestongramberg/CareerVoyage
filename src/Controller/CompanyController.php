@@ -24,12 +24,12 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
-use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
 use App\Form\Filter\CompanyResultsFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
+use App\Service\RequestService;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
@@ -346,6 +346,7 @@ class CompanyController extends AbstractController
             $createdByApprover = new RequestPossibleApprovers();
             $createdByApprover->setPossibleApprover($user);
             $createdByApprover->setRequest($newCompanyRequest);
+            $createdByApprover->setNotificationDate(new \DateTime());
             $createdByApprover->setPossibleActions([
                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
             ]);
@@ -363,6 +364,7 @@ class CompanyController extends AbstractController
                 ]);
                 $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}");
                 $possibleApprover->setPossibleApprover($adminUser);
+                $possibleApprover->setHasNotification(true);
                 $possibleApprover->setRequest($newCompanyRequest);
                 $this->entityManager->persist($possibleApprover);
             }
@@ -381,8 +383,11 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
             $this->entityManager->refresh($newCompanyRequest);
 
-            $this->requestsMailer->newCompanyApproval($newCompanyRequest, $company);
-            $this->requestsMailer->newCompanyAwaitingApproval($newCompanyRequest, $company);
+            foreach ($newCompanyRequest->getRequestPossibleApprovers() as $possibleApprover) {
+                $this->requestsMailer->newCompanyApproval($possibleApprover->getPossibleApprover(), $company);
+            }
+
+            $this->requestsMailer->newCompanyAwaitingApproval($createdByApprover->getPossibleApprover(), $company);
 
             $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
 
@@ -521,6 +526,7 @@ class CompanyController extends AbstractController
         $createdByApprover = new RequestPossibleApprovers();
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($joinCompanyRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
         $createdByApprover->setPossibleActions([
             RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
@@ -532,6 +538,7 @@ class CompanyController extends AbstractController
         $possibleApprover->setPossibleApprover($company->getOwner());
         $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}");
         $possibleApprover->setRequest($joinCompanyRequest);
+        $possibleApprover->setHasNotification(true);
         $possibleApprover->setPossibleActions(
             [
                 RequestAction::REQUEST_ACTION_NAME_APPROVE,
@@ -555,7 +562,7 @@ class CompanyController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($joinCompanyRequest);
 
-        $this->requestsMailer->joinCompanyApproval($joinCompanyRequest, $company);
+        $this->requestsMailer->joinCompanyApproval($possibleApprover->getPossibleApprover(), $createdByApprover->getPossibleApprover(), $company);
 
         $this->addFlash('success', 'Request to join this company has been sent to the company administrator');
 
@@ -627,6 +634,7 @@ class CompanyController extends AbstractController
         $createdByApprover = new RequestPossibleApprovers();
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($companyInviteRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
         $createdByApprover->setPossibleActions([
             RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
@@ -636,6 +644,7 @@ class CompanyController extends AbstractController
         $possibleApprover = new RequestPossibleApprovers();
         $possibleApprover->setPossibleApprover($professionalUser);
         $possibleApprover->setRequest($companyInviteRequest);
+        $possibleApprover->setHasNotification(true);
         $possibleApprover->setPossibleActions(
             [
                 RequestAction::REQUEST_ACTION_NAME_APPROVE,
@@ -660,7 +669,7 @@ class CompanyController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($companyInviteRequest);
 
-        $this->requestsMailer->companyInviteApproval($companyInviteRequest, $company);
+        $this->requestsMailer->companyInviteApproval($professionalUser, $user, $company);
 
         $this->addFlash('success', 'Request successfully sent!');
 
@@ -1549,6 +1558,10 @@ class CompanyController extends AbstractController
      * @param CompanyExperience $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \ReflectionException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function editExperienceAction(Request $request, CompanyExperience $experience)
     {
@@ -1693,358 +1706,34 @@ class CompanyController extends AbstractController
 
 
     /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
-     * @Route("/companies/experiences/{id}/educator/register", name="company_experience_educator_register", options = { "expose" = true }, methods={"POST"})
+     * @Route("/companies/experiences/{id}/register", name="company_experience_register", options = { "expose" = true }, methods={"GET"})
      * @param Request           $request
      * @param CompanyExperience $experience
      *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function companyExperienceEducatorRegisterAction(Request $request, CompanyExperience $experience)
-    {
-
-        $educatorIdToRegister = $request->request->get('educatorId');
-        $educatorToRegister   = $this->educatorUserRepository->find($educatorIdToRegister);
-
-
-        // We need to delete any previous "registration" for the educator. This fixes the issue of an educator
-        // trying to cancel a registration from an older non-educatorRegisterEducatorForCompanyExperienceRequest.
-
-        $registration = $this->registrationRepository->getByUserAndExperience($educatorToRegister, $experience);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-            $this->entityManager->flush();
-        }
-
-        // We will mark any educator as approved for this event.
-        $user            = $this->getUser();
-        $registerRequest = new EducatorRegisterEducatorForCompanyExperienceRequest();
-        $registerRequest->setCreatedBy($user);
-        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-        $registerRequest->setCompanyExperience($experience);
-        $registerRequest->setEducatorUser($educatorToRegister);
-
-        // Does not require approval
-        $registerRequest->setApproved(true);
-        $registerRequest->setProfessionalHasSeen(true);
-        $registerRequest->setEducatorHasSeen(true);
-        $this->entityManager->persist($registerRequest);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'You has been registered.');
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "educator_id" => $educatorToRegister->getId(),
-                    'id' => $experience->getId(),
-                    "approval" => $experience->getRequireApproval(),
-                    "request_id" => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
-     * @Route("/companies/experiences/{id}/educator/deregister", name="company_experience_educator_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
+     * @param RequestService    $requestService
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function companyExperienceEducatorDeregisterAction(Request $request, CompanyExperience $experience)
-    {
-        $educatorIdToDeregister = $request->request->get('educatorId');
-        $educatorToDeregister   = $this->educatorUserRepository->find($educatorIdToDeregister);
-
-        $deregisterEducatorForExperience = $this->educatorRegisterEducatorForCompanyExperienceRequestRepository->getByEducatorAndExperience($educatorToDeregister, $experience);
-
-        $deregisterRequest = $this->requestRepository->find($deregisterEducatorForExperience);
-        $registration      = $this->registrationRepository->getByUserAndExperience($educatorToDeregister, $experience);
-
-        /** @var ProfessionalUser $companyOwner */
-        $companyOwner = $experience->getCompany()->getOwner();
-
-        $this->entityManager->remove($deregisterEducatorForExperience);
-        $this->entityManager->remove($deregisterRequest);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-        // 
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "educator_id" => $educatorIdToDeregister,
-                    'id' => $experience->getId(),
-                ]
-            );
-        } else {
-            $this->addFlash('success', 'You have been removed from this experience.');
-
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted("ROLE_SCHOOL_ADMINISTRATOR_USER")
-     * @Route("/companies/experiences/{id}/school_administrator/register", name="company_experience_school_admin_register", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function companyExperienceSchoolAdministratorRegisterAction(Request $request, CompanyExperience $experience)
-    {
-
-        $schoolAdminIdToRegister = $request->request->get('schoolAdminId');
-        $schoolAdminToRegister   = $this->schoolAdministratorRepository->find($schoolAdminIdToRegister);
-
-
-        // We need to delete any previous "registration" for the school admin. This fixes the issue of an school admin
-        // trying to cancel a registration from an older non-shooolAdminRegisterSAForCompanyExperienceRequest.
-
-        $registration = $this->registrationRepository->getByUserAndExperience($schoolAdminToRegister, $experience);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-            $this->entityManager->flush();
-        }
-
-        // We will mark any educator as approved for this event.
-        $user            = $this->getUser();
-        $registerRequest = new SchoolAdminRegisterSAForCompanyExperienceRequest();
-        $registerRequest->setCreatedBy($user);
-        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-        $registerRequest->setCompanyExperience($experience);
-        $registerRequest->setSchoolAdminUser($schoolAdminToRegister);
-
-        // Does not require approval
-        $registerRequest->setApproved(true);
-        $registerRequest->setProfessionalHasSeen(true);
-        $registerRequest->setSchoolAdminHasSeen(true);
-        $this->entityManager->persist($registerRequest);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'You has been registered.');
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "school_admin_id" => $schoolAdminToRegister->getId(),
-                    'id' => $experience->getId(),
-                    "approval" => $experience->getRequireApproval(),
-                    "request_id" => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted("ROLE_SCHOOL_ADMINISTRATOR_USER")
-     * @Route("/companies/experiences/{id}/school_administrator/deregister", name="company_experience_school_admin_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function companyExperienceSchoolAdministratorDeregisterAction(Request $request, CompanyExperience $experience
+    public function companyExperienceRegisterAction(Request $request, CompanyExperience $experience,
+                                                    RequestService $requestService
     ) {
-        $schoolAdminIdToDeregister = $request->request->get('schoolAdminId');
-        $schoolAdminToDeregister   = $this->schoolAdministratorRepository->find($schoolAdminIdToDeregister);
 
-        $deregisterSchoolAdminForExperience = $this->schoolAdminRegisterSAForCompanyExperienceRequestRepository->getBySchoolAdministratorAndExperience($schoolAdminToDeregister, $experience);
-
-        $deregisterRequest = $this->requestRepository->find($deregisterSchoolAdminForExperience);
-        $registration      = $this->registrationRepository->getByUserAndExperience($schoolAdminToDeregister, $experience);
-
-        /** @var ProfessionalUser $companyOwner */
-        $companyOwner = $experience->getCompany()->getOwner();
-
-        $this->entityManager->remove($deregisterSchoolAdminForExperience);
-        $this->entityManager->remove($deregisterRequest);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-        // 
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "school_admin_id" => $schoolAdminIdToDeregister,
-                    'id' => $experience->getId(),
-                ]
-            );
+        $req    = $request;
+        $userId = $request->query->get('userId', null);
+        if ($userId) {
+            $createdBy      = $this->getUser();
+            $userToRegister = $this->userRepository->find($userId);
         } else {
-            $this->addFlash('success', 'You have been removed from this experience.');
-
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted({"ROLE_EDUCATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
-     * @Route("/companies/experiences/{id}/students/register", name="company_experience_student_register", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience)
-    {
-        // We need to check if the experience requires approval from the event creator. If so follow the
-        // current flow, otherwise, bypass sending emails and mark the registration as complete.
-        $studentIdToRegister = $request->request->get('studentId');
-        $studentToRegister   = $this->studentUserRepository->find($studentIdToRegister);
-
-        if ($experience->getAvailableSpaces() === 0) {
-            $this->addFlash('error', sprintf('Could not register students. 0 spots left.'));
-
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse(
-                    [
-                        "status" => "failure",
-                        "message" => 'Could not register students. 0 spots left.',
-                        "student_id" => $studentIdToRegister,
-                        'id' => $experience->getId(),
-                    ]
-                );
-            } else {
-                return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-            }
-
-        }
-        /** @var User $user */
-        $user            = $this->getUser();
-        $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
-        $registerRequest->setCreatedBy($user);
-        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-        $registerRequest->setCompanyExperience($experience);
-        $registerRequest->setStudentUser($studentToRegister);
-
-        if ($experience->getRequireApproval()) {
-            // Requires approval
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
-            $this->addFlash('success', 'Registration request successfully sent.');
-        } else {
-            // Does not require approval
-            $registerRequest->setApproved(true);
-            $registerRequest->setProfessionalHasSeen(true);
-
-            if ($user->isEducator()) {
-                $registerRequest->setEducatorHasSeen(true);
-            }
-            if ($user->isSchoolAdministrator()) {
-                $registerRequest->setSchoolAdminHasSeen(true);
-            }
-
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->addFlash('success', 'Student has been registered.');
+            $createdBy      = $this->getUser();
+            $userToRegister = $this->getUser();
         }
 
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "student_id" => $studentIdToRegister,
-                    'id' => $experience->getId(),
-                    "approval" => $experience->getRequireApproval(),
-                    "request_id" => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-    /**
-     * @IsGranted({"ROLE_EDUCATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
-     * @Route("/companies/experiences/{id}/students/deregister", name="company_experience_student_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function companyExperienceStudentDeregisterAction(Request $request, CompanyExperience $experience)
-    {
-        $studentIdToDeregister = $request->request->get('studentId');
-        $studentToDeregister   = $this->studentUserRepository->find($studentIdToDeregister);
-
-        $deregisterStudentForExperience = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($studentToDeregister, $experience);
-
-        $deregisterRequest = $this->requestRepository->find($deregisterStudentForExperience);
-
-        if ($deregisterRequest->getApproved()) {
-            $experience->setAvailableSpaces($experience->getAvailableSpaces() + 1);
+        if ($registrationRequest = $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience)) {
+            $this->requestsMailer->userRegistrationApproval($registrationRequest, $experience);
         }
 
-        $registration = $this->registrationRepository->getByUserAndExperience($studentToDeregister, $experience);
-
-        /** @var ProfessionalUser $companyOwner */
-        $companyOwner = $experience->getCompany()->getOwner();
-
-        if ($companyOwner->getEmail()) {
-            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $companyOwner, $experience);
-        }
-
-        $educators = $studentToDeregister->getEducatorUsers();
-
-        foreach ($educators as $educator) {
-            if ($educator->getEmail()) {
-                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
-            }
-        }
-
-        if ($studentToDeregister->getEmail()) {
-            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
-        }
-
-        $this->entityManager->remove($deregisterStudentForExperience);
-        $this->entityManager->remove($deregisterRequest);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'Student has been removed from this experience.');
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "student_id" => $studentIdToDeregister,
-                    'id' => $experience->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
 
     /**

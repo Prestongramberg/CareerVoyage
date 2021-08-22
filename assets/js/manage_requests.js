@@ -8,7 +8,8 @@ $(document).ready(function () {
 
     const urlParams = new URLSearchParams(location.search);
     let onPageLoadActionUrl = null,
-        action = null;
+        action = null,
+        requestId = null;
     for (const [key, value] of urlParams) {
 
         if (key === 'action') {
@@ -16,13 +17,14 @@ $(document).ready(function () {
         }
 
         if (key === 'id') {
+            requestId = value;
             onPageLoadActionUrl = $(`#nc_${value}`).attr('data-action-url');
         }
     }
 
-    if(onPageLoadActionUrl) {
+    if (onPageLoadActionUrl) {
 
-        if(action) {
+        if (action) {
             onPageLoadActionUrl += "&action=" + action;
         }
 
@@ -34,6 +36,8 @@ $(document).ready(function () {
             UIkit.modal('#js-manage-request-modal').show();
 
             $('#js-manage-request-modal').html(data.formMarkup);
+
+            $(`#nc_${requestId}`).find('.js-notification-circle').remove();
 
         }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);
@@ -59,6 +63,8 @@ $(document).ready(function () {
             UIkit.modal('#js-manage-request-modal').show();
 
             $('#js-manage-request-modal').html(data.formMarkup);
+
+            $(event.target).closest('.js-request-item').find('.js-notification-circle').remove();
 
         }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);

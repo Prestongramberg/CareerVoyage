@@ -37,6 +37,10 @@ trait Timestampable
             $this->createdAt = new \DateTime();
         }
 
+        if(!$this->updatedAt) {
+            $this->updatedAt = new \DateTime();
+        }
+
         return $this;
     }
 

@@ -393,7 +393,7 @@ class LessonController extends AbstractController
         $teachLessonRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
         $teachLessonRequest->setStatusLabel('Guest instructor invite is pending approval');
         $teachLessonRequest->setNotification([
-            'title' => "<strong>{$user->getFullName()}</strong> has invited you to guest instruct <strong>{$lesson->getTitle()}</strong>",
+            'title' => "<strong>{$user->getFullName()}</strong> has invited you to guest instruct \"{$lesson->getTitle()}\"",
             'data' => [
                 'professional_id' => $professionalUser->getId(),
                 'school_id' => $school->getId(),
@@ -452,21 +452,23 @@ class LessonController extends AbstractController
         $createdByApprover = new RequestPossibleApprovers();
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($teachLessonRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
         $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
                                                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
-        $createdByApprover->setNotificationTitle("<strong>{$professionalUser->getFullName()}</strong> has been invited by you to guest instruct <strong>{$lesson->getTitle()}</strong>");
+        $createdByApprover->setNotificationTitle("<strong>{$professionalUser->getFullName()}</strong> has been invited by you to guest instruct \"{$lesson->getTitle()}\"");
 
         $possibleApprover = new RequestPossibleApprovers();
         $possibleApprover->setPossibleApprover($professionalUser);
         $possibleApprover->setRequest($teachLessonRequest);
+        $possibleApprover->setHasNotification(true);
         $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_APPROVE,
                                                RequestAction::REQUEST_ACTION_NAME_DENY,
                                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
                                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
                                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
-        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has invited you to guest instruct <strong>{$lesson->getTitle()}</strong>");
+        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has invited you to guest instruct \"{$lesson->getTitle()}\"");
 
 
         $this->entityManager->persist($createdByApprover);
@@ -484,7 +486,7 @@ class LessonController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($teachLessonRequest);
 
-        $this->requestsMailer->teachLessonInviteApproval($teachLessonRequest, $lesson);
+        $this->requestsMailer->teachLessonInviteApproval($professionalUser, $user, $lesson);
 
         $this->addFlash('success', 'Request successfully sent!');
 

@@ -19,18 +19,21 @@ class RequestAction
 {
     use Timestampable;
 
-    const REQUEST_ACTION_NAME_APPROVE             = 'APPROVE';
-    const REQUEST_ACTION_NAME_DENY                = 'DENY';
-    const REQUEST_ACTION_NAME_MARK_AS_PENDING     = 'MARK_AS_PENDING';
-    const REQUEST_ACTION_NAME_HIDE                = 'HIDE';
-    const REQUEST_ACTION_NAME_READ_RECEIPT        = 'READ_RECEIPT';
-    const REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY = 'REMOVE_FROM_COMPANY';
-    const REQUEST_ACTION_NAME_LEAVE_COMPANY       = 'LEAVE_COMPANY';
-    const REQUEST_ACTION_NAME_SUGGEST_NEW_DATES   = 'SUGGEST_NEW_DATES';
-    const REQUEST_ACTION_NAME_SEND_MESSAGE        = 'SEND_MESSAGE';
-    const REQUEST_ACTION_NAME_DEFAULT             = 'DEFAULT';
-    const REQUEST_ACTION_NAME_MARK_AS_ACTIVE      = 'MARK_AS_ACTIVE';
-    const REQUEST_ACTION_NAME_MARK_AS_INACTIVE    = 'MARK_AS_INACTIVE';
+    const REQUEST_ACTION_NAME_APPROVE                = 'APPROVE';
+    const REQUEST_ACTION_NAME_DENY                   = 'DENY';
+    const REQUEST_ACTION_NAME_MARK_AS_PENDING        = 'MARK_AS_PENDING';
+    const REQUEST_ACTION_NAME_HIDE                   = 'HIDE';
+    const REQUEST_ACTION_NAME_READ_RECEIPT           = 'READ_RECEIPT';
+    const REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY    = 'REMOVE_FROM_COMPANY';
+    const REQUEST_ACTION_NAME_LEAVE_COMPANY          = 'LEAVE_COMPANY';
+    const REQUEST_ACTION_NAME_SUGGEST_NEW_DATES      = 'SUGGEST_NEW_DATES';
+    const REQUEST_ACTION_NAME_SEND_MESSAGE           = 'SEND_MESSAGE';
+    const REQUEST_ACTION_NAME_DEFAULT                = 'DEFAULT';
+    const REQUEST_ACTION_NAME_MARK_AS_ACTIVE         = 'MARK_AS_ACTIVE';
+    const REQUEST_ACTION_NAME_MARK_AS_INACTIVE       = 'MARK_AS_INACTIVE';
+    const REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST = 'VIEW_REGISTRATION_LIST';
+    const REQUEST_ACTION_NAME_UNREGISTER             = 'UNREGISTER';
+    const REQUEST_ACTION_NAME_REGISTER               = 'REGISTER';
 
 
     /**
@@ -161,9 +164,11 @@ class RequestAction
 
         switch ($this->name) {
             case self::REQUEST_ACTION_NAME_APPROVE:
+            case self::REQUEST_ACTION_NAME_MARK_AS_ACTIVE:
                 return 'uk-label-success';
                 break;
             case self::REQUEST_ACTION_NAME_DENY:
+            case self::REQUEST_ACTION_NAME_MARK_AS_INACTIVE:
             case self::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
             case self::REQUEST_ACTION_NAME_LEAVE_COMPANY:
                 return 'uk-label-danger';

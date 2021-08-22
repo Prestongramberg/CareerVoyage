@@ -55,7 +55,8 @@ class RequestRepository extends ServiceEntityRepository
                              ->leftJoin('r.requestPossibleApprovers', 'rpa')
                              ->andWhere('r.denied = :denied')
                              ->andWhere('r.approved = :approved')
-                             ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode');
+                             ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode')
+                             ->andWhere('r.requestType IS NOT NULL');
 
 
         foreach ($user->getRoles() as $role) {
@@ -77,7 +78,7 @@ class RequestRepository extends ServiceEntityRepository
                      ->setParameter('denied', false)
                      ->setParameter('approved', false)
                      ->setParameter('allowApprovalByActivationCode', false)
-                     ->orderBy('r.createdAt', 'DESC');
+                     ->orderBy('rpa.notificationDate', 'DESC');
 
         return $queryBuilder->getQuery()
                             ->getResult();
@@ -87,7 +88,8 @@ class RequestRepository extends ServiceEntityRepository
         User $createdBy = null,
         $requestType = null,
         User $possibleApprover = null,
-        $actionUrlPatternSearch = null
+        $actionUrlPatternSearch = null,
+        $parentRequestId = null
     ) {
         $queryBuilder = $this->createQueryBuilder('r')
                              ->leftJoin('r.requestPossibleApprovers', 'rpa');
@@ -110,6 +112,11 @@ class RequestRepository extends ServiceEntityRepository
         if ($actionUrlPatternSearch) {
             $queryBuilder->andWhere('r.actionUrl LIKE :actionUrlPatternSearch')
                          ->setParameter('actionUrlPatternSearch', '%' . $actionUrlPatternSearch . '%');
+        }
+
+        if ($parentRequestId) {
+            $queryBuilder->andWhere('r.parentRequest = :parentRequest')
+                         ->setParameter('parentRequest', $parentRequestId);
         }
 
         return $queryBuilder->getQuery()

@@ -10,6 +10,7 @@ use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\Request;
+use App\Entity\RequestPossibleApprovers;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\Site;
@@ -210,7 +211,7 @@ class AppExtension extends AbstractExtension
                 }
 
                 return $this->router->generate('company_experience_create', [
-                   'id' => $user->getCompany()->getId()
+                   'id' => $user->getCompany()->getId(),
                 ]);
 
                 break;
@@ -394,6 +395,28 @@ class AppExtension extends AbstractExtension
     {
 
         $requests_total = 0;
+
+        $requests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+
+        /** @var Request $request */
+        foreach($requests as $request) {
+
+            /** @var RequestPossibleApprovers $possibleApprover */
+            if($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($user)) {
+                if($possibleApprover->getHasNotification()) {
+                    $requests_total++;
+                }
+            }
+        }
+
+        return $requests_total;
+
+
+
+
+
+
+
         if ($user->isStudent()) {
             $my_requests    = $this->requestRepository->getUnreadMyRequestsStudent($user);
             $requests_total = $requests_total + count($my_requests);
@@ -724,7 +747,7 @@ class AppExtension extends AbstractExtension
         return $string ? implode(', ', $string) . ' ago' : 'just now';
     }
 
-    public function requestSent(User $createdBy, $requestType, $to, $actionUrlPatternSearch = null) {
+    public function requestSent(User $createdBy = null, $requestType = null, $to = null, $actionUrlPatternSearch = null) {
 
         return $this->requestRepository->search($createdBy, $requestType, $to, $actionUrlPatternSearch);
     }

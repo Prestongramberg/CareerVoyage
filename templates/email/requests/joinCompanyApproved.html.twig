@@ -1,4 +1,4 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName } %}
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipient.firstName } %}
 
 <p>Your request to join <strong>{{ company.name }}</strong> has been approved</p>
 <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to see your company.</p>

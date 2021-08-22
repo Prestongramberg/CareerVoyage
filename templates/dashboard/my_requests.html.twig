@@ -14,19 +14,25 @@
                         {% set createdOn = notification['created_on'] %}
 
                         <tr>
-                            <td class="uk-table-shrink">
+                            <td class="uk-table-shrink" style="position: relative; padding-left: 20px">
+                                {% if requestPossibleApprover and requestPossibleApprover.hasNotification %}
+                                    <small class="js-notification-circle" style="position: absolute; left: 0; top: 14px"><em class="fa fa-circle" aria-hidden="true"></em></small>
+                                {% endif %}
                                 {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
                                     <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ requestPossibleApprover.notificationTitle|raw }}</a></small>
                                 {% else %}
                                     <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ title|raw }}</a></small>
                                 {% endif %}
                                 <br>
-                                <small class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ time_elapsed_string(createdOn) }}</a></small>
+
+                                {% if requestPossibleApprover and requestPossibleApprover.timeElapsedSinceHasNotification %}
+                                    <span class="uk-text-meta"><a href="{{ path('requests', {id: request.id}) }}">{{ time_elapsed_string(requestPossibleApprover.timeElapsedSinceHasNotification) }}</a></span>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td class="uk-table-shrink">
+                        <td class="uk-table-shrink" style="padding-left: 20px">
                             <a href="{{ path('requests') }}">Browse Requests</a>
                             <br>
                             <small class="uk-text-meta"><a href="{{ path('requests') }}">See what other requests you may have or might be missing out on</a></small>
