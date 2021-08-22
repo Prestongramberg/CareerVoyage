@@ -350,7 +350,6 @@
                 <li><a href="#experience-attachments">Experience Documents</a></li>
             {% endif %}
             {% if user.isEducator or user.isSchoolAdministrator %}
-                <li><a href="#experience-registrations">Registrations</a></li>
                 <li><a href="#available-students-to-register">Available Students To Register</a></li>
                 {#<li><a href="#feedback">Feedback</a></li>#}
             {% endif %}
@@ -434,111 +433,6 @@
                     </dl>
                 </div>
             {% endif %}
-            <div class="experience_registrations">
-                <h3>Students</h3>
-                <div class="uk-width-1">
-                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                        {% set showPendingRegisterButton = true %}
-                        {% if request.user.student %}
-
-                            {% if request.user.activated != false and request.user.deleted != true %}
-                                {% if request.approved %}
-                                    Approved
-                                    {% set showPendingRegisterButton = false %}
-                                {% elseif request.denied %}
-                                    Denied
-                                    {% set showPendingRegisterButton = false %}
-                                {% else %}
-                                    Pending
-                                    {% set showPendingRegisterButton = false %}
-                                {% endif %}
-
-                                <div class="uk-grid uk-flex-middle" uk-grid>
-                                    <div class="uk-width-expand">
-                                        <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
-                                    </div>
-                                    <div class="uk-width-auto">
-                                        {% if is_granted('view', request.user) %}
-                                            <a href="{{ path('profile_index', { "id": request.user.id }) }}"
-                                               class="uk-button uk-button-default uk-button-small">View</a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <hr>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <h3>Professionals</h3>
-                <div class="uk-width-1">
-                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                        {% if request.user.professional %}
-
-                            {% if request.user.activated != false and request.user.deleted != true %}
-
-                                {% if request.approved %}
-                                    Approved
-                                    {% set showPendingRegisterButton = false %}
-                                {% elseif request.denied %}
-                                    Denied
-                                    {% set showPendingRegisterButton = false %}
-                                {% else %}
-                                    Pending
-                                    {% set showPendingRegisterButton = false %}
-                                {% endif %}
-
-
-
-                                <div class="uk-grid uk-flex-middle" uk-grid>
-                                    <div class="uk-width-expand">
-                                        <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
-                                    </div>
-                                    <div class="uk-width-auto">
-                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}"
-                                           class="uk-button uk-button-default uk-button-small">View</a>
-                                    </div>
-                                </div>
-                                <hr>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-
-                <h3>Educators</h3>
-                <div class="uk-width-1">
-                    {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                        {% if request.user.educator %}
-
-                            {% if request.user.activated != false and request.user.deleted != true %}
-
-                                {% if request.approved %}
-                                    Approved
-                                    {% set showPendingRegisterButton = false %}
-                                {% elseif request.denied %}
-                                    Denied
-                                    {% set showPendingRegisterButton = false %}
-                                {% else %}
-                                    Pending
-                                    {% set showPendingRegisterButton = false %}
-                                {% endif %}
-
-                                <div class="uk-grid uk-flex-middle" uk-grid>
-                                    <div class="uk-width-expand">
-                                        <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
-                                    </div>
-                                    <div class="uk-width-auto">
-                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}"
-                                           class="uk-button uk-button-default uk-button-small">View</a>
-                                    </div>
-                                </div>
-                                <hr>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
 
             {% if user.isEducator %}
 

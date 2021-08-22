@@ -469,7 +469,7 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
                                 ->setStatusLabel('Company invite accepted');
 
-                        $this->requestsMailer->joinCompanyApproved($request, $company);
+                        $this->requestsMailer->joinCompanyApproved($createdBy, $company);
 
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
@@ -1209,6 +1209,8 @@ class RequestController extends AbstractController
 
                         /** @var RequestPossibleApprovers $possibleApprover */
                         foreach ($possibleApprovers as $possibleApprover) {
+
+                            $this->requestsMailer->userRegisterationApproved($possibleApprover->getPossibleApprover(), $experience);
 
                             $possibleApprover->setPossibleActions([
                                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,

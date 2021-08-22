@@ -486,7 +486,7 @@ class LessonController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($teachLessonRequest);
 
-        $this->requestsMailer->teachLessonInviteApproval($teachLessonRequest, $lesson);
+        $this->requestsMailer->teachLessonInviteApproval($professionalUser, $user, $lesson);
 
         $this->addFlash('success', 'Request successfully sent!');
 

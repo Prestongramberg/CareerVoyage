@@ -66,7 +66,7 @@ class RequestsMailer extends AbstractMailer
                 $this->templating->render(
                     'email/requests/newCompanyAwaitingApproval.html.twig',
                     [
-                        'recipientFirstName' => $recipient,
+                        'recipient' => $recipient,
                         'company' => $company,
                     ]
                 ),
@@ -95,7 +95,7 @@ class RequestsMailer extends AbstractMailer
                 $this->templating->render(
                     'email/requests/newCompanyApproved.html.twig',
                     [
-                        'recipientFirstName' => $company->getOwner()->getFirstName(),
+                        'recipient' => $company->getOwner(),
                         'company' => $company,
                     ]
                 ),
@@ -124,9 +124,10 @@ class RequestsMailer extends AbstractMailer
      * Join company request
      *
      * @param User    $recipient
+     * @param User    $createdBy
      * @param Company $company
      *
-     * @return bool
+     * @return void
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -164,25 +165,24 @@ class RequestsMailer extends AbstractMailer
     /**
      * Join company request
      *
-     * @param Request $request
-     *
+     * @param User    $recipient
      * @param Company $company
      *
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function joinCompanyApproved(Request $request, Company $company)
+    public function joinCompanyApproved(User $recipient, Company $company)
     {
 
         $message = (new \Swift_Message("Join company request approved"))
             ->setFrom($this->siteFromEmail)
-            ->setTo($request->getCreatedBy()->getEmail())
+            ->setTo($recipient->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/joinCompanyApproved.html.twig',
                     [
-                        'recipientFirstName' => $request->getCreatedBy()->getFirstName(),
+                        'recipient' => $recipient,
                         'company' => $company,
                     ]
                 ),
@@ -194,7 +194,7 @@ class RequestsMailer extends AbstractMailer
         $log = new EmailLog();
         $log->setFromEmail($this->siteFromEmail);
         $log->setSubject("Join company request approved");
-        $log->setToEmail($request->getCreatedBy()->getEmail());
+        $log->setToEmail($recipient->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
 
@@ -431,7 +431,7 @@ class RequestsMailer extends AbstractMailer
     /************************************************ START REGISTRATION **********************************************
      *
      * @param User       $recipient
-     * @param User       $approver
+     * @param User       $createdBy
      * @param Experience $experience
      *
      * @return void
@@ -470,16 +470,18 @@ class RequestsMailer extends AbstractMailer
         $this->entityManager->flush();
     }
 
-    public function userRegisterationApproved(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest
-    ) {
+    public function userRegisterationApproved(User $recipient, Experience $experience) {
 
         $message = (new \Swift_Message("Register User Request Approval."))
             ->setFrom($this->siteFromEmail)
-            ->setTo($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail())
+            ->setTo($recipient->getEmail())
             ->setBody(
                 $this->templating->render(
                     'email/requests/userRegistrationApproved.html.twig',
-                    ['request' => $userRegisterForSchoolExperienceRequest]
+                    [
+                        'recipient' => $recipient,
+                        'experience' => $experience
+                    ]
                 ),
                 'text/html'
             );
@@ -488,7 +490,7 @@ class RequestsMailer extends AbstractMailer
         $log = new EmailLog();
         $log->setFromEmail($this->siteFromEmail);
         $log->setSubject("Register User Request Approval.");
-        $log->setToEmail($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail());
+        $log->setToEmail($recipient->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
 

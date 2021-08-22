@@ -669,7 +669,7 @@ class CompanyController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($companyInviteRequest);
 
-        $this->requestsMailer->companyInviteApproval($companyInviteRequest, $company);
+        $this->requestsMailer->companyInviteApproval($professionalUser, $user, $company);
 
         $this->addFlash('success', 'Request successfully sent!');
 
