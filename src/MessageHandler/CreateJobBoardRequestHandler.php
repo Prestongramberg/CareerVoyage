@@ -2,16 +2,18 @@
 
 namespace App\MessageHandler;
 
+use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
 use App\Entity\Request;
 use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
+use App\Entity\RolesWillingToFulfill;
 use App\Message\CreateJobBoardRequest;
 use App\Util\ServiceHelper;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
- * @see https://symfony.com/doc/4.2/messenger.html
+ * @see     https://symfony.com/doc/4.2/messenger.html
  * Class NewEventNotificationHandler
  * @package App\MessageHandler
  */
@@ -23,9 +25,9 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
     {
 
         $requestId = $message->getRequestId();
-        $request = $this->requestRepository->find($requestId);
+        $request   = $this->requestRepository->find($requestId);
 
-        if(!$request) {
+        if (!$request) {
             return;
         }
 
@@ -38,16 +40,57 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
                 continue;
             }
 
-            $results = $this->requestRepository->search($request->getCreatedBy(), Request::REQUEST_TYPE_JOB_BOARD, $professional);
+            $results = $this->requestRepository->search($request->getCreatedBy(), Request::REQUEST_TYPE_JOB_BOARD, $professional, null, $request->getId());
 
-            if(!empty($results)) {
+            if (!empty($results)) {
 
                 /** @var Request $jobBoardRequest */
                 $jobBoardRequest = $results[0];
-                $messages = $jobBoardRequest->getNotification()['messages'] ?? [];
-                $notification = $request->getNotification();
-                $notification['messages'] = $messages;
-                $jobBoardRequest->setNotification($notification);
+                $messages        = $jobBoardRequest->getNotification()['messages'] ?? [];
+                $createdOn       = $jobBoardRequest->getNotification()['body']['Created On'];
+
+                $jobBoardRequest->setNotification([
+                    'title' => "<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$request->getSummary()}\"",
+                    'data' => [
+                        'educator_id' => $request->getCreatedBy()->getId(),
+                    ],
+                    'user_photo' => $request->getCreatedBy()->getPhotoPath(),
+                    'user_photos' => [],
+                    'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                    'messages' => $messages,
+                    'body' => [
+                        'Request Type' => [
+                            'order' => 1,
+                            'value' => "<a target='_blank' href='{$this->router->generate('view_request', ['id' => $jobBoardRequest->getId()])}'>Job Board Request</a>",
+                        ],
+                        'Initiated By' => [
+                            'order' => 2,
+                            'value' => "<a target='_blank' href='{$this->router->generate('profile_index', ['id' => $request->getCreatedBy()->getId()])}'>{$jobBoardRequest->getCreatedBy()->getFullName()}</a>",
+                        ],
+                        'Summary' => [
+                            'order' => 3,
+                            'value' => "<a target='_blank' href='{$this->router->generate('view_request', ['id' => $jobBoardRequest->getId()])}'>{$request->getSummary()}</a>",
+                        ],
+                        'Description' => [
+                            'order' => 4,
+                            'value' => $request->getDescription(),
+                        ],
+                        'Volunteers Needed' => [
+                            'order' => 5,
+                            'value' => implode(", ", array_map(function (RolesWillingToFulfill $rolesWillingToFulfill) {
+                                return $rolesWillingToFulfill->getName();
+                            }, $request->getVolunteerRoles()->toArray())),
+                        ],
+                        'Volunteer Career Sector(s)' => [
+                            'order' => 6,
+                            'value' => implode(", ", array_map(function (Industry $industry) {
+                                return $industry->getName();
+                            }, $request->getPrimaryIndustries()->toArray())),
+                        ],
+                        'Created On' => $createdOn,
+                    ],
+                ]);
+
                 $jobBoardRequest->setStatusLabel($request->getStatusLabel());
                 $jobBoardRequest->setStatus($request->getStatus());
                 $jobBoardRequest->setDescription($request->getDescription());
@@ -56,7 +99,7 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
                 $jobBoardRequest->setOpportunityType($request->getOpportunityType());
 
                 /** @var RequestPossibleApprovers $possibleApprover */
-                if($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($professional)) {
+                if ($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($professional)) {
                     $possibleApprover->setNotificationTitle("<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$request->getSummary()}\"");
                 }
 
@@ -71,6 +114,50 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
             $this->entityManager->persist($jobBoardRequest);
             $this->entityManager->flush();
 
+            $createdOn = $jobBoardRequest->getNotification()['body']['Created On'];
+
+            $jobBoardRequest->setNotification([
+                'title' => "<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"",
+                'data' => [
+                    'educator_id' => $jobBoardRequest->getCreatedBy()->getId(),
+                ],
+                'user_photo' => $jobBoardRequest->getCreatedBy()->getPhotoPath(),
+                'user_photos' => [],
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => [],
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => "<a target='_blank' href='{$this->router->generate('view_request', ['id' => $jobBoardRequest->getId()])}'>Job Board Request</a>",
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->router->generate('profile_index', ['id' => $jobBoardRequest->getCreatedBy()->getId()])}'>{$jobBoardRequest->getCreatedBy()->getFullName()}</a>",
+                    ],
+                    'Summary' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->router->generate('view_request', ['id' => $jobBoardRequest->getId()])}'>{$jobBoardRequest->getSummary()}</a>",
+                    ],
+                    'Description' => [
+                        'order' => 4,
+                        'value' => $jobBoardRequest->getDescription(),
+                    ],
+                    'Volunteers Needed' => [
+                        'order' => 5,
+                        'value' => implode(", ", array_map(function (RolesWillingToFulfill $rolesWillingToFulfill) {
+                            return $rolesWillingToFulfill->getName();
+                        }, $jobBoardRequest->getVolunteerRoles()->toArray())),
+                    ],
+                    'Volunteer Career Sector(s)' => [
+                        'order' => 6,
+                        'value' => implode(", ", array_map(function (Industry $industry) {
+                            return $industry->getName();
+                        }, $jobBoardRequest->getPrimaryIndustries()->toArray())),
+                    ],
+                    'Created On' => $createdOn,
+                ],
+            ]);
+
             $requestActionUrl = $this->router->generate('request_action', [
                 'request_id' => $jobBoardRequest->getId(),
             ]);
@@ -78,16 +165,11 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
             $jobBoardRequest->setActionUrl($requestActionUrl);
             $jobBoardRequest->setParentRequest($request);
 
-            $requestAction = new RequestAction();
-            $requestAction->setUser($jobBoardRequest->getCreatedBy());
-            $requestAction->setRequest($jobBoardRequest);
-            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_CREATE);
-            $this->entityManager->persist($requestAction);
-
             $possibleApprover = new RequestPossibleApprovers();
             $possibleApprover->setPossibleApprover($professional);
             $possibleApprover->setRequest($jobBoardRequest);
             $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+            $possibleApprover->setHasNotification(true);
             $possibleApprover->setNotificationTitle("<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
             $this->entityManager->persist($possibleApprover);
 

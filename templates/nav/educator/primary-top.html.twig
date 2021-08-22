@@ -23,7 +23,7 @@
 
             <li class="uk-nav-header">Account</li>
             <li><a href="{{ path('profile_edit', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: user"></span>My Account</a></li>
-            <li><a href="{{ path('requests') }}"><i style="margin-right: 16px" class="fa fa-paper-plane" aria-hidden="true"></i>Check Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
+            <li style="position: relative"><a href="{{ path('requests') }}"><i style="margin-right: 16px" class="fa fa-paper-plane" aria-hidden="true"></i>Check Requests {% if pending_requests(user) > 0 %}<span style="right: 70px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
             {% if user.professional and user.ownedCompany %}
                 <li><a href="{{ path('report_experience_satisfaction_dashboard') }}"><span class="uk-margin-small-right" uk-icon="icon: database"></span>My Reports</a></li>
             {% endif %}
@@ -78,12 +78,12 @@
                             </ul>
                         </div>
                     </li>
-                    <li>
-                        <a href="#">Account</a>
+                    <li style="position: relative">
+                        <a href="#">Account {% if pending_requests(user) > 0 %}<span class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a>
                         <div class="uk-navbar-dropdown">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>
-                                <li><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
+                                <li style="position: relative"><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}<span style="right: 20px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
                                 {% if user.professional and user.ownedCompany %}
                                 <li><a href="{{ path('report_experience_satisfaction_dashboard') }}">My Reports</a></li>
                                 {% endif %}

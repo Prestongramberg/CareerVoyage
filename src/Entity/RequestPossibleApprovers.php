@@ -5,10 +5,14 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
+ *
  * @ORM\Entity(repositoryClass="App\Repository\RequestPossibleApproversRepository")
  */
 class RequestPossibleApprovers
 {
+    use Timestampable;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -42,6 +46,16 @@ class RequestPossibleApprovers
      * @ORM\Column(type="json", nullable=true)
      */
     private $viewedActions = [];
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $hasNotification = false;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $notificationDate;
 
     public function getId(): ?int
     {
@@ -196,6 +210,56 @@ class RequestPossibleApprovers
         }
 
         $this->setViewedActions(array_unique($viewedActions));
+    }
+
+    public function getHasNotification(): ?bool
+    {
+        if(!$this->hasNotification) {
+            return false;
+        }
+
+        return $this->hasNotification;
+    }
+
+    public function setHasNotification(?bool $hasNotification): self
+    {
+        if($hasNotification) {
+            $this->notificationDate = new \DateTime();
+        }
+
+        $this->hasNotification = $hasNotification;
+
+        return $this;
+    }
+
+    public function getTimeElapsedSinceHasNotification()
+    {
+        // the notification date should always be there but just incase it's not we have some fall backs. Legacy, etc
+        if($this->notificationDate) {
+            return $this->notificationDate->format("m/d/Y h:i A");
+        }
+
+        if($this->updatedAt) {
+            return $this->updatedAt->format("m/d/Y h:i A");
+        }
+
+        if($this->createdAt) {
+            return $this->createdAt->format("m/d/Y h:i A");
+        }
+
+        return $this->getRequest()->getCreatedAt()->format("m/d/Y h:i A");
+    }
+
+    public function getNotificationDate(): ?\DateTimeInterface
+    {
+        return $this->notificationDate;
+    }
+
+    public function setNotificationDate(?\DateTimeInterface $notificationDate): self
+    {
+        $this->notificationDate = $notificationDate;
+
+        return $this;
     }
 
 }

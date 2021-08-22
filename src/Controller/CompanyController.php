@@ -345,6 +345,7 @@ class CompanyController extends AbstractController
             $createdByApprover = new RequestPossibleApprovers();
             $createdByApprover->setPossibleApprover($user);
             $createdByApprover->setRequest($newCompanyRequest);
+            $createdByApprover->setNotificationDate(new \DateTime());
             $createdByApprover->setPossibleActions([
                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
             ]);
@@ -362,6 +363,7 @@ class CompanyController extends AbstractController
                 ]);
                 $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}");
                 $possibleApprover->setPossibleApprover($adminUser);
+                $possibleApprover->setHasNotification(true);
                 $possibleApprover->setRequest($newCompanyRequest);
                 $this->entityManager->persist($possibleApprover);
             }
@@ -520,6 +522,7 @@ class CompanyController extends AbstractController
         $createdByApprover = new RequestPossibleApprovers();
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($joinCompanyRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
         $createdByApprover->setPossibleActions([
             RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
@@ -531,6 +534,7 @@ class CompanyController extends AbstractController
         $possibleApprover->setPossibleApprover($company->getOwner());
         $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}");
         $possibleApprover->setRequest($joinCompanyRequest);
+        $possibleApprover->setHasNotification(true);
         $possibleApprover->setPossibleActions(
             [
                 RequestAction::REQUEST_ACTION_NAME_APPROVE,
@@ -626,6 +630,7 @@ class CompanyController extends AbstractController
         $createdByApprover = new RequestPossibleApprovers();
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($companyInviteRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
         $createdByApprover->setPossibleActions([
             RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
@@ -635,6 +640,7 @@ class CompanyController extends AbstractController
         $possibleApprover = new RequestPossibleApprovers();
         $possibleApprover->setPossibleApprover($professionalUser);
         $possibleApprover->setRequest($companyInviteRequest);
+        $possibleApprover->setHasNotification(true);
         $possibleApprover->setPossibleActions(
             [
                 RequestAction::REQUEST_ACTION_NAME_APPROVE,

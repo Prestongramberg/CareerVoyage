@@ -66,7 +66,6 @@
                             {% set notification = request.notification %}
                             {% set title = notification['title'] %}
                             {% set body = notification['body'] %}
-                            {% set timeElapsed = request.timeElapsedSinceHasNotification %}
                             {% set userPhoto = notification['user_photo'] %}
                             {% set userPhotos = notification['user_photos'] is defined ? notification['user_photos'] : [] %}
                             {% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(user) %}
@@ -82,8 +81,9 @@
 
                                         <a style="font-size: 18px" class="uk-accordion-title" href="javascript:void(0)">
 
-                                            {% if requestPossibleApprover and requestPossibleApprover.hasNewNotifications %}
-                                                <small class="js-notification-circle" style="position: absolute; left: -40px"><em class="fa fa-circle"
+                                            {% if requestPossibleApprover and requestPossibleApprover.hasNotification %}
+                                                <small class="js-notification-circle"
+                                                       style="position: absolute; left: -40px"><em class="fa fa-circle"
                                                                                                    aria-hidden="true"></em>
                                                 </small>
                                             {% endif %}
@@ -121,8 +121,10 @@
                                     </div>
 
                                     <div class="uk-width-1-6">
-                                        <span class="uk-text-muted center-vertically"
-                                              style="float: right; line-height: 1.5">{{ time_elapsed_string(timeElapsed) }}</span>
+                                        {% if requestPossibleApprover and requestPossibleApprover.timeElapsedSinceHasNotification %}
+                                            <span class="uk-text-muted center-vertically"
+                                                  style="float: right; line-height: 1.5">{{ time_elapsed_string(requestPossibleApprover.timeElapsedSinceHasNotification) }}</span>
+                                        {% endif %}
                                     </div>
 
                                 </div>

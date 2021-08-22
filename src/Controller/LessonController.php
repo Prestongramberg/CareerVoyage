@@ -452,6 +452,7 @@ class LessonController extends AbstractController
         $createdByApprover = new RequestPossibleApprovers();
         $createdByApprover->setPossibleApprover($user);
         $createdByApprover->setRequest($teachLessonRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
         $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
                                                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
@@ -460,6 +461,7 @@ class LessonController extends AbstractController
         $possibleApprover = new RequestPossibleApprovers();
         $possibleApprover->setPossibleApprover($professionalUser);
         $possibleApprover->setRequest($teachLessonRequest);
+        $possibleApprover->setHasNotification(true);
         $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_APPROVE,
                                                RequestAction::REQUEST_ACTION_NAME_DENY,
                                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,

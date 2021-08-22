@@ -303,7 +303,7 @@ class RequestController extends AbstractController
 
         /** @var RequestPossibleApprovers $possibleApprover */
         if($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
-            $possibleApprover->readNotifications();
+            $possibleApprover->setHasNotification(false);
             $this->entityManager->flush();
         }
 
@@ -345,6 +345,13 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
                                 ->setStatusLabel('Company has been approved');
 
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->requestsMailer->newCompanyApproved($company);
 
                         $this->entityManager->persist($requestAction);
@@ -356,6 +363,14 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
                                 ->setStatusLabel('Company has been denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -365,6 +380,14 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
                                 ->setStatusLabel('Company is pending approval');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -392,6 +415,14 @@ class RequestController extends AbstractController
                             $request->setNotification($notification);
 
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
                             $this->entityManager->persist($requestAction);
                             $this->entityManager->flush();
 
@@ -440,6 +471,13 @@ class RequestController extends AbstractController
 
                         $this->requestsMailer->joinCompanyApproved($request, $company);
 
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -453,6 +491,14 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
                                 ->setStatusLabel('Company invite denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -466,6 +512,14 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
                                 ->setStatusLabel('Company invite pending');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -493,6 +547,14 @@ class RequestController extends AbstractController
                             $request->setNotification($notification);
 
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
                             $this->entityManager->persist($requestAction);
                             $this->entityManager->flush();
 
@@ -542,6 +604,13 @@ class RequestController extends AbstractController
 
                         $this->requestsMailer->companyInviteApproved($request, $company);
 
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -555,6 +624,14 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
                                 ->setStatusLabel('Company invite denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -568,6 +645,14 @@ class RequestController extends AbstractController
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
                                 ->setStatusLabel('Company invite pending');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -595,6 +680,14 @@ class RequestController extends AbstractController
                             $request->setNotification($notification);
 
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
                             $this->entityManager->persist($requestAction);
                             $this->entityManager->flush();
 
@@ -722,6 +815,7 @@ class RequestController extends AbstractController
                                     RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
                                     RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                                 ]);
+                                $possibleApprover->setHasNotification(true);
                                 $this->entityManager->persist($possibleApprover);
                             }
 
@@ -768,7 +862,6 @@ class RequestController extends AbstractController
                                 $this->entityManager->persist($teachLessonExperience);
                             }
 
-
                             $this->entityManager->flush();
 
                             $template = 'request/modal/teach_lesson.html.twig';
@@ -798,6 +891,14 @@ class RequestController extends AbstractController
                             $request->setNotification($notification);
 
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
                             $this->entityManager->persist($requestAction);
                             $this->entityManager->flush();
 
@@ -829,6 +930,13 @@ class RequestController extends AbstractController
                             $this->entityManager->remove($teachLessonExperience);
                         }
 
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
 
@@ -846,6 +954,13 @@ class RequestController extends AbstractController
 
                         if ($teachLessonExperience) {
                             $this->entityManager->remove($teachLessonExperience);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
                         }
 
                         $this->entityManager->persist($requestAction);
@@ -898,6 +1013,9 @@ class RequestController extends AbstractController
                                     RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
                                     RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                                 ]);
+
+                                $possibleApprover->setHasNotification(true);
+
                                 $this->entityManager->persist($possibleApprover);
                             }
 
@@ -948,6 +1066,13 @@ class RequestController extends AbstractController
                                           ->setStatusLabel('Active Job Posting');
                         }
 
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
                         $this->entityManager->persist($requestAction);
                         $this->entityManager->flush();
                     }
@@ -961,6 +1086,13 @@ class RequestController extends AbstractController
                         foreach($request->getRequests() as $childRequest) {
                             $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
                                          ->setStatusLabel('Inactive Job Posting');
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
                         }
 
                         $this->entityManager->persist($requestAction);
@@ -992,15 +1124,20 @@ class RequestController extends AbstractController
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
                             $this->entityManager->persist($requestAction);
 
-                            $possibleApprover = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser, true);
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
-                            if (!$possibleApprover) {
+                            if(empty($possibleApprovers)) {
                                 $possibleApprover = new RequestPossibleApprovers();
                                 $possibleApprover->setPossibleApprover($request->getCreatedBy());
                                 $possibleApprover->setRequest($request);
                                 $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
                                 $possibleApprover->setNotificationTitle("<strong>{$loggedInUser->getFullName()}</strong> responded to your job board request - \"{$request->getSummary()}\"");
                                 $this->entityManager->persist($possibleApprover);
+                                $possibleApprovers = [$possibleApprover];
+                            }
+
+                            foreach($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
                             }
 
                             $this->entityManager->flush();
@@ -1597,18 +1734,14 @@ class RequestController extends AbstractController
             $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
             $this->entityManager->persist($createdByApprover);
 
-            $requestAction = new RequestAction();
-            $requestAction->setUser($user);
-            $requestAction->setRequest($jobBoardRequest);
-            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_CREATE);
-            $this->entityManager->persist($requestAction);
-
             if ($form->get('postAndReview')->isClicked()) {
 
                 $jobBoardRequest->setPublished(true);
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
                 $jobBoardRequest->setStatusLabel('Active job posting');
                 $jobBoardRequest->setRequestActionAt(new \DateTime());
+                $createdByApprover->setNotificationDate(new DateTime());
+
                 $this->entityManager->flush();
 
                 // dispatch message
@@ -1647,7 +1780,6 @@ class RequestController extends AbstractController
     {
         /** @var User $user */
         $user    = $this->getUser();
-        $publish = $request->query->get('publish', null);
 
         $accessDenied = (
             $requestEntity->getCreatedBy() &&
@@ -1656,15 +1788,6 @@ class RequestController extends AbstractController
 
         if ($accessDenied) {
             throw new AccessDeniedException();
-        }
-
-        // todo we are going to need to remove this as we need to setup the notification when it's published
-        if ($publish) {
-            $requestEntity->setPublished(true);
-            $this->entityManager->persist($requestEntity);
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
         }
 
         $form = $this->createForm(EditRequestFormType::class, $requestEntity, [
@@ -1739,7 +1862,11 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setStatusLabel('Active job posting');
                 $jobBoardRequest->setRequestActionAt(new \DateTime());
 
-                $this->entityManager->persist($jobBoardRequest);
+                /** @var RequestPossibleApprovers $possibleApprover */
+                if($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
+                    $possibleApprover->setNotificationDate(new DateTime());
+                }
+
                 $this->entityManager->flush();
 
                 $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
@@ -1748,11 +1875,13 @@ class RequestController extends AbstractController
             }
 
             if ($form->get('saveAndPreview')->isClicked()) {
-                $requestEntity->setPublished(false);
+                $jobBoardRequest->setPublished(false);
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE);
                 $jobBoardRequest->setStatusLabel('Inactive job posting');
-                $this->entityManager->persist($requestEntity);
+                $this->entityManager->persist($jobBoardRequest);
                 $this->entityManager->flush();
+
+                $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
 
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
@@ -1777,7 +1906,12 @@ class RequestController extends AbstractController
     public function viewRequest(RequestEntity $requestEntity, Request $request)
     {
 
+        /** @var User $user */
         $user = $this->getUser();
+
+        if($requestEntity->getParentRequest() && $requestEntity->getCreatedBy()->getId() === $user->getId()) {
+            return $this->redirectToRoute('view_request', ['id' => $requestEntity->getParentRequest()->getId()]);
+        }
 
         return $this->render('request/view.html.twig', [
             'user' => $user,
