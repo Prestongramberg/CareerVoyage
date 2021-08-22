@@ -174,9 +174,6 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
             $this->entityManager->persist($possibleApprover);
 
             $this->entityManager->flush();
-
-            break;
-
         }
     }
 
