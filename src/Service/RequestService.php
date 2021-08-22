@@ -36,7 +36,7 @@ class RequestService
         $this->router        = $router;
     }
 
-    public function createRegistrationRequest(User $createdBy, Experience $experience)
+    public function createRegistrationRequest(User $createdBy, User $userToRegister, Experience $experience)
     {
 
         $skip = (
@@ -54,12 +54,15 @@ class RequestService
         $registrationRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
         $registrationRequest->setStatusLabel('Registration Pending Approval');
 
-        $registrationRequest->setNotification([
+        $notification = [
             'title' => "<strong>{$createdBy->getFullName()}</strong> has registered for experience: \"{$experience->getTitle()}\"",
             'user_photo' => $createdBy->getPhotoPath(),
             'user_photos' => [],
             'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
             'messages' => [],
+            'data' => [
+                'user_to_register' => $userToRegister->getId(),
+            ],
             'body' => [
                 'Request Type' => [
                     'order' => 1,
@@ -78,13 +81,24 @@ class RequestService
                     'value' => (new \DateTime())->format("m/d/Y h:i A"),
                 ],
             ],
-        ]);
+        ];
+
+        if($createdBy->getId() !== $userToRegister->getId()) {
+            $notification['title'] = "<strong>{$createdBy->getFullName()}</strong> has registered \"{$userToRegister->getFullName()}\" for experience: \"{$experience->getTitle()}\"";
+            $notification['body']['User To Register'] = [
+                'order' => 7,
+                'value' => $userToRegister->getFullName()
+            ];
+        }
+
+        $registrationRequest->setNotification($notification);
 
         $this->entityManager->persist($registrationRequest);
         $this->entityManager->flush();
 
         $requestActionUrl = $this->router->generate('request_action', [
             'experience_id' => $experience->getId(),
+            'user_id' => $userToRegister->getId(),
             'request_id' => $registrationRequest->getId(),
         ]);
 
@@ -97,7 +111,12 @@ class RequestService
         $createdByApprover->setPossibleActions([
             RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
         ]);
+
         $createdByApprover->setNotificationTitle("<strong>You</strong> have registered for experience: \"{$experience->getTitle()}\"");
+
+        if($createdBy->getId() !== $userToRegister->getId()) {
+            $createdByApprover->setNotificationTitle("<strong>You</strong> have registered \"{$userToRegister->getFullName()}\" for experience: \"{$experience->getTitle()}\"");
+        }
 
         if (!$experience->getRequireApproval()) {
             $registrationRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
@@ -109,7 +128,7 @@ class RequestService
             ]);
 
             $registration = new Registration();
-            $registration->setUser($registrationRequest->getCreatedBy());
+            $registration->setUser($userToRegister);
             $registration->setExperience($experience);
             $this->entityManager->persist($registration);
         }
@@ -123,7 +142,7 @@ class RequestService
             $approver = $experience->getEmployeeContact();
         }
 
-        if($approver) {
+        if ($approver) {
             $possibleApprover = new RequestPossibleApprovers();
             $possibleApprover->setPossibleApprover($approver);
             $possibleApprover->setRequest($registrationRequest);
@@ -135,11 +154,20 @@ class RequestService
                     RequestAction::REQUEST_ACTION_NAME_DENY,
                     RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
                     RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST
+                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST,
                 ]
             );
 
-            $possibleApprover->setNotificationTitle("<strong>{$createdBy->getFullName()}</strong> has registered for experience: \"{$experience->getTitle()}\"");
+            $creatorPrefix = "<strong>{$createdBy->getFullName()}</strong> has";
+
+            if($approver->getId() === $createdBy->getId()) {
+                $creatorPrefix = "<strong>You</strong> have";
+            }
+
+            $possibleApprover->setNotificationTitle("{$creatorPrefix} registered for experience: \"{$experience->getTitle()}\"");
+            if($createdBy->getId() !== $userToRegister->getId()) {
+                $possibleApprover->setNotificationTitle("{$creatorPrefix} registered \"{$userToRegister->getFullName()}\" for experience: \"{$experience->getTitle()}\"");
+            }
 
             $this->entityManager->persist($possibleApprover);
         }

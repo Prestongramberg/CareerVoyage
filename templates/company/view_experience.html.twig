@@ -39,6 +39,10 @@
 
                 {% if user.educator %}
                     <div id="educator_id">
+
+
+
+
                         <form class="uk-inline register_educator" method="post" action="{{ path('company_experience_educator_register', {'id' : experience.id}) }}">
                             <input type="hidden" name="userId" value="{{ user.id }}" />
                             {% if experience.isRegistered(user) and experience.educatorRegisterEducatorForCompanyExperienceRequests|length > 0 %}

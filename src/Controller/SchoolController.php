@@ -103,8 +103,8 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/index.html.twig', [
-                                        'user' => $user,
-                                    ]
+                'user' => $user,
+            ]
         );
     }
 
@@ -122,8 +122,8 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             SchoolFilterType::class, null, [
-                                       'method' => 'GET',
-                                   ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -187,12 +187,12 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/results.html.twig', [
-                                                 'user'         => $user,
-                                                 'pagination'   => $pagination,
-                                                 'form'         => $form->createView(),
-                                                 'zipcode'      => $request->query->get('zipcode', ''),
-                                                 'clearFormUrl' => $this->generateUrl('school_results_page'),
-                                             ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'zipcode' => $request->query->get('zipcode', ''),
+                'clearFormUrl' => $this->generateUrl('school_results_page'),
+            ]
         );
     }
 
@@ -217,10 +217,10 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             SchoolAdminFormType::class, $schoolAdmin, [
-                                          'method' => 'POST',
-                                          'site'   => $user->getSite(),
-                                          'user'   => $user,
-                                      ]
+                'method' => 'POST',
+                'site' => $user->getSite(),
+                'user' => $user,
+            ]
         );
 
         $form->handleRequest($request);
@@ -258,9 +258,9 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/new_admin.html.twig', [
-                                            'user' => $user,
-                                            'form' => $form->createView(),
-                                        ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -281,8 +281,8 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             NewSchoolType::class, $school, [
-                                    'method' => 'POST',
-                                ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -373,9 +373,9 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/new.html.twig', [
-                                      'user' => $user,
-                                      'form' => $form->createView(),
-                                  ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -426,7 +426,7 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $educatorUser->getId(),
+                    'id' => $educatorUser->getId(),
 
                 ], Response::HTTP_OK
             );
@@ -499,7 +499,7 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $studentUser->getId(),
+                    'id' => $studentUser->getId(),
 
                 ], Response::HTTP_OK
             );
@@ -526,8 +526,8 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             EditSchoolType::class, $school, [
-                                     'method' => 'POST',
-                                 ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -548,10 +548,10 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/edit.html.twig', [
-                                       'user'   => $user,
-                                       'form'   => $form->createView(),
-                                       'school' => $school,
-                                   ]
+                'user' => $user,
+                'form' => $form->createView(),
+                'school' => $school,
+            ]
         );
     }
 
@@ -569,8 +569,8 @@ class SchoolController extends AbstractController
         $user = $this->getUser();
         $form = $this->createForm(
             SchoolCommunicationType::class, $school, [
-                                              'method' => 'POST',
-                                          ]
+                'method' => 'POST',
+            ]
         );
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -585,10 +585,10 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/communication_type.html.twig', [
-                                                     'user'   => $user,
-                                                     'form'   => $form->createView(),
-                                                     'school' => $school,
-                                                 ]
+                'user' => $user,
+                'form' => $form->createView(),
+                'school' => $school,
+            ]
         );
     }
 
@@ -613,9 +613,9 @@ class SchoolController extends AbstractController
         }
         $form = $this->createForm(
             ChatFilterType::class, null, [
-                                     'action' => $this->generateUrl('school_chat', ['id' => $school->getId()]),
-                                     'method' => 'GET',
-                                 ]
+                'action' => $this->generateUrl('school_chat', ['id' => $school->getId()]),
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -643,11 +643,11 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/chat.html.twig', [
-                                       'user'       => $user,
-                                       'school'     => $school,
-                                       'pagination' => $pagination,
-                                       'form'       => $form->createView(),
-                                   ]
+                'user' => $user,
+                'school' => $school,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -674,14 +674,14 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             ChatMessageFilterType::class, null, [
-                                            'action' => $this->generateUrl(
-                                                'school_chat_messages', [
-                                                                          'id'     => $school->getId(),
-                                                                          'chatId' => $chat->getId(),
-                                                                      ]
-                                            ),
-                                            'method' => 'GET',
-                                        ]
+                'action' => $this->generateUrl(
+                    'school_chat_messages', [
+                        'id' => $school->getId(),
+                        'chatId' => $chat->getId(),
+                    ]
+                ),
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -704,18 +704,18 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/chat_messages.html.twig', [
-                                                'user'         => $user,
-                                                'school'       => $school,
-                                                'pagination'   => $pagination,
-                                                'chat'         => $chat,
-                                                'form'         => $form->createView(),
-                                                'clearFormUrl' => $this->generateUrl(
-                                                    'school_chat_messages', [
-                                                                              'id'     => $school->getId(),
-                                                                              'chatId' => $chat->getId(),
-                                                                          ]
-                                                ),
-                                            ]
+                'user' => $user,
+                'school' => $school,
+                'pagination' => $pagination,
+                'chat' => $chat,
+                'form' => $form->createView(),
+                'clearFormUrl' => $this->generateUrl(
+                    'school_chat_messages', [
+                        'id' => $school->getId(),
+                        'chatId' => $chat->getId(),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -737,11 +737,11 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/view.html.twig', [
-                                       'user'                      => $user,
-                                       'school'                    => $school,
-                                       'volunteeringCompanies'     => $volunteeringCompanies,
-                                       'volunteeringProfessionals' => $volunteeringProfessionals,
-                                   ]
+                'user' => $user,
+                'school' => $school,
+                'volunteeringCompanies' => $volunteeringCompanies,
+                'volunteeringProfessionals' => $volunteeringProfessionals,
+            ]
         );
     }
 
@@ -763,9 +763,9 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             StudentImportType::class, null, [
-                                        'method' => 'POST',
-                                        'school' => $school,
-                                    ]
+                'method' => 'POST',
+                'school' => $school,
+            ]
         );
 
         $form->handleRequest($request);
@@ -834,10 +834,10 @@ class SchoolController extends AbstractController
 
                                 $username = preg_replace(
                                     '/\s+/', '', sprintf(
-                                               "%s.%s",
-                                               strtolower($student['First Name'] . '.' . $student['Last Name']),
-                                               $this->generateRandomString(1)
-                                           )
+                                        "%s.%s",
+                                        strtolower($student['First Name'] . '.' . $student['Last Name']),
+                                        $this->generateRandomString(1)
+                                    )
                                 );
 
                                 $studentObj = new StudentUser();
@@ -854,7 +854,7 @@ class SchoolController extends AbstractController
 
                                         $educator = $this->educatorUserRepository->findOneBy(
                                             [
-                                                'id'     => $student['Educator Number'],
+                                                'id' => $student['Educator Number'],
                                                 'school' => $school,
                                             ]
                                         );
@@ -916,10 +916,10 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/student_import.html.twig', [
-                                                 'user'   => $user,
-                                                 'form'   => $form->createView(),
-                                                 'school' => $school,
-                                             ]
+                'user' => $user,
+                'form' => $form->createView(),
+                'school' => $school,
+            ]
         );
     }
 
@@ -943,8 +943,8 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             EducatorImportType::class, null, [
-                                         'method' => 'POST',
-                                     ]
+                'method' => 'POST',
+            ]
         );
 
         $form->handleRequest($request);
@@ -1046,10 +1046,10 @@ class SchoolController extends AbstractController
 
                                 $username = preg_replace(
                                     '/\s+/', '', sprintf(
-                                               "%s.%s",
-                                               strtolower($educator['First Name'] . '.' . $educator['Last Name']),
-                                               $this->generateRandomString(1)
-                                           )
+                                        "%s.%s",
+                                        strtolower($educator['First Name'] . '.' . $educator['Last Name']),
+                                        $this->generateRandomString(1)
+                                    )
                                 );
 
                                 $educatorObj = new EducatorUser();
@@ -1126,10 +1126,10 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/educator_import.html.twig', [
-                                                  'user'   => $user,
-                                                  'form'   => $form->createView(),
-                                                  'school' => $school,
-                                              ]
+                'user' => $user,
+                'form' => $form->createView(),
+                'school' => $school,
+            ]
         );
     }
 
@@ -1168,8 +1168,8 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::SCHOOL_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::SCHOOL_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -1240,10 +1240,10 @@ class SchoolController extends AbstractController
 
         return new JsonResponse(
             [
-                'success'     => true,
-                'url'         => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $newFilename : $schoolResource->getLinkToWebsite(),
-                'id'          => $schoolResource->getId(),
-                'title'       => $title,
+                'success' => true,
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $newFilename : $schoolResource->getLinkToWebsite(),
+                'id' => $schoolResource->getId(),
+                'title' => $title,
                 'description' => $description,
 
             ], Response::HTTP_OK
@@ -1318,10 +1318,10 @@ class SchoolController extends AbstractController
         if ($schoolResource->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $schoolResource->getFileName(),
-                    'id'          => $schoolResource->getId(),
-                    'title'       => $schoolResource->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $schoolResource->getFileName(),
+                    'id' => $schoolResource->getId(),
+                    'title' => $schoolResource->getTitle(),
                     'description' => $schoolResource->getDescription(),
 
                 ], Response::HTTP_OK
@@ -1329,10 +1329,10 @@ class SchoolController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $schoolResource->getLinkToWebsite(),
-                    'id'          => $schoolResource->getId(),
-                    'title'       => $schoolResource->getTitle(),
+                    'success' => true,
+                    'website' => $schoolResource->getLinkToWebsite(),
+                    'id' => $schoolResource->getId(),
+                    'title' => $schoolResource->getTitle(),
                     'description' => $schoolResource->getDescription(),
 
                 ], Response::HTTP_OK
@@ -1391,10 +1391,10 @@ class SchoolController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -1402,10 +1402,10 @@ class SchoolController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -1492,8 +1492,8 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $video->getId(),
-                    'name'    => $name,
+                    'id' => $video->getId(),
+                    'name' => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -1534,8 +1534,8 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $video->getId(),
-                    'name'    => $name,
+                    'id' => $video->getId(),
+                    'name' => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -1597,7 +1597,7 @@ class SchoolController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data'    => $data,
+                'data' => $data,
 
             ], Response::HTTP_OK
         );
@@ -1620,9 +1620,9 @@ class SchoolController extends AbstractController
         $experience = new SchoolExperience();
         $form       = $this->createForm(
             NewSchoolExperienceType::class, $experience, [
-                                              'method' => 'POST',
-                                              'school' => $school,
-                                          ]
+                'method' => 'POST',
+                'school' => $school,
+            ]
         );
 
         $form->handleRequest($request);
@@ -1650,10 +1650,10 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/new_experience.html.twig', [
-                                                 'school' => $school,
-                                                 'form'   => $form->createView(),
-                                                 'user'   => $user,
-                                             ]
+                'school' => $school,
+                'form' => $form->createView(),
+                'user' => $user,
+            ]
         );
     }
 
@@ -1693,9 +1693,9 @@ class SchoolController extends AbstractController
 
         $form = $this->createForm(
             EditSchoolExperienceType::class, $experience, [
-                                               'method' => 'POST',
-                                               'school' => $school,
-                                           ]
+                'method' => 'POST',
+                'school' => $school,
+            ]
         );
 
         $form->handleRequest($request);
@@ -1722,11 +1722,11 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/edit_experience.html.twig', [
-                                                  'school'     => $school,
-                                                  'form'       => $form->createView(),
-                                                  'user'       => $user,
-                                                  'experience' => $experience,
-                                              ]
+                'school' => $school,
+                'form' => $form->createView(),
+                'user' => $user,
+                'experience' => $experience,
+            ]
         );
     }
 
@@ -1862,15 +1862,15 @@ class SchoolController extends AbstractController
 
         return $this->render(
             'school/view_experience.html.twig', [
-                                                  'user'                => $user,
-                                                  'experience'          => $experience,
-                                                  'companies'           => $experience->getSchool()->getCompanies(),
-                                                  'professionals'       => $experience->getSchool()->getProfessionalUsers(),
-                                                  'primaryIndustries'   => $this->industryRepository->findAll(),
-                                                  'secondaryIndustries' => $this->secondaryIndustryRepository->findAll(),
-                                                  'students'            => $experience->getSchool()->getStudentUsers(),
+                'user' => $user,
+                'experience' => $experience,
+                'companies' => $experience->getSchool()->getCompanies(),
+                'professionals' => $experience->getSchool()->getProfessionalUsers(),
+                'primaryIndustries' => $this->industryRepository->findAll(),
+                'secondaryIndustries' => $this->secondaryIndustryRepository->findAll(),
+                'students' => $experience->getSchool()->getStudentUsers(),
 
-                                              ]
+            ]
         );
     }
 
@@ -1883,19 +1883,22 @@ class SchoolController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience, RequestService $requestService)
-    {
+    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience,
+                                                   RequestService $requestService
+    ) {
         // We need to check if the experience requires approval from the event creator. If so follow the
         // current flow, otherwise, bypass sending emails and mark the registration as complete.
         $req    = $request;
-        $userId = $request->request->get('userId', null);
+        $userId = $request->query->get('userId', null);
         if ($userId) {
+            $createdBy      = $this->getUser();
             $userToRegister = $this->userRepository->find($userId);
         } else {
+            $createdBy      = $this->getUser();
             $userToRegister = $this->getUser();
         }
 
-        if($registrationRequest = $requestService->createRegistrationRequest($userToRegister, $experience)) {
+        if ($registrationRequest = $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience)) {
             $this->requestsMailer->userRegistrationApproval($registrationRequest, $experience);
         }
 
@@ -1975,7 +1978,7 @@ class SchoolController extends AbstractController
                 [
                     "status" => "success",
                     "userId" => $userIdToDeregister,
-                    'id'     => $experience->getId(),
+                    'id' => $experience->getId(),
                 ]
             );
         } else {
@@ -2017,10 +2020,10 @@ class SchoolController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $newFilename,
-                    'id'          => $file->getId(),
-                    'title'       => $title,
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
                     'description' => $description,
 
                 ], Response::HTTP_OK
@@ -2043,10 +2046,10 @@ class SchoolController extends AbstractController
 
                 return new JsonResponse(
                     [
-                        'success'     => true,
-                        'url'         => $linkToWebsite,
-                        'id'          => $file->getId(),
-                        'title'       => $title,
+                        'success' => true,
+                        'url' => $linkToWebsite,
+                        'id' => $file->getId(),
+                        'title' => $title,
                         'description' => $description,
 
                     ], Response::HTTP_OK
@@ -2077,10 +2080,10 @@ class SchoolController extends AbstractController
         if ($file->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2088,10 +2091,10 @@ class SchoolController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2150,10 +2153,10 @@ class SchoolController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2161,10 +2164,10 @@ class SchoolController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2300,8 +2303,8 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -2347,8 +2350,8 @@ class SchoolController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -2447,12 +2450,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/experiences/{id}/toggle-feedback-view", name="toggle_school_feedback_view", options = { "expose" = true })
-     * @param Request $request
+     * @param Request          $request
      * @param SchoolExperience $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function toggleCanViewFeedback(Request $request, SchoolExperience $experience) {
+    public function toggleCanViewFeedback(Request $request, SchoolExperience $experience)
+    {
 
         $experience->setCanViewFeedback($request->request->get('val'));
         $this->entityManager->persist($experience);

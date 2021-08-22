@@ -1153,6 +1153,12 @@ class RequestController extends AbstractController
 
                 $experienceId = $httpRequest->query->get('experience_id');
                 $experience   = $this->experienceRepository->find($experienceId);
+                $userToRegister = $request->getCreatedBy();
+
+                if(!empty($request->getNotification()['data']['user_to_register'])) {
+                    $userToRegister = $request->getNotification()['data']['user_to_register'];
+                    $userToRegister = $this->userRepository->find($userToRegister);
+                }
 
                 $template = 'request/modal/new_registration.html.twig';
 
@@ -1177,16 +1183,23 @@ class RequestController extends AbstractController
                 ];
 
                 $requestActionHandler = function () use (
-                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, $experience, &
+                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, $experience, $userToRegister, &
                     $template
                 ) {
 
                     if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
 
-                        $registration = new Registration();
-                        $registration->setUser($request->getCreatedBy());
-                        $registration->setExperience($experience);
-                        $this->entityManager->persist($registration);
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $userToRegister,
+                            'experience' => $experience
+                        ]);
+
+                        if(!$registration) {
+                            $registration = new Registration();
+                            $registration->setUser($userToRegister);
+                            $registration->setExperience($experience);
+                            $this->entityManager->persist($registration);
+                        }
 
                         $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
@@ -1212,7 +1225,7 @@ class RequestController extends AbstractController
                     if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
 
                         $registration = $this->registrationRepository->findOneBy([
-                            'user' => $request->getCreatedBy(),
+                            'user' => $userToRegister,
                             'experience' => $experience
                         ]);
 
@@ -1241,7 +1254,7 @@ class RequestController extends AbstractController
                     if ($action === RequestAction::REQUEST_ACTION_NAME_UNREGISTER) {
 
                         $registration = $this->registrationRepository->findOneBy([
-                            'user' => $request->getCreatedBy(),
+                            'user' => $userToRegister,
                             'experience' => $experience
                         ]);
 
@@ -1317,7 +1330,7 @@ class RequestController extends AbstractController
                     if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
 
                         $registration = $this->registrationRepository->findOneBy([
-                            'user' => $request->getCreatedBy(),
+                            'user' => $userToRegister,
                             'experience' => $experience
                         ]);
 

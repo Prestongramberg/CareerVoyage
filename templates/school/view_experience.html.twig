@@ -17,45 +17,53 @@
             <div class="uk-padding">
                 <h2 class="uk-margin-remove-bottom">{{ experience.school.name }}</h2>
                 <h3 class="uk-margin-remove-top">{{ experience.title }}</h3>
-                <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }} - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
+                <h5>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }}
+                    - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
-                
+
                 {% if user.isProfessional or user.isStudent or user.isEducator %}
 
-                  {% for registration in user.getRegistrations %}
-                    {% if registration.experience.id == experience.id %}
-                    <div class="react-calendar-button uk-inline"
-                         data-event-start-time="{{ experience.startDateAndTimeTimeStamp }}"
-                         data-event-end-time="{{ experience.endDateAndTimeTimeStamp }}"
-                         data-title="{{ experience.title }}"
-                         data-description="{{ experience.briefDescription }}"
-                         data-location="{{ experience.getFormattedAddress }}"
-                    ></div>
-                    {% endif %}
-                  {% endfor %}
+                    {% for registration in user.getRegistrations %}
+                        {% if registration.experience.id == experience.id %}
+                            <div class="react-calendar-button uk-inline"
+                                 data-event-start-time="{{ experience.startDateAndTimeTimeStamp }}"
+                                 data-event-end-time="{{ experience.endDateAndTimeTimeStamp }}"
+                                 data-title="{{ experience.title }}"
+                                 data-description="{{ experience.briefDescription }}"
+                                 data-location="{{ experience.getFormattedAddress }}"
+                            ></div>
+                        {% endif %}
+                    {% endfor %}
 
-                  <div id="student_{{ user.id }}">
-                      {% set requests = request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id) %}
-                      {% for request in requests %}
-                          <a href="{{ path('requests', {id: request.id}) }}"><span class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
-                      {% else %}
-                          <a class="uk-button uk-button-small uk-button-primary" href="{{ path('school_experience_register', {'id': experience.id}) }}">Register Myself</a>
-                      {% endfor %}
-                  </div>
+                    <div id="student_{{ user.id }}">
+                        {% set requests = request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ user.id) %}
+                        {% for request in requests %}
+                            <a href="{{ path('requests', {id: request.id}) }}"><span
+                                        class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
+                        {% else %}
+                            <a class="uk-button uk-button-small uk-button-primary"
+                               href="{{ path('school_experience_register', {'id': experience.id}) }}">Register
+                                Myself</a>
+                        {% endfor %}
+                    </div>
 
                 {% endif %}
 
                 {% if user.educator or user.schoolAdministrator %}
-                    <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Live Feedback URL</a>
+                    <br>
+                    <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-company-event" uk-toggle>Live
+                        Feedback URL</a>
                     <br>
                     <div id="modal-remove-company-event" uk-modal>
                         <div class="uk-modal-dialog uk-modal-body">
                             <h3>Live Feedback URL</h3>
 
                             <p>{{ url('experience_feedback', {'id' : experience.id}) }}</p>
-                            <input style="display: none" id="feedback-url" type="text" value="{{ url('experience_feedback', {'id' : experience.id}) }}">
+                            <input style="display: none" id="feedback-url" type="text"
+                                   value="{{ url('experience_feedback', {'id' : experience.id}) }}">
 
-                            <button class="uk-button uk-button-danger" onclick="copyFeedbackUrl()" type="button">Copy</button>
+                            <button class="uk-button uk-button-danger" onclick="copyFeedbackUrl()" type="button">Copy
+                            </button>
 
                         </div>
                     </div>
@@ -96,45 +104,60 @@
                     </div>
 
                     {% if user.isAdmin or user.isSchoolAdministrator or ( user.isEducator and experience.school.getAllowEventCreation() and experience.getSchoolContact().getId() == user.id ) %}
-                        
+
                         {% if experience.cancelled %}
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-delete-school-event-{{ experience.id }}" uk-toggle>Delete Experience</a>
+                            <a class="uk-button uk-button-danger uk-button-small"
+                               href="#modal-delete-school-event-{{ experience.id }}" uk-toggle>Delete Experience</a>
 
                             <div id="modal-delete-school-event-{{ experience.id }}" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
                                     <h3>Delete Experience</h3>
-                                    <form class="uk-inline" method="post" action="{{ path('school_experience_delete', { "id": experience.id }) }}" >
+                                    <form class="uk-inline" method="post"
+                                          action="{{ path('school_experience_delete', { "id": experience.id }) }}">
 
-                                        <label class="uk-form-label">Are you sure you want to delete this experience? This action is not recoverable.</label>
+                                        <label class="uk-form-label">Are you sure you want to delete this experience?
+                                            This action is not recoverable.</label>
                                         <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
                                         <p>
-                                            <button class="uk-button uk-button-default uk-modal-close" type="button">No, Close Window</button>
-                                            <button class="uk-button uk-button-danger" type="submit">Yes, Delete Experience</button>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">No,
+                                                Close Window
+                                            </button>
+                                            <button class="uk-button uk-button-danger" type="submit">Yes, Delete
+                                                Experience
+                                            </button>
                                         </p>
                                     </form>
                                 </div>
                             </div>
                         {% else %}
-                        
-                            <a href="{{ path('school_experience_edit', {id: experience.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
-                     {#       <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
 
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>#}
+                            <a href="{{ path('school_experience_edit', {id: experience.id}) }}"
+                               class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
+                            {#       <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
 
-                            <a class="uk-button uk-button-danger uk-button-small" href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
-                            
+                                   <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>#}
+
+                            <a class="uk-button uk-button-danger uk-button-small"
+                               href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
+
 
                             <div id="modal-remove-school-event-{{ experience.id }}" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
                                     <h3>Cancel Experience</h3>
-                                    <form class="uk-inline" method="post" action="{{ path('school_experience_remove', { "id": experience.id }) }}" >
+                                    <form class="uk-inline" method="post"
+                                          action="{{ path('school_experience_remove', { "id": experience.id }) }}">
 
-                                        <label class="uk-form-label">Cancellation Message (this will be sent to all users currently registered to attend your experience):</label>
+                                        <label class="uk-form-label">Cancellation Message (this will be sent to all
+                                            users currently registered to attend your experience):</label>
                                         <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
-                                        <textarea class="uk-textarea" name="cancellationMessage" style="width: 100%"></textarea>
+                                        <textarea class="uk-textarea" name="cancellationMessage"
+                                                  style="width: 100%"></textarea>
                                         <p>
-                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Close Window</button>
-                                            <button class="uk-button uk-button-danger" type="submit">Cancel Experience</button>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                                Close Window
+                                            </button>
+                                            <button class="uk-button uk-button-danger" type="submit">Cancel Experience
+                                            </button>
                                         </p>
                                     </form>
                                 </div>
@@ -142,7 +165,9 @@
 
                             <div id="modal-notify-companies" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
-                                    <form class="uk-inline" action="{{ path('school_notify_companies', { "id": experience.id }) }}" method="POST">
+                                    <form class="uk-inline"
+                                          action="{{ path('school_notify_companies', { "id": experience.id }) }}"
+                                          method="POST">
                                         <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
 
                                         <label class="uk-form-label">Select companies to notify:</label>
@@ -151,22 +176,26 @@
                                             {% if companies.count > 0 %}
                                                 {% for company in companies %}
                                                     <label class="uk-form-label">
-                                                        <input class="uk-checkbox" type="checkbox" name="companies[]" value="{{ company.id }}" />
+                                                        <input class="uk-checkbox" type="checkbox" name="companies[]"
+                                                               value="{{ company.id }}"/>
                                                         {{ company.name }}
                                                     </label>
-                                                    <br />
+                                                    <br/>
                                                 {% endfor %}
                                             {% else %}
                                                 No companies associated with school
                                             {% endif %}
                                         </div>
 
-                                        <label class="uk-form-label">Add a message to send to selected companies:</label>
+                                        <label class="uk-form-label">Add a message to send to selected
+                                            companies:</label>
 
                                         <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
 
                                         <p>
-                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                                Cancel
+                                            </button>
                                             <button class="uk-button uk-button-primary" type="submit">Send</button>
                                         </p>
                                     </form>
@@ -176,7 +205,9 @@
 
                             <div id="modal-notify-professionals" uk-modal>
                                 <div class="uk-modal-dialog uk-modal-body">
-                                    <form class="uk-inline" action="{{ path('school_notify_professionals', { "id": experience.id }) }}" method="POST">
+                                    <form class="uk-inline"
+                                          action="{{ path('school_notify_professionals', { "id": experience.id }) }}"
+                                          method="POST">
                                         <input type="hidden" name="schoolAdminId" value="{{ user.id }}">
 
                                         <div class="uk-form-controls">
@@ -186,7 +217,7 @@
                                             <select class="uk-select" id="primaryIndustrySelect">
                                                 <option value="">Select an Industry</option>
                                                 {% for industry in primaryIndustries %}
-                                                    <option value="{{industry.id}}">{{industry.name}}</option>
+                                                    <option value="{{ industry.id }}">{{ industry.name }}</option>
                                                 {% endfor %}
                                             </select>
 
@@ -195,7 +226,8 @@
                                             <select class="uk-select" id="secondaryIndustrySelect">
                                                 <option value="">Select a Secondary Industry</option>
                                                 {% for industry in secondaryIndustries %}
-                                                    <option value="{{industry.id}}" data-industry="{{industry.primaryIndustry.id}}">{{industry.name}}</option>
+                                                    <option value="{{ industry.id }}"
+                                                            data-industry="{{ industry.primaryIndustry.id }}">{{ industry.name }}</option>
                                                 {% endfor %}
                                             </select>
 
@@ -218,8 +250,15 @@
                                                             {% set industryArray = industryArray|merge([industry.id]) %}
                                                         {% endfor %}
 
-                                                        <label class="uk-form-label professionalUserCheckbox" data-primary-industry="{{ professional.primaryIndustry.id }}" data-industries="{{ industryArray|json_encode() }}" data-company="{{ professional.company ? professional.company.name : '' }}" style="display:block">
-                                                            <input class="uk-checkbox professionalUserCheckboxInput" type="checkbox" name="professionals[]" value="{{ professional.id }}" data-professional-name="{{ professional.firstName }} {{ professional.lastName }}" />
+                                                        <label class="uk-form-label professionalUserCheckbox"
+                                                               data-primary-industry="{{ professional.primaryIndustry.id }}"
+                                                               data-industries="{{ industryArray|json_encode() }}"
+                                                               data-company="{{ professional.company ? professional.company.name : '' }}"
+                                                               style="display:block">
+                                                            <input class="uk-checkbox professionalUserCheckboxInput"
+                                                                   type="checkbox" name="professionals[]"
+                                                                   value="{{ professional.id }}"
+                                                                   data-professional-name="{{ professional.firstName }} {{ professional.lastName }}"/>
                                                             {{ professional.firstName }} {{ professional.lastName }}
                                                         </label>
                                                     {% endfor %}
@@ -228,19 +267,22 @@
                                                 No professionals associated with school
                                             {% endif %}
 
-                                            <br />
+                                            <br/>
                                             <div id="selectedProfessionalsContainer" style="display:none">
                                                 <label class="uk-form-label">Selected Professionals:</label>
                                                 <ul id="selectedProfessionals"></ul>
                                             </div>
                                         </div>
 
-                                        <label class="uk-form-label">Add a message to send to selected professionals:</label>
+                                        <label class="uk-form-label">Add a message to send to selected
+                                            professionals:</label>
 
                                         <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
 
                                         <p>
-                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                                Cancel
+                                            </button>
                                             <button class="uk-button uk-button-primary" type="submit">Send</button>
                                         </p>
                                     </form>
@@ -249,23 +291,26 @@
                         {% endif %}
 
                     {% elseif user.isEducator and user.studentUsers|length > 0 %}
-                        <a class="uk-button uk-button-primary uk-button-small" href="#modal-bulk-send-to-students" uk-toggle>Forward to your students</a>
+                        <a class="uk-button uk-button-primary uk-button-small" href="#modal-bulk-send-to-students"
+                           uk-toggle>Forward to your students</a>
 
                         <div id="modal-bulk-send-to-students" uk-modal>
                             <div class="uk-modal-dialog uk-modal-body">
                                 <button class="uk-modal-close-default" type="button" uk-close></button>
                                 <h3>Forward to your students</h3>
-                                <form class="uk-inline" method="post" action="{{ path('school_experience_bulk_notify', {'id' : experience.id}) }}">
+                                <form class="uk-inline" method="post"
+                                      action="{{ path('school_experience_bulk_notify', {'id' : experience.id}) }}">
 
                                     <label class="uk-form-label">Select your students:</label>
 
                                     <div class="uk-form-controls">
                                         {% for studentUser in user.studentUsers %}
                                             <label class="uk-form-label">
-                                                <input class="uk-checkbox" type="checkbox" name="students[]" value="{{ studentUser.id }}" />
+                                                <input class="uk-checkbox" type="checkbox" name="students[]"
+                                                       value="{{ studentUser.id }}"/>
                                                 {{ studentUser.firstName }} {{ studentUser.lastName }}
                                             </label>
-                                            <br />
+                                            <br/>
                                         {% endfor %}
                                     </div>
 
@@ -274,7 +319,9 @@
                                     <textarea class="uk-textarea" name="message" style="width: 100%"></textarea>
 
                                     <p>
-                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                            Cancel
+                                        </button>
                                         <button class="uk-button uk-button-primary" type="submit">Send</button>
                                     </p>
                                 </form>
@@ -282,9 +329,9 @@
                         </div>
                     {% endif %}
 
-                  {#  {% if user.educator and user.school %}
-                        <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Experience" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
-                    {% endif %}#}
+                    {#  {% if user.educator and user.school %}
+                          <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Experience" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
+                      {% endif %}#}
 
                 </div>
             </div>
@@ -313,34 +360,34 @@
             <div class="experience_details">
                 <table class="uk-table uk-table-justify uk-table-divider">
                     <tbody>
-                        <tr>
-                            <td>Title</td>
-                            <td>{{ experience.title }}</td>
-                        </tr>
-                        <tr>
-                            <td>School</td>
-                            <td>{{ experience.school.name }}</td>
-                        </tr>
-                        <tr>
-                            <td>Description</td>
-                            <td>{{ experience.briefDescription }}</td>
-                        </tr>
-                        <tr>
-                            <td>Student Available Spaces</td>
-                            <td>{{ experience.availableStudentSpaces }}</td>
-                        </tr>
-                        <tr>
-                            <td>Professional Available Spaces</td>
-                            <td>{{ experience.availableProfessionalSpaces }}</td>
-                        </tr>
-                        <tr>
-                            <td>Start Time</td>
-                            <td>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }}</td>
-                        </tr>
-                        <tr>
-                            <td>End Time</td>
-                            <td>{{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</td>
-                        </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>{{ experience.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>School</td>
+                        <td>{{ experience.school.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>{{ experience.briefDescription }}</td>
+                    </tr>
+                    <tr>
+                        <td>Student Available Spaces</td>
+                        <td>{{ experience.availableStudentSpaces }}</td>
+                    </tr>
+                    <tr>
+                        <td>Professional Available Spaces</td>
+                        <td>{{ experience.availableProfessionalSpaces }}</td>
+                    </tr>
+                    <tr>
+                        <td>Start Time</td>
+                        <td>{{ experience.startDateAndTime|date("F jS \\a\\t g:ia") }}</td>
+                    </tr>
+                    <tr>
+                        <td>End Time</td>
+                        <td>{{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -375,9 +422,11 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     {% if experienceResource.linkToWebsite %}
-                                        <a href="{{ experienceResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        <a href="{{ experienceResource.linkToWebsite }}"
+                                           class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
                                     {% else %}
-                                        <a href="{{ asset(uploaded_asset(experienceResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        <a href="{{ asset(uploaded_asset(experienceResource.path)) }}"
+                                           class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -389,7 +438,7 @@
                 <h3>Students</h3>
                 <div class="uk-width-1">
                     {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                    {% set showPendingRegisterButton = true %}
+                        {% set showPendingRegisterButton = true %}
                         {% if request.user.student %}
 
                             {% if request.user.activated != false and request.user.deleted != true %}
@@ -410,15 +459,19 @@
                                     </div>
                                     <div class="uk-width-auto">
                                         {% if is_granted('view', request.user) %}
-                                                <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                            <a href="{{ path('profile_index', { "id": request.user.id }) }}"
+                                               class="uk-button uk-button-default uk-button-small">View</a>
                                         {% endif %}
 
                                         {% if showPendingRegisterButton == false %}
                                             {% if is_granted('edit', request.user) %}
-                                                    <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                                                        <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                                        <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
-                                                    </form>
+                                                <form class="uk-inline" method="post"
+                                                      action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                    <input type="hidden" name="userId" value="{{ request.user.id }}">
+                                                    <button class="uk-button uk-button-danger uk-button-small disabled"
+                                                            type="submit">Cancel Registration
+                                                    </button>
+                                                </form>
                                             {% endif %}
                                         {% endif %}
                                     </div>
@@ -454,13 +507,17 @@
                                         <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}"
+                                           class="uk-button uk-button-default uk-button-small">View</a>
 
                                         {% if showPendingRegisterButton == false %}
                                             {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
-                                                <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                <form class="uk-inline" method="post"
+                                                      action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
                                                     <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                                    <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                                    <button class="uk-button uk-button-danger uk-button-small disabled"
+                                                            type="submit">Cancel Registration
+                                                    </button>
                                                 </form>
                                             {% endif %}
                                         {% endif %}
@@ -498,13 +555,17 @@
                                         <dt>{{ request.user.firstName }} {{ request.user.lastName }}</dt>
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                        <a href="{{ path('profile_index', { "id": request.user.id }) }}"
+                                           class="uk-button uk-button-default uk-button-small">View</a>
 
                                         {% if showPendingRegisterButton == false %}
                                             {% if is_granted('edit', request.user) and request.schoolExperience.registered(request.user) %}
-                                                <form class="uk-inline" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
+                                                <form class="uk-inline" method="post"
+                                                      action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
                                                     <input type="hidden" name="userId" value="{{ request.user.id }}">
-                                                    <button class="uk-button uk-button-danger uk-button-small disabled" type="submit">Cancel Registration</button>
+                                                    <button class="uk-button uk-button-danger uk-button-small disabled"
+                                                            type="submit">Cancel Registration
+                                                    </button>
                                                 </form>
                                             {% endif %}
                                         {% endif %}
@@ -519,64 +580,46 @@
 
             {% if user.isEducator %}
 
-            <div class="available_students_to_register">
-                <h3>Students</h3>
-                <div class="uk-width-xlarge">
+                <div class="available_students_to_register">
+                    <h3>Students</h3>
+                    <div class="uk-width-xlarge">
 
-                    {% if user.studentUsers|length > 0 %}
-                        <table class="uk-table uk-table-justify uk-table-divider">
-                            <tbody>
-                            <tr>
-                                <th>Student</th>
-                                <th>
-                                    Status
-                                </th>
-                            </tr>
-                            {% for studentUser in user.studentUsers %}
-                                {% if studentUser.activated != false and studentUser.deleted != true %}
-                                    <tr>
-                                        <td>{{ studentUser.fullName }}</td>
-                                        <td id="student_{{ studentUser.id }}">
-                                            {% set showPendingRegisterButton = true %}
-                                            {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                                                {% if request.user %}
-                                                {% if request.user.id == studentUser.id %}
-                                                    {% if request.approved %}
-                                                        Approved
-                                                        {% set showPendingRegisterButton = false %}
-                                                    {% elseif request.denied %}
-                                                        Denied
-                                                        {% set showPendingRegisterButton = false %}
-                                                    {% else %}
-                                                        Pending
-                                                        {% set showPendingRegisterButton = false %}
-                                                    {% endif %}
-                                                {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% if showPendingRegisterButton == true %}
-                                                <form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
-                                                    <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                                    <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
-                                                </form>
-                                            {% endif %}
-                                            {% if showPendingRegisterButton == false %}
-                                                <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
-                                                    <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                                    <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
-                                                </form>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p>You have not added your students in your <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a> yet.</p>
-                    {% endif %}
+                        {% if user.studentUsers|length > 0 %}
+                            <table class="uk-table uk-table-justify uk-table-divider">
+                                <tbody>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>
+                                        Status
+                                    </th>
+                                </tr>
+                                {% for studentUser in user.studentUsers %}
+                                    {% if studentUser.activated != false and studentUser.deleted != true %}
+                                        <tr>
+                                            <td>{{ studentUser.fullName }}</td>
+                                            <td id="student_{{ studentUser.id }}">
+                                                {% set showPendingRegisterButton = true %}
+
+                                                {% set requests = request_sent(null, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ studentUser.id) %}
+                                                {% for request in requests %}
+                                                    <a href="{{ path('requests', {id: request.id}) }}"><span
+                                                                class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
+                                                {% else %}
+                                                    <a class="uk-button uk-button-small uk-button-primary"
+                                                       href="{{ path('school_experience_register', {'id': experience.id}) }}?userId={{ studentUser.id }}">Register</a>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>You have not added your students in your <a
+                                        href="{{ path('profile_edit', {'id': user.id}) }}">profile</a> yet.</p>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
 
             {% endif %}
 
@@ -584,66 +627,38 @@
                 <div class="available_students_to_register">
                     <h3>Students</h3>
                     <div class="uk-width-xlarge">
-                    {% if students|length > 0 %}
-                        <table class="uk-table uk-table-justify uk-table-divider">
-                        <tbody>
-                        <tr>
-                            <th>Student</th>
-                            <th>
-                                Status
-                            </th>
-                        </tr>
-                        {% for studentUser in students %}
-                            {% if studentUser.activated != false and studentUser.deleted != true %}
+                        {% if students|length > 0 %}
+                            <table class="uk-table uk-table-justify uk-table-divider">
+                                <tbody>
                                 <tr>
-                                    <td>{{ studentUser.fullName }}</td>
-                                    <td id="student_{{ studentUser.id }}">
-                                        {% set showPendingRegisterButton = true %}
-                                        {% for request in experience.userRegisterForSchoolExperienceRequests %}
-                                            {% if request.user %}
-                                            {% if request.user.id == studentUser.id %}
-                                                {% if request.approved %}
-                                                    Approved
-                                                    {% set showPendingRegisterButton = false %}
-                                                {% elseif request.denied %}
-                                                    Denied
-                                                    {% set showPendingRegisterButton = false %}
-                                                {% else %}
-                                                    Pending
-                                                    {% set showPendingRegisterButton = false %}
-                                                {% endif %}
-                                            {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% if showPendingRegisterButton == true %}
-                                            <form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST">
-                                                <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                                <button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button>
-                                            </form>
-                                        {% endif %}
-                                        {% if showPendingRegisterButton == false %}
-                                            <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST">
-                                                <input type="hidden" name="userId" value="{{ studentUser.id }}">
-                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
+                                    <th>Student</th>
+                                    <th>
+                                        Status
+                                    </th>
                                 </tr>
-                            {% endif %}
-                        {% endfor %}
-                        </tbody>
-                        </table>
-                    {% endif %}
+                                {% for studentUser in students %}
+                                    {% if studentUser.activated != false and studentUser.deleted != true %}
+                                        <tr>
+                                            <td>{{ studentUser.fullName }}</td>
+                                            <td id="student_{{ studentUser.id }}">
+                                                {% set requests = request_sent(null, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ studentUser.id) %}
+                                                {% for request in requests %}
+                                                    <a href="{{ path('requests', {id: request.id}) }}"><span
+                                                                class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
+                                                {% else %}
+                                                    <a class="uk-button uk-button-small uk-button-primary"
+                                                       href="{{ path('school_experience_register', {'id': experience.id}) }}?userId={{ studentUser.id }}">Register</a>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}
-
-          {#  {% if user.isEducator or user.isSchoolAdministrator %}
-                <div class="experience_feedback">
-                    #}{# FEEDBACK WIDGET #}{#
-                    {{ feedback_widget(user, experience)|raw }}
-                </div>
-            {% endif %}#}
 
             <div class="experience_contact">
                 <table class="uk-table uk-table-justify uk-table-divider">
@@ -657,7 +672,9 @@
 
                             {% if experience.schoolContact and experience.schoolContact.fullName %}
                                 {% if user_can_chat_with_user( user, experience.schoolContact ) %}
-                                    <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" data-message-user-id="{{ experience.schoolContact.id }}">Chat</button>
+                                    <button class="uk-button uk-button-default uk-button-small uk-margin-small-left"
+                                            data-message-user-id="{{ experience.schoolContact.id }}">Chat
+                                    </button>
                                 {% endif %}
                             {% endif %}
 
@@ -666,9 +683,13 @@
                                     <span style="float:right;">Allow to see feedback? 
                                         <span id="view_feedback">
                                             {% if experience.canViewFeedback == true %}
-                                                <a href="#" id="toggle-feedback" data-value="0" data-user="{{ experience.schoolContact.id }}" class="uk-button uk-button-primary uk-button-small">Yes</a>
+                                                <a href="#" id="toggle-feedback" data-value="0"
+                                                   data-user="{{ experience.schoolContact.id }}"
+                                                   class="uk-button uk-button-primary uk-button-small">Yes</a>
                                             {% else %}
-                                                <a href="#" id="toggle-feedback" data-value="1" data-user="{{ experience.schoolContact.id }}" class="uk-button uk-button-danger uk-button-small">No</a>
+                                                <a href="#" id="toggle-feedback" data-value="1"
+                                                   data-user="{{ experience.schoolContact.id }}"
+                                                   class="uk-button uk-button-danger uk-button-small">No</a>
                                             {% endif %}
                                         </span>
                                     </span>
@@ -684,7 +705,7 @@
                         <td>Address</td>
                         <td>
                             <p>
-                                {{ experience.street }}<br />
+                                {{ experience.street }}<br/>
                                 {{ experience.city }} {{ experience.state.name }}, {{ experience.zipcode }}
                             </p>
                         </td>
@@ -702,8 +723,8 @@
         var selectedProfessionals = [];
         var companies = [];
 
-        $('.professionalUserCheckbox').each(function() {
-            var company = $( this ).data('company');
+        $('.professionalUserCheckbox').each(function () {
+            var company = $(this).data('company');
             if (company && companies.indexOf(company) === -1) {
                 companies.push(company);
                 $('#companySelect').append('<option value="' + company + '">' + company + '</option>');
@@ -711,79 +732,78 @@
         });
 
 
-        $('#secondaryIndustrySelect').prop( 'disabled', true );
+        $('#secondaryIndustrySelect').prop('disabled', true);
 
-        $('#primaryIndustrySelect').on('change', function() {
+        $('#primaryIndustrySelect').on('change', function () {
             debugger;
             $('.professionalUserCheckbox').show();
-            $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
-            $('#companySelect option[value=""]').prop( 'selected', true );
+            $('#secondaryIndustrySelect option[value=""]').prop('selected', true);
+            $('#companySelect option[value=""]').prop('selected', true);
             var industry = $('#primaryIndustrySelect').val();
             if (industry) {
                 debugger;
-                $('#secondaryIndustrySelect').prop( 'disabled', false );
+                $('#secondaryIndustrySelect').prop('disabled', false);
 
                 $('#secondaryIndustrySelect option').hide();
-                $('#secondaryIndustrySelect option[data-industry="' + industry +'"]').show();
+                $('#secondaryIndustrySelect option[data-industry="' + industry + '"]').show();
 
                 debugger;
 
                 $('.professionalUserCheckbox').hide();
 
-                $('.professionalUserCheckbox').each(function(index) {
+                $('.professionalUserCheckbox').each(function (index) {
 
-                    var primaryIndustry = $( this ).data('primary-industry');
+                    var primaryIndustry = $(this).data('primary-industry');
                     debugger;
 
-                    if(industry == primaryIndustry) {
+                    if (industry == primaryIndustry) {
                         debugger;
-                        $( this ).show();
+                        $(this).show();
                     }
                 });
 
 
-
             } else {
-                $('#secondaryIndustrySelect').prop( 'disabled', true );
+                $('#secondaryIndustrySelect').prop('disabled', true);
             }
         });
 
-        $('#secondaryIndustrySelect').on('change', function() {
+        $('#secondaryIndustrySelect').on('change', function () {
             debugger;
             $('.professionalUserCheckbox').show();
             var secondaryIndustry = parseInt($('#secondaryIndustrySelect').val());
             if (secondaryIndustry) {
                 $('.professionalUserCheckbox').hide();
 
-                $('.professionalUserCheckbox').each(function(index) {
+                $('.professionalUserCheckbox').each(function (index) {
                     debugger;
-                    var myIndustries = $( this ).data('industries');
+                    var myIndustries = $(this).data('industries');
                     if (myIndustries.indexOf(secondaryIndustry) > -1) {
-                        $( this ).show();
+                        $(this).show();
                     }
                 });
             } else {
             }
         });
 
-        $('#companySelect').on('change', function() {
-            $('#primaryIndustrySelect option[value=""]').prop( 'selected', true );
-            $('#secondaryIndustrySelect option[value=""]').prop( 'selected', true );
+        $('#companySelect').on('change', function () {
+            $('#primaryIndustrySelect option[value=""]').prop('selected', true);
+            $('#secondaryIndustrySelect option[value=""]').prop('selected', true);
             var company = $('#companySelect').val();
             $('.professionalUserCheckbox').hide();
             if (company) {
-                $('.professionalUserCheckbox').each(function(index) {
-                    var myCompany = $( this ).data('company');
+                $('.professionalUserCheckbox').each(function (index) {
+                    var myCompany = $(this).data('company');
                     if (myCompany === company) {
-                        $( this ).show();
+                        $(this).show();
                     }
                 });
             }
         });
 
-        $('.professionalUserCheckboxInput').on('change', function() {
-            var name = $( this ).data('professional-name');
-            if ($( this ).prop('checked')) {
+        $('.professionalUserCheckboxInput').on('change', function () {
+            var name = $(this).data('professional-name');
+            if ($(this).prop('checked')) {
                 selectedProfessionals.push(name);
             } else {
                 var index = selectedProfessionals.indexOf(name);
@@ -800,7 +820,7 @@
 
             $('#selectedProfessionals').empty();
 
-            $.each(selectedProfessionals, function(index, value){
+            $.each(selectedProfessionals, function (index, value) {
                 $('#selectedProfessionals').append('<li>' + value + '</li>');
             });
         });
@@ -809,46 +829,50 @@
 
     <script>
 
-        $(document).on('submit', '.register', function(e){
-          var userId = $(this).children().first().val();
-          e.preventDefault();
-          $.post( $(this).attr('action'), { userId: userId }, function(data){
-            if(data.status === "success") {
+        $(document).on('submit', '.register', function (e) {
+            var userId = $(this).children().first().val();
+            e.preventDefault();
+            $.post($(this).attr('action'), {userId: userId}, function (data) {
+                if (data.status === "success") {
 
-                console.log(data.status);
-                console.log(data.approval);
+                    console.log(data.status);
+                    console.log(data.approval);
 
-                if(data.approval === true) {
-                    $('#student_' + data.userId).html( 'Pending <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
+                    if (data.approval === true) {
+                        $('#student_' + data.userId).html('Pending <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>');
+                    } else {
+                        $('#student_' + data.userId).html('Approved <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>');
+                        // send completion request
+                        $.post('/dashboard/requests/' + data.request_id + '/approve', {'request': data.request_id}, function (data) {
+                        });
+                    }
                 } else {
-                    $('#student_' + data.userId).html( 'Approved <form class="uk-inline deregister" action="{{ path('school_experience_deregister', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Cancel</button></form>' );
-                    // send completion request
-                    $.post('/dashboard/requests/' + data.request_id + '/approve', { 'request': data.request_id }, function(data){});
+                    alert("Error registering for experience.");
                 }
-            } else {
-                alert("Error registering for experience.");
-            }
-          });
+            });
         });
 
-        $(document).on('submit', '.deregister', function(e){
-          var userId = $(this).children().first().val();
-          e.preventDefault();
-          $.post( $(this).attr('action'), { userId: userId }, function(data){
-            if(data.status === "success") {
-              $('#student_' + data.userId).html( '<form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>' );
-            }
-          });
+        $(document).on('submit', '.deregister', function (e) {
+            var userId = $(this).children().first().val();
+            e.preventDefault();
+            $.post($(this).attr('action'), {userId: userId}, function (data) {
+                if (data.status === "success") {
+                    $('#student_' + data.userId).html('<form class="uk-inline register" action="{{ path('school_experience_register', { "id": experience.id }) }}" method="POST"><input type="hidden" name="studentId" value="' + data.userId + '"><button class="uk-button uk-button-primary uk-button-small uk-margin-small-right" type="submit">Register</button></form>');
+                }
+            });
         });
 
 
-        $(document).on("click", "#toggle-feedback", function(e){
+        $(document).on("click", "#toggle-feedback", function (e) {
             e.preventDefault();
             var val = $(this).data('value');
             var user = $(this).data('user');
-            $.post('{{ path('toggle_school_feedback_view', { "id": experience.id }) }}', { val: val, user: user}, function(data){
-                if(data.status == "success") {
-                    if(data.canView == 1) {
+            $.post('{{ path('toggle_school_feedback_view', { "id": experience.id }) }}', {
+                val: val,
+                user: user
+            }, function (data) {
+                if (data.status == "success") {
+                    if (data.canView == 1) {
                         $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="0" data-user="' + user + '" class="uk-button uk-button-primary uk-button-small">Yes</a>');
                     } else {
                         $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="1" data-user="' + user + '" class="uk-button uk-button-danger uk-button-small">No</a>');
@@ -880,14 +904,15 @@
 
             document.body.removeChild(textArea);
         }
+
         function copyTextToClipboard(text) {
             if (!navigator.clipboard) {
                 fallbackCopyTextToClipboard(text);
                 return;
             }
-            navigator.clipboard.writeText(text).then(function() {
+            navigator.clipboard.writeText(text).then(function () {
                 console.log('Async: Copying to clipboard was successful!');
-            }, function(err) {
+            }, function (err) {
                 console.error('Async: Could not copy text: ', err);
             });
         }
