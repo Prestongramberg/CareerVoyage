@@ -302,7 +302,7 @@ class RequestController extends AbstractController
         }
 
         /** @var RequestPossibleApprovers $possibleApprover */
-        if($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+        if ($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
             $possibleApprover->setHasNotification(false);
             $this->entityManager->flush();
         }
@@ -348,7 +348,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -367,7 +367,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -384,7 +384,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -419,7 +419,7 @@ class RequestController extends AbstractController
                             $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                             /** @var RequestPossibleApprovers $possibleApprover */
-                            foreach($possibleApprovers as $possibleApprover) {
+                            foreach ($possibleApprovers as $possibleApprover) {
                                 $possibleApprover->setHasNotification(true);
                             }
 
@@ -474,7 +474,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -495,7 +495,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -516,7 +516,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -551,7 +551,7 @@ class RequestController extends AbstractController
                             $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                             /** @var RequestPossibleApprovers $possibleApprover */
-                            foreach($possibleApprovers as $possibleApprover) {
+                            foreach ($possibleApprovers as $possibleApprover) {
                                 $possibleApprover->setHasNotification(true);
                             }
 
@@ -602,12 +602,11 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
                                 ->setStatusLabel('Company invite accepted');
 
-                        $this->requestsMailer->companyInviteApproved($request, $company);
-
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $this->requestsMailer->companyInviteApproved($loggedInUser, $possibleApprover->getPossibleApprover(), $company);
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -628,7 +627,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -649,7 +648,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -684,7 +683,7 @@ class RequestController extends AbstractController
                             $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                             /** @var RequestPossibleApprovers $possibleApprover */
-                            foreach($possibleApprovers as $possibleApprover) {
+                            foreach ($possibleApprovers as $possibleApprover) {
                                 $possibleApprover->setHasNotification(true);
                             }
 
@@ -799,7 +798,7 @@ class RequestController extends AbstractController
                                     ->setNotification($notification);
                             $this->entityManager->persist($requestAction);
 
-                            $this->requestsMailer->teachLessonInviteApproved($request, $lesson);
+                            $this->requestsMailer->teachLessonInviteApproved($request->getCreatedBy(), $loggedInUser, $lesson);
 
                             /** @var RequestPossibleApprovers $possibleApprover */
                             $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
@@ -895,7 +894,7 @@ class RequestController extends AbstractController
                             $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                             /** @var RequestPossibleApprovers $possibleApprover */
-                            foreach($possibleApprovers as $possibleApprover) {
+                            foreach ($possibleApprovers as $possibleApprover) {
                                 $possibleApprover->setHasNotification(true);
                             }
 
@@ -912,7 +911,7 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
                                 ->setStatusLabel('Guest instructor invite has been denied');
 
-                        $this->requestsMailer->teachLessonInviteDenied($request, $lesson);
+                        $this->requestsMailer->teachLessonInviteDenied($request->getCreatedBy(), $loggedInUser, $lesson);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
                         $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
@@ -933,7 +932,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -959,7 +958,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -1061,15 +1060,15 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE)
                                 ->setStatusLabel('Active Job Posting');
 
-                        foreach($request->getRequests() as $childRequest) {
+                        foreach ($request->getRequests() as $childRequest) {
                             $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE)
-                                          ->setStatusLabel('Active Job Posting');
+                                         ->setStatusLabel('Active Job Posting');
                         }
 
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -1083,7 +1082,7 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
                                 ->setStatusLabel('Inactive Job Posting');
 
-                        foreach($request->getRequests() as $childRequest) {
+                        foreach ($request->getRequests() as $childRequest) {
                             $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
                                          ->setStatusLabel('Inactive Job Posting');
                         }
@@ -1091,7 +1090,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -1126,7 +1125,7 @@ class RequestController extends AbstractController
 
                             $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
-                            if(empty($possibleApprovers)) {
+                            if (empty($possibleApprovers)) {
                                 $possibleApprover = new RequestPossibleApprovers();
                                 $possibleApprover->setPossibleApprover($request->getCreatedBy());
                                 $possibleApprover->setRequest($request);
@@ -1136,7 +1135,7 @@ class RequestController extends AbstractController
                                 $possibleApprovers = [$possibleApprover];
                             }
 
-                            foreach($possibleApprovers as $possibleApprover) {
+                            foreach ($possibleApprovers as $possibleApprover) {
                                 $possibleApprover->setHasNotification(true);
                             }
 
@@ -1151,11 +1150,11 @@ class RequestController extends AbstractController
 
             case \App\Entity\Request::REQUEST_TYPE_NEW_REGISTRATION:
 
-                $experienceId = $httpRequest->query->get('experience_id');
-                $experience   = $this->experienceRepository->find($experienceId);
+                $experienceId   = $httpRequest->query->get('experience_id');
+                $experience     = $this->experienceRepository->find($experienceId);
                 $userToRegister = $request->getCreatedBy();
 
-                if(!empty($request->getNotification()['data']['user_to_register'])) {
+                if (!empty($request->getNotification()['data']['user_to_register'])) {
                     $userToRegister = $request->getNotification()['data']['user_to_register'];
                     $userToRegister = $this->userRepository->find($userToRegister);
                 }
@@ -1183,7 +1182,8 @@ class RequestController extends AbstractController
                 ];
 
                 $requestActionHandler = function () use (
-                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, $experience, $userToRegister, &
+                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, $experience,
+                    $userToRegister, &
                     $template
                 ) {
 
@@ -1191,10 +1191,10 @@ class RequestController extends AbstractController
 
                         $registration = $this->registrationRepository->findOneBy([
                             'user' => $userToRegister,
-                            'experience' => $experience
+                            'experience' => $experience,
                         ]);
 
-                        if(!$registration) {
+                        if (!$registration) {
                             $registration = new Registration();
                             $registration->setUser($userToRegister);
                             $registration->setExperience($experience);
@@ -1208,11 +1208,11 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
 
                             $possibleApprover->setPossibleActions([
                                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER
+                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER,
                             ]);
 
                             $possibleApprover->setHasNotification(true);
@@ -1226,10 +1226,10 @@ class RequestController extends AbstractController
 
                         $registration = $this->registrationRepository->findOneBy([
                             'user' => $userToRegister,
-                            'experience' => $experience
+                            'experience' => $experience,
                         ]);
 
-                        if($registration) {
+                        if ($registration) {
                             $this->entityManager->remove($registration);
                         }
 
@@ -1240,9 +1240,9 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setPossibleActions([
-                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                             ]);
                             $possibleApprover->setHasNotification(true);
                         }
@@ -1255,10 +1255,10 @@ class RequestController extends AbstractController
 
                         $registration = $this->registrationRepository->findOneBy([
                             'user' => $userToRegister,
-                            'experience' => $experience
+                            'experience' => $experience,
                         ]);
 
-                        if($registration) {
+                        if ($registration) {
                             $this->entityManager->remove($registration);
                         }
 
@@ -1266,22 +1266,22 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_UNREGISTERED)
                                 ->setStatusLabel('Unregistered');
 
-                        if($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+                        if ($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
                             $createdByApprover->setPossibleActions([
                                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                                RequestAction::REQUEST_ACTION_NAME_REGISTER
+                                RequestAction::REQUEST_ACTION_NAME_REGISTER,
                             ]);
                         }
 
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
 
                             $possibleApprover->setPossibleActions(
                                 [
                                     RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST
+                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST,
                                 ]
                             );
 
@@ -1298,17 +1298,17 @@ class RequestController extends AbstractController
                         $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
                                 ->setStatusLabel('Registration Pending Approval');
 
-                        if($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+                        if ($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
                             $createdByApprover->setPossibleActions([
                                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER
+                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER,
                             ]);
                         }
 
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
 
                             $possibleApprover->setPossibleActions(
                                 [
@@ -1316,7 +1316,7 @@ class RequestController extends AbstractController
                                     RequestAction::REQUEST_ACTION_NAME_DENY,
                                     RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
                                     RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST
+                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST,
                                 ]
                             );
 
@@ -1331,10 +1331,10 @@ class RequestController extends AbstractController
 
                         $registration = $this->registrationRepository->findOneBy([
                             'user' => $userToRegister,
-                            'experience' => $experience
+                            'experience' => $experience,
                         ]);
 
-                        if($registration) {
+                        if ($registration) {
                             $this->entityManager->remove($registration);
                         }
 
@@ -1345,7 +1345,7 @@ class RequestController extends AbstractController
                         $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
                         /** @var RequestPossibleApprovers $possibleApprover */
-                        foreach($possibleApprovers as $possibleApprover) {
+                        foreach ($possibleApprovers as $possibleApprover) {
                             $possibleApprover->setHasNotification(true);
                         }
 
@@ -1381,7 +1381,7 @@ class RequestController extends AbstractController
 
                             $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
 
-                            if(empty($possibleApprovers)) {
+                            if (empty($possibleApprovers)) {
                                 $possibleApprover = new RequestPossibleApprovers();
                                 $possibleApprover->setPossibleApprover($request->getCreatedBy());
                                 $possibleApprover->setRequest($request);
@@ -1391,7 +1391,7 @@ class RequestController extends AbstractController
                                 $possibleApprovers = [$possibleApprover];
                             }
 
-                            foreach($possibleApprovers as $possibleApprover) {
+                            foreach ($possibleApprovers as $possibleApprover) {
                                 $possibleApprover->setHasNotification(true);
                             }
 
@@ -1947,7 +1947,7 @@ class RequestController extends AbstractController
     public function editRequest(RequestEntity $requestEntity, Request $request)
     {
         /** @var User $user */
-        $user    = $this->getUser();
+        $user = $this->getUser();
 
         $accessDenied = (
             $requestEntity->getCreatedBy() &&
@@ -2031,7 +2031,7 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setRequestActionAt(new \DateTime());
 
                 /** @var RequestPossibleApprovers $possibleApprover */
-                if($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
+                if ($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
                     $possibleApprover->setNotificationDate(new DateTime());
                 }
 
@@ -2077,7 +2077,7 @@ class RequestController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if($requestEntity->getParentRequest() && $requestEntity->getCreatedBy()->getId() === $user->getId()) {
+        if ($requestEntity->getParentRequest() && $requestEntity->getCreatedBy()->getId() === $user->getId()) {
             return $this->redirectToRoute('view_request', ['id' => $requestEntity->getParentRequest()->getId()]);
         }
 

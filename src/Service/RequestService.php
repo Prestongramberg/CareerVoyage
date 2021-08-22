@@ -9,6 +9,7 @@ use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolExperience;
 use App\Entity\User;
+use App\Mailer\RequestsMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -25,17 +26,35 @@ class RequestService
     private $router;
 
     /**
+     * @var RequestsMailer
+     */
+    private $requestsMailer;
+
+    /**
      * RequestService constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param RouterInterface        $router
+     * @param RequestsMailer         $requestsMailer
      */
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router)
-    {
-        $this->entityManager = $entityManager;
-        $this->router        = $router;
+    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router,
+                                RequestsMailer $requestsMailer
+    ) {
+        $this->entityManager  = $entityManager;
+        $this->router         = $router;
+        $this->requestsMailer = $requestsMailer;
     }
 
+    /**
+     * @param User       $createdBy
+     * @param User       $userToRegister
+     * @param Experience $experience
+     *
+     * @return \App\Entity\Request
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
     public function createRegistrationRequest(User $createdBy, User $userToRegister, Experience $experience)
     {
 
@@ -170,6 +189,8 @@ class RequestService
             }
 
             $this->entityManager->persist($possibleApprover);
+
+            $this->requestsMailer->userRegistrationApproval($approver, $createdBy, $experience);
         }
 
         $this->entityManager->persist($registrationRequest);

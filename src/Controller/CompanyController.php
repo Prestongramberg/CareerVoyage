@@ -383,8 +383,11 @@ class CompanyController extends AbstractController
             $this->entityManager->flush();
             $this->entityManager->refresh($newCompanyRequest);
 
-            $this->requestsMailer->newCompanyApproval($newCompanyRequest, $company);
-            $this->requestsMailer->newCompanyAwaitingApproval($newCompanyRequest, $company);
+            foreach ($newCompanyRequest->getRequestPossibleApprovers() as $possibleApprover) {
+                $this->requestsMailer->newCompanyApproval($possibleApprover->getPossibleApprover(), $company);
+            }
+
+            $this->requestsMailer->newCompanyAwaitingApproval($createdByApprover->getPossibleApprover(), $company);
 
             $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
 
@@ -559,7 +562,7 @@ class CompanyController extends AbstractController
         $this->entityManager->flush();
         $this->entityManager->refresh($joinCompanyRequest);
 
-        $this->requestsMailer->joinCompanyApproval($joinCompanyRequest, $company);
+        $this->requestsMailer->joinCompanyApproval($possibleApprover->getPossibleApprover(), $createdByApprover->getPossibleApprover(), $company);
 
         $this->addFlash('success', 'Request to join this company has been sent to the company administrator');
 
@@ -1712,8 +1715,9 @@ class CompanyController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function companyExperienceRegisterAction(Request $request, CompanyExperience $experience, RequestService $requestService)
-    {
+    public function companyExperienceRegisterAction(Request $request, CompanyExperience $experience,
+                                                    RequestService $requestService
+    ) {
 
         $req    = $request;
         $userId = $request->query->get('userId', null);

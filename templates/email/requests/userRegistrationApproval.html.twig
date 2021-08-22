@@ -1,6 +1,6 @@
-{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName } %}
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipient.firstName } %}
 
-<p>You have a new registration from <strong>{{ createdByFullName }}</strong>
+<p>You have a new registration request from <strong>{{ createdBy.fullName }}</strong>
     for experience: <strong>{{ experience.title }}</strong>
 </p>
 

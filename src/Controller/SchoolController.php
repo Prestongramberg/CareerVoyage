@@ -1882,6 +1882,9 @@ class SchoolController extends AbstractController
      * @param RequestService   $requestService
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience,
                                                    RequestService $requestService
@@ -1898,92 +1901,9 @@ class SchoolController extends AbstractController
             $userToRegister = $this->getUser();
         }
 
-        if ($registrationRequest = $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience)) {
-            $this->requestsMailer->userRegistrationApproval($registrationRequest, $experience);
-        }
+        $registrationRequest = $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience);
 
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
-    }
-
-    /**
-     * @Route("/schools/experiences/{id}/deregister", name="school_experience_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request          $request
-     * @param SchoolExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function schoolExperienceDeregisterAction(Request $request, SchoolExperience $experience)
-    {
-        $req                = $request;
-        $userIdToDeregister = $request->request->get('userId');
-        $userToDeregister   = $this->userRepository->find($userIdToDeregister);
-
-        $deregisterUserForExperience = $this->userRegisterForSchoolExperienceRequestRepository->getByUserAndExperience($userToDeregister, $experience);
-
-        $registration = $this->registrationRepository->getByUserAndExperience($userToDeregister, $experience);
-
-        // var_dump($registration);
-
-        // die();
-        // if($registration) {
-        if ($userToDeregister->isStudent() || $userToDeregister->isEducator()) {
-            /** @var StudentUser $userToDeregister */
-            $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() + 1);
-
-            if ($userToDeregister->isStudent()) {
-                if ($userToDeregister->getEmail()) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
-                }
-
-                foreach ($userToDeregister->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
-                }
-
-                foreach ($userToDeregister->getEducatorUsers() as $educatorUser) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $educatorUser, $experience);
-                }
-            }
-
-        } else {
-            if ($userToDeregister->isProfessional()) {
-
-                if ($userToDeregister->getEmail()) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $userToDeregister, $experience);
-                }
-
-                foreach ($experience->getSchool()->getSchoolAdministrators() as $schoolAdministrator) {
-                    $this->requestsMailer->userDeregisterFromEvent($userToDeregister, $schoolAdministrator, $experience);
-                }
-
-                $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() + 1);
-            }
-        }
-
-        $this->entityManager->remove($deregisterUserForExperience);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'User has been removed from this experience.');
-        // } else {
-        //     $this->addFlash('error', 'Problem removing user from this experience');
-        // }
-
-        if ($req->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status" => "success",
-                    "userId" => $userIdToDeregister,
-                    'id' => $experience->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
-        }
     }
 
     /**
