@@ -647,6 +647,97 @@ class RequestsMailer extends AbstractMailer
     /************************************************ END TEACH LESSON INVITE ***********************************************/
 
 
+
+
+
+    /************************************************ START REGISTRATION ***********************************************/
+
+    public function userRegistrationApproval(Request $request, Experience $experience) {
+
+        $skip = (
+            !$request->getCreatedBy() ||
+            !$request->getCreatedBy()->getEmail() ||
+            !$request->getRequestPossibleApprovers()->count()
+        );
+
+        if ($skip) {
+            return false;
+        }
+
+        /** @var RequestPossibleApprovers $possibleApprover */
+        foreach ($request->getRequestPossibleApprovers() as $possibleApprover) {
+
+            $skipSendingEmail = (
+                !$possibleApprover->getPossibleApprover() ||
+                !$possibleApprover->getPossibleApprover()->getEmail() ||
+                !$possibleApprover->getPossibleApprover()->getFullName() ||
+                $possibleApprover->getPossibleApprover()->getId() === $request->getCreatedBy()->getId()
+            );
+
+            if($skipSendingEmail) {
+                continue;
+            }
+
+            $message = (new \Swift_Message("New Registration"))
+                ->setFrom($this->siteFromEmail)
+                ->setTo($possibleApprover->getPossibleApprover()->getEmail())
+                ->setBody(
+                    $this->templating->render(
+                        'email/requests/userRegistrationApproval.html.twig',
+                        [
+                            'recipientFirstName' => $possibleApprover->getPossibleApprover()->getFirstName(),
+                            'createdByFullName' => $request->getCreatedBy()->getFullName(),
+                            'experience' => $experience
+                        ]
+                    ),
+                    'text/html'
+                );
+
+            $status  = $this->mailer->send($message);
+
+            $log = new EmailLog();
+            $log->setFromEmail($this->siteFromEmail);
+            $log->setSubject("New Registration");
+            $log->setToEmail($possibleApprover->getPossibleApprover()->getEmail());
+            $log->setStatus($status);
+            $log->setBody($message->getBody());
+
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+        }
+
+        return true;
+    }
+
+    public function userRegisterationApproved(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest
+    ) {
+
+        $message = (new \Swift_Message("Register User Request Approval."))
+            ->setFrom($this->siteFromEmail)
+            ->setTo($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'email/requests/userRegistrationApproved.html.twig',
+                    ['request' => $userRegisterForSchoolExperienceRequest]
+                ),
+                'text/html'
+            );
+        $status  = $this->mailer->send($message);
+
+        $log = new EmailLog();
+        $log->setFromEmail($this->siteFromEmail);
+        $log->setSubject("Register User Request Approval.");
+        $log->setToEmail($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail());
+        $log->setStatus($status);
+        $log->setBody($message->getBody());
+
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+    }
+
+    /************************************************ END REGISTRATION ***********************************************/
+
+
     public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest
     ) {
 
@@ -719,58 +810,6 @@ class RequestsMailer extends AbstractMailer
         $log->setFromEmail($this->siteFromEmail);
         $log->setSubject("You've Been Registered For a Company Experience.");
         $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-    }
-
-    public function userRegisterForSchoolExperienceRequest(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest
-    ) {
-
-        $message = (new \Swift_Message("Register User Request."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($userRegisterForSchoolExperienceRequest->getNeedsApprovalBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/userRegisterForSchoolExperienceRequest.html.twig',
-                    ['request' => $userRegisterForSchoolExperienceRequest]
-                ),
-                'text/html'
-            );
-        $status  = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Register User Request.");
-        $log->setToEmail($userRegisterForSchoolExperienceRequest->getNeedsApprovalBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-    }
-
-    public function userRegisterForSchoolExperienceRequestApproval(UserRegisterForSchoolExperienceRequest $userRegisterForSchoolExperienceRequest
-    ) {
-
-        $message = (new \Swift_Message("Register User Request Approval."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/userRegisterForSchoolExperienceRequestApproval.html.twig',
-                    ['request' => $userRegisterForSchoolExperienceRequest]
-                ),
-                'text/html'
-            );
-        $status  = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Register User Request Approval.");
-        $log->setToEmail($userRegisterForSchoolExperienceRequest->getCreatedBy()->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
 

@@ -747,7 +747,7 @@ class AppExtension extends AbstractExtension
         return $string ? implode(', ', $string) . ' ago' : 'just now';
     }
 
-    public function requestSent(User $createdBy, $requestType, $to, $actionUrlPatternSearch = null) {
+    public function requestSent(User $createdBy, $requestType, $to = null, $actionUrlPatternSearch = null) {
 
         return $this->requestRepository->search($createdBy, $requestType, $to, $actionUrlPatternSearch);
     }

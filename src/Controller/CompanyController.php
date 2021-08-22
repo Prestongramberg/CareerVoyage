@@ -29,6 +29,7 @@ use App\Form\EditCompanyFormType;
 use App\Form\Filter\CompanyResultsFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
+use App\Service\RequestService;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
@@ -1554,6 +1555,10 @@ class CompanyController extends AbstractController
      * @param CompanyExperience $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \ReflectionException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function editExperienceAction(Request $request, CompanyExperience $experience)
     {
@@ -1703,9 +1708,12 @@ class CompanyController extends AbstractController
      * @param Request           $request
      * @param CompanyExperience $experience
      *
+     * @param RequestService    $requestService
+     *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function companyExperienceEducatorRegisterAction(Request $request, CompanyExperience $experience)
+    public function companyExperienceEducatorRegisterAction(Request $request, CompanyExperience $experience, RequestService $requestService)
     {
 
         $educatorIdToRegister = $request->request->get('educatorId');

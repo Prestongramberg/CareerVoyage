@@ -1149,6 +1149,248 @@ class RequestController extends AbstractController
 
                 break;
 
+            case \App\Entity\Request::REQUEST_TYPE_NEW_REGISTRATION:
+
+                $experienceId = $httpRequest->query->get('experience_id');
+                $experience   = $this->experienceRepository->find($experienceId);
+
+                $template = 'request/modal/new_registration.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST) {
+                    $template = 'request/modal/registration_list.html.twig';
+                }
+
+                $context = [
+                    'experience' => $experience,
+                    'request' => $request,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, $experience, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $registration = new Registration();
+                        $registration->setUser($request->getCreatedBy());
+                        $registration->setExperience($experience);
+                        $this->entityManager->persist($registration);
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Registration has been approved');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER
+                            ]);
+
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $request->getCreatedBy(),
+                            'experience' => $experience
+                        ]);
+
+                        if($registration) {
+                            $this->entityManager->remove($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Registration has been denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE
+                            ]);
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_UNREGISTER) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $request->getCreatedBy(),
+                            'experience' => $experience
+                        ]);
+
+                        if($registration) {
+                            $this->entityManager->remove($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_UNREGISTER);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_UNREGISTERED)
+                                ->setStatusLabel('Unregistered');
+
+                        if($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+                            $createdByApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                RequestAction::REQUEST_ACTION_NAME_REGISTER
+                            ]);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+
+                            $possibleApprover->setPossibleActions(
+                                [
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST
+                                ]
+                            );
+
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_REGISTER) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Registration Pending Approval');
+
+                        if($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+                            $createdByApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER
+                            ]);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+
+                            $possibleApprover->setPossibleActions(
+                                [
+                                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST
+                                ]
+                            );
+
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $request->getCreatedBy(),
+                            'experience' => $experience
+                        ]);
+
+                        if($registration) {
+                            $this->entityManager->remove($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Registration Pending Approval');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            if(empty($possibleApprovers)) {
+                                $possibleApprover = new RequestPossibleApprovers();
+                                $possibleApprover->setPossibleApprover($request->getCreatedBy());
+                                $possibleApprover->setRequest($request);
+                                $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                                $possibleApprover->setNotificationTitle("<strong>{$loggedInUser->getFullName()}</strong> responded to your job board request - \"{$request->getSummary()}\"");
+                                $this->entityManager->persist($possibleApprover);
+                                $possibleApprovers = [$possibleApprover];
+                            }
+
+                            foreach($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+                };
+
+                break;
+
             default:
                 $template = 'request/modal/default.html.twig';
                 $context  = [
@@ -1276,93 +1518,6 @@ class RequestController extends AbstractController
     {
 
         switch ($request->getClassName()) {
-            case 'TeachLessonRequest':
-                /** @var TeachLessonRequest $request */
-                $request->setApproved(true);
-                /** @var ProfessionalUser $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-
-                $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                // we must have an end date so let's just set it for 2 hours from the start
-                $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                $endDate->add(new DateInterval('PT2H'));
-                $teachLessonExperience = new TeachLessonExperience();
-                $teachLessonExperience->setStartDateAndTime($date);
-                $teachLessonExperience->setEndDateAndTime($endDate);
-                $teachLessonExperience->setTitle(sprintf("
-                Topics: %s with Guest Instructor %s, %s in %s Class
-                ", $request->getLesson()->getTitle(), $needsApprovalBy->getFullName(), date_format($date, 'F jS Y'), $request->getCreatedBy()->getFullName()));
-                $teachLessonExperience->setBriefDescription(sprintf("%s", $request->getLesson()->getShortDescription()));
-                $teachLessonExperience->setOriginalRequest($request);
-
-
-                // let's go ahead and add the professional as a registration on this event
-                $professionalRegistration = new Registration();
-                $educatorRegistration     = new Registration();
-                if ($request->getIsFromProfessional()) {
-                    $professionalRegistration->setUser($request->getCreatedBy());
-                    $educatorRegistration->setUser($request->getNeedsApprovalBy());
-                    $teachLessonExperience->setTeacher($request->getCreatedBy());
-                    $teachLessonExperience->setSchool($request->getNeedsApprovalBy()->getSchool());
-                } else {
-                    $professionalRegistration->setUser($request->getNeedsApprovalBy());
-                    $educatorRegistration->setUser($request->getCreatedBy());
-                    $teachLessonExperience->setTeacher($request->getNeedsApprovalBy());
-                    $teachLessonExperience->setSchool($request->getCreatedBy()->getSchool());
-                }
-
-                $professionalRegistration->setExperience($teachLessonExperience);
-                $educatorRegistration->setExperience($teachLessonExperience);
-                $this->entityManager->persist($professionalRegistration);
-                $this->entityManager->persist($educatorRegistration);
-
-                // let's go ahead and add the students as registrations to the event
-                if ($request->getIsFromProfessional()) {
-                    /** @var EducatorUser $educator */
-                    $educator = $request->getNeedsApprovalBy();
-                } else {
-                    /** @var EducatorUser $educator */
-                    $educator = $request->getCreatedBy();
-                }
-                foreach ($educator->getStudentUsers() as $studentUser) {
-                    $studentRegistration = new Registration();
-                    $studentRegistration->setExperience($teachLessonExperience);
-                    $studentRegistration->setUser($studentUser);
-                    $this->entityManager->persist($studentRegistration);
-                }
-
-                /** @var School $school */
-                $school = $request->getCreatedBy()->getSchool();
-
-                // the CSV school import fixtures did not have emails so we need to check for them!
-                if ($school->getEmail()) {
-                    $teachLessonExperience->setEmail($school->getEmail());
-                }
-
-                if ($school->getStreet()) {
-                    $teachLessonExperience->setStreet($school->getStreet());
-                }
-
-                if ($school->getCity()) {
-                    $teachLessonExperience->setCity($school->getCity());
-                }
-
-                if ($school->getState()) {
-                    $teachLessonExperience->setState($school->getState());
-                }
-
-                if ($school->getZipcode()) {
-                    $teachLessonExperience->setZipcode($school->getZipcode());
-                }
-
-                $this->entityManager->persist($teachLessonExperience);
-                $this->addFlash('success', 'You have accepted the invite to teach!');
-
-                // not all educators have an email address.
-                if ($request->getCreatedBy()->getEmail()) {
-                    $this->requestsMailer->teachLessonRequestApproval($request);
-                }
-                break;
             case 'EducatorRegisterStudentForCompanyExperienceRequest':
                 /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
                 $studentUser = $request->getStudentUser();

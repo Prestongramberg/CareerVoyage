@@ -51,6 +51,7 @@ use App\Repository\LessonTeachableRepository;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\ImageCacheGenerator;
+use App\Service\RequestService;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
@@ -1874,13 +1875,15 @@ class SchoolController extends AbstractController
     }
 
     /**
-     * @Route("/schools/experiences/{id}/register", name="school_experience_register", options = { "expose" = true }, methods={"POST"})
+     * @Route("/schools/experiences/{id}/register", name="school_experience_register", options = { "expose" = true }, methods={"GET"})
      * @param Request          $request
      * @param SchoolExperience $experience
      *
+     * @param RequestService   $requestService
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience)
+    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience, RequestService $requestService)
     {
         // We need to check if the experience requires approval from the event creator. If so follow the
         // current flow, otherwise, bypass sending emails and mark the registration as complete.
@@ -1892,67 +1895,11 @@ class SchoolController extends AbstractController
             $userToRegister = $this->getUser();
         }
 
-        $request = $this->userRegisterForSchoolExperienceRequestRepository->findOneBy(
-            [
-                'user'             => $userToRegister,
-                'schoolExperience' => $experience,
-            ]
-        );
-
-        if ($request) {
-            $this->addFlash('error', 'Registration request already sent for this experience.');
-
-            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
-        }
-        if ($userToRegister->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
-            $this->addFlash('error', 'Could not register for experience. 0 spots left.');
-
-            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+        if($registrationRequest = $requestService->createRegistrationRequest($userToRegister, $experience)) {
+            $this->requestsMailer->userRegistrationApproval($registrationRequest, $experience);
         }
 
-        if (($userToRegister->isStudent() || $userToRegister->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
-            $this->addFlash('error', 'Could not register for experience. 0 spots left.');
-
-            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
-        }
-
-
-        $registerRequest = new UserRegisterForSchoolExperienceRequest();
-        $registerRequest->setCreatedBy($this->getUser());
-        $registerRequest->setNeedsApprovalBy($experience->getSchoolContact());
-        $registerRequest->setSchoolExperience($experience);
-        $registerRequest->setUser($userToRegister);
-
-        if ($experience->getRequireApproval()) {
-            // Requires approval
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->requestsMailer->userRegisterForSchoolExperienceRequest($registerRequest);
-            $this->addFlash('success', 'Registration request successfully sent.');
-        } else {
-            // Does not require approval
-            $registerRequest->setApproved(true);
-            // $registerRequest->setSchoolAdminHasSeen(true);
-            $registerRequest->setStudentHasSeen(true);
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->addFlash('success', 'Registration has been approved.');
-        }
-
-        if ($req->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"     => "success",
-                    "userId"     => $userId,
-                    'id'         => $experience->getId(),
-                    "approval"   => $experience->getRequireApproval(),
-                    "request_id" => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
-        }
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }
 
     /**

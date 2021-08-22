@@ -41,12 +41,14 @@ class Request
     const REQUEST_TYPE_COMPANY_INVITE      = 'COMPANY_INVITE';
     const REQUEST_TYPE_TEACH_LESSON_INVITE = 'TEACH_LESSON_INVITE';
     const REQUEST_TYPE_NOTIFICATION        = 'NOTIFICATION';
+    const REQUEST_TYPE_NEW_REGISTRATION    = 'NEW_REGISTRATION';
 
-    const REQUEST_STATUS_PENDING  = 'PENDING';
-    const REQUEST_STATUS_APPROVED = 'APPROVED';
-    const REQUEST_STATUS_DENIED   = 'DENIED';
-    const REQUEST_STATUS_ACTIVE   = 'ACTIVE';
-    const REQUEST_STATUS_INACTIVE = 'INACTIVE';
+    const REQUEST_STATUS_PENDING      = 'PENDING';
+    const REQUEST_STATUS_APPROVED     = 'APPROVED';
+    const REQUEST_STATUS_DENIED       = 'DENIED';
+    const REQUEST_STATUS_ACTIVE       = 'ACTIVE';
+    const REQUEST_STATUS_INACTIVE     = 'INACTIVE';
+    const REQUEST_STATUS_UNREGISTERED = 'UNREGISTERED';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -801,8 +803,11 @@ class Request
         return false;
     }
 
-    public function getPossibleActionCssClass($action)
+    public function getButtonCssClass($action = null)
     {
+        if (!$action) {
+            $action = $this->status;
+        }
 
         switch ($action) {
             case RequestAction::REQUEST_ACTION_NAME_APPROVE:
@@ -811,10 +816,9 @@ class Request
                 break;
             case RequestAction::REQUEST_ACTION_NAME_DENY:
             case RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE:
-                return 'uk-button-danger';
-                break;
             case RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
             case RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY:
+            case RequestAction::REQUEST_ACTION_NAME_UNREGISTER:
                 return 'uk-button-danger';
                 break;
             default:
@@ -835,6 +839,7 @@ class Request
                 break;
             case self::REQUEST_STATUS_DENIED:
             case self::REQUEST_STATUS_INACTIVE:
+            case self::REQUEST_STATUS_UNREGISTERED:
                 return 'uk-label-danger';
                 break;
             default:
@@ -884,6 +889,18 @@ class Request
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE) {
             return 'Inactive';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST) {
+            return 'Registrations';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_UNREGISTER) {
+            return 'Unregister';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_REGISTER) {
+            return 'Register';
         }
 
         return $action;
@@ -971,7 +988,7 @@ class Request
 
     public function getTimeElapsedSinceHasNotification()
     {
-        if($this->requestActionAt) {
+        if ($this->requestActionAt) {
             return $this->requestActionAt->format("m/d/Y h:i A");
         }
 

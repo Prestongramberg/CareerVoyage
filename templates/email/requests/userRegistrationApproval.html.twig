@@ -1,0 +1,13 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipientFirstName } %}
+
+<p>You have a new registration from <strong>{{ createdByFullName }}</strong>
+    for experience <strong>{{ experience.title }}</strong>
+</p>
+
+{% if experience.requireApproval %}
+    <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to approve/deny this registration.</p>
+{% else %}
+    <p>Please login to the <a href="{{ url('dashboard') }}">dashboard</a> to manage your registrations.</p>
+{% endif %}
+
+{% include 'email/partial/emailFooter.html.twig' %}

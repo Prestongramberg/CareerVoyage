@@ -35,21 +35,12 @@
                   {% endfor %}
 
                   <div id="student_{{ user.id }}">
-                    <form class="uk-inline register" method="post" action="{{ path('school_experience_register', {'id' : experience.id}) }}">
-                        <input type="hidden" name="userId" value="{{ user.id }}" />
-                        {% if experience.isRegistered(user) %}
-                            <button class="uk-button uk-button-secondary uk-button-small disabled uk-margin-small-bottom" type="submit" disabled="disabled">Already Registered</button>
-                        {% else %}
-                            <button class="uk-button uk-button-secondary uk-button-small uk-margin-small-bottom" type="submit">Register Myself</button>
-                        {% endif %}
-                    </form>
-
-                    <form class="uk-inline deregister" method="post" action="{{ path('school_experience_deregister', {'id' : experience.id}) }}">
-                        <input type="hidden" name="userId" value="{{ user.id }}">
-                        {% if experience.isRegistered(user) %}
-                            <button class="uk-button uk-button-danger uk-button-small disabled uk-margin-small-bottom" type="submit">Cancel Registration</button>
-                        {% endif %}
-                    </form>
+                      {% set requests = request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id) %}
+                      {% for request in requests %}
+                          <a href="{{ path('requests', {id: request.id}) }}"><span class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
+                      {% else %}
+                          <a class="uk-button uk-button-small uk-button-primary" href="{{ path('school_experience_register', {'id': experience.id}) }}">Register Myself</a>
+                      {% endfor %}
                   </div>
 
                 {% endif %}
