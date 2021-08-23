@@ -401,7 +401,7 @@ class DashboardController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $requestsThatNeedMyApproval = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        $requestsThatNeedMyApproval = $this->requestRepository->getRequestsThatNeedMyApproval($user, true);
 
         return $this->render('dashboard/my_requests.html.twig', [
             'user' => $user,

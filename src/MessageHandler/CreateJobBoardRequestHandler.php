@@ -98,8 +98,7 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
                 $jobBoardRequest->setSummary($request->getSummary());
                 $jobBoardRequest->setOpportunityType($request->getOpportunityType());
 
-                /** @var RequestPossibleApprovers $possibleApprover */
-                if ($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($professional)) {
+                foreach($jobBoardRequest->getRequestPossibleApprovers() as $possibleApprover) {
                     $possibleApprover->setNotificationTitle("<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$request->getSummary()}\"");
                 }
 
