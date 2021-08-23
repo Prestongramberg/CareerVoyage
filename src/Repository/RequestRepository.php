@@ -49,7 +49,7 @@ class RequestRepository extends ServiceEntityRepository
     }
     */
 
-    public function getRequestsThatNeedMyApproval(User $user, $orderByCreatedAt = false)
+    public function getRequestsThatNeedMyApproval(User $user, $orderByCreatedAt = false, $requestType = null)
     {
         $queryBuilder = $this->createQueryBuilder('r')
                              ->leftJoin('r.requestPossibleApprovers', 'rpa')
@@ -79,14 +79,18 @@ class RequestRepository extends ServiceEntityRepository
                      ->setParameter('approved', false)
                      ->setParameter('allowApprovalByActivationCode', false);
 
-        if($orderByCreatedAt) {
+        if ($orderByCreatedAt) {
             $queryBuilder->orderBy('r.createdAt', 'DESC');
         } else {
             $queryBuilder->orderBy('rpa.notificationDate', 'DESC');
         }
 
-        return $queryBuilder->distinct()
-                            ->getQuery()
+        if ($requestType) {
+            $queryBuilder->andWhere('r.requestType = :requestType')
+                         ->setParameter('requestType', $requestType);
+        }
+
+        return $queryBuilder->getQuery()
                             ->getResult();
     }
 

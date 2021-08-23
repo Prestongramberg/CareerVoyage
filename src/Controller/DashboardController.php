@@ -501,10 +501,7 @@ class DashboardController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $requestEntities = $this->requestRepository->findBy([
-            'requestType' => RequestEntity::REQUEST_TYPE_JOB_BOARD,
-            'published' => true,
-        ], ['createdAt' => 'DESC']);
+        $requestEntities = $this->requestRepository->getRequestsThatNeedMyApproval($user, true, \App\Entity\Request::REQUEST_TYPE_JOB_BOARD);
 
         $hiddenRequests = $this->userMetaRepository->findBy([
             'user' => $user,
@@ -518,10 +515,6 @@ class DashboardController extends AbstractController
         $requestEntities = array_filter($requestEntities, function (RequestEntity $requestEntity) use ($hiddenRequestIds) {
             return !in_array($requestEntity->getId(), $hiddenRequestIds, true);
         });
-
-        if (!count($requestEntities)) {
-            return new Response("");
-        }
 
         return $this->render('dashboard/job_board.html.twig', [
             'user' => $user,
