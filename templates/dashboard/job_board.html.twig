@@ -26,7 +26,7 @@
             <div class="uk-visible-toggle" tabindex="-1" uk-slideshow="min-height: {{ height }}; max-height: {{ height }}">
 
                 <ul class="uk-slideshow-items">
-                    {% for requestEntityBatch in requestEntities|sort((a, b) => a.summary <=> b.summary)|batch(5) %}
+                    {% for requestEntityBatch in requestEntities|batch(5) %}
                         <li class="uk-overflow-auto" style="position: absolute">
 
                             {% for requestEntity in requestEntityBatch %}

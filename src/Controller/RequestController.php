@@ -75,7 +75,6 @@ class RequestController extends AbstractController
 
         $requestId = $httpRequest->query->get('id', null);
 
-
         if ($requestId) {
             $reviewRequests = $this->requestRepository->findBy([
                 'id' => $requestId,
