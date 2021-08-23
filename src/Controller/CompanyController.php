@@ -1713,7 +1713,9 @@ class CompanyController extends AbstractController
      * @param RequestService    $requestService
      *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function companyExperienceRegisterAction(Request $request, CompanyExperience $experience,
                                                     RequestService $requestService
@@ -1729,9 +1731,7 @@ class CompanyController extends AbstractController
             $userToRegister = $this->getUser();
         }
 
-        if ($registrationRequest = $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience)) {
-            $this->requestsMailer->userRegistrationApproval($registrationRequest, $experience);
-        }
+        $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience);
 
         return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
