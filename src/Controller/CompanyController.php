@@ -12,13 +12,11 @@ use App\Entity\CompanyVideo;
 use App\Entity\CompanyView;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\RequestAction;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
-use App\Entity\Experience;
 use App\Entity\ExperienceFile;
 use App\Entity\Image;
-use App\Entity\JoinCompanyRequest;
-use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
@@ -26,55 +24,27 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
-use App\Entity\Video;
-use App\Form\CompanyInviteFormType;
 use App\Form\EditCompanyExperienceType;
 use App\Form\EditCompanyFormType;
-use App\Form\EducatorRegisterStudentsForExperienceFormType;
 use App\Form\Filter\CompanyResultsFilterType;
 use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Mailer\RequestsMailer;
-use App\Mailer\SecurityMailer;
-use App\Mailer\ExperienceMailer;
-use App\Repository\AdminUserRepository;
-use App\Repository\CompanyPhotoRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\CompanyViewRepository;
-use App\Repository\JoinCompanyRequestRepository;
-use App\Repository\ProfessionalUserRepository;
-use App\Repository\UserRepository;
-use App\Repository\SchoolAdministratorRepository;
-use App\Repository\EducatorUserRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
+use App\Service\RequestService;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\Form;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -97,12 +67,14 @@ class CompanyController extends AbstractController
     public function indexAction(Request $request)
     {
 
+        return $this->redirectToRoute('company_results_page');
+
         $user = $this->getUser();
 
         return $this->render(
             'company/index.html.twig', [
-                                         'user' => $user,
-                                     ]
+                'user' => $user,
+            ]
         );
     }
 
@@ -120,8 +92,8 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             CompanyResultsFilterType::class, null, [
-                                               'method' => 'GET',
-                                           ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -198,12 +170,12 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/results.html.twig', [
-                                           'user'         => $user,
-                                           'pagination'   => $pagination,
-                                           'form'         => $form->createView(),
-                                           'zipcode'      => $request->query->get('zipcode', ''),
-                                           'clearFormUrl' => $this->generateUrl('company_results_page'),
-                                       ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'zipcode' => $request->query->get('zipcode', ''),
+                'clearFormUrl' => $this->generateUrl('company_results_page'),
+            ]
         );
     }
 
@@ -221,8 +193,8 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             CompanyResultsFilterType::class, null, [
-                                               'method' => 'GET',
-                                           ]
+                'method' => 'GET',
+            ]
         );
 
         $form->handleRequest($request);
@@ -251,12 +223,12 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/my_favorites.html.twig', [
-                                           'user'         => $user,
-                                           'pagination'   => $pagination,
-                                           'form'         => $form->createView(),
-                                           'zipcode'      => $request->query->get('zipcode', ''),
-                                           'clearFormUrl' => $this->generateUrl('company_favorites_page'),
-                                       ]
+                'user' => $user,
+                'pagination' => $pagination,
+                'form' => $form->createView(),
+                'zipcode' => $request->query->get('zipcode', ''),
+                'clearFormUrl' => $this->generateUrl('company_favorites_page'),
+            ]
         );
     }
 
@@ -264,7 +236,7 @@ class CompanyController extends AbstractController
      * @Security("is_granted('ROLE_PROFESSIONAL_USER')")
      *
      * @Route("/companies/mine", name="company_mine_page", methods={"GET"}, options = { "expose" = true })
-     * @param Request          $request
+     * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -276,8 +248,8 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/mine.html.twig', [
-                                           'user'         => $user
-                                       ]
+                'user' => $user,
+            ]
         );
     }
 
@@ -288,6 +260,7 @@ class CompanyController extends AbstractController
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function newAction(Request $request)
     {
@@ -302,8 +275,8 @@ class CompanyController extends AbstractController
         $company = new Company();
 
         $options = [
-            'method'          => 'POST',
-            'company'         => $company,
+            'method' => 'POST',
+            'company' => $company,
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
@@ -325,28 +298,96 @@ class CompanyController extends AbstractController
             $adminUsers = $this->adminUserRepository->findAll();
             $adminUser  = $adminUsers[0];
 
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+
             // create a new company request
-            $newCompanyRequest = new NewCompanyRequest();
+            $newCompanyRequest = new \App\Entity\Request();
+            $newCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_NEW_COMPANY);
             $newCompanyRequest->setCreatedBy($user);
-            $newCompanyRequest->setCompany($company);
-            $newCompanyRequest->setNeedsApprovalBy($adminUser);
+            $newCompanyRequest->addNeedsApprovalByRole(User::ROLE_ADMIN_USER);
+            $newCompanyRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+            $newCompanyRequest->setStatusLabel('Company Pending Approval');
+            $newCompanyRequest->setNotification([
+                'title' => "<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}",
+                'user_photo' => $user->getPhotoPath(),
+                'user_photos' => [],
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => [],
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => 'New Company',
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                    ],
+                    'Company Name' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
+                    ],
+                    'Website' => [
+                        'order' => 4,
+                        'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
+
+                    ],
+                    'Phone' => [
+                        'order' => 5,
+                        'value' => $company->getPhone(),
+                    ],
+                    'Created On' => [
+                        'order' => 6,
+                        'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                    ],
+                ],
+            ]);
+
+            $createdByApprover = new RequestPossibleApprovers();
+            $createdByApprover->setPossibleApprover($user);
+            $createdByApprover->setRequest($newCompanyRequest);
+            $createdByApprover->setNotificationDate(new \DateTime());
+            $createdByApprover->setPossibleActions([
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]);
+            $createdByApprover->setNotificationTitle("<strong>You</strong> have created a new company {$company->getName()}");
+            $this->entityManager->persist($createdByApprover);
 
             $adminUsers = $this->userRepository->findByRole(User::ROLE_ADMIN_USER);
-
             foreach ($adminUsers as $adminUser) {
                 $possibleApprover = new RequestPossibleApprovers();
+                $possibleApprover->setPossibleActions([
+                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+                $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has created a new company {$company->getName()}");
                 $possibleApprover->setPossibleApprover($adminUser);
+                $possibleApprover->setHasNotification(true);
                 $possibleApprover->setRequest($newCompanyRequest);
                 $this->entityManager->persist($possibleApprover);
             }
 
             $this->entityManager->persist($newCompanyRequest);
-            $this->entityManager->persist($company);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            $this->requestsMailer->newCompanyRequest($newCompanyRequest);
-            $this->requestsMailer->companyAwaitingApproval($newCompanyRequest);
+            $requestActionUrl = $this->generateUrl('request_action', [
+                'company_id' => $company->getId(),
+                'request_id' => $newCompanyRequest->getId(),
+            ]);
+
+            $newCompanyRequest->setActionUrl($requestActionUrl);
+
+            $this->entityManager->flush();
+            $this->entityManager->refresh($newCompanyRequest);
+
+            foreach ($newCompanyRequest->getRequestPossibleApprovers() as $possibleApprover) {
+                $this->requestsMailer->newCompanyApproval($possibleApprover->getPossibleApprover(), $company);
+            }
+
+            $this->requestsMailer->newCompanyAwaitingApproval($createdByApprover->getPossibleApprover(), $company);
 
             $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
 
@@ -357,11 +398,11 @@ class CompanyController extends AbstractController
         if ($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
-                    'success'    => false,
+                    'success' => false,
                     'formMarkup' => $this->renderView(
                         'api/form/secondary_industry_form_new_company_field.html.twig', [
-                                                                                          'form' => $form->createView(),
-                                                                                      ]
+                            'form' => $form->createView(),
+                        ]
                     ),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -369,9 +410,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/new.html.twig', [
-                                       'user' => $user,
-                                       'form' => $form->createView(),
-                                   ]
+                'user' => $user,
+                'form' => $form->createView(),
+            ]
         );
     }
 
@@ -381,6 +422,7 @@ class CompanyController extends AbstractController
      * @param Company $company
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function viewAction(Request $request, Company $company)
     {
@@ -391,22 +433,22 @@ class CompanyController extends AbstractController
 
         // Create company_view record for the user.
         $userViews = $this->getDoctrine()->getRepository(CompanyView::class)->getLastCompanyView($company->getId(), $user->getId());
-        if(sizeof($userViews) == 0) {
+        if (sizeof($userViews) == 0) {
             $entityManager = $this->getDoctrine()->getManager();
-            $view = new CompanyView();
+            $view          = new CompanyView();
             $view->setCompany($company);
             $view->setUser($user);
-            $view->setCreatedAt( new DateTime() );
+            $view->setCreatedAt(new DateTime());
             $entityManager->persist($view);
             $entityManager->flush();
         } else {
             $dt = new DateTime();
-            if($userViews[0]->getCreatedAt() <= $dt->modify("-1 day")){
+            if ($userViews[0]->getCreatedAt() <= $dt->modify("-1 day")) {
                 $entityManager = $this->getDoctrine()->getManager();
-                $view = new CompanyView();
+                $view          = new CompanyView();
                 $view->setCompany($company);
                 $view->setUser($user);
-                $view->setCreatedAt( new DateTime() );
+                $view->setCreatedAt(new DateTime());
                 $entityManager->persist($view);
                 $entityManager->flush();
             }
@@ -415,10 +457,10 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/view.html.twig', [
-                                        'user'              => $user,
-                                        'company'           => $company,
-                                        'professionalUsers' => $professional_users,
-                                    ]
+                'user' => $user,
+                'company' => $company,
+                'professionalUsers' => $professional_users,
+            ]
         );
     }
 
@@ -432,6 +474,7 @@ class CompanyController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \Exception
      */
     public function joinAction(Request $request, Company $company)
     {
@@ -439,93 +482,200 @@ class CompanyController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $requests = $this->joinCompanyRequestRepository->getJoinCompanyRequestsByCompanyAndUser($company, $user);
-
-        if (count($requests) > 0) {
-            $this->addFlash('error', 'You have already made a request to join that company.');
-
-            return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
-        }
-
-        $joinCompanyRequest = new JoinCompanyRequest();
-        $joinCompanyRequest->setCompany($company);
+        // create a new company request
+        $joinCompanyRequest = new \App\Entity\Request();
+        $joinCompanyRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_JOIN_COMPANY);
         $joinCompanyRequest->setCreatedBy($user);
-        $joinCompanyRequest->setNeedsApprovalBy($company->getOwner());
-        $joinCompanyRequest->setType(JoinCompanyRequest::TYPE_USER_TO_COMPANY);
+        $joinCompanyRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+        $joinCompanyRequest->setStatusLabel('Join Company Pending Approval');
+        $joinCompanyRequest->setNotification([
+            'title' => "<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}",
+            'user_photo' => $user->getPhotoPath(),
+            'user_photos' => [],
+            'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'messages' => [],
+            'body' => [
+                'Request Type' => [
+                    'order' => 1,
+                    'value' => 'Join Company',
+                ],
+                'Initiated By' => [
+                    'order' => 2,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                ],
+                'Company Name' => [
+                    'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
+                ],
+                'Website' => [
+                    'order' => 4,
+                    'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
+
+                ],
+                'Phone' => [
+                    'order' => 5,
+                    'value' => $company->getPhone(),
+                ],
+                'Created On' => [
+                    'order' => 6,
+                    'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                ],
+            ],
+        ]);
+
+        $createdByApprover = new RequestPossibleApprovers();
+        $createdByApprover->setPossibleApprover($user);
+        $createdByApprover->setRequest($joinCompanyRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
+        $createdByApprover->setPossibleActions([
+            RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
+        $createdByApprover->setNotificationTitle("You have requested to join company <strong>{$company->getName()}</strong>");
+        $this->entityManager->persist($createdByApprover);
+
+
+        $possibleApprover = new RequestPossibleApprovers();
+        $possibleApprover->setPossibleApprover($company->getOwner());
+        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to join your company {$company->getName()}");
+        $possibleApprover->setRequest($joinCompanyRequest);
+        $possibleApprover->setHasNotification(true);
+        $possibleApprover->setPossibleActions(
+            [
+                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                RequestAction::REQUEST_ACTION_NAME_DENY,
+                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]
+        );
+        $this->entityManager->persist($possibleApprover);
+
         $this->entityManager->persist($joinCompanyRequest);
         $this->entityManager->flush();
 
-        $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
+        $requestActionUrl = $this->generateUrl('request_action', [
+            'company_id' => $company->getId(),
+            'request_id' => $joinCompanyRequest->getId(),
+        ]);
 
-        $this->addFlash('success', 'Request successfully sent!');
+        $joinCompanyRequest->setActionUrl($requestActionUrl);
+
+        $this->entityManager->flush();
+        $this->entityManager->refresh($joinCompanyRequest);
+
+        $this->requestsMailer->joinCompanyApproval($possibleApprover->getPossibleApprover(), $createdByApprover->getPossibleApprover(), $company);
+
+        $this->addFlash('success', 'Request to join this company has been sent to the company administrator');
 
         return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
     }
 
     /**
-     * @Route("/companies/{id}/invite", name="company_invite", options = { "expose" = true }, methods={"GET", "POST"})
-     * @param Request $request
-     * @param Company $company
+     * @Route("/companies/{company}/users/{professionalUser}/invite", name="company_invite", options = { "expose" = true }, methods={"GET", "POST"})
+     * @param Request          $request
+     * @param Company          $company
      *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @param ProfessionalUser $professionalUser
+     *
+     * @return RedirectResponse|Response
+     * @throws \Exception
      */
-    public function inviteAction(Request $request, Company $company)
+    public function inviteAction(Request $request, Company $company, ProfessionalUser $professionalUser)
     {
 
         $this->denyAccessUnlessGranted('edit', $company);
 
         /** @var User $user */
         $user = $this->getUser();
-        $form = $this->createForm(
-            CompanyInviteFormType::class, null, [
-                                            'method' => 'POST',
-                                        ]
+
+        // create a new company request
+        $companyInviteRequest = new \App\Entity\Request();
+        $companyInviteRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_COMPANY_INVITE);
+        $companyInviteRequest->setCreatedBy($user);
+        $companyInviteRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+        $companyInviteRequest->setStatusLabel('Company invite is pending approval');
+        $companyInviteRequest->setNotification([
+            'title' => "<strong>{$user->getFullName()}</strong> has invited you to join their company {$company->getName()}",
+            'user_photo' => $user->getPhotoPath(),
+            'user_photos' => [],
+            'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'body' => [
+                'Request Type' => [
+                    'order' => 1,
+                    'value' => 'Company Invite',
+                ],
+                'Initiated By' => [
+                    'order' => 2,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                ],
+                'Sent To' => [
+                    'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $professionalUser->getId()])}'>{$professionalUser->getFullName()}</a>",
+                ],
+                'Company Name' => [
+                    'order' => 4,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('company_view', ['id' => $company->getId()])}'>{$company->getName()}</a>",
+                ],
+                'Website' => [
+                    'order' => 5,
+                    'value' => "<a target='_blank' href='{$company->getWebsite()}'>{$company->getWebsite()}</a>",
+
+                ],
+                'Phone' => [
+                    'order' => 6,
+                    'value' => $company->getPhone(),
+                ],
+                'Created On' => [
+                    'order' => 7,
+                    'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                ],
+            ],
+        ]);
+
+        $createdByApprover = new RequestPossibleApprovers();
+        $createdByApprover->setPossibleApprover($user);
+        $createdByApprover->setRequest($companyInviteRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
+        $createdByApprover->setPossibleActions([
+            RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
+        $createdByApprover->setNotificationTitle("You have invited <strong>{$professionalUser->getFullName()}</strong> to join your company {$company->getName()}");
+        $this->entityManager->persist($createdByApprover);
+
+        $possibleApprover = new RequestPossibleApprovers();
+        $possibleApprover->setPossibleApprover($professionalUser);
+        $possibleApprover->setRequest($companyInviteRequest);
+        $possibleApprover->setHasNotification(true);
+        $possibleApprover->setPossibleActions(
+            [
+                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                RequestAction::REQUEST_ACTION_NAME_DENY,
+                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]
         );
+        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has invited you to join their company {$company->getName()}");
+        $this->entityManager->persist($possibleApprover);
 
-        $form->handleRequest($request);
+        $this->entityManager->persist($companyInviteRequest);
+        $this->entityManager->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $emails = $form->get('emails')->getData();
-            $emails = explode(',', $emails);
-            foreach ($emails as $email) {
+        $requestActionUrl = $this->generateUrl('request_action', [
+            'company_id' => $company->getId(),
+            'request_id' => $companyInviteRequest->getId(),
+        ]);
 
-                // for now we are just skipping users that already exist in the system
-                $existingUser = $this->userRepository->getByEmailAddress($email);
-                if ($existingUser) {
-                    continue;
-                } else {
-                    $professionalUser = new ProfessionalUser();
-                    $professionalUser->setEmail($email);
-                    $professionalUser->initializeNewUser();
-                    $professionalUser->setPasswordResetToken();
-                    $this->entityManager->persist($professionalUser);
-                }
-                $joinCompanyRequest = new JoinCompanyRequest();
-                $joinCompanyRequest->setCompany($company);
-                $joinCompanyRequest->setCreatedBy($this->getUser());
-                $joinCompanyRequest->setIsFromCompany(true);
-                $joinCompanyRequest->setNeedsApprovalBy($professionalUser);
-            }
+        $companyInviteRequest->setActionUrl($requestActionUrl);
 
-            $this->entityManager->flush();
-            $this->securityMailer->sendAccountActivation($professionalUser);
-            $this->requestsMailer->joinCompanyRequest($joinCompanyRequest);
+        $this->entityManager->flush();
+        $this->entityManager->refresh($companyInviteRequest);
 
-            $this->addFlash('success', 'Company invites successfully sent. ');
+        $this->requestsMailer->companyInviteApproval($professionalUser, $user, $company);
 
-            return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
-        }
+        $this->addFlash('success', 'Request successfully sent!');
 
-        return $this->render(
-            'company/invite.html.twig', [
-                                          'form' => $form->createView(),
-                                          'user' => $user,
-                                      ]
-        );
+        $referer = $request->headers->get('referer');
+
+        return new RedirectResponse($referer);
     }
 
     /**
@@ -549,10 +699,10 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/professionals.html.twig', [
-                                                 'user'          => $user,
-                                                 'company'       => $company,
-                                                 'professionals' => $professionals,
-                                             ]
+                'user' => $user,
+                'company' => $company,
+                'professionals' => $professionals,
+            ]
         );
     }
 
@@ -635,8 +785,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -682,8 +832,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -754,10 +904,10 @@ class CompanyController extends AbstractController
 
         return new JsonResponse(
             [
-                'success'     => true,
-                'url'         => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::COMPANY_RESOURCE . '/' . $newFilename : $companyResource->getLinkToWebsite(),
-                'id'          => $companyResource->getId(),
-                'title'       => $title,
+                'success' => true,
+                'url' => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::COMPANY_RESOURCE . '/' . $newFilename : $companyResource->getLinkToWebsite(),
+                'id' => $companyResource->getId(),
+                'title' => $title,
                 'description' => $description,
 
             ], Response::HTTP_OK
@@ -779,10 +929,10 @@ class CompanyController extends AbstractController
         if ($companyResource->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $companyResource->getFileName(),
-                    'id'          => $companyResource->getId(),
-                    'title'       => $companyResource->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $companyResource->getFileName(),
+                    'id' => $companyResource->getId(),
+                    'title' => $companyResource->getTitle(),
                     'description' => $companyResource->getDescription(),
 
                 ], Response::HTTP_OK
@@ -790,10 +940,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $companyResource->getLinkToWebsite(),
-                    'id'          => $companyResource->getId(),
-                    'title'       => $companyResource->getTitle(),
+                    'success' => true,
+                    'website' => $companyResource->getLinkToWebsite(),
+                    'id' => $companyResource->getId(),
+                    'title' => $companyResource->getTitle(),
                     'description' => $companyResource->getDescription(),
 
                 ], Response::HTTP_OK
@@ -852,10 +1002,10 @@ class CompanyController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -863,10 +1013,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -942,8 +1092,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $video->getId(),
-                    'name'    => $name,
+                    'id' => $video->getId(),
+                    'name' => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -990,8 +1140,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'id'      => $video->getId(),
-                    'name'    => $name,
+                    'id' => $video->getId(),
+                    'name' => $name,
                     'videoId' => $videoId,
 
                 ], Response::HTTP_OK
@@ -1089,8 +1239,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::COMPANY_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
-                    'id'      => $image->getId(),
+                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::COMPANY_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'id' => $image->getId(),
                 ], Response::HTTP_OK
             );
         }
@@ -1148,8 +1298,8 @@ class CompanyController extends AbstractController
         $user = $this->getUser();
 
         $options = [
-            'method'          => 'POST',
-            'company'         => $company,
+            'method' => 'POST',
+            'company' => $company,
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
@@ -1203,11 +1353,11 @@ class CompanyController extends AbstractController
         if ($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
-                    'success'    => false,
+                    'success' => false,
                     'formMarkup' => $this->renderView(
                         'api/form/secondary_industry_form_field.html.twig', [
-                                                                              'form' => $form->createView(),
-                                                                          ]
+                            'form' => $form->createView(),
+                        ]
                     ),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -1215,11 +1365,11 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/edit.html.twig', [
-                                        'company'      => $company,
-                                        'form'         => $form->createView(),
-                                        'user'         => $user,
-                                        'companyVideo' => $companyVideo,
-                                    ]
+                'company' => $company,
+                'form' => $form->createView(),
+                'user' => $user,
+                'companyVideo' => $companyVideo,
+            ]
         );
     }
 
@@ -1273,9 +1423,9 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             NewCompanyExperienceType::class, $experience, [
-                                               'method'  => 'POST',
-                                               'company' => $company,
-                                           ]
+                'method' => 'POST',
+                'company' => $company,
+            ]
         );
 
         $form->handleRequest($request);
@@ -1384,20 +1534,20 @@ class CompanyController extends AbstractController
 
             return $this->render(
                 'company/new_experience.html.twig', [
-                                                      'company'             => $company,
-                                                      'form'                => $form->createView(),
-                                                      'user'                => $user,
-                                                      'secondaryIndustries' => $secondaryIndustries,
-                                                  ]
+                    'company' => $company,
+                    'form' => $form->createView(),
+                    'user' => $user,
+                    'secondaryIndustries' => $secondaryIndustries,
+                ]
             );
         } else {
             return $this->render(
                 'company/new_experience.html.twig', [
-                                                      'company'             => $company,
-                                                      'form'                => $form->createView(),
-                                                      'user'                => $user,
-                                                      'secondaryIndustries' => null,
-                                                  ]
+                    'company' => $company,
+                    'form' => $form->createView(),
+                    'user' => $user,
+                    'secondaryIndustries' => null,
+                ]
             );
         }
     }
@@ -1408,6 +1558,10 @@ class CompanyController extends AbstractController
      * @param CompanyExperience $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \ReflectionException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function editExperienceAction(Request $request, CompanyExperience $experience)
     {
@@ -1420,9 +1574,9 @@ class CompanyController extends AbstractController
 
         $form = $this->createForm(
             EditCompanyExperienceType::class, $experience, [
-                                                'method'  => 'POST',
-                                                'company' => $company,
-                                            ]
+                'method' => 'POST',
+                'company' => $company,
+            ]
         );
 
         $form->handleRequest($request);
@@ -1501,11 +1655,11 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/edit_experience.html.twig', [
-                                                   'company'    => $company,
-                                                   'form'       => $form->createView(),
-                                                   'user'       => $user,
-                                                   'experience' => $experience,
-                                               ]
+                'company' => $company,
+                'form' => $form->createView(),
+                'user' => $user,
+                'experience' => $experience,
+            ]
         );
     }
 
@@ -1525,9 +1679,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/view_experience.html.twig', [
-                                                   'user'       => $user,
-                                                   'experience' => $experience,
-                                               ]
+                'user' => $user,
+                'experience' => $experience,
+            ]
         );
     }
 
@@ -1552,358 +1706,34 @@ class CompanyController extends AbstractController
 
 
     /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
-     * @Route("/companies/experiences/{id}/educator/register", name="company_experience_educator_register", options = { "expose" = true }, methods={"POST"})
+     * @Route("/companies/experiences/{id}/register", name="company_experience_register", options = { "expose" = true }, methods={"GET"})
      * @param Request           $request
      * @param CompanyExperience $experience
      *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function companyExperienceEducatorRegisterAction(Request $request, CompanyExperience $experience)
-    {
-
-        $educatorIdToRegister = $request->request->get('educatorId');
-        $educatorToRegister   = $this->educatorUserRepository->find($educatorIdToRegister);
-
-
-        // We need to delete any previous "registration" for the educator. This fixes the issue of an educator
-        // trying to cancel a registration from an older non-educatorRegisterEducatorForCompanyExperienceRequest.
-
-        $registration = $this->registrationRepository->getByUserAndExperience($educatorToRegister, $experience);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-            $this->entityManager->flush();
-        }
-
-        // We will mark any educator as approved for this event.
-        $user            = $this->getUser();
-        $registerRequest = new EducatorRegisterEducatorForCompanyExperienceRequest();
-        $registerRequest->setCreatedBy($user);
-        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-        $registerRequest->setCompanyExperience($experience);
-        $registerRequest->setEducatorUser($educatorToRegister);
-
-        // Does not require approval
-        $registerRequest->setApproved(true);
-        $registerRequest->setProfessionalHasSeen(true);
-        $registerRequest->setEducatorHasSeen(true);
-        $this->entityManager->persist($registerRequest);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'You has been registered.');
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"      => "success",
-                    "educator_id" => $educatorToRegister->getId(),
-                    'id'          => $experience->getId(),
-                    "approval"    => $experience->getRequireApproval(),
-                    "request_id"  => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted("ROLE_EDUCATOR_USER")
-     * @Route("/companies/experiences/{id}/educator/deregister", name="company_experience_educator_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
+     * @param RequestService    $requestService
      *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
-    public function companyExperienceEducatorDeregisterAction(Request $request, CompanyExperience $experience)
-    {
-        $educatorIdToDeregister = $request->request->get('educatorId');
-        $educatorToDeregister   = $this->educatorUserRepository->find($educatorIdToDeregister);
-
-        $deregisterEducatorForExperience = $this->educatorRegisterEducatorForCompanyExperienceRequestRepository->getByEducatorAndExperience($educatorToDeregister, $experience);
-
-        $deregisterRequest = $this->requestRepository->find($deregisterEducatorForExperience);
-        $registration      = $this->registrationRepository->getByUserAndExperience($educatorToDeregister, $experience);
-
-        /** @var ProfessionalUser $companyOwner */
-        $companyOwner = $experience->getCompany()->getOwner();
-
-        $this->entityManager->remove($deregisterEducatorForExperience);
-        $this->entityManager->remove($deregisterRequest);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-        // 
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"      => "success",
-                    "educator_id" => $educatorIdToDeregister,
-                    'id'          => $experience->getId(),
-                ]
-            );
-        } else {
-            $this->addFlash('success', 'You have been removed from this experience.');
-
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted("ROLE_SCHOOL_ADMINISTRATOR_USER")
-     * @Route("/companies/experiences/{id}/school_administrator/register", name="company_experience_school_admin_register", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function companyExperienceSchoolAdministratorRegisterAction(Request $request, CompanyExperience $experience)
-    {
-
-        $schoolAdminIdToRegister = $request->request->get('schoolAdminId');
-        $schoolAdminToRegister   = $this->schoolAdministratorRepository->find($schoolAdminIdToRegister);
-
-
-        // We need to delete any previous "registration" for the school admin. This fixes the issue of an school admin
-        // trying to cancel a registration from an older non-shooolAdminRegisterSAForCompanyExperienceRequest.
-
-        $registration = $this->registrationRepository->getByUserAndExperience($schoolAdminToRegister, $experience);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-            $this->entityManager->flush();
-        }
-
-        // We will mark any educator as approved for this event.
-        $user            = $this->getUser();
-        $registerRequest = new SchoolAdminRegisterSAForCompanyExperienceRequest();
-        $registerRequest->setCreatedBy($user);
-        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-        $registerRequest->setCompanyExperience($experience);
-        $registerRequest->setSchoolAdminUser($schoolAdminToRegister);
-
-        // Does not require approval
-        $registerRequest->setApproved(true);
-        $registerRequest->setProfessionalHasSeen(true);
-        $registerRequest->setSchoolAdminHasSeen(true);
-        $this->entityManager->persist($registerRequest);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'You has been registered.');
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"          => "success",
-                    "school_admin_id" => $schoolAdminToRegister->getId(),
-                    'id'              => $experience->getId(),
-                    "approval"        => $experience->getRequireApproval(),
-                    "request_id"      => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted("ROLE_SCHOOL_ADMINISTRATOR_USER")
-     * @Route("/companies/experiences/{id}/school_administrator/deregister", name="company_experience_school_admin_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function companyExperienceSchoolAdministratorDeregisterAction(Request $request, CompanyExperience $experience
+    public function companyExperienceRegisterAction(Request $request, CompanyExperience $experience,
+                                                    RequestService $requestService
     ) {
-        $schoolAdminIdToDeregister = $request->request->get('schoolAdminId');
-        $schoolAdminToDeregister   = $this->schoolAdministratorRepository->find($schoolAdminIdToDeregister);
 
-        $deregisterSchoolAdminForExperience = $this->schoolAdminRegisterSAForCompanyExperienceRequestRepository->getBySchoolAdministratorAndExperience($schoolAdminToDeregister, $experience);
-
-        $deregisterRequest = $this->requestRepository->find($deregisterSchoolAdminForExperience);
-        $registration      = $this->registrationRepository->getByUserAndExperience($schoolAdminToDeregister, $experience);
-
-        /** @var ProfessionalUser $companyOwner */
-        $companyOwner = $experience->getCompany()->getOwner();
-
-        $this->entityManager->remove($deregisterSchoolAdminForExperience);
-        $this->entityManager->remove($deregisterRequest);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-        // 
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"          => "success",
-                    "school_admin_id" => $schoolAdminIdToDeregister,
-                    'id'              => $experience->getId(),
-                ]
-            );
+        $req    = $request;
+        $userId = $request->query->get('userId', null);
+        if ($userId) {
+            $createdBy      = $this->getUser();
+            $userToRegister = $this->userRepository->find($userId);
         } else {
-            $this->addFlash('success', 'You have been removed from this experience.');
-
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
-
-
-    /**
-     * @IsGranted({"ROLE_EDUCATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
-     * @Route("/companies/experiences/{id}/students/register", name="company_experience_student_register", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function companyExperienceStudentRegisterAction(Request $request, CompanyExperience $experience)
-    {
-        // We need to check if the experience requires approval from the event creator. If so follow the
-        // current flow, otherwise, bypass sending emails and mark the registration as complete.
-        $studentIdToRegister = $request->request->get('studentId');
-        $studentToRegister   = $this->studentUserRepository->find($studentIdToRegister);
-
-        if ($experience->getAvailableSpaces() === 0) {
-            $this->addFlash('error', sprintf('Could not register students. 0 spots left.'));
-
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse(
-                    [
-                        "status"     => "failure",
-                        "message"    => 'Could not register students. 0 spots left.',
-                        "student_id" => $studentIdToRegister,
-                        'id'         => $experience->getId(),
-                    ]
-                );
-            } else {
-                return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-            }
-
-        }
-        /** @var User $user */
-        $user            = $this->getUser();
-        $registerRequest = new EducatorRegisterStudentForCompanyExperienceRequest();
-        $registerRequest->setCreatedBy($user);
-        $registerRequest->setNeedsApprovalBy($experience->getEmployeeContact());
-        $registerRequest->setCompanyExperience($experience);
-        $registerRequest->setStudentUser($studentToRegister);
-
-        if ($experience->getRequireApproval()) {
-            // Requires approval
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);
-            $this->addFlash('success', 'Registration request successfully sent.');
-        } else {
-            // Does not require approval
-            $registerRequest->setApproved(true);
-            $registerRequest->setProfessionalHasSeen(true);
-
-            if ($user->isEducator()) {
-                $registerRequest->setEducatorHasSeen(true);
-            }
-            if ($user->isSchoolAdministrator()) {
-                $registerRequest->setSchoolAdminHasSeen(true);
-            }
-
-            $this->entityManager->persist($registerRequest);
-            $this->entityManager->flush();
-            $this->addFlash('success', 'Student has been registered.');
+            $createdBy      = $this->getUser();
+            $userToRegister = $this->getUser();
         }
 
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"     => "success",
-                    "student_id" => $studentIdToRegister,
-                    'id'         => $experience->getId(),
-                    "approval"   => $experience->getRequireApproval(),
-                    "request_id" => $registerRequest->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
-    }
+        $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience);
 
-    /**
-     * @IsGranted({"ROLE_EDUCATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
-     * @Route("/companies/experiences/{id}/students/deregister", name="company_experience_student_deregister", options = { "expose" = true }, methods={"POST"})
-     * @param Request           $request
-     * @param CompanyExperience $experience
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function companyExperienceStudentDeregisterAction(Request $request, CompanyExperience $experience)
-    {
-        $studentIdToDeregister = $request->request->get('studentId');
-        $studentToDeregister   = $this->studentUserRepository->find($studentIdToDeregister);
-
-        $deregisterStudentForExperience = $this->educatorRegisterStudentForExperienceRequestRepository->getByStudentAndExperience($studentToDeregister, $experience);
-
-        $deregisterRequest = $this->requestRepository->find($deregisterStudentForExperience);
-
-        if ($deregisterRequest->getApproved()) {
-            $experience->setAvailableSpaces($experience->getAvailableSpaces() + 1);
-        }
-
-        $registration = $this->registrationRepository->getByUserAndExperience($studentToDeregister, $experience);
-
-        /** @var ProfessionalUser $companyOwner */
-        $companyOwner = $experience->getCompany()->getOwner();
-
-        if ($companyOwner->getEmail()) {
-            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $companyOwner, $experience);
-        }
-
-        $educators = $studentToDeregister->getEducatorUsers();
-
-        foreach ($educators as $educator) {
-            if ($educator->getEmail()) {
-                $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $educator, $experience);
-            }
-        }
-
-        if ($studentToDeregister->getEmail()) {
-            $this->requestsMailer->userDeregisterFromEvent($studentToDeregister, $studentToDeregister, $experience);
-        }
-
-        $this->entityManager->remove($deregisterStudentForExperience);
-        $this->entityManager->remove($deregisterRequest);
-        if ($registration) {
-            $this->entityManager->remove($registration);
-        }
-        $this->entityManager->persist($experience);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'Student has been removed from this experience.');
-
-        if ($request->isXmlHttpRequest()) {
-            // AJAX request
-            return new JsonResponse(
-                [
-                    "status"     => "success",
-                    "student_id" => $studentIdToDeregister,
-                    'id'         => $experience->getId(),
-                ]
-            );
-        } else {
-            return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
-        }
+        return $this->redirectToRoute('company_experience_view', ['id' => $experience->getId()]);
     }
 
     /**
@@ -1984,10 +1814,10 @@ class CompanyController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $newFilename,
-                    'id'          => $file->getId(),
-                    'title'       => $title,
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $newFilename,
+                    'id' => $file->getId(),
+                    'title' => $title,
                     'description' => $description,
 
                 ], Response::HTTP_OK
@@ -2010,10 +1840,10 @@ class CompanyController extends AbstractController
 
                 return new JsonResponse(
                     [
-                        'success'     => true,
-                        'url'         => $linkToWebsite,
-                        'id'          => $file->getId(),
-                        'title'       => $title,
+                        'success' => true,
+                        'url' => $linkToWebsite,
+                        'id' => $file->getId(),
+                        'title' => $title,
                         'description' => $description,
 
                     ], Response::HTTP_OK
@@ -2045,10 +1875,10 @@ class CompanyController extends AbstractController
         if ($file->getFile() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2056,10 +1886,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'website'     => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'website' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2119,10 +1949,10 @@ class CompanyController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::EXPERIENCE_FILE . '/' . $file->getFileName(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2130,10 +1960,10 @@ class CompanyController extends AbstractController
         } else {
             return new JsonResponse(
                 [
-                    'success'     => true,
-                    'url'         => $file->getLinkToWebsite(),
-                    'id'          => $file->getId(),
-                    'title'       => $file->getTitle(),
+                    'success' => true,
+                    'url' => $file->getLinkToWebsite(),
+                    'id' => $file->getId(),
+                    'title' => $file->getTitle(),
                     'description' => $file->getDescription(),
 
                 ], Response::HTTP_OK
@@ -2176,6 +2006,7 @@ class CompanyController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \ReflectionException
      */
     public function companyExperienceBulkNotifyAction(Request $request, CompanyExperience $experience)
     {
@@ -2281,9 +2112,9 @@ class CompanyController extends AbstractController
 
         return $this->render(
             'company/manage.html.twig', [
-                                          'companies' => $companies,
-                                          'user'      => $user,
-                                      ]
+                'companies' => $companies,
+                'user' => $user,
+            ]
         );
     }
 
@@ -2304,7 +2135,8 @@ class CompanyController extends AbstractController
 
         if ($request->request->get('newStatus') == 1) {
 
-            $this->requestsMailer->newCompanyRequestApproval($company->getNewCompanyRequest());
+            // todo make sure in the RequestController we are sending this email as well
+            $this->requestsMailer->newCompanyApproved($company);
 
             $button = '<button class="uk-button uk-button-small uk-label-success" data-id="' . $company->getId() . '" data-newstatus="0">Approved</button>';
         } else {
@@ -2331,32 +2163,33 @@ class CompanyController extends AbstractController
      */
     public function pageVisitsAction(Request $request, Company $company)
     {
-        $visits_7            = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(7, $company->getId());
-        $visits_30           = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(30, $company->getId());
-        $visits_90           = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(90, $company->getId());
-        $visits_365          = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(365, $company->getId());
-        $user                = $this->getUser();
+        $visits_7   = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(7, $company->getId());
+        $visits_30  = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(30, $company->getId());
+        $visits_90  = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(90, $company->getId());
+        $visits_365 = $this->getDoctrine()->getRepository(CompanyView::class)->getVisits(365, $company->getId());
+        $user       = $this->getUser();
 
         return $this->render(
             'company/page_visits.html.twig', [
-                                        'company'           => $company,
-                                        'user'              => $user,
-                                        'visits_7'          => $visits_7,
-                                        'visits_30'         => $visits_30,
-                                        'visits_90'         => $visits_90,
-                                        'visits_365'        => $visits_365
-                                    ]
+                'company' => $company,
+                'user' => $user,
+                'visits_7' => $visits_7,
+                'visits_30' => $visits_30,
+                'visits_90' => $visits_90,
+                'visits_365' => $visits_365,
+            ]
         );
     }
 
     /**
      * @Route("/companies/experiences/{id}/toggle-feedback-view", name="toggle_company_feedback_view", options = { "expose" = true })
-     * @param Request $request
+     * @param Request           $request
      * @param CompanyExperience $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function toggleCanViewFeedback(Request $request, CompanyExperience $experience) {
+    public function toggleCanViewFeedback(Request $request, CompanyExperience $experience)
+    {
 
         $experience->setCanViewFeedback($request->request->get('val'));
         $this->entityManager->persist($experience);

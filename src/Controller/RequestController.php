@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\AllowedCommunication;
 use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\Industry;
+use App\Entity\RequestAction;
+use App\Entity\RequestPossibleApprovers;
+use App\Entity\RolesWillingToFulfill;
 use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
-use App\Entity\JoinCompanyRequest;
-use App\Entity\NewCompanyRequest;
 use App\Entity\ProfessionalUser;
 use App\Entity\Registration;
 use App\Entity\School;
@@ -16,12 +18,15 @@ use App\Entity\SchoolExperience;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\TeachLessonExperience;
-use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Entity\UserMeta;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Form\CreateRequestFormType;
 use App\Form\EditRequestFormType;
+use App\Form\Request\SelectSuggestedDatesFormType;
+use App\Form\Request\SendMessageFormType;
+use App\Form\Request\SuggestNewDatesFormType;
+use App\Message\CreateJobBoardRequest;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use DateInterval;
@@ -52,100 +57,118 @@ class RequestController extends AbstractController
 
     /**
      * @Route("/requests", name="requests", methods={"GET", "POST"}, options = { "expose" = true })
-     * @param Request $request
+     * @param Request $httpRequest
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function requests(Request $request)
+    public function requests(Request $httpRequest)
     {
-
         /** @var User $user */
         $user = $this->getUser();
 
-        $requestsByType = [];
 
-        $requestsThatNeedMyApproval = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        // todo should we change this endpoint to be more of a search-requests endpoint?
+        //  then you can pass up ?student-requests=true, ?pending-requests=true and the various filters for each tab?
+        //  also you are probably going to need to do a refresh on each tab and make it so it's a page reload.
+        //  look at the resources page for how I did this. I'm pretty sure I did it here with the
+        //  different videos, etc and tabs at the top of the page
 
-        $myCreatedRequests = $this->requestRepository->findBy([
-            'created_by' => $user,
-            'denied' => false,
-            'approved' => false,
-            'allowApprovalByActivationCode' => false,
-        ], ['createdAt' => 'DESC']);
+        $requestId = $httpRequest->query->get('id', null);
 
-        $deniedByMeRequests = $this->requestRepository->findBy([
-            'needsApprovalBy' => $user,
-            'denied' => true,
-        ], ['createdAt' => 'DESC']);
+        if ($requestId) {
+            $reviewRequests = $this->requestRepository->findBy([
+                'id' => $requestId,
+            ]);
+        } else {
+            $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        }
 
-        $approvedByMeRequests = $this->requestRepository->findBy([
-            'needsApprovalBy' => $user,
-            'approved' => true,
-        ], ['createdAt' => 'DESC']);
+        // TODO SECOND DRAFT
+        /*        $myCreatedRequests = $this->requestRepository->findBy([
+                    'created_by' => $user,
+                    'denied' => false,
+                    'approved' => false,
+                    'allowApprovalByActivationCode' => false,
+                ], ['createdAt' => 'DESC']);
 
-        $myDeniedAccessRequests = $this->requestRepository->findBy([
-            'created_by' => $user,
-            'denied' => true,
-        ], ['createdAt' => 'DESC']);
+                $deniedByMeRequests = $this->requestRepository->findBy([
+                    'needsApprovalBy' => $user,
+                    'denied' => true,
+                ], ['createdAt' => 'DESC']);
 
-        $myApprovedAccessRequests = $this->requestRepository->findBy([
-            'created_by' => $user,
-            'approved' => true,
-        ], ['createdAt' => 'DESC']);
+                $approvedByMeRequests = $this->requestRepository->findBy([
+                    'needsApprovalBy' => $user,
+                    'approved' => true,
+                ], ['createdAt' => 'DESC']);
+
+                $myDeniedAccessRequests = $this->requestRepository->findBy([
+                    'created_by' => $user,
+                    'denied' => true,
+                ], ['createdAt' => 'DESC']);
+
+                $myApprovedAccessRequests = $this->requestRepository->findBy([
+                    'created_by' => $user,
+                    'approved' => true,
+                ], ['createdAt' => 'DESC']);
 
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.studentUser = :user')
-            ->andWhere('r.approved = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.studentUser = :user')
+                    ->andWhere('r.approved = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
 
-        $studentRegisterApproval = $qb->getQuery()->getResult();
+                $studentRegisterApproval = $qb->getQuery()->getResult();
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.studentUser = :user')
-            ->andWhere('r.denied = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.studentUser = :user')
+                    ->andWhere('r.denied = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
 
-        $studentRegisterDenial = $qb->getQuery()->getResult();
+                $studentRegisterDenial = $qb->getQuery()->getResult();
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.user = :user')
-            ->andWhere('r.approved = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.user = :user')
+                    ->andWhere('r.approved = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
 
-        $userRegisterSchoolApproval = $qb->getQuery()->getResult();
+                $userRegisterSchoolApproval = $qb->getQuery()->getResult();
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb
-            ->select('r')
-            ->from('App\Entity\Request', 'r')
-            ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-            ->andWhere('e.user = :user')
-            ->andWhere('r.denied = true')
-            ->setParameter('user', $user)
-            ->groupBy('e.id')
-            ->orderBy('r.createdAt', 'DESC');
+                $qb = $this->entityManager->createQueryBuilder();
+                $qb
+                    ->select('r')
+                    ->from('App\Entity\Request', 'r')
+                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
+                    ->andWhere('e.user = :user')
+                    ->andWhere('r.denied = true')
+                    ->setParameter('user', $user)
+                    ->groupBy('e.id')
+                    ->orderBy('r.createdAt', 'DESC');
 
-        $userRegisterSchoolDenial = $qb->getQuery()->getResult();
+                $userRegisterSchoolDenial = $qb->getQuery()->getResult();
 
+
+                */
+
+
+        // TODO FIRST DRAFT
         // $studentHasSeenCompanyRequestsApproval = [];
         // $studentHasSeenCompanyRequestsDenial = [];
         // if($user->isStudent()) {
@@ -229,9 +252,12 @@ class RequestController extends AbstractController
         // }
 
         // todo you could return a different view per user role as well
-        return $this->render('request/index.html.twig', [
+        return $this->render('request/index_new.html.twig', [
             'user' => $user,
-            'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
+            'reviewRequests' => $reviewRequests
+
+
+            /*'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
             'myCreatedRequests' => $myCreatedRequests,
             'approvedByMeRequests' => $approvedByMeRequests,
             'deniedByMeRequests' => $deniedByMeRequests,
@@ -240,7 +266,9 @@ class RequestController extends AbstractController
             'studentRegisterApproval' => $studentRegisterApproval,
             'studentRegisterDenial' => $studentRegisterDenial,
             'userRegisterSchoolApproval' => $userRegisterSchoolApproval,
-            'userRegisterSchoolDenial' => $userRegisterSchoolDenial
+            'userRegisterSchoolDenial' => $userRegisterSchoolDenial*/
+
+
             // 'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
             // 'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial),
             // 'educatorHasSeenCompanyRequestsApproval' => count($educatorHasSeenCompanyRequestsApproval),
@@ -248,6 +276,1155 @@ class RequestController extends AbstractController
             // 'professionalHasSeenCompanyRequestsApproval' => count($professionalHasSeenCompanyRequestsApproval),
             // 'professionalHasSeenCompanyRequestsDenial' => count($professionalHasSeenCompanyRequestsDenial)
         ]);
+    }
+
+    /**
+     * @Route("/requests/request-action", name="request_action", options = { "expose" = true })
+     * @param Request $httpRequest
+     *
+     * @return Response
+     */
+    public function requestAction(Request $httpRequest)
+    {
+        /** @var User $loggedInUser */
+        $loggedInUser         = $this->getUser();
+        $requestId            = $httpRequest->query->get('request_id');
+        $request              = $this->requestRepository->find($requestId);
+        $action               = $httpRequest->query->get('action', null);
+        $emailHandler         = function () {
+        };
+        $requestActionHandler = function () {
+        };
+
+        if (!$request) {
+            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var RequestPossibleApprovers $possibleApprover */
+        if ($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+            $possibleApprover->setHasNotification(false);
+            $this->entityManager->flush();
+        }
+
+        $requestAction = new RequestAction();
+        $requestAction->setUser($loggedInUser);
+        $requestAction->setRequest($request);
+
+        switch ($request->getRequestType()) {
+            case \App\Entity\Request::REQUEST_TYPE_NEW_COMPANY:
+
+                $companyId = $httpRequest->query->get('company_id');
+                $company   = $this->companyRepository->find($companyId);
+                $template  = 'request/modal/new_company.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'company' => $company,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $company, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                        $company->setApproved(true);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Company has been approved');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->requestsMailer->newCompanyApproved($company);
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+                        $company->setApproved(false);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Company has been denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+                        $company->setApproved(false);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Company is pending approval');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+                };
+
+                break;
+            case \App\Entity\Request::REQUEST_TYPE_JOIN_COMPANY:
+
+                $companyId = $httpRequest->query->get('company_id');
+                $company   = $this->companyRepository->find($companyId);
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+                $template  = 'request/modal/default.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'company' => $company,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm,
+                    $httpRequest, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $createdBy->setCompany($company);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Company invite accepted');
+
+                        $this->requestsMailer->joinCompanyApproved($createdBy, $company);
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        if ($createdBy->getCompany()->getId() === $company->getId()) {
+                            $createdBy->setCompany(null);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Company invite denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        if ($createdBy->getCompany()->getId() === $company->getId()) {
+                            $createdBy->setCompany(null);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Company invite pending');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+
+                };
+
+                break;
+            case \App\Entity\Request::REQUEST_TYPE_COMPANY_INVITE:
+
+                $companyId = $httpRequest->query->get('company_id');
+                $company   = $this->companyRepository->find($companyId);
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+                $template  = 'request/modal/default.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'company' => $company,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $company, $requestAction, $action, $loggedInUser, $sendMessageForm,
+                    $httpRequest, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $loggedInUser->setCompany($company);
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Company invite accepted');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $this->requestsMailer->companyInviteApproved($loggedInUser, $possibleApprover->getPossibleApprover(), $company);
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        if ($loggedInUser->getCompany()->getId() === $company->getId()) {
+                            $loggedInUser->setCompany(null);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Company invite denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        if ($loggedInUser->getCompany()->getId() === $company->getId()) {
+                            $loggedInUser->setCompany(null);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Company invite pending');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+
+                };
+
+                break;
+            case \App\Entity\Request::REQUEST_TYPE_TEACH_LESSON_INVITE:
+
+                $lessonId     = $httpRequest->query->get('lesson_id');
+                $lesson       = $this->lessonRepository->find($lessonId);
+                $data         = null;
+                $notification = $request->getNotification();
+                $messages     = $notification['messages'] ?? [];
+
+                $setDates = (
+                    !empty($notification['suggested_dates']['date_option_one']) &&
+                    !empty($notification['suggested_dates']['date_option_two']) &&
+                    !empty($notification['suggested_dates']['date_option_three'])
+                );
+
+                if ($setDates) {
+                    $data = [
+                        'dateOptionOne' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_one']),
+                        'dateOptionTwo' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_two']),
+                        'dateOptionThree' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_three']),
+                    ];
+                }
+
+                $selectSuggestedDatesForm = $this->createForm(SelectSuggestedDatesFormType::class, null, [
+                    'request' => $request,
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                ]);
+
+                $suggestNewDatesForm = $this->createForm(SuggestNewDatesFormType::class, $data, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                ]);
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+                $template  = 'request/modal/teach_lesson.html.twig';
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
+                    $template = 'request/modal/suggest_new_dates.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                    $template = 'request/modal/select_suggested_dates.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'lesson' => $lesson,
+                    'suggestNewDatesForm' => $suggestNewDatesForm->createView(),
+                    'selectSuggestedDatesForm' => $selectSuggestedDatesForm->createView(),
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                    'loggedInUser' => $loggedInUser,
+                    'messages' => $messages,
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $lesson, $requestAction, $action, $loggedInUser, $selectSuggestedDatesForm,
+                    $suggestNewDatesForm, $sendMessageForm, $httpRequest, &$template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $selectedDate = null;
+                        $selectSuggestedDatesForm->handleRequest($httpRequest);
+
+                        if ($selectSuggestedDatesForm->isSubmitted() && $selectSuggestedDatesForm->isValid()) {
+
+                            $notification = $request->getNotification();
+
+                            if ($selectSuggestedDatesForm->get('dateOptionOne')->isClicked()) {
+                                $selectedDate = $notification['suggested_dates']['date_option_one'];
+                            }
+
+                            if ($selectSuggestedDatesForm->get('dateOptionTwo')->isClicked()) {
+                                $selectedDate = $notification['suggested_dates']['date_option_two'];
+                            }
+
+                            if ($selectSuggestedDatesForm->get('dateOptionThree')->isClicked()) {
+                                $selectedDate = $notification['suggested_dates']['date_option_three'];
+                            }
+
+                            $notification['body']['Selected Date'] = [
+                                'order' => 5,
+                                'value' => $selectedDate ?? '',
+                            ];
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                    ->setStatusLabel('Guest instructor invite has been approved')
+                                    ->setNotification($notification);
+                            $this->entityManager->persist($requestAction);
+
+                            $this->requestsMailer->teachLessonInviteApproved($request->getCreatedBy(), $loggedInUser, $lesson);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+                            $this->entityManager->persist($possibleApprover);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
+                                $possibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+                                $possibleApprover->setHasNotification(true);
+                                $this->entityManager->persist($possibleApprover);
+                            }
+
+                            $hasProfessional = (
+                                !empty($notification['data']['professional_id']) &&
+                                $professional = $this->professionalUserRepository->find($notification['data']['professional_id'])
+                            );
+
+                            $hasSchool = (
+                                !empty($notification['data']['school_id']) &&
+                                $school = $this->schoolRepository->find($notification['data']['school_id'])
+                            );
+
+                            $hasEducator = (
+                                !empty($notification['data']['educator_id']) &&
+                                $educator = $this->educatorUserRepository->find($notification['data']['educator_id'])
+                            );
+
+                            $shouldCreateExperience = (
+                                $hasProfessional &&
+                                $hasSchool &&
+                                $hasEducator
+                            );
+
+                            if ($shouldCreateExperience) {
+                                $teachLessonExperience = new TeachLessonExperience();
+                                $teachLessonExperience->setStartDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate) : null);
+                                $teachLessonExperience->setEndDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate)->add(new DateInterval('PT2H')) : null);
+                                $teachLessonExperience->setTitle(sprintf("Topic: %s with Guest Instructor %s, in %s Class", $lesson->getTitle(), $professional->getFullName(), $educator->getFullName()));
+                                $teachLessonExperience->setBriefDescription(sprintf("%s", $lesson->getShortDescription()));
+                                $teachLessonExperience->setRequest($request);
+                                $teachLessonExperience->setLesson($lesson);
+                                $teachLessonExperience->setSchool($school);
+                                $teachLessonExperience->setTeacher($professional);
+
+                                $registrationUsers = [$educator, $professional];
+                                foreach ($registrationUsers as $registrationUser) {
+                                    $registration = new Registration();
+                                    $registration->setUser($registrationUser);
+                                    $registration->setExperience($teachLessonExperience);
+                                    $this->entityManager->persist($registration);
+                                }
+
+                                $this->entityManager->persist($teachLessonExperience);
+                            }
+
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/teach_lesson.html.twig';
+                        }
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Guest instructor invite has been denied');
+
+                        $this->requestsMailer->teachLessonInviteDenied($request->getCreatedBy(), $loggedInUser, $lesson);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+                        $possibleApprover->removePossibleAction([RequestAction::REQUEST_ACTION_NAME_DENY]);
+                        $possibleApprover->setPossibleActions([
+                            RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                            RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                        ]);
+
+                        $teachLessonExperience = $this->teachLessonExperienceRepository->findOneBy([
+                            'request' => $request->getId(),
+                        ]);
+
+                        if ($teachLessonExperience) {
+                            $this->entityManager->remove($teachLessonExperience);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Guest instructor invite is pending approval');
+
+                        $teachLessonExperience = $this->teachLessonExperienceRepository->findOneBy([
+                            'request' => $request->getId(),
+                        ]);
+
+                        if ($teachLessonExperience) {
+                            $this->entityManager->remove($teachLessonExperience);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
+
+                        $suggestNewDatesForm->handleRequest($httpRequest);
+
+                        if ($suggestNewDatesForm->isSubmitted() && $suggestNewDatesForm->isValid()) {
+
+                            $formData        = $suggestNewDatesForm->getData();
+                            $dateOptionOne   = $formData['dateOptionOne']->format("m/d/Y g:i A");
+                            $dateOptionTwo   = $formData['dateOptionTwo']->format("m/d/Y g:i A");
+                            $dateOptionThree = $formData['dateOptionThree']->format("m/d/Y g:i A");
+
+                            $notification                                         = $request->getNotification();
+                            $notification['suggested_dates']['date_option_one']   = $dateOptionOne;
+                            $notification['suggested_dates']['date_option_two']   = $dateOptionTwo;
+                            $notification['suggested_dates']['date_option_three'] = $dateOptionThree;
+                            $notification['body']['Suggested Dates']              = [
+                                'order' => 4,
+                                'value' => "{$dateOptionOne} <br> {$dateOptionTwo} <br> {$dateOptionThree}",
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES);
+
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                    ->setStatusLabel('New suggested dates pending approval');
+
+
+                            $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+
+                            if ($possibleApprover) {
+                                $possibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+                            }
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
+                                $possibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+
+                                $possibleApprover->setHasNotification(true);
+
+                                $this->entityManager->persist($possibleApprover);
+                            }
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/teach_lesson.html.twig';
+                        }
+
+                    }
+
+                };
+
+                break;
+
+            case \App\Entity\Request::REQUEST_TYPE_JOB_BOARD:
+
+                $template = 'request/modal/job_board.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE)
+                                ->setStatusLabel('Active Job Posting');
+
+                        foreach ($request->getRequests() as $childRequest) {
+                            $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE)
+                                         ->setStatusLabel('Active Job Posting');
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
+                                ->setStatusLabel('Inactive Job Posting');
+
+                        foreach ($request->getRequests() as $childRequest) {
+                            $childRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE)
+                                         ->setStatusLabel('Inactive Job Posting');
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            if (empty($possibleApprovers)) {
+                                $possibleApprover = new RequestPossibleApprovers();
+                                $possibleApprover->setPossibleApprover($request->getCreatedBy());
+                                $possibleApprover->setRequest($request);
+                                $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                                $possibleApprover->setNotificationTitle("<strong>{$loggedInUser->getFullName()}</strong> responded to your job board request - \"{$request->getSummary()}\"");
+                                $this->entityManager->persist($possibleApprover);
+                                $possibleApprovers = [$possibleApprover];
+                            }
+
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+                };
+
+                break;
+
+            case \App\Entity\Request::REQUEST_TYPE_NEW_REGISTRATION:
+
+                $experienceId   = $httpRequest->query->get('experience_id');
+                $experience     = $this->experienceRepository->find($experienceId);
+                $userToRegister = $request->getCreatedBy();
+
+                if (!empty($request->getNotification()['data']['user_to_register'])) {
+                    $userToRegister = $request->getNotification()['data']['user_to_register'];
+                    $userToRegister = $this->userRepository->find($userToRegister);
+                }
+
+                $template = 'request/modal/new_registration.html.twig';
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST) {
+                    $template = 'request/modal/registration_list.html.twig';
+                }
+
+                $context = [
+                    'experience' => $experience,
+                    'request' => $request,
+                    'loggedInUser' => $loggedInUser,
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $requestAction, $action, $loggedInUser, $sendMessageForm, $httpRequest, $experience,
+                    $userToRegister, &
+                    $template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $userToRegister,
+                            'experience' => $experience,
+                        ]);
+
+                        if (!$registration) {
+                            $registration = new Registration();
+                            $registration->setUser($userToRegister);
+                            $registration->setExperience($experience);
+                            $this->entityManager->persist($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                ->setStatusLabel('Registration has been approved');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+
+                            $this->requestsMailer->userRegisterationApproved($possibleApprover->getPossibleApprover(), $experience);
+
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER,
+                            ]);
+
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $userToRegister,
+                            'experience' => $experience,
+                        ]);
+
+                        if ($registration) {
+                            $this->entityManager->remove($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Registration has been denied');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_UNREGISTER) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $userToRegister,
+                            'experience' => $experience,
+                        ]);
+
+                        if ($registration) {
+                            $this->entityManager->remove($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_UNREGISTER);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_UNREGISTERED)
+                                ->setStatusLabel('Unregistered');
+
+                        if ($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+                            $createdByApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                RequestAction::REQUEST_ACTION_NAME_REGISTER,
+                            ]);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+
+                            $possibleApprover->setPossibleActions(
+                                [
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST,
+                                ]
+                            );
+
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_REGISTER) {
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Registration Pending Approval');
+
+                        if ($createdByApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser)) {
+                            $createdByApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                RequestAction::REQUEST_ACTION_NAME_UNREGISTER,
+                            ]);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+
+                            $possibleApprover->setPossibleActions(
+                                [
+                                    RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                    RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST,
+                                ]
+                            );
+
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        $registration = $this->registrationRepository->findOneBy([
+                            'user' => $userToRegister,
+                            'experience' => $experience,
+                        ]);
+
+                        if ($registration) {
+                            $this->entityManager->remove($registration);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Registration Pending Approval');
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        /** @var RequestPossibleApprovers $possibleApprover */
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            if (empty($possibleApprovers)) {
+                                $possibleApprover = new RequestPossibleApprovers();
+                                $possibleApprover->setPossibleApprover($request->getCreatedBy());
+                                $possibleApprover->setRequest($request);
+                                $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                                $possibleApprover->setNotificationTitle("<strong>{$loggedInUser->getFullName()}</strong> responded to your job board request - \"{$request->getSummary()}\"");
+                                $this->entityManager->persist($possibleApprover);
+                                $possibleApprovers = [$possibleApprover];
+                            }
+
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+                };
+
+                break;
+
+            default:
+                $template = 'request/modal/default.html.twig';
+                $context  = [
+                    'request' => $request,
+                ];
+                break;
+        }
+
+        if ($httpRequest->getMethod() === 'POST') {
+            $requestActionHandler();
+            $emailHandler();
+
+            //return $this->redirectToRoute('requests');
+        }
+
+        return new JsonResponse(
+            [
+                'formMarkup' => $this->renderView($template, $context),
+            ], Response::HTTP_OK
+        );
     }
 
     /**
@@ -355,124 +1532,6 @@ class RequestController extends AbstractController
     {
 
         switch ($request->getClassName()) {
-            case 'NewCompanyRequest':
-                /** @var NewCompanyRequest $request */
-                $request->setApproved(true);
-                $company = $request->getCompany();
-                $company->setApproved(true);
-                $this->entityManager->persist($company);
-                $this->addFlash('success', 'Company approved');
-                $this->requestsMailer->newCompanyRequestApproval($request);
-                break;
-            case 'JoinCompanyRequest':
-                /** @var JoinCompanyRequest $request */
-                $request->setApproved(true);
-                if ($request->getIsFromCompany()) {
-                    /** @var ProfessionalUser $needsApprovalBy */
-                    $needsApprovalBy = $request->getNeedsApprovalBy();
-                    $needsApprovalBy->setupAsProfessional();
-                    $needsApprovalBy->setCompany($request->getCompany());
-                    $needsApprovalBy->agreeToTerms();
-                    $this->entityManager->persist($needsApprovalBy);
-                    $this->addFlash('success', 'You have joined the company!');
-                } else {
-                    /** @var ProfessionalUser $createdBy */
-                    $createdBy = $request->getCreatedBy();
-                    $createdBy->setupAsProfessional();
-                    $createdBy->setCompany($request->getCompany());
-                    $createdBy->agreeToTerms();
-                    $this->entityManager->persist($createdBy);
-                    $this->addFlash('success', 'User successfully added to company!');
-                }
-                $this->requestsMailer->joinCompanyRequestApproval($request);
-                break;
-            case 'TeachLessonRequest':
-                /** @var TeachLessonRequest $request */
-                $request->setApproved(true);
-                /** @var ProfessionalUser $needsApprovalBy */
-                $needsApprovalBy = $request->getNeedsApprovalBy();
-
-                $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                // we must have an end date so let's just set it for 2 hours from the start
-                $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                $endDate->add(new DateInterval('PT2H'));
-                $teachLessonExperience = new TeachLessonExperience();
-                $teachLessonExperience->setStartDateAndTime($date);
-                $teachLessonExperience->setEndDateAndTime($endDate);
-                $teachLessonExperience->setTitle(sprintf("
-                Topics: %s with Guest Instructor %s, %s in %s Class
-                ", $request->getLesson()->getTitle(), $needsApprovalBy->getFullName(), date_format($date, 'F jS Y'), $request->getCreatedBy()->getFullName()));
-                $teachLessonExperience->setBriefDescription(sprintf("%s", $request->getLesson()->getShortDescription()));
-                $teachLessonExperience->setOriginalRequest($request);
-
-
-                // let's go ahead and add the professional as a registration on this event
-                $professionalRegistration = new Registration();
-                $educatorRegistration     = new Registration();
-                if ($request->getIsFromProfessional()) {
-                    $professionalRegistration->setUser($request->getCreatedBy());
-                    $educatorRegistration->setUser($request->getNeedsApprovalBy());
-                    $teachLessonExperience->setTeacher($request->getCreatedBy());
-                    $teachLessonExperience->setSchool($request->getNeedsApprovalBy()->getSchool());
-                } else {
-                    $professionalRegistration->setUser($request->getNeedsApprovalBy());
-                    $educatorRegistration->setUser($request->getCreatedBy());
-                    $teachLessonExperience->setTeacher($request->getNeedsApprovalBy());
-                    $teachLessonExperience->setSchool($request->getCreatedBy()->getSchool());
-                }
-
-                $professionalRegistration->setExperience($teachLessonExperience);
-                $educatorRegistration->setExperience($teachLessonExperience);
-                $this->entityManager->persist($professionalRegistration);
-                $this->entityManager->persist($educatorRegistration);
-
-                // let's go ahead and add the students as registrations to the event
-                if ($request->getIsFromProfessional()) {
-                    /** @var EducatorUser $educator */
-                    $educator = $request->getNeedsApprovalBy();
-                } else {
-                    /** @var EducatorUser $educator */
-                    $educator = $request->getCreatedBy();
-                }
-                foreach ($educator->getStudentUsers() as $studentUser) {
-                    $studentRegistration = new Registration();
-                    $studentRegistration->setExperience($teachLessonExperience);
-                    $studentRegistration->setUser($studentUser);
-                    $this->entityManager->persist($studentRegistration);
-                }
-
-                /** @var School $school */
-                $school = $request->getCreatedBy()->getSchool();
-
-                // the CSV school import fixtures did not have emails so we need to check for them!
-                if ($school->getEmail()) {
-                    $teachLessonExperience->setEmail($school->getEmail());
-                }
-
-                if ($school->getStreet()) {
-                    $teachLessonExperience->setStreet($school->getStreet());
-                }
-
-                if ($school->getCity()) {
-                    $teachLessonExperience->setCity($school->getCity());
-                }
-
-                if ($school->getState()) {
-                    $teachLessonExperience->setState($school->getState());
-                }
-
-                if ($school->getZipcode()) {
-                    $teachLessonExperience->setZipcode($school->getZipcode());
-                }
-
-                $this->entityManager->persist($teachLessonExperience);
-                $this->addFlash('success', 'You have accepted the invite to teach!');
-
-                // not all educators have an email address.
-                if ($request->getCreatedBy()->getEmail()) {
-                    $this->requestsMailer->teachLessonRequestApproval($request);
-                }
-                break;
             case 'EducatorRegisterStudentForCompanyExperienceRequest':
                 /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
                 $studentUser = $request->getStudentUser();
@@ -761,48 +1820,118 @@ class RequestController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $requestEntity = new RequestEntity();
-        $requestEntity->setRequestType(RequestEntity::REQUEST_TYPE_JOB_BOARD);
+        $jobBoardRequest = new RequestEntity();
+        $jobBoardRequest->setRequestType(RequestEntity::REQUEST_TYPE_JOB_BOARD);
 
-        $form = $this->createForm(CreateRequestFormType::class, $requestEntity, [
-            'skip_validation' => $request->request->get('skip_validation', false)
+        $form = $this->createForm(CreateRequestFormType::class, $jobBoardRequest, [
+            'skip_validation' => $request->request->get('skip_validation', false),
         ]);
 
         $form->handleRequest($request);
 
-        if($form->get('delete')->isClicked()) {
+        if ($form->get('delete')->isClicked()) {
             $this->addFlash('success', 'Your request has been deleted.');
+
             return $this->redirectToRoute('new_request');
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var RequestEntity $requestEntity */
-            $requestEntity = $form->getData();
-            $requestEntity->setCreatedBy($user);
-
-            if($form->get('postAndReview')->isClicked()) {
-
-                $requestEntity->setPublished(true);
-                $this->entityManager->persist($requestEntity);
-                $this->entityManager->flush();
-                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
-            }
-
-            if($form->get('saveAndPreview')->isClicked()) {
-                $requestEntity->setPublished(false);
-                $this->entityManager->persist($requestEntity);
-                $this->entityManager->flush();
-                return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
-            }
-
-            $this->entityManager->persist($requestEntity);
+            /** @var RequestEntity $jobBoardRequest */
+            $jobBoardRequest = $form->getData();
+            $jobBoardRequest->setCreatedBy($user);
+            $this->entityManager->persist($jobBoardRequest);
             $this->entityManager->flush();
+
+            $requestActionUrl = $this->generateUrl('request_action', [
+                'request_id' => $jobBoardRequest->getId(),
+            ]);
+
+            $jobBoardRequest->setActionUrl($requestActionUrl);
+
+            $jobBoardRequest->setNotification([
+                'title' => "<strong>{$user->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"",
+                'data' => [
+                    'educator_id' => $user->getId(),
+                ],
+                'user_photo' => $user->getPhotoPath(),
+                'user_photos' => [],
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => [],
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>Job Board Request</a>",
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                    ],
+                    'Summary' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>{$jobBoardRequest->getSummary()}</a>",
+                    ],
+                    'Description' => [
+                        'order' => 4,
+                        'value' => $jobBoardRequest->getDescription(),
+                    ],
+                    'Volunteers Needed' => [
+                        'order' => 5,
+                        'value' => implode(", ", array_map(function (RolesWillingToFulfill $rolesWillingToFulfill) {
+                            return $rolesWillingToFulfill->getName();
+                        }, $jobBoardRequest->getVolunteerRoles()->toArray())),
+                    ],
+                    'Volunteer Career Sector(s)' => [
+                        'order' => 6,
+                        'value' => implode(", ", array_map(function (Industry $industry) {
+                            return $industry->getName();
+                        }, $jobBoardRequest->getPrimaryIndustries()->toArray())),
+                    ],
+                    'Created On' => [
+                        'order' => 7,
+                        'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                    ],
+                ],
+            ]);
+
+            $createdByApprover = new RequestPossibleApprovers();
+            $createdByApprover->setPossibleApprover($user);
+            $createdByApprover->setRequest($jobBoardRequest);
+            $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE,
+                                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE,
+            ]);
+            $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
+            $this->entityManager->persist($createdByApprover);
+
+            if ($form->get('postAndReview')->isClicked()) {
+
+                $jobBoardRequest->setPublished(true);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
+                $jobBoardRequest->setStatusLabel('Active job posting');
+                $jobBoardRequest->setRequestActionAt(new \DateTime());
+                $createdByApprover->setNotificationDate(new DateTime());
+
+                $this->entityManager->flush();
+
+                // dispatch message
+                $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
+
+                return $this->redirectToRoute('view_request', ['id' => $jobBoardRequest->getId()]);
+            }
+
+            if ($form->get('saveAndPreview')->isClicked()) {
+                $jobBoardRequest->setPublished(false);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE);
+                $jobBoardRequest->setStatusLabel('Inactive job posting');
+                $this->entityManager->flush();
+
+                return $this->redirectToRoute('view_request', ['id' => $jobBoardRequest->getId()]);
+            }
         }
 
         return $this->render('request/new.html.twig', [
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -814,60 +1943,116 @@ class RequestController extends AbstractController
      * @param Request       $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function editRequest(RequestEntity $requestEntity, Request $request)
     {
         /** @var User $user */
         $user = $this->getUser();
-        $publish = $request->query->get('publish', null);
 
         $accessDenied = (
-          $requestEntity->getCreatedBy() &&
-          $requestEntity->getCreatedBy()->getId() !== $user->getId()
+            $requestEntity->getCreatedBy() &&
+            $requestEntity->getCreatedBy()->getId() !== $user->getId()
         );
 
-        if($accessDenied) {
+        if ($accessDenied) {
             throw new AccessDeniedException();
-        }
-
-        if($publish) {
-            $requestEntity->setPublished(true);
-            $this->entityManager->persist($requestEntity);
-            $this->entityManager->flush();
-            return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
         }
 
         $form = $this->createForm(EditRequestFormType::class, $requestEntity, [
             'skip_validation' => $request->request->get('skip_validation', false),
-            'requestEntity' => $requestEntity
+            'requestEntity' => $requestEntity,
         ]);
 
         $form->handleRequest($request);
 
-        if($form->get('delete')->isClicked()) {
+        if ($form->get('delete')->isClicked()) {
             $this->entityManager->remove($requestEntity);
             $this->entityManager->flush();
             $this->addFlash('success', 'Your request has been deleted.');
+
             return $this->redirectToRoute('new_request');
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var RequestEntity $requestEntity */
-            $requestEntity = $form->getData();
+            /** @var RequestEntity $jobBoardRequest */
+            $jobBoardRequest = $form->getData();
+            $mesages         = $jobBoardRequest->getNotification()['messages'];
+            $createdOn       = $jobBoardRequest->getNotification()['body']['Created On'];
 
-            if($form->get('postAndReview')->isClicked()) {
+            $jobBoardRequest->setNotification([
+                'title' => "<strong>{$user->getFullName()}</strong> posted a new job board request - \"{$jobBoardRequest->getSummary()}\"",
+                'data' => [
+                    'educator_id' => $user->getId(),
+                ],
+                'user_photo' => $user->getPhotoPath(),
+                'user_photos' => [],
+                'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+                'messages' => $mesages,
+                'body' => [
+                    'Request Type' => [
+                        'order' => 1,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>Job Board Request</a>",
+                    ],
+                    'Initiated By' => [
+                        'order' => 2,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                    ],
+                    'Summary' => [
+                        'order' => 3,
+                        'value' => "<a target='_blank' href='{$this->generateUrl('view_request', ['id' => $jobBoardRequest->getId()])}'>{$jobBoardRequest->getSummary()}</a>",
+                    ],
+                    'Description' => [
+                        'order' => 4,
+                        'value' => $jobBoardRequest->getDescription(),
+                    ],
+                    'Volunteers Needed' => [
+                        'order' => 5,
+                        'value' => implode(", ", array_map(function (RolesWillingToFulfill $rolesWillingToFulfill) {
+                            return $rolesWillingToFulfill->getName();
+                        }, $jobBoardRequest->getVolunteerRoles()->toArray())),
+                    ],
+                    'Volunteer Career Sector(s)' => [
+                        'order' => 6,
+                        'value' => implode(", ", array_map(function (Industry $industry) {
+                            return $industry->getName();
+                        }, $jobBoardRequest->getPrimaryIndustries()->toArray())),
+                    ],
+                    'Created On' => $createdOn,
+                ],
+            ]);
 
-                $requestEntity->setPublished(true);
-                $this->entityManager->persist($requestEntity);
+
+            if ($form->get('postAndReview')->isClicked()) {
+
+                $jobBoardRequest->setPublished(true);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
+                $jobBoardRequest->setStatusLabel('Active job posting');
+                $jobBoardRequest->setRequestActionAt(new \DateTime());
+
+                /** @var RequestPossibleApprovers $createdByApprover */
+                if ($createdByApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
+                    $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
+                    $createdByApprover->setNotificationDate(new DateTime());
+                }
+
                 $this->entityManager->flush();
+
+                $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
+
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
 
-            if($form->get('saveAndPreview')->isClicked()) {
-                $requestEntity->setPublished(false);
-                $this->entityManager->persist($requestEntity);
+            if ($form->get('saveAndPreview')->isClicked()) {
+                $jobBoardRequest->setPublished(false);
+                $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_INACTIVE);
+                $jobBoardRequest->setStatusLabel('Inactive job posting');
+                $this->entityManager->persist($jobBoardRequest);
                 $this->entityManager->flush();
+
+                $status = $this->dispatchMessage(new CreateJobBoardRequest($jobBoardRequest->getId()));
+
                 return $this->redirectToRoute('view_request', ['id' => $requestEntity->getId()]);
             }
 
@@ -877,7 +2062,7 @@ class RequestController extends AbstractController
 
         return $this->render('request/edit.html.twig', [
             'form' => $form->createView(),
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -891,11 +2076,16 @@ class RequestController extends AbstractController
     public function viewRequest(RequestEntity $requestEntity, Request $request)
     {
 
+        /** @var User $user */
         $user = $this->getUser();
+
+        if ($requestEntity->getParentRequest() && $requestEntity->getCreatedBy()->getId() === $user->getId()) {
+            return $this->redirectToRoute('view_request', ['id' => $requestEntity->getParentRequest()->getId()]);
+        }
 
         return $this->render('request/view.html.twig', [
             'user' => $user,
-            'request' => $requestEntity
+            'request' => $requestEntity,
         ]);
     }
 

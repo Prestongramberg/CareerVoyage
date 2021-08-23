@@ -1,7 +1,7 @@
 <div class="uk-visible-toggle" tabindex="-1" uk-slideshow>
 
     <ul class="uk-slideshow-items" style="{{ experiences|length > 4 ? 'height: 360px' : '' }}">
-        {% for experienceBatch in experiences|sort((a, b) => a.title <=> b.title)|batch(4) %}
+        {% for experienceBatch in experiences|batch(4) %}
             <li class="uk-overflow-auto" style="position: absolute">
 
                 <table class="uk-table uk-table-small uk-table-divider">

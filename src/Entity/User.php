@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -329,6 +330,11 @@ abstract class User implements UserInterface
      */
     private $userMetas;
 
+    /**
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user")
+     */
+    private $requestActions;
+
 
     /**
      * @ORM\PrePersist
@@ -355,6 +361,7 @@ abstract class User implements UserInterface
         $this->companyViews                            = new ArrayCollection();
         $this->reportShares                            = new ArrayCollection();
         $this->userMetas = new ArrayCollection();
+        $this->requestActions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -720,6 +727,44 @@ abstract class User implements UserInterface
         }
 
         return false;
+    }
+
+    public function isCompanyOwner() {
+
+        if(!$this instanceof ProfessionalUser) {
+            return false;
+        }
+
+        if(!$this->getCompany()) {
+            return false;
+        }
+
+        if(!$this->getCompany()->getOwner()) {
+            return false;
+        }
+
+        if($this->getCompany()->getOwner()->getId() !== $this->getId()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canBeInvitedToCompany($company) {
+
+        if(!$this instanceof ProfessionalUser) {
+            return false;
+        }
+
+        if($this->isCompanyOwner()) {
+            return false;
+        }
+
+        if($this->getCompany()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function setupAsAdmin()
@@ -1700,5 +1745,54 @@ abstract class User implements UserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|RequestAction[]
+     */
+    public function getRequestActions(): Collection
+    {
+        return $this->requestActions;
+    }
+
+    public function addRequestAction(RequestAction $requestAction): self
+    {
+        if (!$this->requestActions->contains($requestAction)) {
+            $this->requestActions[] = $requestAction;
+            $requestAction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestAction(RequestAction $requestAction): self
+    {
+        if ($this->requestActions->removeElement($requestAction)) {
+            // set the owning side to null (unless already changed)
+            if ($requestAction->getUser() === $this) {
+                $requestAction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setAvatarProfilePhotoIfNeeded($uploadsPath) {
+
+        if (!$this->getPhoto() && $this->getFirstName() && $this->getLastName()) {
+
+            $avatarUrl    = sprintf("https://ui-avatars.com/api/?name=%s+%s&background=random&size=128", $this->getFirstName(), $this->getLastName());
+            $fileContents = file_get_contents($avatarUrl);
+
+            $filesystem  = new Filesystem();
+            $destination = $uploadsPath . '/' . UploaderHelper::PROFILE_PHOTO;
+            $fileName = uniqid('', true) . '.png';
+            $filesystem->dumpFile($destination . '/' . $fileName, $fileContents);
+            $this->setPhoto($fileName);
+
+            return true;
+        }
+
+        return false;
     }
 }

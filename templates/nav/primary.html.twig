@@ -23,7 +23,7 @@
             <li><a href="{{ path('company_results_page') }}">Find Companies</a></li>
             <li><a href="{{ path('professional_results_page') }}">Find Professionals</a></li>
             <li><a href="{{ path('educator_results_page') }}">Find Educators</a></li>
-            <li><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}({{ pending_requests(user) }}){% endif %}</a></li>
+            <li style="position: relative"><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}<span style="right: 90px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
             <li><a href="{{ path('knowledge-base') }}">Search Resources</a></li>
             <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
             {% if user.isAdmin == true %}
@@ -60,9 +60,7 @@
                 <div>
                     <div class="main-navigation__meta uk-inline">
                         <a href="{{ path('requests') }}" class="main-navigation__meta-requests">
-                            {% if pending_requests(user) > 0 %}
-                                <span class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>
-                            {% endif %}
+                            {% if pending_requests(user) > 0 %}<span class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}
                             <i class="fa fa-paper-plane" aria-hidden="true"></i>
                         </a>
                         <span class="main-navigation__meta-profile">

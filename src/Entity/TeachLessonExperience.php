@@ -14,12 +14,6 @@ class TeachLessonExperience extends Experience
 {
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\TeachLessonRequest", inversedBy="teachLessonExperience", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="original_request_id", referencedColumnName="id", onDelete="CASCADE")
-     */
-    private $originalRequest;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="teachLessonExperiences")
      */
     private $teacher;
@@ -41,23 +35,16 @@ class TeachLessonExperience extends Experience
      */
     private $studentReviewTeachLessonExperienceFeedback;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Lesson::class, inversedBy="teachLessonExperiences")
+     */
+    private $lesson;
+
     public function __construct()
     {
         parent::__construct();
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
-    }
-
-    public function getOriginalRequest(): ?TeachLessonRequest
-    {
-        return $this->originalRequest;
-    }
-
-    public function setOriginalRequest(?TeachLessonRequest $originalRequest): self
-    {
-        $this->originalRequest = $originalRequest;
-
-        return $this;
     }
 
     public function getTeacher(): ?ProfessionalUser
@@ -142,6 +129,18 @@ class TeachLessonExperience extends Experience
                 $studentReviewTeachLessonExperienceFeedback->setTeachLessonExperience(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLesson(): ?Lesson
+    {
+        return $this->lesson;
+    }
+
+    public function setLesson(?Lesson $lesson): self
+    {
+        $this->lesson = $lesson;
 
         return $this;
     }

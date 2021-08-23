@@ -166,11 +166,6 @@ class Lesson
     private $secondaryIndustries;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\TeachLessonRequest", mappedBy="lesson", orphanRemoval=true)
-     */
-    private $teachLessonRequests;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="lesson", orphanRemoval=true)
      */
     private $studentReviewTeachLessonExperienceFeedback;
@@ -180,6 +175,11 @@ class Lesson
      */
     private $educatorReviewTeachLessonExperienceFeedback;
 
+    /**
+     * @ORM\OneToMany(targetEntity=TeachLessonExperience::class, mappedBy="lesson")
+     */
+    private $teachLessonExperiences;
+    
     public function __construct()
     {
         $this->grades = new ArrayCollection();
@@ -188,9 +188,9 @@ class Lesson
         $this->lessonTeachables = new ArrayCollection();
         $this->lessonResources = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
-        $this->teachLessonRequests = new ArrayCollection();
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
+        $this->teachLessonExperiences = new ArrayCollection();
     }
 
     public function getId()
@@ -640,37 +640,6 @@ class Lesson
     }
 
     /**
-     * @return Collection|TeachLessonRequest[]
-     */
-    public function getTeachLessonRequests(): Collection
-    {
-        return $this->teachLessonRequests;
-    }
-
-    public function addTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
-    {
-        if (!$this->teachLessonRequests->contains($teachLessonRequest)) {
-            $this->teachLessonRequests[] = $teachLessonRequest;
-            $teachLessonRequest->setLesson($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTeachLessonRequest(TeachLessonRequest $teachLessonRequest): self
-    {
-        if ($this->teachLessonRequests->contains($teachLessonRequest)) {
-            $this->teachLessonRequests->removeElement($teachLessonRequest);
-            // set the owning side to null (unless already changed)
-            if ($teachLessonRequest->getLesson() === $this) {
-                $teachLessonRequest->setLesson(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|StudentReviewTeachLessonExperienceFeedback[]
      */
     public function getStudentReviewTeachLessonExperienceFeedback(): Collection
@@ -732,4 +701,33 @@ class Lesson
         return $this;
     }
 
+    /**
+     * @return Collection|TeachLessonExperience[]
+     */
+    public function getTeachLessonExperiences(): Collection
+    {
+        return $this->teachLessonExperiences;
+    }
+
+    public function addTeachLessonExperience(TeachLessonExperience $teachLessonExperience): self
+    {
+        if (!$this->teachLessonExperiences->contains($teachLessonExperience)) {
+            $this->teachLessonExperiences[] = $teachLessonExperience;
+            $teachLessonExperience->setLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeachLessonExperience(TeachLessonExperience $teachLessonExperience): self
+    {
+        if ($this->teachLessonExperiences->removeElement($teachLessonExperience)) {
+            // set the owning side to null (unless already changed)
+            if ($teachLessonExperience->getLesson() === $this) {
+                $teachLessonExperience->setLesson(null);
+            }
+        }
+
+        return $this;
+    }
 }

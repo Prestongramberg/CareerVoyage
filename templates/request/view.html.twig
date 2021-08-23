@@ -12,7 +12,7 @@
     <div class="uk-container">
 
         {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
-            {% if request.published %}
+            {% if request.status == constant('App\\Entity\\Request::REQUEST_STATUS_ACTIVE') %}
                 <div class="uk-alert-success" uk-alert>
                     <h3 class="uk-margin-remove-bottom" style="color: #333">Your request is live on FutureForward!</h3>
                     <p class="uk-margin-remove-top" style="color: #666">
@@ -21,7 +21,7 @@
                         If they’re interested in helping out, they’ll reach out via chat to start a conversation.
                     </p>
                 </div>
-            {% else %}
+            {% elseif request.status == constant('App\\Entity\\Request::REQUEST_STATUS_INACTIVE') %}
                 <div class="uk-alert-warning" uk-alert>
                     <h3 class="uk-margin-remove-bottom" style="color: #333">This is a draft request and is hidden from
                         professionals on FutureForward</h3>
@@ -31,7 +31,7 @@
                         If they’re interested in helping out, they’ll reach out via chat to start a conversation.
                     </p>
 
-                    <a style="color:#2185E6" href="{{ path('edit_request', {id: request.id}) }}?publish=1">Publish to
+                    <a style="color:#2185E6" href="{{ path('edit_request', {id: request.id}) }}">Publish to
                         professionals by converting this request from a draft to a live request.</a>
                 </div>
             {% endif %}
@@ -103,20 +103,35 @@
             <h4>Are you interested in helping out? {{ request.createdBy.firstName }} and our students would be very
                 appreciative!</h4>
 
-            <p style="margin-bottom: 5px">The first step is to have a high-level conversation with Austin to confirm that the request is still open
+            <p style="margin-bottom: 5px">The first step is to have a high-level conversation with Austin to confirm
+                that the request is still open
                 and to ask any questions you might have about the request..</p>
 
-            <p style="margin-top: 5px; margin-bottom: 5px"><strong>You’re not committing to anything by starting a conversation.</strong> If it’s a good fit for both of you, then
+            <p style="margin-top: 5px; margin-bottom: 5px"><strong>You’re not committing to anything by starting a
+                    conversation.</strong> If it’s a good fit for both of you, then
                 you’ll start discussing the details!</p>
 
-            <button style="margin-top: 5px" class="uk-button uk-button-primary uk-button-small" type="button" data-message-user-id="{{ request.createdBy.id }}">Start a chat with {{ request.createdBy.firstName }}</button>
+
+            {% if request.notification %}
+
+                <a class="uk-button uk-button-primary uk-button-small"
+                   href="{{ path('requests', {id: request.id, action: constant('App\\Entity\\RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE')}) }}">Start
+                    a chat with {{ request.createdBy.firstName }}</a>
+            {% else %}
+                <button class="uk-button uk-button-primary uk-button-small"
+                        data-message-user-id="{{ request.createdBy.id }}">Start a chat with {{ request.createdBy.firstName }}
+                </button>
+            {% endif %}
+
+
 
         {% endif %}
 
         {% if request.createdBy is not null and request.wasCreatedByUser(user) %}
             <h4>Share this request with specific professionals who you think may be a good fit</h4>
 
-            <p style="margin-bottom: 5px">If you have found professionals on FutureForward who you may think are a good fit for this request, you
+            <p style="margin-bottom: 5px">If you have found professionals on FutureForward who you may think are a good
+                fit for this request, you
                 can
                 share it with them to see if they’re interested. Once you share the request with a professional, they
                 will

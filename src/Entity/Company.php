@@ -150,18 +150,6 @@ class Company
     private $companyResources;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\JoinCompanyRequest", mappedBy="company", cascade={"remove"})
-     */
-    private $joinCompanyRequests;
-
-    /**
-     * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
-     *
-     * @ORM\OneToOne(targetEntity="App\Entity\NewCompanyRequest", mappedBy="company", cascade={"remove"})
-     */
-    private $newCompanyRequest;
-
-    /**
      * @Assert\NotBlank(message="Don't forget an owner!", groups={"EDIT"})
      * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="ownedCompany")
      * @JoinColumn(onDelete="SET NULL")
@@ -306,7 +294,6 @@ class Company
         $this->professionalUsers = new ArrayCollection();
         $this->companyPhotos = new ArrayCollection();
         $this->companyResources = new ArrayCollection();
-        $this->joinCompanyRequests = new ArrayCollection();
         $this->companyFavorites = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
         $this->schools = new ArrayCollection();
@@ -637,54 +624,6 @@ class Company
             return '/uploads/' . $this->getFeaturedImagePath();
         }
         return '';
-    }
-
-    /**
-     * @return Collection|JoinCompanyRequest[]
-     */
-    public function getJoinCompanyRequests()
-    {
-        return $this->joinCompanyRequests;
-    }
-
-    public function addJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest)
-    {
-        if (!$this->joinCompanyRequests->contains($joinCompanyRequest)) {
-            $this->joinCompanyRequests[] = $joinCompanyRequest;
-            $joinCompanyRequest->setCompany($this);
-        }
-
-        return $this;
-    }
-
-    public function removeJoinCompanyRequest(JoinCompanyRequest $joinCompanyRequest)
-    {
-        if ($this->joinCompanyRequests->contains($joinCompanyRequest)) {
-            $this->joinCompanyRequests->removeElement($joinCompanyRequest);
-            // set the owning side to null (unless already changed)
-            if ($joinCompanyRequest->getCompany() === $this) {
-                $joinCompanyRequest->setCompany(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getNewCompanyRequest()
-    {
-        return $this->newCompanyRequest;
-    }
-
-    public function setNewCompanyRequest(NewCompanyRequest $newCompanyRequest)
-    {
-        $this->newCompanyRequest = $newCompanyRequest;
-
-        // set the owning side of the relation if necessary
-        if ($this !== $newCompanyRequest->getCompany()) {
-            $newCompanyRequest->setCompany($this);
-        }
-
-        return $this;
     }
 
     public function getOwner()
@@ -1050,29 +989,29 @@ class Company
 	 * @return string
 	 */
 	public function getGeoRadius(): ?string {
-                              		return $this->geoRadius;
-                              	}
+                                             		return $this->geoRadius;
+                                             	}
 
 	/**
 	 * @param string $geoRadius
 	 */
 	public function setGeoRadius( ?string $geoRadius ): void {
-                              		$this->geoRadius = $geoRadius;
-                              	}
+                                             		$this->geoRadius = $geoRadius;
+                                             	}
 
 	/**
 	 * @return string
 	 */
 	public function getGeoZipCode(): ?string {
-                              		return $this->geoZipCode;
-                              	}
+                                             		return $this->geoZipCode;
+                                             	}
 
 	/**
 	 * @param string $geoZipCode
 	 */
 	public function setGeoZipCode( ?string $geoZipCode ): void {
-                              		$this->geoZipCode = $geoZipCode;
-                              	}
+                                             		$this->geoZipCode = $geoZipCode;
+                                             	}
 
     /**
      * @return Collection|Region[]

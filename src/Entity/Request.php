@@ -17,9 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({
  *     "request" = "Request",
- *     "newCompanyRequest" = "NewCompanyRequest",
- *     "joinCompanyRequest" = "JoinCompanyRequest",
- *     "teachLessonRequest" = "TeachLessonRequest",
  *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
  *     "educatorRegisterEducatorForCompanyExperienceRequest" = "EducatorRegisterEducatorForCompanyExperienceRequest",
  *     "schoolAdminRegisterSAForCompanyExperienceRequest" = "SchoolAdminRegisterSAForCompanyExperienceRequest",
@@ -38,7 +35,20 @@ class Request
     const OPPORTUNITY_TYPE_VIRTUAL_OR_IN_PERSON = 'VIRTUAL_OR_IN_PERSON';
     const OPPORTUNITY_TYPE_TO_BE_DETERMINED     = 'TO_BE_DETERMINED';
 
-    const REQUEST_TYPE_JOB_BOARD = 'JOB_BOARD';
+    const REQUEST_TYPE_JOB_BOARD           = 'JOB_BOARD';
+    const REQUEST_TYPE_NEW_COMPANY         = 'NEW_COMPANY';
+    const REQUEST_TYPE_JOIN_COMPANY        = 'JOIN_COMPANY';
+    const REQUEST_TYPE_COMPANY_INVITE      = 'COMPANY_INVITE';
+    const REQUEST_TYPE_TEACH_LESSON_INVITE = 'TEACH_LESSON_INVITE';
+    const REQUEST_TYPE_NOTIFICATION        = 'NOTIFICATION';
+    const REQUEST_TYPE_NEW_REGISTRATION    = 'NEW_REGISTRATION';
+
+    const REQUEST_STATUS_PENDING      = 'PENDING';
+    const REQUEST_STATUS_APPROVED     = 'APPROVED';
+    const REQUEST_STATUS_DENIED       = 'DENIED';
+    const REQUEST_STATUS_ACTIVE       = 'ACTIVE';
+    const REQUEST_STATUS_INACTIVE     = 'INACTIVE';
+    const REQUEST_STATUS_UNREGISTERED = 'UNREGISTERED';
 
     public static $opportunityTypes = [
         'Virtual' => self::OPPORTUNITY_TYPE_VIRTUAL,
@@ -183,12 +193,79 @@ class Request
      */
     private $requestType;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $actionUrl;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $needsApprovalByRoles = [];
+
+    /**
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request", cascade={"remove"})
+     */
+    private $requestActions;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $possibleActions = [];
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $notification = [];
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $statusLabel;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Experience::class, mappedBy="request")
+     */
+    private $experience;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $hasNewNotification = false;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="parentRequest")
+     */
+    private $request;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="requests")
+     */
+    private $parentRequest;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Request::class, mappedBy="parentRequest")
+     */
+    private $requests;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $requestActionAt;
+
     public function __construct()
     {
         $this->requestPossibleApprovers = new ArrayCollection();
         $this->volunteerRoles           = new ArrayCollection();
         $this->primaryIndustries        = new ArrayCollection();
         $this->shares                   = new ArrayCollection();
+        $this->requestActions           = new ArrayCollection();
+        $this->requests                 = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -370,6 +447,56 @@ class Request
         return $this;
     }
 
+    public function getAssociatedRequestPossibleApproverForUser(User $user)
+    {
+
+        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function (RequestPossibleApprovers $requestPossibleApprovers
+        ) use ($user) {
+            if (!$requestPossibleApprovers->getPossibleApprover()) {
+                return false;
+            }
+
+            if ($user->getId() !== $requestPossibleApprovers->getPossibleApprover()->getId()) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $requestPossibleApprovers = array_values($requestPossibleApprovers);
+
+        if (!empty($requestPossibleApprovers)) {
+            return $requestPossibleApprovers[0];
+        }
+
+        return null;
+    }
+
+    public function getAssociatedRequestPossibleApproversNotEqualToUser(User $user, $oneOrNull = false)
+    {
+
+        $requestPossibleApprovers = array_filter($this->requestPossibleApprovers->toArray(), function (RequestPossibleApprovers $requestPossibleApprovers
+        ) use ($user) {
+            if (!$requestPossibleApprovers->getPossibleApprover()) {
+                return false;
+            }
+
+            if ($user->getId() === $requestPossibleApprovers->getPossibleApprover()->getId()) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $requestPossibleApprovers = array_values($requestPossibleApprovers);
+
+        if ($oneOrNull) {
+            return $requestPossibleApprovers[0] ?? null;
+        }
+
+        return $requestPossibleApprovers ?? [];
+    }
+
     public function getSummary(): ?string
     {
         return $this->summary;
@@ -512,12 +639,413 @@ class Request
         return $this;
     }
 
-    public function getOpportunityTypeFriendlyName($opportunityType) {
+    public function getOpportunityTypeFriendlyName($opportunityType)
+    {
 
-        if(($key = array_search($opportunityType, self::$opportunityTypes, true)) !== false) {
+        if (($key = array_search($opportunityType, self::$opportunityTypes, true)) !== false) {
             return $key;
         }
 
         return $opportunityType;
+    }
+
+    public function getActionUrl(): ?string
+    {
+        return $this->actionUrl;
+    }
+
+    public function setActionUrl(?string $actionUrl): self
+    {
+        $this->actionUrl = $actionUrl;
+
+        return $this;
+    }
+
+    public function getNeedsApprovalByRoles(): ?array
+    {
+        return $this->needsApprovalByRoles;
+    }
+
+    public function setNeedsApprovalByRoles(?array $needsApprovalByRoles): self
+    {
+        $this->needsApprovalByRoles = $needsApprovalByRoles;
+
+        return $this;
+    }
+
+    /**
+     * @param $needsApprovalByRole
+     *
+     * @return $this
+     */
+    public function addNeedsApprovalByRole($needsApprovalByRole)
+    {
+
+        if (!in_array($needsApprovalByRole, $this->needsApprovalByRoles, true)) {
+            $this->needsApprovalByRoles[] = $needsApprovalByRole;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|RequestAction[]
+     */
+    public function getRequestActions(): Collection
+    {
+        return $this->requestActions;
+    }
+
+    public function addRequestAction(RequestAction $requestAction): self
+    {
+        if (!$this->requestActions->contains($requestAction)) {
+            $this->requestActions[] = $requestAction;
+            $requestAction->setRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestAction(RequestAction $requestAction): self
+    {
+        if ($this->requestActions->removeElement($requestAction)) {
+            // set the owning side to null (unless already changed)
+            if ($requestAction->getRequest() === $this) {
+                $requestAction->setRequest(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isApproved()
+    {
+
+        foreach ($this->getRequestActions() as $requestAction) {
+            if ($requestAction->getName() === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isDenied()
+    {
+
+        foreach ($this->getRequestActions() as $requestAction) {
+            if ($requestAction->getName() === RequestAction::REQUEST_ACTION_NAME_DENY) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isHidden()
+    {
+
+        foreach ($this->getRequestActions() as $requestAction) {
+            if ($requestAction->getName() === RequestAction::REQUEST_ACTION_NAME_HIDE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getPossibleActions(): ?array
+    {
+        return $this->possibleActions;
+    }
+
+    public function setPossibleActions(?array $possibleActions): self
+    {
+        $this->possibleActions = $possibleActions;
+
+        return $this;
+    }
+
+    public function addPossibleAction($actions)
+    {
+        $actions = is_array($actions) ? $actions : [$actions];
+
+        foreach ($actions as $action) {
+            if (!in_array($action, $this->possibleActions, true)) {
+                $this->possibleActions[] = $action;
+            }
+        }
+
+
+        return $this;
+    }
+
+    public function removePossibleAction($actions)
+    {
+        $actions = is_array($actions) ? $actions : [$actions];
+
+        foreach ($actions as $action) {
+
+            if (($key = array_search($action, $this->possibleActions)) !== false) {
+                unset($this->possibleActions[$key]);
+            }
+        }
+
+        return $this;
+    }
+
+    public function hasPossibleAction($action)
+    {
+        if (in_array($action, $this->possibleActions, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getButtonCssClass($action = null)
+    {
+        if (!$action) {
+            $action = $this->status;
+        }
+
+        switch ($action) {
+            case RequestAction::REQUEST_ACTION_NAME_APPROVE:
+            case RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE:
+                return 'uk-button-primary';
+                break;
+            case RequestAction::REQUEST_ACTION_NAME_DENY:
+            case RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE:
+            case RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY:
+            case RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY:
+            case RequestAction::REQUEST_ACTION_NAME_UNREGISTER:
+                return 'uk-button-danger';
+                break;
+            default:
+                return 'uk-button-default';
+                break;
+        }
+    }
+
+    public function getStatusCssClass()
+    {
+        switch ($this->status) {
+            case self::REQUEST_STATUS_PENDING:
+                return 'uk-label-warning';
+                break;
+            case self::REQUEST_STATUS_APPROVED:
+            case self::REQUEST_STATUS_ACTIVE:
+                return 'uk-label-success';
+                break;
+            case self::REQUEST_STATUS_DENIED:
+            case self::REQUEST_STATUS_INACTIVE:
+            case self::REQUEST_STATUS_UNREGISTERED:
+                return 'uk-label-danger';
+                break;
+            default:
+                return 'uk-label';
+                break;
+        }
+    }
+
+    public function getButtonFriendlyNameForRequestAction($action)
+    {
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+            return 'Approve';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+            return 'Deny';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+            return 'Pending';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_HIDE) {
+            return 'Hide';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
+            return 'Remove from company';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY) {
+            return 'Leave company';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
+            return 'Suggest new dates';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+            return 'Send Message';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE) {
+            return 'Active';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE) {
+            return 'Inactive';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_VIEW_REGISTRATION_LIST) {
+            return 'Registrations';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_UNREGISTER) {
+            return 'Unregister';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_REGISTER) {
+            return 'Register';
+        }
+
+        return $action;
+    }
+
+    public function getNotification(): ?array
+    {
+        return $this->notification;
+    }
+
+    public function setNotification(?array $notification): self
+    {
+        $this->notification = $notification;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatusLabel(): ?string
+    {
+        return $this->statusLabel;
+    }
+
+    public function setStatusLabel(?string $statusLabel): self
+    {
+        $this->statusLabel = $statusLabel;
+
+        return $this;
+    }
+
+    public function getExperience(): ?Experience
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(?Experience $experience): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($experience === null && $this->experience !== null) {
+            $this->experience->setRequest(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($experience !== null && $experience->getRequest() !== $this) {
+            $experience->setRequest($this);
+        }
+
+        $this->experience = $experience;
+
+        return $this;
+    }
+
+    public function getIsFromProfessional()
+    {
+        return $this->getCreatedBy() instanceof ProfessionalUser;
+    }
+
+    public function getIsFromEducator()
+    {
+        return $this->getCreatedBy() instanceof EducatorUser;
+    }
+
+    public function getHasNewNotification(): ?bool
+    {
+        return $this->hasNewNotification;
+    }
+
+    public function setHasNewNotification(?bool $hasNewNotification): self
+    {
+        $this->hasNewNotification = $hasNewNotification;
+
+        return $this;
+    }
+
+    public function getTimeElapsedSinceHasNotification()
+    {
+        if ($this->requestActionAt) {
+            return $this->requestActionAt->format("m/d/Y h:i A");
+        }
+
+        return $this->createdAt->format("m/d/Y h:i A");
+    }
+
+    public function getParentRequest(): ?self
+    {
+        return $this->parentRequest;
+    }
+
+    public function setParentRequest(?self $parentRequest): self
+    {
+        $this->parentRequest = $parentRequest;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getRequests(): Collection
+    {
+        return $this->requests;
+    }
+
+    public function addRequest(self $request): self
+    {
+        if (!$this->requests->contains($request)) {
+            $this->requests[] = $request;
+            $request->setParentRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequest(self $request): self
+    {
+        if ($this->requests->removeElement($request)) {
+            // set the owning side to null (unless already changed)
+            if ($request->getParentRequest() === $this) {
+                $request->setParentRequest(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getRequestActionAt(): ?\DateTimeInterface
+    {
+        return $this->requestActionAt;
+    }
+
+    public function setRequestActionAt(?\DateTimeInterface $requestActionAt): self
+    {
+        $this->requestActionAt = $requestActionAt;
+
+        return $this;
     }
 }

@@ -1237,12 +1237,10 @@ class JavascriptBuilders
 
                 $excludedAssociations = [
                     'featuredImage',
-                    'newCompanyRequest',
                     'thumbnailImage',
                     'companyPhotos',
                     'companyVideos',
-                    'companyResources',
-                    'joinCompanyRequests'
+                    'companyResources'
                 ];
 
                 break;

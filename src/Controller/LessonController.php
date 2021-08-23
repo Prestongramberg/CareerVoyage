@@ -11,44 +11,23 @@ use App\Entity\Lesson;
 use App\Entity\LessonResource;
 use App\Entity\LessonTeachable;
 use App\Entity\ProfessionalUser;
-use App\Entity\Region;
-use App\Entity\TeachLessonRequest;
+use App\Entity\RequestAction;
+use App\Entity\RequestPossibleApprovers;
 use App\Entity\User;
-use App\Form\EditCompanyFormType;
 use App\Form\EditLessonType;
 use App\Form\Filter\LessonFilterType;
-use App\Form\Filter\ProfessionalFilterType;
-use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Message\RecapMessage;
-use App\Repository\CompanyPhotoRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\LessonFavoriteRepository;
-use App\Repository\LessonTeachableRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
-use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
 
 /**
  * Class LessonController
@@ -396,37 +375,120 @@ class LessonController extends AbstractController
      * @param ProfessionalUser $professionalUser
      *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws \Exception
      */
     public function requestToTeachAction(Request $request, Lesson $lesson, ProfessionalUser $professionalUser)
     {
 
-        /** @var User $user */
-        $user = $this->getUser();
+        /** @var EducatorUser $user */
+        $user            = $this->getUser();
+        $school          = $user->getSchool();
+        $dateOptionOne   = $request->request->get('dateOptionOne');
+        $dateOptionTwo   = $request->request->get('dateOptionTwo');
+        $dateOptionThree = $request->request->get('dateOptionThree');
 
-        $dateOptionOne      = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionOne'));
-        $dateOptionTwo      = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionTwo'));
-        $dateOptionThree    = DateTime::createFromFormat('m/d/Y g:i A', $request->request->get('dateOptionThree'));
-        $teachLessonRequest = new TeachLessonRequest();
-        $teachLessonRequest->setDateOptionOne($dateOptionOne);
-        $teachLessonRequest->setDateOptionTwo($dateOptionTwo);
-        $teachLessonRequest->setDateOptionThree($dateOptionThree);
-        $teachLessonRequest->setLesson($lesson);
+        $teachLessonRequest = new \App\Entity\Request();
+        $teachLessonRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_TEACH_LESSON_INVITE);
         $teachLessonRequest->setCreatedBy($user);
-        $teachLessonRequest->setNeedsApprovalBy($professionalUser);
-        $teachLessonRequest->setSchool($user->getSchool());
+        $teachLessonRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+        $teachLessonRequest->setStatusLabel('Guest instructor invite is pending approval');
+        $teachLessonRequest->setNotification([
+            'title' => "<strong>{$user->getFullName()}</strong> has invited you to guest instruct \"{$lesson->getTitle()}\"",
+            'data' => [
+                'professional_id' => $professionalUser->getId(),
+                'school_id' => $school->getId(),
+                'educator_id' => $user->getId(),
+            ],
+            'user_photo' => $user->getPhotoPath(),
+            'user_photos' => [
+                [
+                    'order' => 1,
+                    'path' => $user->getPhotoPath(),
+                ],
+                [
+                    'order' => 2,
+                    'path' => $professionalUser->getPhotoPath(),
+                ],
+            ],
+            'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'suggested_dates' => [
+                'date_option_one' => $dateOptionOne,
+                'date_option_two' => $dateOptionTwo,
+                'date_option_three' => $dateOptionThree,
+            ],
+            'messages' => [],
+            'body' => [
+                'Request Type' => [
+                    'order' => 1,
+                    'value' => 'Guest Instructor Invite',
+                ],
+                'Initiated By' => [
+                    'order' => 2,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                ],
+                'Sent To' => [
+                    'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $professionalUser->getId()])}'>{$professionalUser->getFullName()}</a>",
+                ],
+                'School Name' => [
+                    'order' => 4,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('school_view', ['id' => $school->getId()])}'>{$school->getName()}</a>",
+                ],
+                'Selected Date' => [
+                    'order' => 5,
+                    'value' => "To be determined",
+                ],
+                'Suggested Dates' => [
+                    'order' => 6,
+                    'value' => "{$dateOptionOne} <br> {$dateOptionTwo} <br> {$dateOptionThree}",
+                ],
+                'Created On' => [
+                    'order' => 7,
+                    'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                ],
+            ],
+        ]);
+
+        $createdByApprover = new RequestPossibleApprovers();
+        $createdByApprover->setPossibleApprover($user);
+        $createdByApprover->setRequest($teachLessonRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
+        $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
+        $createdByApprover->setNotificationTitle("<strong>{$professionalUser->getFullName()}</strong> has been invited by you to guest instruct \"{$lesson->getTitle()}\"");
+
+        $possibleApprover = new RequestPossibleApprovers();
+        $possibleApprover->setPossibleApprover($professionalUser);
+        $possibleApprover->setRequest($teachLessonRequest);
+        $possibleApprover->setHasNotification(true);
+        $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                               RequestAction::REQUEST_ACTION_NAME_DENY,
+                                               RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                               RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                               RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+        ]);
+        $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has invited you to guest instruct \"{$lesson->getTitle()}\"");
+
+
+        $this->entityManager->persist($createdByApprover);
+        $this->entityManager->persist($possibleApprover);
         $this->entityManager->persist($teachLessonRequest);
         $this->entityManager->flush();
 
-        $this->requestsMailer->teachLessonRequest($teachLessonRequest);
+        $requestActionUrl = $this->generateUrl('request_action', [
+            'lesson_id' => $lesson->getId(),
+            'request_id' => $teachLessonRequest->getId(),
+        ]);
+
+        $teachLessonRequest->setActionUrl($requestActionUrl);
+
+        $this->entityManager->flush();
+        $this->entityManager->refresh($teachLessonRequest);
+
+        $this->requestsMailer->teachLessonInviteApproval($professionalUser, $user, $lesson);
 
         $this->addFlash('success', 'Request successfully sent!');
-
-        /*   if($redirectUrl) {
-               return $this->redirect($redirectUrl);
-           }*/
 
         return $this->redirectToRoute('lesson_view', ['id' => $lesson->getId()]);
     }
