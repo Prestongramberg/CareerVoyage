@@ -2031,9 +2031,10 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setStatusLabel('Active job posting');
                 $jobBoardRequest->setRequestActionAt(new \DateTime());
 
-                /** @var RequestPossibleApprovers $possibleApprover */
-                if ($possibleApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
-                    $possibleApprover->setNotificationDate(new DateTime());
+                /** @var RequestPossibleApprovers $createdByApprover */
+                if ($createdByApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
+                    $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
+                    $createdByApprover->setNotificationDate(new DateTime());
                 }
 
                 $this->entityManager->flush();
