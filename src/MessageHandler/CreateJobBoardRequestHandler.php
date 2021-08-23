@@ -99,6 +99,11 @@ class CreateJobBoardRequestHandler implements MessageHandlerInterface
                 $jobBoardRequest->setOpportunityType($request->getOpportunityType());
 
                 foreach($jobBoardRequest->getRequestPossibleApprovers() as $possibleApprover) {
+
+                    if($possibleApprover->getPossibleApprover()->getId() === $jobBoardRequest->getCreatedBy()->getId()) {
+                        continue;
+                    }
+
                     $possibleApprover->setNotificationTitle("<strong>{$request->getCreatedBy()->getFullName()}</strong> posted a new job board request - \"{$request->getSummary()}\"");
                 }
 
