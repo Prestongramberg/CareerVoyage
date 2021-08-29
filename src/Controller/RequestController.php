@@ -835,10 +835,10 @@ class RequestController extends AbstractController
                             if ($shouldCreateExperience) {
 
                                 $oldExperience = $this->experienceRepository->findOneBy([
-                                    'request' => $request
+                                    'request' => $request,
                                 ]);
 
-                                if($oldExperience) {
+                                if ($oldExperience) {
                                     $this->entityManager->remove($oldExperience);
                                 }
 
@@ -1483,27 +1483,15 @@ class RequestController extends AbstractController
                         /** @var  RequestPossibleApprovers $loggedInUserPossibleApprover */
                         $loggedInUserPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
                         $loggedInUserPossibleApprover->setNotificationDate(new \DateTime());
+                        $notification = $request->getNotification();
 
 
                         if ($loggedInUser instanceof EducatorUser) {
 
-                            $notification = $request->getNotification();
-
                             /** @var  RequestPossibleApprovers $professionalPossibleApprover */
                             $professionalPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
 
-                            if ($professionalPossibleApprover) {
-
-                                $professionalPossibleApprover->setHasNotification(true);
-                                $professionalPossibleApprover->setPossibleActions([
-                                    RequestAction::REQUEST_ACTION_NAME_DENY,
-                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
-                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
-                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                                ]);
-
-                            } else {
-
+                            if (!$professionalPossibleApprover) {
                                 // assign to professional for approval and date selection
                                 $notification['user_photos'][] = [
                                     'order' => count($notification['user_photos']) + 1,
@@ -1515,6 +1503,7 @@ class RequestController extends AbstractController
                                 $professionalPossibleApprover = new RequestPossibleApprovers();
                                 $professionalPossibleApprover->setPossibleApprover($professional);
                                 $professionalPossibleApprover->setRequest($request);
+                                $professionalPossibleApprover->setNotificationTitle("<strong>{$student->getFullName()}</strong> has requested to meet you");
                                 $professionalPossibleApprover->setHasNotification(true);
                                 $professionalPossibleApprover->setPossibleActions([
                                     RequestAction::REQUEST_ACTION_NAME_DENY,
@@ -1522,20 +1511,17 @@ class RequestController extends AbstractController
                                     RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
                                     RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                                 ]);
-                                $professionalPossibleApprover->setNotificationTitle("<strong>{$student->getFullName()}</strong> has requested to meet you");
                                 $this->entityManager->persist($professionalPossibleApprover);
-
                                 $this->requestsMailer->oneOnOneMeetingApproval($professionalPossibleApprover->getPossibleApprover());
+
+                                /** @var  RequestPossibleApprovers $studentPossibleApprover */
+                                $studentPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+
+                                $studentPossibleApprover->setHasNotification(true);
+                                $studentPossibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
                             }
-
-
-                            /** @var  RequestPossibleApprovers $studentPossibleApprover */
-                            $studentPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
-
-                            $studentPossibleApprover->setHasNotification(true);
-                            $studentPossibleApprover->setPossibleActions([
-                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
-                            ]);
 
                             $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
                             $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
@@ -1616,10 +1602,10 @@ class RequestController extends AbstractController
                                 if ($shouldCreateExperience) {
 
                                     $experience = $this->experienceRepository->findOneBy([
-                                        'request' => $request
+                                        'request' => $request,
                                     ]);
 
-                                    if(!$experience) {
+                                    if (!$experience) {
                                         $experience = new StudentToMeetProfessionalExperience();
                                         $experience->setTitle(sprintf("One on One Meeting - %s", $reasonToMeet));
                                         $experience->setBriefDescription(sprintf("One on One Meeting With %s and %s - %s", $professional->getFullName(), $student->getFullName(), $reasonToMeet));
@@ -1704,10 +1690,10 @@ class RequestController extends AbstractController
                         }
 
                         $experience = $this->experienceRepository->findOneBy([
-                            'request' => $request
+                            'request' => $request,
                         ]);
 
-                        if($experience) {
+                        if ($experience) {
                             $this->entityManager->remove($experience);
                         }
 
@@ -1737,10 +1723,10 @@ class RequestController extends AbstractController
                             }
 
                             $experience = $this->experienceRepository->findOneBy([
-                                'request' => $request
+                                'request' => $request,
                             ]);
 
-                            if($experience) {
+                            if ($experience) {
                                 $this->entityManager->remove($experience);
                             }
 
