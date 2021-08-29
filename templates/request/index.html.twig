@@ -33,17 +33,21 @@
 
     <div class="uk-container js-manage-requests-container">
 
-        {#        <div style="float: right" uk-form-custom="target: > * > span:first-child">
-                    <select>
-                        <option value="">Filters</option>
-                        <option value="">Created by me</option>
-                        <option value="">Archived</option>
-                    </select>
-                    <button class="uk-button uk-button-primary" type="button" tabindex="-1">
-                        <span></span>
-                        <span uk-icon="icon: chevron-down"></span>
-                    </button>
-                </div>#}
+        <div style="float: right" uk-form-custom="target: > * > span:first-child">
+            <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+                <option value="">Filters</option>
+                <option value="{{ path('requests') }}?filter=all" {{ filter == 'all' ? 'selected' : '' }}>All</option>
+                <option value="{{ path('requests') }}?filter=created_by_me" {{ filter == 'created_by_me' ? 'selected' : '' }}>Created by me</option>
+                <option value="{{ path('requests') }}?filter=approved" {{ filter == 'approved' ? 'selected' : '' }}>Approved</option>
+                <option value="{{ path('requests') }}?filter=denied" {{ filter == 'denied' ? 'selected' : '' }}>Denied</option>
+                <option value="{{ path('requests') }}?filter=pending" {{ filter == 'pending' ? 'selected' : '' }}>Pending</option>
+            </select>
+            <button class="uk-button uk-button-primary" type="button" tabindex="-1">
+                <span></span>
+                <span uk-icon="icon: chevron-down"></span>
+            </button>
+        </div>
+        <br>
 
 
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
@@ -58,10 +62,10 @@
         <div class="uk-switcher" id="tab-requests">
             <div class="requests-landing__my-requests">
 
-                {% if reviewRequests|length > 0 %}
+                {% if pagination|length > 0 %}
 
                     <ul class="uk-list">
-                        {% for request in reviewRequests %}
+                        {% for request in pagination %}
 
                             {% set notification = request.notification %}
                             {% set title = notification['title'] %}
@@ -138,6 +142,11 @@
 
                         {% endfor %}
                     </ul>
+
+                    {# display navigation #}
+                    <div class="navigation">
+                        {{ knp_pagination_render(pagination) }}
+                    </div>
 
                 {% else %}
                     <div class="uk-placeholder">

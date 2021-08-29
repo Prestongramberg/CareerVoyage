@@ -58,217 +58,50 @@ class RequestController extends AbstractController
     public function requests(Request $httpRequest)
     {
         /** @var User $user */
-        $user = $this->getUser();
+        $user   = $this->getUser();
+        $filter = $httpRequest->query->get('filter', null);
 
+        if ($requestId = $httpRequest->query->get('id', null)) {
 
-        // todo should we change this endpoint to be more of a search-requests endpoint?
-        //  then you can pass up ?student-requests=true, ?pending-requests=true and the various filters for each tab?
-        //  also you are probably going to need to do a refresh on each tab and make it so it's a page reload.
-        //  look at the resources page for how I did this. I'm pretty sure I did it here with the
-        //  different videos, etc and tabs at the top of the page
+            $queryBuilder = $this->requestRepository->createQueryBuilder('r')
+                                                    ->andWhere('r.id = :id')
+                                                    ->setParameter('id', $requestId);
 
-        $requestId = $httpRequest->query->get('id', null);
-
-        if ($requestId) {
-            $reviewRequests = $this->requestRepository->findBy([
-                'id' => $requestId,
-            ]);
         } else {
-            $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+
+            switch ($filter) {
+                case 'created_by_me':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user);
+                    break;
+
+                case 'approved':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, true);
+                    break;
+
+                case 'denied':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, false, true);
+                    break;
+
+                case 'pending':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, false, false, true);
+                    break;
+                default:
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true);
+                    break;
+            }
         }
 
-        // TODO SECOND DRAFT
-        /*        $myCreatedRequests = $this->requestRepository->findBy([
-                    'created_by' => $user,
-                    'denied' => false,
-                    'approved' => false,
-                    'allowApprovalByActivationCode' => false,
-                ], ['createdAt' => 'DESC']);
+        $pagination = $this->paginator->paginate(
+            $queryBuilder->getQuery(), /* query NOT result */
+            $httpRequest->query->getInt('page', 1), /*page number*/
+            10,
+            ['distinct' => false]
+        );
 
-                $deniedByMeRequests = $this->requestRepository->findBy([
-                    'needsApprovalBy' => $user,
-                    'denied' => true,
-                ], ['createdAt' => 'DESC']);
-
-                $approvedByMeRequests = $this->requestRepository->findBy([
-                    'needsApprovalBy' => $user,
-                    'approved' => true,
-                ], ['createdAt' => 'DESC']);
-
-                $myDeniedAccessRequests = $this->requestRepository->findBy([
-                    'created_by' => $user,
-                    'denied' => true,
-                ], ['createdAt' => 'DESC']);
-
-                $myApprovedAccessRequests = $this->requestRepository->findBy([
-                    'created_by' => $user,
-                    'approved' => true,
-                ], ['createdAt' => 'DESC']);
-
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.studentUser = :user')
-                    ->andWhere('r.approved = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $studentRegisterApproval = $qb->getQuery()->getResult();
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.studentUser = :user')
-                    ->andWhere('r.denied = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $studentRegisterDenial = $qb->getQuery()->getResult();
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.user = :user')
-                    ->andWhere('r.approved = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $userRegisterSchoolApproval = $qb->getQuery()->getResult();
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.user = :user')
-                    ->andWhere('r.denied = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $userRegisterSchoolDenial = $qb->getQuery()->getResult();
-
-
-                */
-
-
-        // TODO FIRST DRAFT
-        // $studentHasSeenCompanyRequestsApproval = [];
-        // $studentHasSeenCompanyRequestsDenial = [];
-        // if($user->isStudent()) {
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('e.studentUser = :user')
-        //         ->andWhere('r.approved = true')
-        //         ->andWhere('e.studentHasSeen = false')
-        //         ->setParameter('user', $user)
-        //         ->groupBy('e.id');
-
-        //     $studentHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('e.studentUser = :user')
-        //         ->andWhere('r.denied = true')
-        //         ->andWhere('e.studentHasSeen = false')
-        //         ->setParameter('user', $user)
-        //         ->groupBy('e.id');
-
-        //     $studentHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-        // }
-
-        // $educatorHasSeenCompanyRequestsApproval = [];
-        // $educatorHasSeenCompanyRequestsDenial = [];
-        // if($user->isEducator()) {
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.approved = true')
-        //         ->andWhere('e.educatorHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $educatorHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.denied = true')
-        //         ->andWhere('e.educatorHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $educatorHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-        // }
-
-        // $professionalHasSeenCompanyRequestsApproval = [];
-        // $professionalHasSeenCompanyRequestsDenial = [];
-        // if($user->isProfessional()) {
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.approved = true')
-        //         ->andWhere('e.professionalHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $professionalHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.denied = true')
-        //         ->andWhere('e.professionalHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $professionalHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-        // }
-
-        // todo you could return a different view per user role as well
         return $this->render('request/index.html.twig', [
             'user' => $user,
-            'reviewRequests' => $reviewRequests
-
-
-            /*'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
-            'myCreatedRequests' => $myCreatedRequests,
-            'approvedByMeRequests' => $approvedByMeRequests,
-            'deniedByMeRequests' => $deniedByMeRequests,
-            'myApprovedAccessRequests' => $myApprovedAccessRequests,
-            'myDeniedAccessRequests' => $myDeniedAccessRequests,
-            'studentRegisterApproval' => $studentRegisterApproval,
-            'studentRegisterDenial' => $studentRegisterDenial,
-            'userRegisterSchoolApproval' => $userRegisterSchoolApproval,
-            'userRegisterSchoolDenial' => $userRegisterSchoolDenial*/
-
-
-            // 'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
-            // 'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial),
-            // 'educatorHasSeenCompanyRequestsApproval' => count($educatorHasSeenCompanyRequestsApproval),
-            // 'educatorHasSeenCompanyRequestsDenial' => count($educatorHasSeenCompanyRequestsDenial),
-            // 'professionalHasSeenCompanyRequestsApproval' => count($professionalHasSeenCompanyRequestsApproval),
-            // 'professionalHasSeenCompanyRequestsDenial' => count($professionalHasSeenCompanyRequestsDenial)
+            'pagination' => $pagination,
+            'filter' => $filter,
         ]);
     }
 
