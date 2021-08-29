@@ -1,0 +1,134 @@
+<div id="offcanvas-menu" uk-offcanvas>
+    <div class="uk-offcanvas-bar ">
+        <button class="uk-offcanvas-close" type="button" uk-close></button>
+        <h3>{{ get_site().name }}</h3>
+
+        <ul class="uk-nav uk-nav-default">
+
+            <li class="uk-nav-divider"></li>
+            <li><a href="{{ path('dashboard') }}"><span class="uk-margin-small-right" uk-icon="icon: home"></span>Dashboard</a></li>
+            <li class="uk-nav-divider"></li>
+
+            <li class="uk-nav-header">Network</li>
+            <li><a href="{{ path('professional_results_page') }}">Find Professionals</a></li>
+            <li><a href="{{ path('company_results_page') }}">Find Companies</a></li>
+            <li><a href="{{ path('educator_results_page') }}">Find Educators</a></li>
+            <li><a href="{{ path('school_results_page') }}">Find Schools</a></li>
+
+            <li class="uk-nav-header">Resources</li>
+            <li><a href="{{ path('lessons_results_page') }}">Find Lesson Topics</a></li>
+            <li><a href="{{ path('experience_index') }}">Explore Student Experiences</a></li>
+            <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
+            <li><a href="{{ path('knowledge-base') }}">Browse Additional Resources</a></li>
+
+            <li class="uk-nav-header">Account</li>
+            <li><a href="{{ path('profile_edit', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: user"></span>My Account</a></li>
+            <li style="position: relative"><a href="{{ path('requests') }}"><i style="margin-right: 16px" class="fa fa-paper-plane" aria-hidden="true"></i>Check Requests {% if pending_requests(user) > 0 %}<span style="right: 70px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
+            <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help"><span class="uk-margin-small-right" uk-icon="icon: question"></span>Need Help?</a></li>
+            <li><a href="{{ path('sign_out') }}"><span class="uk-margin-small-right" uk-icon="icon: forward"></span>Logout</a></li>
+
+            <li class="uk-nav-header">Management</li>
+            {% if user.schools|length %}
+                <li><a href="{{ path('school_administrator_schools', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: users"></span> Manage my Schools</a></li>
+            {% endif %}
+            <li><a href="{{ path('report_experience_satisfaction_dashboard') }}"><span class="uk-margin-small-right" uk-icon="icon: database"></span> Dashboards & Reports</a></li>
+            {% for school in user.schools %}
+                <li><a href="{{ path('school_chat', {'id': school.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: comments"></span> CHAT - {{ school.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+
+<div class="main-navigation uk-background-muted">
+
+    <div class="uk-container">
+        <nav class="uk-navbar-container" uk-navbar="align: right">
+            <div class="nav-overlay uk-navbar-left">
+                <span class="uk-hidden@m" uk-icon="icon: menu; ratio: 1.5" uk-toggle="target: #offcanvas-menu"></span>
+                <a class="uk-navbar-item uk-logo uk-visible@s" href="{{ path('dashboard') }}">
+                    {% set url = 'build/images/' ~ get_site().logo %}
+                    <img src="{{ asset(url) }}" alt="">
+                </a>
+            </div>
+
+            <div class="uk-navbar-right">
+
+                <ul class="uk-visible@m uk-navbar-nav">
+                    <li>
+                        <a class="{% if app.request.get('_route') == 'dashboard' %}active-underline{% endif %}" href="{{ path('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#">Network</a>
+                        <div class="uk-navbar-dropdown uk-navbar-dropdown-width-1">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="{{ path('professional_results_page') }}">Find Professionals</a></li>
+                                <li><a href="{{ path('company_results_page') }}">Find Companies</a></li>
+                                <li><a href="{{ path('educator_results_page') }}">Find Educators</a></li>
+                                <li><a href="{{ path('school_results_page') }}">Find Schools</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="#">Resources</a>
+                        <div style="width: 240px;" class="uk-navbar-dropdown uk-navbar-dropdown-width-1">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="{{ path('lessons_results_page') }}">Find Lesson Topics</a></li>
+                                <li><a href="{{ path('experience_index') }}">Explore Student Experiences</a></li>
+                                <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
+                                <li><a href="{{ path('knowledge-base') }}">Browse Resources</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li style="position: relative">
+                        <a href="#">Account {% if pending_requests(user) > 0 %}<span class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>
+                                <li style="position: relative"><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}<span style="right: 20px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
+                                {% if user.professional and user.ownedCompany %}
+                                <li><a href="{{ path('report_experience_satisfaction_dashboard') }}">My Reports</a></li>
+                                {% endif %}
+                                <li class="uk-nav-divider"></li>
+                                <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help">Help</a></li>
+                                <li><a href="{{ path('sign_out') }}">Logout</a></li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <a href="#">Management</a>
+                        <div style="width: 240px;" class="uk-navbar-dropdown uk-navbar-dropdown-width-1">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                {% if user.schools|length %}
+                                <li><a href="{{ path('school_administrator_schools', {'id': user.id}) }}">Manage my schools</a></li>
+                                {% endif %}
+                                <li><a href="{{ path('report_experience_satisfaction_dashboard') }}">Dashboards & Reports</a></li>
+                                {% for school in user.schools %}
+                                    <li><a href="{{ path('school_chat', {'id': school.id}) }}">CHAT - {{ school.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+
+                <span class="uk-navbar-item main-navigation__meta-profile">
+                    <img class="uk-border-circle" width="40" height="40"
+                         src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                    {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                        <div uk-dropdown="pos: bottom-right">
+                            <ul class="uk-nav uk-dropdown-nav">
+                                You are impersonating<br/>
+                                <em>{{ app.user.firstName }} {{ app.user.lastName }}</em>
+                                <br/>{{ app.user.email ? app.user.email : app.user.username }}<br/>
+                                <a href="{{ path('dashboard', {'_switch_user': '_exit'}) }}">Exit impersonation</a>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </span>
+
+            </div>
+        </nav>
+    </div>
+
+</div>

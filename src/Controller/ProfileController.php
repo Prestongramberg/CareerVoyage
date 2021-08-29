@@ -163,7 +163,7 @@ class ProfileController extends AbstractController
      */
     public function editAction(Request $request, User $user)
     {
-        //$loggedInUser = $this->getUser();
+        $loggedInUser = $this->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
         $tab = $request->request->get('tab', '');
 
@@ -305,7 +305,8 @@ class ProfileController extends AbstractController
                         'form' => $form->createView(),
                         'user' => $user,
                         'professionalVideo' => $professionalVideo,
-                        'countyJson' => $countyJson
+                        'countyJson' => $countyJson,
+                        'loggedInUser' => $loggedInUser
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -319,7 +320,8 @@ class ProfileController extends AbstractController
                         'form' => $form->createView(),
                         'user' => $user,
                         'professionalVideo' => $professionalVideo,
-                        'countyJson' => $countyJson
+                        'countyJson' => $countyJson,
+                        'loggedInUser' => $loggedInUser
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -331,7 +333,8 @@ class ProfileController extends AbstractController
             'form' => $form->createView(),
             'user' => $user,
             'professionalVideo' => $professionalVideo,
-            'countyJson' => $countyJson
+            'countyJson' => $countyJson,
+            'loggedInUser' => $loggedInUser
         ]);
     }
 

@@ -4,6 +4,58 @@
 
 {% block body %}
     <div class="uk-container">
+
+        {% if user.isAdmin %}
+            <div class="uk-margin uk-width-1-1">
+                <div class="uk-flex uk-flex-right@m">
+                    <a class="uk-button uk-button-primary uk-button-small" href="#modal-add-career-video" uk-toggle>Add
+                        a Resource</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div id="modal-add-career-video" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h3>Add a Resource</h3>
+                <form method="post" action="{{ path('knowledge_base_add_resource') }}">
+                    <div class="uk-margin">
+                        <label for="resource_title" class="required">Title*</label>
+                        <input type="text" id="resource_title" name="resource_title" required="required"
+                               class="uk-input"/>
+                        <small>Match title names exactly to group resources</small>
+                    </div>
+
+                    <div class="uk-margin">
+                        <label for="resource_url" class="required">Url*</label>
+                        <input type="text" id="resource_url" name="resource_url" required="required"
+                               class="uk-input"/>
+                    </div>
+
+                    <div class="uk-margin">
+                        <label for="resource_description" class="required">Description</label>
+                        <div class="uk-position-relative">
+                            <textarea id="resource_description" name="resource_description" class="uk-textarea"
+                                      required="required"></textarea>
+                        </div>
+                    </div>
+
+                    <select name="resource_tab" class="uk-select">
+                        <option value="GENERAL">GENERAL</option>
+                        <option value="SCHOOL_ADMINISTRATORS">SCHOOL ADMINISTRATORS</option>
+                        <option value="EDUCATORS">EDUCATORS</option>
+                        <option value="PROFESSIONALS">PROFESSIONALS</option>
+                        <option value="STUDENTS">STUDENTS</option>
+                        <option value="CURRICULUM_RESOURCES">CURRICULUM RESOURCES</option>
+                    </select>
+
+                    <p class="uk-text-right">
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <input class="uk-button uk-button-primary" type="submit" value="Save"/>
+                    </p>
+                </form>
+            </div>
+        </div>
+
         <h3>Knowledge Base</h3>
         <ul data-uk-tab="{connect: '#tab-knowledge'}" uk-switcher>
             <li class="uk-active"><a id="knowledge-general" href="#knowledge-general">General</a></li>
@@ -19,154 +71,355 @@
                 <article class="uk-article uk-margin-bottom">
                     <h3 class="uk-article-title">General Knowledge Base</h3>
                     <p style="font-size: 1.2rem">Below you will find helpful videos.</p>
-                    <p>If you are looking for helpful files, access our <a class="uk-text-primary" href="https://sites.google.com/apritonadvisors.com/general-resources/home?authuser=1" target="_blank">file portal</a>.</p>
+                    <p>If you are looking for helpful files, access our <a class="uk-text-primary"
+                                                                           href="https://sites.google.com/apritonadvisors.com/general-resources/home?authuser=1"
+                                                                           target="_blank">file portal</a>.</p>
                 </article>
                 <div class="uk-child-width-1-3@m" uk-grid="masonry: true">
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/tgown88cwz" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/tgown88cwz" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Introduction to Training Videos</strong>
-                        <p>This video provides an overview of the component parts of the 20 + Career Ingrained Learning training videos</p>
+                        <p>This video provides an overview of the component parts of the 20 + Career Ingrained Learning
+                            training videos</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/nb5yldirle" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/nb5yldirle" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Parents - How to support your child in this program</strong>
-                        <p>Parents share their thoughts and advice on how to best support your child who is enrolled in a career focused program.</p>
+                        <p>Parents share their thoughts and advice on how to best support your child who is enrolled in
+                            a career focused program.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/cxpdgqwehk" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/cxpdgqwehk" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Parents - The impact of this form of education upon their child</strong>
-                        <p>Parents discuss how career focused education has had an empowering and transformative effect upon their child.</p>
+                        <p>Parents discuss how career focused education has had an empowering and transformative effect
+                            upon their child.</p>
                     </div>
                 </div>
+
+                {% if resourceArray['GENERAL'] is defined %}
+                    <h2>Resources</h2>
+                    <ul uk-accordion="multiple: true">
+                        {% for title, resources in resourceArray['GENERAL'] %}
+                            <li>
+                                <a class="uk-accordion-title" href="#">{{ title }}</a>
+                                <div class="uk-accordion-content">
+                                    {% for resource in resources %}
+                                        <div style="position: relative">
+                                            <p>{{ resource['description'] }}</p>
+                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            {% if user.admin %}
+                                                <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             <div class="knowledge__school-admins">
                 <article class="uk-article uk-margin-bottom">
                     <h3 class="uk-article-title">School Administrator Knowledge Base</h3>
-                    <p>Access our <a class="uk-text-primary" href="https://sites.google.com/apritonadvisors.com/schooladmiresources/home?authuser=1" target="_blank">file portal</a>.</p>
+                    <p>Access our <a class="uk-text-primary"
+                                     href="https://sites.google.com/apritonadvisors.com/schooladmiresources/home?authuser=1"
+                                     target="_blank">file portal</a>.</p>
                 </article>
+
+                {% if resourceArray['SCHOOL_ADMINISTRATORS'] is defined %}
+                    <h2>Resources</h2>
+                    <ul uk-accordion="multiple: true">
+                        {% for title, resources in resourceArray['SCHOOL_ADMINISTRATORS'] %}
+                            <li>
+                                <a class="uk-accordion-title" href="#">{{ title }}</a>
+                                <div class="uk-accordion-content">
+                                    {% for resource in resources %}
+                                        <div style="position: relative">
+                                            <p>{{ resource['description'] }}</p>
+                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            {% if user.admin %}
+                                                <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             <div class="knowledge__educators">
                 <article class="uk-article uk-margin-bottom">
                     <h3 class="uk-article-title">Educator Knowledge Base</h3>
                     <p style="font-size: 1.2rem">Below you will find helpful videos.</p>
-                    <p>If you are looking for helpful files, access our <a class="uk-text-primary" href="https://sites.google.com/apritonadvisors.com/educator-resources/home?authuser=1" target="_blank">file portal</a>.</p>
+                    <p>If you are looking for helpful files, access our <a class="uk-text-primary"
+                                                                           href="https://sites.google.com/apritonadvisors.com/educator-resources/home?authuser=1"
+                                                                           target="_blank">file portal</a>.</p>
                 </article>
                 <div class="uk-child-width-1-3@m" uk-grid="masonry: true">
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/724v6tw369" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/724v6tw369" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Educators - Creating a professional work environment</strong>
-                        <p>Teachers describe how they work to create a professional environment that replicates the standards and attitudes the students will experience in the workplace.</p>
+                        <p>Teachers describe how they work to create a professional environment that replicates the
+                            standards and attitudes the students will experience in the workplace.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/b81fdh94fv" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/b81fdh94fv" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Educators - Examples of site visits and guest instruction</strong>
-                        <p>Teachers share specific examples of site visits and guest instructors and how they have integrated them into the curriculum and brought their courses to life.</p>
+                        <p>Teachers share specific examples of site visits and guest instructors and how they have
+                            integrated them into the curriculum and brought their courses to life.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/boajlc4i64" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/boajlc4i64" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Educators - Working with guest instructors</strong>
-                        <p>Teachers explain the process of preparing and hosting a guest instructor in their courses.</p>
+                        <p>Teachers explain the process of preparing and hosting a guest instructor in their
+                            courses.</p>
                     </div>
                 </div>
+                {% if resourceArray['EDUCATORS'] is defined %}
+                    <h2>Resources</h2>
+                    <ul uk-accordion="multiple: true">
+                        {% for title, resources in resourceArray['EDUCATORS'] %}
+                            <li>
+                                <a class="uk-accordion-title" href="#">{{ title }}</a>
+                                <div class="uk-accordion-content">
+                                    {% for resource in resources %}
+                                        <div style="position: relative">
+                                            <p>{{ resource['description'] }}</p>
+                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            {% if user.admin %}
+                                                <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             <div class="knowledge__professionals">
                 <article class="uk-article uk-margin-bottom">
                     <h3 class="uk-article-title">Professional Knowledge Base</h3>
                     <p style="font-size:1.2rem;">Below you will find helpful videos.</p>
-                    <p>If you are looking for helpful files, access our <a class="uk-text-primary" href="https://sites.google.com/apritonadvisors.com/resourcesforprofessionals/home?authuser=1" target="_blank">file portal</a>.</p>
+                    <p>If you are looking for helpful files, access our <a class="uk-text-primary"
+                                                                           href="https://sites.google.com/apritonadvisors.com/resourcesforprofessionals/home?authuser=1"
+                                                                           target="_blank">file portal</a>.</p>
                 </article>
                 <div class="uk-child-width-1-3@m" uk-grid="masonry: true">
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/5nd7mr8r0m" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/5nd7mr8r0m" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Guest Instructors - The teaching experience and how to make it a success</strong>
-                        <p>Executives who have taught a class to students describe the experience and share their thoughts on how to make it a success.</p>
+                        <p>Executives who have taught a class to students describe the experience and share their
+                            thoughts on how to make it a success.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/t6nwby7wxh" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/t6nwby7wxh" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Mentors - Successfully mentoring a student</strong>
-                        <p>Executives share their experiences as mentors and offer advice on what it takes to build a successful relationship with your mentee.</p>
+                        <p>Executives share their experiences as mentors and offer advice on what it takes to build a
+                            successful relationship with your mentee.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/8dl0k54n6e" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/8dl0k54n6e" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Project Clients - The project experience and how to make it a success</strong>
-                        <p>Executives who have had students complete consulting projects for their companies, describe the experience and offer advice on how to make it a rewarding experience, both for the company and the students.</p>
+                        <p>Executives who have had students complete consulting projects for their companies, describe
+                            the experience and offer advice on how to make it a rewarding experience, both for the
+                            company and the students.</p>
                     </div>
                 </div>
+                {% if resourceArray['PROFESSIONALS'] is defined %}
+                    <h2>Resources</h2>
+                    <ul uk-accordion="multiple: true">
+                        {% for title, resources in resourceArray['PROFESSIONALS'] %}
+                            <li>
+                                <a class="uk-accordion-title" href="#">{{ title }}</a>
+                                <div class="uk-accordion-content">
+                                    {% for resource in resources %}
+                                        <div style="position: relative">
+                                            <p>{{ resource['description'] }}</p>
+                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            {% if user.admin %}
+                                                <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             <div class="knowledge__students">
                 <article class="uk-article uk-margin-bottom">
                     <h3 class="uk-article-title">Student Knowledge Base</h3>
                     <p style="font-size:1.2rem">Below you will find helpful videos.</p>
-                    <p>If you are looking for helpful files, access our <a class="uk-text-primary" href="https://sites.google.com/apritonadvisors.com/futureforwardstudentresources/home?authuser=1" target="_blank">file portal</a>.</p>
+                    <p>If you are looking for helpful files, access our <a class="uk-text-primary"
+                                                                           href="https://sites.google.com/apritonadvisors.com/futureforwardstudentresources/home?authuser=1"
+                                                                           target="_blank">file portal</a>.</p>
                 </article>
                 <div class="uk-child-width-1-3@m" uk-grid="masonry: true">
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/ctqkk4oyq7" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/ctqkk4oyq7" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Students - Building a Successful Relationship with your mentor</strong>
-                        <p>Graduates describe how to get the best out of their relationship with their assigned mentor</p>
+                        <p>Graduates describe how to get the best out of their relationship with their assigned
+                            mentor</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/a4txuwpr2c" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/a4txuwpr2c" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Students - How to excel in career focused programs</strong>
-                        <p>Graduates share advice on what it takes to have a great experience and do well in career focused programs which involve a lot of interaction with the professional world.</p>
+                        <p>Graduates share advice on what it takes to have a great experience and do well in career
+                            focused programs which involve a lot of interaction with the professional world.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/ve6tdrzskl" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/ve6tdrzskl" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Students - What mentors can do for you</strong>
-                        <p>Students share how to use your mentor most effectively to build your professional skills and excel in career focused programs.</p>
+                        <p>Students share how to use your mentor most effectively to build your professional skills and
+                            excel in career focused programs.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/5f6heugq6p" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/5f6heugq6p" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Students - How the experience is different from High School</strong>
-                        <p>Graduates speak about how this attending a program focused on career readiness is very different from a traditional high school</p>
+                        <p>Graduates speak about how this attending a program focused on career readiness is very
+                            different from a traditional high school</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/mdqglja3cl" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/mdqglja3cl" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Students - Keys to Success on the Client Projects</strong>
-                        <p>Graduates share their experience in working on client projects and offer advice on the keys to success in doing an outstanding job for the client.</p>
+                        <p>Graduates share their experience in working on client projects and offer advice on the keys
+                            to success in doing an outstanding job for the client.</p>
                     </div>
                     <div>
                         <div class="iframe-container iframe-container--no-min">
-                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" src="https://fast.wistia.net/embed/iframe/27gvcop9vh" width="400" height="225"></iframe>
+                            <iframe allowtransparency="true" title="Wistia video player" allowFullscreen frameborder="0"
+                                    scrolling="no" class="wistia_embed" name="wistia_embed"
+                                    src="https://fast.wistia.net/embed/iframe/27gvcop9vh" width="400"
+                                    height="225"></iframe>
                         </div>
                         <strong>Students - Importance of Professionalism and Soft Skills</strong>
-                        <p>College freshman speak about the importance of developing professionalism and soft skills whilst in career oriented programs during high school and what that experience was like.</p>
+                        <p>College freshman speak about the importance of developing professionalism and soft skills
+                            whilst in career oriented programs during high school and what that experience was like.</p>
                     </div>
                 </div>
+                {% if resourceArray['STUDENTS'] is defined %}
+                    <h2>Resources</h2>
+                    <ul uk-accordion="multiple: true">
+                        {% for title, resources in resourceArray['STUDENTS'] %}
+                            <li>
+                                <a class="uk-accordion-title" href="#">{{ title }}</a>
+                                <div class="uk-accordion-content">
+                                    {% for resource in resources %}
+                                        <div style="position: relative">
+                                            <p>{{ resource['description'] }}</p>
+                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            {% if user.admin %}
+                                                <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             <div class="knowledge__curriculum">
                 <article class="uk-article uk-margin-bottom">
                     <h3 class="uk-article-title">Curriculum Knowledge Base</h3>
-                    <p>Access our <a class="uk-text-primary" href="https://sites.google.com/apritonadvisors.com/curriculumresources/home?authuser=1" target="_blank">file portal</a>.</p>
+                    <p>Access our <a class="uk-text-primary"
+                                     href="https://sites.google.com/apritonadvisors.com/curriculumresources/home?authuser=1"
+                                     target="_blank">file portal</a>.</p>
                 </article>
+                {% if resourceArray['CURRICULUM_RESOURCES'] is defined %}
+                    <h2>Resources</h2>
+                    <ul uk-accordion="multiple: true">
+                        {% for title, resources in resourceArray['CURRICULUM_RESOURCES'] %}
+                            <li>
+                                <a class="uk-accordion-title" href="#">{{ title }}</a>
+                                <div class="uk-accordion-content">
+                                    {% for resource in resources %}
+                                        <div style="position: relative">
+                                            <p>{{ resource['description'] }}</p>
+                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            {% if user.admin %}
+                                                <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -96,12 +96,13 @@ class CompanyController extends AbstractController
         $form->handleRequest($request);
 
         $useRegionFiltering = false;
-        $regions            = [];
+
+
+       /* $regions            = [];
         if ($user->isSchoolAdministrator()) {
 
             $useRegionFiltering = true;
 
-            /** @var SchoolAdministrator $user */
             foreach ($user->getSchools() as $school) {
 
                 if (!$school->getRegion()) {
@@ -116,8 +117,6 @@ class CompanyController extends AbstractController
 
             $useRegionFiltering = true;
 
-            /** @var ProfessionalUser $user */
-
             foreach ($user->getRegions() as $region) {
 
                 $regions[] = $region->getId();
@@ -128,14 +127,12 @@ class CompanyController extends AbstractController
 
             $useRegionFiltering = true;
 
-            /** @var StudentUser|EducatorUser $user */
-
             if ($user->getSchool() && $user->getSchool()->getRegion()) {
                 $regions[] = $user->getSchool()->getRegion()->getId();
             }
         }
 
-        $regions = array_unique($regions);
+        $regions = array_unique($regions);*/
 
         if ($useRegionFiltering) {
             $filterBuilder = $this->companyRepository->createQueryBuilder('c')
