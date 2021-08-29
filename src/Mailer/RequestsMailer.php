@@ -11,8 +11,6 @@ use App\Entity\Request;
 use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\School;
-use App\Entity\StudentToMeetProfessionalRequest;
-use App\Entity\TeachLessonRequest;
 use App\Entity\User;
 use App\Entity\UserRegisterForSchoolExperienceRequest;
 
@@ -501,103 +499,27 @@ class RequestsMailer extends AbstractMailer
     /************************************************ END REGISTRATION ***********************************************/
 
 
-    public function educatorRegisterStudentForCompanyExperienceRequest(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest
-    ) {
 
-        $message = (new \Swift_Message("Register Student Request."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getNeedsApprovalBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/educatorRegisterStudentForCompanyExperienceRequest.html.twig',
-                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
-                ),
-                'text/html'
-            );
-
-        $status = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Register Student Request.");
-        $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getNeedsApprovalBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-
-    }
-
-    public function educatorRegisterStudentForCompanyExperienceRequestApproval(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest
-    ) {
-        $message = (new \Swift_Message("Register Student Request Approval."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/educatorRegisterStudentForCompanyExperienceRequestApproval.html.twig',
-                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
-                ),
-                'text/html'
-            );
-        $status  = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Register Student Request Approval.");
-        $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getCreatedBy()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-    }
-
-
-    public function educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent(EducatorRegisterStudentForCompanyExperienceRequest $educatorRegisterStudentForCompanyExperienceRequest
-    ) {
-        $message = (new \Swift_Message("You've Been Registered For a Company Experience."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent.html.twig',
-                    ['request' => $educatorRegisterStudentForCompanyExperienceRequest]
-                ),
-                'text/html'
-            );
-        $status  = $this->mailer->send($message);
-
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("You've Been Registered For a Company Experience.");
-        $log->setToEmail($educatorRegisterStudentForCompanyExperienceRequest->getStudentUser()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-    }
+    /************************************************ START ONE ON ON MEETING ***********************************************/
 
     /**
      * Student to meet professional approval
      *
-     * @param StudentToMeetProfessionalRequest $request
+     * @param User $recipient
      *
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function studentToMeetProfessionalApproval(StudentToMeetProfessionalRequest $request)
+    public function oneOnOneMeetingApproval(User $recipient)
     {
-        $message = (new \Swift_Message("Student To Meet Professional Approval."))
+        $message = (new \Swift_Message("One on one meeting approval."))
             ->setFrom($this->siteFromEmail)
-            ->setTo($request->getNeedsApprovalBy()->getEmail())
+            ->setTo($recipient->getEmail())
             ->setBody(
                 $this->templating->render(
-                    'email/requests/studentToMeetProfessional.html.twig',
-                    ['request' => $request]
+                    'email/requests/oneOnOneMeetingApproval.html.twig',
+                    ['recipient' => $recipient]
                 ),
                 'text/html'
             );
@@ -605,8 +527,8 @@ class RequestsMailer extends AbstractMailer
 
         $log = new EmailLog();
         $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Student To Meet Professional Approval.");
-        $log->setToEmail($request->getNeedsApprovalBy()->getEmail());
+        $log->setSubject("One on one meeting approval.");
+        $log->setToEmail($recipient->getEmail());
         $log->setStatus($status);
         $log->setBody($message->getBody());
 
@@ -614,39 +536,8 @@ class RequestsMailer extends AbstractMailer
         $this->entityManager->flush();
     }
 
-    /**
-     * Student to meet professional approval
-     *
-     * @param StudentToMeetProfessionalRequest $request
-     *
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function studentToMeetProfessionalFinalDateConfirmed(StudentToMeetProfessionalRequest $request)
-    {
-        $message = (new \Swift_Message("Student To Meet Final Date Approved."))
-            ->setFrom($this->siteFromEmail)
-            ->setTo($request->getProfessional()->getEmail())
-            ->setBody(
-                $this->templating->render(
-                    'email/requests/studentToMeetProfessionalFinalDateConfirmed.html.twig',
-                    ['request' => $request]
-                ),
-                'text/html'
-            );
-        $status  = $this->mailer->send($message);
+    /************************************************ END ONE ON ON MEETING ***********************************************/
 
-        $log = new EmailLog();
-        $log->setFromEmail($this->siteFromEmail);
-        $log->setSubject("Student To Meet Final Date Approved.");
-        $log->setToEmail($request->getProfessional()->getEmail());
-        $log->setStatus($status);
-        $log->setBody($message->getBody());
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-    }
 
     public function userDeregisterFromEvent(User $deregisteredUser, User $userToSendEmailTo, Experience $experience)
     {

@@ -13,11 +13,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class StudentToMeetProfessionalExperience extends Experience
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StudentToMeetProfessionalRequest", inversedBy="studentToMeetProfessionalExperiences")
-     */
-    private $originalRequest;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\ProfessionalReviewMeetStudentExperienceFeedback", mappedBy="studentToMeetProfessionalExperience")
      */
     private $professionalReviewMeetStudentExperienceFeedback;
@@ -26,18 +21,6 @@ class StudentToMeetProfessionalExperience extends Experience
     {
         parent::__construct();
         $this->professionalReviewMeetStudentExperienceFeedback = new ArrayCollection();
-    }
-
-    public function getOriginalRequest(): ?StudentToMeetProfessionalRequest
-    {
-        return $this->originalRequest;
-    }
-
-    public function setOriginalRequest(?StudentToMeetProfessionalRequest $originalRequest): self
-    {
-        $this->originalRequest = $originalRequest;
-
-        return $this;
     }
 
     /**

@@ -4,7 +4,6 @@
 namespace App\Twig;
 
 use App\Entity\Company;
-use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
 use App\Entity\EducatorUser;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
@@ -16,11 +15,8 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\Site;
 use App\Entity\SiteAdminUser;
 use App\Entity\StateCoordinator;
-use App\Entity\StudentToMeetProfessionalRequest;
 use App\Entity\StudentUser;
-use App\Entity\TeachLessonRequest;
 use App\Entity\User;
-use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Entity\Video;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\ChatMessageRepository;
@@ -155,7 +151,6 @@ class AppExtension extends AbstractExtension
             new TwigFunction('user_can_edit_user', [$this, 'userCanEditUser']),
             new TwigFunction('get_env', [$this, 'getEnv']),
             new TwigFunction('unread_messages', [$this, 'unreadMessages']),
-            new TwigFunction('render_request', [$this, 'renderRequest']),
             new TwigFunction('render_request_status_text', [$this, 'renderRequestStatusText']),
             new TwigFunction('list_pluck', [$this, 'listPluck']),
             new TwigFunction('quote_array_elements_for_react', [$this, 'quoteArrayElementsForReact']),
@@ -481,106 +476,6 @@ class AppExtension extends AbstractExtension
         $unreadMessages = $this->chatMessageRepository->findBy(['sentTo' => $user, 'hasBeenRead' => false]);
 
         return count($unreadMessages);
-    }
-
-    public function renderRequest($request, $user, $location = "", $parentTab = "")
-    {
-
-        switch ($request->getClassName()) {
-            case "TeachLessonRequest":
-                /** @var TeachLessonRequest $request */
-                if ($this->containsNullObjects([
-                    $request->getLesson(),
-                    $request->getSchool(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy(),
-                ])) {
-                    return '';
-                }
-
-                return $this->twig->render('request/partials/_teach_lesson_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab,
-                ]);
-                break;
-            case "EducatorRegisterStudentForCompanyExperienceRequest":
-                /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
-                if ($this->containsNullObjects([
-                    $request->getCompanyExperience(),
-                    $request->getStudentUser(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy(),
-                ])) {
-                    return '';
-                }
-
-                if (!$request->getStudentUser()) {
-                    return '';
-                }
-
-                return $this->twig->render('request/partials/_educator_register_student_for_company_experience_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab,
-                ]);
-                break;
-            case "StudentToMeetProfessionalRequest":
-
-                /** @var StudentToMeetProfessionalRequest $request */
-                if ($this->containsNullObjects([
-                    $request->getStudent(),
-                    $request->getProfessional(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy(),
-                    $request->getReasonToMeet(),
-                ])) {
-                    return '';
-                }
-
-                return $this->twig->render('request/partials/_student_to_meet_professional_request.html.twig', [
-                    'request' => $request,
-                    'user' => $user,
-                    'location' => $location,
-                    'parentTab' => $parentTab,
-                ]);
-                break;
-            case "UserRegisterForSchoolExperienceRequest":
-
-                /** @var UserRegisterForSchoolExperienceRequest $request */
-                if ($this->containsNullObjects([
-                    $request->getSchoolExperience(),
-                    $request->getUser(),
-                    $request->getCreatedBy(),
-                    $request->getNeedsApprovalBy(),
-                ])) {
-                    return '';
-                }
-
-                if ($location === "my-requests_pending" or $location === "history_approval-i-requested_approved" or $location === "history_approval-i-requested_denied" or $location === "school-experience_approval" or $location === "school-experience_denial") {
-                    return $this->twig->render('request/partials/my_created/_user_register_for_school_experience_request.html.twig', [
-                        'request' => $request,
-                        'user' => $user,
-                        'location' => $location,
-                        'parentTab' => $parentTab,
-                    ]);
-                }
-
-                if ($location === "my-requests_approval" or $location === "history_approval-needed-by-me_approved" or $location === "history_approval-needed-by-me_denied") {
-                    return $this->twig->render('request/partials/need_my_approval/_user_register_for_school_experience_request.html.twig', [
-                        'request' => $request,
-                        'user' => $user,
-                        'location' => $location,
-                        'parentTab' => $parentTab,
-                    ]);
-                }
-                break;
-            default:
-                return null;
-        }
-
     }
 
     public function renderRequestStatusText($request)
