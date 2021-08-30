@@ -20,7 +20,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     "educatorRegisterStudentForCompanyExperienceRequest" = "EducatorRegisterStudentForCompanyExperienceRequest",
  *     "educatorRegisterEducatorForCompanyExperienceRequest" = "EducatorRegisterEducatorForCompanyExperienceRequest",
  *     "schoolAdminRegisterSAForCompanyExperienceRequest" = "SchoolAdminRegisterSAForCompanyExperienceRequest",
- *     "studentToMeetProfessionalRequest" = "StudentToMeetProfessionalRequest",
  *     "userRegisterForSchoolExperienceRequest" = "UserRegisterForSchoolExperienceRequest",
  * })
  */
@@ -42,6 +41,7 @@ class Request
     const REQUEST_TYPE_TEACH_LESSON_INVITE = 'TEACH_LESSON_INVITE';
     const REQUEST_TYPE_NOTIFICATION        = 'NOTIFICATION';
     const REQUEST_TYPE_NEW_REGISTRATION    = 'NEW_REGISTRATION';
+    const REQUEST_TYPE_ONE_ON_ONE_MEETING  = 'ONE_ON_ONE_MEETING';
 
     const REQUEST_STATUS_PENDING      = 'PENDING';
     const REQUEST_STATUS_APPROVED     = 'APPROVED';
@@ -868,15 +868,19 @@ class Request
         }
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_REMOVE_FROM_COMPANY) {
-            return 'Remove from company';
+            return 'Remove From Company';
         }
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_LEAVE_COMPANY) {
-            return 'Leave company';
+            return 'Leave Company';
         }
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES) {
-            return 'Suggest new dates';
+            return 'Suggest New Dates';
+        }
+
+        if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES) {
+            return 'Suggest Meeting Dates';
         }
 
         if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {

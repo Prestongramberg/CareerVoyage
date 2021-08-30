@@ -1,0 +1,7 @@
+{% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : recipient } %}
+
+<p>You have a new one on one meeting request that needs your approval.</p>
+
+<p>Login to the <a href="{{ url('dashboard') }}">dashboard</a> to accept.</p>
+
+{% include 'email/partial/emailFooter.html.twig' %}

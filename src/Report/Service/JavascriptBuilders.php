@@ -1055,7 +1055,6 @@ class JavascriptBuilders
                     'site',
                     'videoFavorites',
                     'userRegisterForSchoolExperienceRequests',
-                    'studentToMeetProfessionalRequests',
                     'studentReviewTeachLessonExperienceFeedback',
                     'studentReviewExperienceFeedback',
                     'sentToShares',
@@ -1064,7 +1063,6 @@ class JavascriptBuilders
                     'requestsThatNeedMyApproval',
                     'requestPossibleApprovers',
                     'lessonTeachables',
-                    'educatorRegisterStudentForCompanyExperienceRequests',
                     'chatMessages',
                     'allowedCommunications'
                 ];
@@ -1101,7 +1099,6 @@ class JavascriptBuilders
                     'professionalVideos',
                     'sentToShares',
                     'sentFromShares',
-                    'studentToMeetProfessionalRequests',
                     'userRegisterForSchoolExperienceRequests',
                     'videoFavorites'
                 ];

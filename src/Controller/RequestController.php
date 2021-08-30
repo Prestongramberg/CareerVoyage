@@ -3,24 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\AllowedCommunication;
-use App\Entity\EducatorRegisterStudentForCompanyExperienceRequest;
-use App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest;
+use App\Entity\EducatorUser;
 use App\Entity\Industry;
+use App\Entity\ProfessionalUser;
 use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\RolesWillingToFulfill;
-use App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest;
-use App\Entity\EducatorUser;
-use App\Entity\ProfessionalUser;
 use App\Entity\Registration;
-use App\Entity\School;
-use App\Entity\SchoolExperience;
 use App\Entity\StudentToMeetProfessionalExperience;
-use App\Entity\StudentToMeetProfessionalRequest;
+use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
 use App\Entity\User;
 use App\Entity\UserMeta;
-use App\Entity\UserRegisterForSchoolExperienceRequest;
 use App\Form\CreateRequestFormType;
 use App\Form\EditRequestFormType;
 use App\Form\Request\SelectSuggestedDatesFormType;
@@ -64,217 +58,50 @@ class RequestController extends AbstractController
     public function requests(Request $httpRequest)
     {
         /** @var User $user */
-        $user = $this->getUser();
+        $user   = $this->getUser();
+        $filter = $httpRequest->query->get('filter', null);
 
+        if ($requestId = $httpRequest->query->get('id', null)) {
 
-        // todo should we change this endpoint to be more of a search-requests endpoint?
-        //  then you can pass up ?student-requests=true, ?pending-requests=true and the various filters for each tab?
-        //  also you are probably going to need to do a refresh on each tab and make it so it's a page reload.
-        //  look at the resources page for how I did this. I'm pretty sure I did it here with the
-        //  different videos, etc and tabs at the top of the page
+            $queryBuilder = $this->requestRepository->createQueryBuilder('r')
+                                                    ->andWhere('r.id = :id')
+                                                    ->setParameter('id', $requestId);
 
-        $requestId = $httpRequest->query->get('id', null);
-
-        if ($requestId) {
-            $reviewRequests = $this->requestRepository->findBy([
-                'id' => $requestId,
-            ]);
         } else {
-            $reviewRequests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+
+            switch ($filter) {
+                case 'created_by_me':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user);
+                    break;
+
+                case 'approved':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, true);
+                    break;
+
+                case 'denied':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, false, true);
+                    break;
+
+                case 'pending':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, false, false, true);
+                    break;
+                default:
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true);
+                    break;
+            }
         }
 
-        // TODO SECOND DRAFT
-        /*        $myCreatedRequests = $this->requestRepository->findBy([
-                    'created_by' => $user,
-                    'denied' => false,
-                    'approved' => false,
-                    'allowApprovalByActivationCode' => false,
-                ], ['createdAt' => 'DESC']);
+        $pagination = $this->paginator->paginate(
+            $queryBuilder->getQuery(), /* query NOT result */
+            $httpRequest->query->getInt('page', 1), /*page number*/
+            10,
+            ['distinct' => false]
+        );
 
-                $deniedByMeRequests = $this->requestRepository->findBy([
-                    'needsApprovalBy' => $user,
-                    'denied' => true,
-                ], ['createdAt' => 'DESC']);
-
-                $approvedByMeRequests = $this->requestRepository->findBy([
-                    'needsApprovalBy' => $user,
-                    'approved' => true,
-                ], ['createdAt' => 'DESC']);
-
-                $myDeniedAccessRequests = $this->requestRepository->findBy([
-                    'created_by' => $user,
-                    'denied' => true,
-                ], ['createdAt' => 'DESC']);
-
-                $myApprovedAccessRequests = $this->requestRepository->findBy([
-                    'created_by' => $user,
-                    'approved' => true,
-                ], ['createdAt' => 'DESC']);
-
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.studentUser = :user')
-                    ->andWhere('r.approved = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $studentRegisterApproval = $qb->getQuery()->getResult();
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.studentUser = :user')
-                    ->andWhere('r.denied = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $studentRegisterDenial = $qb->getQuery()->getResult();
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.user = :user')
-                    ->andWhere('r.approved = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $userRegisterSchoolApproval = $qb->getQuery()->getResult();
-
-                $qb = $this->entityManager->createQueryBuilder();
-                $qb
-                    ->select('r')
-                    ->from('App\Entity\Request', 'r')
-                    ->leftJoin('App\Entity\UserRegisterForSchoolExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-                    ->andWhere('e.user = :user')
-                    ->andWhere('r.denied = true')
-                    ->setParameter('user', $user)
-                    ->groupBy('e.id')
-                    ->orderBy('r.createdAt', 'DESC');
-
-                $userRegisterSchoolDenial = $qb->getQuery()->getResult();
-
-
-                */
-
-
-        // TODO FIRST DRAFT
-        // $studentHasSeenCompanyRequestsApproval = [];
-        // $studentHasSeenCompanyRequestsDenial = [];
-        // if($user->isStudent()) {
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('e.studentUser = :user')
-        //         ->andWhere('r.approved = true')
-        //         ->andWhere('e.studentHasSeen = false')
-        //         ->setParameter('user', $user)
-        //         ->groupBy('e.id');
-
-        //     $studentHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('e.studentUser = :user')
-        //         ->andWhere('r.denied = true')
-        //         ->andWhere('e.studentHasSeen = false')
-        //         ->setParameter('user', $user)
-        //         ->groupBy('e.id');
-
-        //     $studentHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-        // }
-
-        // $educatorHasSeenCompanyRequestsApproval = [];
-        // $educatorHasSeenCompanyRequestsDenial = [];
-        // if($user->isEducator()) {
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.approved = true')
-        //         ->andWhere('e.educatorHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $educatorHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.denied = true')
-        //         ->andWhere('e.educatorHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $educatorHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-        // }
-
-        // $professionalHasSeenCompanyRequestsApproval = [];
-        // $professionalHasSeenCompanyRequestsDenial = [];
-        // if($user->isProfessional()) {
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.approved = true')
-        //         ->andWhere('e.professionalHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $professionalHasSeenCompanyRequestsApproval = $qb->getQuery()->getResult();
-
-        //     $qb = $this->entityManager->createQueryBuilder();
-        //     $qb
-        //         ->select('r')
-        //         ->from('App\Entity\Request', 'r')
-        //         ->leftJoin('App\Entity\EducatorRegisterStudentForCompanyExperienceRequest', 'e', \Doctrine\ORM\Query\Expr\Join::WITH, 'r.id = e.id')
-        //         ->andWhere('r.denied = true')
-        //         ->andWhere('e.professionalHasSeen = false')
-        //         ->groupBy('e.id');
-
-        //     $professionalHasSeenCompanyRequestsDenial = $qb->getQuery()->getResult();
-        // }
-
-        // todo you could return a different view per user role as well
-        return $this->render('request/index_new.html.twig', [
+        return $this->render('request/index.html.twig', [
             'user' => $user,
-            'reviewRequests' => $reviewRequests
-
-
-            /*'requestsThatNeedMyApproval' => $requestsThatNeedMyApproval,
-            'myCreatedRequests' => $myCreatedRequests,
-            'approvedByMeRequests' => $approvedByMeRequests,
-            'deniedByMeRequests' => $deniedByMeRequests,
-            'myApprovedAccessRequests' => $myApprovedAccessRequests,
-            'myDeniedAccessRequests' => $myDeniedAccessRequests,
-            'studentRegisterApproval' => $studentRegisterApproval,
-            'studentRegisterDenial' => $studentRegisterDenial,
-            'userRegisterSchoolApproval' => $userRegisterSchoolApproval,
-            'userRegisterSchoolDenial' => $userRegisterSchoolDenial*/
-
-
-            // 'studentHasSeenCompanyRequestsApproval' => count($studentHasSeenCompanyRequestsApproval),
-            // 'studentHasSeenCompanyRequestsDenial' => count($studentHasSeenCompanyRequestsDenial),
-            // 'educatorHasSeenCompanyRequestsApproval' => count($educatorHasSeenCompanyRequestsApproval),
-            // 'educatorHasSeenCompanyRequestsDenial' => count($educatorHasSeenCompanyRequestsDenial),
-            // 'professionalHasSeenCompanyRequestsApproval' => count($professionalHasSeenCompanyRequestsApproval),
-            // 'professionalHasSeenCompanyRequestsDenial' => count($professionalHasSeenCompanyRequestsDenial)
+            'pagination' => $pagination,
+            'filter' => $filter,
         ]);
     }
 
@@ -839,6 +666,15 @@ class RequestController extends AbstractController
                             );
 
                             if ($shouldCreateExperience) {
+
+                                $oldExperience = $this->experienceRepository->findOneBy([
+                                    'request' => $request,
+                                ]);
+
+                                if ($oldExperience) {
+                                    $this->entityManager->remove($oldExperience);
+                                }
+
                                 $teachLessonExperience = new TeachLessonExperience();
                                 $teachLessonExperience->setStartDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate) : null);
                                 $teachLessonExperience->setEndDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate)->add(new DateInterval('PT2H')) : null);
@@ -848,6 +684,7 @@ class RequestController extends AbstractController
                                 $teachLessonExperience->setLesson($lesson);
                                 $teachLessonExperience->setSchool($school);
                                 $teachLessonExperience->setTeacher($professional);
+                                $this->entityManager->persist($teachLessonExperience);
 
                                 $registrationUsers = [$educator, $professional];
                                 foreach ($registrationUsers as $registrationUser) {
@@ -857,7 +694,6 @@ class RequestController extends AbstractController
                                     $this->entityManager->persist($registration);
                                 }
 
-                                $this->entityManager->persist($teachLessonExperience);
                             }
 
                             $this->entityManager->flush();
@@ -1405,6 +1241,491 @@ class RequestController extends AbstractController
 
                 break;
 
+            case \App\Entity\Request::REQUEST_TYPE_ONE_ON_ONE_MEETING:
+
+                $data           = null;
+                $notification   = $request->getNotification();
+                $professionalId = $httpRequest->query->get('professional_id');
+                $professional   = $this->professionalUserRepository->find($professionalId);
+
+                $studentId = $httpRequest->query->get('student_id');
+                $student   = $this->studentUserRepository->find($studentId);
+
+                /** @var User $createdBy */
+                $createdBy = $request->getCreatedBy();
+
+                $template = 'request/modal/one_on_one_meeting.html.twig';
+
+                $setDates = (
+                    !empty($notification['suggested_dates']['date_option_one']) &&
+                    !empty($notification['suggested_dates']['date_option_two']) &&
+                    !empty($notification['suggested_dates']['date_option_three'])
+                );
+
+                if ($setDates) {
+                    $data = [
+                        'dateOptionOne' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_one']),
+                        'dateOptionTwo' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_two']),
+                        'dateOptionThree' => DateTime::createFromFormat('m/d/Y g:i A', $notification['suggested_dates']['date_option_three']),
+                    ];
+                }
+
+                $selectSuggestedDatesForm = $this->createForm(SelectSuggestedDatesFormType::class, null, [
+                    'request' => $request,
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                ]);
+
+                $suggestNewDatesForm = $this->createForm(SuggestNewDatesFormType::class, $data, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                ]);
+
+                $sendMessageForm = $this->createForm(SendMessageFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $request->getActionUrl() . '&action=' . RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES) {
+                    $template = 'request/modal/suggest_new_dates.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+                    $template = 'request/modal/select_suggested_dates.html.twig';
+                }
+
+                if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+                    $template = 'request/modal/send_message.html.twig';
+                }
+
+                $context = [
+                    'request' => $request,
+                    'suggestNewDatesForm' => $suggestNewDatesForm->createView(),
+                    'selectSuggestedDatesForm' => $selectSuggestedDatesForm->createView(),
+                    'sendMessageForm' => $sendMessageForm->createView(),
+                    'loggedInUser' => $loggedInUser,
+                ];
+
+                $requestActionHandler = function () use (
+                    $request, $createdBy, $professional, $student, $requestAction, $action, $loggedInUser,
+                    $selectSuggestedDatesForm, $suggestNewDatesForm, $sendMessageForm, $httpRequest, &$template
+                ) {
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_APPROVE) {
+
+                        /** @var  RequestPossibleApprovers $loggedInUserPossibleApprover */
+                        $loggedInUserPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+                        $loggedInUserPossibleApprover->setNotificationDate(new \DateTime());
+                        $notification = $request->getNotification();
+
+
+                        if ($loggedInUser instanceof EducatorUser) {
+
+                            /** @var  RequestPossibleApprovers $professionalPossibleApprover */
+                            $professionalPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+
+                            if (!$professionalPossibleApprover) {
+                                // assign to professional for approval and date selection
+                                $notification['user_photos'][] = [
+                                    'order' => count($notification['user_photos']) + 1,
+                                    'path' => $professional->getPhotoPath(),
+                                ];
+
+                                $request->setNotification($notification);
+
+                                $professionalPossibleApprover = new RequestPossibleApprovers();
+                                $professionalPossibleApprover->setPossibleApprover($professional);
+                                $professionalPossibleApprover->setRequest($request);
+                                $professionalPossibleApprover->setNotificationTitle("<strong>{$student->getFullName()}</strong> has requested to meet you");
+                                $professionalPossibleApprover->setHasNotification(true);
+                                $professionalPossibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+                                $this->entityManager->persist($professionalPossibleApprover);
+                                $this->requestsMailer->oneOnOneMeetingApproval($professionalPossibleApprover->getPossibleApprover());
+
+                                /** @var  RequestPossibleApprovers $studentPossibleApprover */
+                                $studentPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+
+                                $studentPossibleApprover->setHasNotification(true);
+                                $studentPossibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+                            }
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                    ->setStatusLabel('Meeting Pending Professional Approval');
+                        } else {
+
+                            $selectedDate = null;
+                            $reasonToMeet = '';
+                            $selectSuggestedDatesForm->handleRequest($httpRequest);
+
+                            if ($selectSuggestedDatesForm->isSubmitted() && $selectSuggestedDatesForm->isValid()) {
+
+                                $notification = $request->getNotification();
+
+                                if ($selectSuggestedDatesForm->get('dateOptionOne')->isClicked()) {
+                                    $selectedDate = $notification['suggested_dates']['date_option_one'];
+                                }
+
+                                if ($selectSuggestedDatesForm->get('dateOptionTwo')->isClicked()) {
+                                    $selectedDate = $notification['suggested_dates']['date_option_two'];
+                                }
+
+                                if ($selectSuggestedDatesForm->get('dateOptionThree')->isClicked()) {
+                                    $selectedDate = $notification['suggested_dates']['date_option_three'];
+                                }
+
+                                if (!empty($notification['body']['Reason to Meet'])) {
+                                    $reasonToMeet = $notification['body']['Reason to Meet']['value'];
+                                }
+
+                                $notification['body']['Selected Meeting Date'] = [
+                                    'order' => 5,
+                                    'value' => $selectedDate ?? '',
+                                ];
+
+                                $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                                $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                        ->setStatusLabel('Meeting has been approved')
+                                        ->setNotification($notification);
+                                $this->entityManager->persist($requestAction);
+
+                                /** @var  RequestPossibleApprovers $studentPossibleApprover */
+                                $studentPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+                                $studentPossibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+
+                                /** @var  RequestPossibleApprovers $professionalPossibleApprover */
+                                $professionalPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+                                $professionalPossibleApprover->setPossibleActions([
+                                    RequestAction::REQUEST_ACTION_NAME_DENY,
+                                    RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                                ]);
+
+                                /** @var RequestPossibleApprovers $possibleApprover */
+                                foreach ($request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser) as $possibleApprover) {
+                                    $possibleApprover->setNotificationDate(new DateTime());
+                                }
+
+                                $hasProfessional = (
+                                    !empty($notification['data']['professional_id']) &&
+                                    $professional = $this->professionalUserRepository->find($notification['data']['professional_id'])
+                                );
+
+                                $hasStudent = (
+                                    !empty($notification['data']['student_id']) &&
+                                    $student = $this->studentUserRepository->find($notification['data']['student_id'])
+                                );
+
+                                $shouldCreateExperience = (
+                                    $hasProfessional &&
+                                    $hasStudent
+                                );
+
+                                if ($shouldCreateExperience) {
+
+                                    $experience = $this->experienceRepository->findOneBy([
+                                        'request' => $request,
+                                    ]);
+
+                                    if (!$experience) {
+                                        $experience = new StudentToMeetProfessionalExperience();
+                                        $experience->setTitle(sprintf("One on One Meeting - %s", $reasonToMeet));
+                                        $experience->setBriefDescription(sprintf("One on One Meeting With %s and %s - %s", $professional->getFullName(), $student->getFullName(), $reasonToMeet));
+                                        $experience->setRequest($request);
+
+                                        $registrationUsers = [$student, $professional];
+                                        foreach ($registrationUsers as $registrationUser) {
+                                            $registration = new Registration();
+                                            $registration->setUser($registrationUser);
+                                            $registration->setExperience($experience);
+                                            $this->entityManager->persist($registration);
+                                        }
+                                    }
+
+                                    $experience->setStartDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate) : null);
+                                    $experience->setEndDateAndTime($selectedDate ? DateTime::createFromFormat('m/d/Y g:i A', $selectedDate)->add(new DateInterval('PT2H')) : null);
+                                    $this->entityManager->persist($experience);
+                                }
+
+                                $this->entityManager->flush();
+
+                                $template = 'request/modal/one_on_one_meeting.html.twig';
+                            }
+
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_APPROVE);
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_APPROVED)
+                                    ->setStatusLabel('Meeting Has Been Approved');
+                        }
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+
+                        $template = 'request/modal/one_on_one_meeting.html.twig';
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_DENY) {
+
+                        if ($loggedInUser instanceof EducatorUser) {
+                            /** @var  RequestPossibleApprovers $professionalPossibleApprover */
+                            $professionalPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+
+                            if ($professionalPossibleApprover) {
+                                $professionalPossibleApprover->setPossibleActions([]);
+                            }
+
+                            $notification = $request->getNotification();
+
+                            $notification['body']['Selected Meeting Date'] = [
+                                'order' => 5,
+                                'value' => "To be determined",
+                            ];
+
+                            $notification['body']['Suggested Meeting Dates'] = [
+                                'order' => 6,
+                                'value' => "To be determined",
+                            ];
+
+                            $request->setNotification($notification);
+
+                            /** @var  RequestPossibleApprovers $studentPossibleApprover */
+                            $studentPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+                            $studentPossibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+                        } else {
+
+                            if ($loggedInUser instanceof ProfessionalUser) {
+                                /** @var  RequestPossibleApprovers $possibleApprover */
+                                $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+                            }
+
+                            if ($loggedInUser instanceof StudentUser) {
+                                /** @var  RequestPossibleApprovers $possibleApprover */
+                                $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+                            }
+
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+                        }
+
+                        $experience = $this->experienceRepository->findOneBy([
+                            'request' => $request,
+                        ]);
+
+                        if ($experience) {
+                            $this->entityManager->remove($experience);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_DENY);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_DENIED)
+                                ->setStatusLabel('Meeting Has Been Denied');
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING) {
+
+                        if ($loggedInUser instanceof EducatorUser) {
+                            /** @var  RequestPossibleApprovers $professionalPossibleApprover */
+                            $professionalPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+
+                            if ($professionalPossibleApprover) {
+                                $professionalPossibleApprover->setPossibleActions([]);
+                                $professionalPossibleApprover->setHasNotification(true);
+                            }
+
+                            $experience = $this->experienceRepository->findOneBy([
+                                'request' => $request,
+                            ]);
+
+                            if ($experience) {
+                                $this->entityManager->remove($experience);
+                            }
+
+                            $notification = $request->getNotification();
+
+                            $notification['body']['Selected Meeting Date'] = [
+                                'order' => 5,
+                                'value' => "To be determined",
+                            ];
+
+                            $notification['body']['Suggested Meeting Dates'] = [
+                                'order' => 6,
+                                'value' => "To be determined",
+                            ];
+
+                            $request->setNotification($notification);
+
+                            /** @var  RequestPossibleApprovers $studentPossibleApprover */
+                            $studentPossibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+                            $studentPossibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+                        } else {
+
+                            if ($loggedInUser instanceof ProfessionalUser) {
+                                /** @var  RequestPossibleApprovers $possibleApprover */
+                                $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+                            }
+
+                            if ($loggedInUser instanceof StudentUser) {
+                                /** @var  RequestPossibleApprovers $possibleApprover */
+                                $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+                            }
+
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+                        }
+
+                        $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                        foreach ($possibleApprovers as $possibleApprover) {
+                            $possibleApprover->setHasNotification(true);
+                        }
+
+                        $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING);
+                        $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                ->setStatusLabel('Meeting Pending Approval');
+
+                        $this->entityManager->persist($requestAction);
+                        $this->entityManager->flush();
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE) {
+
+                        $sendMessageForm->handleRequest($httpRequest);
+
+                        if ($sendMessageForm->isSubmitted() && $sendMessageForm->isValid()) {
+
+                            $formData     = $sendMessageForm->getData();
+                            $notification = $request->getNotification();
+                            $message      = $formData['message'];
+
+                            $notification['messages'][] = [
+                                'body' => $message,
+                                'date' => (new \DateTime())->format('n/j/Y g:i A'),
+                                'user' => [
+                                    'id' => $loggedInUser->getId(),
+                                    'full_name' => $loggedInUser->getFullName(),
+                                    'photo' => $loggedInUser->getPhotoPath(),
+                                ],
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE);
+                            $this->entityManager->persist($requestAction);
+
+                            $possibleApprovers = $request->getAssociatedRequestPossibleApproversNotEqualToUser($loggedInUser);
+
+                            if (empty($possibleApprovers)) {
+                                $possibleApprover = new RequestPossibleApprovers();
+                                $possibleApprover->setPossibleApprover($request->getCreatedBy());
+                                $possibleApprover->setRequest($request);
+                                $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+                                $possibleApprover->setNotificationTitle("<strong>{$loggedInUser->getFullName()}</strong> responded to your job board request - \"{$request->getSummary()}\"");
+                                $this->entityManager->persist($possibleApprover);
+                                $possibleApprovers = [$possibleApprover];
+                            }
+
+                            foreach ($possibleApprovers as $possibleApprover) {
+                                $possibleApprover->setHasNotification(true);
+                            }
+
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/send_message.html.twig';
+                        }
+                    }
+
+                    if ($action === RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES) {
+
+                        $suggestNewDatesForm->handleRequest($httpRequest);
+
+                        if ($suggestNewDatesForm->isSubmitted() && $suggestNewDatesForm->isValid()) {
+
+                            $formData        = $suggestNewDatesForm->getData();
+                            $dateOptionOne   = $formData['dateOptionOne']->format("m/d/Y g:i A");
+                            $dateOptionTwo   = $formData['dateOptionTwo']->format("m/d/Y g:i A");
+                            $dateOptionThree = $formData['dateOptionThree']->format("m/d/Y g:i A");
+
+                            $notification                                         = $request->getNotification();
+                            $notification['suggested_dates']['date_option_one']   = $dateOptionOne;
+                            $notification['suggested_dates']['date_option_two']   = $dateOptionTwo;
+                            $notification['suggested_dates']['date_option_three'] = $dateOptionThree;
+                            $notification['body']['Suggested Meeting Dates']      = [
+                                'order' => 4,
+                                'value' => "{$dateOptionOne} <br> {$dateOptionTwo} <br> {$dateOptionThree}",
+                            ];
+
+                            $request->setNotification($notification);
+
+                            $requestAction->setName(RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES);
+
+                            $request->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING)
+                                    ->setStatusLabel('Suggested meeting dates pending approval');
+
+                            /** @var RequestPossibleApprovers $possibleApprover */
+                            $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($loggedInUser);
+                            $possibleApprover->setNotificationDate(new \DateTime());
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_DENY,
+                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+
+                            if ($loggedInUser instanceof ProfessionalUser) {
+                                /** @var  RequestPossibleApprovers $possibleApprover */
+                                $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($student);
+                            }
+
+                            if ($loggedInUser instanceof StudentUser) {
+                                /** @var  RequestPossibleApprovers $possibleApprover */
+                                $possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($professional);
+                            }
+
+                            $possibleApprover->setHasNotification(true);
+                            $possibleApprover->setPossibleActions([
+                                RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                RequestAction::REQUEST_ACTION_NAME_DENY,
+                                RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
+                                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                            ]);
+
+                            $this->entityManager->persist($requestAction);
+                            $this->entityManager->flush();
+
+                            $template = 'request/modal/one_on_one_meeting.html.twig';
+                        }
+                    }
+                };
+
+                break;
+
             default:
                 $template = 'request/modal/default.html.twig';
                 $context  = [
@@ -1428,305 +1749,6 @@ class RequestController extends AbstractController
     }
 
     /**
-     * @Route("/requests/{id}/approve", name="approve_request", methods={"POST"}, options = { "expose" = true })
-     * @param \App\Entity\Request $request
-     * @param Request             $httpRequest
-     *
-     * @return RedirectResponse|Response
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function approveRequest(\App\Entity\Request $request, Request $httpRequest)
-    {
-
-
-        $session = new Session();
-
-
-        // $this->denyAccessUnlessGranted('edit', $request);
-
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $this->handleRequestApproval($request, $httpRequest);
-
-        if ($httpRequest->isXmlHttpRequest()) {
-            $flashbag = $session->getFlashBag()->all();
-            $flash    = [];
-            foreach ($flashbag as $type => $messages) {
-                foreach ($messages as $message) {
-                    $flash = ["type" => $type, "message" => $message];
-                }
-            }
-
-            return new JsonResponse(["status" => $flash]);
-        }
-
-        $referer = $httpRequest->headers->get('referer');
-
-        return new RedirectResponse($referer);
-    }
-
-    /**
-     * @Route("/requests/{id}/deny", name="deny_request", methods={"POST"}, options = { "expose" = true })
-     * @param \App\Entity\Request $request
-     * @param Request             $httpRequest
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-    public function denyRequest(\App\Entity\Request $request, Request $httpRequest)
-    {
-
-        $session = new Session();
-
-        $this->denyAccessUnlessGranted('edit', $request);
-
-
-        switch ($request->getClassName()) {
-            case 'TeachLessonRequest':
-                // not all educators have an email address.
-                if ($request->getCreatedBy()->getEmail()) {
-                    $this->requestsMailer->teachLessonRequestDenied($request);
-                }
-                break;
-        }
-
-        $request->setDenied(true);
-        $request->setEducatorHasSeen(false);
-        $this->entityManager->persist($request);
-        $this->entityManager->flush();
-        $this->addFlash('success', 'Request denied.');
-
-        if ($httpRequest->isXmlHttpRequest()) {
-            $flashbag = $session->getFlashBag()->all();
-            $flash    = [];
-            foreach ($flashbag as $type => $messages) {
-                foreach ($messages as $message) {
-                    $flash = ["type" => $type, "message" => $message];
-                }
-            }
-
-            return new JsonResponse(["status" => $flash]);
-        }
-
-        $referer = $httpRequest->headers->get('referer');
-
-        return new RedirectResponse($referer);
-    }
-
-    /**
-     * @param \App\Entity\Request $request
-     * @param Request             $httpRequest
-     *
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    private function handleRequestApproval(\App\Entity\Request $request, Request $httpRequest)
-    {
-
-        switch ($request->getClassName()) {
-            case 'EducatorRegisterStudentForCompanyExperienceRequest':
-                /** @var EducatorRegisterStudentForCompanyExperienceRequest $request */
-                $studentUser = $request->getStudentUser();
-                $experience  = $request->getCompanyExperience();
-
-                if ($experience->getAvailableSpaces() === 0) {
-                    $this->addFlash('error', 'Could not approve registration. 0 spots left.');
-                }
-
-                if ($experience->getAvailableSpaces() !== 0) {
-                    $experience->setAvailableSpaces($experience->getAvailableSpaces() - 1);
-                }
-                $this->entityManager->persist($experience);
-                $request->setApproved(true);
-                $this->entityManager->persist($request);
-                $registration = new Registration();
-                $registration->setUser($studentUser);
-                $registration->setExperience($request->getCompanyExperience());
-                $this->entityManager->persist($registration);
-                // make sure the teacher has a registration as well
-                $previousTeacherRegistration = $this->registrationRepository->getByUserAndExperience($request->getCreatedBy(), $request->getCompanyExperience());
-                if (!$previousTeacherRegistration) {
-                    $registration = new Registration();
-                    $registration->setUser($request->getCreatedBy());
-                    $registration->setExperience($request->getCompanyExperience());
-                    $this->entityManager->persist($registration);
-                }
-                // an educator who created the request might not have an email
-                if ($request->getCreatedBy()->getEmail()) {
-                    $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApproval($request);
-                }
-
-                if ($request->getStudentUser()->getEmail()) {
-                    $this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequestApprovalEmailForStudent($request);
-                }
-
-                $this->addFlash('success', 'Students have been registered in event!');
-                $this->entityManager->flush();
-                break;
-            case 'EducatorRegisterEducatorForCompanyExperienceRequest':
-                /** @var EducatorRegisterEducatorForCompanyExperienceRequest $request */
-                $educatorUser = $request->getEducatorUser();
-                $experience   = $request->getCompanyExperience();
-
-                $this->entityManager->persist($experience);
-                $request->setApproved(true);
-                $this->entityManager->persist($request);
-                $registration = new Registration();
-                $registration->setUser($educatorUser);
-                $registration->setExperience($request->getCompanyExperience());
-                $this->entityManager->persist($registration);
-                // make sure the teacher has a registration as well
-
-                $this->addFlash('success', 'You have been registered for this event!');
-                $this->entityManager->flush();
-                break;
-            case 'SchoolAdminRegisterSAForCompanyExperienceRequest':
-                /** @var SchoolAdminRegisterSAForCompanyExperienceRequest $request */
-                $schoolAdminUser = $request->getSchoolAdminUser();
-                $experience      = $request->getCompanyExperience();
-
-                $this->entityManager->persist($experience);
-                $request->setApproved(true);
-                $this->entityManager->persist($request);
-                $registration = new Registration();
-                $registration->setUser($schoolAdminUser);
-                $registration->setExperience($request->getCompanyExperience());
-                $this->entityManager->persist($registration);
-                // make sure the teacher has a registration as well
-
-                $this->addFlash('success', 'You have been registered for this event!');
-                $this->entityManager->flush();
-                break;
-            case 'StudentToMeetProfessionalRequest':
-                /** @var StudentToMeetProfessionalRequest $request */
-                $student      = $request->getStudent();
-                $professional = $request->getProfessional();
-                $request->setApproved(true);
-                $reasonToMeet = $request->getReasonToMeet();
-                if ($httpRequest->request->has('isFromEducator')) {
-                    // if the request is from the educator this means teacher approval was required and they have approved
-                    // next thing you need to do is create a request to be sent to the professional
-                    $newRequest = new StudentToMeetProfessionalRequest();
-                    $newRequest->setCreatedBy($request->getNeedsApprovalBy());
-                    $newRequest->setProfessional($professional);
-                    $newRequest->setStudent($student);
-                    $newRequest->setReasonToMeet($reasonToMeet);
-                    $newRequest->setNeedsApprovalBy($professional);
-                    $this->entityManager->persist($newRequest);
-                    $this->addFlash('success', 'Request being sent to professional to setup 3 dates to meet with student!');
-                    $this->requestsMailer->studentToMeetProfessionalApproval($newRequest);
-                }
-                if ($httpRequest->request->has('isFromProfessional')) {
-                    // if the request is from the professional send off the next request to the student to finalize the date
-                    $dateOptionOne   = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionOne'));
-                    $dateOptionTwo   = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionTwo'));
-                    $dateOptionThree = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('dateOptionThree'));
-                    $newRequest      = new StudentToMeetProfessionalRequest();
-                    $newRequest->setDateOptionOne($dateOptionOne);
-                    $newRequest->setDateOptionTwo($dateOptionTwo);
-                    $newRequest->setDateOptionThree($dateOptionThree);
-                    $newRequest->setStudent($student);
-                    $newRequest->setReasonToMeet($reasonToMeet);
-                    $newRequest->setProfessional($professional);
-                    $newRequest->setNeedsApprovalBy($student);
-                    $newRequest->setCreatedBy($professional);
-                    $this->entityManager->persist($newRequest);
-                    $this->addFlash('success', 'Request sent to student to finalize one of your three dates!');
-                    $this->requestsMailer->studentToMeetProfessionalApproval($newRequest);
-                }
-
-                if ($httpRequest->request->has('isFromStudent')) {
-                    // if the request is from the student then they are approving the final date. Go ahead and add it to both the
-                    // students calendar and professionals calendar by creating a new experience object for both of them.
-                    $date = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                    // we must have an end date so let's just set it for 2 hours from the start
-                    $endDate = DateTime::createFromFormat('m/d/Y g:i A', $httpRequest->request->get('date'));
-                    $endDate->add(new DateInterval('PT2H'));
-                    $request->setConfirmedDate($date);
-                    $descriptionDate = date_format($date, 'F jS Y');
-
-                    $experience = new StudentToMeetProfessionalExperience();
-                    $experience->setOriginalRequest($request);
-                    $experience->setStartDateAndTime($date);
-                    $experience->setEndDateAndTime($endDate);
-                    $experience->setTitle(sprintf("Student %s to meet with Professional %s for %s, %s",
-                        $request->getNeedsApprovalBy()->getFullName(),
-                        $request->getCreatedBy()->getFullName(),
-                        $request->getReasonToMeet()->getEventName(),
-                        $descriptionDate
-                    ));
-                    $experience->setBriefDescription("Student to meet Professional");
-
-                    $experience->setOriginalRequest($request);
-                    $this->entityManager->persist($experience);
-                    // student registration for event
-                    $studentRegistration = new Registration();
-                    $studentRegistration->setUser($request->getNeedsApprovalBy());
-                    $studentRegistration->setExperience($experience);
-                    $this->entityManager->persist($studentRegistration);
-                    // teacher registration for event
-                    $teacherRegistration = new Registration();
-                    $teacherRegistration->setUser($request->getCreatedBy());
-                    $teacherRegistration->setExperience($experience);
-                    $this->entityManager->persist($teacherRegistration);
-                    $this->addFlash('success', 'Request successfully confirmed! This experience will be added to yours and the professionals calendar.');
-                    // The whole process has been completed successfully. Now you need to open up the line of communication between the student and professional
-                    $allowedCommunication = new AllowedCommunication();
-                    $allowedCommunication->setStudentUser($student);
-                    $allowedCommunication->setProfessionalUser($professional);
-                    $this->entityManager->persist($allowedCommunication);
-                    $this->requestsMailer->studentToMeetProfessionalFinalDateConfirmed($request);
-                }
-
-                // todo make sure we send emails
-                $this->entityManager->flush();
-                break;
-            case 'UserRegisterForSchoolExperienceRequest':
-                /** @var UserRegisterForSchoolExperienceRequest $request */
-                /** @var User $user */
-                $user = $request->getUser();
-                /** @var SchoolExperience $experience */
-                $experience = $request->getSchoolExperience();
-                if ($user->isProfessional() && $experience->getAvailableProfessionalSpaces() === 0) {
-                    $this->addFlash('error', 'Could not approve registration. 0 spots left.');
-                }
-                if (($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() === 0) {
-                    $this->addFlash('error', 'Could not approve registration. 0 spots left.');
-                }
-
-                if ($user->isProfessional() && $experience->getAvailableProfessionalSpaces() !== 0) {
-                    $experience->setAvailableProfessionalSpaces($experience->getAvailableProfessionalSpaces() - 1);
-
-                }
-                if (($user->isStudent() || $user->isEducator()) && $experience->getAvailableStudentSpaces() !== 0) {
-                    $experience->setAvailableStudentSpaces($experience->getAvailableStudentSpaces() - 1);
-                }
-
-                $request->setApproved(true);
-                $this->entityManager->persist($request);
-                $this->entityManager->persist($experience);
-                $registration = new Registration();
-                $registration->setUser($user);
-                $registration->setExperience($experience);
-                $this->entityManager->persist($registration);
-                $this->requestsMailer->userRegisterForSchoolExperienceRequestApproval($request);
-                $this->addFlash('success', 'User has been registered for event!');
-                $this->entityManager->flush();
-                break;
-        }
-        $this->entityManager->persist($request);
-        $this->entityManager->flush();
-    }
-
-    /**
      * @IsGranted("ROLE_STUDENT_USER")
      * @Route("/requests/student-to-meet-professional", name="student_request_to_meet_professional", options = { "expose" = true }, methods={"POST"})
      * @param Request $request
@@ -1735,9 +1757,12 @@ class RequestController extends AbstractController
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \Exception
      */
     public function studentRequestToMeetProfessionalAction(Request $request)
     {
+        /** @var User $user */
+        $user           = $this->getUser();
         $studentId      = $request->request->get('studentId');
         $student        = $this->studentUserRepository->find($studentId);
         $professionalId = $request->request->get('professionalId');
@@ -1746,25 +1771,153 @@ class RequestController extends AbstractController
         $reasonToMeet   = $this->rolesWillingToFulfillRepository->findOneBy([
             'eventName' => $reasonToMeet,
         ]);
-        // let's determine who gets the first request. Professional or the Educator
-        $requestEntity = new StudentToMeetProfessionalRequest();
-        if ($student->isCommunicationEnabled() && $student->isTeacherApprovalNotRequired()) {
-            $requestEntity->initializeForProfessional($student, $professional, $reasonToMeet);
-        } elseif ($student->isCommunicationEnabled() && $student->isTeacherApprovalRequired()) {
-            $teachers = $student->getEducatorUsers();
-            if (count($teachers) === 0) {
-                $this->addFlash('error', 'You must have at least one educator setup in your profile to perform this action.');
 
-                return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
-            }
-            // todo we might need to refactor this so there is a designated teacher that receives the request
-            //  right now just sending the request to the first teacher in the collection
-            $requestEntity->initializeForEducator($student, $professional, $teachers[0], $reasonToMeet);
+        $notAuthorized = (
+            !$student ||
+            !$professional ||
+            !$student->isCommunicationEnabled() ||
+            !$student->getEducatorUsers()->count()
+        );
+
+        if ($notAuthorized) {
+            $this->addFlash('error', 'You are not able to perform that action at this time.');
+
+            return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
         }
-        $this->requestsMailer->studentToMeetProfessionalApproval($requestEntity);
-        $this->entityManager->persist($requestEntity);
+
+        $oneOnOneMeetingRequest = new \App\Entity\Request();
+        $oneOnOneMeetingRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_ONE_ON_ONE_MEETING);
+        $oneOnOneMeetingRequest->setCreatedBy($user);
+        $oneOnOneMeetingRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_PENDING);
+        $oneOnOneMeetingRequest->setStatusLabel('Meeting Pending Approval');
+
+        $notification = [
+            'title' => "<strong>{$user->getFullName()}</strong> has requested to meet \"{$professional->getFullName()}\"",
+            'data' => [
+                'professional_id' => $professional->getId(),
+                'student_id' => $user->getId(),
+            ],
+            'user_photo' => $user->getPhotoPath(),
+            'user_photos' => [
+                [
+                    'order' => 1,
+                    'path' => $user->getPhotoPath(),
+                ],
+            ],
+            'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
+            'suggested_dates' => [],
+            'messages' => [],
+            'body' => [
+                'Request Type' => [
+                    'order' => 1,
+                    'value' => 'One on One Meeting',
+                ],
+                'Initiated By' => [
+                    'order' => 2,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $user->getId()])}'>{$user->getFullName()}</a>",
+                ],
+                'Sent To' => [
+                    'order' => 3,
+                    'value' => "<a target='_blank' href='{$this->generateUrl('profile_index', ['id' => $professional->getId()])}'>{$professional->getFullName()}</a>",
+                ],
+                'Reason to Meet' => [
+                    'order' => 4,
+                    'value' => $reasonToMeet->getName(),
+                ],
+                'Selected Meeting Date' => [
+                    'order' => 5,
+                    'value' => "To be determined",
+                ],
+                'Suggested Meeting Dates' => [
+                    'order' => 6,
+                    'value' => "To be determined",
+                ],
+                'Created On' => [
+                    'order' => 7,
+                    'value' => (new \DateTime())->format("m/d/Y h:i A"),
+                ],
+            ],
+        ];
+
+        $oneOnOneMeetingRequest->setNotification($notification);
+
+        $this->entityManager->persist($oneOnOneMeetingRequest);
         $this->entityManager->flush();
-        /*$this->requestsMailer->educatorRegisterStudentForCompanyExperienceRequest($registerRequest);*/
+
+        $createdByApprover = new RequestPossibleApprovers();
+        $createdByApprover->setPossibleApprover($user);
+        $createdByApprover->setRequest($oneOnOneMeetingRequest);
+        $createdByApprover->setNotificationDate(new \DateTime());
+        $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE]);
+        $createdByApprover->setNotificationTitle("<strong>You</strong> have requested to meet \"{$professional->getFullName()}\"");
+
+        if ($student->isTeacherApprovalRequired()) {
+
+            $oneOnOneMeetingRequest->setStatusLabel('Meeting Pending Teacher Approval');
+
+            $userPhotoOrder = 2;
+            foreach ($student->getEducatorUsers() as $educatorUser) {
+
+                $notification['user_photos'][] = [
+                    'order' => $userPhotoOrder,
+                    'path' => $educatorUser->getPhotoPath(),
+                ];
+
+                $possibleApprover = new RequestPossibleApprovers();
+                $possibleApprover->setPossibleApprover($educatorUser);
+                $possibleApprover->setRequest($oneOnOneMeetingRequest);
+                $possibleApprover->setHasNotification(true);
+                $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                                       RequestAction::REQUEST_ACTION_NAME_DENY,
+                                                       RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                                       RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+                ]);
+                $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to meet \"{$professional->getFullName()}\"");
+                $this->entityManager->persist($possibleApprover);
+
+                $this->requestsMailer->oneOnOneMeetingApproval($possibleApprover->getPossibleApprover());
+
+                $userPhotoOrder++;
+            }
+        } else {
+
+            $notification['user_photos'][] = [
+                'order' => 2,
+                'path' => $professional->getPhotoPath(),
+            ];
+
+            $possibleApprover = new RequestPossibleApprovers();
+            $possibleApprover->setPossibleApprover($professional);
+            $possibleApprover->setRequest($oneOnOneMeetingRequest);
+            $possibleApprover->setHasNotification(true);
+            $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_APPROVE,
+                                                   RequestAction::REQUEST_ACTION_NAME_DENY,
+                                                   RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
+                                                   RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                                   RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]);
+            $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to meet you");
+            $this->entityManager->persist($possibleApprover);
+
+            $this->requestsMailer->oneOnOneMeetingApproval($possibleApprover->getPossibleApprover());
+        }
+
+        $oneOnOneMeetingRequest->setNotification($notification);
+
+        $this->entityManager->persist($createdByApprover);
+
+        $requestActionUrl = $this->generateUrl('request_action', [
+            'request_id' => $oneOnOneMeetingRequest->getId(),
+            'professional_id' => $professional->getId(),
+            'student_id' => $student->getId(),
+        ]);
+
+        $oneOnOneMeetingRequest->setActionUrl($requestActionUrl);
+
+        $this->entityManager->flush();
+        $this->entityManager->refresh($oneOnOneMeetingRequest);
+
+
         $this->addFlash('success', 'Request to meet successfully sent.');
 
         return $this->redirectToRoute('profile_index', ['id' => $professional->getId()]);
@@ -1775,8 +1928,6 @@ class RequestController extends AbstractController
      * @param Request $request
      *
      * @return JsonResponse
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
     public function toggleHasUserSeenRequest(\App\Entity\Request $request)

@@ -3,467 +3,181 @@
 {% block title %}New Requests{% endblock %}
 {% block bodyClass %}requests-landing{% endblock %}
 
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/manage_requests.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+
+     <style>
+         .uk-accordion-title:before {
+             content: '';
+             width: auto;
+             background: none;
+             float: none;
+             margin-left: auto;
+             height: auto;
+         }
+     </style>
+
+ {% endblock %}
+
+
 {% block body %}
 
-    {# Gather all countable items here and use those numbers to display below #}
+    <div id="js-manage-request-modal" uk-modal>
+    </div>
 
-    {# MY REQUESTS TAB #}
-    {% set myRequests_pending = 0 %}
-    {% for request in myCreatedRequests %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set myRequests_pending = myRequests_pending + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set myRequests_pending = myRequests_pending + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myRequests_pending = myRequests_pending + 1 %}{% endif %}
-    {% endfor %}
+    <div class="uk-container js-manage-requests-container">
 
-    {# MY APPROVALS TAB #}
-    {% set myApprovals_requests = 0 %}
-    {% for request in requestsThatNeedMyApproval %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set myApprovals_requests = myApprovals_requests + 1 %}{% endif %}
-    {% endfor %}
-
-    {# HISTORY TAB #}
-    {% set history_approvedByMe_approved = 0 %}
-    {% for request in approvedByMeRequests %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvedByMe_approved = history_approvedByMe_approved + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set history_approvedByMe_denied = 0 %}
-    {% for request in deniedByMeRequests %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvedByMe_denied = history_approvedByMe_denied + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set history_approvalIRequested_approved = 0 %}
-    {% for request in myApprovedAccessRequests %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvalIRequested_approved = history_approvalIRequested_approved + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set history_approvalIRequested_denied= 0 %}
-    {% for request in myDeniedAccessRequests %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set history_approvalIRequested_denied = history_approvalIRequested_denied + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set myCompanyExperience_approved = 0 %}
-    {% for request in studentRegisterApproval %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set myCompanyExperience_approved = myCompanyExperience_approved + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set myCompanyExperience_denied = 0 %}
-    {% for request in studentRegisterDenial %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set myCompanyExperience_denied = myCompanyExperience_denied + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set mySchoolExperience_approved = 0 %}
-    {% for request in userRegisterSchoolApproval %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set mySchoolExperience_approved = mySchoolExperience_approved + 1 %}{% endif %}
-    {% endfor %}
-
-    {% set mySchoolExperience_denied = 0 %}
-    {% for request in userRegisterSchoolDenial %}
-        {% if user.isStudent() and request.studentHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
-        {% if user.isEducator() and request.educatorHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
-        {% if user.isProfessional() and request.professionalHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
-        {% if user.isSchoolAdministrator() and request.schoolAdminHasSeen == false %}{% set mySchoolExperience_denied = mySchoolExperience_denied + 1 %}{% endif %}
-    {% endfor %}
+        <div style="float: right" uk-form-custom="target: > * > span:first-child">
+            <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+                <option value="">Filters</option>
+                <option value="{{ path('requests') }}?filter=all" {{ filter == 'all' ? 'selected' : '' }}>All</option>
+                <option value="{{ path('requests') }}?filter=created_by_me" {{ filter == 'created_by_me' ? 'selected' : '' }}>Created by me</option>
+                <option value="{{ path('requests') }}?filter=approved" {{ filter == 'approved' ? 'selected' : '' }}>Approved</option>
+                <option value="{{ path('requests') }}?filter=denied" {{ filter == 'denied' ? 'selected' : '' }}>Denied</option>
+                <option value="{{ path('requests') }}?filter=pending" {{ filter == 'pending' ? 'selected' : '' }}>Pending</option>
+            </select>
+            <button class="uk-button uk-button-primary" type="button" tabindex="-1">
+                <span></span>
+                <span uk-icon="icon: chevron-down"></span>
+            </button>
+        </div>
+        <br>
 
 
-
-
-
-    <div class="uk-container">
         <ul class="" data-uk-tab="{connect: '#tab-requests'}" uk-switcher>
-            <li class="uk-active"><a href="#requests-mine" id="my-requests_pending">{% if myRequests_pending > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}My Requests {% if myRequests_pending > 0 %}(<span>{{ myRequests_pending }}</span>){% endif %}</a></li>
-            {% if requestsThatNeedMyApproval|length > 0 %}
-                <li><a href="#requests-approvals" id="my-requests-approval">{% if myApprovals_requests > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}My Approvals {% if myApprovals_requests > 0 %}(<span>{{ myApprovals_requests }}</span>){% endif %}</a></li>
-            {% endif %}
-            
-            {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
-            <li>
-                <a href="#requests-completed" id="history-tab">
-                    {% if history_approvedByMe_approved > 0 or history_approvedByMe_denied > 0 or history_approvalIRequested_approved > 0 or history_approvalIRequested_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}
-                    History 
-                    {% if history_approvedByMe_approved > 0 or history_approvedByMe_denied > 0 or history_approvalIRequested_approved > 0 or history_approvalIRequested_denied > 0 %}(<span>{{ history_approvedByMe_approved + history_approvedByMe_denied + history_approvalIRequested_approved + history_approvalIRequested_denied }}</span>){% endif %}
-                </a>
-            </li>
-            {% endif %}
 
-            {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
-                <li>
-                    <a href="#student-company-experiences" id="my-company-experience-tab">
-                        {% if myCompanyExperience_approved > 0 or myCompanyExperience_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}
-                        My Company Experiences 
-                        {% if myCompanyExperience_approved > 0 or myCompanyExperience_denied > 0 %}(<span>{{ myCompanyExperience_approved + myCompanyExperience_denied }}</span>){% endif %}
-                    </a>
-                </li>
-            {% endif %}
 
-            {% if (userRegisterSchoolApproval|length > 0 or userRegisterSchoolDenial|length > 0) and (user.isStudent() or user.isProfessional()) %}
-                <li>
-                    <a href="#student-school-experiences" id="my-school-experience-tab">
-                        {% if mySchoolExperience_approved > 0 or mySchoolExperience_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}
-                        My School Experiences
-                        {% if mySchoolExperience_approved > 0 or mySchoolExperience_denied > 0 %}(<span>{{ mySchoolExperience_approved + mySchoolExperience_denied }}</span>){% endif %}
-                    </a>
-                </li>
-            {% endif %}
+            <li class="uk-active"><a href="#requests-mine" id="my-requests_pending">
+                    <small><em class="fa fa-circle"></em></small>
+                    Requests To Review</a></li>
 
         </ul>
 
         <div class="uk-switcher" id="tab-requests">
             <div class="requests-landing__my-requests">
-                {% if myCreatedRequests|length > 0 %}
-                    <ul class="uk-width-xlarge" uk-accordion>
-                        {% for request in myCreatedRequests %}
-                            {{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw  }}
+
+                {% if pagination|length > 0 %}
+
+                    <ul class="uk-list">
+                        {% for request in pagination %}
+
+                            {% set notification = request.notification %}
+                            {% set title = notification['title'] %}
+                            {% set body = notification['body'] %}
+                            {% set userPhoto = notification['user_photo'] is defined ? notification['user_photo'] : null %}
+                            {% set userPhotos = notification['user_photos'] is defined ? notification['user_photos'] : [] %}
+                            {% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(user) %}
+
+                            <li style="position: relative; padding-left: 70px; margin-bottom: 30px"
+                                id="nc_{{ request.id }}"
+                                class="js-request-item"
+                                data-action-url="{{ request.actionUrl }}">
+
+                                <div class="uk-grid">
+
+                                    <div class="uk-width-5-6">
+
+                                        <a style="font-size: 18px" class="uk-accordion-title" href="javascript:void(0)">
+
+                                            {% if requestPossibleApprover and requestPossibleApprover.hasNotification %}
+                                                <small class="js-notification-circle"
+                                                       style="position: absolute; left: -40px"><em class="fa fa-circle"
+                                                                                                   aria-hidden="true"></em>
+                                                </small>
+                                            {% endif %}
+
+                                            {% if userPhotos|length %}
+                                                {% set photo_z_index = 1 %}
+                                                {% set photo_left_position = 0 %}
+                                                {% for key, array in userPhotos|sort((a, b) => a['order'] <=> b['order']) %}
+                                                    {% set userPhoto = array['path'] %}
+
+                                                    <img style="height: 30px; position: absolute; left: {{ photo_left_position ~ "px" }}; z-index: {{ photo_z_index }}"
+                                                         class="uk-border-pill center-vertically"
+                                                         src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                                         uk-img/>
+
+                                                    {% set photo_z_index = photo_z_index - 1 %}
+                                                    {% set photo_left_position = photo_left_position + 20 %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <img style="height: 30px; position: absolute; left: 0"
+                                                     class="uk-border-pill center-vertically"
+                                                     src="{{ userPhoto is not null ? asset(uploaded_asset(userPhoto))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                                     uk-img/>
+
+                                            {% endif %}
+
+                                            {% if requestPossibleApprover and requestPossibleApprover.notificationTitle %}
+                                                <span style="padding-left: 10px; width: 75%"
+                                                      class="center-vertically">{{ requestPossibleApprover.notificationTitle|raw }}</span>
+                                            {% else %}
+                                                <span style="padding-left: 10px; width: 75%"
+                                                      class="center-vertically">{{ title|raw }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+
+                                    <div class="uk-width-1-6">
+                                        {% if requestPossibleApprover and requestPossibleApprover.timeElapsedSinceHasNotification %}
+                                            <span class="uk-text-muted center-vertically"
+                                                  style="float: right; line-height: 1.5">{{ time_elapsed_string(requestPossibleApprover.timeElapsedSinceHasNotification) }}</span>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+
+
+                                <div class="uk-accordion-content">
+
+                                </div>
+                            </li>
+
+
                         {% endfor %}
                     </ul>
+
+                    {# display navigation #}
+                    <div class="navigation">
+                        {{ knp_pagination_render(pagination) }}
+                    </div>
+
                 {% else %}
                     <div class="uk-placeholder">
-                        You have not sent any requests that are pending.
+                        {% if user.educator %}
+                            <p>You do not have any open requests yet, but you can draft a new volunteer request by
+                                filling
+                                out <a href="{{ path('new_request') }}">this quick form.</a> <br>
+                                Professionals on FutureForward can then see your request and reach out via chat if they
+                                are
+                                interested in helping out.
+                            </p>
+                        {% else %}
+                            There are no requests for you to review at this time.
+                        {% endif %}
                     </div>
                 {% endif %}
+
+
+                {# {% if myCreatedRequests|length > 0 %}
+                     <ul class="uk-width-xlarge" uk-accordion>
+                         {% for request in myCreatedRequests %}
+                             {{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}
+                         {% endfor %}
+                     </ul>
+                 {% else %}
+                     <div class="uk-placeholder">
+                         You have not sent any requests that are pending.
+                     </div>
+                 {% endif %}#}
             </div>
-            {% if requestsThatNeedMyApproval|length > 0 %}
-                <div class="requests-landing__my-approvals">
-                    <ul class="uk-width-xlarge" uk-accordion>
-                        {% for request in requestsThatNeedMyApproval %}
-                            {{ render_request( request, user, "my-requests_approval", "my-requests-approval" )|raw }}
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if deniedByMeRequests|length > 0 or myDeniedAccessRequests|length > 0 or approvedByMeRequests|length > 0 or myApprovedAccessRequests|length > 0  %}
-                {# History Tab #}
-                <div class="requests-landing__my-completed-approvals">
-
-                    {% if deniedByMeRequests|length > 0 or approvedByMeRequests|length > 0  %}
-                        <div class="uk-section uk-section-muted uk-padding">
-                            <h3>Approval Needed By Me</h3>
-                            <div class="uk-width-xlarge">
-                                <ul class="" data-uk-tab="{connect: '#tab-requests-by-me'}" uk-switcher>
-                                    <li class="uk-active"><a href="#requests-by-me-approved" id="history_approval-needed-by-me_approved">{% if history_approvedByMe_approved > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Approved {% if history_approvedByMe_approved > 0 %}(<span>{{ history_approvedByMe_approved }}</span>){% endif %}</a></li>
-                                    <li><a href="#requests-by-me-denied" id="history_approval-needed-by-me_denied">{% if history_approvedByMe_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Denied {% if history_approvedByMe_denied > 0 %}(<span>{{ history_approvedByMe_denied }}</span>){% endif %}</a></li>
-                                </ul>
-                                <div class="uk-switcher" id="tab-requests-by-me">
-                                    <div class="requests-landing__requests-by-me-approved">
-                                        <ul class="uk-width-xlarge" uk-accordion>
-                                            {% for request in approvedByMeRequests %}
-                                                {{ render_request( request, user, "history_approval-needed-by-me_approved", "history-tab" )|raw }}
-                                            {% endfor %}
-                                            {% if approvedByMeRequests|length == 0 %}
-                                                <p>No requests found.</p>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                    <div class="requests-landing__requests-by-me-denied">
-                                        <ul class="uk-width-xlarge" uk-accordion>
-                                            {% for request in deniedByMeRequests %}
-                                                {{ render_request( request, user, "history_approval-needed-by-me_denied", "history-tab" )|raw }}
-                                            {% endfor %}
-                                            {% if deniedByMeRequests|length == 0 %}
-                                                <p>No requests found.</p>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    {% if myDeniedAccessRequests|length > 0 or myApprovedAccessRequests|length > 0 %}
-                        
-                        <div class="uk-section uk-section-muted uk-padding uk-margin">
-                            <h3>Approvals I Requested</h3>
-                            <div class="uk-width-xlarge">
-                                <ul data-uk-tab="{connect: '#tab-requests-for-me'}" uk-switcher>
-                                    <li class="uk-active"><a href="#requests-for-me-approved" id="history_approval-i-requested_approved">{% if history_approvalIRequested_approved > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Approved {% if history_approvalIRequested_approved > 0 %}(<span>{{ history_approvalIRequested_approved }}</span>){% endif %}</a></li>
-                                    <li><a href="#requests-for-me-denied" id="history_approval-i-requested_denied">{% if history_approvalIRequested_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Denied {% if history_approvalIRequested_denied > 0 %}(<span>{{ history_approvalIRequested_denied }}</span>){% endif %}</a></li>
-                                </ul>
-                                <div class="uk-switcher" id="tab-requests-for-me">
-                                    <div class="requests-landing__requests-for-me-approved">
-                                        <ul class="uk-width-xlarge" uk-accordion>
-                                            {% for request in myApprovedAccessRequests %}
-                                                {{ render_request( request, user, "history_approval-i-requested_approved", "history-tab" )|raw }}
-                                            {% endfor %}
-                                            {% if myApprovedAccessRequests|length == 0 %}
-                                                <p>No requests found.</p>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                    <div class="requests-landing__requests-for-me-denied">
-                                        <ul class="uk-width-xlarge" uk-accordion>
-                                            {% for request in myDeniedAccessRequests %}
-                                                {{ render_request( request, user, "history_approval-i-requested_denied", "history-tab" )|raw }}
-                                            {% endfor %}
-                                            {% if myDeniedAccessRequests|length == 0 %}
-                                                <p>No requests found.</p>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-
-            {% endif %}
-
-            {% if studentRegisterApproval|length > 0 or studentRegisterDenial|length > 0 %}
-                {# Company experience tab #}
-                <div class="uk-section uk-section-muted uk-padding">
-                    <h3>My Company Experiences</h3>
-                    <div class="uk-width-xlarge">
-                        <ul class="" data-uk-tab="{connect: '#tab-requests-by-me'}" uk-switcher>
-                            <li class="uk-active"><a href="#requests-by-me-approved" id="company-experience_approval">{% if myCompanyExperience_approved > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Approved {% if myCompanyExperience_approved > 0 %}(<span>{{ myCompanyExperience_approved }}</span>){% endif %}</a></li>
-                            <li><a href="#requests-by-me-denied" id="company-experience_denial">{% if myCompanyExperience_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Denied {% if myCompanyExperience_denied > 0 %}(<span>{{ myCompanyExperience_denied }}</span>){% endif %}</a></li>
-                        </ul>
-                        <div class="uk-switcher" id="tab-requests-by-me">
-                            <div class="requests-landing__requests-by-me-approved">
-                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
-                                    {% for request in studentRegisterApproval %}
-                                        {{ render_request( request, user, 'company-experience_approval', 'my-company-experience-tab' )|raw }}
-                                    {% endfor %}
-                                    {% if studentRegisterApproval|length == 0 %}
-                                        <p>No requests found.</p>
-                                    {% endif %}
-                                </ul>
-                            </div>
-                            <div class="requests-landing__requests-by-me-denied">
-                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
-                                    {% for request in studentRegisterDenial %}
-                                        {{ render_request( request, user, 'company-experience_denial', 'my-company-experience-tab' )|raw }}
-                                    {% endfor %}
-                                    {% if studentRegisterDenial|length == 0 %}
-                                        <p>No requests found.</p>
-                                    {% endif %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-
-            {% if (userRegisterSchoolApproval|length > 0 or userRegisterSchoolDenial|length > 0) and (user.isStudent() or user.isProfessional()) %}
-                {# School Experiences #}
-                <div class="uk-section uk-section-muted uk-padding">
-                    <h3>My School Experiences</h3>
-                    <div class="uk-width-xlarge">
-                        <ul class="" data-uk-tab="{connect: '#tab-school-requests-by-me'}" uk-switcher>
-                            <li class="uk-active"><a href="#requests-by-me-approved" id="school-experience_approval">{% if mySchoolExperience_approved > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Approved {% if mySchoolExperience_approved > 0 %}(<span>{{ mySchoolExperience_approved }}</span>){% endif %}</a></li>
-                            <li><a href="#requests-by-me-denied" id="school-experience_denial">{% if mySchoolExperience_denied > 0 %}<small><em class="fa fa-circle"></em></small> {% endif %}Denied {% if mySchoolExperience_denied > 0 %}(<span>{{ mySchoolExperience_denied }}</span>){% endif %}</a></li>
-                        </ul>
-                        <div class="uk-switcher" id="tab-school-requests-by-me">
-                            <div class="requests-landing__requests-by-me-approved">
-                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
-                                    {% for request in userRegisterSchoolApproval %}
-                                        {{ render_request( request, user, 'school-experience_approval', 'my-school-experience-tab' )|raw }}
-                                    {% endfor %}
-                                    {% if userRegisterSchoolApproval|length == 0 %}
-                                        <p>No requests found.</p>
-                                    {% endif %}
-                                </ul>
-                            </div>
-                            <div class="requests-landing__requests-by-me-denied">
-                                <ul class="uk-width-xlarge uk-accordion" uk-accordion>
-                                    {% for request in userRegisterSchoolDenial %}
-                                        {{ render_request( request, user, 'school-experience_denial', 'my-school-experience-tab' )|raw }}
-                                    {% endfor %}
-                                    {% if userRegisterSchoolDenial|length == 0 %}
-                                        <p>No requests found.</p>
-                                    {% endif %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-    {# _educator_register_student_for_company_experience_request #}
-    $(document).on('submit', '.ersfcer-approval, .ersfcer-denial', function(e){
-        e.preventDefault();
-        var request = $(this).find('[name="request"]').val(); 
-        var element = $(this).find('[name="element"]').val();
-
-        $.post( $(this).attr('action'), { request: request }, function(data){
-
-            if( data.status.type == "success"){
-                $('#' + element).remove();
-            }
-            display_message(data.status.type, data.status.message);
-        });
-    });
-
-
-    {# _join_companies #}
-    $(document).on('submit', '.jc-approval, .jc-denial', function(e){
-        e.preventDefault();
-        var request = $(this).find('[name="request"]').val();
-        var element = $(this).find('[name="element"]').val();
-
-        $.post( $(this).attr('action'), { request: request }, function(data){
-            if( data.status.type == "success"){
-                $('#' + element).remove();
-            }
-            display_message(data.status.type, data.status.message);
-        });
-    });
-
-    {# _new_companies #}
-    $(document).on('submit', '.nc-approval, .nc-denial', function(e){
-        e.preventDefault();
-        var request = $(this).find('[name="request"]').val();
-        var element = $(this).find('[name="element"]').val();
-
-        $.post( $(this).attr('action'), { request: request }, function(data){
-            if( data.status.type == "success"){
-                $('#' + element).remove();
-            }
-            display_message(data.status.type, data.status.message);
-        });
-    });
-
-
-    {# _student_to_meet_professional_request #}
-    $(document).on('submit', '.stmpr-approval, .stmpr-denial', function(e) {
-        e.preventDefault();
-        var request = $(this).find('[name="request"]').val();
-        var element = $(this).find('[name="element"]').val();
-        var date = $(this).find('[name="date"]').val();
-        var isFromStudent = $(this).find('[name="isFromStudent"]').val();
-        var isFromEducator = $(this).find('[name="isFromEducator"]').val();
-        var isFromProfessional = $(this).find('[name="isFromProfessional"]').val();
-        var dateOptionOne = $(this).find('[name="dateOptionOne"]').val();
-        var dateOptionTwo = $(this).find('[name="dateOptionTwo"]').val();
-        var dateOptionThree = $(this).find('[name="dateOptionThree"]').val();
-
-        $.post( $(this).attr('action'), { request: request, isFromStudent: isFromStudent, isFromEducator: isFromEducator, isFromProfessional: isFromProfessional, date: date, dateOptionOne: dateOptionOne, dateOptionTwo: dateOptionTwo, dateOptionThree: dateOptionThree }, function(data){          
-            if( data.status.type == "success" && element != undefined){
-                $('#' + element).remove();
-
-                if( $('#student-to-meet-professional-dates_' + request).length) {
-                    UIkit.modal('#student-to-meet-professional-dates_' + request).hide();
-                }
-            }
-
-            display_message(data.status.type, data.status.message);
-            
-        });
-    })
-
-    {# _teach_lesson_request #}
-    $(document).on('submit', '.tlr-approval, .tlr-denial', function(e){
-        e.preventDefault();
-        var date = $(this).find('[name="date"]').val();
-        var element = $(this).find('[name="element"]').val();
-        var request = $(this).find('[name="request"]').val();
-        $.post( $(this).attr('action'), { request: request, date: date }, function(data){
-            if( data.status.type == "success"){
-                $('#' + element).remove();
-            }
-            display_message(data.status.type, data.status.message);
-        });
-    });
-
-    {# _user_register_for_school_experience_request #}
-    $(document).on('submit', '.urfser-approval, .urfser-denial', function(e){
-        e.preventDefault();
-        var element = $(this).find('[name="element"]').val();
-        var request = $(this).find('[name="request"]').val();
-        $.post( $(this).attr('action'), { request: request }, function(data){
-            if( data.status.type == "success"){
-                $('#' + element).remove();
-            }
-            display_message(data.status.type, data.status.message);
-        });
-    });
-
-    function display_message(type, message) {
-        $('.main-content').prepend('<div class="uk-container uk-margin-bottom"><div class="uk-alert-' + type + ' uk-margin" uk-alert><a class="uk-alert-close" uk-close></a><p>' + message + '</p></div></div>');
-    
-        // $('#approval-count').html( parseInt($('#approval-count').html()) - 1);
-
-        // if( (parseInt($('.main-navigation__meta-requests-num').html()) - 1) <= 0){
-        //     $('.main-navigation__meta-requests-num').remove();
-        // } else {
-        //     $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1 );
-        // }
-
-    }
-
-
-    // Removing request count for items that have been seen
-    $(document).on('click', '.toggle-has-seen', function() {
-        var item = $(this);
-        var id = $(item).data('id');
-        var type = $(item).data('approved');
-        var location = $(item).data('location');
-        var parentTab = $(item).data('parent');
-
-
-        // Send ajax request to process counter
-        $.post('/dashboard/requests/' + id + '/user_has_seen_request', { }, function() {
-
-            item.removeClass('toggle-has-seen');
-            item.children("small.icon").remove();
-
-            // Decrement local value by 1
-            if( parseInt( $('#' + location + " > span").html() ) > 0 ) {
-                $('#' + location + " > span").html( parseInt($('#' + location + " > span").html()) - 1);
-
-                // Check if the value is now zero and if so remove the red dot
-                if(parseInt($('#' + location + " > span").html()) == 0){
-                    $('#' + location + " > small").remove();
-                }
-            }
-
-            // Decrement parent tab value by 1
-            if( parseInt( $('#' + parentTab + " > span").html() ) > 0) {
-                $('#' + parentTab + " > span").html( parseInt($('#' + parentTab + " > span").html()) - 1);
-
-                // Check if the value is now zero and if so remove the red dot
-                if(parseInt($('#' + parentTab + " > span").html()) == 0){
-                    $('#' + parentTab + " > small").remove();
-                }
-            }
-
-            // Decrement top menu counter value by 1
-            if( parseInt( $('.main-navigation__meta-requests-num').html()) > 0) {
-                $('.main-navigation__meta-requests-num').html( parseInt($('.main-navigation__meta-requests-num').html()) - 1);
-
-                // Check if the value is now zero and if so remove the red dot
-                if( parseInt($('.main-navigation__meta-requests-num').html()) == 0 ) {
-                    $('.main-navigation__meta-requests-num').remove();
-                }
-            }
-
-        });
-    })
-    </script>
 {% endblock %}
