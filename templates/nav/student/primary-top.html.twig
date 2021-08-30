@@ -17,7 +17,7 @@
             <li class="uk-nav-header">Resources</li>
             <li><a href="{{ path('experience_index') }}">Explore Student Experiences</a></li>
             <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
-            <li><a href="{{ path('knowledge-base') }}">Browse Additional Resources</a></li>
+            <li><a href="{{ path('knowledge-base') }}#knowledge-students">Browse Additional Resources</a></li>
 
             <li class="uk-nav-header">Account</li>
             <li><a href="{{ path('profile_edit', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: user"></span>My Account</a></li>
@@ -67,7 +67,7 @@
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a href="{{ path('experience_index') }}">Explore Student Experiences</a></li>
                                 <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
-                                <li><a href="{{ path('knowledge-base') }}">Browse Resources</a></li>
+                                <li><a href="{{ path('knowledge-base') }}#knowledge-students">Browse Resources</a></li>
                             </ul>
                         </div>
                     </li>
