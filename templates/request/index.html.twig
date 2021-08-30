@@ -31,7 +31,7 @@
     <div id="js-manage-request-modal" uk-modal>
     </div>
 
-    <div class="uk-container js-manage-requests-container">
+    <div class="uk-container js-manage-requests-container" data-pending-request-ids="{{ pendingRequestIds|json_encode() }}">
 
         <div style="float: right" uk-form-custom="target: > * > span:first-child">
             <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
@@ -77,6 +77,7 @@
                             <li style="position: relative; padding-left: 70px; margin-bottom: 30px"
                                 id="nc_{{ request.id }}"
                                 class="js-request-item"
+                                data-request-id="{{ request.id }}"
                                 data-action-url="{{ request.actionUrl }}">
 
                                 <div class="uk-grid">
@@ -163,19 +164,6 @@
                         {% endif %}
                     </div>
                 {% endif %}
-
-
-                {# {% if myCreatedRequests|length > 0 %}
-                     <ul class="uk-width-xlarge" uk-accordion>
-                         {% for request in myCreatedRequests %}
-                             {{ render_request( request, user, "my-requests_pending", "my-requests-pending" )|raw }}
-                         {% endfor %}
-                     </ul>
-                 {% else %}
-                     <div class="uk-placeholder">
-                         You have not sent any requests that are pending.
-                     </div>
-                 {% endif %}#}
             </div>
         </div>
     </div>

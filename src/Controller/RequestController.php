@@ -98,10 +98,24 @@ class RequestController extends AbstractController
             ['distinct' => false]
         );
 
+        $pendingRequestIds = [];
+        $requests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+
+        /** @var \App\Entity\Request $request */
+        foreach($requests as $request) {
+            /** @var RequestPossibleApprovers $possibleApprover */
+            if($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($user)) {
+                if($possibleApprover->getHasNotification()) {
+                    $pendingRequestIds[] = $request->getId();
+                }
+            }
+        }
+
         return $this->render('request/index.html.twig', [
             'user' => $user,
             'pagination' => $pagination,
             'filter' => $filter,
+            'pendingRequestIds' => $pendingRequestIds
         ]);
     }
 
@@ -1881,6 +1895,17 @@ class RequestController extends AbstractController
             }
         } else {
 
+            foreach ($student->getEducatorUsers() as $educatorUser) {
+
+                $possibleApprover = new RequestPossibleApprovers();
+                $possibleApprover->setPossibleApprover($educatorUser);
+                $possibleApprover->setRequest($oneOnOneMeetingRequest);
+                $possibleApprover->setHasNotification(true);
+                $possibleApprover->setPossibleActions([]);
+                $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to meet \"{$professional->getFullName()}\"");
+                $this->entityManager->persist($possibleApprover);
+            }
+
             $notification['user_photos'][] = [
                 'order' => 2,
                 'path' => $professional->getPhotoPath(),
@@ -1890,10 +1915,9 @@ class RequestController extends AbstractController
             $possibleApprover->setPossibleApprover($professional);
             $possibleApprover->setRequest($oneOnOneMeetingRequest);
             $possibleApprover->setHasNotification(true);
-            $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_APPROVE,
-                                                   RequestAction::REQUEST_ACTION_NAME_DENY,
+            $possibleApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_DENY,
                                                    RequestAction::REQUEST_ACTION_NAME_MARK_AS_PENDING,
-                                                   RequestAction::REQUEST_ACTION_NAME_SUGGEST_NEW_DATES,
+                                                   RequestAction::REQUEST_ACTION_NAME_SUGGEST_MEETING_DATES,
                                                    RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
             ]);
             $possibleApprover->setNotificationTitle("<strong>{$user->getFullName()}</strong> has requested to meet you");
