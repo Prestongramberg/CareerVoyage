@@ -40,6 +40,7 @@ use App\Repository\ReportColumnRepository;
 use App\Repository\ReportGroupRepository;
 use App\Repository\ReportRepository;
 use App\Repository\RequestActionRepository;
+use App\Repository\ResourceRepository;
 use App\Repository\RolesWillingToFulfillRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Repository\RequestRepository;
@@ -492,6 +493,11 @@ trait ServiceHelper
     private $requestActionRepository;
 
     /**
+     * @var ResourceRepository
+     */
+    private $resourceRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -575,6 +581,7 @@ trait ServiceHelper
      * @param ReportGroupRepository                                         $reportGroupRepository
      * @param UserMetaRepository                                            $userMetaRepository
      * @param RequestActionRepository                                       $requestActionRepository
+     * @param ResourceRepository                                            $resourceRepository
      */
     public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader,
                                 UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator,
@@ -629,7 +636,8 @@ trait ServiceHelper
                                 RegionRepository $regionRepository, Liform $liform, ReportRepository $reportRepository,
                                 ReportColumnRepository $reportColumnRepository, CountyRepository $countyRepository,
                                 ReportService $reportService, ReportGroupRepository $reportGroupRepository,
-                                UserMetaRepository $userMetaRepository, RequestActionRepository $requestActionRepository
+                                UserMetaRepository $userMetaRepository,
+                                RequestActionRepository $requestActionRepository, ResourceRepository $resourceRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -712,6 +720,7 @@ trait ServiceHelper
         $this->reportGroupRepository                                         = $reportGroupRepository;
         $this->userMetaRepository                                            = $userMetaRepository;
         $this->requestActionRepository                                       = $requestActionRepository;
+        $this->resourceRepository                                            = $resourceRepository;
     }
 
     public function getFullQualifiedBaseUrl()

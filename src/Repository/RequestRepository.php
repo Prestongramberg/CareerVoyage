@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Request;
+use App\Entity\RequestPossibleApprovers;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -49,35 +50,70 @@ class RequestRepository extends ServiceEntityRepository
     }
     */
 
-    public function getRequestsThatNeedMyApproval(User $user, $orderByCreatedAt = false, $requestType = null)
-    {
+    public function getRequestsThatNeedMyApproval(
+        User $user = null,
+        $orderByCreatedAt = false,
+        $requestType = null,
+        $queryBuilderOnly = false,
+        User $createdBy = null,
+        $approved = null,
+        $denied = null,
+        $pending = null,
+        $status = null,
+        $possibleApprovers = []
+    ) {
         $queryBuilder = $this->createQueryBuilder('r')
                              ->leftJoin('r.requestPossibleApprovers', 'rpa')
-                             ->andWhere('r.denied = :denied')
-                             ->andWhere('r.approved = :approved')
-                             ->andWhere('r.allowApprovalByActivationCode = :allowApprovalByActivationCode')
                              ->andWhere('r.requestType IS NOT NULL');
 
 
-        foreach ($user->getRoles() as $role) {
-            $queryParts[] = sprintf("r.needsApprovalByRoles LIKE :%s", $role);
+        if ($user) {
+            $queryBuilder->andWhere('rpa.possibleApprover = :possibleApprover')
+                         ->setParameter('possibleApprover', $user);
         }
 
-        $queryString = implode(" OR ", $queryParts);
+        if (count($possibleApprovers)) {
 
-        $queryString .= ' OR r.needsApprovalBy = :needsApprovalBy OR rpa.possibleApprover = :possibleApprover';
+            $queryParts = [];
+            /** @var RequestPossibleApprovers $possibleApprover */
+            foreach($possibleApprovers as $possibleApprover) {
+                $queryParts[] = sprintf('rpa.possibleApprover = :possibleApprover_%s', $possibleApprover->getId());
+            }
 
-        $queryBuilder->andWhere($queryString);
+            $queryString = implode(" OR ", $queryParts);
 
-        foreach ($user->getRoles() as $role) {
-            $queryBuilder->setParameter($role, '%' . $role . '%');
+            $queryBuilder->andWhere($queryString);
+
+            foreach($possibleApprovers as $possibleApprover) {
+                $queryBuilder->setParameter(sprintf('possibleApprover_%s', $possibleApprover->getId()), $possibleApprover);
+            }
         }
 
-        $queryBuilder->setParameter('possibleApprover', $user)
-                     ->setParameter('needsApprovalBy', $user)
-                     ->setParameter('denied', false)
-                     ->setParameter('approved', false)
-                     ->setParameter('allowApprovalByActivationCode', false);
+
+        if ($createdBy) {
+            $queryBuilder->andWhere('r.created_by = :createdBy')
+                         ->setParameter('createdBy', $createdBy);
+        }
+
+        if (is_bool($approved)) {
+            $queryBuilder->andWhere('r.status = :status')
+                         ->setParameter('status', Request::REQUEST_STATUS_APPROVED);
+        }
+
+        if (is_bool($denied)) {
+            $queryBuilder->andWhere('r.status = :status')
+                         ->setParameter('status', Request::REQUEST_STATUS_DENIED);
+        }
+
+        if (is_bool($pending)) {
+            $queryBuilder->andWhere('r.status = :status')
+                         ->setParameter('status', Request::REQUEST_STATUS_PENDING);
+        }
+
+        if ($status) {
+            $queryBuilder->andWhere('r.status = :status')
+                         ->setParameter('status', $status);
+        }
 
         if ($orderByCreatedAt) {
             $queryBuilder->orderBy('r.createdAt', 'DESC');
@@ -88,6 +124,10 @@ class RequestRepository extends ServiceEntityRepository
         if ($requestType) {
             $queryBuilder->andWhere('r.requestType = :requestType')
                          ->setParameter('requestType', $requestType);
+        }
+
+        if ($queryBuilderOnly) {
+            return $queryBuilder;
         }
 
         return $queryBuilder->getQuery()

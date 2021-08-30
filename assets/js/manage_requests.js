@@ -17,7 +17,7 @@ $(document).ready(function () {
         }
 
         if (key === 'id') {
-            requestId = value;
+            requestId = parseInt(value);
             onPageLoadActionUrl = $(`#nc_${value}`).attr('data-action-url');
         }
     }
@@ -26,6 +26,24 @@ $(document).ready(function () {
 
         if (action) {
             onPageLoadActionUrl += "&action=" + action;
+        }
+
+        let pendingRequestIds = JSON.parse($('.js-manage-requests-container').attr('data-pending-request-ids'));
+
+        if(pendingRequestIds.includes(requestId)) {
+            $('.main-navigation__meta-requests-num').each((index, element) => {
+                let numberOfNotifications = parseInt($(element).text());
+
+                if(numberOfNotifications > 0) {
+                    numberOfNotifications--;
+
+                    if(numberOfNotifications === 0) {
+                        $(element).hide();
+                    } else {
+                        $(element).text(numberOfNotifications);
+                    }
+                }
+            });
         }
 
         $.ajax({
@@ -50,7 +68,26 @@ $(document).ready(function () {
             event.preventDefault();
         }
 
-        debugger;
+        let requestId = parseInt($(event.currentTarget).attr('data-request-id'));
+
+        let pendingRequestIds = JSON.parse($('.js-manage-requests-container').attr('data-pending-request-ids'));
+
+        if(pendingRequestIds.includes(requestId)) {
+            $('.main-navigation__meta-requests-num').each((index, element) => {
+                let numberOfNotifications = parseInt($(element).text());
+
+                if(numberOfNotifications > 0) {
+                    numberOfNotifications--;
+
+                    if(numberOfNotifications === 0) {
+                        $(element).hide();
+                    } else {
+                        $(element).text(numberOfNotifications);
+                    }
+                }
+            });
+        }
+
         let url = $(event.currentTarget).attr('data-action-url');
 
         debugger;
@@ -78,7 +115,6 @@ $(document).ready(function () {
             event.preventDefault();
         }
 
-        debugger;
         let url = $(event.currentTarget).attr('data-action-url');
 
         debugger;

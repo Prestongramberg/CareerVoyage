@@ -21,8 +21,19 @@ class SelectSuggestedDatesFormType extends AbstractType
         /** @var Request $request */
         $request = $options['request'];
 
-        $notificaction = $request->getNotification();
-        $suggestedDates = $notificaction['suggested_dates'];
+        $notification = $request->getNotification();
+
+        $setDates = (
+            !empty($notification['suggested_dates']['date_option_one']) &&
+            !empty($notification['suggested_dates']['date_option_two']) &&
+            !empty($notification['suggested_dates']['date_option_three'])
+        );
+
+        if(!$setDates) {
+            return;
+        }
+
+        $suggestedDates = $notification['suggested_dates'];
 
         $builder->add('dateOptionOne', SubmitType::class, [
             'label' => $suggestedDates['date_option_one'],

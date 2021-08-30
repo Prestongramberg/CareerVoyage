@@ -13,24 +13,19 @@
             <li><a href="{{ path('professional_results_page') }}">Find Professionals</a></li>
             <li><a href="{{ path('company_results_page') }}">Find Companies</a></li>
             <li><a href="{{ path('educator_results_page') }}">Find Educators</a></li>
-            <li><a href="{{ path('school_results_page') }}">Find Schools</a></li>
 
             <li class="uk-nav-header">Resources</li>
-            <li><a href="{{ path('lessons_results_page') }}">Find or Create Lesson Topics</a></li>
             <li><a href="{{ path('experience_index') }}">Explore Student Experiences</a></li>
             <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
-            <li><a href="{{ path('knowledge-base') }}#knowledge-educators">Browse Additional Resources</a></li>
+            <li><a href="{{ path('knowledge-base') }}#knowledge-students">Browse Additional Resources</a></li>
 
             <li class="uk-nav-header">Account</li>
             <li><a href="{{ path('profile_edit', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: user"></span>My Account</a></li>
             <li style="position: relative"><a href="{{ path('requests') }}"><i style="margin-right: 16px" class="fa fa-paper-plane" aria-hidden="true"></i>Check Requests {% if pending_requests(user) > 0 %}<span style="right: 70px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
-            {% if user.professional and user.ownedCompany %}
-                <li><a href="{{ path('report_experience_satisfaction_dashboard') }}"><span class="uk-margin-small-right" uk-icon="icon: database"></span>My Reports</a></li>
-            {% endif %}
             {% if user.school is not null %}
             <li><a href="{{ path('school_view', { id: user.school.id }) }}"><i style="margin-right: 12px" class="fas fa-school"></i>My School</a></li>
             {% endif %}
-            <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help"><span class="uk-margin-small-right" uk-icon="icon: question"></span>Help</a></li>
+            <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help"><span class="uk-margin-small-right" uk-icon="icon: question"></span>Need Help?</a></li>
             <li><a href="{{ path('sign_out') }}"><span class="uk-margin-small-right" uk-icon="icon: forward"></span>Logout</a></li>
 
         </ul>
@@ -63,7 +58,6 @@
                                 <li><a href="{{ path('professional_results_page') }}">Find Professionals</a></li>
                                 <li><a href="{{ path('company_results_page') }}">Find Companies</a></li>
                                 <li><a href="{{ path('educator_results_page') }}">Find Educators</a></li>
-                                <li><a href="{{ path('school_results_page') }}">Find Schools</a></li>
                             </ul>
                         </div>
                     </li>
@@ -71,10 +65,9 @@
                         <a href="#">Resources</a>
                         <div style="width: 240px;" class="uk-navbar-dropdown uk-navbar-dropdown-width-1">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li><a href="{{ path('lessons_results_page') }}">Find Lesson Topics</a></li>
                                 <li><a href="{{ path('experience_index') }}">Explore Student Experiences</a></li>
                                 <li><a href="{{ path('video_index') }}">Watch Career Videos</a></li>
-                                <li><a href="{{ path('knowledge-base') }}#knowledge-educators">Browse Resources</a></li>
+                                <li><a href="{{ path('knowledge-base') }}#knowledge-students">Browse Resources</a></li>
                             </ul>
                         </div>
                     </li>
@@ -84,16 +77,13 @@
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a href="{{ path('profile_edit', {'id': user.id}) }}">My Account</a></li>
                                 <li style="position: relative"><a href="{{ path('requests') }}">Check Requests {% if pending_requests(user) > 0 %}<span style="right: 20px" class="main-navigation__meta-requests-num">{{ pending_requests(user) }}</span>{% endif %}</a></li>
-                                {% if user.professional and user.ownedCompany %}
-                                <li><a href="{{ path('report_experience_satisfaction_dashboard') }}">My Reports</a></li>
-                                {% endif %}
 
                                 {% if user.school is not null %}
                                     <li><a href="{{ path('school_view', { id: user.school.id }) }}">My School</a></li>
                                 {% endif %}
 
                                 <li class="uk-nav-divider"></li>
-                                <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help">Help</a></li>
+                                <li><a href="javascript:void(0)" uk-toggle="target: #offcanvas-help">Need Help?</a></li>
                                 <li><a href="{{ path('sign_out') }}">Logout</a></li>
                             </ul>
                         </div>
