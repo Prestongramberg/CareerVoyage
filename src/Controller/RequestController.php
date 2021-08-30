@@ -85,6 +85,15 @@ class RequestController extends AbstractController
                 case 'pending':
                     $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true, $user, false, false, true);
                     break;
+
+                case 'drafts':
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, RequestEntity::REQUEST_TYPE_JOB_BOARD, true, $user, false, false, false, RequestEntity::REQUEST_STATUS_INACTIVE);
+                    break;
+
+                case 'my_students':
+
+                    $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval(null, false, null, true, null, null, null, null, null, $user->getStudentUsers());
+                    break;
                 default:
                     $queryBuilder = $this->requestRepository->getRequestsThatNeedMyApproval($user, false, null, true);
                     break;
@@ -2075,6 +2084,7 @@ class RequestController extends AbstractController
             $createdByApprover->setPossibleActions([RequestAction::REQUEST_ACTION_NAME_MARK_AS_ACTIVE,
                                                     RequestAction::REQUEST_ACTION_NAME_MARK_AS_INACTIVE,
             ]);
+            $createdByApprover->setNotificationDate(new DateTime());
             $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
             $this->entityManager->persist($createdByApprover);
 
@@ -2084,7 +2094,6 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
                 $jobBoardRequest->setStatusLabel('Active job posting');
                 $jobBoardRequest->setRequestActionAt(new \DateTime());
-                $createdByApprover->setNotificationDate(new DateTime());
 
                 $this->entityManager->flush();
 
@@ -2198,6 +2207,12 @@ class RequestController extends AbstractController
                 ],
             ]);
 
+            /** @var RequestPossibleApprovers $createdByApprover */
+            if ($createdByApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
+                $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
+                $createdByApprover->setNotificationDate(new DateTime());
+            }
+
 
             if ($form->get('postAndReview')->isClicked()) {
 
@@ -2205,12 +2220,6 @@ class RequestController extends AbstractController
                 $jobBoardRequest->setStatus(\App\Entity\Request::REQUEST_STATUS_ACTIVE);
                 $jobBoardRequest->setStatusLabel('Active job posting');
                 $jobBoardRequest->setRequestActionAt(new \DateTime());
-
-                /** @var RequestPossibleApprovers $createdByApprover */
-                if ($createdByApprover = $jobBoardRequest->getAssociatedRequestPossibleApproverForUser($user)) {
-                    $createdByApprover->setNotificationTitle("<strong>You</strong> have posted a new job board request - \"{$jobBoardRequest->getSummary()}\"");
-                    $createdByApprover->setNotificationDate(new DateTime());
-                }
 
                 $this->entityManager->flush();
 

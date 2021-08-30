@@ -41,6 +41,12 @@
                 <option value="{{ path('requests') }}?filter=approved" {{ filter == 'approved' ? 'selected' : '' }}>Approved</option>
                 <option value="{{ path('requests') }}?filter=denied" {{ filter == 'denied' ? 'selected' : '' }}>Denied</option>
                 <option value="{{ path('requests') }}?filter=pending" {{ filter == 'pending' ? 'selected' : '' }}>Pending</option>
+
+                {% if user.educator %}
+                    <option value="{{ path('requests') }}?filter=drafts" {{ filter == 'drafts' ? 'selected' : '' }}>Drafts</option>
+                    <option value="{{ path('requests') }}?filter=my_students" {{ filter == 'my_students' ? 'selected' : '' }}>Student</option>
+                {% endif %}
+
             </select>
             <button class="uk-button uk-button-primary" type="button" tabindex="-1">
                 <span></span>
