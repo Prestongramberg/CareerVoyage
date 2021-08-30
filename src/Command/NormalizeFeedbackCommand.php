@@ -1912,13 +1912,19 @@ class NormalizeFeedbackCommand extends Command
 
                 if ($experience instanceof StudentToMeetProfessionalExperience) {
 
-                    if (($originalRequest = $experience->getOriginalRequest()) && $professional = $originalRequest->getProfessional()) {
+                    if (($request = $experience->getRequest())) {
 
-                        if ($company = $professional->getCompany()) {
-                            $companyIds[]   = $company->getId();
-                            $companyNames[] = $company->getName();
-                            $report->setCompany($company->getId());
-                            $report->setCompanyName($company->getName());
+                        $notification = $request->getNotification();
+
+                        if(!empty($notification['data']['professional_id'])) {
+                            $professionalId = $notification['data']['professional_id'];
+                            $professional = $this->professionalUserRepository->find($professionalId);
+                            if ($professional && $company = $professional->getCompany()) {
+                                $companyIds[]   = $company->getId();
+                                $companyNames[] = $company->getName();
+                                $report->setCompany($company->getId());
+                                $report->setCompanyName($company->getName());
+                            }
                         }
                     }
 
@@ -2063,26 +2069,36 @@ class NormalizeFeedbackCommand extends Command
 
                 if ($experience instanceof StudentToMeetProfessionalExperience) {
 
-                    if (($originalRequest = $experience->getOriginalRequest()) && $professional = $originalRequest->getProfessional()) {
+                    if (($request = $experience->getRequest())) {
 
-                        if ($company = $professional->getCompany()) {
-                            $companyIds[]   = $company->getId();
-                            $companyNames[] = $company->getName();
-                            $report->setCompany($company->getId());
-                            $report->setCompanyName($company->getName());
+                        $notification = $request->getNotification();
+
+                        if(!empty($notification['data']['professional_id'])) {
+                            $professionalId = $notification['data']['professional_id'];
+                            $professional = $this->professionalUserRepository->find($professionalId);
+                            if ($professional && $company = $professional->getCompany()) {
+                                $companyIds[]   = $company->getId();
+                                $companyNames[] = $company->getName();
+                                $report->setCompany($company->getId());
+                                $report->setCompanyName($company->getName());
+                            }
                         }
 
-                        if (($student = $originalRequest->getStudent()) && $school = $student->getSchool()) {
-                            $schoolIds[]   = $school->getId();
-                            $schoolNames[] = $school->getName();
-                            $report->setSchool($school->getId());
-                            $report->setSchoolName($school->getName());
+                        if(!empty($notification['data']['student_id'])) {
+                            $studentId = $notification['data']['student_id'];
+                            $student = $this->studentUserRepository->find($studentId);
+                            if ($student && $school = $student->getSchool()) {
+                                $schoolIds[]   = $school->getId();
+                                $schoolNames[] = $school->getName();
+                                $report->setSchool($school->getId());
+                                $report->setSchoolName($school->getName());
 
-                            if ($region = $school->getRegion()) {
-                                $regionIds[]   = $region->getId();
-                                $regionNames[] = $region->getName();
-                                $report->setRegion($region->getId());
-                                $report->setRegionName($region->getName());
+                                if ($region = $school->getRegion()) {
+                                    $regionIds[]   = $region->getId();
+                                    $regionNames[] = $region->getName();
+                                    $report->setRegion($region->getId());
+                                    $report->setRegionName($region->getName());
+                                }
                             }
                         }
                     }
