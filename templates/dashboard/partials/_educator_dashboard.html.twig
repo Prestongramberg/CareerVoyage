@@ -134,10 +134,11 @@
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li><a href="#user-favorites">Favorites</a></li>
-                    <li><a href="#user-events">My Experiences</a></li>
-                    <li><a href="#user-students">My Students</a></li>
-                    <li><a href="#user-feedback">Provide Feedback</a></li>
-                    <li><a href="#view-feedback">View Feedback</a></li>
+                    <li style="padding-left: 10px"><a href="#user-events">My Experiences</a></li>
+                    <li style="padding-left: 10px"><a href="#user-students">My Students</a></li>
+                    <li style="padding-left: 10px"><a href="#user-calendar">My Calendar</a></li>
+                    <li style="padding-left: 10px"><a href="#user-feedback">Give Feedback</a></li>
+                    <li style="padding-left: 10px"><a href="#view-feedback">View Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
                   {#  <div class="user_preferences_calendar">
@@ -349,6 +350,11 @@
                             {% endif %}
                         </dl>
                     </div>
+
+                    <div class="user_preferences_calendar">
+                        <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
+                    </div>
+
                     <div class="feedback">
                         <div class="uk-margin">
                             <div class="uk-card uk-card-default">
