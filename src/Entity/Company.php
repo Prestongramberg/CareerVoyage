@@ -219,13 +219,13 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=8, nullable=true)
      */
     private $latitude;
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="decimal", precision=11, scale=8, nullable=true)
      */
     private $longitude;
 
