@@ -122,12 +122,12 @@ class ProfessionalUser extends User
     private $allowedCommunications;
 
     /**
-     * @ORM\Column(type="decimal", precision=9, scale=6, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=8, nullable=true)
      */
     private $latitude;
 
     /**
-     * @ORM\Column(type="decimal", precision=9, scale=6, nullable=true)
+     * @ORM\Column(type="decimal", precision=11, scale=8, nullable=true)
      */
     private $longitude;
 

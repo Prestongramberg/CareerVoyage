@@ -205,8 +205,9 @@ class CompanyController extends AbstractController
      *
      * @Route("/companies-by-radius", name="get_companies_by_radius", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
+     *
      * @return JsonResponse
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException*@throws \Doctrine\DBAL\Driver\Exception
      */
     public function getCompaniesByRadius(Request $request) {
 

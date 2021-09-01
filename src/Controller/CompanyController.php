@@ -95,58 +95,15 @@ class CompanyController extends AbstractController
 
         $form->handleRequest($request);
 
-        $useRegionFiltering = false;
+        $zipcode = $request->query->get('zipcode', null);
+        $radius  = $request->query->get('radius', 70);
+        $lng     = null;
+        $lat     = null;
 
-
-       /* $regions            = [];
-        if ($user->isSchoolAdministrator()) {
-
-            $useRegionFiltering = true;
-
-            foreach ($user->getSchools() as $school) {
-
-                if (!$school->getRegion()) {
-                    continue;
-                }
-
-                $regions[] = $school->getRegion()->getId();
-            }
-        }
-
-        if ($user->isProfessional()) {
-
-            $useRegionFiltering = true;
-
-            foreach ($user->getRegions() as $region) {
-
-                $regions[] = $region->getId();
-            }
-        }
-
-        if ($user->isStudent() || $user->isEducator()) {
-
-            $useRegionFiltering = true;
-
-            if ($user->getSchool() && $user->getSchool()->getRegion()) {
-                $regions[] = $user->getSchool()->getRegion()->getId();
-            }
-        }
-
-        $regions = array_unique($regions);*/
-
-        if ($useRegionFiltering) {
-            $filterBuilder = $this->companyRepository->createQueryBuilder('c')
-                                                     ->leftJoin('c.regions', 'regions')
-                                                     ->andWhere('regions.id IN (:regions)')
-                                                     ->andWhere('c.deleted = 0')
-                                                     ->setParameter('regions', $regions)
-                                                     ->addOrderBy('c.name', 'ASC');
-        } else {
-
-            $filterBuilder = $this->companyRepository->createQueryBuilder('c')
-                                                     ->andWhere('c.deleted = 0')
-                                                     ->addOrderBy('c.name', 'ASC');
-        }
+        $filterBuilder = $this->companyRepository->createQueryBuilder('c')
+                                                 ->andWhere('c.deleted = 0')
+                                                 ->andWhere('c.approved = 1')
+                                                 ->addOrderBy('c.name', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
