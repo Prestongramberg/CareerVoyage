@@ -200,7 +200,7 @@ class EducatorFilterType extends AbstractType
 
                                 $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                $queryBuilder->andWhere("u.latitude <= :latN AND u.latitude >= :latS AND u.longitude <= :lonE AND u.longitude >= :lonW AND (u.latitude != :lat AND u.longitude != :lng)");
+                                $queryBuilder->andWhere("school.latitude <= :latN AND school.latitude >= :latS AND school.longitude <= :lonE AND school.longitude >= :lonW AND (school.latitude != :lat AND school.longitude != :lng)");
 
                                 // todo make sure to change the lat long entity field types to decimal if you want this to work.
                                 // todo see ProfessionalUser Entity
