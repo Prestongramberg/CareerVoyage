@@ -128,48 +128,8 @@ class SchoolController extends AbstractController
 
         $form->handleRequest($request);
 
-        $useRegionFiltering = false;
-        $regions            = [];
-        if ($user->isSchoolAdministrator()) {
-
-            $useRegionFiltering = true;
-
-            /** @var SchoolAdministrator $user */
-            foreach ($user->getSchools() as $school) {
-
-                if (!$school->getRegion()) {
-                    continue;
-                }
-
-                $regions[] = $school->getRegion()->getId();
-            }
-        }
-
-        if ($user->isStudent() || $user->isEducator()) {
-
-            $useRegionFiltering = true;
-
-            /** @var StudentUser|EducatorUser $user */
-
-            if ($user->getSchool() && $user->getSchool()->getRegion()) {
-                $regions[] = $user->getSchool()->getRegion()->getId();
-            }
-        }
-
-        $regions = array_unique($regions);
-
-
-        if ($useRegionFiltering) {
-            $filterBuilder = $this->schoolRepository->createQueryBuilder('s')
-                                                    ->leftJoin('s.region', 'region')
-                                                    ->andWhere('region.id IN (:regions)')
-                                                    ->setParameter('regions', $regions)
-                                                    ->addOrderBy('s.name', 'ASC');
-        } else {
-
-            $filterBuilder = $this->schoolRepository->createQueryBuilder('s')
-                                                    ->addOrderBy('s.name', 'ASC');
-        }
+        $filterBuilder = $this->schoolRepository->createQueryBuilder('s')
+                                                ->addOrderBy('s.name', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);

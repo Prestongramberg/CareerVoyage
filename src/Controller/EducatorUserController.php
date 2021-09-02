@@ -175,62 +175,9 @@ class EducatorUserController extends AbstractController
 
         $form->handleRequest($request);
 
-        $useRegionFiltering = false;
-        $regions            = [];
-        if ($user->isSchoolAdministrator()) {
-
-            $useRegionFiltering = true;
-
-            /** @var SchoolAdministrator $user */
-            foreach ($user->getSchools() as $school) {
-
-                if (!$school->getRegion()) {
-                    continue;
-                }
-
-                $regions[] = $school->getRegion()->getId();
-            }
-        }
-
-        if ($user->isProfessional()) {
-
-            $useRegionFiltering = true;
-
-            /** @var ProfessionalUser $user */
-
-            foreach ($user->getRegions() as $region) {
-
-                $regions[] = $region->getId();
-            }
-        }
-
-        if ($user->isStudent() || $user->isEducator()) {
-
-            $useRegionFiltering = true;
-
-            /** @var StudentUser|EducatorUser $user */
-
-            if ($user->getSchool() && $user->getSchool()->getRegion()) {
-                $regions[] = $user->getSchool()->getRegion()->getId();
-            }
-        }
-
-        $regions = array_unique($regions);
-
-        if ($useRegionFiltering) {
-            $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u')
-                                                              ->leftJoin('u.school', 'school')
-                                                              ->leftJoin('school.region', 'region')
-                                                              ->andWhere('region.id IN (:regions)')
-                                                              ->andWhere('u.deleted = 0')
-                                                              ->setParameter('regions', $regions)
-                                                              ->addOrderBy('u.firstName', 'ASC');
-        } else {
-
-            $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u')
-                                                              ->andWhere('u.deleted = 0')
-                                                              ->addOrderBy('u.firstName', 'ASC');
-        }
+        $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u')
+                                                      ->andWhere('u.deleted = 0')
+                                                      ->addOrderBy('u.firstName', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
