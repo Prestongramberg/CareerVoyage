@@ -18,7 +18,21 @@
                         </div>
                         <div class="uk-width-auto">
                             <div class="uk-align-right">
-                                <div class="react-favorite-company uk-inline" data-company-id="{{ company.id }}" data-company-favorited="{{ company.isFavoritedByUser( user ) }}"></div>
+                                {% if user_favorited_company(user, company) %}
+                                    <a href="{{ path('unfavorite_company', {'id': company.id}) }}">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Remove from My Favorites">
+                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ path('favorite_company', {'id': company.id}) }}">
+                                                <span class="favorite-company"
+                                                      data-uk-tooltip="title: Add to My Favorites">
+                                                    <i style="opacity: 0.5" class="fa fa-heart" aria-hidden="true"></i>
+                                                </span>
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -44,20 +58,25 @@
                 <div class="uk-align-right@l">
                     {% if user.isProfessional and user.company is null %}
                         <form class="uk-inline" method="post" action="{{ path('company_join', {'id': company.id}) }}">
-                            <button type="submit" class="uk-button uk-button-default uk-button-small">Join this Company</button>
+                            <button type="submit" class="uk-button uk-button-default uk-button-small">Join this
+                                Company
+                            </button>
                         </form>
                     {% endif %}
 
                     {% if company.owner and user.id == company.owner.id %}
-                        <a href="{{ path('company_page_visits', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Page Visits</a>
+                        <a href="{{ path('company_page_visits', {id: company.id}) }}"
+                           class="uk-button uk-button-primary uk-button-small">Page Visits</a>
                     {% endif %}
 
                     {% if company.owner and user.id == company.owner.id %}
-                        <a href="{{ path('company_edit', {id: company.id}) }}" class="uk-button uk-button-primary uk-button-small">Edit Company</a>
+                        <a href="{{ path('company_edit', {id: company.id}) }}"
+                           class="uk-button uk-button-primary uk-button-small">Edit Company</a>
                     {% endif %}
 
                     {% if company.owner and user.id == company.owner.id %}
-                        <a href="{{ path('company_experience_create', {id: company.id}) }}" class="uk-button uk-button-default uk-button-small">Create Experience</a>
+                        <a href="{{ path('company_experience_create', {id: company.id}) }}"
+                           class="uk-button uk-button-default uk-button-small">Create Experience</a>
                     {% endif %}
 
                     {% if user.admin or (company.owner and user.id == company.owner.id) %}
@@ -99,44 +118,58 @@
 
                     <div class="company-links uk-margin">
                         {% if company.website %}
-                            <a href="{{ company.website }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="world"></a>
+                            <a href="{{ company.website }}" target="_blank" class="uk-icon-button uk-margin-small-right"
+                               uk-icon="world"></a>
                         {% endif %}
                         {% if company.phone and company.phoneExt %}
-                            <a href="tel:{{ company.phone }},{{company.phoneExt}}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            <a href="tel:{{ company.phone }},{{ company.phoneExt }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                         {% elseif company.phone %}
-                            <a href="tel:{{ company.phone }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
+                            <a href="tel:{{ company.phone }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="receiver"></a>
                         {% endif %}
                         {% if company.emailAddress %}
-                            <a href="mailto:{{ company.emailAddress }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            <a href="mailto:{{ company.emailAddress }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
                         {% endif %}
                         {% if company.companyLinkedinPage %}
-                            <a href="{{ company.companyLinkedinPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
+                            <a href="{{ company.companyLinkedinPage }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="linkedin"></a>
                         {% endif %}
                         {% if company.companyFacebookPage %}
-                            <a href="{{ company.companyFacebookPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="facebook"></a>
+                            <a href="{{ company.companyFacebookPage }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="facebook"></a>
                         {% endif %}
                         {% if company.companyInstagramPage %}
-                            <a href="{{ company.companyInstagramPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="instagram"></a>
+                            <a href="{{ company.companyInstagramPage }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="instagram"></a>
                         {% endif %}
                         {% if company.companyTwitterPage %}
-                            <a href="{{ company.companyTwitterPage }}" target="_blank" class="uk-icon-button uk-margin-small-right" uk-icon="twitter"></a>
+                            <a href="{{ company.companyTwitterPage }}" target="_blank"
+                               class="uk-icon-button uk-margin-small-right" uk-icon="twitter"></a>
                         {% endif %}
                     </div>
                 </div>
             </div>
             {% if company.latitude and company.longitude %}
                 <div class="company__location">
-                    <p><a class="uk-button uk-button-primary uk-button-small" href="http://maps.google.com/?q={{ company.street }},{{ company.city }},{{ company.zipcode }}" target="_blank">Directions to Company</a></p>
-                    <div class="react-google-map" data-latitude="{{ company.latitude }}" data-longitude="{{ company.longitude }}" data-schools="{{ encode_companies( company.schools ) }}" data-companies="{{ encode_companies( [company] ) }}"></div>
+                    <p><a class="uk-button uk-button-primary uk-button-small"
+                          href="http://maps.google.com/?q={{ company.street }},{{ company.city }},{{ company.zipcode }}"
+                          target="_blank">Directions to Company</a></p>
+                    <div class="react-google-map" data-latitude="{{ company.latitude }}"
+                         data-longitude="{{ company.longitude }}"
+                         data-schools="{{ encode_companies( company.schools ) }}"
+                         data-companies="{{ encode_companies( [company] ) }}"></div>
                 </div>
             {% endif %}
             {% if company.companyPhotos|length %}
                 <div class="company__photos">
-                    <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid="masonry: true" uk-lightbox="animation: slide">
+                    <div class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3"
+                         uk-grid="masonry: true" uk-lightbox="animation: slide">
                         {% for companyPhoto in company.companyPhotos %}
                             <div>
                                 <a class="uk-inline" href="{{ asset(uploaded_asset(companyPhoto.path)) }}">
-                                    <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+                                    <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}"/>
                                 </a>
                             </div>
                         {% endfor %}
@@ -145,10 +178,12 @@
             {% endif %}
             {% if company.companyVideos|length %}
                 <div class="company__videos">
-                    <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                    <div class="uk-child-width-1-3@m" uk-grid="masonry: true"
+                         uk-lightbox="animation: slide; video-autoplay: 1">
                         {% for video in company.companyVideos %}
                             <div>
-                                <a class="company-video uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                <a class="company-video uk-inline"
+                                   href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
                                     <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
                                     <div class="company-video__overlay">
                                         <div class="company-video__overlay-title">
@@ -170,7 +205,8 @@
                                     <div class="uk-card-badge uk-label">{{ experience.type }}</div>
                                     <div class="uk-text-meta">{{ experience.startDateAndTime|date("F jS, Y") }}</div>
                                     <div class="uk-margin">
-                                        <a href="{{ path('company_experience_view', {'id': experience.id}) }}"><h3 class="uk-card-title">{{ experience.title }}</h3></a>
+                                        <a href="{{ path('company_experience_view', {'id': experience.id}) }}"><h3
+                                                    class="uk-card-title">{{ experience.title }}</h3></a>
                                         <p>{{ experience.briefDescription }}</p>
                                     </div>
                                 </div>
@@ -190,9 +226,11 @@
                                 </div>
                                 <div class="uk-width-auto">
                                     {% if companyResource.fileName %}
-                                        <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        <a href="{{ asset(uploaded_asset(companyResource.path)) }}"
+                                           class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
                                     {% else %}
-                                        <a href="{{ companyResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                        <a href="{{ companyResource.linkToWebsite }}"
+                                           class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -207,17 +245,23 @@
                             {% if professionalUser.deleted == false and professionalUser.activated == true %}
                                 <div class="uk-grid uk-flex-middle" uk-grid>
                                     <div class="uk-width-auto">
-                                        <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(professionalUser, 'photo') is defined and professionalUser.photo ) ? asset(uploaded_asset(professionalUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                        <img class="uk-border-circle" width="40" height="40"
+                                             src="{{ ( attribute(professionalUser, 'photo') is defined and professionalUser.photo ) ? asset(uploaded_asset(professionalUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                     </div>
                                     <div class="uk-width-expand">
                                         <dt>{{ professionalUser.firstName }} {{ professionalUser.lastName }}</dt>
                                         <dd>{{ excerpt_length( professionalUser.briefBio, 100 ) }}</dd>
                                     </div>
                                     <div class="uk-width-auto">
-                                        <a href="{{ path('profile_index', { "id": professionalUser.id }) }}" class="uk-button uk-button-default uk-button-small">View</a>
+                                        <a href="{{ path('profile_index', { "id": professionalUser.id }) }}"
+                                           class="uk-button uk-button-default uk-button-small">View</a>
                                         {% if user.admin or (company.owner and user.id == company.owner.id) %}
-                                            <form class="uk-inline" action="{{ path('company_remove_user', { "id": professionalUser.id }) }}" method="POST">
-                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
+                                            <form class="uk-inline"
+                                                  action="{{ path('company_remove_user', { "id": professionalUser.id }) }}"
+                                                  method="POST">
+                                                <button class="uk-button uk-button-danger uk-button-small uk-margin-small-right"
+                                                        type="submit">Remove
+                                                </button>
                                             </form>
                                         {% endif %}
                                     </div>
