@@ -20,6 +20,7 @@ use App\Form\CompanyFilterType;
 use App\Service\Geocoder;
 use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderExecuterInterface;
+use Lexik\Bundle\FormFilterBundle\Filter\FilterOperands;
 use Lexik\Bundle\FormFilterBundle\Filter\Query\QueryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -63,7 +64,9 @@ class CompanyResultsFilterType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', Filters\TextFilterType::class, []);
+        $builder->add('name', Filters\TextFilterType::class, [
+            'condition_pattern' => FilterOperands::STRING_CONTAINS
+        ]);
 
         $builder->add(
             'primaryIndustry', Filters\EntityFilterType::class, [

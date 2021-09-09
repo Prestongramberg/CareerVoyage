@@ -34,6 +34,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -441,12 +442,13 @@ class CompanyController extends AbstractController
     }
 
     /**
-     * @Route("/companies/{id}/favorite", name="favorite_company", methods={"GET"}, options = { "expose" = true })
+     * @Route("/companies/{id}/favorite", name="favorite_company", methods={"GET", "POST"}, options = { "expose" = true })
+     * @param Request $request
      * @param Company $company
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function favoriteCompany(Company $company) {
+    public function favoriteCompany(Request $request, Company $company) {
 
 
         $companyObj = $this->companyFavoriteRepository->findOneBy([
@@ -455,7 +457,9 @@ class CompanyController extends AbstractController
         ]);
 
         if($companyObj) {
-            return $this->redirectToRoute('company_results_page');
+            $referer = $request->headers->get('referer');
+
+            return new RedirectResponse($referer);
         }
 
         $companyFavorite = new CompanyFavorite();
@@ -465,16 +469,19 @@ class CompanyController extends AbstractController
         $this->entityManager->persist($companyFavorite);
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('company_results_page');
+        $referer = $request->headers->get('referer');
+
+        return new RedirectResponse($referer);
     }
 
     /**
-     * @Route("/companies/{id}/unfavorite", name="unfavorite_company", methods={"GET"}, options = { "expose" = true })
+     * @Route("/companies/{id}/unfavorite", name="unfavorite_company", methods={"GET", "POST"}, options = { "expose" = true })
+     * @param Request $request
      * @param Company $company
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function unFavoriteCompany(Company $company) {
+    public function unFavoriteCompany(Request $request, Company $company) {
 
 
         $companyObj = $this->companyFavoriteRepository->findOneBy([
@@ -486,10 +493,14 @@ class CompanyController extends AbstractController
             $this->entityManager->remove($companyObj);
             $this->entityManager->flush();
 
-            return $this->redirectToRoute('company_results_page');
+            $referer = $request->headers->get('referer');
+
+            return new RedirectResponse($referer);
         }
 
-        return $this->redirectToRoute('company_results_page');
+        $referer = $request->headers->get('referer');
+
+        return new RedirectResponse($referer);
     }
 
     /**
