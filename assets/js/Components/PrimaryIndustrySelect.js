@@ -52,6 +52,7 @@ class PrimaryIndustrySelect {
         formData.delete(tokenName);
         formData.append('primary_industry_change', "1");
         formData.append('changeableField', "1");
+        formData.append('skip_validation', "1");
 
         if (!this.selectCache) {
             setTimeout(() => {
@@ -83,7 +84,23 @@ class PrimaryIndustrySelect {
                         placeholder: "Select Profession",
                         allowClear: true,
                         width: '100%',
-                        sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
+                        sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text)),
+                        "language": {
+                            "noResults": function(){
+                                return "Please choose a career sector / industry first";
+                            }
+                        }
+                    });
+
+                    $('#new_company_form_secondaryIndustries').select2({
+                        placeholder: "Select Professions",
+                        allowClear: true,
+                        width: '100%',
+                        "language": {
+                            "noResults": function(){
+                                return "Please choose a career sector / industry first";
+                            }
+                        },
                     });
                 });
 

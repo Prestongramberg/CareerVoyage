@@ -223,6 +223,20 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_view', ['id' => $user->getCompany()->getId()]);
         }
 
+        $countyJson = [];
+        $counties   = $this->countyRepository->findAll();
+        foreach ($counties as $county) {
+
+            $countyJson[] = [
+                'coordinates' => $county->getCoordinates(),
+                'name' => $county->getName(),
+                'state_name' => $county->getStateName(),
+                'region_name' => $county->getRegionName(),
+                'service_cooperative_name' => $county->getServiceCooperativeName(),
+                'color' => $county->getColor() ?? '#FF0000',
+            ];
+        }
+
         $company = new Company();
 
         $options = [
@@ -230,6 +244,10 @@ class CompanyController extends AbstractController
             'company' => $company,
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
+
+        if(!$options['skip_validation']) {
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
+        }
 
         $form = $this->createForm(NewCompanyFormType::class, $company, $options);
 
@@ -346,15 +364,16 @@ class CompanyController extends AbstractController
 
         }
 
-        if ($request->request->has('primary_industry_change')) {
+        if ($request->request->has('changeableField')) {
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView(
-                        'api/form/secondary_industry_form_new_company_field.html.twig', [
-                            'form' => $form->createView(),
-                        ]
-                    ),
+                    'formMarkup' => $this->renderView('company/new.html.twig', [
+                        'user' => $user,
+                        'form' => $form->createView(),
+                        'countyJson' => $countyJson,
+                        'company' => $company
+                    ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
@@ -363,6 +382,8 @@ class CompanyController extends AbstractController
             'company/new.html.twig', [
                 'user' => $user,
                 'form' => $form->createView(),
+                'countyJson' => $countyJson,
+                'company' => $company
             ]
         );
     }

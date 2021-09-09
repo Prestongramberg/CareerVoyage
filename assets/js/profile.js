@@ -41,33 +41,6 @@ $(document).ready(function () {
                 infoWindow.open(map, marker);
             });
         });
-
-        /*
-                let schoolJson = $('.js-form').find('.js-school-json').attr('data-school-json');
-                if (typeof schoolJson !== 'undefined' && schoolJson !== false) {
-
-                    debugger;
-
-                    schoolJson = JSON.parse(schoolJson);
-
-                    schoolJson.forEach(function (school, index) {
-                        debugger;
-
-                        let marker = new google.maps.Marker({
-                            position: {lat: parseFloat(school.latitude), lng: parseFloat(school.longitude)},
-                            map: map,
-                        });
-
-                        markersArray.push(marker);
-
-                        google.maps.event.addListener(marker, 'click', function () {
-                            var infoWindow = new google.maps.InfoWindow();
-                            infoWindow.setContent(school.name);
-                            infoWindow.open(map, marker);
-                        });
-
-                    });
-                }*/
     };
 
     $('.js-select2').select2({
@@ -96,7 +69,12 @@ $(document).ready(function () {
     $('#professional_edit_profile_form_secondaryIndustries').select2({
         placeholder: "Select Professions",
         allowClear: true,
-        width: '100%'
+        width: '100%',
+        "language": {
+            "noResults": function(){
+                return "Please choose a career sector / industry first";
+            }
+        },
     });
 
     let countyJson = $('.js-form').attr('data-county-json')
@@ -192,8 +170,6 @@ $(document).ready(function () {
         });
 
     });
-
-    // todo can you find the bounds for the state of minnesota? as I appear to be getting some chicago addresses back?
 
     if (document.getElementById("addressSearch")) {
 

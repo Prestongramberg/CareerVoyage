@@ -327,8 +327,6 @@ class ProfileController extends AbstractController
             );
         }
 
-        //$this->getDoctrine()->getManager()->refresh($user);
-
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,

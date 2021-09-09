@@ -8,18 +8,25 @@
     <script src="{{ asset('build/companies.js') }}"></script>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <style>
+        .eac-input-wrap .eac-sugg {
+            top: 7px !important;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
 
-    <div class="uk-container js-form" data-route="{{ path('company_new') }}">
+    <div class="uk-container js-form" data-route="{{ path('company_new') }}"
+         data-county-json="{{ countyJson|json_encode }}">
 
-        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+        {{ form_start(form, {attr: {'id': 'js-form', 'novalidate' : 'novalidate'}}) }}
 
-        <ul class="uk-tab" uk-switcher="connect: #tab-new-company" uk-tab>
-            <li class="uk-active"><a href="#company-details">New Company</a></li>
-            <li><a href="#company-industries">Industries</a></li>
-            <li><a href="#company-regions">Region</a></li>
-            <li><a href="#company-schools">Schools</a></li>
-        </ul>
+        <input id="validation_groups" type="hidden" name="validation_groups" value="COMPANY_GENERAL">
+        <input id="tab" type="hidden" name="tab" value="">
 
         {% if form_errors(form) %}
             <div class="uk-alert-danger" uk-alert>
@@ -28,178 +35,591 @@
             </div>
         {% endif %}
 
-        <div class="uk-switcher" id="tab-new-company">
-            <div class="page-company-new__details">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.name, 'Name*') }}
-                            {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.name) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.street, 'Street*') }}
-                            {{ form_widget(form.street, {'attr': {'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.street) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.city, 'City*') }}
-                            {{ form_widget(form.city, {'attr': {'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.city) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.state, 'State*') }}
-                            {{ form_widget(form.state, {'attr': {'class': 'uk-input' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.state) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.zipcode, 'Zip*') }}
-                            {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.zipcode) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.website, 'Website*') }}
-                            {{ form_widget(form.website, {'attr': {'class': 'uk-input' ~ ( form_errors(form.website) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.website) }}
-                        </div>
-                        <div class="uk-margin">
-                            <div class="uk-column-1-2">
-                                <div>
-                                    {{ form_label(form.phone, 'Phone*') }}
-                                    {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.phone) }}
-                                </div>
-                                <div>
-                                    {{ form_label(form.phoneExt, 'Ext.') }}
-                                    {{ form_widget(form.phoneExt, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phoneExt) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.phoneExt) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.emailAddress, 'Company Administrator Email*') }}
-                            {{ form_widget(form.emailAddress, {'attr': {'class': 'uk-input' ~ ( form_errors(form.emailAddress) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.emailAddress) }}
-                        </div>
-
-                        <div class="uk-margin">
-                            {{ form_label(form.shortDescription, 'Short Description*') }}
-                            <div class="uk-text-meta">This is the excerpt shown in search results throughout the site (Please limit to 240 characters)</div>
-                            {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.shortDescription) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.description, 'Description') }}
-                            <div class="uk-text-meta">Describe your company in detail</div>
-                            <div data-wysiwyg="[name='new_company_form[description]']" class="{{ ( form_errors(form.description) ? 'wysiwyg-error' : '' ) }}"></div>
-                            <div style="display: none;">
-                                {{ form_widget(form.description) }}
-                            </div>
-                            {{ form_errors(form.description) }}
-                        </div>
-                    </fieldset>
-                </div>
-
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="1" class="uk-button uk-button-secondary uk-button-small">Next</a>
-                </div>
+        <div uk-grid>
+            <div class="uk-width-1-1 uk-width-medium@m">
+                <ul id="test" class="uk-tab-left"
+                    uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                    <li><a href="#general" id="general">New Company</a></li>
+                    <li><a href="#schools" id="schools">Schools</a></li>
+                    <li><a href="#company-photos" id="company-photos">Photos</a></li>
+                    <li><a href="#company-videos" id="company-videos">Videos</a></li>
+                    <li><a href="#company-resources" id="company-resources">Resources</a></li>
+                </ul>
             </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <ul id="tab-account-inner" class="uk-switcher">
 
-            <div class="page-company-edit__industry">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.primaryIndustry, 'My Company\'s Primary Industry*') }}
-                            {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry uk-select' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.primaryIndustry) }}
-                        </div>
+                    <div class="company_general">
 
-                        <div class="js-secondary-industry-container">
-                            {% if form.secondaryIndustries is defined %}
+                        <div class="uk-text-danger" style="float:right;">* indicates required</div>
+
+                        <fieldset class="uk-fieldset uk-margin">
+
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                    General Information
+                                </legend>
+
                                 <div class="uk-margin">
-                                    {{ form_label(form.secondaryIndustries, 'Secondary Industry*') }} <a class="uk-link-muted" data-select-all="edit_company_form[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="edit_company_form[secondaryIndustries][]">UnSelect All</a>
-                                    {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                    <div class="clear"></div>
-                                    {{ form_errors(form.secondaryIndustries) }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                       <div class="uk-margin">
-                           <a href="#" uk-switcher-item="2" class="uk-button uk-button-secondary uk-button-small">Next</a>
-                        </div>
-                    </fieldset>
-                </div>
-
-            </div>
-
-            <div class="page-company-edit__regions">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            <div class="uk-column-1-2">
-                                <div>
-                                    <p>Please Select geographical regions in which you want your profile visible:</p>
-                                    {{ form_label(form.regions, 'Regions *') }}
-                                    {{ form_widget(form.regions, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.regions) ? ' uk-form-danger' : '' ) }}) }}
-                                    <div class="clear"></div>
-                                    {{ form_errors(form.regions) }}
+                                    {{ form_label(form.name, 'Company Name*') }}
+                                    {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.name) }}
                                 </div>
 
-                                <div>
-                                    <img src="{{ asset('build/images/regions.png') }}">
+                                {#<img style="float:right; height: 100px" class="uk-border-pill"
+                                    id="userThumbnailImage"
+                                    src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
+                                    uk-img/>
+
+                               <div class="uk-text-meta">Upload a square image if possible. Will auto resize to
+                                   300x300.
+                               </div>
+                               <div style="cursor: copy"
+                                    data-upload-url="{{ path('profile_photo_add', { id: user.id }) }}"
+                                    data-type="image:userThumbnailImage"></div>#}
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.companyAddressSearch, 'Company Address*') }}
+                                    {{ form_widget(form.companyAddressSearch, {'id': 'companyAddressSearch', 'attr': {'readonly': 'readonly', 'class': 'uk-input' }}) }}
+                                    <div class="clear"></div>
+                                    {{ form_errors(form.companyAddressSearch) }}
+                                </div>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.emailAddress, 'Company Administrator Email*') }}
+                                    {{ form_widget(form.emailAddress, {'attr': {'class': 'uk-input js-email-autocomplete' ~ ( form_errors(form.emailAddress) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.emailAddress) }}
+                                </div>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.website, 'Website*') }}
+                                    {{ form_widget(form.website, {'attr': {'class': 'uk-input' ~ ( form_errors(form.website) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.website) }}
+                                </div>
+
+                                <div class="uk-margin">
+
+                                    <div class="uk-grid">
+
+                                        <div class="uk-width-2-5">
+                                            {{ form_label(form.phone, 'Phone*') }}
+                                            {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.phone) }}
+                                        </div>
+
+                                        <div class="uk-width-1-5">
+                                            {{ form_label(form.phoneExt, 'Ext.') }}
+                                            {{ form_widget(form.phoneExt, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phoneExt) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.phoneExt) }}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </fieldset>
+
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                    Company Information
+                                </legend>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.primaryIndustry, 'Career Sector*') }}
+                                    {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry js-select2' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.primaryIndustry) }}
+                                </div>
+
+                                <div class="js-secondary-industry-container">
+                                    {% if form.secondaryIndustries is defined %}
+                                        <div class="uk-margin">
+                                            {{ form_label(form.secondaryIndustries, 'Professions*') }}
+                                            {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'js-select2' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                            <div class="clear"></div>
+                                            {{ form_errors(form.secondaryIndustries) }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.shortDescription, 'Short Description*') }}
+                                    <div class="uk-text-meta">This is the excerpt shown in search results throughout the
+                                        site (Please limit to 240 characters)
+                                    </div>
+                                    {{ form_widget(form.shortDescription, {'attr': {'rows': '3', 'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.shortDescription) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {{ form_label(form.description, 'Description (optional)') }}
+                                    <div class="uk-text-meta">Describe your company in detail</div>
+                                    <div data-wysiwyg="[name='new_company_form[description]']"
+                                         class="{{ ( form_errors(form.description) ? 'wysiwyg-error' : '' ) }}"></div>
+                                    <div style="display: none;">
+                                        {{ form_widget(form.description) }}
+                                    </div>
+                                    {{ form_errors(form.description) }}
+                                </div>
+
+                            </fieldset>
+
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                    Social Network
+                                </legend>
+
+                                <div class="uk-margin">
+                                    <div class="uk-grid">
+
+                                        <div class="uk-width-1-2">
+                                            {{ form_label(form.companyLinkedinPage, 'Company LinkedIn Page (optional)') }}
+                                            {{ form_widget(form.companyLinkedinPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyLinkedinPage) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.companyLinkedinPage) }}
+                                        </div>
+
+                                        <div class="uk-width-1-2">
+                                            {{ form_label(form.companyFacebookPage, 'Company Facebook Page (optional)') }}
+                                            {{ form_widget(form.companyFacebookPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyFacebookPage) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.companyFacebookPage) }}
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="uk-margin">
+                                    <div class="uk-grid">
+
+                                        <div class="uk-width-1-2">
+                                            {{ form_label(form.companyInstagramPage, 'Company Instagram Page (optional)') }}
+                                            {{ form_widget(form.companyInstagramPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyInstagramPage) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.companyInstagramPage) }}
+                                        </div>
+
+                                        <div class="uk-width-1-2">
+                                            {{ form_label(form.companyTwitterPage, 'Company Twitter Page (optional)') }}
+                                            {{ form_widget(form.companyTwitterPage, {'attr': {'class': 'uk-input' ~ ( form_errors(form.companyTwitterPage) ? ' uk-form-danger' : '' ) }}) }}
+                                            {{ form_errors(form.companyTwitterPage) }}
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </fieldset>
+
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                    Company Images
+                                </legend>
+
+                                <div class="uk-margin uk-grid" uk-grid>
+                                    <div class="uk-width-small">
+                                        <img id="companyThumbnailImage" src="{{ company.thumbnailImagePath is not null ? asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Thumbnail&font-size=.1' }}"/>
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <label>Company Thumbnail (300x300)</label>
+                                        <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.
+                                            Will auto resize to 300x300.<br/><span class="uk-text-warning">Accepted formats: .jpg, .png</span>
+                                        </div>
+                                        <div data-hidden-field="{{ form.thumbnailImage.vars.full_name }}"
+                                             data-upload-url="{{ path('api_images_upload') }}?folder=thumbnail_image"
+                                             data-type="image:companyThumbnailImage"></div>
+                                    </div>
+                                </div>
+                                <div class="uk-margin uk-grid" uk-grid>
+                                    <div class="uk-width-small">
+                                        <img id="companyFeaturedImage" src="{{ company.featuredImagePath is not null ? asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Featured&font-size=.1' }}"/>
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <label>Company Featured Image (1680x300)</label>
+                                        <div class="uk-text-meta">Ideal size for company banner is
+                                            <strong>1680x300</strong> with central focal point.<br/><span
+                                                    class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
+                                        <div data-hidden-field="{{ form.featuredImage.vars.full_name }}"
+                                             data-upload-url="{{ path('api_images_upload') }}?folder=featured_image"
+                                             data-type="image:companyFeaturedImage"></div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+
+                            {{ form_widget(form.street, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.city, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.state, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.zipcode, {'attr': {'style': 'display: none','class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
+
+                            <br>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </fieldset>
+                    </div>
+
+
+                    <div class="company_schools">
+                        <fieldset class="uk-fieldset">
+
+                            <div uk-grid>
+                                <div class="uk-width-1-2">
+
+                                    <fieldset class="uk-fieldset">
+                                        <legend class="uk-legend">Volunteer Schools
+                                            <small>
+                                                <a style="text-decoration: underline; float:right; font-size: 12px"
+                                                   uk-toggle="target: #dashboard-filters; animation: uk-animation-slide-top, uk-animation-slide-bottom">
+                                                    Filters <span uk-icon="cog"></span></a>
+                                            </small>
+                                        </legend>
+                                    </fieldset>
+
+                                    <small style="font-size: 12px">Click on the filters <span
+                                                style="color: #1e87f0;" uk-icon="cog"></span> on the right to limit
+                                        by region, address or radius proximity.
+                                    </small>
+
+                                    <br>
+                                    <br>
+                                    <div id="dashboard-filters" hidden>
+
+                                        <fieldset class="uk-fieldset">
+
+                                            <hr>
+                                            <small class="uk-text-danger">Not sure what region you are in? Hover
+                                                over the interactive map on the right to determine your
+                                                region.
+                                            </small>
+
+                                            <div class="uk-margin">
+                                                {{ form_widget(form.regions, {'attr': {'class': 'js-region' ~ ( form_errors(form.regions) ? ' uk-form-danger' : '' ) }}) }}
+                                                <div class="clear"></div>
+                                                {{ form_errors(form.regions) }}
+                                            </div>
+
+                                            <div class="uk-margin">
+                                                {{ form_widget(form.addressSearch, {'id': 'addressSearch', 'attr': {'class': 'uk-input' }}) }}
+                                            </div>
+
+                                            <div class="uk-margin">
+                                                {{ form_widget(form.radiusSearch, {'attr': {'class': 'js-radius uk-input'}}) }}
+                                            </div>
+
+                                            <hr>
+                                        </fieldset>
+                                    </div>
+
+                                    <fieldset class="uk-fieldset">
+
+                                        <div class="js-schools-container">
+                                            <div class="js-school-json" style="display: none"
+                                                 data-school-json="{{ form.vars.schools|json_encode }}"></div>
+                                            {% if form.schools is defined %}
+                                                <div class="uk-margin">
+                                                    <a href="javascript:void(0)" class="js-select-all-schools"
+                                                       style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                                        All</a>
+                                                    {{ form_widget(form.schools, {'attr': {'class': 'js-school' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
+                                                    <div class="clear"></div>
+                                                    {{ form_errors(form.schools) }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                    </fieldset>
+
+                                </div>
+
+                                <div class="uk-width-1-2">
+                                    <div id="map"></div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="uk-margin">
-                            <a href="#" uk-switcher-item="3" class="uk-button uk-button-secondary uk-button-small">Next</a>
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
-            <div class="page-company-edit__schools">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.schools, 'Schools*') }}
-                            <div id="react-schools-select-by-radius"
-                                 data-field-name="new_company_form[schools][]"
-                                 data-field-value="{{ form.schools.vars.value|json_encode }}"
-                                 data-region-field-name="new_company_form[regions][]"
-                                 data-georadius-name="new_company_form[geoRadius]"
-                                 data-georadius-value="{{ form.geoRadius.vars.value }}"
-                                 data-geozipcode-name="new_company_form[geoZipCode]"
-                                 data-geozipcode-value="{% if form.geoZipCode.vars.value %}{{ form.geoZipCode.vars.value }}{% elseif company.zipcode is defined %}{{ company.zipcode }}{% endif %}">
-                                {{ form_widget(form.schools, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.schools) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_widget(form.geoZipCode) }}
-                                {{ form_widget(form.geoRadius) }}
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
                             </div>
-                            <div class="clear"></div>
-                            {{ form_errors(form.schools) }}
-                        </div>
+                        </fieldset>
+                    </div>
 
-                        <div class="uk-margin">
-                            <button class="uk-button uk-button-primary uk-button-small">Create Company</button>
-                        </div>
-                    </fieldset>
-                </div>
+
+                    <div class="account_details_videos">
+
+                        {#   <div class="uk-width-xlarge">
+                               <p>Videos can help showcase your knowledge as a professional. Upload your videos to
+                                   Youtube and then attach them here.</p>
+                           </div>
+                           <div class="uk-margin">
+                               <div class="uk-text-center uk-placeholder">
+                                   <a class="uk-button uk-button-default uk-button-small"
+                                      href="#modal-add-professional-video" uk-toggle>Add a Video</a>
+                                   <div id="modal-add-professional-video" uk-modal>
+                                       <div class="uk-modal-dialog uk-modal-body">
+                                           <h3>Add a Video</h3>
+
+                                           <input type="hidden" name="professionalId" value="{{ user.id }}">
+
+                                           <div class="uk-margin">
+                                               <label for="edit_company_add_video_name" class="required">Name*</label>
+                                               <input type="text" id="edit_company_add_video_name" name="name"
+                                                      required="required" class="uk-input"/>
+                                           </div>
+
+                                           <div class="uk-margin">
+                                               <label for="edit_company_add_video_id" class="required">Youtube Video
+                                                   ID*</label>
+                                               <div class="uk-position-relative">
+                                                   <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                                   <input class="uk-input" id="edit_company_add_video_id"
+                                                          name="videoId" required="required" type="text">
+                                               </div>
+                                               <small>Please make sure your video is open to public.</small>
+
+                                           </div>
+
+                                           <div class="uk-margin">
+                                               <label for="edit_company_add_video_tags"
+                                                      class="required">Keywords</label>
+                                               <div class="uk-position-relative">
+                                                           <textarea id="edit_company_add_video_tags" name="tags"
+                                                                     class="uk-textarea"></textarea>
+                                               </div>
+                                           </div>
+
+                                           <p class="uk-text-right">
+                                               <button class="uk-button uk-button-default uk-modal-close"
+                                                       type="button">Cancel
+                                               </button>
+                                               <input class="uk-button uk-button-primary" type="submit" value="Save"
+                                                      data-user="{{ user.id }}" data-action="{{ path('professional_video_add', {'id' : user.id}) }}"/>
+                                           </p>
+                                       </div>
+                                   </div>
+                               </div>
+                               <div id="companyVideosTemplate" style="display: none;">
+                                   <div class="company-video">
+                                       <a class="uk-inline" href="https://www.youtube.com/watch?v=VIDEO_ID">
+                                           <img src="http://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg" alt="">
+                                           <div class="company-video__overlay">
+                                               <div class="company-video__overlay-title">
+                                                   VIDEO_NAME
+                                               </div>
+                                           </div>
+                                       </a>
+                                       <a onclick="event.stopPropagation();"
+                                          style="position: absolute; top: -8px; left: 5px; z-index: 5000; border: none; color: #999;"
+                                          class="uk-button uk-button-default"
+                                          href="{{ path('profile_edit', {'id' : user.id }) }}?videoEdit=RESOURCE_ID"
+                                          uk-icon="icon: file-edit"></a>
+                                       <button type="button"
+                                               data-remove="{{ path('company_video_remove', {'id' : 'RESOURCE_ID' }) }}"
+                                               uk-close></button>
+                                   </div>
+                               </div>
+
+                           </div>
+                           <div class="uk-margin">
+                               <div id="companyVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true"
+                                    uk-lightbox="animation: slide; video-autoplay: 1">
+                                   {% if user.professionalVideos|length %}
+                                       {% for video in user.professionalVideos %}
+                                           <div id="company-video-{{ video.id }}" class="company-video">
+                                               <a class="uk-inline"
+                                                  href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                                   <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg"
+                                                        alt="">
+                                                   <div class="company-video__overlay">
+                                                       <div class="company-video__overlay-title">
+                                                           {{ video.name }}
+                                                       </div>
+                                                   </div>
+                                               </a>
+
+                                               <a style="position: absolute; top: -6px; left: 10px; z-index: 5000; border: none; color: #999;"
+                                                  class="uk-button uk-button-default"
+                                                  href="#modal-edit-professional-video-{{ video.id }}"
+                                                  uk-icon="icon: file-edit" uk-toggle></a>
+
+                                               <div class="modal-edit-professional-video" id="modal-edit-professional-video-{{ video.id }}" uk-modal>
+                                                   <div class="uk-modal-dialog uk-modal-body">
+                                                       <h3>Edit Video</h3>
+
+                                                       <input type="hidden" name="professionalId" value="{{ user.id }}">
+
+                                                       <div class="uk-margin">
+                                                           <label for="edit_company_edit_video_name" class="required">Name*</label>
+                                                           <input type="text" id="edit_company_edit_video_name" name="name"
+                                                                  required="required" class="uk-input"
+                                                                  value="{{ video.name }}"/>
+                                                       </div>
+
+                                                       <div class="uk-margin">
+                                                           <label for="edit_company_edit_video_id" class="required">Youtube Video
+                                                               ID*</label>
+                                                           <div class="uk-position-relative">
+                                                               <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                                               <input class="uk-input" id="edit_company_edit_video_id" name="videoId"
+                                                                      required="required" type="text"
+                                                                      value="{{ video.videoId }}">
+                                                           </div>
+                                                           <small>Please make sure your video is open to public.</small>
+
+                                                       </div>
+
+                                                       <div class="uk-margin">
+                                                           <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                                                           <div class="uk-position-relative">
+                                                       <textarea id="edit_company_edit_video_tags" name="tags"
+                                                                 class="uk-textarea">{{ video.tags }}</textarea>
+                                                           </div>
+                                                       </div>
+
+                                                       <p class="uk-text-right">
+                                                           <button class="uk-button uk-button-default uk-modal-close" type="button">
+                                                               Cancel
+                                                           </button>
+                                                           <input class="uk-button uk-button-primary" type="submit" value="Save"
+                                                                  data-action="{{ path('professional_video_edit', {id: video.id}) }}"/>
+                                                       </p>
+                                                   </div>
+                                               </div>
+
+
+                                               <button type="button"
+                                                       data-remove="{{ path('professional_video_remove', {'id' : video.id }) }}"
+                                                       uk-close></button>
+                                           </div>
+
+                                       {% endfor %}
+                                   {% endif %}
+                               </div>
+                           </div>#}
+
+                    </div>
+
+
+                    <div class="account_details_account">
+
+                        <div class="uk-text-danger" style="float: right; margin-top: -50px">* indicates required</div>
+
+                        {# <fieldset class="uk-fieldset uk-margin">
+
+                             <fieldset class="uk-fieldset">
+                                 <legend class="uk-legend">
+                                     Authentication
+                                 </legend>
+
+                                 <div class="uk-margin">
+                                     {{ form_label(form.email, 'Email*') }}
+                                     {{ form_widget(form.email, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                                     {{ form_errors(form.email) }}
+                                 </div>
+                                 <div class="uk-margin">
+                                     {{ form_label(form.plainPassword, 'Change Password') }}
+                                     {{ form_widget(form.plainPassword, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                                     {{ form_errors(form.plainPassword) }}
+                                 </div>
+                             </fieldset>
+
+                             <fieldset class="uk-fieldset uk-margin">
+                                 <legend class="uk-legend">
+                                     Contact Preferences
+                                 </legend>
+
+                                 <div class="uk-margin">
+                                     {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
+                                     {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                     {{ form_errors(form.isEmailHiddenFromProfile) }}
+                                 </div>
+                                 <div class="uk-margin">
+                                     {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
+                                     {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                     {{ form_errors(form.isPhoneHiddenFromProfile) }}
+                                 </div>
+                                 <div class="uk-margin">
+                                     {% for pref in form.notificationPreferences %}
+                                         <div>
+                                             <label class="check">
+                                                 {{ form_errors(pref) }}
+                                                 {{ form_widget(pref) }}
+                                                 <span>{{ pref.vars.label }}</span>
+                                             </label>
+
+                                         </div>
+                                     {% endfor %}
+                                 </div>
+                             </fieldset>
+
+                             <div class="uk-grid">
+                                 <div class="uk-width-1-2" style="position: relative">
+
+                                     <fieldset class="uk-fieldset">
+                                         <legend class="uk-legend">
+                                             Profile Status: <span
+                                                     class="uk-label uk-label-success">{{ user.activated ? "Active" : "Deactivated" }}</span>
+                                         </legend>
+
+                                         <p>Your profile status determines whether you show up in search results on the
+                                             Platform. When "Deactivated", you will no longer appear in search results, but
+                                             you
+                                             will still
+                                             be able to access your account.</p>
+
+                                         {% if user.activated %}
+                                             <br>
+
+                                             <div style="position: absolute; bottom: 0">
+                                                 <a class="uk-link" href="{{ path('profile_deactivate', {id: user.id}) }}">Deactivate</a>
+                                             </div>
+                                         {% else %}
+                                             <br>
+                                             <div style="position: absolute; bottom: 0">
+                                                 <a class="uk-link" href="{{ path('profile_reactivate', {id: user.id}) }}">Reactivate</a>
+                                             </div>
+                                         {% endif %}
+                                     </fieldset>
+
+                                 </div>
+
+                                 <div class="uk-width-1-2" style="position: relative">
+
+                                     <fieldset class="uk-fieldset">
+                                         <legend class="uk-legend">
+                                             Delete Account
+                                         </legend>
+                                         <p>If you would no longer like to use our Platform, you can delete your account by using the button below.</p>
+
+                                         <br>
+                                         <div style="position: absolute; bottom: 0">
+                                             <a class="uk-link" href="{{ path('profile_delete', {id: user.id}) }}">Delete</a>
+                                         </div>
+
+                                     </fieldset>
+                                 </div>
+                             </div>
+
+
+                             <div class="uk-margin">
+                                 <hr>
+                                 <button class="uk-button uk-button-primary">
+                                     Save
+                                 </button>
+                             </div>
+                         </fieldset>#}
+                    </div>
+                </ul>
             </div>
         </div>
+
+
+        <input type="hidden" name="guestInstructor" id="guest_instructor" value="0"/>
+        <input type="hidden" name="formType" value="professionalRegistrationForm">
 
         {{ form_end(form) }}
 
     </div>
-
-    <script>
-      const website = document.getElementById('new_company_form_website');
-      website.addEventListener('blur', (event) => {
-        const matched = event.target.value.match(/^(http|https):\/\//);
-        if(!matched) {
-          document.getElementById('new_company_form_website').value = 'http://' + event.target.value;
-        }
-      }, true);
-    </script>
-
 
 {% endblock %}

@@ -629,14 +629,6 @@ class ProfessionalEditProfileFormType extends AbstractType
 
         $schools = $options['data']->getSchools();
 
-        /*     $schoolsForm = $form->get('schools');
-             $d = $schoolsForm->getViewData();
-             $schools = $schoolsForm->getData();
-             $f = $schoolsForm->getNormData();
-             $config = $schoolsForm->getConfig();
-             $options = $config->getOptions();
-             $choices = $config->getOption('choices');*/
-
         $schoolsJson = [];
         foreach ($schools as $school) {
 
@@ -652,6 +644,5 @@ class ProfessionalEditProfileFormType extends AbstractType
         }
 
         $view->vars['schools'] = $schoolsJson;
-
     }
 }

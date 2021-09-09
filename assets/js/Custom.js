@@ -113,6 +113,7 @@ jQuery(document).ready(function ($) {
             // Get the Target
             const url = $elem.attr('data-upload-url');
             const dataType = $elem.attr('data-type');
+            const hiddenField = $elem.attr('data-hidden-field') || null;
             const type = dataType.split(':')[0];
             const _template = $elem.html();
             $elem.empty();
@@ -160,10 +161,11 @@ jQuery(document).ready(function ($) {
                     console.log('error', arguments);
                     window.Pintex.notification("Failed to upload file", "error");
                 },
-                complete: function () {
+                complete: (response) => {
 
+                    debugger;
                     // console.log('complete', arguments);
-                    const response = JSON.parse(arguments[0].response);
+                    response = JSON.parse(response.response);
 
                     if (response && response.success === true) {
                         switch (type) {
@@ -177,6 +179,11 @@ jQuery(document).ready(function ($) {
                                 break;
                             case 'image':
                                 $(`#${dataType.split(':')[1]}`).attr("src", response.url);
+
+                                if(hiddenField) {
+                                    $(`[name="${hiddenField}"]`).val(response.id);
+                                }
+
                                 break;
                         }
 

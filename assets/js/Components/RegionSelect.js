@@ -78,6 +78,12 @@ class RegionSelect {
                 width: '100%'
             });
 
+            $('#new_company_form_schools').select2({
+                placeholder: "Volunteer schools",
+                allowClear: true,
+                width: '100%'
+            });
+
             $('#report_reportShare_schools').select2({
                 placeholder: "Schools",
                 allowClear: true,

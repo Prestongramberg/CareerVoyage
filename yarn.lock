@@ -4092,6 +4092,11 @@ js-base64@^2.1.8:
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.6.4.tgz#f4e686c5de1ea1f867dbcad3d46d969428df98c4"
   integrity sha512-pZe//GGmwJndub7ZghVHz7vjb2LgC1m8B07Au3eYqeqv9emhESByMXxaEgkUkEqJe87oBbSniGYoQNIBklc7IQ==
 
+js-email-autocomplete@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/js-email-autocomplete/-/js-email-autocomplete-1.0.3.tgz#46e047d6631c7e969d9c65782297b46e76959638"
+  integrity sha512-uyTXXV79O6BfRPZaCgbjk9DcY+3a8TxH7AJ8j2UC95iIfHJZnHs+jT1CRAAb5iqdKTVC4Uz3lIe/vENpu3BbBA==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
