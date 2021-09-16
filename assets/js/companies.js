@@ -13,13 +13,14 @@ $(document).ready(function() {
 
     let initMarkers = function () {
 
+        debugger;
         for (var i = 0; i < markersArray.length; i++) {
             markersArray[i].setMap(null);
         }
         markersArray.length = 0;
 
 
-        let $options = $('#professional_edit_profile_form_schools').find(":selected");
+        let $options = $('#new_company_form_schools').find(":selected");
 
         $options.each(function (index) {
 
@@ -72,7 +73,7 @@ $(document).ready(function() {
         width: '100%',
         "language": {
             "noResults": function(){
-                return "Please choose a career sector / industry first";
+                return "Please choose your company's industry sector(s) first";
             }
         },
     });
@@ -235,7 +236,7 @@ $(document).ready(function() {
 
             const $form = $('.js-form').find('form');
             let formData = new FormData($form.get(0));
-            formData.delete('professional_edit_profile_form[_token]');
+            formData.delete('new_company_form[_token]');
             formData.append('skip_validation', true);
             formData.append('changeableField', true);
             formData.set('geoAddress', geoAddress);
@@ -268,7 +269,7 @@ $(document).ready(function() {
                     $(errorData.formMarkup).find('.js-schools-container')
                 );
 
-                $('#professional_edit_profile_form_schools').select2({
+                $('#new_company_form_schools').select2({
                     placeholder: "Volunteer schools",
                     allowClear: true,
                     width: '100%',
@@ -384,9 +385,27 @@ $(document).ready(function() {
             }
 
             if ($(ev.target).hasClass('company_schools')) {
-                $('#validation_groups').val('COMPANY_REGION');
+                $('#validation_groups').val('COMPANY_SCHOOLS');
                 $('#tab').val('#schools');
                 location.hash = 'schools';
+            }
+
+            if ($(ev.target).hasClass('company_photos')) {
+                $('#validation_groups').val('COMPANY_PHOTOS');
+                $('#tab').val('#photos');
+                location.hash = 'photos';
+            }
+
+            if ($(ev.target).hasClass('company_videos')) {
+                $('#validation_groups').val('COMPANY_VIDEOS');
+                $('#tab').val('#videos');
+                location.hash = 'videos';
+            }
+
+            if ($(ev.target).hasClass('company_resources')) {
+                $('#validation_groups').val('COMPANY_RESOURCES');
+                $('#tab').val('#resources');
+                location.hash = 'resources';
             }
 
         });

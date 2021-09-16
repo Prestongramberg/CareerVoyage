@@ -40,21 +40,21 @@
                 <ul id="test" class="uk-tab-left"
                     uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                     <li><a href="#general" id="general">New Company</a></li>
-                    <li><a href="#schools" id="schools">Schools</a></li>
-                    <li><a href="#company-photos" id="company-photos">Photos</a></li>
-                    <li><a href="#company-videos" id="company-videos">Videos</a></li>
-                    <li><a href="#company-resources" id="company-resources">Resources</a></li>
+                    {#TODO SCHOOLS SHOULD BE DISABLED #}
+                    <li class="uk-disabled"><a href="#schools" id="schools" style="opacity: .5;">Schools</a></li>
+                    <li class="uk-disabled"><a id="photos" style="opacity: .5;">Photos</a></li>
+                    <li class="uk-disabled"><a id="videos" style="opacity: .5;">Videos</a></li>
+                    <li class="uk-disabled"><a id="resources" style="opacity: .5;">Resources</a></li>
                 </ul>
             </div>
             <div class="uk-width-1-1 uk-width-expand@m">
-                <ul id="tab-account-inner" class="uk-switcher">
+                <div id="tab-account-inner" class="uk-switcher">
 
                     <div class="company_general">
 
                         <div class="uk-text-danger" style="float:right;">* indicates required</div>
 
                         <fieldset class="uk-fieldset uk-margin">
-
 
                             <fieldset class="uk-fieldset">
                                 <legend class="uk-legend">
@@ -66,18 +66,6 @@
                                     {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
                                     {{ form_errors(form.name) }}
                                 </div>
-
-                                {#<img style="float:right; height: 100px" class="uk-border-pill"
-                                    id="userThumbnailImage"
-                                    src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}"
-                                    uk-img/>
-
-                               <div class="uk-text-meta">Upload a square image if possible. Will auto resize to
-                                   300x300.
-                               </div>
-                               <div style="cursor: copy"
-                                    data-upload-url="{{ path('profile_photo_add', { id: user.id }) }}"
-                                    data-type="image:userThumbnailImage"></div>#}
 
                                 <div class="uk-margin">
                                     {{ form_label(form.companyAddressSearch, 'Company Address*') }}
@@ -127,7 +115,7 @@
                                 </legend>
 
                                 <div class="uk-margin">
-                                    {{ form_label(form.primaryIndustry, 'Career Sector*') }}
+                                    {{ form_label(form.primaryIndustry, 'My Company\'s Industry Sector(s)*') }}
                                     {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry js-select2' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
                                     {{ form_errors(form.primaryIndustry) }}
                                 </div>
@@ -136,6 +124,9 @@
                                     {% if form.secondaryIndustries is defined %}
                                         <div class="uk-margin">
                                             {{ form_label(form.secondaryIndustries, 'Professions*') }}
+                                            <div class="uk-text-meta">
+                                                Select the major professions within your company's industry sector(s)
+                                            </div>
                                             {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'js-select2' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
                                             <div class="clear"></div>
                                             {{ form_errors(form.secondaryIndustries) }}
@@ -216,7 +207,8 @@
 
                                 <div class="uk-margin uk-grid" uk-grid>
                                     <div class="uk-width-small">
-                                        <img id="companyThumbnailImage" src="{{ company.thumbnailImagePath is not null ? asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Thumbnail&font-size=.1' }}"/>
+                                        <img id="companyThumbnailImage"
+                                             src="{{ company.thumbnailImagePath is not null ? asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Thumbnail&font-size=.1' }}"/>
                                     </div>
                                     <div class="uk-width-expand">
                                         <label>Company Thumbnail (300x300)</label>
@@ -230,7 +222,8 @@
                                 </div>
                                 <div class="uk-margin uk-grid" uk-grid>
                                     <div class="uk-width-small">
-                                        <img id="companyFeaturedImage" src="{{ company.featuredImagePath is not null ? asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Featured&font-size=.1' }}"/>
+                                        <img id="companyFeaturedImage"
+                                             src="{{ company.featuredImagePath is not null ? asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Featured&font-size=.1' }}"/>
                                     </div>
                                     <div class="uk-width-expand">
                                         <label>Company Featured Image (1680x300)</label>
@@ -267,7 +260,10 @@
                                 <div class="uk-width-1-2">
 
                                     <fieldset class="uk-fieldset">
-                                        <legend class="uk-legend">Volunteer Schools
+                                        <legend class="uk-legend">Volunteer Schools <br>
+                                            <small style="font-size: 12px">
+                                                Select the schools your company is willing to volunteer at.
+                                            </small>
                                             <small>
                                                 <a style="text-decoration: underline; float:right; font-size: 12px"
                                                    uk-toggle="target: #dashboard-filters; animation: uk-animation-slide-top, uk-animation-slide-bottom">
@@ -345,272 +341,303 @@
                         </fieldset>
                     </div>
 
+                    <div class="page-company-edit__photos">
 
-                    <div class="account_details_videos">
+                       {# <div class="uk-width-1-1">
+                            <h4>Add Additional Photos</h4>
+                            <div data-upload-url="{{ path('company_photos_add', { id: company.id }) }}" data-type="multiple:image:companyPhotos">
+                                <div class="page-company-edit__uploaded-photos">
+                                    <button type="button" data-remove="{{ url('company_photo_remove', {id: 'UPLOAD_ID'}) }}" uk-close></button>
+                                    <img src="UPLOAD_URL" />
+                                </div>
+                            </div>
+                        </div>
 
-                        {#   <div class="uk-width-xlarge">
-                               <p>Videos can help showcase your knowledge as a professional. Upload your videos to
-                                   Youtube and then attach them here.</p>
-                           </div>
-                           <div class="uk-margin">
-                               <div class="uk-text-center uk-placeholder">
-                                   <a class="uk-button uk-button-default uk-button-small"
-                                      href="#modal-add-professional-video" uk-toggle>Add a Video</a>
-                                   <div id="modal-add-professional-video" uk-modal>
-                                       <div class="uk-modal-dialog uk-modal-body">
-                                           <h3>Add a Video</h3>
+                        {% if company.companyPhotos|length %}
+                            <h4>Current Photos</h4>
+                        {% endif %}
+                        <div id="companyPhotos" class="uk-grid uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3" uk-grid>
+                            {% if company.companyPhotos|length %}
+                                {% for companyPhoto in company.companyPhotos %}
+                                    <div class="page-company-edit__uploaded-photos">
+                                        <button type="button" data-remove="{{ url('company_photo_remove', {'id': companyPhoto.id}) }}" uk-close></button>
+                                        <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}" />
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
 
-                                           <input type="hidden" name="professionalId" value="{{ user.id }}">
+                        <div class="uk-margin">
 
-                                           <div class="uk-margin">
-                                               <label for="edit_company_add_video_name" class="required">Name*</label>
-                                               <input type="text" id="edit_company_add_video_name" name="name"
-                                                      required="required" class="uk-input"/>
-                                           </div>
-
-                                           <div class="uk-margin">
-                                               <label for="edit_company_add_video_id" class="required">Youtube Video
-                                                   ID*</label>
-                                               <div class="uk-position-relative">
-                                                   <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
-                                                   <input class="uk-input" id="edit_company_add_video_id"
-                                                          name="videoId" required="required" type="text">
-                                               </div>
-                                               <small>Please make sure your video is open to public.</small>
-
-                                           </div>
-
-                                           <div class="uk-margin">
-                                               <label for="edit_company_add_video_tags"
-                                                      class="required">Keywords</label>
-                                               <div class="uk-position-relative">
-                                                           <textarea id="edit_company_add_video_tags" name="tags"
-                                                                     class="uk-textarea"></textarea>
-                                               </div>
-                                           </div>
-
-                                           <p class="uk-text-right">
-                                               <button class="uk-button uk-button-default uk-modal-close"
-                                                       type="button">Cancel
-                                               </button>
-                                               <input class="uk-button uk-button-primary" type="submit" value="Save"
-                                                      data-user="{{ user.id }}" data-action="{{ path('professional_video_add', {'id' : user.id}) }}"/>
-                                           </p>
-                                       </div>
-                                   </div>
-                               </div>
-                               <div id="companyVideosTemplate" style="display: none;">
-                                   <div class="company-video">
-                                       <a class="uk-inline" href="https://www.youtube.com/watch?v=VIDEO_ID">
-                                           <img src="http://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg" alt="">
-                                           <div class="company-video__overlay">
-                                               <div class="company-video__overlay-title">
-                                                   VIDEO_NAME
-                                               </div>
-                                           </div>
-                                       </a>
-                                       <a onclick="event.stopPropagation();"
-                                          style="position: absolute; top: -8px; left: 5px; z-index: 5000; border: none; color: #999;"
-                                          class="uk-button uk-button-default"
-                                          href="{{ path('profile_edit', {'id' : user.id }) }}?videoEdit=RESOURCE_ID"
-                                          uk-icon="icon: file-edit"></a>
-                                       <button type="button"
-                                               data-remove="{{ path('company_video_remove', {'id' : 'RESOURCE_ID' }) }}"
-                                               uk-close></button>
-                                   </div>
-                               </div>
-
-                           </div>
-                           <div class="uk-margin">
-                               <div id="companyVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true"
-                                    uk-lightbox="animation: slide; video-autoplay: 1">
-                                   {% if user.professionalVideos|length %}
-                                       {% for video in user.professionalVideos %}
-                                           <div id="company-video-{{ video.id }}" class="company-video">
-                                               <a class="uk-inline"
-                                                  href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
-                                                   <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg"
-                                                        alt="">
-                                                   <div class="company-video__overlay">
-                                                       <div class="company-video__overlay-title">
-                                                           {{ video.name }}
-                                                       </div>
-                                                   </div>
-                                               </a>
-
-                                               <a style="position: absolute; top: -6px; left: 10px; z-index: 5000; border: none; color: #999;"
-                                                  class="uk-button uk-button-default"
-                                                  href="#modal-edit-professional-video-{{ video.id }}"
-                                                  uk-icon="icon: file-edit" uk-toggle></a>
-
-                                               <div class="modal-edit-professional-video" id="modal-edit-professional-video-{{ video.id }}" uk-modal>
-                                                   <div class="uk-modal-dialog uk-modal-body">
-                                                       <h3>Edit Video</h3>
-
-                                                       <input type="hidden" name="professionalId" value="{{ user.id }}">
-
-                                                       <div class="uk-margin">
-                                                           <label for="edit_company_edit_video_name" class="required">Name*</label>
-                                                           <input type="text" id="edit_company_edit_video_name" name="name"
-                                                                  required="required" class="uk-input"
-                                                                  value="{{ video.name }}"/>
-                                                       </div>
-
-                                                       <div class="uk-margin">
-                                                           <label for="edit_company_edit_video_id" class="required">Youtube Video
-                                                               ID*</label>
-                                                           <div class="uk-position-relative">
-                                                               <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
-                                                               <input class="uk-input" id="edit_company_edit_video_id" name="videoId"
-                                                                      required="required" type="text"
-                                                                      value="{{ video.videoId }}">
-                                                           </div>
-                                                           <small>Please make sure your video is open to public.</small>
-
-                                                       </div>
-
-                                                       <div class="uk-margin">
-                                                           <label for="edit_company_edit_video_tags" class="required">Keywords</label>
-                                                           <div class="uk-position-relative">
-                                                       <textarea id="edit_company_edit_video_tags" name="tags"
-                                                                 class="uk-textarea">{{ video.tags }}</textarea>
-                                                           </div>
-                                                       </div>
-
-                                                       <p class="uk-text-right">
-                                                           <button class="uk-button uk-button-default uk-modal-close" type="button">
-                                                               Cancel
-                                                           </button>
-                                                           <input class="uk-button uk-button-primary" type="submit" value="Save"
-                                                                  data-action="{{ path('professional_video_edit', {id: video.id}) }}"/>
-                                                       </p>
-                                                   </div>
-                                               </div>
-
-
-                                               <button type="button"
-                                                       data-remove="{{ path('professional_video_remove', {'id' : video.id }) }}"
-                                                       uk-close></button>
-                                           </div>
-
-                                       {% endfor %}
-                                   {% endif %}
-                               </div>
-                           </div>#}
+                            <button class="uk-button uk-button-primary uk-button-small">Save</button> or <a href="#" uk-switcher-item="5" class="uk-button uk-button-secondary uk-button-small">Next</a>
+                            #}{# <button type="button" class="uk-button uk-button-primary uk-button-small js-navigate" data-navigate-to-index="4">Next</button> #}{#
+                        </div>#}
 
                     </div>
 
 
-                    <div class="account_details_account">
-
-                        <div class="uk-text-danger" style="float: right; margin-top: -50px">* indicates required</div>
-
-                        {# <fieldset class="uk-fieldset uk-margin">
-
-                             <fieldset class="uk-fieldset">
-                                 <legend class="uk-legend">
-                                     Authentication
-                                 </legend>
-
-                                 <div class="uk-margin">
-                                     {{ form_label(form.email, 'Email*') }}
-                                     {{ form_widget(form.email, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
-                                     {{ form_errors(form.email) }}
-                                 </div>
-                                 <div class="uk-margin">
-                                     {{ form_label(form.plainPassword, 'Change Password') }}
-                                     {{ form_widget(form.plainPassword, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
-                                     {{ form_errors(form.plainPassword) }}
-                                 </div>
-                             </fieldset>
-
-                             <fieldset class="uk-fieldset uk-margin">
-                                 <legend class="uk-legend">
-                                     Contact Preferences
-                                 </legend>
-
-                                 <div class="uk-margin">
-                                     {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
-                                     {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
-                                     {{ form_errors(form.isEmailHiddenFromProfile) }}
-                                 </div>
-                                 <div class="uk-margin">
-                                     {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
-                                     {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
-                                     {{ form_errors(form.isPhoneHiddenFromProfile) }}
-                                 </div>
-                                 <div class="uk-margin">
-                                     {% for pref in form.notificationPreferences %}
-                                         <div>
-                                             <label class="check">
-                                                 {{ form_errors(pref) }}
-                                                 {{ form_widget(pref) }}
-                                                 <span>{{ pref.vars.label }}</span>
-                                             </label>
-
-                                         </div>
-                                     {% endfor %}
-                                 </div>
-                             </fieldset>
-
-                             <div class="uk-grid">
-                                 <div class="uk-width-1-2" style="position: relative">
-
-                                     <fieldset class="uk-fieldset">
-                                         <legend class="uk-legend">
-                                             Profile Status: <span
-                                                     class="uk-label uk-label-success">{{ user.activated ? "Active" : "Deactivated" }}</span>
-                                         </legend>
-
-                                         <p>Your profile status determines whether you show up in search results on the
-                                             Platform. When "Deactivated", you will no longer appear in search results, but
-                                             you
-                                             will still
-                                             be able to access your account.</p>
-
-                                         {% if user.activated %}
-                                             <br>
-
-                                             <div style="position: absolute; bottom: 0">
-                                                 <a class="uk-link" href="{{ path('profile_deactivate', {id: user.id}) }}">Deactivate</a>
-                                             </div>
-                                         {% else %}
-                                             <br>
-                                             <div style="position: absolute; bottom: 0">
-                                                 <a class="uk-link" href="{{ path('profile_reactivate', {id: user.id}) }}">Reactivate</a>
-                                             </div>
-                                         {% endif %}
-                                     </fieldset>
-
-                                 </div>
-
-                                 <div class="uk-width-1-2" style="position: relative">
-
-                                     <fieldset class="uk-fieldset">
-                                         <legend class="uk-legend">
-                                             Delete Account
-                                         </legend>
-                                         <p>If you would no longer like to use our Platform, you can delete your account by using the button below.</p>
-
-                                         <br>
-                                         <div style="position: absolute; bottom: 0">
-                                             <a class="uk-link" href="{{ path('profile_delete', {id: user.id}) }}">Delete</a>
-                                         </div>
-
-                                     </fieldset>
-                                 </div>
-                             </div>
 
 
-                             <div class="uk-margin">
-                                 <hr>
-                                 <button class="uk-button uk-button-primary">
-                                     Save
-                                 </button>
-                             </div>
-                         </fieldset>#}
+                    <div class="page-company-edit__videos">
+                       {# <div class="uk-width-xlarge">
+                            <p>Videos can help showcase what a great place your establishment is to work for.  Upload your videos to Youtube and then attach them here.</p>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-text-center uk-placeholder">
+                                <a class="uk-button uk-button-default uk-button-small" href="#modal-add-company-video" uk-toggle>Add a Video</a>
+                                <div id="modal-add-company-video" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        <h3>Add a Video</h3>
+
+                                        <div class="uk-margin">
+                                            <label for="edit_company_add_video_name" class="required">Name*</label>
+                                            <input type="text" id="edit_company_add_video_name" name="name" required="required" class="uk-input" />
+                                        </div>
+
+                                        <div class="uk-margin">
+                                            <label for="edit_company_add_video_id" class="required">Youtube Video ID*</label>
+                                            <div class="uk-position-relative">
+                                                <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                                <input class="uk-input" id="edit_company_add_video_id" name="videoId" required="required" type="text">
+                                            </div>
+                                            <small>Please make sure your video is open to public.</small>
+
+                                        </div>
+
+                                        <div class="uk-margin">
+                                            <label for="edit_company_add_video_tags" class="required">Keywords</label>
+                                            <div class="uk-position-relative">
+                                                <textarea id="edit_company_add_video_tags" name="tags" class="uk-textarea"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <p class="uk-text-right">
+                                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                            <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('company_video_add', {'id' : company.id}) }}" />
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="companyVideosTemplate" style="display: none;">
+                                <div class="company-video">
+                                    <a class="uk-inline" href="https://www.youtube.com/watch?v=VIDEO_ID">
+                                        <img src="http://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg" alt="">
+                                        <div class="company-video__overlay">
+                                            <div class="company-video__overlay-title">
+                                                VIDEO_NAME
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a onclick="event.stopPropagation();" style="position: absolute; top: -2px; left: 20px; z-index: 5000; border: none; color: #999;" class="uk-button uk-button-default" href="{{ path('company_edit', {'id' : company.id }) }}?videoEdit=RESOURCE_ID" uk-icon="icon: file-edit"></a>
+                                    <button type="button" data-remove="{{ path('company_video_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="uk-margin">
+                            {% if company.companyVideos|length %}
+                                <h4>Current Videos</h4>
+                            {% endif %}
+                            <div id="companyVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                                {% if company.companyVideos|length %}
+                                    {% for video in company.companyVideos %}
+                                        <div class="company-video">
+                                            <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                                <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
+                                                <div class="company-video__overlay">
+                                                    <div class="company-video__overlay-title">
+                                                        {{ video.name }}
+                                                    </div>
+                                                </div>
+                                            </a>
+
+                                            <a onclick="event.stopPropagation();" style="position: absolute; top: -2px; left: 20px; z-index: 5000; border: none; color: #999;" class="uk-button uk-button-default" href="{{ path('company_edit', {'id' : company.id }) }}?videoEdit={{ video.id }}" uk-icon="icon: file-edit"></a>
+
+                                            <button type="button" data-remove="{{ path('company_video_remove', {'id' : video.id }) }}" uk-close></button>
+                                        </div>
+
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if companyVideo %}
+
+                            <div id="modal-edit-company-video" uk-modal>
+                                <div class="uk-modal-dialog uk-modal-body">
+                                    <h3>Edit Video</h3>
+
+                                    <input type="hidden" name="companyId" value="{{ company.id }}">
+
+                                    <div class="uk-margin">
+                                        <label for="edit_company_edit_video_name" class="required">Name*</label>
+                                        <input type="text" id="edit_company_edit_video_name" name="name" required="required" class="uk-input" value="{{ companyVideo.name }}"/>
+                                    </div>
+
+                                    <div class="uk-margin">
+                                        <label for="edit_company_edit_video_id" class="required">Youtube Video ID*</label>
+                                        <div class="uk-position-relative">
+                                            <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+                                            <input class="uk-input" id="edit_company_edit_video_id" name="videoId" required="required" type="text" value="{{ companyVideo.videoId }}">
+                                        </div>
+                                        <small>Please make sure your video is open to public.</small>
+
+                                    </div>
+
+                                    <div class="uk-margin">
+                                        <label for="edit_company_edit_video_tags" class="required">Keywords</label>
+                                        <div class="uk-position-relative">
+                                            <textarea id="edit_company_edit_video_tags" name="tags" class="uk-textarea">{{ companyVideo.tags }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <p class="uk-text-right">
+                                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                        <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('company_video_edit', {id: companyVideo.id}) }}" />
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-primary uk-button-small">Save</button>
+                        </div>#}
                     </div>
-                </ul>
+
+
+                    <div class="page-company-edit__resources">
+                        {#<div class="uk-width-xlarge">
+                            <p>Resources are meant to provide helpful resources to understand more about your company.  Things like Employee Handbooks, Campus Maps, and Company Culture are highly encouraged!</p>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-text-center uk-placeholder">
+                                <a class="uk-button uk-button-default uk-button-small" href="#modal-add-company-resource" uk-toggle>Add a Resource</a>
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            {% if company.companyResources|length %}
+                                <h4>Current Resources</h4>
+                            {% endif %}
+                            <div id="companyResources">
+                                {% if company.companyResources|length %}
+                                    {% for companyResource in company.companyResources %}
+                                        <div class="uk-grid uk-flex-middle" uk-grid id="resource_{{ companyResource.id }}">
+                                            <div class="uk-width-expand">
+                                                <dt>{{ companyResource.title }}</dt>
+                                                <dd>{{ companyResource.description }}</dd>
+                                            </div>
+                                            <div class="uk-width-auto">
+                                                {% if companyResource.fileName %}
+                                                    <a href="{{ asset(uploaded_asset(companyResource.path)) }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
+                                                {% else %}
+                                                    <a href="{{ companyResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small view" target="_blank view">View</a>
+                                                {% endif %}
+                                            </div>
+                                            <div class="uk-width-auto">
+                                                <a href="#" class="uk-button uk-button-default uk-button-small company-edit-resource" data-id="{{ companyResource.id }}">Edit</a>
+                                            </div>
+                                            <button type="button" data-remove="{{ path('company_resource_remove', {'id' : companyResource.id }) }}" uk-close></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+                        <!-- Begin Modals -->
+                        <div id="modal-add-company-resource" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Add a Resource</h3>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_add_resource_title" class="required">Name*</label>
+                                    <input type="text" id="edit_company_add_resource_title" name="title" required="required" class="uk-input" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_add_resource_description" class="required">Description</label>
+                                    <input type="text" id="edit_company_add_resource_title" name="description" class="uk-textarea" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_add_resource_description" class="required">Add Link To Website</label>
+                                    <input type="text" id="edit_company_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
+                                </div>
+
+                                <div>OR</div>
+
+                                <div class="uk-margin">
+                                    <label>Upload Resource File</label><br />
+                                    <div uk-form-custom="target: true">
+                                        <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                    </div>
+                                </div>
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                    <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('company_resource_add', {'id' : company.id}) }}" />
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="companyResourcesTemplate" style="display: none;">
+                            <div class="uk-grid uk-flex-middle" uk-grid id="resource_RESOURCE_ID">
+                                <div class="uk-width-expand">
+                                    <dt>RESOURCE_TITLE</dt>
+                                    <dd>RESOURCE_DESCRIPTION</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
+                                </div>
+                                <div class="uk-width-auto">
+                                    <a href="#" class="uk-button uk-button-default uk-button-small company-edit-resource" data-id="{{ 'RESOURCE_ID' }}">Edit</a>
+                                </div>
+                                <button type="button" data-remove="{{ path('company_resource_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
+                            </div>
+                        </div>
+
+
+                        <div id="modal-edit-company-resource" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h3>Edit Resource</h3>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_edit_resource_title" class="required">Name*</label>
+                                    <input type="text" id="edit_company_edit_resource_title" name="title" required="required" class="uk-input" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_edit_resource_description" class="required">Description</label>
+                                    <input type="text" id="edit_company_edit_resource_description" name="description" class="uk-textarea" />
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label for="edit_company_edit_resource_link_to_website" class="required">Add Link To Website</label>
+                                    <input type="text" id="edit_company_edit_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
+                                </div>
+
+                                <div>OR</div>
+
+                                <div class="uk-margin">
+                                    <label>Upload Resource File</label><br />
+                                    <div uk-form-custom="target: true">
+                                        <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
+                                        <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="resource_id" id="edit_company_edit_resource_id" />
+
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                    <input class="uk-button uk-button-primary" type="submit" value="Save" id="edit-submit-button" data-action="" />
+                                </p>
+                            </div>
+                        </div>#}
+                    </div>
+
+                </div>
             </div>
         </div>
 

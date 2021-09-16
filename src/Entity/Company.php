@@ -189,7 +189,7 @@ class Company
      * @Assert\Count(
      *      min = "1",
      *      minMessage = "Please select at least one school",
-     *      groups={"COMPANY_REGION"}
+     *      groups={"COMPANY_SCHOOLS"}
      * )
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="companies")
@@ -292,7 +292,7 @@ class Company
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $radiusSearch;
+    private $radiusSearch = 150;
 
     public function __construct()
     {

@@ -339,7 +339,6 @@ class CompanyController extends AbstractController
             }
 
             $this->entityManager->persist($newCompanyRequest);
-            $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             $requestActionUrl = $this->generateUrl('request_action', [
@@ -358,7 +357,7 @@ class CompanyController extends AbstractController
 
             $this->requestsMailer->newCompanyAwaitingApproval($createdByApprover->getPossibleApprover(), $company);
 
-            $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
+            $this->addFlash('success', 'Company successfully created. While your company is awaiting approval, please edit your volunteer schools list, photos, videos, and resources.');
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
 
@@ -1267,6 +1266,20 @@ class CompanyController extends AbstractController
             $companyVideo = $this->videoRepository->find($editVideoId);
         }
 
+        $countyJson = [];
+        $counties   = $this->countyRepository->findAll();
+        foreach ($counties as $county) {
+
+            $countyJson[] = [
+                'coordinates' => $county->getCoordinates(),
+                'name' => $county->getName(),
+                'state_name' => $county->getStateName(),
+                'region_name' => $county->getRegionName(),
+                'service_cooperative_name' => $county->getServiceCooperativeName(),
+                'color' => $county->getColor() ?? '#FF0000',
+            ];
+        }
+
         $user = $this->getUser();
 
         $options = [
@@ -1275,7 +1288,11 @@ class CompanyController extends AbstractController
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
-        $form = $this->createForm(EditCompanyFormType::class, $company, $options);
+        if(!$options['skip_validation']) {
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
+        }
+
+        $form = $this->createForm(NewCompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -1298,7 +1315,8 @@ class CompanyController extends AbstractController
                 return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
             }
         }
-        if ($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
+
+/*        if ($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
 
             $errors = $this->getFormErrors($form);
 
@@ -1320,17 +1338,19 @@ class CompanyController extends AbstractController
                 }
 
             }
-        }
+        }*/
 
-        if ($request->request->has('primary_industry_change')) {
+        if ($request->request->has('changeableField')) {
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView(
-                        'api/form/secondary_industry_form_field.html.twig', [
-                            'form' => $form->createView(),
-                        ]
-                    ),
+                    'formMarkup' => $this->renderView('company/edit.html.twig', [
+                        'company' => $company,
+                        'form' => $form->createView(),
+                        'countyJson' => $countyJson,
+                        'user' => $user,
+                        'companyVideo' => $companyVideo,
+                    ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
@@ -1339,6 +1359,7 @@ class CompanyController extends AbstractController
             'company/edit.html.twig', [
                 'company' => $company,
                 'form' => $form->createView(),
+                'countyJson' => $countyJson,
                 'user' => $user,
                 'companyVideo' => $companyVideo,
             ]
