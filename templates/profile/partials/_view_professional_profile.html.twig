@@ -109,7 +109,7 @@
                                 <strong>Interests:</strong> {{ profileUser.interests }}
                             {% endif %}
                             <div class="professional-links">
-                                {% if user_can_chat_with_user( user, profileUser ) %}
+                                {% if user.student == false or (user.student and user_can_chat_with_user( user, profileUser ) ) %}
                                     {% if profileUser.emailAfterPrivacySettingsApplied %}
                                         <a href="mailto:{{ profileUser.emailAfterPrivacySettingsApplied }}"
                                            class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
