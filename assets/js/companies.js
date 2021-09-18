@@ -6,6 +6,7 @@ import RegionSelect from "./Components/RegionSelect";
 import RadiusSelect from "./Components/RadiusSelect";
 import SchoolSelect from "./Components/SchoolSelect";
 import VideoComponent from "./Components/VideoComponent";
+import ImageComponent from "./Components/ImageComponent";
 require('select2/dist/js/select2.min');
 
 $(document).ready(function() {
@@ -14,7 +15,6 @@ $(document).ready(function() {
 
     let initMarkers = function () {
 
-        debugger;
         for (var i = 0; i < markersArray.length; i++) {
             markersArray[i].setMap(null);
         }
@@ -25,7 +25,6 @@ $(document).ready(function() {
 
         $options.each(function (index) {
 
-            debugger;
             let latitude = $(this).attr('data-latitude');
             let longitude = $(this).attr('data-longitude');
             let schoolName = $(this).attr('data-school');
@@ -158,7 +157,6 @@ $(document).ready(function() {
 
         });
 
-        debugger;
         initMarkers();
     }
 
@@ -233,8 +231,6 @@ $(document).ready(function() {
 
             geoAddress += country;
 
-            debugger;
-
             const $form = $('.js-form').find('form');
             let formData = new FormData($form.get(0));
             formData.delete('company_form[_token]');
@@ -249,7 +245,6 @@ $(document).ready(function() {
             // todo consider adding map markers for the schools as well
             // todo add the pre_set event to the form as well
 
-            debugger;
             $.ajax({
                 url: route,
                 method: 'POST',
@@ -258,11 +253,8 @@ $(document).ready(function() {
                 contentType: false
             }).then((data, textStatus, jqXHR) => {
 
-                debugger;
-
             }).catch((jqXHR) => {
 
-                debugger;
                 const errorData = JSON.parse(jqXHR.responseText);
 
                 $('.js-schools-container').replaceWith(
@@ -286,7 +278,6 @@ $(document).ready(function() {
 
 
     if (document.getElementById("companyAddressSearch")) {
-        debugger;
         const addressSearchAutocomplete = new google.maps.places.Autocomplete(document.getElementById("companyAddressSearch"), {
             componentRestrictions: {country: "us"},
             fields: ["address_components", "geometry", "icon", "name"],
@@ -301,8 +292,6 @@ $(document).ready(function() {
         };
 
         addressSearchAutocomplete.addListener("place_changed", () => {
-
-            debugger;
 
             const place = addressSearchAutocomplete.getPlace();
             let street = "";
@@ -355,9 +344,6 @@ $(document).ready(function() {
                     $("#company_form_state").val(this.value).change();
                 }
             });
-
-
-            debugger;
 
             // todo we can either add them as hidden fields to the form view or send the form up and pass as additional data.
             // todo I would say we want this to be persisted to the backend so when they come back to their profile they can see
@@ -432,5 +418,6 @@ $(document).ready(function() {
     new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
+    new ImageComponent($('.js-image-component'), window.globalEventDispatcher);
 
 });

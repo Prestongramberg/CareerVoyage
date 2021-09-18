@@ -15,6 +15,7 @@ use App\Repository\ImageRepository;
 use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Service\Geocoder;
+use App\Util\FormHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\PersistentCollection;
@@ -35,6 +36,8 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 class CompanyFormType extends AbstractType
 {
+    use FormHelper;
+
     /**
      * @var SchoolRepository
      */
@@ -199,6 +202,25 @@ class CompanyFormType extends AbstractType
             }
         ));
 
+        $builder->get('featuredImage')->addModelTransformer(new CallbackTransformer(
+            function ($image) {
+
+                if (!$image) {
+                    return null;
+                }
+
+                return $image->getId();
+            },
+            function ($image) {
+
+                if (!$image) {
+                    return null;
+                }
+
+                return $this->imageRepository->find($image);
+            }
+        ));
+
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {
                 return str_replace('-', '', $phone);
@@ -313,6 +335,39 @@ class CompanyFormType extends AbstractType
 
             $event->setData($data);
         });
+
+        if (is_array($options['validation_groups']) && in_array('COMPANY_GENERAL', $options['validation_groups'], true)) {
+            $this->setupImmutableFields($builder, $options, [
+                'schools',
+                'regions',
+                'radiusSearch',
+                'addressSearch',
+            ]);
+        }
+
+        if (is_array($options['validation_groups']) && in_array('COMPANY_SCHOOLS', $options['validation_groups'], true)) {
+            $this->setupImmutableFields($builder, $options, [
+                'name',
+                'companyAddressSearch',
+                'street',
+                'city',
+                'state',
+                'zipcode',
+                'website',
+                'phone',
+                'phoneExt',
+                'emailAddress',
+                'primaryIndustry',
+                'description',
+                'shortDescription',
+                'companyLinkedinPage',
+                'companyFacebookPage',
+                'companyInstagramPage',
+                'companyTwitterPage',
+                'thumbnailImage',
+                'featuredImage'
+            ]);
+        }
     }
 
 

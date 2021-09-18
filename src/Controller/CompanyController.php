@@ -266,6 +266,9 @@ class CompanyController extends AbstractController
             $adminUsers = $this->adminUserRepository->findAll();
             $adminUser  = $adminUsers[0];
 
+            $schools = $this->schoolRepository->findAll();
+            $company->setSchools($schools);
+
             $this->entityManager->persist($company);
             $this->entityManager->flush();
 
@@ -1028,125 +1031,6 @@ class CompanyController extends AbstractController
 
         //     ], Response::HTTP_BAD_REQUEST
         // );
-    }
-
-
-    /**
-     * @Route("/companies/videos/{id}/edit", name="company_video_edit", options = { "expose" = true })
-     * @param Request      $request
-     * @param CompanyVideo $video
-     *
-     * @return JsonResponse
-     */
-    public function companyEditVideoAction(Request $request, CompanyVideo $video)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $video->getCompany());
-
-        $name    = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
-        $tags    = $request->request->get('tags');
-
-        if ($name && $videoId) {
-            $video->setName($name);
-            $video->setVideoId($videoId);
-
-            if ($tags) {
-                $video->setTags($tags);
-            }
-
-
-            $this->entityManager->persist($video);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
-                    'videoId' => $videoId,
-
-                ], Response::HTTP_OK
-            );
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/{id}/video/add", name="company_video_add", options = { "expose" = true })
-     * @param Request $request
-     * @param Company $company
-     *
-     * @return JsonResponse
-     */
-    public function companyAddVideoAction(Request $request, Company $company)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $company);
-
-        $name    = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
-        $tags    = $request->request->get('tags');
-
-        if ($name && $videoId) {
-            $video = new CompanyVideo();
-            $video->setName($name);
-            $video->setVideoId($videoId);
-            $video->setCompany($company);
-
-            if ($tags) {
-                $video->setTags($tags);
-            }
-
-            $this->entityManager->persist($video);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
-                    'videoId' => $videoId,
-
-                ], Response::HTTP_OK
-            );
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/videos/{id}/remove", name="company_video_remove", options = { "expose" = true })
-     * @param Request      $request
-     * @param CompanyVideo $companyVideo
-     *
-     * @return JsonResponse
-     */
-    public function companyRemoveVideoAction(Request $request, CompanyVideo $companyVideo)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $companyVideo->getCompany());
-
-        $this->entityManager->remove($companyVideo);
-        $this->entityManager->flush();
-
-        return new JsonResponse(
-            [
-                'success' => true,
-
-            ], Response::HTTP_OK
-        );
     }
 
 

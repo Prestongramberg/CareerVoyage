@@ -431,12 +431,9 @@ $(document).ready(function () {
         im.mask(selector);
     }
 
-    // todo will need to change this for educator profile and the rest of the profiles right
-    //   as we don't want to pass in the initMarkers function! They don't have a map
     new PrimaryIndustrySelect($('.js-form'), window.globalEventDispatcher);
     new RegionSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
-    debugger;
 });

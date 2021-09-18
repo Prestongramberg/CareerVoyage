@@ -619,7 +619,8 @@ class Company
         if($this->getThumbnailImage()) {
             return '/media/cache/squared_thumbnail_small/uploads/' . $this->getThumbnailImagePath();
         }
-        return '';
+
+        return null;
     }
 
     /**
@@ -629,7 +630,14 @@ class Company
         if($this->getFeaturedImage()) {
             return '/uploads/' . $this->getFeaturedImagePath();
         }
-        return '';
+        return null;
+    }
+
+    public function getPlaceholderImage() {
+
+        $words = explode(" ", $this->name);
+
+        return sprintf("https://ui-avatars.com/api/?size=512&length=10&name=%s&background=random&font-size=.1", implode("+", $words));
     }
 
     public function getOwner()
@@ -771,6 +779,10 @@ class Company
         }
 
         return $this;
+    }
+
+    public function setSchools($schools) {
+        $this->schools = $schools;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\CompanyVideo;
+use App\Entity\EducatorVideo;
 use App\Entity\ProfessionalUser;
 use App\Entity\ProfessionalVideo;
 use App\Entity\User;
@@ -162,6 +163,19 @@ class VideoController extends AbstractController
             $dataClass = ProfessionalVideo::class;
         }
 
+        if ($request->query->has('educatorId')) {
+
+            $educatorId = $request->query->get('educatorId');
+            $educator   = $this->educatorUserRepository->find($educatorId);
+
+            $video = new EducatorVideo();
+            $video->setEducator($educator);
+            $action    = $this->generateUrl('api_video_new', [
+                'educatorId' => $educator->getId(),
+            ]);
+            $dataClass = EducatorVideo::class;
+        }
+
         $form = $this->createForm(VideoType::class, $video, [
             'action' => $action,
             'data_class' => $dataClass,
@@ -197,6 +211,16 @@ class VideoController extends AbstractController
 
                 $deleteUrl = $this->generateUrl('api_video_delete', ['id' => $video->getId(),
                                                                      'professionalId' => $request->query->get('professionalId'),
+                ]);
+            }
+
+            if ($request->query->has('educatorId')) {
+                $editUrl = $this->generateUrl('api_video_edit', ['id' => $video->getId(),
+                                                                 'educatorId' => $request->query->get('educatorId'),
+                ]);
+
+                $deleteUrl = $this->generateUrl('api_video_delete', ['id' => $video->getId(),
+                                                                     'educatorId' => $request->query->get('educatorId'),
                 ]);
             }
 
@@ -261,6 +285,14 @@ class VideoController extends AbstractController
             $dataClass = ProfessionalVideo::class;
         }
 
+        if ($request->query->has('educatorId')) {
+            $action    = $this->generateUrl('api_video_edit', [
+                'id' => $video->getId(),
+                'educatorId' => $request->query->get('educatorId'),
+            ]);
+            $dataClass = EducatorVideo::class;
+        }
+
         $form = $this->createForm(VideoType::class, $video, [
             'action' => $action,
             'data_class' => $dataClass,
@@ -292,6 +324,16 @@ class VideoController extends AbstractController
 
                 $deleteUrl = $this->generateUrl('api_video_delete', ['id' => $video->getId(),
                                                                      'professionalId' => $request->query->get('professionalId'),
+                ]);
+            }
+
+            if ($request->query->has('educatorId')) {
+                $editUrl = $this->generateUrl('api_video_edit', ['id' => $video->getId(),
+                                                                 'educatorId' => $request->query->get('educatorId'),
+                ]);
+
+                $deleteUrl = $this->generateUrl('api_video_delete', ['id' => $video->getId(),
+                                                                     'educatorId' => $request->query->get('educatorId'),
                 ]);
             }
 

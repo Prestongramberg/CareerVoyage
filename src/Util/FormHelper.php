@@ -24,6 +24,11 @@ trait FormHelper
     private function setupImmutableFields(FormBuilderInterface $builder, array $options, array $immutableFields) {
 
         foreach($immutableFields as $immutableField) {
+
+            if(!$builder->has($immutableField)) {
+                continue;
+            }
+
             $builder->get($immutableField)
                 ->addModelTransformer(new CallbackTransformer(
                     function ($value) {

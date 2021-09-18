@@ -206,7 +206,7 @@
                                 <div class="uk-margin uk-grid" uk-grid>
                                     <div class="uk-width-small">
                                         <img id="companyThumbnailImage"
-                                             src="{{ company.thumbnailImagePath is not null ? asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Thumbnail&font-size=.1' }}"/>
+                                             src="{{ company.thumbnailImagePath is not null ? asset(uploaded_asset(company.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : company.placeholderImage }}"/>
                                     </div>
                                     <div class="uk-width-expand">
                                         <label>Company Thumbnail (300x300)</label>
@@ -221,7 +221,7 @@
                                 <div class="uk-margin uk-grid" uk-grid>
                                     <div class="uk-width-small">
                                         <img id="companyFeaturedImage"
-                                             src="{{ company.featuredImagePath is not null ? asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Featured&font-size=.1' }}"/>
+                                             src="{{ company.featuredImagePath is not null ? asset(uploaded_asset(company.featuredImagePath))|imagine_filter('squared_thumbnail_small') : company.placeholderImage }}"/>
                                     </div>
                                     <div class="uk-width-expand">
                                         <label>Company Featured Image (1680x300)</label>
@@ -339,38 +339,30 @@
                         </fieldset>
                     </div>
 
-                    <div class="company_photos">
+                    <div class="js-image-component company_photos" data-url="{{ path('api_images_upload', {companyId: company.id}) }}" data-type="multiple">
 
                         <div class="uk-width-1-1">
                             <h4>Add Additional Photos</h4>
-                            <div data-upload-url="{{ path('company_photos_add', { id: company.id }) }}" data-type="multiple:image:companyPhotos">
-                                <div class="page-company-edit__uploaded-photos">
-                                    <button type="button"
-                                            data-remove="{{ url('company_photo_remove', {id: 'UPLOAD_ID'}) }}"
-                                            uk-close></button>
-                                    <img src="UPLOAD_URL"/>
-                                </div>
-                            </div>
+                            <div class="js-image-upload-container"></div>
                         </div>
 
-                        <div class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide">
+                        <div class="js-image-list-container uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide">
                             {% for companyPhoto in company.companyPhotos %}
-                                <div class="video">
+                                <div id="image-{{ companyPhoto.id }}" class="image">
                                     <a class="uk-inline" href="{{ asset(uploaded_asset(companyPhoto.path)) }}">
                                         <img src="{{ asset(uploaded_asset(companyPhoto.path))|imagine_filter('squared_thumbnail_small') }}"
                                              alt="">
-                                        <div class="video__overlay">
-                                            <div class="video__overlay-title">
+                                        <div class="image__overlay">
+                                            <div class="image__overlay-title">
                                                 <span uk-icon="icon: expand"></span>
                                             </div>
                                         </div>
                                     </a>
 
-                                    <button type="button" uk-close></button>
+                                    <button class="js-delete-image-button" data-url="{{ path('api_images_delete', {id: companyPhoto.id}) }}" type="button" uk-close></button>
                                 </div>
                             {% endfor %}
                         </div>
-
                     </div>
 
 

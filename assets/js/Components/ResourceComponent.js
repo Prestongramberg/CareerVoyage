@@ -5,13 +5,15 @@ import List from "list.js";
 import Routing from "../Routing";
 import UIkit from "uikit";
 
-class VideoComponent {
+class ResourceComponent {
 
     /**
      * @param $wrapper
      * @param globalEventDispatcher
      */
     constructor($wrapper, globalEventDispatcher) {
+
+        debugger;
 
         this.$wrapper = $wrapper;
         this.globalEventDispatcher = globalEventDispatcher;
@@ -22,11 +24,11 @@ class VideoComponent {
 
     unbindEvents() {
 
-        this.$wrapper.off('click', VideoComponent._selectors.addVideoButton);
-        this.$wrapper.off('click', VideoComponent._selectors.editVideoButton);
-        this.$wrapper.off('click', VideoComponent._selectors.deleteVideoButton);
-        $(document).off('click', VideoComponent._selectors.addVideoFormSubmitButton);
-        $(document).off('click', VideoComponent._selectors.editVideoFormSubmitButton);
+        this.$wrapper.off('click', ResourceComponent._selectors.addVideoButton);
+        this.$wrapper.off('click', ResourceComponent._selectors.editVideoButton);
+        this.$wrapper.off('click', ResourceComponent._selectors.deleteVideoButton);
+        $(document).off('click', ResourceComponent._selectors.addVideoFormSubmitButton);
+        $(document).off('click', ResourceComponent._selectors.editVideoFormSubmitButton);
     }
 
     /**
@@ -45,11 +47,11 @@ class VideoComponent {
 
     bindEvents() {
 
-        this.$wrapper.on('click', VideoComponent._selectors.addVideoButton, this.handleAddVideoButtonClick.bind(this));
-        this.$wrapper.on('click', VideoComponent._selectors.editVideoButton, this.handleEditVideoButtonClick.bind(this));
-        this.$wrapper.on('click', VideoComponent._selectors.deleteVideoButton, this.handleDeleteVideoButtonClick.bind(this));
-        $(document).on('click', VideoComponent._selectors.addVideoFormSubmitButton, this.handleAddVideoFormSubmit.bind(this));
-        $(document).on('click', VideoComponent._selectors.editVideoFormSubmitButton, this.handleEditVideoFormSubmit.bind(this));
+        this.$wrapper.on('click', ResourceComponent._selectors.addVideoButton, this.handleAddVideoButtonClick.bind(this));
+        this.$wrapper.on('click', ResourceComponent._selectors.editVideoButton, this.handleEditVideoButtonClick.bind(this));
+        this.$wrapper.on('click', ResourceComponent._selectors.deleteVideoButton, this.handleDeleteVideoButtonClick.bind(this));
+        $(document).on('click', ResourceComponent._selectors.addVideoFormSubmitButton, this.handleAddVideoFormSubmit.bind(this));
+        $(document).on('click', ResourceComponent._selectors.editVideoFormSubmitButton, this.handleEditVideoFormSubmit.bind(this));
     }
 
     handleAddVideoButtonClick(event) {
@@ -109,7 +111,7 @@ class VideoComponent {
             method: 'GET'
         }).then((data, textStatus, jqXHR) => {
 
-            $(VideoComponent._selectors.videoListContainer).find('#video-' + data.id).remove();
+            $(ResourceComponent._selectors.videoListContainer).find('#video-' + data.id).remove();
 
         }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);
@@ -136,7 +138,7 @@ class VideoComponent {
             }).then((data, textStatus, jqXHR) => {
 
                 const html = videoTemplate(data.id, data.videoId, data.name, data.editUrl, data.deleteUrl);
-                $(VideoComponent._selectors.videoListContainer).append($($.parseHTML(html)));
+                $(ResourceComponent._selectors.videoListContainer).append($($.parseHTML(html)));
                 UIkit.modal('#js-video-component-modal').hide();
 
                 window.Pintex.notification("Video successfully added", "success");
@@ -168,9 +170,10 @@ class VideoComponent {
                 contentType: false
             }).then((data, textStatus, jqXHR) => {
 
+                debugger;
                 const html = videoTemplate(data.id, data.videoId, data.name, data.editUrl, data.deleteUrl);
 
-                $(VideoComponent._selectors.videoListContainer).find('#video-' + data.id).replaceWith($($.parseHTML(html)));
+                $(ResourceComponent._selectors.videoListContainer).find('#video-' + data.id).replaceWith($($.parseHTML(html)));
 
                 UIkit.modal('#js-video-component-modal').hide();
 
@@ -205,4 +208,4 @@ const videoTemplate = (id, videoId, name, editUrl, deleteUrl) => `
     
         `;
 
-export default VideoComponent;
+export default ResourceComponent;

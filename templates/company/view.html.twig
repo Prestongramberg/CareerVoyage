@@ -7,9 +7,9 @@
 {% block body %}
 
     <div class="page-company-view__featured-image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
-         data-src="{{ company.featuredImageURL }}" uk-img>
+         data-src="{{ company.featuredImageURL is not null ? company.featuredImage : company.placeholderImage }}" uk-img>
 
-        <div class="uk-width-1-1" style="background: rgba(0,0,0,0.6)">
+        <div class="uk-width-1-1" style="background: rgba(0,0,0,0.1)">
             <div class="uk-container">
                 <div class="uk-padding-small">
                     <div class="uk-grid-small uk-flex-middle" uk-grid>

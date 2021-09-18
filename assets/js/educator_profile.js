@@ -6,6 +6,7 @@ import SchoolSelect from "./Components/SchoolSelect";
 
 require('select2/dist/js/select2.min');
 import Inputmask from "inputmask";
+import VideoComponent from "./Components/VideoComponent";
 
 $(document).ready(function () {
 
@@ -62,21 +63,6 @@ $(document).ready(function () {
         $("#educator_edit_profile_form_primaryIndustries > option").prop("selected", "selected");// Select All Options
         $("#educator_edit_profile_form_primaryIndustries").trigger("change");// Trigger change to select 2
     });
-
-/*
-
-    $('#professional_edit_profile_form_schools').select2({
-        placeholder: "Volunteer schools",
-        allowClear: true,
-        width: '100%',
-        sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
-    });
-
-    $('#professional_edit_profile_form_regions').select2({
-        placeholder: "Filter by region",
-        allowClear: true,
-        width: '100%'
-    });*/
 
     if (document.getElementById("educator_edit_profile_form_username")) {
 
@@ -138,13 +124,6 @@ $(document).ready(function () {
         im.mask(selector);
     }
 
-
     new PrimaryIndustrySelect($('.js-form'), window.globalEventDispatcher, primaryIndustrySelector, secondaryIndustrySelector, false);
-
-
-
-   /* new RegionSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
-    new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
-    new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);*/
-
+    new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
 });
