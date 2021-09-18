@@ -2,9 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\CompanyResource;
-use App\Entity\Image;
-use App\Entity\Video;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -16,17 +13,16 @@ class ResourceType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder ->add('file', FileType::class, array(
-            'label' => false,
-        ))->add('title', TextType::class, [])
-            ->add('description', TextareaType::class, []);
+        $builder->add('title', TextType::class, [])
+                ->add('file', FileType::class, ['label' => false])
+                ->add('description', TextareaType::class, [])
+                ->add('linkToWebsite', TextType::class, []);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'  => CompanyResource::class,
-            'attr'        => ['novalidate' => 'novalidate'],
+            'attr' => ['novalidate' => 'novalidate'],
         ]);
     }
 }

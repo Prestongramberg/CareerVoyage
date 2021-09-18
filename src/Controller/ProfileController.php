@@ -200,9 +200,16 @@ class ProfileController extends AbstractController
             /** @var ProfessionalUser $user */
         } elseif (($user->isProfessional())) {
 
-            $options['skip_validation'] = $request->request->get('skip_validation', false);
-            $options['user']            = $user;
-            $options['validation_groups'] = $request->request->get('validation_groups', []);
+            $options = [
+                'method' => 'POST',
+                'user' => $user,
+                'skip_validation' => $request->request->get('skip_validation', false),
+            ];
+
+            if(!$options['skip_validation']) {
+                $options['validation_groups'] = $request->request->get('validation_groups', []);
+            }
+
             $form                       = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isSchoolAdministrator())) {

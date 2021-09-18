@@ -196,25 +196,6 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'multiple' => false,
             ]);
 
-        $builder->add('schools', EntityType::class, [
-            'class' => School::class,
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('s')
-                          ->orderBy('s.name', 'ASC');
-            },
-            'choice_label' => 'name',
-            'placeholder' => 'Schools I volunteer at.',
-            'multiple' => true,
-            'expanded' => false,
-            'choice_attr' => function ($choice, $key, $value) {
-                return ['class' => 'uk-checkbox',
-                        'data-latitude' => $choice->getLatitude(),
-                        'data-longitude' => $choice->getLongitude(),
-                        'data-school' => $choice->getName(),
-                ];
-            },
-        ]);
-
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {
                 return str_replace('-', '', $phone);
@@ -228,9 +209,32 @@ class ProfessionalEditProfileFormType extends AbstractType
 
             /** @var ProfessionalUser $data */
             $data = $event->getData();
+            $form = $event->getForm();
 
-            // todo can't we remove this?
-            //$this->schools = $data->getSchools();
+            $addressSearch = $data->getAddressSearch() ?? '';
+            $radiusSearch  = $data->getRadiusSearch() ?? '';
+
+            $regionIds     = array_map(function (Region $region) {
+                return $region->getId();
+            }, $data->getRegions()->toArray());
+
+            $allowableSchools = $this->getAllowableSchools($regionIds, $addressSearch, $radiusSearch);
+
+            $form->add('schools', EntityType::class, [
+                'class' => School::class,
+                'choices' => $allowableSchools,
+                'choice_label' => 'name',
+                'placeholder' => 'Schools I volunteer at.',
+                'multiple' => true,
+                'expanded' => false,
+                'choice_attr' => function ($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox',
+                            'data-latitude' => $choice->getLatitude(),
+                            'data-longitude' => $choice->getLongitude(),
+                            'data-school' => $choice->getName(),
+                    ];
+                },
+            ]);
 
             $notificationPreferences = [];
             foreach (NotificationPreferencesManager::$choices as $label => $bit) {
@@ -241,10 +245,10 @@ class ProfessionalEditProfileFormType extends AbstractType
             }
 
             if (!empty($notificationPreferences)) {
-                $this->modifyNotificationPreferencesField($event->getForm(), $notificationPreferences);
+                $this->modifyNotificationPreferencesField($form, $notificationPreferences);
             }
 
-            $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
+            $this->modifyForm($form, $data->getPrimaryIndustry());
         });
 
         $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
@@ -266,66 +270,18 @@ class ProfessionalEditProfileFormType extends AbstractType
                 $data['notificationPreferenceMask'] = null;
             }
 
-            if (!isset($data['schools'])) {
-                $data['schools'] = [];
-            }
+            $addressSearch   = $data['addressSearch'] ?? '';
+            $radiusSearch    = $data['radiusSearch'] ?? '';
+            $regionIds       = $data['regions'] ?? [];
+            $data['schools'] = $data['schools'] ?? [];
 
-            $originalSchoolIds = $data['schools'];
-            $schools           = [];
+            $allowableSchools = $this->getAllowableSchools($regionIds, $addressSearch, $radiusSearch);
 
-            if (!empty($data['addressSearch']) && !empty($data['radiusSearch'])) {
-
-                if ($coordinates = $this->geocoder->geocode($data['addressSearch'])) {
-                    list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($coordinates['lat'], $coordinates['lng'], $data['radiusSearch']);
-                    $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $coordinates['lat'], $coordinates['lng']);
-
-                    $schoolIds = [];
-                    foreach ($schools as $school) {
-                        $schoolIds[] = $school['id'];
-                    }
-
-                    $schools = $this->schoolRepository->getByArrayOfIds($schoolIds);
-                }
-            }
-
-            if (!empty($data['regions'])) {
-
-                if (count($schools)) {
-
-                    $regionIds = $data['regions'];
-
-                    $schools = array_filter($schools, function (School $school) use ($regionIds) {
-
-                        if (!$school->getRegion()) {
-                            return false;
-                        }
-
-                        return in_array($school->getRegion()->getId(), $regionIds);
-                    });
-                } else {
-
-                    $schools = $this->schoolRepository->findBy([
-                        'region' => $data['regions'],
-                    ]);
-                }
-            }
-
-            $newSchoolIds = array_map(function (School $school) {
+            $allowableSchoolIds = array_map(function (School $school) {
                 return $school->getId();
-            }, $schools);
+            }, $allowableSchools);
 
-            $schoolIds = array_intersect($originalSchoolIds, $newSchoolIds);
-
-            // let's get the data in alphabetical order now
-            // todo I don't think this is necessary though as we are doing that on the front end right?
-            $schools = $this->schoolRepository->findBy([
-                'id' => $schoolIds,
-            ], ['name' => 'ASC']);
-
-            $data['schools'] = array_map(function (School $school) {
-                return $school->getId();
-            }, $schools);
-
+            $data['schools'] = array_intersect($data['schools'], $allowableSchoolIds);
 
             if (!isset($data['secondaryIndustries'])) {
                 $data['secondaryIndustries'] = [];
@@ -351,152 +307,29 @@ class ProfessionalEditProfileFormType extends AbstractType
                 }
             }
 
+            if ($form->has('schools')) {
+                $form->remove('schools');
+            }
+
+            $form->add('schools', EntityType::class, [
+                'class' => School::class,
+                'choices' => $allowableSchools,
+                'choice_label' => 'name',
+                'placeholder' => 'Schools I volunteer at.',
+                'multiple' => true,
+                'expanded' => false,
+                'choice_attr' => function ($choice, $key, $value) {
+                    return ['class' => 'uk-checkbox',
+                            'data-latitude' => $choice->getLatitude(),
+                            'data-longitude' => $choice->getLongitude(),
+                            'data-school' => $choice->getName(),
+                    ];
+                },
+            ]);
+
             $data['secondaryIndustries'] = $secondaryIndustryIds;
 
             $event->setData($data);
-        });
-
-        $builder->get('regions')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-            $regions = $event->getForm()->getData();
-
-            if (empty($regions)) {
-                return;
-            }
-
-            $form = $event->getForm()->getParent();
-
-            if (!$form) {
-                return;
-            }
-
-            if ($form->has('schools')) {
-                $form->remove('schools');
-            }
-
-            $this->regions = $regions->toArray();
-
-            $regionIds = array_map(function (Region $region) {
-                return $region->getId();
-            }, $this->regions);
-
-            $schools = $this->schoolRepository->findBy([
-                'region' => $regionIds,
-            ], ['name' => 'ASC']);
-
-            $this->schools = $schools;
-
-            $form->add('schools', EntityType::class, [
-                'class' => School::class,
-                'choices' => $schools,
-                'choice_label' => 'name',
-                'placeholder' => 'Schools I volunteer at.',
-                'multiple' => true,
-                'expanded' => false,
-                'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox',
-                            'data-latitude' => $choice->getLatitude(),
-                            'data-longitude' => $choice->getLongitude(),
-                            'data-school' => $choice->getName(),
-                    ];
-                },
-            ]);
-
-        });
-
-        $builder->get('addressSearch')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-            // todo remove the geoAddress field from professional user then?
-
-            // todo let's make it even more reductive and start with the region filtering then the radius and then the schools.
-            // todo if we do this then we should be able to pass up all the data.
-            $geoAddress = $event->getForm()->getData();
-
-            if (empty($geoAddress)) {
-                return;
-            }
-
-            $form = $event->getForm()->getParent();
-
-            if (!$form) {
-                return;
-            }
-
-            if ($coordinates = $this->geocoder->geocode($geoAddress)) {
-                $this->longitude = $coordinates['lng'];
-                $this->latitude  = $coordinates['lat'];
-            }
-        });
-
-        $builder->get('radiusSearch')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-
-            // todo remove the geoAddress field from professional user then?
-            $radiusSearch = $event->getForm()->getData();
-
-            if (empty($radiusSearch)) {
-                return;
-            }
-
-            $form = $event->getForm()->getParent();
-
-            if (!$form) {
-                return;
-            }
-
-            if (!$this->latitude || !$this->longitude) {
-                return;
-            }
-
-            if ($form->has('schools')) {
-                $form->remove('schools');
-            }
-
-            list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($this->latitude, $this->longitude, $radiusSearch);
-            $schools   = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $this->latitude, $this->longitude);
-            $schoolIds = [];
-
-            foreach ($schools as $school) {
-                $schoolIds[] = $school['id'];
-            }
-
-            $schools = $this->schoolRepository->getByArrayOfIds($schoolIds);
-
-            // if some region filters have been selected apply them as a filter
-            if (count($this->regions)) {
-
-                $regionIds = array_map(function (Region $region) {
-                    return $region->getId();
-                }, $this->regions);
-
-
-                $schools = array_filter($schools, function (School $school) use ($regionIds) {
-
-                    if (!$school->getRegion()) {
-                        return false;
-                    }
-
-                    return in_array($school->getRegion()->getId(), $regionIds);
-                });
-            }
-
-            $this->schools = $schools;
-
-            $form->add('schools', EntityType::class, [
-                'class' => School::class,
-                'choices' => $this->schools,
-                'choice_label' => 'name',
-                'placeholder' => 'Schools I volunteer at.',
-                'multiple' => true,
-                'expanded' => false,
-                'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox',
-                            'data-latitude' => $choice->getLatitude(),
-                            'data-longitude' => $choice->getLongitude(),
-                            'data-school' => $choice->getName(),
-                    ];
-                },
-            ]);
-
         });
 
         if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_PERSONAL', $options['validation_groups'], true)) {
@@ -600,6 +433,68 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'data' => $notificationPreferences,
             ]);
         }
+    }
+
+    /**
+     * @param array $regionIds
+     * @param null  $addressSearch
+     * @param null  $radiusSearch
+     *
+     * @return School[]|array|mixed|mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     */
+    private function getAllowableSchools($regionIds = [], $addressSearch = null, $radiusSearch = null)
+    {
+        $schools = [];
+
+        $returnAllSchools = (
+            empty($regionIds) &&
+            (empty($addressSearch) || empty($radiusSearch))
+        );
+
+        if ($returnAllSchools) {
+            $schools = $this->schoolRepository->findAll();
+        }
+
+        if (!empty($addressSearch) && !empty($radiusSearch)) {
+
+            if ($coordinates = $this->geocoder->geocode($addressSearch)) {
+                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($coordinates['lat'], $coordinates['lng'], $radiusSearch);
+                $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $coordinates['lat'], $coordinates['lng']);
+
+                $schoolIds = [];
+                foreach ($schools as $school) {
+                    $schoolIds[] = $school['id'];
+                }
+
+                $schools = $this->schoolRepository->getByArrayOfIds($schoolIds);
+            }
+        }
+
+        if (!empty($regionIds)) {
+
+            if (count($schools)) {
+
+                $schools = array_filter($schools, function (School $school) use ($regionIds) {
+
+                    if (!$school->getRegion()) {
+                        return false;
+                    }
+
+                    return in_array($school->getRegion()->getId(), $regionIds);
+                });
+            } else {
+
+                $schools = $this->schoolRepository->findBy([
+                    'region' => $regionIds,
+                ]);
+            }
+        }
+
+        $this->schools = $schools;
+
+        return $schools;
     }
 
     public function configureOptions(OptionsResolver $resolver)

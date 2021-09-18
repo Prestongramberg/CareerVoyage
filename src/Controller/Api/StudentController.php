@@ -7,8 +7,6 @@ use App\Entity\CompanyPhoto;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\User;
-use App\Form\EditCompanyFormType;
-use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Repository\CompanyRepository;
 use App\Repository\IndustryRepository;

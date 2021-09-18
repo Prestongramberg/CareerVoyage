@@ -92,7 +92,7 @@ class PrimaryIndustrySelect {
                         }
                     });
 
-                    $('#new_company_form_secondaryIndustries').select2({
+                    $('#company_form_secondaryIndustries').select2({
                         placeholder: "Select Professions",
                         allowClear: true,
                         width: '100%',

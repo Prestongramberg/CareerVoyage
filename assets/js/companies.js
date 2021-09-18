@@ -5,6 +5,7 @@ import EmailAutoComplete from 'js-email-autocomplete'
 import RegionSelect from "./Components/RegionSelect";
 import RadiusSelect from "./Components/RadiusSelect";
 import SchoolSelect from "./Components/SchoolSelect";
+import VideoComponent from "./Components/VideoComponent";
 require('select2/dist/js/select2.min');
 
 $(document).ready(function() {
@@ -20,7 +21,7 @@ $(document).ready(function() {
         markersArray.length = 0;
 
 
-        let $options = $('#new_company_form_schools').find(":selected");
+        let $options = $('#company_form_schools').find(":selected");
 
         $options.each(function (index) {
 
@@ -50,24 +51,24 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.js-select-all-schools', function(e) {
-        $("#new_company_form_schools > option").prop("selected", "selected");// Select All Options
-        $("#new_company_form_schools").trigger("change");// Trigger change to select 2
+        $("#company_form_schools > option").prop("selected", "selected");// Select All Options
+        $("#company_form_schools").trigger("change");// Trigger change to select 2
     });
 
-    $('#new_company_form_schools').select2({
+    $('#company_form_schools').select2({
         placeholder: "Volunteer schools",
         allowClear: true,
         width: '100%',
         sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
     });
 
-    $('#new_company_form_regions').select2({
+    $('#company_form_regions').select2({
         placeholder: "Filter by region",
         allowClear: true,
         width: '100%'
     });
 
-    $('#new_company_form_secondaryIndustries').select2({
+    $('#company_form_secondaryIndustries').select2({
         placeholder: "Select Professions",
         allowClear: true,
         width: '100%',
@@ -236,7 +237,7 @@ $(document).ready(function() {
 
             const $form = $('.js-form').find('form');
             let formData = new FormData($form.get(0));
-            formData.delete('new_company_form[_token]');
+            formData.delete('company_form[_token]');
             formData.append('skip_validation', true);
             formData.append('changeableField', true);
             formData.set('geoAddress', geoAddress);
@@ -269,7 +270,7 @@ $(document).ready(function() {
                     $(errorData.formMarkup).find('.js-schools-container')
                 );
 
-                $('#new_company_form_schools').select2({
+                $('#company_form_schools').select2({
                     placeholder: "Volunteer schools",
                     allowClear: true,
                     width: '100%',
@@ -345,13 +346,13 @@ $(document).ready(function() {
                 }
             }
 
-            $('#new_company_form_city').val(city);
-            $('#new_company_form_street').val(street);
-            $('#new_company_form_zipcode').val(postalCode);
+            $('#company_form_city').val(city);
+            $('#company_form_street').val(street);
+            $('#company_form_zipcode').val(postalCode);
 
-            $("#new_company_form_state > option").each(function () {
+            $("#company_form_state > option").each(function () {
                 if (this.text === state) {
-                    $("#new_company_form_state").val(this.value).change();
+                    $("#company_form_state").val(this.value).change();
                 }
             });
 
@@ -411,17 +412,17 @@ $(document).ready(function() {
         });
     }
 
-    if (document.getElementById('new_company_form_phone')) {
-        var selector = document.getElementById("new_company_form_phone");
+    if (document.getElementById('company_form_phone')) {
+        var selector = document.getElementById("company_form_phone");
         var im = new Inputmask("(999) 999-9999");
         im.mask(selector);
     }
 
-    const website = document.getElementById('new_company_form_website');
+    const website = document.getElementById('company_form_website');
     website.addEventListener('blur', (event) => {
         const matched = event.target.value.match(/^(http|https):\/\//);
         if(!matched) {
-            document.getElementById('new_company_form_website').value = 'http://' + event.target.value;
+            document.getElementById('company_form_website').value = 'http://' + event.target.value;
         }
     }, true);
 
@@ -430,5 +431,6 @@ $(document).ready(function() {
     new RegionSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
+    new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
 
 });

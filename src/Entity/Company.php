@@ -108,7 +108,7 @@ class Company
      * @Groups({"RESULTS_PAGE"})
      * @ORM\Column(type="text", nullable=true)
      */
-    private $description;
+    private $description = '';
 
     /**
      * @Groups({"RESULTS_PAGE"})

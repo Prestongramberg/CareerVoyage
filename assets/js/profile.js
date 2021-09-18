@@ -6,6 +6,7 @@ import SchoolSelect from "./Components/SchoolSelect";
 
 require('select2/dist/js/select2.min');
 import Inputmask from "inputmask";
+import VideoComponent from "./Components/VideoComponent";
 
 $(document).ready(function () {
 
@@ -436,5 +437,6 @@ $(document).ready(function () {
     new RegionSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
+    new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
     debugger;
 });

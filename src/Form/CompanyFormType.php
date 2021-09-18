@@ -33,7 +33,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotNull;
 
-class NewCompanyFormType extends AbstractType
+class CompanyFormType extends AbstractType
 {
     /**
      * @var SchoolRepository
@@ -76,7 +76,7 @@ class NewCompanyFormType extends AbstractType
     private $regions = [];
 
     /**
-     * NewCompanyFormType constructor.
+     * CompanyFormType constructor.
      *
      * @param SchoolRepository            $schoolRepository
      * @param SecondaryIndustryRepository $secondaryIndustryRepository

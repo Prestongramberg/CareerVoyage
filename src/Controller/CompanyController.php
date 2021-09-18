@@ -21,10 +21,9 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Form\CompanyFormType;
 use App\Form\EditCompanyExperienceType;
-use App\Form\EditCompanyFormType;
 use App\Form\Filter\CompanyResultsFilterType;
-use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
 use App\Service\RequestService;
 use App\Service\UploaderHelper;
@@ -249,7 +248,7 @@ class CompanyController extends AbstractController
             $options['validation_groups'] = $request->request->get('validation_groups', []);
         }
 
-        $form = $this->createForm(NewCompanyFormType::class, $company, $options);
+        $form = $this->createForm(CompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -1260,12 +1259,6 @@ class CompanyController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $company);
 
-        $editVideoId  = $request->query->get('videoEdit', null);
-        $companyVideo = null;
-        if ($editVideoId) {
-            $companyVideo = $this->videoRepository->find($editVideoId);
-        }
-
         $countyJson = [];
         $counties   = $this->countyRepository->findAll();
         foreach ($counties as $county) {
@@ -1292,7 +1285,7 @@ class CompanyController extends AbstractController
             $options['validation_groups'] = $request->request->get('validation_groups', []);
         }
 
-        $form = $this->createForm(NewCompanyFormType::class, $company, $options);
+        $form = $this->createForm(CompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -1316,30 +1309,6 @@ class CompanyController extends AbstractController
             }
         }
 
-/*        if ($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
-
-            $errors = $this->getFormErrors($form);
-
-            $showMainError = true;
-            foreach ($errors as $fieldName => $error) {
-
-                if ($fieldName === 'secondaryIndustries') {
-                    $showMainError = false;
-                    $this->addFlash('error', 'Please choose at least one career field.');
-                }
-
-                if ($fieldName === 'schools') {
-                    $showMainError = false;
-                    $this->addFlash('error', 'Please select your volunteer schools or try selecting a different region if you do not see the schools you are looking for below.');
-                }
-
-                if ($showMainError) {
-                    $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
-                }
-
-            }
-        }*/
-
         if ($request->request->has('changeableField')) {
             return new JsonResponse(
                 [
@@ -1348,8 +1317,7 @@ class CompanyController extends AbstractController
                         'company' => $company,
                         'form' => $form->createView(),
                         'countyJson' => $countyJson,
-                        'user' => $user,
-                        'companyVideo' => $companyVideo,
+                        'user' => $user
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -1360,8 +1328,7 @@ class CompanyController extends AbstractController
                 'company' => $company,
                 'form' => $form->createView(),
                 'countyJson' => $countyJson,
-                'user' => $user,
-                'companyVideo' => $companyVideo,
+                'user' => $user
             ]
         );
     }

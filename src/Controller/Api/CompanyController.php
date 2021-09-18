@@ -13,8 +13,6 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\Video;
-use App\Form\EditCompanyFormType;
-use App\Form\NewCompanyFormType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Repository\CompanyFavoriteRepository;
 use App\Repository\CompanyRepository;
