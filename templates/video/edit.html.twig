@@ -1,0 +1,47 @@
+{{ form_start(form, {attr: {'class': 'js-edit-video-form', 'novalidate' : 'novalidate'}}) }}
+
+<h3>Edit Video</h3>
+
+{% if form_errors(form) %}
+    <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <div>{{ form_errors(form) }}</div>
+    </div>
+{% endif %}
+
+<div class="uk-margin">
+    {{ form_label(form.name, 'Video Title*') }}
+    {{ form_widget(form.name, {'attr': {'class': 'uk-input' ~ ( form_errors(form.name) ? ' uk-form-danger' : '' ) }}) }}
+    {{ form_errors(form.name) }}
+</div>
+
+<div class="uk-margin">
+    {{ form_label(form.videoId, 'Youtube Video ID**') }}
+    <div class="uk-text-meta">
+        Please make sure your video is open to public.
+    </div>
+    <div class="uk-position-relative">
+        <span class="uk-form-icon" uk-icon="icon: video-camera"></span>
+        {{ form_widget(form.videoId, {'attr': {'class': 'js-video-id-field uk-input' ~ ( form_errors(form.videoId) ? ' uk-form-danger' : '' ) }}) }}
+    </div>
+    <div style="margin-top: 20px" class="js-video-id-error-container">
+        {{ form_errors(form.videoId) }}
+    </div>
+</div>
+
+<div class="uk-margin">
+    <div class="uk-position-relative">
+        {{ form_label(form.tags, 'Video Keywords') }}
+        {{ form_widget(form.tags, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.tags) ? ' uk-form-danger' : '' ), 'rows': '3' }}) }}
+        {{ form_errors(form.tags) }}
+    </div>
+</div>
+
+<p class="uk-text-right">
+    <button class="uk-button uk-button-default uk-modal-close" type="button">
+        Cancel
+    </button>
+    <input class="uk-button uk-button-primary js-edit-video-form-submit-button" type="button" value="Save"/>
+</p>
+
+{{ form_end(form) }}

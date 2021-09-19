@@ -21,10 +21,9 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Form\CompanyFormType;
 use App\Form\EditCompanyExperienceType;
-use App\Form\EditCompanyFormType;
 use App\Form\Filter\CompanyResultsFilterType;
-use App\Form\NewCompanyFormType;
 use App\Form\NewCompanyExperienceType;
 use App\Service\RequestService;
 use App\Service\UploaderHelper;
@@ -223,6 +222,20 @@ class CompanyController extends AbstractController
             return $this->redirectToRoute('company_view', ['id' => $user->getCompany()->getId()]);
         }
 
+        $countyJson = [];
+        $counties   = $this->countyRepository->findAll();
+        foreach ($counties as $county) {
+
+            $countyJson[] = [
+                'coordinates' => $county->getCoordinates(),
+                'name' => $county->getName(),
+                'state_name' => $county->getStateName(),
+                'region_name' => $county->getRegionName(),
+                'service_cooperative_name' => $county->getServiceCooperativeName(),
+                'color' => $county->getColor() ?? '#FF0000',
+            ];
+        }
+
         $company = new Company();
 
         $options = [
@@ -231,7 +244,11 @@ class CompanyController extends AbstractController
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
-        $form = $this->createForm(NewCompanyFormType::class, $company, $options);
+        if(!$options['skip_validation']) {
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
+        }
+
+        $form = $this->createForm(CompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -248,6 +265,9 @@ class CompanyController extends AbstractController
             $user->addRole(User::ROLE_COMPANY_ADMINISTRATOR);
             $adminUsers = $this->adminUserRepository->findAll();
             $adminUser  = $adminUsers[0];
+
+            $schools = $this->schoolRepository->findAll();
+            $company->setSchools($schools);
 
             $this->entityManager->persist($company);
             $this->entityManager->flush();
@@ -321,7 +341,6 @@ class CompanyController extends AbstractController
             }
 
             $this->entityManager->persist($newCompanyRequest);
-            $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             $requestActionUrl = $this->generateUrl('request_action', [
@@ -340,21 +359,22 @@ class CompanyController extends AbstractController
 
             $this->requestsMailer->newCompanyAwaitingApproval($createdByApprover->getPossibleApprover(), $company);
 
-            $this->addFlash('success', 'Company successfully created. While your company is waiting for approval go ahead and add some images and videos!');
+            $this->addFlash('success', 'Company successfully created. While your company is awaiting approval, please edit your volunteer schools list, photos, videos, and resources.');
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
 
         }
 
-        if ($request->request->has('primary_industry_change')) {
+        if ($request->request->has('changeableField')) {
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView(
-                        'api/form/secondary_industry_form_new_company_field.html.twig', [
-                            'form' => $form->createView(),
-                        ]
-                    ),
+                    'formMarkup' => $this->renderView('company/new.html.twig', [
+                        'user' => $user,
+                        'form' => $form->createView(),
+                        'countyJson' => $countyJson,
+                        'company' => $company
+                    ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
@@ -363,6 +383,8 @@ class CompanyController extends AbstractController
             'company/new.html.twig', [
                 'user' => $user,
                 'form' => $form->createView(),
+                'countyJson' => $countyJson,
+                'company' => $company
             ]
         );
     }
@@ -1013,125 +1035,6 @@ class CompanyController extends AbstractController
 
 
     /**
-     * @Route("/companies/videos/{id}/edit", name="company_video_edit", options = { "expose" = true })
-     * @param Request      $request
-     * @param CompanyVideo $video
-     *
-     * @return JsonResponse
-     */
-    public function companyEditVideoAction(Request $request, CompanyVideo $video)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $video->getCompany());
-
-        $name    = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
-        $tags    = $request->request->get('tags');
-
-        if ($name && $videoId) {
-            $video->setName($name);
-            $video->setVideoId($videoId);
-
-            if ($tags) {
-                $video->setTags($tags);
-            }
-
-
-            $this->entityManager->persist($video);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
-                    'videoId' => $videoId,
-
-                ], Response::HTTP_OK
-            );
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/{id}/video/add", name="company_video_add", options = { "expose" = true })
-     * @param Request $request
-     * @param Company $company
-     *
-     * @return JsonResponse
-     */
-    public function companyAddVideoAction(Request $request, Company $company)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $company);
-
-        $name    = $request->request->get('name');
-        $videoId = $request->request->get('videoId');
-        $tags    = $request->request->get('tags');
-
-        if ($name && $videoId) {
-            $video = new CompanyVideo();
-            $video->setName($name);
-            $video->setVideoId($videoId);
-            $video->setCompany($company);
-
-            if ($tags) {
-                $video->setTags($tags);
-            }
-
-            $this->entityManager->persist($video);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'id' => $video->getId(),
-                    'name' => $name,
-                    'videoId' => $videoId,
-
-                ], Response::HTTP_OK
-            );
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_OK
-        );
-    }
-
-    /**
-     * @Route("/companies/videos/{id}/remove", name="company_video_remove", options = { "expose" = true })
-     * @param Request      $request
-     * @param CompanyVideo $companyVideo
-     *
-     * @return JsonResponse
-     */
-    public function companyRemoveVideoAction(Request $request, CompanyVideo $companyVideo)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $companyVideo->getCompany());
-
-        $this->entityManager->remove($companyVideo);
-        $this->entityManager->flush();
-
-        return new JsonResponse(
-            [
-                'success' => true,
-
-            ], Response::HTTP_OK
-        );
-    }
-
-
-    /**
      * @Route("/companies/resource/{id}/remove", name="company_resource_remove", options = { "expose" = true })
      * @param Request         $request
      * @param CompanyResource $companyResource
@@ -1240,10 +1143,18 @@ class CompanyController extends AbstractController
 
         $this->denyAccessUnlessGranted('edit', $company);
 
-        $editVideoId  = $request->query->get('videoEdit', null);
-        $companyVideo = null;
-        if ($editVideoId) {
-            $companyVideo = $this->videoRepository->find($editVideoId);
+        $countyJson = [];
+        $counties   = $this->countyRepository->findAll();
+        foreach ($counties as $county) {
+
+            $countyJson[] = [
+                'coordinates' => $county->getCoordinates(),
+                'name' => $county->getName(),
+                'state_name' => $county->getStateName(),
+                'region_name' => $county->getRegionName(),
+                'service_cooperative_name' => $county->getServiceCooperativeName(),
+                'color' => $county->getColor() ?? '#FF0000',
+            ];
         }
 
         $user = $this->getUser();
@@ -1254,7 +1165,11 @@ class CompanyController extends AbstractController
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
-        $form = $this->createForm(EditCompanyFormType::class, $company, $options);
+        if(!$options['skip_validation']) {
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
+        }
+
+        $form = $this->createForm(CompanyFormType::class, $company, $options);
 
         $form->handleRequest($request);
 
@@ -1277,39 +1192,17 @@ class CompanyController extends AbstractController
                 return $this->redirectToRoute('company_view', ['id' => $company->getId()]);
             }
         }
-        if ($form->isSubmitted() && !$form->isValid() && !$request->request->has('primary_industry_change')) {
 
-            $errors = $this->getFormErrors($form);
-
-            $showMainError = true;
-            foreach ($errors as $fieldName => $error) {
-
-                if ($fieldName === 'secondaryIndustries') {
-                    $showMainError = false;
-                    $this->addFlash('error', 'Please choose at least one career field.');
-                }
-
-                if ($fieldName === 'schools') {
-                    $showMainError = false;
-                    $this->addFlash('error', 'Please select your volunteer schools or try selecting a different region if you do not see the schools you are looking for below.');
-                }
-
-                if ($showMainError) {
-                    $this->addFlash('error', 'Company was not updated. Please check all tabs for required information.');
-                }
-
-            }
-        }
-
-        if ($request->request->has('primary_industry_change')) {
+        if ($request->request->has('changeableField')) {
             return new JsonResponse(
                 [
                     'success' => false,
-                    'formMarkup' => $this->renderView(
-                        'api/form/secondary_industry_form_field.html.twig', [
-                            'form' => $form->createView(),
-                        ]
-                    ),
+                    'formMarkup' => $this->renderView('company/edit.html.twig', [
+                        'company' => $company,
+                        'form' => $form->createView(),
+                        'countyJson' => $countyJson,
+                        'user' => $user
+                    ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
@@ -1318,8 +1211,8 @@ class CompanyController extends AbstractController
             'company/edit.html.twig', [
                 'company' => $company,
                 'form' => $form->createView(),
-                'user' => $user,
-                'companyVideo' => $companyVideo,
+                'countyJson' => $countyJson,
+                'user' => $user
             ]
         );
     }

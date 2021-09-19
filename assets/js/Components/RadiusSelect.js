@@ -72,6 +72,12 @@ class RadiusSelect {
                 width: '100%'
             });
 
+            $('#company_form_schools').select2({
+                placeholder: "Volunteer schools",
+                allowClear: true,
+                width: '100%'
+            });
+
             this.initMarkers();
 
         });

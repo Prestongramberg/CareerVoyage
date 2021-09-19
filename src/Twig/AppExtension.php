@@ -26,6 +26,7 @@ use App\Repository\SiteRepository;
 use App\Repository\UserRepository;
 use App\Security\ProfileVoter;
 use App\Service\UploaderHelper;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -93,6 +94,11 @@ class AppExtension extends AbstractExtension
     private $security;
 
     /**
+     * @var string
+     */
+    private $uploadsPath;
+
+    /**
      * AppExtension constructor.
      *
      * @param UploaderHelper        $uploadHelper
@@ -117,7 +123,8 @@ class AppExtension extends AbstractExtension
         SiteRepository $siteRepository,
         RouterInterface $router,
         Security $security,
-        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository
+        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
+        string $uploadsPath
     ) {
         $this->uploadHelper                                          = $uploadHelper;
         $this->serializer                                            = $serializer;
@@ -130,6 +137,7 @@ class AppExtension extends AbstractExtension
         $this->router                                                = $router;
         $this->security                                              = $security;
         $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
+        $this->uploadsPath                                           = $uploadsPath;
     }
 
     public function getFunctions(): array
@@ -163,7 +171,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('call_to_action_href', [$this, 'callToActionHref']),
             new TwigFunction('call_to_action_should_render', [$this, 'callToActionShouldRender']),
             new TwigFunction('time_elapsed_string', [$this, 'timeElapsedString']),
-            new TwigFunction('request_sent', [$this, 'requestSent']),
+            new TwigFunction('request_sent', [$this, 'requestSent'])
         ];
     }
 
@@ -193,20 +201,20 @@ class AppExtension extends AbstractExtension
         switch ($route) {
             case 'company_experience_create':
 
-                if(!$user instanceof ProfessionalUser) {
+                if (!$user instanceof ProfessionalUser) {
                     return "";
                 }
 
-                if(!$user->getCompany()) {
+                if (!$user->getCompany()) {
                     return "";
                 }
 
-                if(!$user->isOwner($user->getCompany())) {
+                if (!$user->isOwner($user->getCompany())) {
                     return "";
                 }
 
                 return $this->router->generate('company_experience_create', [
-                   'id' => $user->getCompany()->getId(),
+                    'id' => $user->getCompany()->getId(),
                 ]);
 
                 break;
@@ -226,15 +234,15 @@ class AppExtension extends AbstractExtension
         switch ($guid) {
             case 'f9u00c8Gtn2BIrn5eH#J':
 
-                if(!$user instanceof ProfessionalUser) {
+                if (!$user instanceof ProfessionalUser) {
                     return "false";
                 }
 
-                if(!$user->getCompany()) {
+                if (!$user->getCompany()) {
                     return "false";
                 }
 
-                if(!$user->isOwner($user->getCompany())) {
+                if (!$user->isOwner($user->getCompany())) {
                     return "false";
                 }
 
@@ -393,11 +401,11 @@ class AppExtension extends AbstractExtension
         $requests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
 
         /** @var Request $request */
-        foreach($requests as $request) {
+        foreach ($requests as $request) {
 
             /** @var RequestPossibleApprovers $possibleApprover */
-            if($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($user)) {
-                if($possibleApprover->getHasNotification()) {
+            if ($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($user)) {
+                if ($possibleApprover->getHasNotification()) {
                     $requests_total++;
                 }
             }
@@ -564,15 +572,16 @@ class AppExtension extends AbstractExtension
         return false;
     }
 
-    public function timeElapsedString($datetime, $full = false) {
-        $now = new \DateTime;
-        $ago = new \DateTime($datetime);
+    public function timeElapsedString($datetime, $full = false)
+    {
+        $now  = new \DateTime;
+        $ago  = new \DateTime($datetime);
         $diff = $now->diff($ago);
 
         $diff->w = floor($diff->d / 7);
         $diff->d -= $diff->w * 7;
 
-        $string = array(
+        $string = array (
             'y' => 'year',
             'm' => 'month',
             'w' => 'week',
@@ -589,17 +598,17 @@ class AppExtension extends AbstractExtension
             }
         }
 
-        if (!$full) $string = array_slice($string, 0, 1);
+        if (!$full) {
+            $string = array_slice($string, 0, 1);
+        }
+
         return $string ? implode(', ', $string) . ' ago' : 'just now';
     }
 
-    public function requestSent(User $createdBy = null, $requestType = null, $to = null, $actionUrlPatternSearch = null) {
+    public function requestSent(User $createdBy = null, $requestType = null, $to = null, $actionUrlPatternSearch = null)
+    {
 
         return $this->requestRepository->search($createdBy, $requestType, $to, $actionUrlPatternSearch);
-    }
-
-    public function requestHasAction($requestActionName, $requestPossibleApprovers = []) {
-        // todo?
     }
 
     /**

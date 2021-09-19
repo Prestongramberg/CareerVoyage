@@ -70,7 +70,7 @@
                             {# Desktop View #}
                             <div class="uk-card-media-left uk-width-1-1 uk-width-medium@m uk-visible@m">
                                 <div class="company-listing__image uk-height-medium uk-flex uk-flex-right uk-flex-bottom uk-background-cover uk-light"
-                                     style="background-image: url({{ paginatedCompany.thumbnailImageURL }})">
+                                     style="background-image: url({{ paginatedCompany.thumbnailImageURL is not null ? paginatedCompany.thumbnailImageURL : paginatedCompany.placeholderImage }})">
                                     <div class="uk-inline uk-padding-small">
 
                                         {% if user_favorited_company(user, paginatedCompany) %}

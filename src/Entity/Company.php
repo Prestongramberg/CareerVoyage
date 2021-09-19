@@ -33,12 +33,12 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Please enter your phone number in xxx-xxx-xxxx format.", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your phone number in xxx-xxx-xxxx format.", groups={"COMPANY_GENERAL"})
      * @Assert\Regex(
      *     pattern="/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/",
      *     match=true,
      *     message="The phone number needs to be in this format: xxx-xxx-xxxx",
-     *     groups={"CREATE", "EDIT"}
+     *     groups={"COMPANY_GENERAL"}
      * )
      *
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -76,7 +76,6 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a primary contact!")
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $primaryContact;
@@ -93,43 +92,42 @@ class Company
 
     /**
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "VIDEO"})
-     * @Assert\NotBlank(message="Please enter your company name.", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your company name.", groups={"COMPANY_GENERAL"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Please enter a short description.", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter a short description for your company.", groups={"COMPANY_GENERAL"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $shortDescription;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Please enter a long description.", groups={"EDIT"})
      * @ORM\Column(type="text", nullable=true)
      */
-    private $description;
+    private $description = '';
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Please enter your website.", groups={"CREATE", "EDIT"})
-     * @Assert\Regex("/^(http|https):\/\//", message="Website must start with http or https!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your company website.", groups={"COMPANY_GENERAL"})
+     * @Assert\Regex("/^(http|https):\/\//", message="Website must start with http or https!", groups={"COMPANY_GENERAL"})
      * @ORM\Column(type="string", length=255)
      */
     private $website;
 
     /**
      * @Groups({"RESULTS_PAGE"})
-     * @Assert\NotBlank(message="Please enter your email address.", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please enter your company administrator email address.", groups={"COMPANY_GENERAL"})
      * @ORM\Column(type="string", length=255)
      */
     private $emailAddress;
 
     /**
      * @Groups({"RESULTS_PAGE", "VIDEO"})
-     * @Assert\NotBlank(message="Please choose at least one primary industry.", groups={"EDIT"})
+     * @Assert\NotBlank(message="Please choose at least one primary industry that describes your company.", groups={"COMPANY_GENERAL"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="companies")
      */
     private $primaryIndustry;
@@ -180,8 +178,8 @@ class Company
      * @Groups({"RESULTS_PAGE", "VIDEO"})
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "Please choose at least one career field.",
-     *     groups={"SECONDARY_INDUSTRY"}
+     *      minMessage = "Please choose at least one career field that relates to your company.",
+     *     groups={"COMPANY_GENERAL"}
      * )
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="companies")
      */
@@ -190,9 +188,10 @@ class Company
     /**
      * @Assert\Count(
      *      min = "1",
-     *      minMessage = "Please specify at least one school.",
-     *     groups={"EDIT", "CREATE"}
+     *      minMessage = "Please select at least one school",
+     *      groups={"COMPANY_SCHOOLS"}
      * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\School", inversedBy="companies")
      */
     private $schools;
@@ -263,16 +262,6 @@ class Company
      */
     private $address;
 
-	/**
-	 * @var string
-	 */
-    private $geoRadius;
-
-	/**
-	 * @var string
-	 */
-    private $geoZipCode;
-
     /**
      * @Assert\Count(
      *      min = "1",
@@ -288,6 +277,22 @@ class Company
      * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="company", orphanRemoval=true)
      */
     private $companyViews;
+
+    /**
+     * @Assert\NotBlank(message="Don't forget a company address", groups={"COMPANY_GENERAL"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $companyAddressSearch;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressSearch;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $radiusSearch = 150;
 
     public function __construct()
     {
@@ -433,7 +438,7 @@ class Company
         if($this->getFeaturedImage()) {
             return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
         }
-        return '';
+        return null;
     }
 
     /**
@@ -445,7 +450,8 @@ class Company
         if($this->getThumbnailImage()) {
             return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
         }
-        return '';
+
+        return null;
     }
 
     /**
@@ -613,7 +619,8 @@ class Company
         if($this->getThumbnailImage()) {
             return '/media/cache/squared_thumbnail_small/uploads/' . $this->getThumbnailImagePath();
         }
-        return '';
+
+        return null;
     }
 
     /**
@@ -623,7 +630,14 @@ class Company
         if($this->getFeaturedImage()) {
             return '/uploads/' . $this->getFeaturedImagePath();
         }
-        return '';
+        return null;
+    }
+
+    public function getPlaceholderImage() {
+
+        $words = explode(" ", $this->name);
+
+        return sprintf("https://ui-avatars.com/api/?size=512&length=10&name=%s&background=random&font-size=.1", implode("+", $words));
     }
 
     public function getOwner()
@@ -765,6 +779,10 @@ class Company
         }
 
         return $this;
+    }
+
+    public function setSchools($schools) {
+        $this->schools = $schools;
     }
 
     /**
@@ -985,34 +1003,6 @@ class Company
         );
     }
 
-	/**
-	 * @return string
-	 */
-	public function getGeoRadius(): ?string {
-                                             		return $this->geoRadius;
-                                             	}
-
-	/**
-	 * @param string $geoRadius
-	 */
-	public function setGeoRadius( ?string $geoRadius ): void {
-                                             		$this->geoRadius = $geoRadius;
-                                             	}
-
-	/**
-	 * @return string
-	 */
-	public function getGeoZipCode(): ?string {
-                                             		return $this->geoZipCode;
-                                             	}
-
-	/**
-	 * @param string $geoZipCode
-	 */
-	public function setGeoZipCode( ?string $geoZipCode ): void {
-                                             		$this->geoZipCode = $geoZipCode;
-                                             	}
-
     /**
      * @return Collection|Region[]
      */
@@ -1065,6 +1055,42 @@ class Company
                 $companyView->setCompanyId(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCompanyAddressSearch(): ?string
+    {
+        return $this->companyAddressSearch;
+    }
+
+    public function setCompanyAddressSearch(?string $companyAddressSearch): self
+    {
+        $this->companyAddressSearch = $companyAddressSearch;
+
+        return $this;
+    }
+
+    public function getAddressSearch(): ?string
+    {
+        return $this->addressSearch;
+    }
+
+    public function setAddressSearch(?string $addressSearch): self
+    {
+        $this->addressSearch = $addressSearch;
+
+        return $this;
+    }
+
+    public function getRadiusSearch(): ?int
+    {
+        return $this->radiusSearch;
+    }
+
+    public function setRadiusSearch(?int $radiusSearch): self
+    {
+        $this->radiusSearch = $radiusSearch;
 
         return $this;
     }

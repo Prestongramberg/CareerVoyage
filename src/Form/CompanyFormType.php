@@ -2,24 +2,27 @@
 
 namespace App\Form;
 
+use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
 use App\Entity\Region;
-use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\State;
 use App\Entity\User;
+use App\Repository\ImageRepository;
 use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Service\Geocoder;
 use App\Util\FormHelper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -29,16 +32,11 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Service\NotificationPreferencesManager;
+use Symfony\Component\Validator\Constraints\NotNull;
 
-class ProfessionalEditProfileFormType extends AbstractType
+class CompanyFormType extends AbstractType
 {
     use FormHelper;
-
-    /**
-     * @var NotificationPreferencesManager $notificationPreferenceManager
-     */
-    private $notificationPreferenceManager;
 
     /**
      * @var SchoolRepository
@@ -54,6 +52,11 @@ class ProfessionalEditProfileFormType extends AbstractType
      * @var Geocoder
      */
     private $geocoder;
+
+    /**
+     * @var ImageRepository
+     */
+    private $imageRepository;
 
     /**
      * @var string
@@ -76,65 +79,41 @@ class ProfessionalEditProfileFormType extends AbstractType
     private $regions = [];
 
     /**
-     * ProfessionalEditProfileFormType constructor.
+     * CompanyFormType constructor.
      *
-     * @param NotificationPreferencesManager $notificationPreferenceManager
-     * @param SchoolRepository               $schoolRepository
-     * @param SecondaryIndustryRepository    $secondaryIndustryRepository
-     * @param Geocoder                       $geocoder
+     * @param SchoolRepository            $schoolRepository
+     * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     * @param Geocoder                    $geocoder
+     * @param ImageRepository             $imageRepository
      */
-    public function __construct(NotificationPreferencesManager $notificationPreferenceManager,
-                                SchoolRepository $schoolRepository,
-                                SecondaryIndustryRepository $secondaryIndustryRepository, Geocoder $geocoder
+    public function __construct(SchoolRepository $schoolRepository,
+                                SecondaryIndustryRepository $secondaryIndustryRepository, Geocoder $geocoder,
+                                ImageRepository $imageRepository
     ) {
-        $this->notificationPreferenceManager = $notificationPreferenceManager;
-        $this->schoolRepository              = $schoolRepository;
-        $this->secondaryIndustryRepository   = $secondaryIndustryRepository;
-        $this->geocoder                      = $geocoder;
+        $this->schoolRepository            = $schoolRepository;
+        $this->secondaryIndustryRepository = $secondaryIndustryRepository;
+        $this->geocoder                    = $geocoder;
+        $this->imageRepository             = $imageRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var ProfessionalUser $user */
-        $user = $options['user'];
+        /** @var Company $company */
+        $company = $options['company'];
 
         $builder
-            ->add('firstName', TextType::class, [
-                'block_prefix' => 'wrapped_text',
+            ->add('name', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'Bass Pro Shop',
+                ],
             ])
-            ->add('lastName', TextType::class)
-            ->add('email')
-            ->add('plainPassword', PasswordType::class, [
-                'label' => 'Password',
+            ->add('companyAddressSearch', TextType::class, [
+                'attr' => [
+                    'autocomplete' => true,
+                    'placeholder' => 'Filter by your company address',
+                ],
+                'data' => $company->getFormattedAddress(),
             ])
-            ->add('primaryIndustry', EntityType::class, [
-                'class' => Industry::class,
-                'choice_label' => 'name',
-                'placeholder' => 'Select Industry',
-                'expanded' => false,
-                'multiple' => false,
-            ])
-            ->add('rolesWillingToFulfill', EntityType::class, [
-                'class' => RolesWillingToFulfill::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('r')
-                              ->where('r.inRoleDropdown = :true')
-                              ->setParameter('true', true)
-                              ->orderBy('r.name', 'ASC');
-                },
-                'expanded' => false,
-                'multiple' => true,
-                'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'uk-checkbox', 'title' => $choice->getDescription()];
-                },
-            ])
-            ->add('regions', EntityType::class, [
-                'class' => Region::class,
-                'expanded' => false,
-                'multiple' => true,
-                'choice_label' => 'friendlyName',
-            ])
-            ->add('interests', TextareaType::class)
             ->add('street', TextType::class, [])
             ->add('city', TextType::class, [])
             ->add('state', EntityType::class, [
@@ -144,45 +123,52 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('zipcode', TextType::class, [])
-            ->add('briefBio', TextareaType::class)
-            ->add('linkedinProfile', TextType::class)
-            ->add('phone', TextType::class)
+            ->add('website', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'http://bassproshop.com',
+                ],
+            ])
+            ->add('phone', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'xxx-xxx-xxxx',
+                ],
+            ])
             ->add('phoneExt', TextType::class, [
                 'attr' => [
                     'placeholder' => '123',
                 ],
             ])
-            ->add('isEmailHiddenFromProfile', ChoiceType::class, [
-                'choices' => [
-                    'Yes' => true,
-
-                    'No' => false,
+            ->add('emailAddress', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'info@bassproshop.com',
                 ],
             ])
-            ->add('isPhoneHiddenFromProfile', ChoiceType::class, [
-                'choices' => [
-                    'Yes' => true,
-                    'No' => false,
-                ],
+            ->add('primaryIndustry', EntityType::class, [
+                'class' => Industry::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Select Industry',
+                'expanded' => false,
+                'multiple' => false,
             ])
-            ->add('notificationPreferences', ChoiceType::class, [
-                'expanded' => true,
+            ->add('regions', EntityType::class, [
+                'class' => Region::class,
+                'expanded' => false,
                 'multiple' => true,
-                'choices' => NotificationPreferencesManager::$choices,
-                'mapped' => false,
+                'choice_label' => 'friendlyName',
+            ])->add('shortDescription', TextareaType::class, [
+                'attr' => [
+                    'placeholder' => 'Bass pro provides the highest quality fishing line and lure in the game. We specialize in fishing rods, bait & lure, and courses and training on learning how to fish.',
+                ],
             ])
-            ->add('notificationPreferenceMask', HiddenType::class)
+            ->add('description', TextareaType::class)
+            ->add('companyLinkedinPage', TextType::class, [])
+            ->add('companyFacebookPage', TextType::class, [])
+            ->add('companyInstagramPage', TextType::class, [])
+            ->add('companyTwitterPage', TextType::class, [])
             ->add('addressSearch', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'Filter by your location',
+                    'placeholder' => 'Filter by your company location',
                 ],
-            ])
-            ->add('personalAddressSearch', TextType::class, [
-                'attr' => [
-                    'autocomplete' => true,
-                    'placeholder' => 'Filter by your work location',
-                ],
-                'data' => $user->getFormattedAddress(),
             ])
             ->add('radiusSearch', ChoiceType::class, [
                 'choices' => [
@@ -191,10 +177,49 @@ class ProfessionalEditProfileFormType extends AbstractType
                     '75 miles' => 75,
                     '150 miles' => 150,
                 ],
-                'data' => 150,
                 'expanded' => false,
                 'multiple' => false,
-            ]);
+            ])
+            ->add('thumbnailImage', HiddenType::class)
+            ->add('featuredImage', HiddenType::class);
+
+        $builder->get('thumbnailImage')->addModelTransformer(new CallbackTransformer(
+            function ($image) {
+
+                if (!$image) {
+                    return null;
+                }
+
+                return $image->getId();
+            },
+            function ($image) {
+
+                if (!$image) {
+                    return null;
+                }
+
+                return $this->imageRepository->find($image);
+            }
+        ));
+
+        $builder->get('featuredImage')->addModelTransformer(new CallbackTransformer(
+            function ($image) {
+
+                if (!$image) {
+                    return null;
+                }
+
+                return $image->getId();
+            },
+            function ($image) {
+
+                if (!$image) {
+                    return null;
+                }
+
+                return $this->imageRepository->find($image);
+            }
+        ));
 
         $builder->get('phone')->addModelTransformer(new CallbackTransformer(
             function ($phone) {
@@ -205,15 +230,14 @@ class ProfessionalEditProfileFormType extends AbstractType
             }
         ));
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($user) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
 
-            /** @var ProfessionalUser $data */
+            /** @var Company $data */
             $data = $event->getData();
             $form = $event->getForm();
 
             $addressSearch = $data->getAddressSearch() ?? '';
             $radiusSearch  = $data->getRadiusSearch() ?? '';
-
             $regionIds     = array_map(function (Region $region) {
                 return $region->getId();
             }, $data->getRegions()->toArray());
@@ -236,19 +260,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 },
             ]);
 
-            $notificationPreferences = [];
-            foreach (NotificationPreferencesManager::$choices as $label => $bit) {
-
-                if ($this->notificationPreferenceManager->isNotificationDisabled($bit, $user)) {
-                    $notificationPreferences[] = $bit;
-                }
-            }
-
-            if (!empty($notificationPreferences)) {
-                $this->modifyNotificationPreferencesField($form, $notificationPreferences);
-            }
-
-            $this->modifyForm($form, $data->getPrimaryIndustry());
+            $this->modifyForm($event->getForm(), $data->getPrimaryIndustry());
         });
 
         $builder->get('primaryIndustry')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
@@ -261,14 +273,6 @@ class ProfessionalEditProfileFormType extends AbstractType
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
             $data = $event->getData();
-
-            $notificationPreferenceMask = !empty($data['notificationPreferences']) ? array_sum($data['notificationPreferences']) : null;
-
-            if ($notificationPreferenceMask) {
-                $data['notificationPreferenceMask'] = $notificationPreferenceMask;
-            } else {
-                $data['notificationPreferenceMask'] = null;
-            }
 
             $addressSearch   = $data['addressSearch'] ?? '';
             $radiusSearch    = $data['radiusSearch'] ?? '';
@@ -332,68 +336,40 @@ class ProfessionalEditProfileFormType extends AbstractType
             $event->setData($data);
         });
 
-        if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_PERSONAL', $options['validation_groups'], true)) {
+        if (is_array($options['validation_groups']) && in_array('COMPANY_GENERAL', $options['validation_groups'], true)) {
             $this->setupImmutableFields($builder, $options, [
                 'schools',
                 'regions',
                 'radiusSearch',
                 'addressSearch',
-                'email',
-                'plainPassword',
-                'isPhoneHiddenFromProfile',
-                'isEmailHiddenFromProfile',
-                'notificationPreferenceMask',
             ]);
         }
 
-        if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_REGION', $options['validation_groups'], true)) {
+        if (is_array($options['validation_groups']) && in_array('COMPANY_SCHOOLS', $options['validation_groups'], true)) {
             $this->setupImmutableFields($builder, $options, [
-                'email',
-                'plainPassword',
-                'isPhoneHiddenFromProfile',
-                'isEmailHiddenFromProfile',
-                'notificationPreferenceMask',
-                'rolesWillingToFulfill',
-                'primaryIndustry',
-                'firstName',
-                'lastName',
+                'name',
+                'companyAddressSearch',
                 'street',
                 'city',
                 'state',
                 'zipcode',
-                'personalAddressSearch',
-                'briefBio',
-                'linkedinProfile',
+                'website',
                 'phone',
                 'phoneExt',
-                'interests',
-            ]);
-        }
-
-        if (is_array($options['validation_groups']) && in_array('PROFESSIONAL_PROFILE_ACCOUNT', $options['validation_groups'], true)) {
-            $this->setupImmutableFields($builder, $options, [
-                'schools',
-                'regions',
-                'radiusSearch',
-                'personalAddressSearch',
-                'addressSearch',
-                'rolesWillingToFulfill',
+                'emailAddress',
                 'primaryIndustry',
-                'firstName',
-                'lastName',
-                'street',
-                'city',
-                'state',
-                'zipcode',
-                'briefBio',
-                'linkedinProfile',
-                'phone',
-                'phoneExt',
-                'interests',
+                'description',
+                'shortDescription',
+                'companyLinkedinPage',
+                'companyFacebookPage',
+                'companyInstagramPage',
+                'companyTwitterPage',
+                'thumbnailImage',
+                'featuredImage'
             ]);
         }
-
     }
+
 
     private function modifyForm(FormInterface $form, Industry $industry = null)
     {
@@ -417,22 +393,6 @@ class ProfessionalEditProfileFormType extends AbstractType
             },
         ]);
 
-    }
-
-    private function modifyNotificationPreferencesField(FormInterface $form, $notificationPreferences)
-    {
-
-        if (!empty($notificationPreferences)) {
-            $form->remove('notificationPreferences');
-
-            $form->add('notificationPreferences', ChoiceType::class, [
-                'expanded' => true,
-                'multiple' => true,
-                'choices' => NotificationPreferencesManager::$choices,
-                'mapped' => false,
-                'data' => $notificationPreferences,
-            ]);
-        }
     }
 
     /**
@@ -500,13 +460,10 @@ class ProfessionalEditProfileFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ProfessionalUser::class,
+            'data_class' => Company::class,
         ]);
 
-        $resolver->setRequired([
-            'skip_validation',
-            'user',
-        ]);
+        $resolver->setRequired(['company', 'skip_validation']);
     }
 
     private function localize_us_number($phone)
@@ -519,8 +476,8 @@ class ProfessionalEditProfileFormType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
 
-        /** @var ProfessionalUser $professionalUser */
-        $professionalUser = $form->getData();
+        /** @var Company $company */
+        $company = $form->getData();
 
         $schools = $options['data']->getSchools();
 
