@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\KnowledgeResource;
 use App\Entity\Resource;
 use App\Entity\User;
 use App\Repository\ResourceRepository;
@@ -23,10 +24,8 @@ class KnowledgeBaseController extends AbstractController
 
     /**
      * @Route("/knowledge-base", name="knowledge-base", methods={"GET"})
-     * @param Request            $request
-     * @param SessionInterface   $session
-     *
-     * @param ResourceRepository $resourceRepository
+     * @param Request          $request
+     * @param SessionInterface $session
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -35,7 +34,7 @@ class KnowledgeBaseController extends AbstractController
 		/** @var User $user */
 		$user = $this->getUser();
 
-		$resources = $this->resourceRepository->findAll();
+		$resources = $this->knowledgeResourceRepository->findAll();
 
 		$resourceArray = [];
 		/** @var Resource $resource */
@@ -69,7 +68,7 @@ class KnowledgeBaseController extends AbstractController
         $description = $request->request->get('resource_description', null);
         $tab = $request->request->get('resource_tab', null);
 
-        $resource = new Resource();
+        $resource = new KnowledgeResource();
         $resource->setTitle($title);
         $resource->setUrl($url);
         $resource->setDescription($description);
@@ -98,7 +97,6 @@ class KnowledgeBaseController extends AbstractController
 
         $this->entityManager->remove($resource);
         $this->entityManager->flush();
-
 
         $this->addFlash('success', 'Resource successfully removed');
 

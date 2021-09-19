@@ -121,7 +121,7 @@
                                     {% for resource in resources %}
                                         <div style="position: relative">
                                             <p>{{ resource['description'] }}</p>
-                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            <p><a target="_blank" href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
                                             {% if user.admin %}
                                                 <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
                                             {% endif %}
@@ -151,7 +151,7 @@
                                     {% for resource in resources %}
                                         <div style="position: relative">
                                             <p>{{ resource['description'] }}</p>
-                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            <p><a target="_blank" href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
                                             {% if user.admin %}
                                                 <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
                                             {% endif %}
@@ -216,7 +216,7 @@
                                     {% for resource in resources %}
                                         <div style="position: relative">
                                             <p>{{ resource['description'] }}</p>
-                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            <p><a target="_blank" href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
                                             {% if user.admin %}
                                                 <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
                                             {% endif %}
@@ -282,7 +282,7 @@
                                     {% for resource in resources %}
                                         <div style="position: relative">
                                             <p>{{ resource['description'] }}</p>
-                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            <p><a target="_blank" href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
                                             {% if user.admin %}
                                                 <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
                                             {% endif %}
@@ -380,7 +380,7 @@
                                     {% for resource in resources %}
                                         <div style="position: relative">
                                             <p>{{ resource['description'] }}</p>
-                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            <p><a target="_blank" href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
                                             {% if user.admin %}
                                                 <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
                                             {% endif %}
@@ -409,7 +409,7 @@
                                     {% for resource in resources %}
                                         <div style="position: relative">
                                             <p>{{ resource['description'] }}</p>
-                                            <p><a href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
+                                            <p><a target="_blank" href="{{ resource['url'] }}">{{ resource['url'] }}</a></p>
                                             {% if user.admin %}
                                                 <a style="position: absolute; top: 0; right: 0" href="{{ path('knowledge_base_delete_resource', {'id': resource['id']}) }}">Delete</a>
                                             {% endif %}
