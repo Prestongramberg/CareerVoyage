@@ -1,0 +1,58 @@
+{{ form_start(form, {attr: {'class': 'js-add-resource-form', 'novalidate' : 'novalidate'}}) }}
+
+<h3>Add a Resource</h3>
+
+{% if form_errors(form) %}
+    <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <div>{{ form_errors(form) }}</div>
+    </div>
+{% endif %}
+
+<div class="uk-margin">
+    {{ form_label(form.title, 'Resource Title*') }}
+    {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
+    {{ form_errors(form.title) }}
+</div>
+
+<div class="uk-margin">
+    <div class="uk-position-relative">
+        {{ form_label(form.description, 'Resource Description*') }}
+        {{ form_widget(form.description, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.description) ? ' uk-form-danger' : '' ), 'rows': '3' }}) }}
+        {{ form_errors(form.description) }}
+    </div>
+</div>
+
+<div class="uk-margin">
+    {{ form_label(form.type, 'Resource Type*') }}
+    {{ form_widget(form.type, {'attr': {'class': 'js-resource-type-select uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
+    {{ form_errors(form.type) }}
+</div>
+
+
+<div class="js-resource-type-container">
+    {% if form.file is defined %}
+        <div class="uk-margin">
+            {{ form_label(form.file, 'Resource File*') }}
+            {{ form_widget(form.file, {'attr': {'class': '' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(form.file) }}
+        </div>
+    {% endif %}
+
+    {% if form.url is defined %}
+        <div class="uk-margin">
+            {{ form_label(form.url, 'Resource URL*') }}
+            {{ form_widget(form.url, {'attr': {'class': 'uk-input' ~ ( form_errors(form.url) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(form.url) }}
+        </div>
+    {% endif %}
+</div>
+
+<p class="uk-text-right">
+    <button class="uk-button uk-button-default uk-modal-close" type="button">
+        Cancel
+    </button>
+    <input class="uk-button uk-button-primary js-add-resource-form-submit-button" type="button" value="Save"/>
+</p>
+
+{{ form_end(form) }}

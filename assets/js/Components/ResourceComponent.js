@@ -24,11 +24,12 @@ class ResourceComponent {
 
     unbindEvents() {
 
-        this.$wrapper.off('click', ResourceComponent._selectors.addVideoButton);
-        this.$wrapper.off('click', ResourceComponent._selectors.editVideoButton);
-        this.$wrapper.off('click', ResourceComponent._selectors.deleteVideoButton);
-        $(document).off('click', ResourceComponent._selectors.addVideoFormSubmitButton);
-        $(document).off('click', ResourceComponent._selectors.editVideoFormSubmitButton);
+        this.$wrapper.off('click', ResourceComponent._selectors.addResourceButton);
+        $(document).off('click', ResourceComponent._selectors.addResourceFormSubmitButton);
+        $(document).off('change', ResourceComponent._selectors.resourceTypeSelect);
+        this.$wrapper.off('click', ResourceComponent._selectors.editResourceButton);
+        this.$wrapper.off('click', ResourceComponent._selectors.deleteResourceButton);
+        $(document).off('click', ResourceComponent._selectors.editResourceFormSubmitButton);
     }
 
     /**
@@ -36,25 +37,27 @@ class ResourceComponent {
      */
     static get _selectors() {
         return {
-            addVideoButton: '.js-add-video-button',
-            editVideoButton: '.js-edit-video-button',
-            deleteVideoButton: '.js-delete-video-button',
-            addVideoFormSubmitButton: '.js-add-video-form-submit-button',
-            editVideoFormSubmitButton: '.js-edit-video-form-submit-button',
-            videoListContainer: '.js-video-list-container'
+            addResourceButton: '.js-add-resource-button',
+            addResourceFormSubmitButton: '.js-add-resource-form-submit-button',
+            resourceTypeSelect: '.js-resource-type-select',
+            resourceListContainer: '.js-resource-list-container',
+            editResourceButton: '.js-edit-resource-button',
+            deleteResourceButton: '.js-delete-resource-button',
+            editResourceFormSubmitButton: '.js-edit-resource-form-submit-button'
         }
     }
 
     bindEvents() {
 
-        this.$wrapper.on('click', ResourceComponent._selectors.addVideoButton, this.handleAddVideoButtonClick.bind(this));
-        this.$wrapper.on('click', ResourceComponent._selectors.editVideoButton, this.handleEditVideoButtonClick.bind(this));
-        this.$wrapper.on('click', ResourceComponent._selectors.deleteVideoButton, this.handleDeleteVideoButtonClick.bind(this));
-        $(document).on('click', ResourceComponent._selectors.addVideoFormSubmitButton, this.handleAddVideoFormSubmit.bind(this));
-        $(document).on('click', ResourceComponent._selectors.editVideoFormSubmitButton, this.handleEditVideoFormSubmit.bind(this));
+        this.$wrapper.on('click', ResourceComponent._selectors.addResourceButton, this.handleAddResourceButtonClick.bind(this));
+        $(document).on('click', ResourceComponent._selectors.addResourceFormSubmitButton, this.handleAddResourceFormSubmit.bind(this));
+        $(document).on('change', ResourceComponent._selectors.resourceTypeSelect, this.handleResourceTypeSelectChange.bind(this));
+        this.$wrapper.on('click', ResourceComponent._selectors.editResourceButton, this.handleEditResourceButtonClick.bind(this));
+        this.$wrapper.on('click', ResourceComponent._selectors.deleteResourceButton, this.handleDeleteResourceButtonClick.bind(this));
+        $(document).on('click', ResourceComponent._selectors.editResourceFormSubmitButton, this.handleEditResourceFormSubmit.bind(this));
     }
 
-    handleAddVideoButtonClick(event) {
+    handleAddResourceButtonClick(event) {
 
         if (event.cancelable) {
             event.preventDefault();
@@ -70,96 +73,101 @@ class ResourceComponent {
         }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);
 
-            UIkit.modal('#js-video-component-modal').show();
+            UIkit.modal('#js-resource-component-modal').show();
 
-            $('#js-video-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
+            $('#js-resource-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
         });
     }
 
-    handleEditVideoButtonClick(event) {
 
-        if (event.cancelable) {
-            event.preventDefault();
-        }
-
-        let url = $(event.currentTarget).attr('data-url');
-
-        $.ajax({
-            url: url,
-            method: 'GET'
-        }).then((data, textStatus, jqXHR) => {
-
-        }).catch((jqXHR) => {
-            const errorData = JSON.parse(jqXHR.responseText);
-
-            UIkit.modal('#js-video-component-modal').show();
-
-            $('#js-video-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
-        });
-    }
-
-    handleDeleteVideoButtonClick(event) {
-
-        if (event.cancelable) {
-            event.preventDefault();
-        }
-
-        let url = $(event.currentTarget).attr('data-url');
-
-        $.ajax({
-            url: url,
-            method: 'GET'
-        }).then((data, textStatus, jqXHR) => {
-
-            $(ResourceComponent._selectors.videoListContainer).find('#video-' + data.id).remove();
-
-        }).catch((jqXHR) => {
-            const errorData = JSON.parse(jqXHR.responseText);
-        });
-    }
-
-    handleAddVideoFormSubmit(e) {
+    handleResourceTypeSelectChange(e) {
 
         if (e.cancelable) {
             e.preventDefault();
         }
 
-        let $addVideoForm = $('.js-add-video-form');
-        let url = $addVideoForm.attr('action');
-        let formData = new FormData($addVideoForm.get(0));
+        const formData = {};
+        let url = $(e.target).closest('form').attr('action');
+        formData[$(e.target).attr('name')] = $(e.target).val();
+        formData['skip_validation'] = true;
+
+        this._changeField(formData, url)
+            .then((data) => {
+            }).catch((errorData) => {
+
+            $('.js-resource-type-container').replaceWith(
+                $(errorData.formMarkup).find('.js-resource-type-container')
+            );
+        });
+    }
+
+    _changeField(data, url) {
 
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: url,
                 method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false
+                data: data
             }).then((data, textStatus, jqXHR) => {
-
-                const html = videoTemplate(data.id, data.videoId, data.name, data.editUrl, data.deleteUrl);
-                $(ResourceComponent._selectors.videoListContainer).append($($.parseHTML(html)));
-                UIkit.modal('#js-video-component-modal').hide();
-
-                window.Pintex.notification("Video successfully added", "success");
-
+                resolve(data);
             }).catch((jqXHR) => {
                 const errorData = JSON.parse(jqXHR.responseText);
-
-                $('#js-video-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
+                reject(errorData);
             });
         });
     }
 
-    handleEditVideoFormSubmit(e) {
+    handleEditResourceButtonClick(event) {
+
+        if (event.cancelable) {
+            event.preventDefault();
+        }
+
+        let url = $(event.currentTarget).attr('data-url');
+
+        $.ajax({
+            url: url,
+            method: 'GET'
+        }).then((data, textStatus, jqXHR) => {
+
+        }).catch((jqXHR) => {
+            const errorData = JSON.parse(jqXHR.responseText);
+
+            UIkit.modal('#js-resource-component-modal').show();
+
+            $('#js-resource-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
+        });
+    }
+
+    handleDeleteResourceButtonClick(event) {
+
+        if (event.cancelable) {
+            event.preventDefault();
+        }
+
+        let url = $(event.currentTarget).attr('data-url');
+
+        $.ajax({
+            url: url,
+            method: 'GET'
+        }).then((data, textStatus, jqXHR) => {
+
+            $(ResourceComponent._selectors.resourceListContainer).find('#resource-' + data.id).remove();
+
+        }).catch((jqXHR) => {
+            const errorData = JSON.parse(jqXHR.responseText);
+        });
+    }
+
+    handleAddResourceFormSubmit(e) {
 
         if (e.cancelable) {
             e.preventDefault();
         }
 
-        let $editVideoForm = $('.js-edit-video-form');
-        let url = $editVideoForm.attr('action');
-        let formData = new FormData($editVideoForm.get(0));
+        let $addResourceForm = $('.js-add-resource-form');
+        let url = $addResourceForm.attr('action');
+        let formData = new FormData($addResourceForm.get(0));
 
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -170,42 +178,74 @@ class ResourceComponent {
                 contentType: false
             }).then((data, textStatus, jqXHR) => {
 
-                debugger;
-                const html = videoTemplate(data.id, data.videoId, data.name, data.editUrl, data.deleteUrl);
+                const html = resourceTemplate(data.id, data.title, data.description, data.resourceUrl, data.editUrl, data.deleteUrl);
+                $(ResourceComponent._selectors.resourceListContainer).append($($.parseHTML(html)));
 
-                $(ResourceComponent._selectors.videoListContainer).find('#video-' + data.id).replaceWith($($.parseHTML(html)));
+                UIkit.modal('#js-resource-component-modal').hide();
 
-                UIkit.modal('#js-video-component-modal').hide();
-
-                window.Pintex.notification("Video successfully updated", "success");
+                window.Pintex.notification("Resource successfully added", "success");
 
             }).catch((jqXHR) => {
                 const errorData = JSON.parse(jqXHR.responseText);
 
-                $('#js-video-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
+                $('#js-resource-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
+            });
+        });
+    }
+
+    handleEditResourceFormSubmit(e) {
+
+        if (e.cancelable) {
+            e.preventDefault();
+        }
+
+        let $editResourceForm = $('.js-edit-resource-form');
+        let url = $editResourceForm.attr('action');
+        let formData = new FormData($editResourceForm.get(0));
+
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false
+            }).then((data, textStatus, jqXHR) => {
+
+                const html = resourceTemplate(data.id, data.title, data.description, data.resourceUrl, data.editUrl, data.deleteUrl);
+
+                $(ResourceComponent._selectors.resourceListContainer).find('#resource-' + data.id).replaceWith($($.parseHTML(html)));
+
+                UIkit.modal('#js-resource-component-modal').hide();
+
+                window.Pintex.notification("Resource successfully updated", "success");
+
+            }).catch((jqXHR) => {
+                const errorData = JSON.parse(jqXHR.responseText);
+
+                $('#js-resource-component-modal').find('.uk-modal-body').html(errorData.formMarkup);
             });
         });
     }
 }
 
-const videoTemplate = (id, videoId, name, editUrl, deleteUrl) => `
-            <div id="video-${id}" class="video">
-                <a class="uk-inline" href="https://www.youtube.com/watch?v=${videoId}">
-                    <img src="http://i.ytimg.com/vi/${videoId}/hqdefault.jpg" alt="">
-                    <div class="company-video__overlay">
-                        <div class="company-video__overlay-title">
-                            ${name}
-                        </div>
-                    </div>
-                </a>
-                
-                <button data-url="${editUrl}" style="position: absolute; top: 3px; left: 43px; z-index: 5000; border: none; color: #999;"
-                  class="js-edit-video-button" type="button" uk-icon="icon: file-edit"></button>
-                                      
-              <button data-url="${deleteUrl}" class="js-delete-video-button" type="button" uk-close></button>
-                
-           </div>
-    
-        `;
+const resourceTemplate = (id, title, description, resourceUrl, editUrl, deleteUrl) => `
+    <div id="resource-${id}" class="uk-grid uk-flex-middle" uk-grid>
+        <div class="uk-width-expand">
+            <dt>${title}</dt>
+            <dd>${description}</dd>
+        </div>
+        <div class="uk-width-auto">
+             <a href="${resourceUrl}"
+                   class="uk-button uk-button-default uk-button-small view"
+                   target="_blank">View</a>
+        </div>
+        <div class="uk-width-auto">
+            <a href="#" class="uk-button uk-button-default uk-button-small js-edit-resource-button" data-url="${editUrl}">Edit</a>
+        </div>
+        <button class="js-delete-resource-button" type="button" data-url="${deleteUrl}" uk-close></button>
+    </div>
+
+`;
 
 export default ResourceComponent;

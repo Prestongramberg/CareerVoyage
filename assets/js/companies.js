@@ -7,6 +7,7 @@ import RadiusSelect from "./Components/RadiusSelect";
 import SchoolSelect from "./Components/SchoolSelect";
 import VideoComponent from "./Components/VideoComponent";
 import ImageComponent from "./Components/ImageComponent";
+import ResourceComponent from "./Components/ResourceComponent";
 require('select2/dist/js/select2.min');
 
 $(document).ready(function() {
@@ -419,5 +420,6 @@ $(document).ready(function() {
     new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
     new ImageComponent($('.js-image-component'), window.globalEventDispatcher);
+    new ResourceComponent($('.js-resource-component'), window.globalEventDispatcher);
 
 });
