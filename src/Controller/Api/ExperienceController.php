@@ -117,18 +117,18 @@ class ExperienceController extends AbstractController
 
         $json    = $this->serializer->serialize(
             $experiences, 'json', [
-                            'groups' => [
-                                'EXPERIENCE_DATA',
-                                'ALL_USER_DATA',
-                            ],
-                        ]
+                'groups' => [
+                    'EXPERIENCE_DATA',
+                    'ALL_USER_DATA',
+                ],
+            ]
         );
         $payload = json_decode($json, true);
 
         return new JsonResponse(
             [
                 'success' => true,
-                'data'    => $payload,
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );
@@ -178,41 +178,6 @@ class ExperienceController extends AbstractController
             ]
         );
 
-        $regions            = [];
-        if ($loggedInUser->isSchoolAdministrator()) {
-
-            /** @var SchoolAdministrator $user */
-            foreach ($loggedInUser->getSchools() as $school) {
-
-                if (!$school->getRegion()) {
-                    continue;
-                }
-
-                $regions[] = $school->getRegion()->getId();
-            }
-        }
-
-        if ($loggedInUser->isProfessional()) {
-
-            /** @var ProfessionalUser $loggedInUser */
-
-            foreach ($loggedInUser->getRegions() as $region) {
-
-                $regions[] = $region->getId();
-            }
-        }
-
-        if ($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
-
-            /** @var StudentUser|EducatorUser $user */
-
-            if ($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
-                $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
-            }
-        }
-
-        $regionIds = array_unique($regions);
-
         /**
          * START THE LOGIC FOR FINDING EXPERIENCES BY ZIPCODE
          */
@@ -230,7 +195,7 @@ class ExperienceController extends AbstractController
                 /** @var User $user */
                 $user            = $userId ? $this->userRepository->find($userId) : $this->getUser();
                 $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius($latN, $latS, $lonE, $lonW, $lat, $lng, $userId, $startDate, $endDate, $searchQuery, $eventType, $industry, $secondaryIndustry);
-                
+
                 // print_r($userExperiences);
                 if ($user && $user->isStudent() && $user->getSchool()) {
                     $schoolId = $user->getSchool()->getId();
@@ -240,7 +205,7 @@ class ExperienceController extends AbstractController
             } else {
                 // Everyone sees all company events
                 $schoolExperiences  = $this->schoolExperienceRepository->search($latN, $latS, $lonE, $lonW, $lat, $lng, $schoolId, $startDate, $endDate, $searchQuery, $eventType, $industry, $secondaryIndustry);
-                $companyExperiences = $this->companyExperienceRepository->search($latN, $latS, $lonE, $lonW, $lat, $lng, $startDate, $endDate, $searchQuery, $eventType, $industry, $secondaryIndustry, $regionIds);
+                $companyExperiences = $this->companyExperienceRepository->search($latN, $latS, $lonE, $lonW, $lat, $lng, $startDate, $endDate, $searchQuery, $eventType, $industry, $secondaryIndustry);
 
                 if ($loggedInUser->isSchoolAdministrator()) {
                     /** @var SchoolAdministrator $loggedInUser * */
@@ -272,12 +237,12 @@ class ExperienceController extends AbstractController
             }
         }
 
-        $experiences   = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
+        $experiences = array_merge($schoolExperiences, $companyExperiences, $userExperiences);
 
         return new JsonResponse(
             [
                 'success' => true,
-                'data'    => $experiences,
+                'data' => $experiences,
                 'filters' => $filters,
             ],
             Response::HTTP_OK
@@ -379,89 +344,17 @@ class ExperienceController extends AbstractController
 
             $experiences = $this->experienceRepository->findBy(
                 ['id' => $experienceIds], [
-                                            'startDateAndTime' => 'ASC',
-                                        ]
+                    'startDateAndTime' => 'ASC',
+                ]
             );
-
-            $useRegionFiltering = false;
-            $regions            = [];
-            if ($loggedInUser->isSchoolAdministrator()) {
-
-                $useRegionFiltering = true;
-
-                /** @var SchoolAdministrator $user */
-                foreach ($loggedInUser->getSchools() as $school) {
-
-                    if (!$school->getRegion()) {
-                        continue;
-                    }
-
-                    $regions[] = $school->getRegion()->getId();
-                }
-            }
-
-            if ($loggedInUser->isProfessional()) {
-
-                $useRegionFiltering = true;
-
-                /** @var ProfessionalUser $user */
-
-                foreach ($loggedInUser->getRegions() as $region) {
-
-                    $regions[] = $region->getId();
-                }
-            }
-
-            if ($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
-
-                $useRegionFiltering = true;
-
-                /** @var StudentUser|EducatorUser $user */
-
-                if ($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
-                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
-                }
-            }
-
-            $regions = array_unique($regions);
-
-            if ($useRegionFiltering) {
-                $experiences = array_filter(
-                    $experiences, function (Experience $experience) use ($regions) {
-
-                    if ($experience instanceof CompanyExperience) {
-
-                        if (!$experience->getCompany()) {
-                            return false;
-                        }
-
-                        $hasMatch = false;
-                        foreach ($experience->getCompany()->getRegions() as $region) {
-                            if (in_array($region->getId(), $regions)) {
-                                $hasMatch = true;
-                            }
-                        }
-
-                        if (!$hasMatch) {
-                            return false;
-                        }
-
-                    }
-
-                    return true;
-                }
-                );
-            }
-
-            $experiences = array_values($experiences);
 
             $json    = $this->serializer->serialize(
                 $experiences, 'json', [
-                                'groups' => [
-                                    'EXPERIENCE_DATA',
-                                    'ALL_USER_DATA',
-                                ],
-                            ]
+                    'groups' => [
+                        'EXPERIENCE_DATA',
+                        'ALL_USER_DATA',
+                    ],
+                ]
             );
             $payload = json_decode($json, true);
 
@@ -543,89 +436,17 @@ class ExperienceController extends AbstractController
 
             $experiences = $this->experienceRepository->findBy(
                 ['id' => $experienceIds], [
-                                            'startDateAndTime' => 'ASC',
-                                        ]
+                    'startDateAndTime' => 'ASC',
+                ]
             );
-
-            $useRegionFiltering = false;
-            $regions            = [];
-            if ($loggedInUser->isSchoolAdministrator()) {
-
-                $useRegionFiltering = true;
-
-                /** @var SchoolAdministrator $user */
-                foreach ($loggedInUser->getSchools() as $school) {
-
-                    if (!$school->getRegion()) {
-                        continue;
-                    }
-
-                    $regions[] = $school->getRegion()->getId();
-                }
-            }
-
-            if ($loggedInUser->isProfessional()) {
-
-                $useRegionFiltering = true;
-
-                /** @var ProfessionalUser $user */
-
-                foreach ($loggedInUser->getRegions() as $region) {
-
-                    $regions[] = $region->getId();
-                }
-            }
-
-            if ($loggedInUser->isStudent() || $loggedInUser->isEducator()) {
-
-                $useRegionFiltering = true;
-
-                /** @var StudentUser|EducatorUser $user */
-
-                if ($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
-                    $regions[] = $loggedInUser->getSchool()->getRegion()->getId();
-                }
-            }
-
-            $regions = array_unique($regions);
-
-            if ($useRegionFiltering) {
-                $experiences = array_filter(
-                    $experiences, function (Experience $experience) use ($regions) {
-
-                    if ($experience instanceof CompanyExperience) {
-
-                        if (!$experience->getCompany()) {
-                            return false;
-                        }
-
-                        $hasMatch = false;
-                        foreach ($experience->getCompany()->getRegions() as $region) {
-                            if (in_array($region->getId(), $regions)) {
-                                $hasMatch = true;
-                            }
-                        }
-
-                        if (!$hasMatch) {
-                            return false;
-                        }
-
-                    }
-
-                    return true;
-                }
-                );
-            }
-
-            $experiences = array_values($experiences);
 
             $json    = $this->serializer->serialize(
                 $experiences, 'json', [
-                                'groups' => [
-                                    'EXPERIENCE_DATA',
-                                    'ALL_USER_DATA',
-                                ],
-                            ]
+                    'groups' => [
+                        'EXPERIENCE_DATA',
+                        'ALL_USER_DATA',
+                    ],
+                ]
             );
             $payload = json_decode($json, true);
         }
@@ -633,7 +454,7 @@ class ExperienceController extends AbstractController
         return new JsonResponse(
             [
                 'success' => true,
-                'data'    => $payload,
+                'data' => $payload,
             ],
             Response::HTTP_OK
         );
@@ -676,13 +497,13 @@ class ExperienceController extends AbstractController
     {
 
         $loggedInUser = $this->getUser();
-        if( $loggedInUser->isStudent() ){
-            
+        if ($loggedInUser->isStudent()) {
+
         } else {
             $systemUser = $loggedInUser;
         }
 
-        if(!$systemUser) {
+        if (!$systemUser) {
             $systemUser = $this->systemUserRepository->findOneBy(
                 [
                     'type' => SystemUser::EXPERIENCE_NOTIFY,
@@ -943,55 +764,54 @@ class ExperienceController extends AbstractController
     }
 
 
-
     /**
      * Example Request: http://pintex.test/api/experiences-by-user?user
      *
      * @Route("/experiences-by-user", name="get_experiences_by_user", methods={"GET"}, options = { "expose" = true })
-     * @param Request         $request
+     * @param Request $request
      *
      * @return JsonResponse
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getExperiencesByUser(Request $request)
     {
-        $user               = $this->getUser();
+        $user        = $this->getUser();
         $experiences = [];
-       
-        $allMyExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
-        foreach($allMyExperiences as $r) {
-            $url = "";
-            $requestId = "";
-            $className = $r->getClassName();
-            $street = "";
-            $city = "";
-            $abbreviation = "";
-            $zipcode = "";
 
-            if($className == 'TeachLessonExperience') {
+        $allMyExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser($user);
+        foreach ($allMyExperiences as $r) {
+            $url          = "";
+            $requestId    = "";
+            $className    = $r->getClassName();
+            $street       = "";
+            $city         = "";
+            $abbreviation = "";
+            $zipcode      = "";
+
+            if ($className == 'TeachLessonExperience') {
                 /** @var TeachLessonExperience $r */
-                $url = $this->generateUrl('lesson_view', ['id' => $r->getLesson()->getId()]);
+                $url       = $this->generateUrl('lesson_view', ['id' => $r->getLesson()->getId()]);
                 $requestId = $r->getOriginalRequest()->getId();
 
-                if($r->getSchool() && $r->getSchool()->getStreet()) {
+                if ($r->getSchool() && $r->getSchool()->getStreet()) {
                     $street = $r->getSchool()->getStreet();
                 }
 
-                if($r->getSchool() && $r->getSchool()->getCity()) {
+                if ($r->getSchool() && $r->getSchool()->getCity()) {
                     $city = $r->getSchool()->getCity();
                 }
 
-                if($r->getSchool() && $r->getSchool()->getState() && $r->getSchool()->getState()->getAbbreviation()) {
+                if ($r->getSchool() && $r->getSchool()->getState() && $r->getSchool()->getState()->getAbbreviation()) {
                     $abbreviation = $r->getSchool()->getState()->getAbbreviation();
                 }
 
-                if($r->getSchool() && $r->getSchool()->getZipcode()) {
+                if ($r->getSchool() && $r->getSchool()->getZipcode()) {
                     $zipcode = $r->getSchool()->getZipcode();
                 }
 
             }
 
-            $experiences[] = array(
+            $experiences[] = array (
                 "id" => $r->getId(),
                 "requestId" => $requestId,
                 "title" => $r->getTitle(),
@@ -1007,15 +827,15 @@ class ExperienceController extends AbstractController
                 "city" => $city,
                 "zipcode" => $zipcode,
                 "state" => [
-                    "abbreviation" => $abbreviation
-                ]
+                    "abbreviation" => $abbreviation,
+                ],
             );
         }
 
         return new JsonResponse(
             [
                 'success' => true,
-                'data'    => $experiences
+                'data' => $experiences,
             ],
             Response::HTTP_OK
         );

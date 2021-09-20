@@ -52,6 +52,10 @@ class YoutubeVideoIdValidator extends ConstraintValidator
             return;
         }
 
+        if (strpos($value, '/') !== false) {
+            $value = substr($value, strrpos($value, '/' )+1);
+        }
+
         try {
             $url = "https://www.googleapis.com/youtube/v3/videos";
 
