@@ -88,6 +88,10 @@ class Video
 
     public function setVideoId(string $videoId): self
     {
+        if (strpos($videoId, '/') !== false) {
+            $videoId = substr($videoId, strrpos($videoId, '/') + 1);
+        }
+
         $this->videoId = $videoId;
 
         return $this;
