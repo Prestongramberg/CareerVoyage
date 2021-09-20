@@ -195,7 +195,7 @@ LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
 LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
 LEFT JOIN industry i on i.id = si.primary_industry_id
 LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
-WHERE 1 = 1 AND e.cancelled = %s', 0);
+WHERE 1 = 1 AND e.cancelled != %s', 1);
 
         if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
             $query .= sprintf(
@@ -210,7 +210,13 @@ WHERE 1 = 1 AND e.cancelled = %s', 0);
 
         if ($startDate && $endDate) {
 
-            $query .= sprintf(" AND DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s'", $startDate, $endDate);
+            $query .= " AND ( ";
+
+            $query .= sprintf(" (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s')", $startDate, $endDate);
+            $query .= sprintf(" OR (DATE(e.start_date_and_time) <= '%s' AND DATE(e.end_date_and_time) >= '%s')", $startDate, $endDate);
+            $query .= sprintf(" OR ( (DATE(e.start_date_and_time) BETWEEN '%s' AND '%s') OR (DATE(e.end_date_and_time) BETWEEN '%s' AND '%s') )", $startDate, $endDate, $startDate, $endDate);
+
+            $query .= " ) ";
 
         }
 
