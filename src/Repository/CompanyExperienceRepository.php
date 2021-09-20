@@ -278,6 +278,7 @@ HERE;
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function search(
         $latN = null, $latS = null, $lonE = null, $lonW = null, $startingLatitude = null, $startingLongitude = null,
@@ -291,7 +292,7 @@ LEFT JOIN industry i on i.id = si.primary_industry_id
 LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
 LEFT JOIN company c on ce.company_id = c.id
 LEFT JOIN company_region cr on cr.company_id = c.id
-WHERE 1 = 1 AND e.cancelled = %s', 0);
+WHERE 1 = 1 AND e.cancelled != %s', 1);
 
         if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
             $query .= sprintf(
@@ -301,9 +302,14 @@ WHERE 1 = 1 AND e.cancelled = %s', 0);
         }
 
         if ($startDate && $endDate) {
-            $query .= sprintf(" AND (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s')", $startDate, $endDate);
+
+            $query .= " AND ( ";
+
+            $query .= sprintf(" (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s')", $startDate, $endDate);
             $query .= sprintf(" OR (DATE(e.start_date_and_time) <= '%s' AND DATE(e.end_date_and_time) >= '%s')", $startDate, $endDate);
             $query .= sprintf(" OR ( (DATE(e.start_date_and_time) BETWEEN '%s' AND '%s') OR (DATE(e.end_date_and_time) BETWEEN '%s' AND '%s') )", $startDate, $endDate, $startDate, $endDate);
+
+            $query .= " ) ";
         }
 
         if($searchQuery) {
