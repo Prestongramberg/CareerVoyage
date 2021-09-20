@@ -42,6 +42,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 /**
  * Class ProfileController
@@ -360,6 +361,10 @@ class CompanyController extends AbstractController
             $this->requestsMailer->newCompanyAwaitingApproval($createdByApprover->getPossibleApprover(), $company);
 
             $this->addFlash('success', 'Company successfully created. While your company is awaiting approval, please edit your volunteer schools list, photos, videos, and resources.');
+
+            $token = new UsernamePasswordToken($user, null, 'members', $user->getRoles());
+            $this->get('security.token_storage')->setToken($token);
+            $this->get('session')->set('_security_secured_area', serialize($token));
 
             return $this->redirectToRoute('company_edit', ['id' => $company->getId()]);
 
