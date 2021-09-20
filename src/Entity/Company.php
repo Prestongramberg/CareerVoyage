@@ -637,7 +637,7 @@ class Company
 
         $words = explode(" ", $this->name);
 
-        return sprintf("https://ui-avatars.com/api/?size=512&length=10&name=%s&background=random&font-size=.1", implode("+", $words));
+        return sprintf("https://ui-avatars.com/api/?size=512&length=10&name=%s&font-size=.1", implode("+", $words));
     }
 
     public function getOwner()
