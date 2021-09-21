@@ -41,6 +41,7 @@
         "jQuery-QueryBuilder": "^2.6.0",
         "jquery-ui-bundle": "^1.12.1-migrate",
         "jquery.transit": "^0.9.12",
+        "js-email-autocomplete": "^1.0.3",
         "list.js": "^1.5.0",
         "lodash": "^4.17.14",
         "moment": "^2.29.1",

@@ -6,6 +6,7 @@ import SchoolSelect from "./Components/SchoolSelect";
 
 require('select2/dist/js/select2.min');
 import Inputmask from "inputmask";
+import VideoComponent from "./Components/VideoComponent";
 
 $(document).ready(function () {
 
@@ -41,33 +42,6 @@ $(document).ready(function () {
                 infoWindow.open(map, marker);
             });
         });
-
-        /*
-                let schoolJson = $('.js-form').find('.js-school-json').attr('data-school-json');
-                if (typeof schoolJson !== 'undefined' && schoolJson !== false) {
-
-                    debugger;
-
-                    schoolJson = JSON.parse(schoolJson);
-
-                    schoolJson.forEach(function (school, index) {
-                        debugger;
-
-                        let marker = new google.maps.Marker({
-                            position: {lat: parseFloat(school.latitude), lng: parseFloat(school.longitude)},
-                            map: map,
-                        });
-
-                        markersArray.push(marker);
-
-                        google.maps.event.addListener(marker, 'click', function () {
-                            var infoWindow = new google.maps.InfoWindow();
-                            infoWindow.setContent(school.name);
-                            infoWindow.open(map, marker);
-                        });
-
-                    });
-                }*/
     };
 
     $('.js-select2').select2({
@@ -96,7 +70,12 @@ $(document).ready(function () {
     $('#professional_edit_profile_form_secondaryIndustries').select2({
         placeholder: "Select Professions",
         allowClear: true,
-        width: '100%'
+        width: '100%',
+        "language": {
+            "noResults": function(){
+                return "Please choose a career sector / industry first";
+            }
+        },
     });
 
     let countyJson = $('.js-form').attr('data-county-json')
@@ -192,8 +171,6 @@ $(document).ready(function () {
         });
 
     });
-
-    // todo can you find the bounds for the state of minnesota? as I appear to be getting some chicago addresses back?
 
     if (document.getElementById("addressSearch")) {
 
@@ -454,11 +431,9 @@ $(document).ready(function () {
         im.mask(selector);
     }
 
-    // todo will need to change this for educator profile and the rest of the profiles right
-    //   as we don't want to pass in the initMarkers function! They don't have a map
     new PrimaryIndustrySelect($('.js-form'), window.globalEventDispatcher);
     new RegionSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
     new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
-    debugger;
+    new VideoComponent($('.js-video-component'), window.globalEventDispatcher);
 });

@@ -30,6 +30,7 @@ services:
             $cacheDir: '%kernel.cache_dir%'
             $publicPath: '%kernel.project_dir%/public'
             $projectDir: '%kernel.project_dir%'
+            $youtubeApiKey: '%env(YOUTUBE_API_KEY)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -90,3 +91,9 @@ services:
     qbjs_parser.json_deserializer:
       alias: FL\QBJSParser\Serializer\JsonDeserializer
       public: true
+
+    login.user_voter:
+        class: App\Security\UserVoter
+        tags:
+          - { name: security.voter, priority: 245 } # priority is important to override the default
+        public: false         # small performance boost

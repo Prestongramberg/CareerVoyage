@@ -14,9 +14,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo", "professionalVideo" = "ProfessionalVideo", "helpVideo" = "HelpVideo", "educatorVideo" = "EducatorVideo"})
+ * @ORM\DiscriminatorMap({"video" = "Video", "companyVideo" = "CompanyVideo", "schoolVideo" = "SchoolVideo", "careerVideo" = "CareerVideo", "professionalVideo" = "ProfessionalVideo", "helpVideo" = "HelpVideo", "educatorVideo" = "EducatorVideo"})
  */
-abstract class Video
+class Video
 {
     use Timestampable;
 
@@ -49,19 +49,15 @@ abstract class Video
      */
     protected $tags;
 
-
     /**
      * @var boolean
      */
-    private $isFavorite;
+    private $isFavorite = false;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="video", orphanRemoval=true)
      */
     private $videoFavorites;
-
-    
-
 
     public function __construct()
     {
@@ -92,6 +88,10 @@ abstract class Video
 
     public function setVideoId(string $videoId): self
     {
+        if (strpos($videoId, '/') !== false) {
+            $videoId = substr($videoId, strrpos($videoId, '/') + 1);
+        }
+
         $this->videoId = $videoId;
 
         return $this;

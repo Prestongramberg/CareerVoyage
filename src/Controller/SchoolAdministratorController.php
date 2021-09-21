@@ -12,8 +12,6 @@ use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StateCoordinator;
 use App\Entity\User;
-use App\Form\EditCompanyFormType;
-use App\Form\NewCompanyFormType;
 use App\Form\NewLessonType;
 use App\Form\ProfessionalEditProfileFormType;
 use App\Form\StateCoordinatorFormType;

@@ -28,6 +28,7 @@ use App\Repository\ExperienceRepository;
 use App\Repository\FeedbackRepository;
 use App\Repository\HelpVideoRepository;
 use App\Repository\IndustryRepository;
+use App\Repository\KnowledgeResourceRepository;
 use App\Repository\LessonFavoriteRepository;
 use App\Repository\LessonRepository;
 use App\Repository\LessonTeachableRepository;
@@ -498,6 +499,11 @@ trait ServiceHelper
     private $resourceRepository;
 
     /**
+     * @var KnowledgeResourceRepository
+     */
+    private $knowledgeResourceRepository;
+
+    /**
      * ServiceHelper constructor.
      *
      * @param EntityManagerInterface                                        $entityManager
@@ -582,6 +588,7 @@ trait ServiceHelper
      * @param UserMetaRepository                                            $userMetaRepository
      * @param RequestActionRepository                                       $requestActionRepository
      * @param ResourceRepository                                            $resourceRepository
+     * @param KnowledgeResourceRepository                                   $knowledgeResourceRepository
      */
     public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader,
                                 UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator,
@@ -637,7 +644,9 @@ trait ServiceHelper
                                 ReportColumnRepository $reportColumnRepository, CountyRepository $countyRepository,
                                 ReportService $reportService, ReportGroupRepository $reportGroupRepository,
                                 UserMetaRepository $userMetaRepository,
-                                RequestActionRepository $requestActionRepository, ResourceRepository $resourceRepository
+                                RequestActionRepository $requestActionRepository,
+                                ResourceRepository $resourceRepository,
+                                KnowledgeResourceRepository $knowledgeResourceRepository
     ) {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
@@ -721,6 +730,7 @@ trait ServiceHelper
         $this->userMetaRepository                                            = $userMetaRepository;
         $this->requestActionRepository                                       = $requestActionRepository;
         $this->resourceRepository                                            = $resourceRepository;
+        $this->knowledgeResourceRepository                                   = $knowledgeResourceRepository;
     }
 
     public function getFullQualifiedBaseUrl()
