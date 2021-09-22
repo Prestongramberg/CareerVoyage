@@ -41,7 +41,7 @@ class ProfessionalRegistrationFormType extends AbstractType
                 'mapped' => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'I know, it\'s silly, but you must agree to our terms.',
+                        'message' => 'You must agree to our terms of service',
                         'groups'  => ['CREATE']
                     ])
                 ]
