@@ -7,6 +7,7 @@ use App\Entity\CompanyResource;
 use App\Entity\Image;
 use App\Entity\KnowledgeResource;
 use App\Entity\Lesson;
+use App\Entity\LessonResource;
 use App\Entity\Resource;
 use App\Entity\School;
 use App\Repository\CompanyRepository;
@@ -110,10 +111,12 @@ class ResourcesImportCommand extends Command
 
         // Company Resources:     ./bin/console app:resources:import --path=company_resource.csv --type=company
         // Knowledge Resources:   ./bin/console app:resources:import --path=knowledge_resource.csv --type=knowledge_resource
+        // Lesson Resources:      ./bin/console app:resources:import --path=lesson_resource.csv --type=lesson
 
         $validResourceTypes = [
             'company',
-            'knowledge_resource'
+            'knowledge_resource',
+            'lesson'
             // todo add school and lesson
         ];
 
@@ -121,7 +124,7 @@ class ResourcesImportCommand extends Command
         $type = $input->getOption('type');
 
         if(!in_array($type, $validResourceTypes, true)) {
-            $output->writeln('Valid resource types are: [company, knowledge_resource]');
+            $output->writeln('Valid resource types are: [company, knowledge_resource, lesson]');
             exit(1);
         }
 
@@ -173,6 +176,41 @@ class ResourcesImportCommand extends Command
 
                 $resourceObject = new CompanyResource();
                 $resourceObject->setCompany($company);
+                $resourceObject->setLinkToWebsite($linkToWebsite);
+                $resourceObject->setUrl($linkToWebsite);
+                $resourceObject->setTitle($title);
+                $resourceObject->setDescription($description);
+                $resourceObject->setType(Resource::TYPE_URL);
+                $resourceObject->setFileName($image->getFileName());
+                $resourceObject->setMimeType($image->getMimeType());
+                $resourceObject->setOriginalName($image->getOriginalName());
+
+                if($image->getFileName() && $image->getOriginalName() && $image->getMimeType()) {
+                    $resourceObject->setType(Resource::TYPE_FILE);
+                }
+
+
+                $this->entityManager->persist($resourceObject);
+            }
+        }
+
+        if($type === 'lesson') {
+
+            foreach($resources as $resource) {
+
+                /** @var Image $image */
+                $image = $this->imageRepository->find($resource['id']);
+                $lesson = $this->lessonRepository->find($resource['lesson_id']);
+                $linkToWebsite = in_array($resource['link_to_website'], [null, 'null', 'NULL', ""], true) ? null : $resource['link_to_website'];
+                $title = in_array($resource['title'], [null, 'null', 'NULL', ""], true) ? null : $resource['title'];
+                $description = in_array($resource['description'], [null, 'null', 'NULL', ""], true) ? null : $resource['description'];
+
+                if(!$lesson) {
+                    continue;
+                }
+
+                $resourceObject = new LessonResource();
+                $resourceObject->setLesson($lesson);
                 $resourceObject->setLinkToWebsite($linkToWebsite);
                 $resourceObject->setUrl($linkToWebsite);
                 $resourceObject->setTitle($title);

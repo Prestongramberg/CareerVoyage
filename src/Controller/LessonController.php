@@ -258,17 +258,7 @@ class LessonController extends AbstractController
         $user   = $this->getUser();
         $lesson = new Lesson();
 
-        $options = [
-            'method' => 'POST',
-            'lesson' => $lesson,
-            'skip_validation' => $request->request->get('skip_validation', false),
-        ];
-
-        if (!$options['skip_validation']) {
-            $options['validation_groups'] = $request->request->get('validation_groups', []);
-        }
-
-        $form = $this->createForm(LessonType::class, $lesson, $options);
+        $form = $this->createForm(LessonType::class, $lesson);
 
         $form->handleRequest($request);
 
@@ -286,32 +276,16 @@ class LessonController extends AbstractController
 
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Topic successfully created');
+            $this->addFlash('success', 'Topic Presentation successfully created. Please add any additional resources or attachments needed for this lesson.');
 
-            if ($request->request->get('add_resource') == 'Yes') {
-                return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId(), 'tab' => 'resources']);
-            } else {
-                return $this->redirectToRoute('lessons_results_page');
-            }
-
-        }
-
-        if ($request->request->has('changeableField')) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'formMarkup' => $this->renderView('lesson/new.html.twig', [
-                        'user' => $user,
-                        'form' => $form->createView(),
-                    ]),
-                ], Response::HTTP_BAD_REQUEST
-            );
+            return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId()]);
         }
 
         return $this->render(
             'lesson/new.html.twig', [
                 'user' => $user,
                 'form' => $form->createView(),
+                'lesson' => $lesson
             ]
         );
     }
@@ -330,12 +304,8 @@ class LessonController extends AbstractController
         $user              = $this->getUser();
         $primaryIndustries = [];
 
-        if (sizeof($lesson->getSecondaryIndustries()) > 0) {
-            foreach ($lesson->getSecondaryIndustries() as $secondaryIndustry) {
-                if (!in_array($secondaryIndustry->getPrimaryIndustry()->getId(), $primaryIndustries)) {
-                    $primaryIndustries[$secondaryIndustry->getPrimaryIndustry()->getId()] = $secondaryIndustry->getPrimaryIndustry()->getName();
-                }
-            }
+        foreach($lesson->getPrimaryIndustries() as $primaryIndustry) {
+            $primaryIndustries[$primaryIndustry->getId()] = $primaryIndustry->getName();
         }
 
         $lessonTeachables = $this->lessonTeachableRepository->findBy(
@@ -520,12 +490,7 @@ class LessonController extends AbstractController
 
         $user = $this->getUser();
 
-        $options = [
-            'method' => 'POST',
-            'skip_validation' => $request->request->get('skip_validation', false),
-        ];
-
-        $form = $this->createForm(EditLessonType::class, $lesson, $options);
+        $form = $this->createForm(LessonType::class, $lesson);
 
         $form->handleRequest($request);
 
@@ -536,7 +501,7 @@ class LessonController extends AbstractController
             $this->entityManager->persist($lesson);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Topic successfully updated');
+            $this->addFlash('success', 'Topic Presentation successfully updated');
 
             return $this->redirectToRoute('lesson_edit', ['id' => $lesson->getId()]);
 
@@ -658,87 +623,6 @@ class LessonController extends AbstractController
     }
 
     /**
-     * @Route("/lessons/{id}/resource/add", name="lesson_resource_add", options = { "expose" = true })
-     * @param Request $request
-     * @param Lesson  $lesson
-     *
-     * @return JsonResponse
-     */
-    public function lessonAddResourceAction(Request $request, Lesson $lesson)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $lesson);
-
-        /** @var UploadedFile $file */
-        $file          = $request->files->get('resource');
-        $title         = $request->request->get('title');
-        $description   = $request->request->get('description');
-        $linkToWebsite = $request->request->get('linkToWebsite');
-
-        if ($file && $title) {
-            $mimeType       = $file->getMimeType();
-            $newFilename    = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
-            $lessonResource = new LessonResource();
-
-            $lessonResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-            $lessonResource->setMimeType($mimeType ?? 'application/octet-stream');
-            $lessonResource->setFileName($newFilename);
-            $lessonResource->setFile(null);
-            $lessonResource->setLesson($lesson);
-            $lessonResource->setDescription($description ? $description : null);
-            $lessonResource->setTitle($title);
-            $this->entityManager->persist($lessonResource);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'url' => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $newFilename,
-                    'id' => $lessonResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
-
-                ], Response::HTTP_OK
-            );
-        } else {
-            if ($linkToWebsite && $title) {
-                $mimeType       = "";
-                $newFilename    = "";
-                $lessonResource = new LessonResource();
-
-                $lessonResource->setOriginalName($newFilename);
-                $lessonResource->setMimeType($mimeType);
-                $lessonResource->setFileName($newFilename);
-                $lessonResource->setFile(null);
-                $lessonResource->setLesson($lesson);
-                $lessonResource->setDescription($description ? $description : null);
-                $lessonResource->setTitle($title);
-                $lessonResource->setLinkToWebsite($linkToWebsite);
-                $this->entityManager->persist($lessonResource);
-                $this->entityManager->flush();
-
-                return new JsonResponse(
-                    [
-                        'success' => true,
-                        'url' => $linkToWebsite,
-                        'id' => $lessonResource->getId(),
-                        'title' => $title,
-                        'description' => $description,
-
-                    ], Response::HTTP_OK
-                );
-            }
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_BAD_REQUEST
-        );
-    }
-
-    /**
      * @Route("/lessons/file/{id}/get", name="lesson_file_get", options = { "expose" = true })
      * @param Request        $request
      * @param LessonResource $file
@@ -851,76 +735,4 @@ class LessonController extends AbstractController
         }
     }
 
-
-    /**
-     * @Route("/lessons/resources/{id}/edit", name="lesson_resource_edit", options = { "expose" = true })
-     * @param Request        $request
-     * @param LessonResource $lessonResource
-     *
-     * @return JsonResponse
-     */
-    public function lessonEditResourceAction(Request $request, LessonResource $lessonResource)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $lessonResource->getLesson());
-
-        /** @var UploadedFile $file */
-        $file        = $request->files->get('resource');
-        $title       = $request->request->get('title');
-        $description = $request->request->get('description');
-
-        if ($file && $title && $description) {
-            $mimeType    = $file->getMimeType();
-            $newFilename = $this->uploaderHelper->upload($file, UploaderHelper::LESSON_RESOURCE);
-            $lessonResource->setOriginalName($file->getClientOriginalName() ?? $newFilename);
-            $lessonResource->setMimeType($mimeType ?? 'application/octet-stream');
-            $lessonResource->setFileName($newFilename);
-            $lessonResource->setFile(null);
-            $lessonResource->setDescription($description);
-            $lessonResource->setTitle($title);
-            $this->entityManager->persist($lessonResource);
-            $this->entityManager->flush();
-
-            return new JsonResponse(
-                [
-                    'success' => true,
-                    'url' => 'uploads/' . UploaderHelper::LESSON_RESOURCE . '/' . $newFilename,
-                    'id' => $lessonResource->getId(),
-                    'title' => $title,
-                    'description' => $description,
-
-                ], Response::HTTP_OK
-            );
-        }
-
-        return new JsonResponse(
-            [
-                'success' => false,
-
-            ], Response::HTTP_BAD_REQUEST
-        );
-    }
-
-    /**
-     * @Route("/lessons/resources/{id}/remove", name="lesson_resource_remove", options = { "expose" = true })
-     * @param Request        $request
-     * @param LessonResource $lessonResource
-     *
-     * @return JsonResponse
-     */
-    public function lessonRemoveResourceAction(Request $request, LessonResource $lessonResource)
-    {
-
-        $this->denyAccessUnlessGranted('edit', $lessonResource->getLesson());
-
-        $this->entityManager->remove($lessonResource);
-        $this->entityManager->flush();
-
-        return new JsonResponse(
-            [
-                'success' => true,
-
-            ], Response::HTTP_OK
-        );
-    }
 }

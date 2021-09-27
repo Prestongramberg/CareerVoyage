@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Add Lesson Topic{% endblock %}
+{% block title %}New Topic Presentation{% endblock %}
 {% block bodyClass %}page-lesson-add{% endblock %}
 
 {% block javascripts %}
@@ -38,7 +38,7 @@
             <div class="uk-width-1-1 uk-width-medium@m">
                 <ul id="test" class="uk-tab-left"
                     uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
-                    <li><a href="#general" id="general">New Lesson Topic</a></li>
+                    <li><a href="#general" id="general">New Topic Presentation</a></li>
                     <li class="uk-disabled"><a href="#attachments" id="attachments" style="opacity: .5;">Attachments</a>
                     </li>
                 </ul>
@@ -49,6 +49,8 @@
                     <div class="lesson_general">
 
                         <div class="uk-text-danger" style="float:right;">* indicates required</div>
+
+                        <br>
 
                         <fieldset class="uk-fieldset uk-margin">
 
@@ -73,6 +75,14 @@
                                         Provide detail of what will be covered during this topic presentation
                                     </div>
                                     <div data-wysiwyg="[name='lesson[summary]']"
+                                         data-placeholder="Prior to topic presentation, have your classroom educator notify the students that they will be asked to participate in a short, mock interview. In the topic presentation please follow this template:
+
+1) Guest presenter(s) introduce themselves and give 2-3 pieces of advice on interviewing well. (10 minutes)
+
+2) Guest presenter(s) conduct a mini mock interview with 2-3 volunteer students. Let other students observe and learn from the feedback given to the interviewed students. (40 minutes)
+
+3) Have all the guest presenter(s) come back together with the whole class and share some closing thoughts and comments on interviewing well. Allow Q & A from Students. (10 - 15 minutes) A rubric to use is attached in resources."
+
                                          class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
                                     <div style="display: none;">
                                         {{ form_widget(form.summary) }}
@@ -92,24 +102,9 @@
                             <fieldset class="uk-fieldset">
 
                                 <div class="uk-margin">
-                                    {{ form_label(form.primaryIndustry, 'Industry Sector*') }}
-                                    {{ form_widget(form.primaryIndustry, {'attr': {'class': 'js-primary-industry js-select2' ~ ( form_errors(form.primaryIndustry) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.primaryIndustry) }}
-                                </div>
-
-
-                                <div class="js-secondary-industry-container">
-                                    {% if form.secondaryIndustries is defined %}
-                                        <div class="uk-margin">
-                                            {{ form_label(form.secondaryIndustries, 'Career Fields*') }}
-                                            <div class="uk-text-meta">
-                                                Select the relevant career fields for your lesson's industry sector
-                                            </div>
-                                            {{ form_widget(form.secondaryIndustries, {'attr': {'class': 'js-select2' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
-                                            <div class="clear"></div>
-                                            {{ form_errors(form.secondaryIndustries) }}
-                                        </div>
-                                    {% endif %}
+                                    {{ form_label(form.primaryIndustries, 'Industry Sectors*') }}
+                                    {{ form_widget(form.primaryIndustries, {'attr': {'class': 'js-select2' ~ ( form_errors(form.primaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.primaryIndustries) }}
                                 </div>
 
                             </fieldset>
@@ -117,15 +112,9 @@
                             <fieldset class="uk-fieldset">
 
                                 <div class="uk-margin">
-                                    {{ form_label(form.primaryCourse, 'Primary Course*') }}
-                                    {{ form_widget(form.primaryCourse, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryCourse) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.primaryCourse) }}
-                                </div>
-
-                                <div class="uk-margin">
-                                    {{ form_label(form.secondaryCourses, 'Secondary Courses (optional)') }}
-                                    {{ form_widget(form.secondaryCourses, {'attr': {'class': 'uk-select' ~ ( form_errors(form.secondaryCourses) ? ' uk-form-danger' : '' ) }}) }}
-                                    {{ form_errors(form.secondaryCourses) }}
+                                    {{ form_label(form.primaryCourses, 'School Courses*') }}
+                                    {{ form_widget(form.primaryCourses, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryCourses) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.primaryCourses) }}
                                 </div>
 
                             </fieldset>
@@ -162,6 +151,43 @@
                                         {{ form_widget(form.educationalStandards) }}
                                     </div>
                                     {{ form_errors(form.educationalStandards) }}
+                                </div>
+
+                            </fieldset>
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                </legend>
+
+                                <div class="uk-margin uk-grid" uk-grid>
+                                    <div class="uk-width-small">
+                                        <img id="lessonThumbnailImage"
+                                             src="{{ lesson.thumbnailImagePath is not null ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Thumbnail&font-size=.1' }}"/>
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <label>Lesson Thumbnail (300x300)</label>
+                                        <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.
+                                            Will auto resize to 300x300.<br/><span class="uk-text-warning">Accepted formats: .jpg, .png</span>
+                                        </div>
+                                        <div data-hidden-field="{{ form.thumbnailImage.vars.full_name }}"
+                                             data-upload-url="{{ path('api_images_upload') }}?folder=lesson_thumbnail"
+                                             data-type="image:lessonThumbnailImage"></div>
+                                    </div>
+                                </div>
+                                <div class="uk-margin uk-grid" uk-grid>
+                                    <div class="uk-width-small">
+                                        <img id="lessonFeaturedImage"
+                                             src="{{ lesson.featuredImagePath is not null ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Featured&font-size=.1' }}"/>
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <label>Lesson Featured Image (1680x300)</label>
+                                        <div class="uk-text-meta">Ideal size for lesson banner is
+                                            <strong>1680x300</strong> with central focal point.<br/><span
+                                                    class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
+                                        <div data-hidden-field="{{ form.featuredImage.vars.full_name }}"
+                                             data-upload-url="{{ path('api_images_upload') }}?folder=lesson_featured"
+                                             data-type="image:lessonFeaturedImage"></div>
+                                    </div>
                                 </div>
 
                             </fieldset>

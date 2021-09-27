@@ -2,6 +2,7 @@ import $ from 'jquery';
 
 require('select2/dist/js/select2.min');
 import PrimaryIndustrySelect from "./Components/PrimaryIndustrySelect";
+import ResourceComponent from "./Components/ResourceComponent";
 
 /*jslint browser: true*/
 /*global define, module, exports*/
@@ -105,31 +106,20 @@ $(document).ready(function () {
     });
 
     $('#lesson_grades').select2({
-        placeholder: "Please select the grades that this topic presentation is suitable for",
+        placeholder: "Please select the relevant grades that this topic presentation is suitable for",
         allowClear: true,
         width: '100%'
     });
 
 
-    $('#lesson_primaryCourse').select2({
-        placeholder: "Please select a primary course",
+    $('#lesson_primaryIndustries').select2({
+        placeholder: "Please select the relevant industry sectors for this topic presentation",
         allowClear: true,
         width: '100%'
     });
 
-    $('#lesson_secondaryIndustries').select2({
-        placeholder: "Please select career field(s)",
-        allowClear: true,
-        width: '100%',
-        "language": {
-            "noResults": function(){
-                return "Please choose your lesson's industry sector first";
-            }
-        },
-    });
-
-    $('#lesson_secondaryCourses').select2({
-        placeholder: "Please select secondary course(s)",
+    $('#lesson_primaryCourses').select2({
+        placeholder: "Please select the relevant school courses for this topic presentation",
         allowClear: true,
         width: '100%'
     });
@@ -144,6 +134,18 @@ $(document).ready(function () {
         maxChars: 280
     });
 
+    UIkit.util.on('.uk-switcher', 'show', function (ev) {
+
+        if ($(ev.target).hasClass('lesson_general')) {
+            location.hash = 'general';
+        }
+
+        if ($(ev.target).hasClass('lesson_attachments')) {
+            location.hash = 'attachments';
+        }
+    });
+
     new PrimaryIndustrySelect($('.js-form'), window.globalEventDispatcher);
+    new ResourceComponent($('.js-resource-component'), window.globalEventDispatcher);
 
 });

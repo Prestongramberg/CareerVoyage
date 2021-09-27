@@ -1,31 +1,31 @@
 {% extends 'baseAuthenticated.html.twig' %}
- 
-{% block title %}Edit Topic{% endblock %}
+
+{% block title %}Edit Topic Presentation{% endblock %}
 {% block bodyClass %}page-lesson-edit{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('build/lessons.js') }}"></script>
-    <script src="{{ asset('build/companies.js') }}"></script>
 {% endblock %}
 
- {% block stylesheets %}
-     {{ parent() }}
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" integrity="sha256-e47xOkXs1JXFbjjpoRr1/LhVcqSzRmGmPqsrUQeVs+g=" crossorigin="anonymous" />
- {% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
 
+    <style>
+        .eac-input-wrap .eac-sugg {
+            top: 7px !important;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
 
-    <div class="uk-container js-form" data-route="{{ path('lesson_edit', {'id': lesson.id}) }}">
+    <div class="uk-container js-form" data-route="{{ path('lesson_new') }}">
 
-        <div class="uk-margin">
-            <div class="uk-align-right@l">
-                <a href="{{ path('lesson_view', {id: lesson.id}) }}" class="uk-button uk-button-default uk-button-small">Back to Topic</a>
-            </div>
-        </div>
+        {{ form_start(form, {attr: {'id': 'js-form', 'novalidate' : 'novalidate'}}) }}
 
-        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+        <input id="validation_groups" type="hidden" name="validation_groups" value="COMPANY_GENERAL">
+        <input id="tab" type="hidden" name="tab" value="">
 
         {% if form_errors(form) %}
             <div class="uk-alert-danger" uk-alert>
@@ -34,303 +34,230 @@
             </div>
         {% endif %}
 
-        <ul class="uk-tab" uk-switcher="connect: #tab-edit-lesson" uk-tab>
-            <li class="uk-active"><a href="#lesson-details">Edit Topic</a></li>
-            <li><a href="#lesson-industries">Industries</a></li>
-            <li><a href="#lesson-courses">Courses</a></li>
-            <li><a href="#lesson-outcomes">Outcomes</a></li>
-            <li><a href="#lesson-resources" style="background-color: #e8e8e8">Attachments</a></li>
-        </ul>
+        <div uk-grid>
+            <div class="uk-width-1-1 uk-width-medium@m">
+                <ul id="test" class="uk-tab-left"
+                    uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                    <li><a href="#general" id="general">Edit Topic Presentation</a></li>
+                    <li><a href="#attachments" id="attachments">Attachments</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <div id="tab-account-inner" class="uk-switcher">
 
-        <div class="uk-switcher" id="tab-edit-lesson">
-            <div class="page-lesson-edit__details">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.title, 'Title*') }}
-                            {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.title) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.shortDescription, 'Short Description*') }}
-                            <div class="uk-text-meta">One sentence summary that describes topic, often framed as an ESSENTIAL question</div>
-                            {{ form_widget(form.shortDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.shortDescription) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.summary, 'Summary*') }}
-                            <div class="uk-text-meta">Provide an overview of the topic for students and professionals</div>
-                            <div data-wysiwyg="[name='edit_lesson[summary]']" class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
-                            <div style="display: none;">
-                                {{ form_widget(form.summary) }}
-                            </div>
-                            {{ form_errors(form.summary) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.grades, 'Grades*') }}
-                            {{ form_widget(form.grades, {'attr': {'class': 'uk-checkboxes' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.grades) }}
-                        </div>
-                        <div class="uk-margin uk-grid" uk-grid>
-                            <div class="uk-width-small">
-                                <img id="lessonThumbnailImage" src="{{ lesson.thumbnailImage ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
-                            </div>
-                            <div class="uk-width-expand">
-                                <label>Topic Thumbnail (300x300)<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></label>
-                                <div data-upload-url="{{ path('lesson_thumbnail_add', { id: lesson.id }) }}" data-type="image:lessonThumbnailImage"></div>
-                            </div>
-                        </div>
-                        <div class="uk-margin uk-grid" uk-grid>
-                            <div class="uk-width-small">
-                                <img id="lessonFeaturedImage" src="{{ lesson.featuredImage ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : '' }}" uk-img/>
-                            </div>
-                            <div class="uk-width-expand">
-                                <label>Topic Featured Image (1680x300)<br /><span class="uk-text-warning">Accepted formats: .jpg, .png</span></label>
-                                <div data-upload-url="{{ path('lesson_featured_add', { id: lesson.id }) }}" data-type="image:lessonFeaturedImage"></div>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="1" class="uk-button uk-button-primary uk-button-small">Next</a>
-                </div>
-            </div>
-            <div class="page-lesson-edit__industries">
-                <div class="uk-width-xlarge">
-            
-                    <div class="uk-margin">
-                        <p><em>Selection of an industry is optional.</em></p>
-                        <p><a href="#" uk-switcher-item="2" class="uk-button uk-button-primary uk-button-small">Next</a></p>
-                    </div>
-                    <fieldset class="uk-fieldset">
-                        <div id="subscribe-secondary-industries"
-                             data-field-name="edit_lesson[secondaryIndustries]"
-                             data-secondary-industries="{{ encode_secondary_industries(lesson.secondaryIndustries) }}"
-                             data-remove-dom-id="edit_lesson_secondaryIndustries"
-                        ></div>
-                    </fieldset>
-                </div>
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="2" class="uk-button uk-button-primary uk-button-small">Next</a>
-                </div>
-            </div>
-            <div class="page-lesson-edit__courses">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.primaryCourse, 'Primary Course*') }}
-                            {{ form_widget(form.primaryCourse, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryCourse) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.primaryCourse) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.secondaryCourses, 'Secondary Courses') }}
-                            {{ form_widget(form.secondaryCourses, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(form.secondaryCourses) ? ' uk-form-danger' : '' ) }}) }}
-                            <div class="clear"></div>
-                            {{ form_errors(form.secondaryCourses) }}
-                        </div><br>
-                        <a href="{{ path('request_to_add_course') }}" target="_blank">Don't see a course you are looking for? Let us know</a>
-                    </fieldset>
-                </div>
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="3" class="uk-button uk-button-primary uk-button-small">Next</a>
-                </div>
-            </div>
-            <div class="page-lesson-edit__outcomes">
-                <fieldset class="uk-fieldset">
-                    <div class="uk-margin">
-                        {{ form_label(form.learningOutcomes, 'Learning Outcomes') }}
-                        <div data-wysiwyg="[name='edit_lesson[learningOutcomes]']" class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"
-                             data-placeholder="Use the following to describe what students will learn in this topic:
-“By the end of this topic, students will:
-Be able…
-Understand….
-Be aware….
-Know….”
-After describing learning outcomes, feel free to share additional resources which will help the guest instructor teach this topic. This can be links to websites, videos or Google drive docs.
-">
-                        </div>
-                        <div style="display: none;">
-                            {{ form_widget(form.learningOutcomes) }}
-                        </div>
-                        {{ form_errors(form.learningOutcomes) }}
-                    </div>
-                    <div class="uk-margin">
-                        {{ form_label(form.educationalStandards, 'Educational Standards') }}
-                        <div data-wysiwyg="[name='edit_lesson[educationalStandards]']" class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"
-                             data-placeholder="If you know which specific state, national or common core standards insert them here">
-                        </div>
-                        <div style="display: none;">
-                            {{ form_widget(form.educationalStandards) }}
-                        </div>
-                        {{ form_errors(form.educationalStandards) }}
-                    </div>
-                </fieldset>
+                    <div class="lesson_general">
 
-                <div class="uk-margin">
-                    <button class="uk-button uk-button-primary uk-button-small">Save</button>
-                </div>
-            </div>
+                        <div class="uk-text-danger" style="float:right;">* indicates required</div>
 
-            <!-- ####################################################################################### -->
-            <!-- ############################### RESOURCES / FILES ##################################### -->
-            <!-- ####################################################################################### -->
-            <div class="page-lesson-edit__resources">
-                <div class="uk-width-xlarge">
-                    <p>Resources are meant to provide help to understand more about the topic.</p>
-                </div>
-                <div class="uk-margin">
-                    <div class="uk-text-center uk-placeholder">
-                        <a class="uk-button uk-button-default uk-button-small" href="#modal-add-lesson-resource" uk-toggle>Add a Resource</a>
-                    </div>
-                </div>
-                <div class="uk-margin">
-                    {% if lesson.lessonResources|length %}
-                        <h4>Current Resources</h4>
-                    {% endif %}
-                    <div id="lessonResources">
-                        {% if lesson.lessonResources|length %}
-                            {% for lessonResource in lesson.lessonResources %}
-                                <div class="uk-grid uk-flex-middle" uk-grid id="resource_{{ lessonResource.id }}">
-                                    <div class="uk-width-expand">
-                                        <dt>{{ lessonResource.title }}</dt>
-                                        <dd>{{ lessonResource.description }}</dd>
-                                    </div>
-                                    <div class="uk-width-auto">
-                                        {% if lessonResource.linkToWebsite %}
-                                            <a href="{{ lessonResource.linkToWebsite }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
-                                        {% else %}
-                                            <a href="{{ asset(uploaded_asset(lessonResource.path)) }}" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
-                                        {% endif %}    
-                                    </div>
-                                    <div class="uk-width-auto">
-                                        <a href="#" class="uk-button uk-button-default uk-button-small lesson-edit-resource" data-id="{{ lessonResource.id }}">Edit</a>
-                                    </div>
-                                    <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : lessonResource.id }) }}" uk-close></button>
+                        <br>
+
+                        <fieldset class="uk-fieldset uk-margin">
+
+                            <fieldset class="uk-fieldset">
+                                <div class="uk-margin">
+                                    {{ form_label(form.title, 'Topic Title*') }}
+                                    {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.title) }}
                                 </div>
-                            {% endfor %}
-                        {% endif %}
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.shortDescription, 'Topic Summary*') }}
+                                    <div class="uk-text-meta">
+                                        Give a one sentence summary that says what the topic will cover, often framed as an essential question
+                                    </div>
+                                    {{ form_widget(form.shortDescription, {'attr': {'rows': '3', 'class': 'uk-textarea' ~ ( form_errors(form.shortDescription) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.shortDescription) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {{ form_label(form.summary, 'Topic Description*') }}
+                                    <div class="uk-text-meta">
+                                        Provide detail of what will be covered during this topic presentation
+                                    </div>
+                                    <div data-wysiwyg="[name='lesson[summary]']"
+                                         data-placeholder="Prior to topic presentation, have your classroom educator notify the students that they will be asked to participate in a short, mock interview. In the topic presentation please follow this template:
+
+1) Guest presenter(s) introduce themselves and give 2-3 pieces of advice on interviewing well. (10 minutes)
+
+2) Guest presenter(s) conduct a mini mock interview with 2-3 volunteer students. Let other students observe and learn from the feedback given to the interviewed students. (40 minutes)
+
+3) Have all the guest presenter(s) come back together with the whole class and share some closing thoughts and comments on interviewing well. Allow Q & A from Students. (10 - 15 minutes) A rubric to use is attached in resources."
+
+                                         class="{{ ( form_errors(form.summary) ? 'wysiwyg-error' : '' ) }}"></div>
+                                    <div style="display: none;">
+                                        {{ form_widget(form.summary) }}
+                                    </div>
+                                    {{ form_errors(form.summary) }}
+                                </div>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.grades, 'Grades*') }}
+                                    {{ form_widget(form.grades, {'attr': {'class': 'js-select2' ~ ( form_errors(form.grades) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.grades) }}
+                                </div>
+
+                            </fieldset>
+
+
+                            <fieldset class="uk-fieldset">
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.primaryIndustries, 'Industry Sectors*') }}
+                                    {{ form_widget(form.primaryIndustries, {'attr': {'class': 'js-select2' ~ ( form_errors(form.primaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.primaryIndustries) }}
+                                </div>
+
+                            </fieldset>
+
+                            <fieldset class="uk-fieldset">
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.primaryCourses, 'School Courses*') }}
+                                    {{ form_widget(form.primaryCourses, {'attr': {'class': 'uk-select' ~ ( form_errors(form.primaryCourses) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.primaryCourses) }}
+                                </div>
+
+                            </fieldset>
+
+                            <fieldset class="uk-fieldset">
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.learningOutcomes, 'Learning Outcomes*') }}
+                                    <div class="uk-text-meta">Describe what students will learn from this topic</div>
+                                    <div data-wysiwyg="[name='lesson[learningOutcomes]']"
+                                         class="{{ ( form_errors(form.learningOutcomes) ? 'wysiwyg-error' : '' ) }}"
+                                         data-placeholder="Use the following to describe what students will learn in this topic:
+“By the end of this topic, students will:
+• Be able…
+• Understand….
+• Be aware….
+• Know….”
+">
+                                    </div>
+                                    <div style="display: none;">
+                                        {{ form_widget(form.learningOutcomes) }}
+                                    </div>
+                                    {{ form_errors(form.learningOutcomes) }}
+                                </div>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.educationalStandards, 'Educational Standards (optional)') }}
+                                    <div class="uk-text-meta"></div>
+                                    <div data-wysiwyg="[name='lesson[educationalStandards]']"
+                                         class="{{ ( form_errors(form.educationalStandards) ? 'wysiwyg-error' : '' ) }}"
+                                         data-placeholder="If you know which specific state, national or common core standards that this topic presentation meets, please insert them here">
+                                    </div>
+                                    <div style="display: none;">
+                                        {{ form_widget(form.educationalStandards) }}
+                                    </div>
+                                    {{ form_errors(form.educationalStandards) }}
+                                </div>
+
+                            </fieldset>
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                </legend>
+
+                                <div class="uk-margin uk-grid" uk-grid>
+                                    <div class="uk-width-small">
+                                        <img id="lessonThumbnailImage"
+                                             src="{{ lesson.thumbnailImagePath is not null ? asset(uploaded_asset(lesson.thumbnailImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Thumbnail&font-size=.1' }}"/>
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <label>Lesson Thumbnail (300x300)</label>
+                                        <div class="uk-text-meta">Upload a <strong>square image</strong> if possible.
+                                            Will auto resize to 300x300.<br/><span class="uk-text-warning">Accepted formats: .jpg, .png</span>
+                                        </div>
+                                        <div data-hidden-field="{{ form.thumbnailImage.vars.full_name }}"
+                                             data-upload-url="{{ path('api_images_upload') }}?folder=lesson_thumbnail"
+                                             data-type="image:lessonThumbnailImage"></div>
+                                    </div>
+                                </div>
+                                <div class="uk-margin uk-grid" uk-grid>
+                                    <div class="uk-width-small">
+                                        <img id="lessonFeaturedImage"
+                                             src="{{ lesson.featuredImagePath is not null ? asset(uploaded_asset(lesson.featuredImagePath))|imagine_filter('squared_thumbnail_small') : 'https://ui-avatars.com/api/?size=300&length=10&name=Featured&font-size=.1' }}"/>
+                                    </div>
+                                    <div class="uk-width-expand">
+                                        <label>Lesson Featured Image (1680x300)</label>
+                                        <div class="uk-text-meta">Ideal size for lesson banner is
+                                            <strong>1680x300</strong> with central focal point.<br/><span
+                                                    class="uk-text-warning">Accepted formats: .jpg, .png</span></div>
+                                        <div data-hidden-field="{{ form.featuredImage.vars.full_name }}"
+                                             data-upload-url="{{ path('api_images_upload') }}?folder=lesson_featured"
+                                             data-type="image:lessonFeaturedImage"></div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+
+                            <br>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
+                            </div>
+
+                        </fieldset>
                     </div>
-                </div>
 
-                <div class="uk-margin">
-                    <button class="uk-button uk-button-primary uk-button-small">Save</button>
-                </div>
-
-                <!-- Begin Modal Section -->
-
-                <div id="modal-add-lesson-resource" uk-modal>
-                    <div class="uk-modal-dialog uk-modal-body">
-                        <h3>Add a Resource</h3>
-
-                        <div class="uk-margin">
-                            <label for="edit_lesson_add_resource_title" class="required">Name*</label>
-                            <input type="text" id="edit_lesson_add_resource_title" name="title" required="required" class="uk-input" />
+                    <div class="js-resource-component lesson_attachments">
+                        <div class="uk-width-xlarge">
+                            <p>Resources are meant to provide help to understand more about the topic presentation.</p>
                         </div>
-
                         <div class="uk-margin">
-                            <label for="edit_lesson_add_resource_description" class="required">Description</label>
-                            <input type="text" id="edit_lesson_add_resource_title" name="description" class="uk-textarea" />
+                            <div class="uk-text-center uk-placeholder">
+                                <button data-url="{{ path('api_resource_new', {lessonId: lesson.id}) }}"
+                                        class="uk-button uk-button-default uk-button-small js-add-resource-button"
+                                        type="button">Add a Resource
+                                </button>
+
+                                <div id="js-resource-component-modal" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        {# ADD RESOURCE HERE FROM AJAX REQUEST #}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                         <div class="uk-margin">
-                            <label for="edit_lesson_add_resource_description">Add Link To Website</label>
-                            <input type="text" id="edit_lesson_add_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
-                        </div>
-
-                        <div>OR</div>
-
-                        <div class="uk-margin">
-                            <label>Upload Resource File</label><br />
-                            <div uk-form-custom="target: true">
-                                <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
-                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                            <div class="js-resource-list-container" id="lessonResources">
+                                {% for lessonResource in lesson.lessonResources %}
+                                    <div id="resource-{{ lessonResource.id }}" class="uk-grid uk-flex-middle" uk-grid>
+                                        <div class="uk-width-expand">
+                                            <dt>{{ lessonResource.title }}</dt>
+                                            <dd>{{ lessonResource.description }}</dd>
+                                        </div>
+                                        <div class="uk-width-auto">
+                                            {% if lessonResource.fileName %}
+                                                <a href="{{ asset(uploaded_asset(lessonResource.path)) }}"
+                                                   class="uk-button uk-button-default uk-button-small view"
+                                                   target="_blank">View</a>
+                                            {% else %}
+                                                <a href="{{ lessonResource.linkToWebsite }}"
+                                                   class="uk-button uk-button-default uk-button-small view"
+                                                   target="_blank view">View</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="uk-width-auto">
+                                            <a href="javascript:void(0)" data-url="{{ path('api_resource_edit', {'id' : lessonResource.id }) }}?lessonId={{ lesson.id }}"
+                                               class="uk-button uk-button-default uk-button-small js-edit-resource-button">Edit</a>
+                                        </div>
+                                        <button class="js-delete-resource-button" type="button" data-url="{{ path('api_resource_delete', {'id' : lessonResource.id }) }}" uk-close></button>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
 
-                        <p class="uk-text-right">
-                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                            <input class="uk-button uk-button-primary" type="submit" value="Save" data-action="{{ path('lesson_resource_add', {'id' : lesson.id}) }}" />
-                        </p>
                     </div>
-                </div>
 
-                <div id="modal-edit-lesson-resource" uk-modal>
-                    <div class="uk-modal-dialog uk-modal-body">
-                        <h3>Edit Resource</h3>
-                        <div class="uk-margin">
-                            <label for="edit_lesson_edit_resource_title" class="required">Name*</label>
-                            <input type="text" id="edit_lesson_edit_resource_title" name="title" required="required" class="uk-input" />
-                        </div>
-
-                        <div class="uk-margin">
-                            <label for="edit_lesson_edit_resource_description" class="required">Description</label>
-                            <input type="text" id="edit_lesson_edit_resource_description" name="description" class="uk-textarea" />
-                        </div>
-
-                        <div class="uk-margin">
-                            <label for="edit_lesson_edit_resource_link_to_website">Add Link To Website</label>
-                            <input type="text" id="edit_lesson_edit_resource_link_to_website" name="linkToWebsite" class="uk-input" placeholder="http://www.google.com" />
-                        </div>
-
-                        <div>OR</div>
-
-                        <div class="uk-margin">
-                            <label>Upload Resource File</label><br />
-                            <div uk-form-custom="target: true">
-                                <input class="uk-button uk-button-primary uk-button-small" type="file" name="resource">
-                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
-                            </div>
-                        </div>
-
-                        <input type="hidden" name="resource_id" id="edit_lesson_edit_resource_id" />
-
-                        <p class="uk-text-right">
-                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                            <input class="uk-button uk-button-primary" type="submit" value="Save" id="edit-submit-button" data-action="" />
-                        </p>
-                    </div>
-                </div>
-
-                <div id="lessonResourcesTemplate" style="display: none;">
-                    <div class="uk-grid uk-flex-middle" uk-grid id="resource_RESOURCE_ID">
-                        <div class="uk-width-expand">
-                            <dt>RESOURCE_TITLE</dt>
-                            <dd>RESOURCE_DESCRIPTION</dd>
-                        </div>
-
-
-                        <div class="uk-width-auto">
-                            <a href="RESOURCE_URL" class="uk-button uk-button-default uk-button-small view" target="_blank">View</a>
-                        </div>
-                        <div class="uk-width-auto">
-                            <a href="#" class="uk-button uk-button-default uk-button-small lesson-edit-resource" data-id="{{ 'RESOURCE_ID' }}">Edit</a>
-                        </div>
-
-                        <button type="button" data-remove="{{ path('lesson_resource_remove', {'id' : 'RESOURCE_ID' }) }}" uk-close></button>
-                    </div>
                 </div>
             </div>
         </div>
 
+
         {{ form_end(form) }}
 
     </div>
-
-    <script>
-
-        document.getElementById('edit_lesson_add_resource_link_to_website').addEventListener('blur', (event) => {
-        const matched = event.target.value.match(/^(http|https):\/\//);
-        if(!matched) {
-          document.getElementById('edit_lesson_add_resource_link_to_website').value = 'http://' + event.target.value;
-        }
-      }, true);
-
-      document.getElementById('edit_lesson_edit_resource_link_to_website').addEventListener('blur', (event) => {
-        const matched = event.target.value.match(/^(http|https):\/\//);
-        if(!matched) {
-          document.getElementById('edit_lesson_edit_resource_link_to_website').value = 'http://' + event.target.value;
-        }
-      }, true);
-    </script>
 
 {% endblock %}
