@@ -136,6 +136,7 @@ class DashboardController extends AbstractController
                 'primaryIndustries' => $primaryIndustries,
             ];
 
+            $eventsWithFeedbackIds = [];
             // let's see which events have feedback from the user and which don't
             foreach ($completedEventsRegisteredForByUser as $event) {
 
@@ -169,14 +170,33 @@ class DashboardController extends AbstractController
                         'feedback' => $feedback,
                     ];
                 } else {
-                    if ($feedback->getDeleted() === false) {
-                        $dashboards['eventsWithFeedback'][] = [
-                            'event' => $event,
-                            'feedback' => $feedback,
-                        ];
-                    }
+                    $eventsWithFeedbackIds[] = $feedback->getId();
+                    $dashboards['eventsWithFeedback'][] = [
+                        'event' => $event,
+                        'feedback' => $feedback,
+                    ];
                 }
             }
+
+            $additionalFeedback = $this->feedbackRepository->findBy([
+                'user' => $user,
+                'deleted' => false,
+            ]);
+
+            /** @var Feedback $feedback */
+            foreach($additionalFeedback as $feedback) {
+
+                if(in_array($feedback->getId(), $eventsWithFeedbackIds)) {
+                    continue;
+                }
+
+                $dashboards['eventsWithFeedback'][] = [
+                    'event' => $feedback->getExperience(),
+                    'feedback' => $feedback,
+                ];
+            }
+
+
 
         } elseif ($user->isProfessional()) {
             $completedEventsRegisteredForByUser = $this->experienceRepository->getCompletedEventsRegisteredForByUser($user);
@@ -192,6 +212,8 @@ class DashboardController extends AbstractController
                 'eventsWithFeedback' => [],
                 'eventsWithFeedbackFromOthers' => [],
             ];
+
+            $eventsWithFeedbackIds = [];
 
             foreach ($completedEventsRegisteredForByUser as $event) {
 
@@ -220,13 +242,30 @@ class DashboardController extends AbstractController
                         'feedback' => $feedback,
                     ];
                 } else {
-                    if ($feedback->getDeleted() === false) {
-                        $dashboards['eventsWithFeedback'][] = [
-                            'event' => $event,
-                            'feedback' => $feedback,
-                        ];
-                    }
+                    $eventsWithFeedbackIds[] = $feedback->getId();
+                    $dashboards['eventsWithFeedback'][] = [
+                        'event' => $event,
+                        'feedback' => $feedback,
+                    ];
                 }
+            }
+
+            $additionalFeedback = $this->feedbackRepository->findBy([
+                'user' => $user,
+                'deleted' => false,
+            ]);
+
+            /** @var Feedback $feedback */
+            foreach($additionalFeedback as $feedback) {
+
+                if(in_array($feedback->getId(), $eventsWithFeedbackIds)) {
+                    continue;
+                }
+
+                $dashboards['eventsWithFeedback'][] = [
+                    'event' => $feedback->getExperience(),
+                    'feedback' => $feedback,
+                ];
             }
 
             $teachableLessonIds = [];
