@@ -20,6 +20,7 @@ use App\Entity\ProfessionalReviewMeetStudentExperienceFeedback;
 use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\SchoolExperience;
 use App\Entity\SecondaryIndustry;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
@@ -356,7 +357,22 @@ class FeedbackController extends AbstractController
                     /** @var TeachLessonExperience $experience */
                     $feedback->setTeachLessonExperience($experience);
                     $feedback->setEducator($user);
-                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+
+                    /** @var \App\Entity\Request $request */
+                    $request = $experience->getOriginalRequest();
+
+                    if($actionUrl = $request->getActionUrl()) {
+                        $parts = parse_url($actionUrl);
+                        parse_str($parts['query'], $query);
+                        $lessonId = $query['lesson_id'];
+                        $lesson = $this->lessonRepository->find($lessonId);
+
+                        if($lesson) {
+                            $feedback->setLesson($lesson);
+                        }
+
+                    }
+
                     break;
 
                 case 'ProfessionalReviewStudentToMeetProfessionalFeedback':
@@ -374,7 +390,22 @@ class FeedbackController extends AbstractController
                     /** @var TeachLessonExperience $experience */
                     $feedback->setTeachLessonExperience($experience);
                     $feedback->setProfessional($user);
-                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+
+                    /** @var \App\Entity\Request $request */
+                    $request = $experience->getOriginalRequest();
+
+                    if($actionUrl = $request->getActionUrl()) {
+                        $parts = parse_url($actionUrl);
+                        parse_str($parts['query'], $query);
+                        $lessonId = $query['lesson_id'];
+                        $lesson = $this->lessonRepository->find($lessonId);
+
+                        if($lesson) {
+                            $feedback->setLesson($lesson);
+                        }
+
+                    }
+
                     break;
                 case 'ProfessionalReviewCompanyExperienceFeedback':
                     /** @var ProfessionalReviewCompanyExperienceFeedback $feedback */
@@ -401,7 +432,22 @@ class FeedbackController extends AbstractController
                     /** @var TeachLessonExperience $experience */
                     $feedback->setTeachLessonExperience($experience);
                     $feedback->setStudent($user);
-                    $feedback->setLesson($experience->getOriginalRequest()->getLesson());
+
+                    /** @var \App\Entity\Request $request */
+                    $request = $experience->getOriginalRequest();
+
+                    if($actionUrl = $request->getActionUrl()) {
+                        $parts = parse_url($actionUrl);
+                        parse_str($parts['query'], $query);
+                        $lessonId = $query['lesson_id'];
+                        $lesson = $this->lessonRepository->find($lessonId);
+
+                        if($lesson) {
+                            $feedback->setLesson($lesson);
+                        }
+
+                    }
+
                     break;
                 case 'StudentReviewMeetProfessionalExperienceFeedback':
                     /** @var StudentReviewMeetProfessionalExperienceFeedback $feedback */
