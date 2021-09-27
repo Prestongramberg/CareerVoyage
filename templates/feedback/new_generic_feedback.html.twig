@@ -27,7 +27,7 @@
                 <div>
                     {{ form_label(form.feedback.rating, 'Rate your overall experience*') }}
                     {{ form_widget(form.feedback.rating, {'attr': {'class': 'uk-hidden' }}) }}
-                    <div class="react-form-smile-rating" data-disabled="{{ experienceHasFeedback }}" data-name="educator_review_teach_lesson_experience_feedback_form[feedback][rating]" data-value="{{ feedback.rating }}"></div>
+                    <div class="react-form-smile-rating" data-disabled="{{ experienceHasFeedback }}" data-name="generic_feedback_form[feedback][rating]" data-value="{{ feedback.rating }}"></div>
                     {% if form_errors(form.feedback.rating) %}
                         <div class="uk-form-danger">
                             {{ form_errors(form.feedback.rating) }}
@@ -49,7 +49,7 @@
                 <div class="uk-margin">
                     {{ form_label(form.feedback.likelihoodToRecommendToFriend, 'How likely are you to recommend this guest instructor to a fellow teacher*') }}
                     {{ form_widget(form.feedback.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.feedback.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
-                    <div class="react-form-range" data-name="educator_review_teach_lesson_experience_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
+                    <div class="react-form-range" data-name="generic_feedback_form[feedback][likelihoodToRecommendToFriend]" data-value="{{ feedback.likelihoodToRecommendToFriend }}" data-disabled="{{ experienceHasFeedback }}"></div>
                     {{ form_errors(form.feedback.likelihoodToRecommendToFriend) }}
                 </div>
                 <div class="uk-margin">

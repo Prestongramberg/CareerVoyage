@@ -22,6 +22,7 @@ services:
             $pusherAppKey: '%env(PUSHER_APP_KEY)%'
             $pusherAppSecret: '%env(PUSHER_APP_SECRET)%'
             $baseUrl: '%env(BASE_URL)%'
+            $siteBaseUrl: '%env(SITE_BASE_URL)%'
             $googleApiKey: '%env(GOOGLE_API_KEY)%'
             $baseHost: '%env(BASE_HOST)%'
             $baseScheme: '%env(BASE_SCHEME)%'
