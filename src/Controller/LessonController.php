@@ -2,11 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Company;
-use App\Entity\CompanyPhoto;
-use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
-use App\Entity\Image;
 use App\Entity\Lesson;
 use App\Entity\LessonResource;
 use App\Entity\LessonTeachable;
@@ -16,7 +12,7 @@ use App\Entity\RequestPossibleApprovers;
 use App\Entity\User;
 use App\Form\EditLessonType;
 use App\Form\Filter\LessonFilterType;
-use App\Form\NewLessonType;
+use App\Form\LessonType;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
@@ -264,10 +260,15 @@ class LessonController extends AbstractController
 
         $options = [
             'method' => 'POST',
+            'lesson' => $lesson,
             'skip_validation' => $request->request->get('skip_validation', false),
         ];
 
-        $form = $this->createForm(NewLessonType::class, $lesson, $options);
+        if (!$options['skip_validation']) {
+            $options['validation_groups'] = $request->request->get('validation_groups', []);
+        }
+
+        $form = $this->createForm(LessonType::class, $lesson, $options);
 
         $form->handleRequest($request);
 
@@ -293,6 +294,18 @@ class LessonController extends AbstractController
                 return $this->redirectToRoute('lessons_results_page');
             }
 
+        }
+
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'formMarkup' => $this->renderView('lesson/new.html.twig', [
+                        'user' => $user,
+                        'form' => $form->createView(),
+                    ]),
+                ], Response::HTTP_BAD_REQUEST
+            );
         }
 
         return $this->render(

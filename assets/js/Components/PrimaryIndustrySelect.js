@@ -102,6 +102,19 @@ class PrimaryIndustrySelect {
                             }
                         },
                     });
+
+                    $('#lesson_secondaryIndustries').select2({
+                        placeholder: "Please select career field(s)",
+                        allowClear: true,
+                        width: '100%',
+                        "language": {
+                            "noResults": function(){
+                                return "Please choose your lesson's industry sector first";
+                            }
+                        },
+                    });
+
+
                 });
 
                 this.selectCache = null;

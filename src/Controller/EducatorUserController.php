@@ -2,63 +2,20 @@
 
 namespace App\Controller;
 
-use App\Entity\Company;
-use App\Entity\CompanyPhoto;
-use App\Entity\CompanyResource;
 use App\Entity\EducatorUser;
 use App\Entity\EducatorVideo;
-use App\Entity\Image;
-use App\Entity\Course;
-use App\Entity\Lesson;
-use App\Entity\LessonTeachable;
-use App\Entity\ProfessionalUser;
-use App\Entity\RegionalCoordinator;
 use App\Entity\School;
-use App\Entity\SchoolAdministrator;
-use App\Entity\SecondaryIndustry;
-use App\Entity\StateCoordinator;
-use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\Filter\EducatorFilterType;
 use App\Form\ManageEducatorsFilterType;
-use App\Form\NewLessonType;
-use App\Form\ProfessionalEditProfileFormType;
-use App\Form\RegionalCoordinatorFormType;
-use App\Form\StateCoordinatorFormType;
-use App\Mailer\RequestsMailer;
-use App\Mailer\SecurityMailer;
-use App\Repository\CompanyPhotoRepository;
-use App\Repository\CompanyRepository;
-use App\Repository\LessonFavoriteRepository;
-use App\Repository\LessonTeachableRepository;
-use App\Repository\StateCoordinatorRepository;
-use App\Repository\UserRepository;
-use App\Service\FileUploader;
-use App\Service\ImageCacheGenerator;
-use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
-use Doctrine\ORM\EntityManagerInterface;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
-use Gedmo\Sluggable\Util\Urlizer;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Asset\Packages;
 
 /**
  * Class EducatorUserController
