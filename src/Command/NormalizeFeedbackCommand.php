@@ -470,6 +470,24 @@ class NormalizeFeedbackCommand extends Command
                 continue;
             }
 
+            if($lesson->getPrimaryCourse()) {
+                $lesson->addPrimaryCourse($lesson->getPrimaryCourse());
+            }
+
+            foreach($lesson->getSecondaryCourses() as $secondaryCourse) {
+                $lesson->addPrimaryCourse($secondaryCourse);
+            }
+
+            if($lesson->getPrimaryIndustry()) {
+                $lesson->addPrimaryIndustry($lesson->getPrimaryIndustry());
+            }
+
+            foreach ($lesson->getSecondaryIndustries() as $secondaryIndustry) {
+                if ($secondaryIndustry->getPrimaryIndustry()) {
+                    $lesson->addPrimaryIndustry($secondaryIndustry->getPrimaryIndustry());
+                }
+            }
+
             $lesson->setHasExpertPresenters(false);
             $lesson->setHasEducatorRequestors(false);
 
@@ -1916,9 +1934,9 @@ class NormalizeFeedbackCommand extends Command
 
                         $notification = $request->getNotification();
 
-                        if(!empty($notification['data']['professional_id'])) {
+                        if (!empty($notification['data']['professional_id'])) {
                             $professionalId = $notification['data']['professional_id'];
-                            $professional = $this->professionalUserRepository->find($professionalId);
+                            $professional   = $this->professionalUserRepository->find($professionalId);
                             if ($professional && $company = $professional->getCompany()) {
                                 $companyIds[]   = $company->getId();
                                 $companyNames[] = $company->getName();
@@ -2073,9 +2091,9 @@ class NormalizeFeedbackCommand extends Command
 
                         $notification = $request->getNotification();
 
-                        if(!empty($notification['data']['professional_id'])) {
+                        if (!empty($notification['data']['professional_id'])) {
                             $professionalId = $notification['data']['professional_id'];
-                            $professional = $this->professionalUserRepository->find($professionalId);
+                            $professional   = $this->professionalUserRepository->find($professionalId);
                             if ($professional && $company = $professional->getCompany()) {
                                 $companyIds[]   = $company->getId();
                                 $companyNames[] = $company->getName();
@@ -2084,9 +2102,9 @@ class NormalizeFeedbackCommand extends Command
                             }
                         }
 
-                        if(!empty($notification['data']['student_id'])) {
+                        if (!empty($notification['data']['student_id'])) {
                             $studentId = $notification['data']['student_id'];
-                            $student = $this->studentUserRepository->find($studentId);
+                            $student   = $this->studentUserRepository->find($studentId);
                             if ($student && $school = $student->getSchool()) {
                                 $schoolIds[]   = $school->getId();
                                 $schoolNames[] = $school->getName();

@@ -28,7 +28,7 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please add a title for this topic presentation", groups={"LESSON_GENERAL"})
      * @ORM\Column(type="string", length=255)
      */
     private $title;
@@ -36,8 +36,8 @@ class Lesson
     /**
      * @Assert\Count(
      *      min = 1,
-     *      minMessage = "You must specify at least one grade.",
-     *     groups={"CREATE", "EDIT"}
+     *      minMessage = "Please specify the relevant grades for this topic presentation",
+     *     groups={"LESSON_GENERAL"}
      * )
      * @Groups({"LESSON_DATA"})
      * @ORM\ManyToMany(targetEntity="App\Entity\Grade", inversedBy="lessons")
@@ -45,33 +45,21 @@ class Lesson
     private $grades;
 
     /**
-     * @Assert\NotNull(message="Don't forget to select a primary course!", groups={"CREATE", "EDIT"})
      * @Groups({"LESSON_DATA"})
-     * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="lessons")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Course")
      * @ORM\JoinColumn(nullable=true)
      */
     private $primaryCourse;
 
     /**
-     * @Assert\Count(
-     *      min = "1",
-     *      minMessage = "Don't forget to select at least one secondary course",
-     *     groups={"CREATE", "EDIT"}
-     * )
-     * @Groups({"LESSON_DATA"})
-     * @ORM\ManyToMany(targetEntity="App\Entity\Course", inversedBy="lessons")
-     */
-    private $secondaryCourses;
-
-    /**
-     * @Assert\NotBlank(message="Don't forget a summary!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please add a brief summary for this topic presentation", groups={"LESSON_GENERAL"})
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $summary;
 
     /**
-     * @Assert\NotBlank(message="Don't forget learning outcomes!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please add learning outcomes for this topic presentation", groups={"LESSON_GENERAL"})
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="text", nullable=true)
      */
@@ -138,7 +126,7 @@ class Lesson
 
     /**
      * @Groups({"LESSON_DATA"})
-     * @Assert\NotBlank(message="Don't forget a short description!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please add a short description for this topic presentation", groups={"LESSON_GENERAL"})
      *
      * @ORM\Column(type="text", nullable=true)
      */
@@ -150,17 +138,12 @@ class Lesson
     private $lessonResources;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Industry", inversedBy="lessons")
+     * @deprecated We now are using primaryIndustries but to make the system backwards compatible we are leaving it for now
+     * @ORM\ManyToOne(targetEntity="App\Entity\Industry")
      */
     private $primaryIndustry;
 
     /**
-     * @Assert\Count(
-     *      min = "1",
-     *      minMessage = "You must specify at least one career field",
-     *     groups={"SECONDARY_INDUSTRY"}
-     * )
-     *
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="lessons")
      */
     private $secondaryIndustries;
@@ -179,11 +162,32 @@ class Lesson
      * @ORM\OneToMany(targetEntity=TeachLessonExperience::class, mappedBy="lesson")
      */
     private $teachLessonExperiences;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please choose at least one industry sector for this topic presentation",
+     *     groups={"LESSON_GENERAL"}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Industry::class, inversedBy="lessons")
+     */
+    private $primaryIndustries;
+
+    /**
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "Please choose at least one school course for this topic presentation",
+     *     groups={"LESSON_GENERAL"}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Course::class, inversedBy="lessons")
+     */
+    private $primaryCourses;
     
     public function __construct()
     {
         $this->grades = new ArrayCollection();
-        $this->secondaryCourses = new ArrayCollection();
         $this->lessonFavorites = new ArrayCollection();
         $this->lessonTeachables = new ArrayCollection();
         $this->lessonResources = new ArrayCollection();
@@ -191,6 +195,8 @@ class Lesson
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->educatorReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->teachLessonExperiences = new ArrayCollection();
+        $this->primaryIndustries = new ArrayCollection();
+        $this->primaryCourses = new ArrayCollection();
     }
 
     public function getId()
@@ -249,29 +255,13 @@ class Lesson
     }
 
     /**
-     * @return Collection|Course[]
+     * @deprecated
+     * Secondary courses are deprecated so just return primary courses here for now
+     * @return Course[]|Collection
      */
     public function getSecondaryCourses()
     {
-        return $this->secondaryCourses;
-    }
-
-    public function addSecondaryCourse(Course $secondaryCourse)
-    {
-        if (!$this->secondaryCourses->contains($secondaryCourse)) {
-            $this->secondaryCourses[] = $secondaryCourse;
-        }
-
-        return $this;
-    }
-
-    public function removeSecondaryCourse(Course $secondaryCourse)
-    {
-        if ($this->secondaryCourses->contains($secondaryCourse)) {
-            $this->secondaryCourses->removeElement($secondaryCourse);
-        }
-
-        return $this;
+        return $this->getPrimaryCourses();
     }
 
     public function getSummary()
@@ -367,12 +357,20 @@ class Lesson
 
     public function getFeaturedImagePath()
     {
-        return UploaderHelper::LESSON_FEATURED.'/'.$this->getFeaturedImage();
+        if($this->featuredImage) {
+            return UploaderHelper::LESSON_FEATURED.'/'.$this->getFeaturedImage();
+        }
+
+        return null;
     }
 
     public function getThumbnailImagePath()
     {
-        return UploaderHelper::LESSON_THUMBNAIL.'/'.$this->getThumbnailImage();
+        if($this->thumbnailImage) {
+            return UploaderHelper::LESSON_THUMBNAIL.'/'.$this->getThumbnailImage();
+        }
+
+        return null;
     }
 
     /**
@@ -583,18 +581,6 @@ class Lesson
         return $this;
     }
 
-    public function getPrimaryIndustry(): ?Industry
-    {
-        return $this->primaryIndustry;
-    }
-
-    public function setPrimaryIndustry(?Industry $primaryIndustry): self
-    {
-        $this->primaryIndustry = $primaryIndustry;
-
-        return $this;
-    }
-
     /**
      * @return Collection|SecondaryIndustry[]
      */
@@ -727,6 +713,66 @@ class Lesson
                 $teachLessonExperience->setLesson(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPrimaryIndustry(): ?Industry
+    {
+        return $this->primaryIndustry;
+    }
+
+    public function setPrimaryIndustry(?Industry $primaryIndustry): self
+    {
+        $this->primaryIndustry = $primaryIndustry;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Industry[]
+     */
+    public function getPrimaryIndustries(): Collection
+    {
+        return $this->primaryIndustries;
+    }
+
+    public function addPrimaryIndustry(Industry $primaryIndustry): self
+    {
+        if (!$this->primaryIndustries->contains($primaryIndustry)) {
+            $this->primaryIndustries[] = $primaryIndustry;
+        }
+
+        return $this;
+    }
+
+    public function removePrimaryIndustry(Industry $primaryIndustry): self
+    {
+        $this->primaryIndustries->removeElement($primaryIndustry);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Course[]
+     */
+    public function getPrimaryCourses(): Collection
+    {
+        return $this->primaryCourses;
+    }
+
+    public function addPrimaryCourse(Course $primaryCourse): self
+    {
+        if (!$this->primaryCourses->contains($primaryCourse)) {
+            $this->primaryCourses[] = $primaryCourse;
+        }
+
+        return $this;
+    }
+
+    public function removePrimaryCourse(Course $primaryCourse): self
+    {
+        $this->primaryCourses->removeElement($primaryCourse);
 
         return $this;
     }
