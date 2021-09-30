@@ -71,13 +71,15 @@ class ProfessionalFilterType extends AbstractType
                                         return null;
                                     }
 
-                                    $searchTerm = $values['value'];
-
                                     $queryBuilder = $filterQuery->getQueryBuilder();
 
-                                    $queryBuilder->andWhere('u.firstName LIKE :searchTerm OR u.lastName LIKE :searchTerm OR u.interests LIKE :searchTerm')
-                                                 ->setParameter('searchTerm', '%' . $searchTerm . '%');
+                                    $searchTerms = explode(" ", $values['value']);
 
+                                    foreach($searchTerms as $searchTerm) {
+                                        $queryBuilder->andWhere('u.firstName LIKE :searchTerm OR u.lastName LIKE :searchTerm OR u.interests LIKE :searchTerm')
+                                                     ->setParameter('searchTerm', '%' . $searchTerm . '%');
+                                    }
+                                    
                                     $newFilterQuery = new ORMQuery($queryBuilder);
 
                                     $expression = $newFilterQuery->getExpr()->eq('1', '1');
