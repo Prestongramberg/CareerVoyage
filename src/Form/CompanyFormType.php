@@ -183,6 +183,18 @@ class CompanyFormType extends AbstractType
             ->add('thumbnailImage', HiddenType::class)
             ->add('featuredImage', HiddenType::class);
 
+        if($company->getId()) {
+            $builder->add('owner', EntityType::class, [
+                'class' => ProfessionalUser::class,
+                'query_builder' => function (EntityRepository $er) use ($company) {
+                    return $er->createQueryBuilder('p')
+                              ->where('p.company = :company')
+                              ->setParameter('company', $company->getId());
+                },
+                'choice_label' => 'email'
+            ]);
+        }
+
         $builder->get('thumbnailImage')->addModelTransformer(new CallbackTransformer(
             function ($image) {
 

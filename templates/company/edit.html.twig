@@ -104,6 +104,16 @@
 
                                 </div>
 
+                                {% if form.owner is defined and  form.owner.vars.choices|length %}
+                                    <div class="uk-margin">
+                                        {{ form_label(form.owner, 'Company Page Manager Email*') }}
+                                        {{ form_widget(form.owner, {'attr': {'class': 'uk-input' ~ ( form_errors(form.owner) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.owner) }}
+                                        <p>The company employee responsible for managing and editing your company's page
+                                            on this platform</p>
+                                    </div>
+                                {% endif %}
+
                             </fieldset>
 
 
@@ -461,10 +471,13 @@
                                             {% endif %}
                                         </div>
                                         <div class="uk-width-auto">
-                                            <a href="javascript:void(0)" data-url="{{ path('api_resource_edit', {'id' : companyResource.id }) }}?companyId={{ company.id }}"
+                                            <a href="javascript:void(0)"
+                                               data-url="{{ path('api_resource_edit', {'id' : companyResource.id }) }}?companyId={{ company.id }}"
                                                class="uk-button uk-button-default uk-button-small js-edit-resource-button">Edit</a>
                                         </div>
-                                        <button class="js-delete-resource-button" type="button" data-url="{{ path('api_resource_delete', {'id' : companyResource.id }) }}" uk-close></button>
+                                        <button class="js-delete-resource-button" type="button"
+                                                data-url="{{ path('api_resource_delete', {'id' : companyResource.id }) }}"
+                                                uk-close></button>
                                     </div>
                                 {% endfor %}
                             </div>
