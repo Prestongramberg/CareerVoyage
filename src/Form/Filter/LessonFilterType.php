@@ -52,11 +52,11 @@ class LessonFilterType extends AbstractType
         );
 
         $builder->add(
-            'primaryCourse', Filters\EntityFilterType::class, [
+            'primaryCourses', Filters\EntityFilterType::class, [
                 'class' => Course::class,
                 'choice_label' => 'title',
                 'expanded' => false,
-                'multiple' => false,
+                'multiple' => true,
                 'placeholder' => 'FILTER BY COURSE',
                 'query_builder' => function (\App\Repository\CourseRepository $courseRepository) {
                     return $courseRepository->createQueryBuilder('c')
@@ -66,11 +66,11 @@ class LessonFilterType extends AbstractType
         );
 
         $builder->add(
-            'primaryIndustry', Filters\EntityFilterType::class, [
+            'primaryIndustries', Filters\EntityFilterType::class, [
                 'class' => Industry::class,
                 'choice_label' => 'name',
                 'expanded' => false,
-                'multiple' => false,
+                'multiple' => true,
                 'placeholder' => 'FILTER BY INDUSTRY',
                 'query_builder' => function (
                     \App\Repository\IndustryRepository $industryRepository

@@ -129,29 +129,12 @@
                                     </td>
                                 </tr>
                             {% endif %}
-                            {% if lesson.secondaryIndustries|length %}
+
+                            {% if lesson.primaryCourses|length %}
                                 <tr>
-                                    <td>Careers</td>
+                                    <td>School Courses</td>
                                     <td>
-                                        <div style="max-height: 100px; overflow-y: scroll">
-                                            {% for industry in lesson.secondaryIndustries %}
-                                                {{ industry.name }}{% if not loop.last %}, {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if lesson.primaryCourse %}
-                                <tr>
-                                    <td>Primary Course</td>
-                                    <td>{{ lesson.primaryCourse.title }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if lesson.secondaryCourses|length %}
-                                <tr>
-                                    <td>Secondary Courses</td>
-                                    <td>
-                                        {% for course in lesson.secondaryCourses %}
+                                        {% for course in lesson.primaryCourses %}
                                             {{ course.title }}{% if not loop.last %},{% endif %}
                                         {% endfor %}
                                     </td>

@@ -2,6 +2,11 @@
 
 {% block title %}All Topics{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/lesson_results.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 
     <div class="uk-container">
@@ -31,31 +36,31 @@
         {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
 
         {% if form.title is defined %}
-            <div class="uk-width-1-4@s">
+            <div class="uk-width-1-3@s">
                 {{ form_widget(form.title, {'attr': {'class': 'uk-input', 'placeholder': 'Search by Name...'}}) }}
             </div>
         {% endif %}
 
-            {% if form.primaryCourse is defined %}
-                <div class="uk-width-1-4@s">
-                    {{ form_widget(form.primaryCourse, {'attr': {'class': 'uk-select', 'placeholder': 'FILTER BY COURSE'}}) }}
+            {% if form.primaryCourses is defined %}
+                <div class="uk-width-1-3@s">
+                    {{ form_widget(form.primaryCourses, {'attr': {'class': 'uk-select js-primary-courses-filter', 'placeholder': 'FILTER BY COURSE'}}) }}
                 </div>
             {% endif %}
 
-            {% if form.primaryIndustry is defined %}
-                <div class="uk-width-1-4@s">
-                    {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select', 'placeholder': 'FILTER BY INDUSTRY'}}) }}
+            {% if form.primaryIndustries is defined %}
+                <div class="uk-width-1-3@s">
+                    {{ form_widget(form.primaryIndustries, {'attr': {'class': 'uk-select js-primary-industries-filter', 'placeholder': 'FILTER BY INDUSTRY'}}) }}
                 </div>
             {% endif %}
 
             {% if form.hasExpertPresenters is defined %}
-                <div class="uk-width-1-4@s">
+                <div class="uk-width-1-5@s">
                     {{ form_widget(form.hasExpertPresenters, {'attr': {'class': 'uk-select', 'placeholder': 'Search by Name...'}}) }}
                 </div>
             {% endif %}
 
             {% if form.hasEducatorRequestors is defined  %}
-                <div class="uk-width-1-4@s">
+                <div class="uk-width-1-5@s">
                     {{ form_widget(form.hasEducatorRequestors, {'attr': {'class': 'uk-select', 'placeholder': 'Search by Name...'}}) }}
                 </div>
             {% endif %}
@@ -116,7 +121,7 @@
                                 <h3 class="uk-card-title-small">{{ paginatedLesson.title }}</h3>
                             </a>
 
-                            <p>{{ paginatedLesson.summary|raw }}</p>
+                            <p>{{ paginatedLesson.shortDescription|raw }}</p>
                         </div>
                     </div>
 

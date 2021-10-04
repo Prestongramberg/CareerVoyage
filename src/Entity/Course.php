@@ -32,19 +32,19 @@ class Course
     private $title;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Lesson", mappedBy="primaryCourse", orphanRemoval=true)
-     */
-    private $lessons;
-
-    /**
      * @ORM\ManyToMany(targetEntity="App\Entity\EducatorUser", mappedBy="myCourses")
      */
     private $educatorUsers;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Lesson::class, mappedBy="primaryCourses")
+     */
+    private $lessons;
+
     public function __construct()
     {
-        $this->lessons = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
+        $this->lessons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,37 +60,6 @@ class Course
     public function setTitle(string $title): self
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Lesson[]
-     */
-    public function getLessons(): Collection
-    {
-        return $this->lessons;
-    }
-
-    public function addLesson(Lesson $lesson): self
-    {
-        if (!$this->lessons->contains($lesson)) {
-            $this->lessons[] = $lesson;
-            $lesson->setPrimaryCourse($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLesson(Lesson $lesson): self
-    {
-        if ($this->lessons->contains($lesson)) {
-            $this->lessons->removeElement($lesson);
-            // set the owning side to null (unless already changed)
-            if ($lesson->getPrimaryCourse() === $this) {
-                $lesson->setPrimaryCourse(null);
-            }
-        }
 
         return $this;
     }
@@ -118,6 +87,33 @@ class Course
         if ($this->educatorUsers->contains($educatorUser)) {
             $this->educatorUsers->removeElement($educatorUser);
             $educatorUser->removeMyCourse($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Lesson[]
+     */
+    public function getLessons(): Collection
+    {
+        return $this->lessons;
+    }
+
+    public function addLesson(Lesson $lesson): self
+    {
+        if (!$this->lessons->contains($lesson)) {
+            $this->lessons[] = $lesson;
+            $lesson->addPrimaryCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLesson(Lesson $lesson): self
+    {
+        if ($this->lessons->removeElement($lesson)) {
+            $lesson->removePrimaryCourse($this);
         }
 
         return $this;

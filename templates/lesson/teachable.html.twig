@@ -8,6 +8,12 @@
     {% endif %}
 {% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/lesson_results.js') }}"></script>
+{% endblock %}
+
+
 {% block body %}
 
     <div class="uk-container">
@@ -42,15 +48,15 @@
             </div>
         {% endif %}
 
-        {% if form.primaryCourse is defined %}
-            <div class="uk-width-1-4@s">
-                {{ form_widget(form.primaryCourse, {'attr': {'class': 'uk-select', 'placeholder': 'FILTER BY COURSE'}}) }}
+        {% if form.primaryCourses is defined %}
+            <div class="uk-width-1-3@s">
+                {{ form_widget(form.primaryCourses, {'attr': {'class': 'uk-select js-primary-courses-filter', 'placeholder': 'FILTER BY COURSE'}}) }}
             </div>
         {% endif %}
 
-        {% if form.primaryIndustry is defined %}
-            <div class="uk-width-1-4@s">
-                {{ form_widget(form.primaryIndustry, {'attr': {'class': 'uk-select', 'placeholder': 'FILTER BY INDUSTRY'}}) }}
+        {% if form.primaryIndustries is defined %}
+            <div class="uk-width-1-3@s">
+                {{ form_widget(form.primaryIndustries, {'attr': {'class': 'uk-select js-primary-industries-filter', 'placeholder': 'FILTER BY INDUSTRY'}}) }}
             </div>
         {% endif %}
 

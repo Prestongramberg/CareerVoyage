@@ -102,6 +102,7 @@ class PrimaryIndustrySelect {
                             }
                         },
                     });
+
                 });
 
                 this.selectCache = null;

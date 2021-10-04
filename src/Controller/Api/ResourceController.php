@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\CompanyResource;
+use App\Entity\LessonResource;
 use App\Entity\Resource;
 use App\Entity\User;
 use App\Form\ResourceType;
@@ -56,6 +57,19 @@ class ResourceController extends AbstractController
             $dataClass = CompanyResource::class;
         }
 
+        if ($request->query->has('lessonId')) {
+
+            $lessonId = $request->query->get('lessonId');
+            $lesson   = $this->lessonRepository->find($lessonId);
+
+            $resource = new LessonResource();
+            $resource->setLesson($lesson);
+            $action    = $this->generateUrl('api_resource_new', [
+                'lessonId' => $lesson->getId(),
+            ]);
+            $dataClass = LessonResource::class;
+        }
+
         $form = $this->createForm(ResourceType::class, $resource, [
             'action' => $action,
             'data_class' => $dataClass,
@@ -78,6 +92,10 @@ class ResourceController extends AbstractController
 
             if ($request->query->has('companyId')) {
                 $folder = UploaderHelper::COMPANY_RESOURCE;
+            }
+
+            if ($request->query->has('lessonId')) {
+                $folder = UploaderHelper::LESSON_RESOURCE;
             }
 
             if ($file) {
@@ -103,6 +121,16 @@ class ResourceController extends AbstractController
 
                 $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
                                                                      'companyId' => $request->query->get('companyId'),
+                ]);
+            }
+
+            if ($request->query->has('lessonId')) {
+                $editUrl = $this->generateUrl('api_resource_edit', ['id' => $resource->getId(),
+                                                                    'lessonId' => $request->query->get('lessonId'),
+                ]);
+
+                $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
+                                                                        'lessonId' => $request->query->get('lessonId'),
                 ]);
             }
 
@@ -160,6 +188,14 @@ class ResourceController extends AbstractController
             $dataClass = CompanyResource::class;
         }
 
+        if ($request->query->has('lessonId')) {
+            $action    = $this->generateUrl('api_resource_edit', [
+                'id' => $resource->getId(),
+                'lessonId' => $request->query->get('lessonId'),
+            ]);
+            $dataClass = LessonResource::class;
+        }
+
         $form = $this->createForm(ResourceType::class, $resource, [
             'action' => $action,
             'data_class' => $dataClass,
@@ -184,6 +220,10 @@ class ResourceController extends AbstractController
                 $folder = UploaderHelper::COMPANY_RESOURCE;
             }
 
+            if ($request->query->has('lessonId')) {
+                $folder = UploaderHelper::LESSON_RESOURCE;
+            }
+
             if ($file) {
                 $mimeType    = $file->getMimeType();
                 $newFilename = $this->uploaderHelper->upload($file, $folder);
@@ -205,6 +245,16 @@ class ResourceController extends AbstractController
 
                 $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
                                                                         'companyId' => $request->query->get('companyId'),
+                ]);
+            }
+
+            if ($request->query->has('lessonId')) {
+                $editUrl = $this->generateUrl('api_resource_edit', ['id' => $resource->getId(),
+                                                                    'lessonId' => $request->query->get('lessonId'),
+                ]);
+
+                $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
+                                                                        'lessonId' => $request->query->get('lessonId'),
                 ]);
             }
 
