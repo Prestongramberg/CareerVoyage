@@ -124,20 +124,25 @@
 
                                     <div class="professional-links">
 
-                                        {% if paginatedUser.email is defined and paginatedUser.email is not null %}
-                                            <a href="mailto:{{ paginatedUser.email }}"
-                                               class="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
-                                        {% endif %}
+                                        {% if user_can_chat_with_user( user, paginatedUser ) %}
 
-                                        {% if paginatedUser.phone is defined and paginatedUser.phone is not null %}
-                                            <a href="tel:{{ paginatedUser.phone }}"
-                                               class="uk-icon-button uk-margin-small-right" data-uk-icon="receiver"></a>
-                                        {% endif %}
+                                            {% if paginatedUser.email is defined and paginatedUser.email is not null %}
+                                                <a href="mailto:{{ paginatedUser.email }}"
+                                                   class="uk-icon-button uk-margin-small-right" data-uk-icon="mail"></a>
+                                            {% endif %}
 
-                                        {% if paginatedUser.linkedinProfile is defined and paginatedUser.linkedinProfile is not null %}
-                                            <a href="{{ paginatedUser.linkedinProfile }}"
-                                               class="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"
-                                               target="_blank"></a>
+                                            {% if paginatedUser.phone is defined and paginatedUser.phone is not null %}
+                                                <a href="tel:{{ paginatedUser.phone }}"
+                                                   class="uk-icon-button uk-margin-small-right"
+                                                   data-uk-icon="receiver"></a>
+                                            {% endif %}
+
+                                            {% if paginatedUser.linkedinProfile is defined and paginatedUser.linkedinProfile is not null %}
+                                                <a href="{{ paginatedUser.linkedinProfile }}"
+                                                   class="uk-icon-button uk-margin-small-right" data-uk-icon="linkedin"
+                                                   target="_blank"></a>
+                                            {% endif %}
+
                                         {% endif %}
                                     </div>
                                 </div>
