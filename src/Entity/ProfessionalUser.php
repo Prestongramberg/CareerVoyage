@@ -320,7 +320,11 @@ class ProfessionalUser extends User
     }
 
     public function isOwner(Company $company) {
-        return $this->getId() === $company->getOwner()->getId();
+
+        return (
+            $company->getOwner() &&
+            $this->getId() === $company->getOwner()->getId()
+        );
     }
 
     public function getPrimaryIndustry(): ?Industry

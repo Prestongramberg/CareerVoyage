@@ -430,6 +430,7 @@ class DashboardController extends AbstractController
             'lessons' => $lessons,
             'schoolExperiences' => $schoolExperiences,
             'companyExperiences' => $companyExperiences,
+            'schoolId' => $request->query->has('school') ? (int) $request->query->get('school') : null
         ]);
     }
 

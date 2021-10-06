@@ -86,7 +86,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if paginatedUser.company is defined and paginatedUser.company is not null and paginatedUser.company.owner.id == paginatedUser.id %}
+                                    {% if paginatedUser.company is defined and paginatedUser.company is not null and paginatedUser.company.owner is not null and paginatedUser.company.owner.id == paginatedUser.id %}
                                         Yes
                                     {% else %}
                                         No
