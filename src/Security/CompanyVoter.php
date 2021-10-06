@@ -56,7 +56,7 @@ class CompanyVoter extends Voter
             return true;
         }
 
-        if($company->getOwner()->getId() === $user->getId()) {
+        if($company->getOwner() && $company->getOwner()->getId() === $user->getId()) {
             return true;
         }
 
