@@ -398,20 +398,21 @@ class AppExtension extends AbstractExtension
     {
         $requests_total = 0;
 
-        $requests = $this->requestRepository->getRequestsThatNeedMyApproval($user);
+        $requests = $this->requestRepository->getRequestsThatNeedMyApproval(
+            $user,
+            false,
+            null,
+            false,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [],
+            true
+        );
 
-        /** @var Request $request */
-        foreach ($requests as $request) {
-
-            /** @var RequestPossibleApprovers $possibleApprover */
-            if ($possibleApprover = $request->getAssociatedRequestPossibleApproverForUser($user)) {
-                if ($possibleApprover->getHasNotification()) {
-                    $requests_total++;
-                }
-            }
-        }
-
-        return $requests_total;
+        return count($requests);
     }
 
     public function ucwords($text)

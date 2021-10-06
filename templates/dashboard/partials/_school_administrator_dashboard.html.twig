@@ -47,63 +47,50 @@
 
 <div class="uk-container uk-margin">
 
-    {# <ul id="school-tab">
-        {% for school in user.schools %}
-            <li {{ school.id == schoolId or loop.index == 1 ? 'class="uk-active"' : '' }}><a href="{{ path('dashboard') }}?school={{ school.id }}" class="schools-tab">{{ school.name }}</a></li>
-        {% endfor %}
-    </ul> #}
-    <div id="tab-schools">
+    {% if schoolId %}
+        {% set schools = user.schools|filter(s => s.id == schoolId) %}
+    {% else %}
+        {% set schools = user.schools|filter((v, k) => k == 0) %}
+    {% endif %}
 
-        {% if schoolId %}
-            {% set schools = user.schools|filter(s => s.id == schoolId) %}
-        {% else %}
-            {% set schools = user.schools|filter((v, k) => k == 0) %}
-        {% endif %}
+    {% for school in schools %}
 
-        {% for school in schools %}
-
-            <div class="school_{{ school.id }}">
-                <div class="uk-grid" uk-grid>
-                    <div class="uk-width-1-1 uk-width-2-3@l">
-                        <div class="uk-panel">
-                            <div class="school_description">
-                                <div class="uk-section uk-section-muted uk-padding-large">
-                                    <div class="uk-container">
-                                        <h2>{{ school.name }} Overview</h2>
-                                        {% if school.overviewAndBackground %}
-                                            {{ school.overviewAndBackground|raw }}
-                                        {% else %}
-                                            <p>This school does not have an overview added yet.</p>
-                                        {% endif %}
-                                        <p><a class="uk-link"
-                                              href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
-
-                                        <!--
-                                         <form action="{{ path('school_delete', { "id": school.id }) }}" method="POST">
-                                            <button style="float: right" class="uk-button uk-button-danger uk-button-small uk-margin-small-right" type="submit">Remove</button>
-                                        </form>
-                                        -->
-                                    </div>
+        <div class="school_{{ school.id }}">
+            <div class="uk-grid" uk-grid>
+                <div class="uk-width-1-1 uk-width-2-3@l">
+                    <div class="uk-panel">
+                        <div class="school_description">
+                            <div class="uk-section uk-section-muted uk-padding-large">
+                                <div class="uk-container">
+                                    <h2>{{ school.name }} Overview</h2>
+                                    {% if school.overviewAndBackground %}
+                                        {{ school.overviewAndBackground|raw }}
+                                    {% else %}
+                                        <p>This school does not have an overview added yet.</p>
+                                    {% endif %}
+                                    <p><a class="uk-link"
+                                          href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
                                 </div>
                             </div>
                         </div>
-                        {% if school.isUserSchoolAdministrator(user) %}
-                            <div class="uk-margin">
-                                <ul class="uk-tab school-tab-tools"
-                                    uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
-                                    <li class="uk-active"><a href="?school={{ school.id }}&tool=calendar">My
-                                            Calendar</a></li>
-                                    {# <li class="uk-visible@m"><a href="?school={{school.id}}&tool=participation">Participation</a></li> #}
-                                    <li><a href="?school={{ school.id }}&tool=educators">Educators</a></li>
-                                    <li><a href="?school={{ school.id }}&tool=students">Students</a></li>
-                                    <li><a href="?school={{ school.id }}&tool=experiences">Experiences</a></li>
-                                    <li><a href="?school={{ school.id }}&tool=feedback">Feedback</a></li>
-                                </ul>
-                                <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
-                                    <div class="school_{{ school.id }}_tools_calendar">
-                                        <div class="react-events-embed" data-school-id="{{ school.id }}"></div>
-                                    </div>
-                                    {# <div class="school_{{ school.id }}_tools_participation uk-visible@m">
+                    </div>
+                    {% if school.isUserSchoolAdministrator(user) %}
+                        <div class="uk-margin">
+                            <ul class="uk-tab school-tab-tools"
+                                uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
+                                <li class="uk-active"><a href="?school={{ school.id }}&tool=calendar">My
+                                        Calendar</a></li>
+                                {# <li class="uk-visible@m"><a href="?school={{school.id}}&tool=participation">Participation</a></li> #}
+                                <li><a href="?school={{ school.id }}&tool=educators">Educators</a></li>
+                                <li><a href="?school={{ school.id }}&tool=students">Students</a></li>
+                                <li><a href="?school={{ school.id }}&tool=experiences">Experiences</a></li>
+                                <li><a href="?school={{ school.id }}&tool=feedback">Feedback</a></li>
+                            </ul>
+                            <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
+                                <div class="school_{{ school.id }}_tools_calendar">
+                                    <div class="react-events-embed" data-school-id="{{ school.id }}"></div>
+                                </div>
+                                {# <div class="school_{{ school.id }}_tools_participation uk-visible@m">
                                         <div class="uk-card uk-card-default">
                                             <div class="uk-card-body">
                                                 <h3>Company Experiences in {{ "now"|date("F, Y") }} by Industry</h3>
@@ -111,223 +98,222 @@
                                             </div>
                                         </div>
                                     </div> #}
-                                    <div class="school_{{ school.id }}_tools_educators">
+                                <div class="school_{{ school.id }}_tools_educators">
 
-                                        <div class="uk-margin uk-width-1-1">
-                                            <div class="uk-flex uk-flex-right@m">
-                                                <a href="{{ path('school_educator_import', { "id": school.id }) }}"
-                                                   class="uk-button uk-button-primary uk-button-small">Add
-                                                    Educators</a>
-                                            </div>
+                                    <div class="uk-margin uk-width-1-1">
+                                        <div class="uk-flex uk-flex-right@m">
+                                            <a href="{{ path('school_educator_import', { "id": school.id }) }}"
+                                               class="uk-button uk-button-primary uk-button-small">Add
+                                                Educators</a>
                                         </div>
-
-                                        {% if school.educatorUsers|length %}
-                                            <div class="school__educators">
-                                                <dl class="uk-description-list uk-description-list-divider">
-                                                    <iframe src="{{ path('educator_manage', {id: school.id}) }}"
-                                                            style="border:none;" width="100%"
-                                                            height="800px"></iframe>
-                                                </dl>
-                                            </div>
-                                        {% endif %}
                                     </div>
-                                    <div class="school_{{ school.id }}_tools_students">
 
-                                        <div class="uk-margin uk-width-1-1">
-                                            <div class="uk-flex uk-flex-right@m">
-                                                <a href="{{ path('school_student_import', { "id": school.id }) }}"
-                                                   class="uk-button uk-button-primary uk-button-small">Add
-                                                    Students</a>
-                                            </div>
+                                    {% if school.educatorUsers|length %}
+                                        <div class="school__educators">
+                                            <dl class="uk-description-list uk-description-list-divider">
+                                                <iframe src="{{ path('educator_manage', {id: school.id}) }}"
+                                                        style="border:none;" width="100%"
+                                                        height="800px"></iframe>
+                                            </dl>
                                         </div>
+                                    {% endif %}
+                                </div>
+                                <div class="school_{{ school.id }}_tools_students">
 
-                                        {% if school.studentUsers|length %}
-                                            <div class="school__educators">
-                                                <dl class="uk-description-list uk-description-list-divider">
-                                                    <iframe src="{{ path('students_manage', {id: school.id}) }}"
-                                                            style="border:none;" width="100%"
-                                                            height="800px"></iframe>
-                                                </dl>
-                                            </div>
-                                        {% endif %}
-
+                                    <div class="uk-margin uk-width-1-1">
+                                        <div class="uk-flex uk-flex-right@m">
+                                            <a href="{{ path('school_student_import', { "id": school.id }) }}"
+                                               class="uk-button uk-button-primary uk-button-small">Add
+                                                Students</a>
+                                        </div>
                                     </div>
-                                    <div class="school_{{ school.id }}_tools_experiences">
-                                        <div class="uk-placeholder uk-text-center">
-                                            <p><a class="uk-button uk-button-primary uk-button-small"
-                                                  href="{{ path('school_experience_create', {'id': school.id}) }}">Create
-                                                    an Experience</a></p>
+
+                                    {% if school.studentUsers|length %}
+                                        <div class="school__educators">
+                                            <dl class="uk-description-list uk-description-list-divider">
+                                                <iframe src="{{ path('students_manage', {id: school.id}) }}"
+                                                        style="border:none;" width="100%"
+                                                        height="800px"></iframe>
+                                            </dl>
                                         </div>
+                                    {% endif %}
 
-                                        {% if school.schoolExperiences|length %}
-                                            <div class="school__educators">
-                                                <dl class="uk-description-list uk-description-list-divider">
-                                                    {% for experience in school.schoolExperiences %}
+                                </div>
+                                <div class="school_{{ school.id }}_tools_experiences">
+                                    <div class="uk-placeholder uk-text-center">
+                                        <p><a class="uk-button uk-button-primary uk-button-small"
+                                              href="{{ path('school_experience_create', {'id': school.id}) }}">Create
+                                                an Experience</a></p>
+                                    </div>
 
-                                                        {% set experienceId = experience.id %}
+                                    {% if school.schoolExperiences|length %}
+                                        <div class="school__educators">
+                                            <dl class="uk-description-list uk-description-list-divider">
+                                                {% for experience in school.schoolExperiences %}
 
-                                                        {% if experience.cancelled != 1 %}
-                                                            <div class="uk-grid uk-flex-middle" uk-grid>
-                                                                <div class="uk-width-expand">
-                                                                    <dt>{{ experience.title }}</dt>
-                                                                </div>
-                                                                <div class="uk-width-1-1 uk-width-auto@m">
-                                                                    <a href="{{ path('school_experience_view', { "id": experience.id }) }}"
-                                                                       class="uk-button uk-button-default uk-button-small">View</a>
+                                                    {% set experienceId = experience.id %}
 
-                                                                    <a class="uk-button uk-button-danger uk-button-small"
-                                                                       href="#modal-remove-school-event-{{ experience.id }}"
-                                                                       uk-toggle>Delete</a>
-
-                                                                    <div id="modal-remove-school-event-{{ experience.id }}"
-                                                                         uk-modal>
-                                                                        <div class="uk-modal-dialog uk-modal-body">
-                                                                            <h3>Delete Experience</h3>
-                                                                            <form class="uk-inline" method="post"
-                                                                                  action="{{ path('school_experience_remove', { "id": experience.id }) }}">
-
-                                                                                <label class="uk-form-label">Cancellation
-                                                                                    Message (this will be sent to
-                                                                                    all
-                                                                                    users currently registered to
-                                                                                    attend
-                                                                                    your experience):</label>
-                                                                                <input type="hidden"
-                                                                                       name="schoolAdminId"
-                                                                                       value="{{ user.id }}">
-                                                                                <textarea class="uk-textarea"
-                                                                                          name="cancellationMessage"
-                                                                                          style="width: 100%"></textarea>
-                                                                                <p>
-                                                                                    <button class="uk-button uk-button-default uk-modal-close"
-                                                                                            type="button">Cancel
-                                                                                    </button>
-                                                                                    <button class="uk-button uk-button-danger"
-                                                                                            type="submit">Remove
-                                                                                    </button>
-                                                                                </p>
-                                                                            </form>
-                                                                        </div>
-                                                                    </div>
-
-
-                                                                </div>
+                                                    {% if experience.cancelled != 1 %}
+                                                        <div class="uk-grid uk-flex-middle" uk-grid>
+                                                            <div class="uk-width-expand">
+                                                                <dt>{{ experience.title }}</dt>
                                                             </div>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </dl>
-                                            </div>
-                                        {% endif %}
+                                                            <div class="uk-width-1-1 uk-width-auto@m">
+                                                                <a href="{{ path('school_experience_view', { "id": experience.id }) }}"
+                                                                   class="uk-button uk-button-default uk-button-small">View</a>
 
-                                    </div>
-                                    <div class="school_{{ school.id }}_tools_feedback">
-                                        {# FEEDBACK WIDGET #}
-                                        {{ feedback_widget(user, null, school)|raw }}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="uk-width-1-1 uk-width-1-3@l">
+                                                                <a class="uk-button uk-button-danger uk-button-small"
+                                                                   href="#modal-remove-school-event-{{ experience.id }}"
+                                                                   uk-toggle>Delete</a>
 
-                        <!-- What's New This Week -->
-                        <div class="quick-links-wrapper uk-margin">
-                            <div class="uk-card uk-card-default">
-                                <div class="uk-card-header">
-                                    <div class="uk-grid-small uk-flex-middle" uk-grid>
-                                        <div class="uk-width-expand">
-                                            <h3 class="uk-card-title uk-margin-remove-bottom">What's New This
-                                                Week</h3>
+                                                                <div id="modal-remove-school-event-{{ experience.id }}"
+                                                                     uk-modal>
+                                                                    <div class="uk-modal-dialog uk-modal-body">
+                                                                        <h3>Delete Experience</h3>
+                                                                        <form class="uk-inline" method="post"
+                                                                              action="{{ path('school_experience_remove', { "id": experience.id }) }}">
+
+                                                                            <label class="uk-form-label">Cancellation
+                                                                                Message (this will be sent to
+                                                                                all
+                                                                                users currently registered to
+                                                                                attend
+                                                                                your experience):</label>
+                                                                            <input type="hidden"
+                                                                                   name="schoolAdminId"
+                                                                                   value="{{ user.id }}">
+                                                                            <textarea class="uk-textarea"
+                                                                                      name="cancellationMessage"
+                                                                                      style="width: 100%"></textarea>
+                                                                            <p>
+                                                                                <button class="uk-button uk-button-default uk-modal-close"
+                                                                                        type="button">Cancel
+                                                                                </button>
+                                                                                <button class="uk-button uk-button-danger"
+                                                                                        type="submit">Remove
+                                                                                </button>
+                                                                            </p>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+
+
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </dl>
                                         </div>
-                                    </div>
+                                    {% endif %}
+
                                 </div>
-                                <div class="uk-card-body">
-                                    <h4>New Lessons (Created within past 7 days)</h4>
-                                    <hr>
-                                    <div style="text-align: left">
-                                        {% for lesson in lessons %}
-                                            <p>
-                                                <a href="/dashboard/lessons/{{ lesson.id }}/view">{{ lesson.title }}</a>
-                                            </p>
-                                        {% else %}
-                                            <p>No New Lessons exist at this time.</p>
-                                        {% endfor %}
-                                    </div>
-
-                                    {# Relevant School Events #}
-                                    <hr>
-                                    <h4>New School Experiences</h4>
-                                    <hr>
-                                    <div style="text-align: left">
-                                        {% set count = 0 %}
-                                        {% for schoolExperience in schoolExperiences %}
-                                            {% if schoolExperience.school.id == school.id %}
-                                                <p>
-                                                    <a href="/dashboard/schools/experiences/{{ schoolExperience.id }}/view">{{ schoolExperience.title }}</a>
-                                                </p>
-                                                {% set count = count + 1 %}
-                                            {% endif %}
-                                        {% else %}
-                                            {% set count = 1 %}
-                                            <p>No New School Experiences at this time.</p>
-                                        {% endfor %}
-
-                                        {% if count == 0 %}
-                                            <p>No New School Experiences for this school at this time.</p>
-                                        {% endif %}
-                                    </div>
-
-                                    {# Relevant Company Events #}
-                                    <hr>
-                                    <h4>New Company Experiences</h4>
-                                    <hr>
-                                    <div style="text-align: left">
-                                        {% for companyExperience in companyExperiences %}
-                                            <p>
-                                                <a href="/dashboard/companies/experiences/{{ companyExperience.id }}/view">{{ companyExperience.title }}</a>
-                                            </p>
-                                        {% else %}
-                                            <p>No New Company Experiences at this time.</p>
-                                        {% endfor %}
-                                    </div>
-
+                                <div class="school_{{ school.id }}_tools_feedback">
+                                    {# FEEDBACK WIDGET #}
+                                    {{ feedback_widget(user, null, school)|raw }}
                                 </div>
                             </div>
                         </div>
+                    {% endif %}
+                </div>
+                <div class="uk-width-1-1 uk-width-1-3@l">
 
-
+                    <!-- What's New This Week -->
+                    <div class="quick-links-wrapper uk-margin">
                         <div class="uk-card uk-card-default">
-                            <div class="uk-card-body">
-                                <h3>School Breakdown</h3>
-                                <div class="react-pie-chart"
-                                     data-set="[{{ dashboards.numberOfEducatorsInSchoolNetwork }},{{ dashboards.numberOfStudentsInSchoolNetwork }}]"
-                                     data-labels='["Educators", "Students"]'></div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="quick-links-wrapper">
-                            <div class="uk-card uk-card-default">
-                                <div class="uk-card-header">
-                                    <div class="uk-grid-small uk-flex-middle" uk-grid>
-                                        <div class="uk-width-expand">
-                                            <h3 class="uk-card-title uk-margin-remove-bottom">Feedback</h3>
-                                        </div>
+                            <div class="uk-card-header">
+                                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <h3 class="uk-card-title uk-margin-remove-bottom">What's New This
+                                            Week</h3>
                                     </div>
                                 </div>
-                                <div class="uk-card-body">
-                                    <ul class="uk-list">
-
-                                        <a href="{{ path('feedback_view_all') }}" target="_blank">View All Relevant
-                                            Feedback</a>
-                                    </ul>
+                            </div>
+                            <div class="uk-card-body">
+                                <h4>New Lessons (Created within past 7 days)</h4>
+                                <hr>
+                                <div style="text-align: left">
+                                    {% for lesson in lessons %}
+                                        <p>
+                                            <a href="/dashboard/lessons/{{ lesson.id }}/view">{{ lesson.title }}</a>
+                                        </p>
+                                    {% else %}
+                                        <p>No New Lessons exist at this time.</p>
+                                    {% endfor %}
                                 </div>
+
+                                {# Relevant School Events #}
+                                <hr>
+                                <h4>New School Experiences</h4>
+                                <hr>
+                                <div style="text-align: left">
+                                    {% set count = 0 %}
+                                    {% for schoolExperience in schoolExperiences %}
+                                        {% if schoolExperience.school.id == school.id %}
+                                            <p>
+                                                <a href="/dashboard/schools/experiences/{{ schoolExperience.id }}/view">{{ schoolExperience.title }}</a>
+                                            </p>
+                                            {% set count = count + 1 %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% set count = 1 %}
+                                        <p>No New School Experiences at this time.</p>
+                                    {% endfor %}
+
+                                    {% if count == 0 %}
+                                        <p>No New School Experiences for this school at this time.</p>
+                                    {% endif %}
+                                </div>
+
+                                {# Relevant Company Events #}
+                                <hr>
+                                <h4>New Company Experiences</h4>
+                                <hr>
+                                <div style="text-align: left">
+                                    {% for companyExperience in companyExperiences %}
+                                        <p>
+                                            <a href="/dashboard/companies/experiences/{{ companyExperience.id }}/view">{{ companyExperience.title }}</a>
+                                        </p>
+                                    {% else %}
+                                        <p>No New Company Experiences at this time.</p>
+                                    {% endfor %}
+                                </div>
+
                             </div>
                         </div>
-
                     </div>
+
+
+                    <div class="uk-card uk-card-default">
+                        <div class="uk-card-body">
+                            <h3>School Breakdown</h3>
+                            <div class="react-pie-chart"
+                                 data-set="[{{ dashboards.numberOfEducatorsInSchoolNetwork }},{{ dashboards.numberOfStudentsInSchoolNetwork }}]"
+                                 data-labels='["Educators", "Students"]'></div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="quick-links-wrapper">
+                        <div class="uk-card uk-card-default">
+                            <div class="uk-card-header">
+                                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                    <div class="uk-width-expand">
+                                        <h3 class="uk-card-title uk-margin-remove-bottom">Feedback</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-card-body">
+                                <ul class="uk-list">
+
+                                    <a href="{{ path('feedback_view_all') }}" target="_blank">View All Relevant
+                                        Feedback</a>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+        </div>
 
-        {% endfor %}
-    </div>
+    {% endfor %}
 </div>
