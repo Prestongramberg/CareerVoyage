@@ -60,7 +60,8 @@ class RequestRepository extends ServiceEntityRepository
         $denied = null,
         $pending = null,
         $status = null,
-        $possibleApprovers = []
+        $possibleApprovers = [],
+        $hasNotification = false
     ) {
         $queryBuilder = $this->createQueryBuilder('r')
                              ->leftJoin('r.requestPossibleApprovers', 'rpa')
@@ -87,6 +88,11 @@ class RequestRepository extends ServiceEntityRepository
             foreach($possibleApprovers as $possibleApprover) {
                 $queryBuilder->setParameter(sprintf('possibleApprover_%s', $possibleApprover->getId()), $possibleApprover);
             }
+        }
+
+        if($hasNotification) {
+            $queryBuilder->andWhere('rpa.hasNotification = :hasNotification')
+                         ->setParameter('hasNotification', true);
         }
 
 
