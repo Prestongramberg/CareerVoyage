@@ -702,6 +702,7 @@ class SchoolController extends AbstractController
             $file    = $form->get('file')->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
             // capitalize each word in each item in array so we can assure a proper comparision
+            $columns         = array_map('strtolower', $columns);
             $columns         = array_map('ucwords', $columns);
             $expectedColumns = ['First Name', 'Last Name', 'Graduating Year', 'Educator Number'];
             if ($columns != $expectedColumns) {
@@ -742,7 +743,7 @@ class SchoolController extends AbstractController
                         foreach ($cells as $cell) {
                             $value = $cell->getValue();
                             if ($rowIndex === 1) {
-                                $columns[] = $value;
+                                $columns[] = ucwords(strtolower($value));
 
                             } else {
                                 $values[] = $value;
@@ -891,6 +892,7 @@ class SchoolController extends AbstractController
             }
 
             // capitalize each word in each item in array so we can assure a proper comparision
+            $columns         = array_map('strtolower', $columns);
             $columns         = array_map('ucwords', $columns);
             $expectedColumns = ['First Name', 'Last Name', 'Email'];
             if ($columns != $expectedColumns) {
@@ -932,7 +934,7 @@ class SchoolController extends AbstractController
                         foreach ($cells as $cell) {
                             $value = $cell->getValue();
                             if ($rowIndex === 1) {
-                                $columns[] = $value;
+                                $columns[] = ucwords(strtolower($value));
 
                             } else {
                                 $values[] = $value;
