@@ -763,26 +763,26 @@ class SchoolController extends AbstractController
                                 $username = preg_replace(
                                     '/\s+/', '', sprintf(
                                         "%s.%s",
-                                        strtolower($student['First Name'] . '.' . $student['Last Name']),
+                                        strtolower(trim($student['First Name']) . '.' . trim($student['Last Name'])),
                                         $this->generateRandomString(1)
                                     )
                                 );
 
                                 $studentObj = new StudentUser();
-                                $studentObj->setFirstName($student['First Name']);
-                                $studentObj->setLastName($student['Last Name']);
-                                $studentObj->setGraduatingYear($student['Graduating Year']);
+                                $studentObj->setFirstName(trim($student['First Name']));
+                                $studentObj->setLastName(trim($student['Last Name']));
+                                $studentObj->setGraduatingYear(trim($student['Graduating Year']));
 
                                 if (!empty($student['Educator Number'])) {
 
-                                    if ($previousEducator instanceof EducatorUser && $previousEducator->getId() === $student['Educator Number']) {
+                                    if ($previousEducator instanceof EducatorUser && $previousEducator->getId() === trim($student['Educator Number'])) {
                                         $studentObj->addEducatorUser($previousEducator);
                                         $studentObj->setEducatorNumber($previousEducator->getId());
                                     } else {
 
                                         $educator = $this->educatorUserRepository->findOneBy(
                                             [
-                                                'id' => $student['Educator Number'],
+                                                'id' => trim($student['Educator Number']),
                                                 'school' => $school,
                                             ]
                                         );
@@ -800,7 +800,7 @@ class SchoolController extends AbstractController
                                 $studentObj->initializeNewUser();
                                 $studentObj->setTempPassword($tempPassword);
                                 $studentObj->setActivated(true);
-                                $studentObj->setUsername($username);
+                                $studentObj->setUsername(trim($username));
                                 $studentObj->setPassword($encodedPassword);
 
                                 $this->entityManager->persist($studentObj);
@@ -976,21 +976,21 @@ class SchoolController extends AbstractController
                                 $username = preg_replace(
                                     '/\s+/', '', sprintf(
                                         "%s.%s",
-                                        strtolower($educator['First Name'] . '.' . $educator['Last Name']),
+                                        strtolower(trim($educator['First Name']) . '.' . trim($educator['Last Name'])),
                                         $this->generateRandomString(1)
                                     )
                                 );
 
                                 $educatorObj = new EducatorUser();
-                                $educatorObj->setFirstName($educator['First Name']);
-                                $educatorObj->setLastName($educator['Last Name']);
+                                $educatorObj->setFirstName(trim($educator['First Name']));
+                                $educatorObj->setLastName(trim($educator['Last Name']));
                                 $educatorObj->setSchool($school);
                                 $educatorObj->setupAsEducator();
                                 $educatorObj->setSite($user->getSite());
                                 $educatorObj->initializeNewUser();
                                 $educatorObj->setActivated(true);
-                                $educatorObj->setEmail($educator['Email']);
-                                $educatorObj->setUsername($username);
+                                $educatorObj->setEmail(trim($educator['Email']));
+                                $educatorObj->setUsername(trim($username));
                                 $educatorObj->setTempPassword($tempPassword);
                                 $educatorObj->setPassword($encodedPassword);
                                 $this->entityManager->persist($educatorObj);
