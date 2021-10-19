@@ -545,6 +545,10 @@ class AppExtension extends AbstractExtension
             return false;
         }
 
+        if ($user && ($user instanceof SchoolAdministrator)) {
+            return true;
+        }
+
         // Educators can chat with Educators, Professionals, and Students
         if ($user && ($user instanceof EducatorUser)) {
             if ($userToBeChatted && ($userToBeChatted instanceof EducatorUser ||
