@@ -174,7 +174,7 @@ class ProfessionalEditProfileFormType extends AbstractType
             ->add('notificationPreferenceMask', HiddenType::class)
             ->add('addressSearch', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'Filter by your location',
+                    'placeholder' => 'Filter your volunteer schools by address',
                 ],
             ])
             ->add('personalAddressSearch', TextType::class, [
@@ -491,6 +491,10 @@ class ProfessionalEditProfileFormType extends AbstractType
                 ]);
             }
         }
+
+        usort($schools, function($a, $b) {
+            return strcmp($a->getName(), $b->getName());
+        });
 
         $this->schools = $schools;
 
