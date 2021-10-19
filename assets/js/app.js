@@ -262,11 +262,6 @@ $(document).on('click', '.close-modal-button', function(){
     UIkit.modal('#global-modal').hide();
 });
 
-$(document).on('change', '.js-primary-industry', function(){
-    this.form.submit();
-});
-
-
 $(document).on('click', '.js-un-teach-lesson', function(){
 
 });

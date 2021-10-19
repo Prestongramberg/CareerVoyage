@@ -78,11 +78,8 @@ class ProfessionalRegistrationFormType extends AbstractType
                     ->setParameter('primaryIndustry', $industry->getId());
             },
             'choice_label' => 'name',
-            'expanded' => true,
-            'multiple' => true,
-            'choice_attr' => function($choice, $key, $value) {
-                return ['class' => 'uk-checkbox'];
-            }
+            'expanded' => false,
+            'multiple' => true
         ]);
 
     }

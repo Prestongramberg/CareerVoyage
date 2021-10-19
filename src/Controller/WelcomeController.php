@@ -58,7 +58,6 @@ class WelcomeController extends AbstractController
 
 
         $options = [
-            'method' => 'POST',
             'action' => $this->generateUrl('welcome'),
             'skip_validation' => $request->request->get('skip_validation', false)
         ];
@@ -176,19 +175,9 @@ class WelcomeController extends AbstractController
             }
         }
 
-        if($request->request->has('primary_industry_change')) {
-            return new JsonResponse(
-                [
-                    'success' => false,
-                    'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                        'form' => $form->createView()
-                    ])
-                ], Response::HTTP_BAD_REQUEST
-            );
-        }
-
         return $this->render('welcome/index.html.twig', [
-            'last_username' => $lastUsername, 'error' => $error,
+            'last_username' => $lastUsername,
+            'error' => $error,
             'professionalRegistrationForm' => $professionalRegistrationForm->createView(),
             /*'educatorRegistrationForm' => $educatorRegistrationForm->createView(),
             'studentRegistrationForm' => $studentRegistrationForm->createView(),*/
@@ -234,9 +223,11 @@ class WelcomeController extends AbstractController
         return new JsonResponse(
             [
                 'success' => false,
-                'formMarkup' => $this->renderView('api/form/secondary_industry_form_field.html.twig', [
-                    'form' => $form->createView(),
-                    'fieldName' => 'professional_registration_form' 
+                'formMarkup' => $this->renderView('welcome/index.html.twig', [
+                    'professionalRegistrationForm' => $form->createView(),
+                    'formType' => 'professionalRegistrationForm',
+                    'last_username' => null,
+                    'error' => null,
                 ])
             ], Response::HTTP_BAD_REQUEST
         );

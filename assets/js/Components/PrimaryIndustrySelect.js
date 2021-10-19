@@ -44,7 +44,7 @@ class PrimaryIndustrySelect {
         }
 
         debugger;
-        let $form = this.$wrapper.find('form');
+        let $form = $(this.primaryIndustrySelector).closest('form');
         let formName = $form.attr('name');
         let tokenName = formName + "[_token]";
         var formData = new FormData($form.get(0));
@@ -102,6 +102,18 @@ class PrimaryIndustrySelect {
                             }
                         },
                     });
+
+                    $('#professional_registration_form_secondaryIndustries').select2({
+                        placeholder: "Select Professions",
+                        allowClear: true,
+                        width: '100%',
+                        "language": {
+                            "noResults": function(){
+                                return "Please choose a career sector / industry first";
+                            }
+                        },
+                    });
+
 
                 });
 

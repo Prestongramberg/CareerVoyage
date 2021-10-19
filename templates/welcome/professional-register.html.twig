@@ -27,6 +27,7 @@
             {{ form_label(professionalRegistrationForm.plainPassword, 'Password*') }}
             {{ form_widget(professionalRegistrationForm.plainPassword, {'attr': {'class': 'uk-input' ~ ( form_errors(professionalRegistrationForm.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
             {{ form_errors(professionalRegistrationForm.plainPassword) }}
+            <small>Password must be at least 9 characters in length</small>
         </div>
 
         <div class="uk-margin">
@@ -38,8 +39,8 @@
         <div class="js-secondary-industry-container">
             {% if professionalRegistrationForm.secondaryIndustries is defined %}
                 <div class="uk-margin">
-                    {{ form_label(professionalRegistrationForm.secondaryIndustries, 'Professions*') }} &nbsp;&nbsp;<a class="uk-link-muted" data-select-all="professional_registration_form[secondaryIndustries][]">Select All</a> - <a class="uk-link-muted" data-deselect-all="professional_registration_form[secondaryIndustries][]">UnSelect All</a>
-                    {{ form_widget(professionalRegistrationForm.secondaryIndustries, {'attr': {'class': 'uk-checkboxes uk-checkboxes-newlines' ~ ( form_errors(professionalRegistrationForm.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_label(professionalRegistrationForm.secondaryIndustries, 'Professions*') }}
+                    {{ form_widget(professionalRegistrationForm.secondaryIndustries, {'attr': {'class': '' ~ ( form_errors(professionalRegistrationForm.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
                     <div class="clear"></div>
                     {{ form_errors(professionalRegistrationForm.secondaryIndustries) }}
                 </div>

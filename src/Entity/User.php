@@ -92,7 +92,7 @@ abstract class User implements UserInterface
     protected $password;
 
     /**
-     * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6", groups={"CREATE", "EDIT", "STUDENT_USER", "EDUCATOR_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
+     * @RollerworksPassword\PasswordRequirements(minLength = "9", groups={"CREATE", "EDIT", "STUDENT_USER", "EDUCATOR_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT"})
      * @Assert\NotBlank(message="Don't forget a password for your user", groups={"CREATE"})
      */
     protected $plainPassword;
