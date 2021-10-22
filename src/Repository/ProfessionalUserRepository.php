@@ -308,9 +308,9 @@ class ProfessionalUserRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
                     ->innerJoin('p.schools', 'schools')
                     ->andWhere('schools.id = :id')
-                    ->andWhere('p.deleted = 0')
+                    ->andWhere('p.deleted = :deleted')
                     ->setParameter('id', $school->getId())
-                    ->orderBy('p.createdAt', 'DESC')
+                    ->setParameter('deleted', false)
                     ->orderBy('p.lastName', 'ASC')
                     ->getQuery()
                     ->getResult();
