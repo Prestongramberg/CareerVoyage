@@ -170,7 +170,7 @@ class DashboardController extends AbstractController
                         'feedback' => $feedback,
                     ];
                 } else {
-                    $eventsWithFeedbackIds[] = $feedback->getId();
+                    $eventsWithFeedbackIds[]            = $feedback->getId();
                     $dashboards['eventsWithFeedback'][] = [
                         'event' => $event,
                         'feedback' => $feedback,
@@ -184,9 +184,9 @@ class DashboardController extends AbstractController
             ]);
 
             /** @var Feedback $feedback */
-            foreach($additionalFeedback as $feedback) {
+            foreach ($additionalFeedback as $feedback) {
 
-                if(in_array($feedback->getId(), $eventsWithFeedbackIds)) {
+                if (in_array($feedback->getId(), $eventsWithFeedbackIds)) {
                     continue;
                 }
 
@@ -195,7 +195,6 @@ class DashboardController extends AbstractController
                     'feedback' => $feedback,
                 ];
             }
-
 
 
         } elseif ($user->isProfessional()) {
@@ -242,7 +241,7 @@ class DashboardController extends AbstractController
                         'feedback' => $feedback,
                     ];
                 } else {
-                    $eventsWithFeedbackIds[] = $feedback->getId();
+                    $eventsWithFeedbackIds[]            = $feedback->getId();
                     $dashboards['eventsWithFeedback'][] = [
                         'event' => $event,
                         'feedback' => $feedback,
@@ -256,9 +255,9 @@ class DashboardController extends AbstractController
             ]);
 
             /** @var Feedback $feedback */
-            foreach($additionalFeedback as $feedback) {
+            foreach ($additionalFeedback as $feedback) {
 
-                if(in_array($feedback->getId(), $eventsWithFeedbackIds)) {
+                if (in_array($feedback->getId(), $eventsWithFeedbackIds)) {
                     continue;
                 }
 
@@ -324,6 +323,15 @@ class DashboardController extends AbstractController
             $u_school_ids = [];
             foreach ($user->getSchools() as $school) {
                 $u_school_ids[] = $school->getId();
+            }
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds,
+                                                                            'school' => $u_school_ids,
+                                                                            'cancelled' => false,
+            ]);
+        } elseif ($loggedInUser->isStudent()) {
+            $u_school_ids = [];
+            if($loggedInUser->getSchool()) {
+                $u_school_ids[] = $loggedInUser->getSchool()->getId();
             }
             $schoolExperiences = $this->schoolExperienceRepository->findBy(['id' => $schoolExperienceIds,
                                                                             'school' => $u_school_ids,
@@ -430,7 +438,7 @@ class DashboardController extends AbstractController
             'lessons' => $lessons,
             'schoolExperiences' => $schoolExperiences,
             'companyExperiences' => $companyExperiences,
-            'schoolId' => $request->query->has('school') ? (int) $request->query->get('school') : null
+            'schoolId' => $request->query->has('school') ? (int)$request->query->get('school') : null,
         ]);
     }
 
@@ -549,10 +557,11 @@ class DashboardController extends AbstractController
         ]);
 
         $hiddenRequestIds = array_map(function (UserMeta $hiddenRequest) {
-            return (int) $hiddenRequest->getValue();
+            return (int)$hiddenRequest->getValue();
         }, $hiddenRequests);
 
-        $requestEntities = array_filter($requestEntities, function (RequestEntity $requestEntity) use ($hiddenRequestIds) {
+        $requestEntities = array_filter($requestEntities, function (RequestEntity $requestEntity) use ($hiddenRequestIds
+        ) {
             return !in_array($requestEntity->getId(), $hiddenRequestIds, true);
         });
 
