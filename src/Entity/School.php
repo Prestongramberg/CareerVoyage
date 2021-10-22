@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\OrderBy;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -469,6 +470,15 @@ class School
     public function getSchoolExperiences(): Collection
     {
         return $this->schoolExperiences;
+    }
+
+    public function getSortedSchoolExperiences(): Collection
+    {
+        $criteria = Criteria::create();
+        $criteria->where(Criteria::expr()->eq('cancelled', false))
+                 ->orderBy(array ('startDateAndTime' => Criteria::DESC));
+
+        return $this->schoolExperiences->matching($criteria);
     }
 
     public function addSchoolExperience(SchoolExperience $schoolExperience): self

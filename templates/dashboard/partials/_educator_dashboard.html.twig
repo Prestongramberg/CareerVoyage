@@ -226,10 +226,10 @@
                                 </div>
                             {% endif %}
 
-                            {% if user.school is not null and user.school.schoolExperiences|length %}
+                            {% if user.school is not null and user.school.sortedSchoolExperiences|length %}
                                 <div class="school__educators">
                                     <dl class="uk-description-list uk-description-list-divider">
-                                        {% for experience in user.school.schoolExperiences %}
+                                        {% for experience in user.school.sortedSchoolExperiences %}
 
                                             {% set experienceId = experience.id %}
 

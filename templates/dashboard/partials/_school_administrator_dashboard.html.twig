@@ -146,10 +146,10 @@
                                                 an Experience</a></p>
                                     </div>
 
-                                    {% if school.schoolExperiences|length %}
+                                    {% if school.sortedSchoolExperiences|length %}
                                         <div class="school__educators">
                                             <dl class="uk-description-list uk-description-list-divider">
-                                                {% for experience in school.schoolExperiences %}
+                                                {% for experience in school.sortedSchoolExperiences %}
 
                                                     {% set experienceId = experience.id %}
 

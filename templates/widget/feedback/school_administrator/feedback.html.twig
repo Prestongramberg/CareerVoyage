@@ -1,14 +1,19 @@
 <div uk-grid>
     <div class="uk-width-1-1 uk-width-small@m">
         <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+            <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
             {% for experience in feedbackGenerator %}
                 <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
             {% endfor %}
-            <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
         </ul>
     </div>
     <div class="uk-width-1-1 uk-width-expand@m">
         <ul id="tab-account-inner" class="uk-switcher">
+
+            <div class="feedback-summary">
+                <p><strong>Feedback Summary</strong></p>
+                {{ feedbackGenerator.renderAggregateDataBreakdown|raw }}
+            </div>
 
             {% for experience in feedbackGenerator%}
                     <div class="feedback-{{ experience.id }}">
@@ -26,11 +31,6 @@
             {% else %}
                 <p>No feedback has been submitted yet.</p>
             {% endfor %}
-
-            <div class="feedback-summary">
-                <p><strong>Feedback Summary</strong></p>
-                {{ feedbackGenerator.renderAggregateDataBreakdown|raw }}
-            </div>
         </ul>
     </div>
 </div>
