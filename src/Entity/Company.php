@@ -296,17 +296,17 @@ class Company
 
     public function __construct()
     {
-        $this->professionalUsers = new ArrayCollection();
-        $this->companyPhotos = new ArrayCollection();
-        $this->companyResources = new ArrayCollection();
-        $this->companyFavorites = new ArrayCollection();
+        $this->professionalUsers   = new ArrayCollection();
+        $this->companyPhotos       = new ArrayCollection();
+        $this->companyResources    = new ArrayCollection();
+        $this->companyFavorites    = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
-        $this->schools = new ArrayCollection();
-        $this->companyVideos = new ArrayCollection();
-        $this->companyExperiences = new ArrayCollection();
-        $this->studentUsers = new ArrayCollection();
-        $this->regions = new ArrayCollection();
-        $this->companyViews = new ArrayCollection();
+        $this->schools             = new ArrayCollection();
+        $this->companyVideos       = new ArrayCollection();
+        $this->companyExperiences  = new ArrayCollection();
+        $this->studentUsers        = new ArrayCollection();
+        $this->regions             = new ArrayCollection();
+        $this->companyViews        = new ArrayCollection();
     }
 
     public function getId()
@@ -435,9 +435,10 @@ class Company
      */
     public function getFeaturedImagePath()
     {
-        if($this->getFeaturedImage()) {
-            return UploaderHelper::FEATURE_IMAGE.'/'.$this->getFeaturedImage()->getFileName();
+        if ($this->getFeaturedImage()) {
+            return UploaderHelper::FEATURE_IMAGE . '/' . $this->getFeaturedImage()->getFileName();
         }
+
         return null;
     }
 
@@ -447,8 +448,8 @@ class Company
      */
     public function getThumbnailImagePath()
     {
-        if($this->getThumbnailImage()) {
-            return UploaderHelper::THUMBNAIL_IMAGE.'/'.$this->getThumbnailImage()->getFileName();
+        if ($this->getThumbnailImage()) {
+            return UploaderHelper::THUMBNAIL_IMAGE . '/' . $this->getThumbnailImage()->getFileName();
         }
 
         return null;
@@ -615,8 +616,9 @@ class Company
     /**
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      */
-    public function getThumbnailImageURL() {
-        if($this->getThumbnailImage()) {
+    public function getThumbnailImageURL()
+    {
+        if ($this->getThumbnailImage()) {
             return '/media/cache/squared_thumbnail_small/uploads/' . $this->getThumbnailImagePath();
         }
 
@@ -626,14 +628,17 @@ class Company
     /**
      * @Groups({"RESULTS_PAGE", "PROFESSIONAL_USER_DATA"})
      */
-    public function getFeaturedImageURL() {
-        if($this->getFeaturedImage()) {
+    public function getFeaturedImageURL()
+    {
+        if ($this->getFeaturedImage()) {
             return '/uploads/' . $this->getFeaturedImagePath();
         }
+
         return null;
     }
 
-    public function getPlaceholderImage() {
+    public function getPlaceholderImage()
+    {
 
         $words = explode(" ", $this->name);
 
@@ -781,7 +786,8 @@ class Company
         return $this;
     }
 
-    public function setSchools($schools) {
+    public function setSchools($schools)
+    {
         $this->schools = $schools;
     }
 
@@ -850,7 +856,8 @@ class Company
     public function getActiveCompanyExperiences(): Collection
     {
         $criteria = Criteria::create();
-        $criteria->where(Criteria::expr()->eq('cancelled', false));
+        $criteria->where(Criteria::expr()->eq('cancelled', false))
+                 ->orderBy(array ('startDateAndTime' => Criteria::DESC));
 
         return $this->companyExperiences->matching($criteria);
     }
@@ -904,10 +911,12 @@ class Company
         return $this;
     }
 
-    public function isUserOwner(User $user) {
-        if($user->getId() === $this->getOwner()->getId()) {
+    public function isUserOwner(User $user)
+    {
+        if ($user->getId() === $this->getOwner()->getId()) {
             return true;
         }
+
         return false;
     }
 
@@ -983,7 +992,8 @@ class Company
         return $this;
     }
 
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->getFormattedAddress();
     }
 
@@ -994,7 +1004,8 @@ class Company
         return $this;
     }
 
-    public function getFormattedAddress() {
+    public function getFormattedAddress()
+    {
         return sprintf("%s %s %s %s",
             $this->street,
             $this->city,

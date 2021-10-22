@@ -54,10 +54,11 @@ export function loadInitialData() {
 
 export function filterChanged(context) {
 
+    debugger;
 
     return (dispatch, getState) => {
 
-
+        debugger;
         let state = getState();
 
         if (state.search.typingTimeout) {
@@ -118,9 +119,11 @@ export function filterChanged(context) {
 
 export function pageChanged(pageNumber) {
 
+    debugger;
 
     return (dispatch, getState) => {
 
+        debugger;
         let state = getState();
 
         dispatch({
@@ -137,7 +140,12 @@ export function pageChanged(pageNumber) {
             url = window.Routing.generate("search_users", {request: state.search.request, page: pageNumber});
         }
 
-        return api.post(url, {})
+        debugger;
+        const data = {
+            filters: state.form
+        };
+
+        return api.post(url, data)
             .then((response) => {
 
 
