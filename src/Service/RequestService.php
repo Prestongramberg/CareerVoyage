@@ -135,6 +135,16 @@ class RequestService
 
         if($createdBy->getId() !== $userToRegister->getId()) {
             $createdByApprover->setNotificationTitle("<strong>You</strong> have registered \"{$userToRegister->getFullName()}\" for experience: \"{$experience->getTitle()}\"");
+
+            $registeredUserApprover = new RequestPossibleApprovers();
+            $registeredUserApprover->setPossibleApprover($userToRegister);
+            $registeredUserApprover->setRequest($registrationRequest);
+            $registeredUserApprover->setNotificationDate(new \DateTime());
+            $registeredUserApprover->setPossibleActions([
+                RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
+            ]);
+            $registeredUserApprover->setNotificationTitle("<strong>{$createdBy->getFullName()}</strong> has registered you for experience: \"{$experience->getTitle()}\"");
+            $this->entityManager->persist($registeredUserApprover);
         }
 
         if (!$experience->getRequireApproval()) {
