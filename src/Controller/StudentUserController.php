@@ -138,7 +138,9 @@ class StudentUserController extends AbstractController
         $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
         $filterBuilder->addOrderBy('u.lastName', 'ASC');
         $filterBuilder->addOrderBy('u.firstName', 'ASC');
-        $filterBuilder->andWhere('u.deleted = 0');
+        $filterBuilder->andWhere('u.deleted = :deleted and u.archived = :archived');
+        $filterBuilder->setParameter('deleted', false);
+        $filterBuilder->setParameter('archived', false);
         $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
 
 

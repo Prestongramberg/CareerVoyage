@@ -69,9 +69,9 @@ class StudentGraduationRemovalCommand extends Command
         $globalGraduatingDate = "07/31";
         $currentDate = (new \DateTime())->format("m/d");
 
-        if($currentDate !== $globalGraduatingDate) {
+     /*   if($currentDate !== $globalGraduatingDate) {
             die("this command should only be run on graduation day");
-        }
+        }*/
 
         $studentUsers = $this->studentUserRepository->findBy([
            'graduatingYear' => date("Y")

@@ -48,8 +48,8 @@ class ManageStudentsFilterType extends AbstractType
         $graduationYears = [];
         $current_month = Date("n");
         $year = Date('Y');
-        if($current_month < 8){
-            $year = $year - 1;
+        if($current_month > 8){
+            $year = $year + 1;
         }
 
         for($i = $year; $i < $year + 6; $i++){
