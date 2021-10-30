@@ -1,0 +1,12 @@
+{% set limit = query.limit is defined ? query.limit : 10 %}
+
+<div style="float: right">
+    Items per Page:
+    <select class="uk-select" style="width: 60px" onchange="if (this.value) window.location.href=this.value">
+        <option {{ limit == 10 ? 'selected' : '' }}value="{{ path(route, query|merge({'limit': 10})) }}">10</option>
+        <option {{ limit == 50 ? 'selected' : '' }} value="{{ path(route, query|merge({'limit': 50})) }}">50</option>
+        <option {{ limit == 100 ? 'selected' : '' }} value="{{ path(route, query|merge({'limit': 100})) }}">100</option>
+        <option {{ limit == 250 ? 'selected' : '' }} value="{{ path(route, query|merge({'limit': 250})) }}">250</option>
+        <option {{ limit == 'all' ? 'selected' : '' }} value="{{ path(route, query|merge({'limit': 'all'})) }}">All</option>
+    </select>
+</div>

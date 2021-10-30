@@ -120,59 +120,6 @@ class StudentUserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/schools/{id}/manage", name="students_manage", methods={"GET"})
-     * @param School $school
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function manageAction(School $school, Request $request) {
-
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $form = $this->buildFilterForm(StudentUser::class, $this->generateUrl('students_manage', ['id' => $school->getId()]), $school
-        );
-        $form->handleRequest($request);
-
-        $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.lastName', 'ASC');
-        $filterBuilder->addOrderBy('u.firstName', 'ASC');
-        $filterBuilder->andWhere('u.deleted = :deleted and u.archived = :archived');
-        $filterBuilder->setParameter('deleted', false);
-        $filterBuilder->setParameter('archived', false);
-        $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
-
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // build the query from the given form object
-            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
-        }
-
-        $filterQuery = $filterBuilder->getQuery();
-
-        $pagination = $this->paginator->paginate(
-            $filterQuery, /* query NOT result */
-            $request->query->getInt('page', 1), /*page number*/
-            10 /*limit per page*/
-        );
-
-
-        $studentUsers = $this->studentUserRepository->findBy([
-            'school' => $school
-        ]);
-
-        $user = $this->getUser();
-        return $this->render('students/manage.html.twig', [
-            'user' => $user,
-            'studentUsers' => $studentUsers,
-            'school' => $school,
-            'pagination' => $pagination,
-            'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('students_manage', ['id' => $school->getId()])
-        ]);
-    }
-
 
     /**
      * @Route("/{id}/update_educators", name="update_student_educators", methods={"POST"})
@@ -299,27 +246,5 @@ class StudentUserController extends AbstractController
             ],
             Response::HTTP_OK
         );
-    }
-
-
-
-    /**
-     * Builds the manage users filter form
-     *
-     * @param $filterType
-     * @param $action
-     * @param School $school
-     * @return \Symfony\Component\Form\FormInterface The form
-     */
-    private function buildFilterForm($filterType, $action, School $school)
-    {
-        $form = $this->createForm(ManageStudentsFilterType::class, null, [
-            'action' => $action,
-            'method' => 'GET',
-            'filter_type' => $filterType,
-            'school' => $school
-        ]);
-
-        return $form;
     }
 }

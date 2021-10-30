@@ -24,6 +24,7 @@ use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
 use App\Form\Filter\SchoolFilterType;
+use App\Form\ManageStudentsFilterType;
 use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
 use App\Form\SchoolAdminFormType;
@@ -2313,4 +2314,76 @@ class SchoolController extends AbstractController
 
         return new JsonResponse(["status" => "success", "canView" => $request->request->get('val')]);
     }
+
+
+
+
+
+    /**
+     * @Route("/schools/{id}/students/manage", name="students_manage", methods={"GET"})
+     * @param School $school
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function manageAction(School $school, Request $request) {
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(ManageStudentsFilterType::class, null, [
+            'action' => $this->generateUrl('students_manage', ['id' => $school->getId()]),
+            'method' => 'GET',
+            'filter_type' => StudentUser::class,
+            'school' => $school
+        ]);
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->studentUserRepository->createQueryBuilder('u');
+        $filterBuilder->addOrderBy('u.lastName', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
+        $filterBuilder->andWhere('u.deleted = :deleted and u.archived = :archived');
+        $filterBuilder->setParameter('deleted', false);
+        $filterBuilder->setParameter('archived', false);
+        $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
+
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        if($request->query->get('limit') === 'all') {
+            $pagination = $this->paginator->paginate(
+                $filterQuery, /* query NOT result */
+                $request->query->getInt('page', 1),
+                100000000
+            );
+        } else {
+            $pagination = $this->paginator->paginate(
+                $filterQuery, /* query NOT result */
+                $request->query->getInt('page', 1), /*page number*/
+                $request->query->getInt('limit', 10)
+            );
+        }
+
+        $studentUsers = $this->studentUserRepository->findBy([
+            'school' => $school
+        ]);
+
+        $user = $this->getUser();
+        return $this->render('school/manage_students.html.twig', [
+            'user' => $user,
+            'studentUsers' => $studentUsers,
+            'school' => $school,
+            'pagination' => $pagination,
+            'form' => $form->createView(),
+            'clearFormUrl' => $this->generateUrl('students_manage', ['id' => $school->getId()])
+        ]);
+    }
+
+
+
 }
