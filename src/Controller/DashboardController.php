@@ -465,9 +465,16 @@ class DashboardController extends AbstractController
         $user = $this->getUser();
 
         $experienceIds     = [];
-        $schoolExperiences = $this->schoolExperienceRepository->findBy(['cancelled' => false], [
-            'createdAt' => 'DESC',
-        ], 50);
+
+        if($user->isStudent() && $user->getSchool()) {
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['cancelled' => false, 'school' => $user->getSchool()], [
+                'createdAt' => 'DESC'
+            ], 50);
+        } else {
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['cancelled' => false], [
+                'createdAt' => 'DESC',
+            ], 50);
+        }
 
         $companyExperiences = $this->companyExperienceRepository->findBy(['cancelled' => false,], [
             'createdAt' => 'DESC',

@@ -4,7 +4,9 @@
             <div class="uk-width-1-1">
                 <div class="uk-alert-warning" uk-alert>
                     <h3>Warning: Incomplete Profile</h3>
-                    <p>Please select at least one career field of interest. <br /><strong><a href="{{ path('profile_edit', {'id': user.id}) }}">Click here to begin.</a></strong></p>
+                    <p>Please select at least one career field of interest. <br/><strong><a
+                                    href="{{ path('profile_edit', {'id': user.id}) }}">Click here to begin.</a></strong>
+                    </p>
                 </div>
             </div>
         {% endif %}
@@ -15,14 +17,16 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-auto">
-                                <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                <img class="uk-border-circle" width="40" height="40"
+                                     src="{{ ( attribute(user, 'photo') is defined and user.photo ) ? asset(uploaded_asset(user.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                             </div>
                             <div class="uk-width-expand">
                                 <a href="{{ path('profile_index', {'id': user.id}) }}">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">{{ user.getFullName }}</h3>
                                 </a>
                                 <p class="uk-text-meta uk-margin-remove-top">
-                                    <a href="{{ path('school_view', {'id': user.school.id}) }}">{{ user.school.name }}</a> - Student
+                                    <a href="{{ path('school_view', {'id': user.school.id}) }}">{{ user.school.name }}</a>
+                                    - Student
                                 </p>
                             </div>
                             <div class="uk-width-auto">
@@ -39,10 +43,12 @@
                             <p class="uk-text-large">My Career Statement</p>
                             <p>{{ user.careerStatement }}</p>
                         {% else %}
-                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add a brief career interests bio</a> so others know more about you.</p>
+                            <p>Welcome to {{ get_site().name }}! <a href="{{ path('profile_edit', {'id': user.id}) }}">Add
+                                    a brief career interests bio</a> so others know more about you.</p>
                         {% endif %}
                         <div class="professional-links">
-                            <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right" uk-icon="mail"></a>
+                            <a href="mailto:{{ user.email }}" class="uk-icon-button uk-margin-small-right"
+                               uk-icon="mail"></a>
                         </div>
                     </div>
                 </div>
@@ -76,7 +82,8 @@
                                             <ul class="uk-list uk-list-divider">
                                                 {% for favorite in user.companyFavorites %}
                                                     <li>
-                                                        <a class="uk-link-text" href="{{ path('company_view', {'id': favorite.company.id}) }}">{{ favorite.company.name }}</a>
+                                                        <a class="uk-link-text"
+                                                           href="{{ path('company_view', {'id': favorite.company.id}) }}">{{ favorite.company.name }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -88,12 +95,16 @@
                                     <div class="tab-favorites__career_videos">
                                         {% if user.videoFavorites|length > 0 %}
                                             <ul class="uk-list uk-list-divider">
-                                                <div id="companyVideos" class="uk-child-width-1-3@m" uk-grid="masonry: true" uk-lightbox="animation: slide; video-autoplay: 1">
+                                                <div id="companyVideos" class="uk-child-width-1-3@m"
+                                                     uk-grid="masonry: true"
+                                                     uk-lightbox="animation: slide; video-autoplay: 1">
                                                     {% for favorite in user.videoFavorites %}
                                                         {% set video = favorite.video %}
                                                         <div class="company-video">
-                                                            <a class="uk-inline" href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
-                                                                <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg" alt="">
+                                                            <a class="uk-inline"
+                                                               href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                                                <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg"
+                                                                     alt="">
                                                                 <div class="company-video__overlay">
                                                                     <div class="company-video__overlay-title">
                                                                         {{ video.name }}
@@ -126,7 +137,9 @@
                                             {% if dashboards.upcomingEventsRegisteredForByUser|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for event in dashboards.upcomingEventsRegisteredForByUser %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        <li><a class="uk-link-text"
+                                                               href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -137,7 +150,9 @@
                                             {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for event in dashboards.completedEventsRegisteredForByUser %}
-                                                        <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                        <li><a class="uk-link-text"
+                                                               href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -172,10 +187,14 @@
                                             {% if dashboards.eventsMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for eventProps in dashboards.eventsMissingFeedback %}
-                                                        <li class="uk-position-relative" id="feedback_{{ eventProps.event.id }}">
+                                                        <li class="uk-position-relative"
+                                                            id="feedback_{{ eventProps.event.id }}">
                                                             {# <small>{{ eventProps.event.getClassName() }}</small><br /> #}
-                                                            <span class="uk-position-center-right"><button class="uk-button uk-button-text delete-feedback uk-text-danger" data-id="{{ eventProps.event.id }}">X</button></span> 
-                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a> 
+                                                            <span class="uk-position-center-right"><button
+                                                                        class="uk-button uk-button-text delete-feedback uk-text-danger"
+                                                                        data-id="{{ eventProps.event.id }}">X</button></span>
+                                                            <a class="uk-link-text"
+                                                               href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -189,7 +208,8 @@
                                                     {% for eventProps in dashboards.eventsWithFeedback %}
                                                         <li>
                                                             {# <small>{{ eventProps.event.getClassName() }}</small><br /> #}
-                                                            <a class="uk-link-text" href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
+                                                            <a class="uk-link-text"
+                                                               href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -220,7 +240,8 @@
                     <div class="uk-card-body">
                         <ul class="uk-list">
                             <li>
-                                <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Learn about Careers</a>
+                                <a class="uk-link" href="{{ path('salary_exploration_primary_industry') }}">Learn about
+                                    Careers</a>
                             </li>
                             <li>
                                 <a class="uk-link" href="{{ path('company_index') }}">Learn about Companies</a>
@@ -233,55 +254,20 @@
                 </div>
             </div>
 
-            <!-- What's New This Week -->
-              <div class="quick-links-wrapper uk-margin">
+            <div class="quick-links-wrapper uk-margin">
                 <div class="uk-card uk-card-default">
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 class="uk-card-title uk-margin-remove-bottom">What's New This Week</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Experiences</h3>
                             </div>
                         </div>
                     </div>
                     <div class="uk-card-body">
-                        <h4>New Topics (Created within past 7 days)</h4>
-                        <hr>
-                        <div style="text-align: left">
-                            {% for lesson in lessons %}
-                                <p><a href="/dashboard/lessons/{{lesson.id}}/view">{{lesson.title }}</a></p>
-                            {% else %}
-                                <p>No New Topics exist at this time.</p>
-                            {% endfor %}
-                        </div>
-
-                        {# Relevant School Events #}
-                        <hr>
-                        <h4>New School Experiences</h4>
-                        <hr>
-                        <div style="text-align: left">
-                        {% for schoolExperience in schoolExperiences %}
-                            <p><a href="/dashboard/schools/experiences/{{schoolExperience.id}}/view">{{ schoolExperience.title }}</a></p>
-                            {% else %}
-                            <p>No New School Experiences at this time.</p>
-                        {% endfor %}
-                        </div>
-
-                        {# Relevant Company Events #}
-                        <hr>
-                        <h4>New Company Experiences</h4>
-                        <hr>
-                        <div style="text-align: left">
-                        {% for companyExperience in companyExperiences %}
-                            <p><a href="/dashboard/companies/experiences/{{companyExperience.id}}/view">{{ companyExperience.title }}</a></p>
-                        {% else %}
-                            <p>No New Company Experiences at this time.</p>
-                        {% endfor %}
-                        </div>
-
+                        {{ render(controller('App\\Controller\\DashboardController::experiences')) }}
                     </div>
                 </div>
             </div>
-
 
             <!-- My School -->
             <div class="quick-links-wrapper uk-margin">
@@ -295,7 +281,8 @@
                     </div>
                     <div class="uk-card-body">
                         {% if user.school is defined and user.school %}
-                            <a href="{{ path('school_view', { id: user.school.id }) }}"><h4>{{ user.school.name }}</h4></a>
+                            <a href="{{ path('school_view', { id: user.school.id }) }}"><h4>{{ user.school.name }}</h4>
+                            </a>
 
                             <h5>Supervising Teacher</h5>
                             {% if user.educatorUsers|length > 0 %}
@@ -304,32 +291,17 @@
                                         <li>
                                             <div class="uk-grid-small uk-flex-middle" uk-grid>
                                                 <div class="uk-width-auto">
-                                                    <img class="uk-border-circle" width="40" height="40" src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                                    <img class="uk-border-circle" width="40" height="40"
+                                                         src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
                                                 </div>
                                                 <div class="uk-width-expand">
-                                                    <a class="uk-text-meta" href="{{ path('profile_index', {id: educatorUser.id}) }}">{{ educatorUser.fullName }}</a>
+                                                    <a class="uk-text-meta"
+                                                       href="{{ path('profile_index', {id: educatorUser.id}) }}">{{ educatorUser.fullName }}</a>
                                                 </div>
                                             </div>
                                         </li>
                                     {% endfor %}
                                 </ul>
-                            {% endif %}
-
-                            <h5>Upcoming Experiences</h5>
-                            {% set noEventsFound = true %}
-                            {% if user.school.schoolExperiences|length > 0 %}
-                                <ul class="uk-list uk-list-divider uk-margin-remove-top uk-margin-remove-bottom">
-                                    {% for experience in user.school.schoolExperiences %}
-                                        {% if date(experience.startDateAndTime) > date() %}
-                                            {% set noEventsFound = false %}
-                                            <li><a class="uk-text-meta" href="{{ path('school_experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
-                                        {% endif %}
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-
-                            {% if noEventsFound == true %}
-                                <p class="uk-text-meta">There are no upcoming experiences at this time</p>
                             {% endif %}
                         {% else %}
                             <div className="uk-placeholder uk-text-center">
@@ -346,32 +318,29 @@
 
 <div id="delete-modal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">Delete Feedback Review Request</h2>  
-            <p>Are you sure you do not want to provide feedback for this experience?</p>
-            <div id="delete-feedback-request-form-holder">
-            </div>
+        <h2 class="uk-modal-title">Delete Feedback Review Request</h2>
+        <p>Are you sure you do not want to provide feedback for this experience?</p>
+        <div id="delete-feedback-request-form-holder">
+        </div>
         </form>
     </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         var tab = GetURLParameter('tab');
-        if(tab) {
+        if (tab) {
             UIkit.switcher('#user-nav').show(4);
         }
     });
 
-    function GetURLParameter(sParam)
-    {
+    function GetURLParameter(sParam) {
         var sPageURL = window.location.search.substring(1);
         var sURLVariables = sPageURL.split('&');
-        for (var i = 0; i < sURLVariables.length; i++)
-        {
+        for (var i = 0; i < sURLVariables.length; i++) {
             var sParameterName = sURLVariables[i].split('=');
-            if (sParameterName[0] == sParam)
-            {
+            if (sParameterName[0] == sParam) {
                 return sParameterName[1];
             }
         }
