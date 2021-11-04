@@ -8,7 +8,10 @@
 
 {% block body %}
 
-    <div class="uk-container">
+    <div id="js-bulk-action-modal" uk-modal>
+    </div>
+
+    <div class="uk-container js-manage-students-container">
         <div class="uk-grid" uk-grid>
             <div class="uk-width-1-1">
 
@@ -52,15 +55,16 @@
                 {{ knp_pagination_render(pagination, 'pagination/custom_pagination.html.twig') }}
             </div>
 
-            <div style="margin-top:50px" class="uk-width-1-2">
+            <div style="margin-top:50px; position: relative" class="uk-width-1-2">
                 {{ knp_pagination_render(pagination, 'pagination/items_per_page.html.twig') }}
+                <div style="position: absolute; transform: translate(-50%,-50%); top: 50%">Total Student: {{ pagination.getTotalItemCount }}</div>
             </div>
 
             <div style="margin-top:50px" class="uk-width-1-2">
                 {{ knp_pagination_render(pagination, 'pagination/manage_students_bulk_actions.html.twig') }}
             </div>
 
-            <div class="uk-overflow-auto" style="font-size: 0.8em">
+            <div class="uk-width-1-1 uk-overflow-auto" style="font-size: 0.8em">
                 <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
                     <tr>
                         <th>
@@ -110,7 +114,7 @@
                                           uk-tooltip="Edit Supervising Teacher(s)"></span>
 
                                     {% for educator in studentUser.educatorUsers %}
-                                        <dt>{{ educator.lastName }}, {{ educator.firstName }}</dt>
+                                        <dt>{{ educator.lastName }} {{ educator.firstName }}{{ not loop.last ? ',' }}</dt>
                                     {% endfor %}
                                 </td>
 
@@ -145,7 +149,7 @@
                 {{ knp_pagination_render(pagination, 'pagination/custom_pagination.html.twig') }}
             </div>
 
-            <div class="uk-width-1-2">
+            <div class="uk-width-1-2" style="position: relative">
                 {{ knp_pagination_render(pagination, 'pagination/items_per_page.html.twig') }}
             </div>
 

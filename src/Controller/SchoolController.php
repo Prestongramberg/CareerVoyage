@@ -10,6 +10,7 @@ use App\Entity\ExperienceFile;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\RequestAction;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
@@ -27,14 +28,19 @@ use App\Form\Filter\SchoolFilterType;
 use App\Form\ManageStudentsFilterType;
 use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
+use App\Form\Request\SendMessageFormType;
+use App\Form\ResetPasswordType;
 use App\Form\SchoolAdminFormType;
 use App\Form\SchoolCommunicationType;
 use App\Form\StudentImportType;
+use App\Form\SupervisingTeacherFormType;
+use App\Model\ResetPassword;
 use App\Service\RequestService;
 use App\Service\UploaderHelper;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -1816,7 +1822,7 @@ class SchoolController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience,
+    public function schoolExperienceRegisterAction(Request        $request, SchoolExperience $experience,
                                                    RequestService $requestService
     ) {
         // We need to check if the experience requires approval from the event creator. If so follow the
@@ -2316,16 +2322,15 @@ class SchoolController extends AbstractController
     }
 
 
-
-
-
     /**
      * @Route("/schools/{id}/students/manage", name="students_manage", methods={"GET"})
-     * @param School $school
+     * @param School  $school
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function manageAction(School $school, Request $request) {
+    public function manageAction(School $school, Request $request)
+    {
 
         /** @var User $user */
         $user = $this->getUser();
@@ -2334,7 +2339,7 @@ class SchoolController extends AbstractController
             'action' => $this->generateUrl('students_manage', ['id' => $school->getId()]),
             'method' => 'GET',
             'filter_type' => StudentUser::class,
-            'school' => $school
+            'school' => $school,
         ]);
 
         $form->handleRequest($request);
@@ -2355,7 +2360,7 @@ class SchoolController extends AbstractController
 
         $filterQuery = $filterBuilder->getQuery();
 
-        if($request->query->get('limit') === 'all') {
+        if ($request->query->get('limit') === 'all') {
             $pagination = $this->paginator->paginate(
                 $filterQuery, /* query NOT result */
                 $request->query->getInt('page', 1),
@@ -2370,20 +2375,252 @@ class SchoolController extends AbstractController
         }
 
         $studentUsers = $this->studentUserRepository->findBy([
-            'school' => $school
+            'school' => $school,
         ]);
 
         $user = $this->getUser();
+
         return $this->render('school/manage_students.html.twig', [
             'user' => $user,
             'studentUsers' => $studentUsers,
             'school' => $school,
             'pagination' => $pagination,
             'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('students_manage', ['id' => $school->getId()])
+            'clearFormUrl' => $this->generateUrl('students_manage', ['id' => $school->getId()]),
         ]);
     }
 
+    /**
+     * @Route("/schools/{id}/students/manage/bulk-action", name="students_manage_bulk_action", methods={"GET", "POST"}, options = { "expose" = true })
+     * @param School  $school
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function manageStudentsBulkAction(School $school, Request $request)
+    {
+
+        /** @var User $loggedInUser */
+        $loggedInUser = $this->getUser();
+        $action       = $request->query->get('action');
+
+        if (!$action) {
+            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+        }
+
+        $bulkActionHandler = function () {
+        };
+
+        switch ($action) {
+
+            case 'reset_password':
+
+                $template = 'school/modal/reset_password.html.twig';
+
+                $action = $this->generateUrl('students_manage_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+
+                $resetPassword = new ResetPassword();
+
+                $form = $this->createForm(ResetPasswordType::class, $resetPassword, [
+                    'method' => 'post',
+                    'action' => $action,
+                ]);
+
+                $context = [
+                    'form' => $form->createView(),
+                    'loggedInUser' => $loggedInUser,
+                    'studentCount' => $request->query->get('studentCount', 0),
+                ];
+
+                $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
+
+                    $form->handleRequest($request);
+
+                    if ($form->isSubmitted() && $form->isValid()) {
+
+                        $studentIds = $request->request->get('studentIds', []);
+                        $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
+
+                        foreach ($students as $student) {
+                            /** @var ResetPassword $resetPassword */
+                            $resetPassword = $form->getData();
+
+                            $student->setPassword($this->passwordEncoder->encodePassword(
+                                $student,
+                                $resetPassword->getPassword()
+                            ));
+
+                            $student->setTempPassword(null);
+                            $student->clearPasswordResetToken();
+                            $this->entityManager->persist($student);
+                        }
+
+                        $this->entityManager->flush();
+
+                        $queryParams = $request->query->all();
+                        unset($queryParams['action']);
+                        unset($queryParams['studentCount']);
+                        return new JsonResponse(
+                            [
+                                'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                            ], Response::HTTP_OK
+                        );
+                    }
+
+                    $context = [
+                        'form' => $form->createView(),
+                        'loggedInUser' => $loggedInUser,
+                        'studentCount' => $request->query->get('studentCount', 0),
+                    ];
+
+                    return new JsonResponse(
+                        [
+                            'formMarkup' => $this->renderView($template, $context),
+                        ], Response::HTTP_BAD_REQUEST
+                    );
+
+                };
+
+                break;
+
+            case 'change_supervising_teacher':
+
+                $template = 'school/modal/supervising_teacher.html.twig';
+                $studentId = $request->query->get('studentId');
+                $data = null;
+
+                if($studentId && $student = $this->studentUserRepository->find($studentId)) {
+
+                    $originalSupervisoringTeachers = new ArrayCollection();
+                    foreach ($student->getEducatorUsers() as $educatorUser) {
+                        $originalSupervisoringTeachers->add($educatorUser);
+                    }
+
+                    $data = [
+                        'supervisingTeachers' => $originalSupervisoringTeachers
+                    ];
+                }
+
+                $action = $this->generateUrl('students_manage_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+
+                $form = $this->createForm(SupervisingTeacherFormType::class, $data, [
+                    'method' => 'post',
+                    'action' => $action,
+                    'school' => $school,
+                ]);
+
+                $context = [
+                    'form' => $form->createView(),
+                    'loggedInUser' => $loggedInUser,
+                    'studentCount' => $request->query->get('studentCount', 0),
+                ];
+
+                $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
+
+                    $form->handleRequest($request);
+
+                    if ($form->isSubmitted() && $form->isValid()) {
+
+                        $studentIds = $request->request->get('studentIds', []);
+                        $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
+
+                        foreach ($students as $student) {
+
+                            $originalSupervisoringTeachers = new ArrayCollection();
+                            foreach ($student->getEducatorUsers() as $educatorUser) {
+                                $originalSupervisoringTeachers->add($educatorUser);
+                            }
+
+                            $supervisingTeachers = $form->get('supervisingTeachers')->getData();
+
+                            foreach ($originalSupervisoringTeachers as $originalSupervisoringTeacher) {
+                                if (false === $supervisingTeachers->contains($originalSupervisoringTeacher)) {
+                                    $student->removeEducatorUser($originalSupervisoringTeacher);
+                                    //$this->entityManager->persist($originalSupervisoringTeacher);
+                                    $this->entityManager->persist($student);
+                                }
+                            }
+
+                            /** @var EducatorUser $supervisingTeacher */
+                            foreach($supervisingTeachers as $supervisingTeacher) {
+                                if (false === $originalSupervisoringTeachers->contains($supervisingTeacher)) {
+                                    // remove the Task from the Tag
+                                    //$supervisingTeacher->addStudentUser($student);
+                                    //$this->entityManager->persist($supervisingTeacher);
+                                    $student->addEducatorUser($supervisingTeacher);
+                                }
+                            }
+
+
+
+                            $name = "Josh";
+
+                         /*
+
+                            foreach ($originalSupervisoringTeachers as $originalSupervisoringTeacher) {
+                                if (false === $supervisingTeachers->contains($originalSupervisoringTeacher)) {
+                                    $student->removeEducatorUser($originalSupervisoringTeacher);
+                                    $this->entityManager->persist($originalSupervisoringTeacher);
+                                }
+                            }
+
+                            foreach($supervisingTeachers as $supervisingTeacher) {
+                                if (false === $originalSupervisoringTeachers->contains($supervisingTeacher)) {
+                                    // remove the Task from the Tag
+                                    $student->addEducatorUser($supervisingTeacher);
+                                    $this->entityManager->persist($supervisingTeacher);
+                                }
+                            }*/
+
+                            $this->entityManager->persist($student);
+                        }
+
+                        $this->entityManager->flush();
+
+                        $queryParams = $request->query->all();
+                        unset($queryParams['action']);
+                        unset($queryParams['studentCount']);
+                        unset($queryParams['studentId']);
+                        return new JsonResponse(
+                            [
+                                'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                            ], Response::HTTP_OK
+                        );
+                    }
+
+                    $context = [
+                        'form' => $form->createView(),
+                        'loggedInUser' => $loggedInUser,
+                        'studentCount' => $request->query->get('studentCount', 0),
+                    ];
+
+                    return new JsonResponse(
+                        [
+                            'formMarkup' => $this->renderView($template, $context),
+                        ], Response::HTTP_BAD_REQUEST
+                    );
+
+                };
+
+                break;
+
+        }
+
+
+        if ($request->getMethod() === 'POST') {
+            $response = $bulkActionHandler();
+
+            if ($response instanceof JsonResponse) {
+                return $response;
+            }
+        }
+
+        return new JsonResponse(
+            [
+                'formMarkup' => $this->renderView($template, $context),
+            ], Response::HTTP_OK
+        );
+    }
 
 
 }

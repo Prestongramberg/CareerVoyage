@@ -12,8 +12,8 @@ use Rollerworks\Component\PasswordStrength\Validator\Constraints as RollerworksP
 class ResetPassword
 {
     /**
-     * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, requireCaseDiff=true, requireSpecialCharacter= true, minLength = "6")
-     * @Assert\NotBlank(message="Don't forget a password for your user!")
+     * @RollerworksPassword\PasswordRequirements(requireLetters=true, requireNumbers=true, minLength = "8")
+     * @Assert\NotBlank(message="Please enter a password")
      *
      * @var string The hashed password
      */
