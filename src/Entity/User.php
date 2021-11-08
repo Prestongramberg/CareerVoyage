@@ -288,12 +288,12 @@ abstract class User implements UserInterface
     private $dashboardOrder = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom")
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom", orphanRemoval=true)
      */
     protected $sentFromShares;
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentTo")
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentTo", orphanRemoval=true)
      */
     protected $sentToShares;
 
@@ -326,12 +326,12 @@ abstract class User implements UserInterface
     private $splashPagesShown = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=UserMeta::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=UserMeta::class, mappedBy="user", orphanRemoval=true)
      */
     private $userMetas;
 
     /**
-     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user", orphanRemoval=true)
      */
     private $requestActions;
 
