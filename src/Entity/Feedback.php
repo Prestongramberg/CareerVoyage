@@ -20,6 +20,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Feedback
 {
+    use Timestampable;
+
     /**
      * @Groups({"FEEDBACK"})
      *

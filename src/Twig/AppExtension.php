@@ -5,6 +5,7 @@ namespace App\Twig;
 
 use App\Entity\Company;
 use App\Entity\EducatorUser;
+use App\Entity\Experience;
 use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
@@ -21,6 +22,7 @@ use App\Entity\Video;
 use App\Repository\EducatorRegisterStudentForExperienceRequestRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ChatRepository;
+use App\Repository\RegistrationRepository;
 use App\Repository\RequestRepository;
 use App\Repository\SiteRepository;
 use App\Repository\UserRepository;
@@ -49,11 +51,6 @@ class AppExtension extends AbstractExtension
     private $serializer;
 
     /**
-     * @var EducatorRegisterStudentForExperienceRequestRepository
-     */
-    private $educatorRegisterStudentForExperienceRequestRepository;
-
-    /**
      * @var RequestRepository
      */
     private $requestRepository;
@@ -64,19 +61,9 @@ class AppExtension extends AbstractExtension
     private $userRepository;
 
     /**
-     * @var ChatRepository
-     */
-    private $chatRepository;
-
-    /**
      * @var ChatMessageRepository
      */
     private $chatMessageRepository;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
 
     /**
      * @var SiteRepository
@@ -94,51 +81,38 @@ class AppExtension extends AbstractExtension
     private $security;
 
     /**
-     * @var string
+     * @var RegistrationRepository
      */
-    private $uploadsPath;
+    private $registrationRepository;
 
     /**
-     * AppExtension constructor.
-     *
-     * @param UploaderHelper        $uploadHelper
-     * @param SerializerInterface   $serializer
-     * @param RequestRepository     $requestRepository
-     * @param UserRepository        $userRepository
-     * @param ChatRepository        $chatRepository
-     * @param ChatMessageRepository $chatMessageRepository
-     * @param Environment           $twig
-     * @param SiteRepository        $siteRepository
-     * @param RouterInterface       $router
-     * @param Security              $security
+     * @param UploaderHelper         $uploadHelper
+     * @param SerializerInterface    $serializer
+     * @param RequestRepository      $requestRepository
+     * @param UserRepository         $userRepository
+     * @param ChatMessageRepository  $chatMessageRepository
+     * @param SiteRepository         $siteRepository
+     * @param RouterInterface        $router
+     * @param Security               $security
+     * @param RegistrationRepository $registrationRepository
      */
-    public function __construct(
-        UploaderHelper $uploadHelper,
-        SerializerInterface $serializer,
-        RequestRepository $requestRepository,
-        UserRepository $userRepository,
-        ChatRepository $chatRepository,
-        ChatMessageRepository $chatMessageRepository,
-        Environment $twig,
-        SiteRepository $siteRepository,
-        RouterInterface $router,
-        Security $security,
-        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
-        string $uploadsPath
+    public function __construct(UploaderHelper         $uploadHelper, SerializerInterface $serializer,
+                                RequestRepository      $requestRepository, UserRepository $userRepository,
+                                ChatMessageRepository  $chatMessageRepository, SiteRepository $siteRepository,
+                                RouterInterface        $router, Security $security,
+                                RegistrationRepository $registrationRepository
     ) {
-        $this->uploadHelper                                          = $uploadHelper;
-        $this->serializer                                            = $serializer;
-        $this->requestRepository                                     = $requestRepository;
-        $this->userRepository                                        = $userRepository;
-        $this->chatRepository                                        = $chatRepository;
-        $this->chatMessageRepository                                 = $chatMessageRepository;
-        $this->twig                                                  = $twig;
-        $this->siteRepository                                        = $siteRepository;
-        $this->router                                                = $router;
-        $this->security                                              = $security;
-        $this->educatorRegisterStudentForExperienceRequestRepository = $educatorRegisterStudentForExperienceRequestRepository;
-        $this->uploadsPath                                           = $uploadsPath;
+        $this->uploadHelper           = $uploadHelper;
+        $this->serializer             = $serializer;
+        $this->requestRepository      = $requestRepository;
+        $this->userRepository         = $userRepository;
+        $this->chatMessageRepository  = $chatMessageRepository;
+        $this->siteRepository         = $siteRepository;
+        $this->router                 = $router;
+        $this->security               = $security;
+        $this->registrationRepository = $registrationRepository;
     }
+
 
     public function getFunctions(): array
     {
@@ -171,7 +145,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('call_to_action_href', [$this, 'callToActionHref']),
             new TwigFunction('call_to_action_should_render', [$this, 'callToActionShouldRender']),
             new TwigFunction('time_elapsed_string', [$this, 'timeElapsedString']),
-            new TwigFunction('request_sent', [$this, 'requestSent'])
+            new TwigFunction('request_sent', [$this, 'requestSent']),
+            new TwigFunction('get_user_registered_for_experience', [$this, 'getUserRegisteredForExperience'])
         ];
     }
 
@@ -614,6 +589,11 @@ class AppExtension extends AbstractExtension
     {
 
         return $this->requestRepository->search($createdBy, $requestType, $to, $actionUrlPatternSearch);
+    }
+
+    public function getUserRegisteredForExperience(User $user, Experience $experience) {
+
+        return $this->registrationRepository->getByUserAndExperience($user, $experience);
     }
 
     /**

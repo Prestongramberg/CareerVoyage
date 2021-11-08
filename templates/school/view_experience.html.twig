@@ -21,10 +21,51 @@
                     - {{ experience.endDateAndTime|date("F jS \\a\\t g:ia") }}</h5>
                 {{ experience.about|raw }}
 
-                {% if user.isProfessional or user.isStudent or user.isEducator %}
+                <div id="student_{{ user.id }}">
 
-                    {% for registration in user.getRegistrations %}
-                        {% if registration.experience.id == experience.id %}
+                    {% set registration = get_user_registered_for_experience(user, experience) %}
+
+                    {% if registration %}
+                        {% if registration.approved %}
+                            <div class="uk-inline">
+                                <a class="uk-button uk-button-small uk-button-primary"
+                                   href="{{ path('school_experience_unregister', {'id': experience.id}) }}">Unregister
+                                    For
+                                    Experience</a>
+                            </div>
+                        {% elseif registration.status == constant('App\\Entity\\Request::REQUEST_STATUS_PENDING') %}
+                            <div class="uk-alert-primary" uk-alert>
+                                <p>{{ registration.statusLabel }} Please reach out to the experience coordinator for
+                                    any further questions. <br>
+                                    Experience Coordinator: <a style="text-decoration: underline; font-weight: bold"
+                                                               href="mailto:{{ experience.email }}">{{ experience.schoolContact.fullName }}</a><br>
+                                    Experience Coordinator Email: <a
+                                            style="text-decoration: underline; font-weight: bold"
+                                            href="mailto:{{ experience.email }}">{{ experience.email }}</a>
+                                </p>
+                            </div>
+                        {% elseif registration.status == constant('App\\Entity\\Request::REQUEST_STATUS_DENIED') %}
+                            <div class="uk-alert-danger" uk-alert>
+                                <p>{{ registration.statusLabel }} Please reach out to the experience coordinator for
+                                    any further questions. <br>
+                                    Experience Coordinator: <a style="text-decoration: underline; font-weight: bold"
+                                                               href="mailto:{{ experience.email }}">{{ experience.schoolContact.fullName }}</a><br>
+                                    Experience Coordinator Email: <a
+                                            style="text-decoration: underline; font-weight: bold"
+                                            href="mailto:{{ experience.email }}">{{ experience.email }}</a>
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <a class="uk-button uk-button-small uk-button-primary"
+                           href="{{ path('school_experience_register', {'id': experience.id}) }}">Register For
+                            Experience</a>
+                    {% endif %}
+                    <button class="uk-button uk-button-primary uk-button-small" type="button"
+                            uk-toggle="target: #offcanvas-flip">Share Experience
+                    </button>
+                    {% if registration %}
+                        {% if registration.approved %}
                             <div class="react-calendar-button uk-inline"
                                  data-event-start-time="{{ experience.startDateAndTimeTimeStamp }}"
                                  data-event-end-time="{{ experience.endDateAndTimeTimeStamp }}"
@@ -33,10 +74,9 @@
                                  data-location="{{ experience.getFormattedAddress }}"
                             ></div>
                         {% endif %}
-                    {% endfor %}
+                    {% endif %}
 
-                    <div id="student_{{ user.id }}">
-                        {% set requests = request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ user.id) %}
+                    {# {% set requests = request_sent(user, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ user.id) %}
                         {% for request in requests %}
                             <a href="{{ path('requests', {id: request.id}) }}"><span
                                         class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
@@ -44,10 +84,8 @@
                             <a class="uk-button uk-button-small uk-button-primary"
                                href="{{ path('school_experience_register', {'id': experience.id}) }}">Register
                                 Myself</a>
-                        {% endfor %}
-                    </div>
-
-                {% endif %}
+                        {% endfor %} #}
+                </div>
 
                 {% if user.educator or user.schoolAdministrator %}
                     <br>
@@ -93,16 +131,6 @@
                         </div>
                     </div>
 
-                    <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
-                        <div class="uk-width-expand">
-                            <div class="uk-align-right@l">
-                                <button class="uk-button uk-button-primary uk-button-small" type="button"
-                                        uk-toggle="target: #offcanvas-flip">Share Experience
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
                     {% if user.isAdmin or user.isSchoolAdministrator or ( user.isEducator and experience.school.getAllowEventCreation() and experience.getSchoolContact().getId() == user.id ) %}
 
                         {% if experience.cancelled %}
@@ -133,9 +161,9 @@
 
                             <a href="{{ path('school_experience_edit', {id: experience.id}) }}"
                                class="uk-button uk-button-primary uk-button-small">Edit Experience</a>
-                            {#       <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
+                            {# <a class="uk-button uk-button-primary uk-button-small uk-button-danger" href="#modal-notify-professionals" uk-toggle>Notify Professionals of Experience</a>
 
-                                   <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a>#}
+                                   <a class="uk-button uk-button-danger uk-button-small" href="#modal-notify-companies" uk-toggle>Notify Companies of Experience</a> #}
 
                             <a class="uk-button uk-button-danger uk-button-small"
                                href="#modal-remove-school-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
@@ -329,9 +357,9 @@
                         </div>
                     {% endif %}
 
-                    {#  {% if user.educator and user.school %}
+                    {# {% if user.educator and user.school %}
                           <div class="event-users-notify uk-display-inline-block" data-url="{{ path('get_students') }}?school={{ user.school.id }}" data-title="Notify Students Of Experience" data-user="{{ encode_user(user) }}" data-experienceId="{{ experience.id }}"></div>
-                      {% endif %}#}
+                      {% endif %} #}
 
                 </div>
             </div>
@@ -351,7 +379,7 @@
             {% endif %}
             {% if user.isEducator or user.isSchoolAdministrator %}
                 <li><a href="#available-students-to-register">Available Students To Register</a></li>
-                {#<li><a href="#feedback">Feedback</a></li>#}
+                {# <li><a href="#feedback">Feedback</a></li> #}
             {% endif %}
             <li><a href="#experience-contact">Contact</a></li>
         </ul>
@@ -534,7 +562,7 @@
 
                             {% if experience.schoolContact and experience.schoolContact.fullName %}
                                 {% if user.isSchoolAdministrator %}
-                                    <span style="float:right;">Allow to see feedback? 
+                                    <span style="float:right;">Allow to see feedback?
                                         <span id="view_feedback">
                                             {% if experience.canViewFeedback == true %}
                                                 <a href="#" id="toggle-feedback" data-value="0"

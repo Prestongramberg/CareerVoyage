@@ -1815,7 +1815,7 @@ class SchoolController extends AbstractController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function schoolExperienceRegisterAction(Request $request, SchoolExperience $experience,
+    public function schoolExperienceRegisterAction(Request        $request, SchoolExperience $experience,
                                                    RequestService $requestService
     ) {
         // We need to check if the experience requires approval from the event creator. If so follow the
@@ -1831,6 +1831,41 @@ class SchoolController extends AbstractController
         }
 
         $registrationRequest = $requestService->createRegistrationRequest($createdBy, $userToRegister, $experience);
+
+        return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
+     * @Route("/schools/experiences/{id}/unregister", name="school_experience_unregister", options = { "expose" = true }, methods={"GET"})
+     * @param Request          $request
+     * @param SchoolExperience $experience
+     *
+     * @param RequestService   $requestService
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function schoolExperienceUnregisterAction(Request        $request, SchoolExperience $experience,
+                                                     RequestService $requestService
+    ) {
+        // We need to check if the experience requires approval from the event creator. If so follow the
+        // current flow, otherwise, bypass sending emails and mark the registration as complete.
+        $req    = $request;
+        $userId = $request->query->get('userId', null);
+        if ($userId) {
+            $user = $this->userRepository->find($userId);
+        } else {
+            $user = $this->getUser();
+        }
+
+        $registration = $this->registrationRepository->getByUserAndExperience($user, $experience);
+
+        if($registration) {
+            $this->entityManager->remove($registration);
+            $this->entityManager->flush();
+        }
 
         return $this->redirectToRoute('school_experience_view', ['id' => $experience->getId()]);
     }

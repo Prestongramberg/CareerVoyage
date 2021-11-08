@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\CompanyExperience;
 use App\Entity\Experience;
 use App\Entity\Registration;
+use App\Entity\Request;
 use App\Entity\RequestAction;
 use App\Entity\RequestPossibleApprovers;
 use App\Entity\SchoolExperience;
@@ -67,6 +68,20 @@ class RequestService
             return null;
         }
 
+        $registration = new Registration();
+        $registration->setUser($userToRegister);
+        $registration->setExperience($experience);
+        $registration->setApproved(true);
+        $registration->setStatus(Request::REQUEST_STATUS_APPROVED);
+
+        if($experience->getRequireApproval()) {
+            $registration->setApproved(false);
+            $registration->setStatus(Request::REQUEST_STATUS_PENDING);
+        }
+
+        $this->entityManager->persist($registration);
+        $this->entityManager->flush();
+
         $registrationRequest = new \App\Entity\Request();
         $registrationRequest->setRequestType(\App\Entity\Request::REQUEST_TYPE_NEW_REGISTRATION);
         $registrationRequest->setCreatedBy($createdBy);
@@ -79,6 +94,7 @@ class RequestService
             'user_photos' => [],
             'created_on' => (new \DateTime())->format("m/d/Y h:i:s A"),
             'messages' => [],
+            'registration_id' => $registration->getId(),
             'data' => [
                 'user_to_register' => $userToRegister->getId(),
             ],
@@ -155,11 +171,6 @@ class RequestService
                 RequestAction::REQUEST_ACTION_NAME_SEND_MESSAGE,
                 RequestAction::REQUEST_ACTION_NAME_UNREGISTER,
             ]);
-
-            $registration = new Registration();
-            $registration->setUser($userToRegister);
-            $registration->setExperience($experience);
-            $this->entityManager->persist($registration);
         }
 
         $approver = null;
