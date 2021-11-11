@@ -101,12 +101,12 @@ class StudentUser extends User
     private $graduatingYear;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUser")
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUser", orphanRemoval=true)
      */
     private $educatorRegisterStudentForCompanyExperienceRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\AllowedCommunication", mappedBy="studentUser")
+     * @ORM\OneToMany(targetEntity="App\Entity\AllowedCommunication", mappedBy="studentUser", orphanRemoval=true)
      */
     private $allowedCommunications;
 
