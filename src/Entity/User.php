@@ -217,7 +217,7 @@ abstract class User implements UserInterface
     protected $isPhoneHiddenFromProfile = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="sentTo")
+     * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="sentTo", orphanRemoval=true)
      */
     protected $chatMessages;
 
@@ -227,7 +227,7 @@ abstract class User implements UserInterface
     protected $registrations;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="user", orphanRemoval=true)
      */
     protected $feedback;
 
@@ -263,7 +263,7 @@ abstract class User implements UserInterface
     protected $schoolExperiences;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="user", orphanRemoval=true)
      */
     protected $videoFavorites;
 
