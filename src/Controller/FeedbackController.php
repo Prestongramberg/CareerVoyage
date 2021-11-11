@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\CompanyExperience;
 use App\Entity\EducatorReviewCompanyExperienceFeedback;
+use App\Entity\Hubspot;
+use App\Entity\Membership;
 use App\Entity\ProfessionalReviewCompanyExperienceFeedback;
 use App\Entity\EducatorReviewTeachLessonExperienceFeedback;
 use App\Entity\ProfessionalReviewTeachLessonExperienceFeedback;
@@ -15,6 +17,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\SchoolExperience;
 use App\Entity\SecondaryIndustry;
+use App\Entity\SignUp;
 use App\Entity\StateCoordinator;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewMeetProfessionalExperienceFeedback;
@@ -24,8 +27,11 @@ use App\Entity\ProfessionalReviewStudentToMeetProfessionalFeedback;
 use App\Entity\StudentToMeetProfessionalExperience;
 use App\Entity\StudentUser;
 use App\Entity\TeachLessonExperience;
+use App\Exception\AuthNetException;
 use App\Form\EducatorReviewCompanyExperienceFeedbackFormType;
 use App\Form\EducatorReviewTeachLessonExperienceFeedbackFormType;
+use App\Form\FeedbackType;
+use App\Form\Flow\FeedbackFlow;
 use App\Form\ProfessionalReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewCompanyExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewSchoolExperienceFeedbackFormType;
@@ -71,6 +77,8 @@ class FeedbackController extends AbstractController
         'cpears@apritonadvisors.com',
         'sness@ssc.coop'
     ];
+
+
 
     /**
      * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})
@@ -177,6 +185,49 @@ class FeedbackController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @Route("/new", name="feedback_new", options = { "expose" = true })
+     * @param Request $request
+     */
+    public function newAction(Request $request, FeedbackFlow $feedbackFlow) {
+
+        /** @var EducatorUser|StudentUser|ProfessionalUser $user */
+        $user = $this->getUser();
+
+        $feedback = new Feedback();
+        $flow = $feedbackFlow;
+        $url = $this->generateUrl('feedback_new', $request->query->all());
+        $flow->setGenericFormOptions(['action' => $url]);
+        $flow->bind($feedback);
+
+        $form = $flow->createForm();
+
+        if ($flow->isValid($form)) {
+
+            $flow->saveCurrentStepData($form);
+
+            if ($flow->nextStep()) {
+                // form for the next step
+                $form = $flow->createForm();
+            } else {
+
+                $feedback = $form->getData();
+
+                /*$this->entityManager->persist($feedback);
+                $this->entityManager->flush();
+                $flow->reset();*/
+
+            }
+        }
+
+        return $this->render("feedback/new.html.twig", [
+            'user' => $user,
+            'form' => $form->createView(),
+            'feedback' => $feedback,
+        ]);
+    }
+
 
     /**
      * @IsGranted({"ROLE_STUDENT_USER", "ROLE_EDUCATOR_USER", "ROLE_PROFESSIONAL_USER"})

@@ -256,6 +256,11 @@ abstract class Experience
      */
     private $request;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $experienceAddressSearch;
+
     public function __construct()
     {
         $this->experienceFiles = new ArrayCollection();
@@ -806,5 +811,17 @@ abstract class Experience
 
     public function getOriginalRequest() {
         return $this->request;
+    }
+
+    public function getExperienceAddressSearch(): ?string
+    {
+        return $this->experienceAddressSearch;
+    }
+
+    public function setExperienceAddressSearch(?string $experienceAddressSearch): self
+    {
+        $this->experienceAddressSearch = $experienceAddressSearch;
+
+        return $this;
     }
 }

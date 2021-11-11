@@ -35,6 +35,7 @@
         "chart.js": "^2.9.4",
         "daterangepicker": "^3.1.0",
         "file-saver": "^2.0.2",
+        "flatpickr": "^4.6.9",
         "google-maps-react": "^2.0.2",
         "inputmask": "^5.0.6",
         "interactjs": "^1.10.11",

@@ -1,22 +1,29 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% form_theme form with _self %}
+{% form_theme form _self %}
 
-{% block title %}Create School experience{% endblock %}
-{% block bodyClass %}page-school-experience-add{% endblock %}
+{% block title %}New Experience{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/experience.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+ {% endblock %}
+
 
 {% block body %}
 
-    <div class="uk-container">
+    <input type="text" id="testDate">
 
-        {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+    <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
-        <ul class="uk-tab" uk-switcher="connect: #tab-add-experience" uk-tab>
-            <li class="uk-active"><a href="#experience-details">Add Experience</a></li>
-            <li><a href="#experience-availability">Availability</a></li>
-            <li><a href="#experience-careers">Careers</a></li>
-            <li><a href="#experience-contact">Contact</a></li>
-        </ul>
+        {{ form_start(form, {attr: {'id': 'experience-form', 'novalidate' : 'novalidate'}}) }}
+
+        <input id="validation_groups" type="hidden" name="validation_groups" value="EDUCATOR_PROFILE_PERSONAL">
+        <input id="tab" type="hidden" name="tab" value="">
 
         {% if form_errors(form) %}
             <div class="uk-alert-danger" uk-alert>
@@ -25,149 +32,341 @@
             </div>
         {% endif %}
 
-        <div class="uk-switcher" id="tab-add-experience">
-            <div class="page-company-experience-add__details">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.title, 'Title*') }}
-                            {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.title) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.type, 'Type*') }}
-                            {{ form_widget(form.type, {'attr': {'class': 'uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.type) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.requireApproval, 'I want to approve all registrations*') }}
-                            {{ form_widget(form.requireApproval, { 'attr': { 'class': 'uk-select' ~ ( form_errors(form.requireApproval) ? 'uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.requireApproval) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.briefDescription, 'Brief Description*') }}
-                            {{ form_widget(form.briefDescription, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.briefDescription) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.briefDescription) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.about, 'About*') }}
-                            <div class="uk-text-meta">Describe the experience in detail</div>
-                            <div data-wysiwyg="[name='new_school_experience[about]']" class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
-                            <div style="display: none;">
-                                {{ form_widget(form.about) }}
-                            </div>
-                            {{ form_errors(form.about) }}
-                        </div>
-                        <div class="uk-margin">
-                            <div>
-                                {{ form_label(form.dateRange, 'Choose Date Range*') }}
-                                {{ form_widget(form.dateRange, {'attr': {'class': 'uk-timepicker uk-input' }}) }}
-                                {{ form_errors(form.startDateAndTime) }}
-                                {{ form_errors(form.endDateAndTime) }}
-
-                                {{ form_widget(form.startDateAndTime, { 'attr': { 'class': 'start-date-picker' }}) }}
-                                {{ form_widget(form.endDateAndTime, { 'attr': { 'class': 'end-date-picker' }}) }}
-                            </div>
-                        </div>
-                    </fieldset>
-
-                </div>
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="1" class="uk-button uk-button-primary uk-button-small">Next</a>
-                </div>
+        <div uk-grid>
+            <div class="uk-width-1-1 uk-width-medium@m">
+                <ul id="test" class="uk-tab-left"
+                    uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                    <li><a href="#experience-details" id="experience-details">New Experience</a></li>
+                   {# <li><a href="#account-details-profile-students" id="account-details-profile-students">Students</a>
+                    </li>
+                    <li><a href="#account-details-profile-videos" id="account-details-profile-videos">Videos</a></li>
+                    <li><a href="#account-details-profile-account" id="account-details-profile-account">Account</a></li>#}
+                </ul>
             </div>
-            <div class="page-company-experience-add__availability">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.availableStudentSpaces, 'Available Student Spaces*') }}
-                            {{ form_widget(form.availableStudentSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableStudentSpaces) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.availableStudentSpaces) }}
-                            <span>For unlimited set to 500</span>
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.availableProfessionalSpaces, 'Available Professional Spaces*') }}
-                            {{ form_widget(form.availableProfessionalSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableProfessionalSpaces) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.availableProfessionalSpaces) }}
-                            <span>For unlimited set to 500</span>
-                        </div>
-                        <div class="uk-margin" style="display: none">
-                            {{ form_label(form.payment, 'Payment') }}
-                            {{ form_widget(form.payment, {'attr': {'class': 'uk-input' ~ ( form_errors(form.payment) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.payment) }}
-                        </div>
-                        <div class="uk-margin" style="display: none">
-                            {{ form_label(form.paymentShownIsPer, 'Payment Per') }}
-                            {{ form_widget(form.paymentShownIsPer, {'attr': {'class': 'uk-select' ~ ( form_errors(form.paymentShownIsPer) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.paymentShownIsPer) }}
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="2" class="uk-button uk-button-primary uk-button-small">Next</a>
-                </div>
-            </div>
-            <div class="page-company-experience-add__careers">
-                <div class="uk-width-xlarge">
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <ul id="tab-account-inner" class="uk-switcher">
 
-                    <div class="uk-alert uk-alert-warning"><span class="fa fa-warning"></span> Be sure to choose at least one industry and secondary industry below.</div>
-                    <div class="uk-margin">
-                        <a href="#" uk-switcher-item="3" class="uk-button uk-button-primary uk-button-small">Next</a>
+                    <div class="experience_details">
+
+                        <div class="uk-text-danger" style="float:right;">* indicates required</div>
+
+                        <br>
+                        <fieldset class="uk-fieldset uk-margin">
+
+                            <legend class="uk-legend">
+                                General Information
+                            </legend>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.title, 'Experience Title*') }}
+                                {{ form_widget(form.title, {'attr': {'class': 'uk-input' ~ ( form_errors(form.title) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.title) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.briefDescription, 'Experience Description*') }}
+                                <div class="uk-text-meta">
+                                    Give a one sentence summary that says what the experience will cover, please be clear and concise.
+                                </div>
+                                {{ form_widget(form.briefDescription, {'attr': {'rows': '3', 'class': 'uk-textarea' ~ ( form_errors(form.briefDescription) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.briefDescription) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.type, 'Type*') }}
+                                {{ form_widget(form.type, {'attr': {'class': 'uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.type) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.about, 'About*') }}
+                                <div class="uk-text-meta">
+                                    Provide details about the event and, <strong>if required, how many professionals you need to volunteer.</strong>
+                                </div>
+                                <div data-wysiwyg="[name='experience[about]']"
+                                     data-placeholder="We will hold mock job interviews for 11th and 12th grade students in the west gym. Get ready for the workforce by learning from local professionals about how to interview well and practice being interviewed yourself.
+
+PROFESSIONALS - We need 5 executives with experience conducting job interviews to share their advice and conduct short mock interviews with groups of students."
+
+                                     class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
+                                <div style="display: none;">
+                                    {{ form_widget(form.about) }}
+                                </div>
+                                {{ form_errors(form.about) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.schoolContact, 'Experience Coordinator / Point of Contact*') }}
+                                {{ form_widget(form.schoolContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schoolContact) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.schoolContact) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                {{ form_label(form.experienceAddressSearch, 'Experience Address*') }}
+                                {{ form_widget(form.experienceAddressSearch, {'id': 'experienceAddressSearch', 'attr': {'readonly': 'readonly', 'class': 'uk-input' }}) }}
+                                <div class="clear"></div>
+                                {{ form_errors(form.experienceAddressSearch) }}
+                            </div>
+
+                            <div class="uk-margin">
+                                {#{{ form_label(form.startDate, 'Start Date*') }}
+                                {{ form_widget(form.startDate) }}
+                                <div class="clear"></div>
+                                {{ form_errors(form.startDate) }}#}
+                            </div>
+
+                           {# <div class="uk-margin">
+                                {{ form_label(form.endDate, 'End Date*') }}
+                                {{ form_widget(form.endDate) }}
+                                <div class="clear"></div>
+                                {{ form_errors(form.endDate) }}
+                            </div>#}
+
+                            {{ form_widget(form.street, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.city, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.state, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_widget(form.zipcode, {'attr': {'style': 'display: none','class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
+
+
+                            {# <div class="uk-margin">
+                                    {{ form_label(form.displayName, 'Display Name*') }}
+                                    {{ form_widget(form.displayName, {'attr': {'class': 'uk-input' ~ ( form_errors(form.displayName) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.displayName) }}
+
+                                    <small class="uk-text-muted">This is how your name will be displayed on your profile</small>
+                                </div> #}
+
+                            {# {% if form.primaryIndustries is defined %}
+                                    <div class="uk-margin">
+                                        {{ form_label(form.primaryIndustries, 'Career Sectors related to my courses, clubs or student interest*') }}
+                                        <a href="javascript:void(0)" class="js-select-all-primary-industries"
+                                           style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                            All</a>
+                                        {{ form_widget(form.primaryIndustries, {'attr': {'class': 'js-primary-industry' ~ ( form_errors(form.primaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                        <div class="clear"></div>
+                                        {{ form_errors(form.primaryIndustries) }}
+                                    </div>
+                                {% endif %} #}
+
+                            {# <div class="js-secondary-industry-container">
+                                    {% if form.secondaryIndustries is defined %}
+                                        <div class="uk-margin">
+                                            {{ form_label(form.secondaryIndustries, 'Professions related to my courses, clubs or student interest*') }}
+                                            <a href="javascript:void(0)" class="js-select-all-secondary-industries"
+                                               style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                                All</a>
+                                            {{ form_widget(form.secondaryIndustries, {'attr': {'class': '' ~ ( form_errors(form.secondaryIndustries) ? ' uk-form-danger' : '' ) }}) }}
+                                            <div class="clear"></div>
+                                            {{ form_errors(form.secondaryIndustries) }}
+                                        </div>
+                                    {% endif %}
+                                </div> #}
+
+                            {# {% if form.myCourses is defined %}
+                                    <div class="uk-margin">
+                                        {{ form_label(form.myCourses, 'Courses, Clubs, Positions*') }}
+                                        <a href="javascript:void(0)" class="js-select-all-courses"
+                                           style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                            All</a>
+                                        {{ form_widget(form.myCourses, {'attr': {'class': '' ~ ( form_errors(form.myCourses) ? ' uk-form-danger' : '' ) }}) }}
+                                        <div class="clear"></div>
+                                        {{ form_errors(form.myCourses) }}
+                                    </div>
+                                {% endif %} #}
+
+                            {# <div class="uk-margin">
+                                    {{ form_label(form.briefBio, 'Brief Bio') }}
+                                    <div class="uk-text-meta">Tell us a little about yourself to be featured on our
+                                        platform
+                                    </div>
+                                    {{ form_widget(form.briefBio, {'attr': {'class': 'uk-textarea uk-height-small' ~ ( form_errors(form.briefBio) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.briefBio) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {{ form_label(form.linkedinProfile, 'Linked In Profile') }}
+                                    {{ form_widget(form.linkedinProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.linkedinProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.linkedinProfile) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {{ form_label(form.interests, 'Professional Interests') }}
+                                    <div class="uk-text-meta">Tell us about professional interests and skills
+                                        related to your career and experience which professionals could be interested in connecting with you about.
+                                    </div>
+                                    {{ form_widget(form.interests, {'attr': {'class': 'uk-input' ~ ( form_errors(form.interests) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.interests) }}
+                                </div>
+
+                                <div class="uk-grid">
+                                    <div class="uk-width-2-3">
+                                        {{ form_label(form.phone, 'Phone') }}
+                                        {{ form_widget(form.phone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phone) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.phone) }}
+                                    </div>
+
+                                    <div class="uk-width-1-3">
+                                        {{ form_label(form.phoneExt, 'Ext.') }}
+                                        {{ form_widget(form.phoneExt, {'attr': {'class': 'uk-input' ~ ( form_errors(form.phoneExt) ? ' uk-form-danger' : '' ) }}) }}
+                                        {{ form_errors(form.phoneExt) }}
+                                    </div>
+                                </div> #}
+
+                            <br>
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </fieldset>
                     </div>
-                    <fieldset class="uk-fieldset">
-                        <div id="subscribe-secondary-industries"
-                             data-field-name="new_school_experience[secondaryIndustries]"
-                             data-remove-dom-id="new_school_experience_secondaryIndustries"
-                        ></div>
-                    </fieldset>
-                </div>
-                <div class="uk-margin">
-                    <a href="#" uk-switcher-item="3" class="uk-button uk-button-primary uk-button-small">Next</a>
+
+                    <div class="account_details_students">
+                        <div class="uk-text-danger" style="float:right; margin-top: -50px">* indicates required</div>
+                        {# <div class=" #}{# uk-width-xlarge #}{# ">
+                            <fieldset class="uk-fieldset">
+                                {% if form.studentUsers is defined %}
+                                    <div class="uk-margin">
+                                        {{ form_label(form.studentUsers, 'Students*') }}
+                                        <a href="javascript:void(0)" class="js-select-all-students"
+                                           style="font-size: 12px; color: #1e87f0; text-decoration: underline">Select
+                                            All</a>
+                                        {{ form_widget(form.studentUsers, {'attr': {'class': '' ~ ( form_errors(form.studentUsers) ? ' uk-form-danger' : '' ) }}) }}
+                                        <div class="clear"></div>
+                                        {{ form_errors(form.studentUsers) }}
+                                    </div>
+                                {% endif %}
+
+                                <br>
+                                <div class="uk-margin">
+                                    <button class="uk-button uk-button-primary">
+                                        Save
+                                    </button>
+                                </div>
+                            </fieldset>
+                        </div> #}
+                    </div>
+
+
+                    <div class="js-video-component account_details_videos">
+                        {# <div class="uk-width-xlarge">
+                            <p>Videos can help showcase your knowledge as an educator.  Upload your videos to Youtube and then attach them here.</p>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-text-center uk-placeholder">
+
+                                <button data-url="{{ path('api_video_new', {educatorId: user.id}) }}"
+                                        class="uk-button uk-button-default uk-button-small js-add-video-button"
+                                        type="button">Add a Video
+                                </button>
+
+                                <div id="js-video-component-modal" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                        #}{# ADD VIDEO HERE FROM AJAX REQUEST #}{#
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="page-company-experience-add__contact">
-                <div class="uk-width-xlarge">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.schoolContact, 'School Contact*') }}
-                            <div class="uk-text-meta">This educator will be managing this experience</div>
-                            {{ form_widget(form.schoolContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schoolContact) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.schoolContact) }}
+            <div class="uk-margin">
+                <div class="js-video-list-container uk-child-width-1-3@m" uk-grid="masonry: true"
+                     uk-lightbox="animation: slide; video-autoplay: 1">
+                    {% for video in user.educatorVideos %}
+                        <div id="video-{{ video.id }}" class="video">
+                            <a class="uk-inline"
+                               href="https://www.youtube.com/watch?v={{ video.videoId|trim }}">
+                                <img src="http://i.ytimg.com/vi/{{ video.videoId|trim }}/hqdefault.jpg"
+                                     alt="">
+                                <div class="video__overlay">
+                                    <div class="video__overlay-title">
+                                        {{ video.name }}
+                                    </div>
+                                </div>
+                            </a>
+
+                            <button data-url="{{ path('api_video_edit', {id: video.id, educatorId: user.id}) }}"
+                                    style="position: absolute; top: 3px; left: 43px; z-index: 5000; border: none; color: #999;"
+                                    class="js-edit-video-button" type="button"
+                                    uk-icon="icon: file-edit"></button>
+
+                            <button data-url="{{ path('api_video_delete', {id: video.id, educatorId: user.id}) }}"
+                                    class="js-delete-video-button" type="button" uk-close></button>
                         </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.email, 'Email*') }}
-                            {{ form_widget(form.email, {'attr': {'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.email) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.street, 'Street*') }}
-                            {{ form_widget(form.street, {'attr': {'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.street) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.city, 'City*') }}
-                            {{ form_widget(form.city, {'attr': {'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.city) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.state, 'State*') }}
-                            {{ form_widget(form.state, {'attr': {'class': 'uk-select' ~ ( form_errors(form.state) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.state) }}
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.zipcode, 'Zip*') }}
-                            {{ form_widget(form.zipcode, {'attr': {'class': 'uk-input' ~ ( form_errors(form.zipcode) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.zipcode) }}
-                        </div>
-                    </fieldset>
+
+                    {% endfor %}
                 </div>
-                <div class="uk-margin">
-                    <button class="uk-button uk-button-primary uk-button-small">Save</button>
-                </div>
+            </div> #}
+                    </div>
+
+
+                    <div class="account_details_account">
+
+                        <div class="uk-text-danger" style="float: right; margin-top: -50px">* indicates required</div>
+
+                        {# <fieldset class="uk-fieldset uk-margin">
+
+                            <fieldset class="uk-fieldset">
+                                <legend class="uk-legend">
+                                    Authentication
+                                </legend>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.username, 'Username*') }}
+                                    {{ form_widget(form.username, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.username) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.username) }}
+                                </div>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.email, 'Email*') }}
+                                    {{ form_widget(form.email, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.email) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.email) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {{ form_label(form.plainPassword, 'Change Password') }}
+                                    {{ form_widget(form.plainPassword, {'attr': {'readonly': 'readonly', 'class': 'uk-input' ~ ( form_errors(form.plainPassword) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.plainPassword) }}
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="uk-fieldset uk-margin">
+                                <legend class="uk-legend">
+                                    Contact Preferences
+                                </legend>
+
+                                <div class="uk-margin">
+                                    {{ form_label(form.isEmailHiddenFromProfile, 'Hide Email From Profile?') }}
+                                    {{ form_widget(form.isEmailHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isEmailHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.isEmailHiddenFromProfile) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {{ form_label(form.isPhoneHiddenFromProfile, 'Hide Phone From Profile?') }}
+                                    {{ form_widget(form.isPhoneHiddenFromProfile, {'attr': {'class': 'uk-input' ~ ( form_errors(form.isPhoneHiddenFromProfile) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.isPhoneHiddenFromProfile) }}
+                                </div>
+                                <div class="uk-margin">
+                                    {% for pref in form.notificationPreferences %}
+                                        <div>
+                                            <label class="check">
+                                                {{ form_errors(pref) }}
+                                                {{ form_widget(pref) }}
+                                                <span>{{ pref.vars.label }}</span>
+                                            </label>
+
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </fieldset>
+
+                            <div class="uk-margin">
+                                <button class="uk-button uk-button-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </fieldset> #}
+
+                    </div>
+                </ul>
             </div>
         </div>
 
         {{ form_end(form) }}
-
     </div>
+
 {% endblock %}

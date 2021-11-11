@@ -4,7 +4,6 @@
 import * as actionTypes from "./react/root/events-calendar/actions/actionTypes";
 
 require('../css/app.scss');
-
 import EventDispatcher from "./EventDispatcher";
 import UIkit from 'uikit';
 import Icons from 'uikit/dist/js/uikit-icons';
@@ -25,6 +24,9 @@ require('./vendor/fontawesome.js');
 require('./vendor/jquery-ui.min.js');
 const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
+
+import flatpickr from "flatpickr";
+require('flatpickr/dist/flatpickr.min.css');
 
 // Binds to Window
 window.globalEventDispatcher = new EventDispatcher();

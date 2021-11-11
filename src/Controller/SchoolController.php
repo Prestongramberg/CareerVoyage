@@ -1616,7 +1616,7 @@ class SchoolController extends AbstractController
     {
 
         $school = $experience->getSchool();
-        $this->denyAccessUnlessGranted('edit', $school);
+        //$this->denyAccessUnlessGranted('edit', $school);
 
         $user = $this->getUser();
 
