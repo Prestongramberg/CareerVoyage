@@ -75,9 +75,7 @@ class NewSchoolExperienceType extends AbstractType
                 'attr' => [
                     'placeholder' => 'How to Succeed in a Job Interview'
                 ]
-            ])
-            ->add('briefDescription', TextareaType::class, [])
-            ->add('about', TextareaType::class, [])
+            ])->add('about', TextareaType::class, [])
             ->add('type', EntityType::class, [
                 'class' => RolesWillingToFulfill::class,
                 'choice_label' => 'eventName',
@@ -126,13 +124,18 @@ class NewSchoolExperienceType extends AbstractType
                 'multiple'  => false,
             ])
             ->add('zipcode', TextType::class, [])
-            ->add('startDateAndTime', hiddenType::class, [])
+            ->add('startDateAndTime', HiddenType::class, [])
             ->add('endDateAndTime', HiddenType::class, [])
 
             ->add('startDate', TextType::class, [
                 'mapped' => false
             ])
             ->add('endDate', TextType::class, [
+                'mapped' => false
+            ]) ->add('startTime', TextType::class, [
+                'mapped' => false
+            ])
+            ->add('endTime', TextType::class, [
                 'mapped' => false
             ]);
 

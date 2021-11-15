@@ -16,8 +16,6 @@
 
 {% block body %}
 
-    <input type="text" id="testDate">
-
     <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
 
         {{ form_start(form, {attr: {'id': 'experience-form', 'novalidate' : 'novalidate'}}) }}
@@ -64,22 +62,7 @@
                             </div>
 
                             <div class="uk-margin">
-                                {{ form_label(form.briefDescription, 'Experience Description*') }}
-                                <div class="uk-text-meta">
-                                    Give a one sentence summary that says what the experience will cover, please be clear and concise.
-                                </div>
-                                {{ form_widget(form.briefDescription, {'attr': {'rows': '3', 'class': 'uk-textarea' ~ ( form_errors(form.briefDescription) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(form.briefDescription) }}
-                            </div>
-
-                            <div class="uk-margin">
-                                {{ form_label(form.type, 'Type*') }}
-                                {{ form_widget(form.type, {'attr': {'class': 'uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(form.type) }}
-                            </div>
-
-                            <div class="uk-margin">
-                                {{ form_label(form.about, 'About*') }}
+                                {{ form_label(form.about, 'Experience Description*') }}
                                 <div class="uk-text-meta">
                                     Provide details about the event and, <strong>if required, how many professionals you need to volunteer.</strong>
                                 </div>
@@ -96,6 +79,12 @@ PROFESSIONALS - We need 5 executives with experience conducting job interviews t
                             </div>
 
                             <div class="uk-margin">
+                                {{ form_label(form.type, 'Type*') }}
+                                {{ form_widget(form.type, {'attr': {'class': 'uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(form.type) }}
+                            </div>
+
+                            <div class="uk-margin">
                                 {{ form_label(form.schoolContact, 'Experience Coordinator / Point of Contact*') }}
                                 {{ form_widget(form.schoolContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schoolContact) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(form.schoolContact) }}
@@ -108,19 +97,34 @@ PROFESSIONALS - We need 5 executives with experience conducting job interviews t
                                 {{ form_errors(form.experienceAddressSearch) }}
                             </div>
 
-                            <div class="uk-margin">
-                                {#{{ form_label(form.startDate, 'Start Date*') }}
-                                {{ form_widget(form.startDate) }}
-                                <div class="clear"></div>
-                                {{ form_errors(form.startDate) }}#}
+
+                            <div class="uk-margin uk-grid">
+                                <div class="uk-width-2-5">
+                                    {{ form_label(form.startDate, 'Start Date*') }}
+                                    {{ form_widget(form.startDate, {'attr': {'class': 'uk-input' ~ ( form_errors(form.startDate) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.startDate) }}
+                                </div>
+
+                                <div class="uk-width-1-5">
+                                    {{ form_label(form.startTime, 'Start Time*') }}
+                                    {{ form_widget(form.startTime, {'attr': {'class': 'uk-input' ~ ( form_errors(form.startTime) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.startTime) }}
+                                </div>
                             </div>
 
-                           {# <div class="uk-margin">
-                                {{ form_label(form.endDate, 'End Date*') }}
-                                {{ form_widget(form.endDate) }}
-                                <div class="clear"></div>
-                                {{ form_errors(form.endDate) }}
-                            </div>#}
+                            <div class="uk-margin uk-grid">
+                                <div class="uk-width-2-5">
+                                    {{ form_label(form.endDate, 'End Date*') }}
+                                    {{ form_widget(form.endDate, {'attr': {'class': 'uk-input' ~ ( form_errors(form.endDate) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.endDate) }}
+                                </div>
+
+                                <div class="uk-width-1-5">
+                                    {{ form_label(form.endTime, 'End Time*') }}
+                                    {{ form_widget(form.endTime, {'attr': {'class': 'uk-input' ~ ( form_errors(form.endTime) ? ' uk-form-danger' : '' ) }}) }}
+                                    {{ form_errors(form.endTime) }}
+                                </div>
+                            </div>
 
                             {{ form_widget(form.street, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.street) ? ' uk-form-danger' : '' ) }}) }}
                             {{ form_widget(form.city, {'attr': {'style': 'display: none', 'class': 'uk-input' ~ ( form_errors(form.city) ? ' uk-form-danger' : '' ) }}) }}

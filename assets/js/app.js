@@ -24,8 +24,6 @@ require('./vendor/fontawesome.js');
 require('./vendor/jquery-ui.min.js');
 const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
-
-import flatpickr from "flatpickr";
 require('flatpickr/dist/flatpickr.min.css');
 
 // Binds to Window
