@@ -2329,7 +2329,7 @@ class SchoolController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function manageAction(School $school, Request $request)
+    public function manageStudentsAction(School $school, Request $request)
     {
 
         /** @var User $user */

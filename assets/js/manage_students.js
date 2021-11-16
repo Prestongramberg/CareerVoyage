@@ -13,10 +13,26 @@ $(document).ready(function () {
 
         if (checked) {
             $('[name="studentUser[]"]').prop("checked", true);
+            setSelectedStudents();
         } else {
             $('[name="studentUser[]"]').prop("checked", false);
+            setSelectedStudents();
         }
     });
+
+    $('[name="studentUser[]"]').on('change', function(event) {
+        setSelectedStudents();
+    });
+
+    function setSelectedStudents() {
+        let numberOfSelectedUsers = $('[name="studentUser[]"]:checked').length;
+
+        if(numberOfSelectedUsers > 0) {
+            $('.js-total-users-selected').html(`(${numberOfSelectedUsers} selected)`);
+        } else {
+            $('.js-total-users-selected').html('');
+        }
+    }
 
     $('.js-manage-students-container').on('click', '.js-bulk-action-apply-button', function (event) {
 
