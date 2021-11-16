@@ -51,7 +51,7 @@ class DeleteStudentsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $schoolId = 73;
+        $schoolId = 63;
         $school = $this->schoolRepository->find($schoolId);
 
         if(!$school) {

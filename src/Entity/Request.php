@@ -75,7 +75,7 @@ class Request
     /**
      * @Groups({"REQUEST"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requests")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $created_by;
 

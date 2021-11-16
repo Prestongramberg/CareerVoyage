@@ -44,6 +44,7 @@ class ReportLessonsWantTaught
 
     /**
      * @ORM\ManyToOne(targetEntity=EducatorUser::class, inversedBy="reportLessonsWantTaughts")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $educatorUser;
 

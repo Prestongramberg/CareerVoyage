@@ -58,7 +58,7 @@ class EducatorUser extends User
      *     groups={"EDUCATOR_PROFILE_PERSONAL"}
      * )
      *
-     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="educatorUsers", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="educatorUsers")
      */
     private $secondaryIndustries;
 
