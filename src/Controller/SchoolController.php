@@ -967,6 +967,7 @@ class SchoolController extends AbstractController
                                 // setup a temp password even for the existing user as odds are
                                 // they won't remember their current password and this will help
                                 // the school admin facilitate their login
+                                $existingUser->setSchool($school);
                                 $existingUser->setTempPassword($tempPassword);
                                 $existingUser->setPassword($encodedPassword);
                                 $this->entityManager->persist($existingUser);
