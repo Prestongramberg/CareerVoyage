@@ -9,11 +9,13 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use App\Validator\Constraints as CustomAssert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ExperienceRepository")
  * @ORM\HasLifecycleCallbacks()
  *
+ * @CustomAssert\Experience(groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience", "studentToMeetProfessionalExperience" = "StudentToMeetProfessionalExperience"})
@@ -41,21 +43,21 @@ abstract class Experience
 
     public static $requireApprovalChoices = [
         'No' => false,
-        'Yes' => true
+        'Yes' => true,
     ];
 
     /**
      * @Assert\Callback(groups={"CREATE"})
      * @param ExecutionContextInterface $context
-     * @param $payload
+     * @param                           $payload
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
-        if(!$this->payment) {
-            if(!is_float($this->payment) && !is_numeric($this->payment)) {
+        if (!$this->payment) {
+            if (!is_float($this->payment) && !is_numeric($this->payment)) {
                 $context->buildViolation('You must enter a valid number or decimal for the payment!')
-                    ->atPath('payment')
-                    ->addViolation();
+                        ->atPath('payment')
+                        ->addViolation();
             }
         }
     }
@@ -70,20 +72,20 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please add a title for the experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255)
      */
     protected $title;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="text")
      */
     protected $briefDescription;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Please add a description for the experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="text", nullable=true)
      */
     protected $about;
@@ -158,11 +160,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\Email(
-     *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"}
-     * )
-     * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $email;
@@ -191,11 +189,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\Count(
-     *      min = "1",
-     *      minMessage = "You must specify at least one Career Field.",
-     *     groups={"SCHOOL_EXPERIENCE", "EDIT", "CREATE"}
-     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
      */
     protected $secondaryIndustries;
@@ -254,23 +248,31 @@ abstract class Experience
     /**
      * @ORM\OneToOne(targetEntity=Request::class, inversedBy="experience")
      */
-    private $request;
+    protected $request;
+
+    /**
+     * @Assert\NotNull(message="Please enter an address for the experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $experienceAddressSearch;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $experienceAddressSearch;
+    protected $timezone = 'America/Chicago';
 
     public function __construct()
     {
-        $this->experienceFiles = new ArrayCollection();
+        $this->experienceFiles     = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
-        $this->registrations = new ArrayCollection();
-        $this->feedback = new ArrayCollection();
-        $this->shares = new ArrayCollection();
+        $this->registrations       = new ArrayCollection();
+        $this->feedback            = new ArrayCollection();
+        $this->shares              = new ArrayCollection();
     }
 
-    public function isVirtual() {
+    public function isVirtual()
+    {
 
         if (stripos(strtolower($this->getType()->getName()), 'virtual') !== false) {
             return true;
@@ -380,36 +382,36 @@ abstract class Experience
         return $this;
     }
 
-    public function getStreet()
+    public function getStreet(): ?string
     {
         return $this->street;
     }
 
-    public function setStreet(string $street)
+    public function setStreet(?string $street)
     {
         $this->street = $street;
 
         return $this;
     }
 
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->city;
     }
 
-    public function setCity(string $city)
+    public function setCity(?string $city)
     {
         $this->city = $city;
 
         return $this;
     }
 
-    public function getZipcode()
+    public function getZipcode(): ?string
     {
         return $this->zipcode;
     }
 
-    public function setZipcode($zipcode)
+    public function setZipcode(?string $zipcode)
     {
         $this->zipcode = $zipcode;
 
@@ -546,20 +548,24 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getStartDateAndTimeTimeStamp() {
-        if($this->startDateAndTime) {
+    public function getStartDateAndTimeTimeStamp()
+    {
+        if ($this->startDateAndTime) {
             return $this->startDateAndTime->getTimestamp();
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getEndDateAndTimeTimeStamp() {
-        if($this->endDateAndTime) {
+    public function getEndDateAndTimeTimeStamp()
+    {
+        if ($this->endDateAndTime) {
             return $this->endDateAndTime->getTimestamp();
         }
+
         return '';
     }
 
@@ -625,12 +631,14 @@ abstract class Experience
         return $this;
     }
 
-    public function isRegistered(User $user) {
-        foreach($this->getRegistrations() as $registration) {
-            if($registration->getUser()->getId() === $user->getId()) {
+    public function isRegistered(User $user)
+    {
+        foreach ($this->getRegistrations() as $registration) {
+            if ($registration->getUser()->getId() === $user->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -658,7 +666,8 @@ abstract class Experience
         return $this;
     }
 
-    public function getFormattedAddress() {
+    public function getFormattedAddress()
+    {
         return sprintf("%s %s %s %s",
             $this->street,
             $this->city,
@@ -683,37 +692,44 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyStartDateAndTime() {
-        if($this->startDateAndTime) {
+    public function getFriendlyStartDateAndTime()
+    {
+        if ($this->startDateAndTime) {
             return $this->startDateAndTime->format("m/d/Y h:i A");
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyEndDateAndTime() {
-        if($this->endDateAndTime) {
+    public function getFriendlyEndDateAndTime()
+    {
+        if ($this->endDateAndTime) {
             return $this->endDateAndTime->format("m/d/Y h:i A");
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyEventName() {
-        if($this->getType()) {
+    public function getFriendlyEventName()
+    {
+        if ($this->getType()) {
             return $this->getType()->getEventName();
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getExperienceListTitle() {
+    public function getExperienceListTitle()
+    {
 
         return $this->getTitle();
     }
@@ -809,7 +825,8 @@ abstract class Experience
         return $this;
     }
 
-    public function getOriginalRequest() {
+    public function getOriginalRequest()
+    {
         return $this->request;
     }
 
@@ -821,6 +838,18 @@ abstract class Experience
     public function setExperienceAddressSearch(?string $experienceAddressSearch): self
     {
         $this->experienceAddressSearch = $experienceAddressSearch;
+
+        return $this;
+    }
+
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
+    }
+
+    public function setTimezone(?string $timezone): self
+    {
+        $this->timezone = $timezone;
 
         return $this;
     }

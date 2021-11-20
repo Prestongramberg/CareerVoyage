@@ -17,6 +17,8 @@ use App\Entity\SchoolExperience;
 use App\Entity\State;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
+use App\Service\NotificationPreferencesManager;
+use App\Util\TimeHelper;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
@@ -34,6 +36,8 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -45,6 +49,8 @@ use App\Repository\UserRepository;
 
 class NewSchoolExperienceType extends AbstractType
 {
+    use TimeHelper;
+
     /**
      * @var SecondaryIndustryRepository
      */
@@ -132,12 +138,33 @@ class NewSchoolExperienceType extends AbstractType
             ])
             ->add('endDate', TextType::class, [
                 'mapped' => false
-            ]) ->add('startTime', TextType::class, [
+            ]); /*->add('startTime', TextType::class, [
                 'mapped' => false
             ])
             ->add('endTime', TextType::class, [
                 'mapped' => false
-            ]);
+            ]);*/
+
+        $builder->add('startTime', ChoiceType::class, [
+            'expanded' => false,
+            'multiple' => false,
+            'choices' => $this->hoursRange(0, 86400, 60 * 30),
+            'mapped' => false,
+        ]);
+
+        $builder->add('endTime', ChoiceType::class, [
+            'expanded' => false,
+            'multiple' => false,
+            'choices' => $this->hoursRange(0, 86400, 60 * 30),
+            'mapped' => false,
+        ]);
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+
+            $event->setData($data);
+        });
 
 
 

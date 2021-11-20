@@ -82,18 +82,6 @@
             <div class="page-company-experience-add__availability">
                 <div class="uk-width-xlarge">
                     <fieldset class="uk-fieldset">
-                        <div class="uk-margin">
-                            {{ form_label(form.availableStudentSpaces, 'Available Student Spaces*') }}
-                            {{ form_widget(form.availableStudentSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableStudentSpaces) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.availableStudentSpaces) }}
-                            <span>For unlimited set to 500</span>
-                        </div>
-                        <div class="uk-margin">
-                            {{ form_label(form.availableProfessionalSpaces, 'Available Professional Spaces*') }}
-                            {{ form_widget(form.availableProfessionalSpaces, {'attr': {'class': 'uk-input' ~ ( form_errors(form.availableProfessionalSpaces) ? ' uk-form-danger' : '' ) }}) }}
-                            {{ form_errors(form.availableProfessionalSpaces) }}
-                            <span>For unlimited set to 500</span>
-                        </div>
                         <div class="uk-margin" style="display: none">
                             {{ form_label(form.payment, 'Payment') }}
                             {{ form_widget(form.payment, {'attr': {'class': 'uk-input' ~ ( form_errors(form.payment) ? ' uk-form-danger' : '' ) }}) }}

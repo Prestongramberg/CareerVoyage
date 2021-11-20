@@ -26,21 +26,6 @@ $(document).ready(function () {
         minDate: "today"
     });
 
-    $("#experience_startTime").flatpickr({
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "h:i",
-        minuteIncrement: 15,
-    });
-
-    $("#experience_endTime").flatpickr({
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "h:i",
-        minuteIncrement: 15
-    });
-
-
     /*    $('.js-select2').select2({
             width: '100%'
         });

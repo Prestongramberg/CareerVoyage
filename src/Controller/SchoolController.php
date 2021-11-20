@@ -23,6 +23,7 @@ use App\Form\ChatMessageFilterType;
 use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
+use App\Form\ExperienceType;
 use App\Form\Filter\SchoolFilterType;
 use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
@@ -1547,8 +1548,7 @@ class SchoolController extends AbstractController
         $user = $this->getUser();
 
         $experience = new SchoolExperience();
-        $form       = $this->createForm(
-            NewSchoolExperienceType::class, $experience, [
+        $form = $this->createForm(ExperienceType::class, $experience, [
                 'method' => 'POST',
                 'school' => $school,
             ]
@@ -1862,7 +1862,7 @@ class SchoolController extends AbstractController
 
         $registration = $this->registrationRepository->getByUserAndExperience($user, $experience);
 
-        if($registration) {
+        if ($registration) {
             $this->entityManager->remove($registration);
             $this->entityManager->flush();
         }
