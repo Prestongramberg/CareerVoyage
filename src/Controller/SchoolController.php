@@ -832,9 +832,9 @@ class SchoolController extends AbstractController
                     $this->serializer->encode($data, 'csv')
                 );
 
-                foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+                /*foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
                     $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
-                }
+                }*/
             }
 
             $this->addFlash('success', sprintf('(%s) Students successfully imported.', count($studentObjs)));
@@ -1019,14 +1019,14 @@ class SchoolController extends AbstractController
             foreach ($existingEducatorObjs as $existingEducatorObj) {
                 $existingEducatorObj->setPasswordResetToken();
                 $this->entityManager->persist($existingEducatorObj);
-                $this->securityMailer->sendPasswordReset($existingEducatorObj);
+                //$this->securityMailer->sendPasswordReset($existingEducatorObj);
             }
 
             /** @var EducatorUser $educatorObj */
             foreach ($educatorObjs as $educatorObj) {
                 $educatorObj->initializeNewUser(false, true);
                 $this->entityManager->persist($educatorObj);
-                $this->securityMailer->sendPasswordSetup($educatorObj);
+                //$this->securityMailer->sendPasswordSetup($educatorObj);
             }
 
             $this->entityManager->flush();
@@ -1041,9 +1041,9 @@ class SchoolController extends AbstractController
                     $this->serializer->encode($data, 'csv')
                 );
 
-                foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
+               /* foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
                     $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
-                }
+                }*/
             }
 
             if (sizeof($error_emails) > 0) {
