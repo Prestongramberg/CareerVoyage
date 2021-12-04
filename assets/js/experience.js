@@ -9,8 +9,75 @@ import Inputmask from "inputmask";
 import VideoComponent from "./Components/VideoComponent";
 import VCountdown from './Components/VCountdown.js';
 import flatpickr from "flatpickr";
+import Tagify from '@yaireo/tagify'
+import Routing from "./Routing";
+import ResourceComponent from "./Components/ResourceComponent";
 
 $(document).ready(function () {
+
+    var input = document.querySelector('input[name="experience[tags]"]'),
+        controller,
+        tagify = new Tagify(input, {
+            placeholder: 'Add search keywords to your event.',
+            maxItems: 10,
+            editTags: false,
+            maxTags: 10,
+            dropdown: {
+                position: "input",
+                enabled: 0 // always opens dropdown when input gets focus
+            },
+            whitelist: [],
+            callbacks: {
+                add: (event) => {
+                    let tagCount = event.detail.tagify.value.length;
+                    $('.js-tags-count').html(`${tagCount}/10 tags.`);
+                },
+                remove: (event) => {
+                    let tagCount = event.detail.tagify.value.length;
+                    $('.js-tags-count').html(`${tagCount}/10 tags.`);
+                },
+                blur: (event) => {
+
+                    if (!$('.tagify__input').hasClass('tagify__input-reset-opacity')) {
+                        $('.tagify__input').addClass('tagify__input-reset-opacity')
+                    }
+                },
+                focus: (event) => {
+
+                    if ($('.tagify__input').hasClass('tagify__input-reset-opacity')) {
+                        $('.tagify__input').removeClass('tagify__input-reset-opacity')
+                    }
+                },
+            }
+        });
+
+    if (!$('.tagify__input').hasClass('tagify__input-reset-opacity')) {
+        $('.tagify__input').addClass('tagify__input-reset-opacity')
+    }
+
+    // listen to any keystrokes which modify tagify's input
+    tagify.on('input', onInput)
+
+    function onInput(e) {
+        var value = e.detail.value
+        tagify.whitelist = null // reset the whitelist
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
+        controller && controller.abort()
+        controller = new AbortController()
+
+        // show loading animation and hide the suggestions dropdown
+        tagify.loading(true).dropdown.hide()
+
+        let url = Routing.generate('api_tag_search', {'value': value});
+
+        fetch(url, {signal: controller.signal})
+            .then(RES => RES.json())
+            .then(function (newWhitelist) {
+                tagify.whitelist = newWhitelist.results // update whitelist Array in-place
+                tagify.loading(false).dropdown.show(value) // render the suggestions dropdown
+            })
+    }
 
     VCountdown({
         target: '#experience_title',
@@ -26,154 +93,9 @@ $(document).ready(function () {
         minDate: "today"
     });
 
-    /*    $('.js-select2').select2({
-            width: '100%'
-        });
-
-
-        $(document).on('click', '.js-select-all-schools', function(e) {
-            $("#professional_edit_profile_form_schools > option").prop("selected", "selected");// Select All Options
-            $("#professional_edit_profile_form_schools").trigger("change");// Trigger change to select 2
-        });
-
-        $('#professional_edit_profile_form_schools').select2({
-            placeholder: "Volunteer schools",
-            allowClear: true,
-            width: '100%',
-            sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
-        });
-
-        $('#professional_edit_profile_form_regions').select2({
-            placeholder: "Filter by region",
-            allowClear: true,
-            width: '100%'
-        });
-
-        $('#professional_edit_profile_form_secondaryIndustries').select2({
-            placeholder: "Select Professions",
-            allowClear: true,
-            width: '100%',
-            "language": {
-                "noResults": function(){
-                    return "Please choose a career sector / industry first";
-                }
-            },
-        });
-
-        if (document.getElementById("addressSearch")) {
-
-            const addressSearchAutocomplete = new google.maps.places.Autocomplete(document.getElementById("addressSearch"), {
-                bounds: bounds,
-                componentRestrictions: {country: "us"},
-                fields: ["address_components", "geometry", "icon", "name"],
-                //origin: center,
-                strictBounds: false,
-                types: ["address"],
-            });
-
-            addressSearchAutocomplete.addListener("place_changed", () => {
-
-                const place = addressSearchAutocomplete.getPlace();
-                let geoAddress = "";
-                let country = "";
-
-                // Get each component of the address from the place details,
-                // and then fill-in the corresponding field on the form.
-                // place.address_components are google.maps.GeocoderAddressComponent objects
-                // which are documented at http://goo.gle/3l5i5Mr
-                for (const component of place.address_components) {
-                    const componentType = component.types[0];
-
-                    switch (componentType) {
-                        case "street_number": {
-                            geoAddress = `${component.long_name} `;
-                            break;
-                        }
-
-                        case "route": {
-                            geoAddress += `${component.short_name}, `;
-                            break;
-                        }
-
-                        case "locality": {
-                            geoAddress += `${component.long_name}, `;
-                            break;
-                        }
-
-                        case "administrative_area_level_1": {
-                            geoAddress += `${component.short_name} `;
-                            break;
-                        }
-
-                        case "postal_code": {
-                            geoAddress += `${component.long_name}, `;
-                            break;
-                        }
-
-                        case "country": {
-                            country = `${component.short_name}`;
-                            break;
-                        }
-                    }
-                }
-
-                geoAddress += country;
-
-                debugger;
-
-                const $form = $('.js-form').find('form');
-                let formData = new FormData($form.get(0));
-                formData.delete('professional_edit_profile_form[_token]');
-                formData.append('skip_validation', true);
-                formData.append('changeableField', true);
-                formData.set('geoAddress', geoAddress);
-                let route = $('.js-form').attr('data-route');
-                // todo remove regions from this form submit as we don't want to filter off of regions but just geo address
-                // todo also take into consideration the radius as well. How do you want to account for that.
-                // todo add select all logic to the schools using some select 2 function. Not sure yet how to do that.
-                // todo add unselect all as well
-                // todo consider adding map markers for the schools as well
-                // todo add the pre_set event to the form as well
-
-                debugger;
-                $.ajax({
-                    url: route,
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false
-                }).then((data, textStatus, jqXHR) => {
-
-                    debugger;
-
-                }).catch((jqXHR) => {
-
-                    debugger;
-                    const errorData = JSON.parse(jqXHR.responseText);
-
-                    $('.js-schools-container').replaceWith(
-                        // ... with the returned one from the AJAX response.
-                        $(errorData.formMarkup).find('.js-schools-container')
-                    );
-
-                    $('#professional_edit_profile_form_schools').select2({
-                        placeholder: "Volunteer schools",
-                        allowClear: true,
-                        width: '100%',
-                        sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
-                    });
-
-                    // todo remove. We don't want to show the schools in the dropdown but rather the schools selected
-                    initMarkers();
-                });
-
-            });
-        }*/
-
-
     if (document.getElementById("experienceAddressSearch")) {
 
-        const experienceAddressSearchAutocomplete = new google.maps.places.Autocomplete(document.getElementById("experienceAddressSearch"), {
+        let addressSearchAutocomplete = new google.maps.places.Autocomplete(document.getElementById("experienceAddressSearch"), {
             componentRestrictions: {country: "us"},
             fields: ["address_components", "geometry", "icon", "name"],
             //origin: center,
@@ -183,16 +105,13 @@ $(document).ready(function () {
 
         document.getElementById("experienceAddressSearch").onfocus = function () {
             this.removeAttribute('readonly');
-            this.setAttribute('autocomplete', 'chrome-off');
         }
 
-        experienceAddressSearchAutocomplete.addListener("place_changed", () => {
+        addressSearchAutocomplete.addListener("place_changed", () => {
 
-            const place = experienceAddressSearchAutocomplete.getPlace();
-            let street = "";
-            let postalCode = "";
-            let city = "";
-            let state = "";
+            const place = addressSearchAutocomplete.getPlace();
+            let geoAddress = "";
+            let country = "";
 
             // Get each component of the address from the place details,
             // and then fill-in the corresponding field on the form.
@@ -203,115 +122,112 @@ $(document).ready(function () {
 
                 switch (componentType) {
                     case "street_number": {
-                        street = component.long_name;
+                        geoAddress = `${component.long_name} `;
                         break;
                     }
 
                     case "route": {
-                        street += ' ' + component.short_name;
+                        geoAddress += `${component.short_name}, `;
                         break;
                     }
 
                     case "locality": {
-                        city = component.long_name;
+                        geoAddress += `${component.long_name}, `;
                         break;
                     }
 
                     case "administrative_area_level_1": {
-                        state = component.long_name;
-                        console.log(state);
+                        geoAddress += `${component.short_name} `;
                         break;
                     }
 
                     case "postal_code": {
-                        postalCode = component.long_name;
+                        geoAddress += `${component.long_name}, `;
+                        break;
+                    }
+
+                    case "country": {
+                        country = `${component.short_name}`;
                         break;
                     }
                 }
             }
 
-            $('#experience_city').val(city);
-            $('#experience_street').val(street);
-            $('#experience_zipcode').val(postalCode);
+            geoAddress += country;
 
-            $("#experience_state > option").each(function () {
-                if (this.text === state) {
-                    $("#experience_state").val(this.value).change();
-                }
+            let route = Routing.generate('api_geocode', {'addressSearch': geoAddress});
+
+            $.ajax({
+                url: route,
+                method: 'GET',
+            }).then((data, textStatus, jqXHR) => {
+
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: {
+                        lat: data.latitude,
+                        lng: data.longitude
+                    },
+                    disableDefaultUI: true,
+                    panControl: false,
+                    streetViewControl: false,
+                    scaleControl: true,
+                    zoomControl: true,
+                    zoom: 12,
+                    mapTypeId: 'roadmap'
+                });
+
+                let marker = new google.maps.Marker({
+                    position: {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)},
+                    map: map,
+                });
+
+                var latLng = marker.getPosition();
+                map.setCenter(latLng);
+
+
+                $('#map').show();
+
+            }).catch((jqXHR) => {
+                // do nothing
             });
+
         });
+
     }
 
 
-    /*    if (document.getElementById("professional_edit_profile_form_email")) {
+    let latitude = $('#map').attr('data-latitude')
+    let longitude = $('#map').attr('data-longitude')
 
-            document.getElementById("professional_edit_profile_form_email").onfocus = function () {
-                this.removeAttribute('readonly');
-                this.setAttribute('autocomplete', 'chrome-off');
-            }
-        }
+    if (typeof latitude !== 'undefined' && latitude !== false &&
+        typeof longitude !== 'undefined' && longitude !== false
+        && latitude !== "" && longitude !== "") {
 
-        if (document.getElementById("professional_edit_profile_form_plainPassword")) {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: {
+                lat: latitude,
+                lng: longitude
+            },
+            disableDefaultUI: true,
+            panControl: false,
+            streetViewControl: false,
+            scaleControl: true,
+            zoomControl: true,
+            zoom: 12,
+            mapTypeId: 'roadmap'
+        });
 
-            document.getElementById("professional_edit_profile_form_plainPassword").onfocus = function () {
-                this.removeAttribute('readonly');
-                this.setAttribute('autocomplete', 'chrome-off');
-            }
-        }*/
+        let marker = new google.maps.Marker({
+            position: {lat: parseFloat(latitude), lng: parseFloat(longitude)},
+            map: map,
+        });
+
+        var latLng = marker.getPosition();
+        map.setCenter(latLng);
+
+        $('#map').show();
+    }
 
 
-    /*    if (document.getElementById("professional-profile-form")) {
-            debugger;
-
-            document.getElementById("professional-profile-form").onsubmit = function (event) {
-
-                event.preventDefault();
-
-                document.getElementById("personalAddressSearch").removeAttribute('readonly');
-
-                this.submit();
-            };
-
-        }*/
-
-    /*    if (document.getElementById("validation_groups")) {
-            UIkit.util.on('.uk-switcher', 'show', function (ev) {
-
-                if ($(ev.target).hasClass('account_details_personal')) {
-                    $('#tab').val('#account-details-profile');
-                    $('#validation_groups').val('PROFESSIONAL_PROFILE_PERSONAL');
-                    location.hash = 'account-details-profile';
-                }
-
-                if ($(ev.target).hasClass('account_details_regions')) {
-                    $('#validation_groups').val('PROFESSIONAL_PROFILE_REGION');
-                    $('#tab').val('#account-details-profile-region');
-                    location.hash = 'account-details-profile-region';
-                }
-
-                if ($(ev.target).hasClass('account_details_videos')) {
-                    $('#validation_groups').val('PROFESSIONAL_PROFILE_VIDEO');
-                    $('#tab').val('#account-details-profile-videos');
-                    location.hash = 'account-details-profile-videos';
-                }
-
-                if ($(ev.target).hasClass('account_details_account')) {
-                    $('#validation_groups').val('PROFESSIONAL_PROFILE_ACCOUNT');
-                    $('#tab').val('#account-details-profile-account');
-                    location.hash = 'account-details-profile-account';
-                }
-            });
-        }*/
-
-    /*    if (document.getElementById('professional_edit_profile_form_phone')) {
-            var selector = document.getElementById("professional_edit_profile_form_phone");
-            var im = new Inputmask("(999) 999-9999");
-            im.mask(selector);
-        }
-
-        new PrimaryIndustrySelect($('.js-form'), window.globalEventDispatcher);
-        new RegionSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
-        new RadiusSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
-        new SchoolSelect($('.js-form'), window.globalEventDispatcher, initMarkers);
-        new VideoComponent($('.js-video-component'), window.globalEventDispatcher);*/
+    new ResourceComponent($('.js-resource-component'), window.globalEventDispatcher);
 });

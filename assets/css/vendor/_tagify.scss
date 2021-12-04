@@ -1,0 +1,29 @@
+.tagify--outside{
+  border: 0;
+}
+
+.tagify--outside .tagify__input{
+  order: -1;
+  flex: 100%;
+  border: 1px solid var(--tags-border-color);
+  margin: 0;
+  margin-bottom: 2em;
+  transition: .1s;
+  padding: 10px;
+}
+
+.tagify--outside .tagify__input:hover{ border-color:var(--tags-hover-border-color); }
+
+
+.tagify--outside.tagify--focus .tagify__input{
+  transition:0s;
+  border-color: var(--tags-focus-border-color);
+}
+
+.tagify--outside{
+  border: none !important;
+}
+
+.tagify__input-reset-opacity::before {
+  opacity: initial !important;
+}

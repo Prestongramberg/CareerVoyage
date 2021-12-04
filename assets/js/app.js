@@ -25,6 +25,7 @@ require('./vendor/jquery-ui.min.js');
 const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
 require('flatpickr/dist/flatpickr.min.css');
+require('@yaireo/tagify/dist/tagify.css');
 
 // Binds to Window
 window.globalEventDispatcher = new EventDispatcher();

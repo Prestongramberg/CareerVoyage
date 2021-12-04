@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraint;
 /**
  * @Annotation
  */
-class Experience extends Constraint
+class ExperienceDetails extends Constraint
 {
     public function getTargets()
     {

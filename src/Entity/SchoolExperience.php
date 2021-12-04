@@ -25,6 +25,8 @@ class SchoolExperience extends Experience
     private $school;
 
     /**
+     * @Assert\NotNull(message="Please choose a main point of contact for this experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="schoolExperiences")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -38,7 +40,7 @@ class SchoolExperience extends Experience
     /**
      * @ORM\Column(type="boolean")
      */
-    private $canViewFeedback;
+    private $canViewFeedback = true;
 
     public function __construct()
     {

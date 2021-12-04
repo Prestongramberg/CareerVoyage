@@ -120,6 +120,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('uploaded_asset', [$this, 'getUploadedAssetPath']),
             new TwigFunction('encode_lesson', [$this, 'encodeLesson']),
             new TwigFunction('encode_company', [$this, 'encodeCompany']),
+            new TwigFunction('encode_experiences', [$this, 'encodeExperiences']),
             new TwigFunction('encode_companies', [$this, 'encodeCompanies']),
             new TwigFunction('encode_school', [$this, 'encodeSchool']),
             new TwigFunction('encode_schools', [$this, 'encodeSchools']),
@@ -314,6 +315,11 @@ class AppExtension extends AbstractExtension
     public function encodeCompany(Company $object): string
     {
         return $this->serializer->serialize($object, 'json', ['groups' => ['RESULTS_PAGE']]);
+    }
+
+    public function encodeExperiences($objects): string
+    {
+        return $this->serializer->serialize($objects, 'json', ['groups' => ['EXPERIENCE_DATA']]);
     }
 
     public function encodeCompanies($objects): string

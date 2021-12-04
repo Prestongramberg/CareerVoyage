@@ -1,0 +1,92 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% form_theme form with _self %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/experience.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+ {% endblock %}
+
+{% block title %}Edit Experience{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
+
+        <div uk-grid>
+            <div class="uk-width-1-1 uk-width-medium@m">
+                <ul id="test" class="uk-tab-left"
+                    uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                    <li><a href="#experience-details" id="experience-details">Edit Experience</a></li>
+                    <li><a href="#experience-attachments" id="experience-attachments">Attachments</a>
+                </ul>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <div id="tab-account-inner" class="uk-switcher">
+
+                    <div class="experience_details">
+                        {% include 'school/experience/partials/_form.html.twig' %}
+                    </div>
+
+
+                    <div class="js-resource-component experience_attachments">
+                        <div class="uk-width-xlarge">
+                            <p>Resources are meant to provide any additional material for your attendees.</p>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-text-center uk-placeholder">
+                                <button data-url="{{ path('api_resource_new', {experienceId: experience.id}) }}"
+                                        class="uk-button uk-button-default uk-button-small js-add-resource-button"
+                                        type="button">Add a Resource
+                                </button>
+
+                                <div id="js-resource-component-modal" uk-modal>
+                                    <div class="uk-modal-dialog uk-modal-body">
+                                        {# ADD RESOURCE HERE FROM AJAX REQUEST #}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="js-resource-list-container" id="experienceResources">
+                                {% for experienceResource in experience.experienceResources %}
+                                    <div id="resource-{{ experienceResource.id }}" class="uk-grid uk-flex-middle"
+                                         uk-grid>
+                                        <div class="uk-width-expand">
+                                            <dt>{{ experienceResource.title }}</dt>
+                                            <dd>{{ experienceResource.description }}</dd>
+                                        </div>
+                                        <div class="uk-width-auto">
+                                            {% if experienceResource.fileName %}
+                                                <a href="{{ asset(uploaded_asset(experienceResource.path)) }}"
+                                                   class="uk-button uk-button-default uk-button-small view"
+                                                   target="_blank">View</a>
+                                            {% else %}
+                                                <a href="{{ experienceResource.linkToWebsite }}"
+                                                   class="uk-button uk-button-default uk-button-small view"
+                                                   target="_blank view">View</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="uk-width-auto">
+                                            <a href="javascript:void(0)"
+                                               data-url="{{ path('api_resource_edit', {'id' : experienceResource.id }) }}?experienceId={{ experience.id }}"
+                                               class="uk-button uk-button-default uk-button-small js-edit-resource-button">Edit</a>
+                                        </div>
+                                        <button class="js-delete-resource-button" type="button"
+                                                data-url="{{ path('api_resource_delete', {'id' : experienceResource.id }) }}"
+                                                uk-close></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

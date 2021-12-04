@@ -15,7 +15,7 @@ use App\Validator\Constraints as CustomAssert;
  * @ORM\Entity(repositoryClass="App\Repository\ExperienceRepository")
  * @ORM\HasLifecycleCallbacks()
  *
- * @CustomAssert\Experience(groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+ * @CustomAssert\ExperienceDetails(groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience", "studentToMeetProfessionalExperience" = "StudentToMeetProfessionalExperience"})
@@ -26,23 +26,23 @@ abstract class Experience
 
     public static $types = [
         'Site Visit' => 'SITE_VISIT',
-        'Event' => 'EVENT',
+        'Event'      => 'EVENT',
         'Externship' => 'EXTERNSHIP',
         'Internship' => 'INTERNSHIP',
-        'Job' => 'JOB',
+        'Job'        => 'JOB',
     ];
 
     public static $paymentTypes = [
         'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
-        'Hour' => 'HOUR',
-        'Day' => 'DAY',
-        'Week' => 'WEEK',
-        'Month' => 'MONTH',
-        'Year' => 'YEAR',
+        'Hour'                     => 'HOUR',
+        'Day'                      => 'DAY',
+        'Week'                     => 'WEEK',
+        'Month'                    => 'MONTH',
+        'Year'                     => 'YEAR',
     ];
 
     public static $requireApprovalChoices = [
-        'No' => false,
+        'No'  => false,
         'Yes' => true,
     ];
 
@@ -79,7 +79,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     protected $briefDescription;
 
@@ -124,21 +124,18 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $street;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $city;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $zipcode;
@@ -173,14 +170,13 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
      */
     protected $state;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please choose an experience type.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="experiences")
      * @ORM\JoinColumn(nullable=true)
@@ -206,11 +202,13 @@ abstract class Experience
     protected $feedback;
 
     /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $latitude;
 
     /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $longitude;
@@ -251,16 +249,34 @@ abstract class Experience
     protected $request;
 
     /**
-     * @Assert\NotNull(message="Please enter an address for the experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
-     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $experienceAddressSearch;
+    protected $addressSearch;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $timezone = 'America/Chicago';
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $utcStartDateAndTime;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $utcEndDateAndTime;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="experiences")
+     */
+    private $tags;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ExperienceResource::class, mappedBy="experience")
+     */
+    private $experienceResources;
 
     public function __construct()
     {
@@ -269,6 +285,8 @@ abstract class Experience
         $this->registrations       = new ArrayCollection();
         $this->feedback            = new ArrayCollection();
         $this->shares              = new ArrayCollection();
+        $this->tags                = new ArrayCollection();
+        $this->experienceResources = new ArrayCollection();
     }
 
     public function isVirtual()
@@ -666,14 +684,13 @@ abstract class Experience
         return $this;
     }
 
+    /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @return string
+     */
     public function getFormattedAddress()
     {
-        return sprintf("%s %s %s %s",
-            $this->street,
-            $this->city,
-            $this->state ? $this->state->getAbbreviation() : '',
-            $this->zipcode
-        );
+        return sprintf("%s %s %s %s", $this->street, $this->city, $this->state ? $this->state->getAbbreviation() : '', $this->zipcode);
     }
 
     public function getCancelled(): ?bool
@@ -830,14 +847,14 @@ abstract class Experience
         return $this->request;
     }
 
-    public function getExperienceAddressSearch(): ?string
+    public function getAddressSearch(): ?string
     {
-        return $this->experienceAddressSearch;
+        return $this->addressSearch;
     }
 
-    public function setExperienceAddressSearch(?string $experienceAddressSearch): self
+    public function setAddressSearch(?string $addressSearch): self
     {
-        $this->experienceAddressSearch = $experienceAddressSearch;
+        $this->addressSearch = $addressSearch;
 
         return $this;
     }
@@ -850,6 +867,84 @@ abstract class Experience
     public function setTimezone(?string $timezone): self
     {
         $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    public function getUtcStartDateAndTime(): ?\DateTimeInterface
+    {
+        return $this->utcStartDateAndTime;
+    }
+
+    public function setUtcStartDateAndTime(?\DateTimeInterface $utcStartDateAndTime): self
+    {
+        $this->utcStartDateAndTime = $utcStartDateAndTime;
+
+        return $this;
+    }
+
+    public function getUtcEndDateAndTime(): ?\DateTimeInterface
+    {
+        return $this->utcEndDateAndTime;
+    }
+
+    public function setUtcEndDateAndTime(?\DateTimeInterface $utcEndDateAndTime): self
+    {
+        $this->utcEndDateAndTime = $utcEndDateAndTime;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tag[]
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ExperienceResource[]
+     */
+    public function getExperienceResources(): Collection
+    {
+        return $this->experienceResources;
+    }
+
+    public function addExperienceResource(ExperienceResource $experienceResource): self
+    {
+        if (!$this->experienceResources->contains($experienceResource)) {
+            $this->experienceResources[] = $experienceResource;
+            $experienceResource->setExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperienceResource(ExperienceResource $experienceResource): self
+    {
+        if ($this->experienceResources->removeElement($experienceResource)) {
+            // set the owning side to null (unless already changed)
+            if ($experienceResource->getExperience() === $this) {
+                $experienceResource->setExperience(null);
+            }
+        }
 
         return $this;
     }

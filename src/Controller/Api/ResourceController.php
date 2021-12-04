@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\CompanyResource;
+use App\Entity\ExperienceResource;
 use App\Entity\LessonResource;
 use App\Entity\Resource;
 use App\Entity\User;
@@ -70,6 +71,19 @@ class ResourceController extends AbstractController
             $dataClass = LessonResource::class;
         }
 
+        if ($request->query->has('experienceId')) {
+
+            $experienceId = $request->query->get('experienceId');
+            $experience   = $this->experienceRepository->find($experienceId);
+
+            $resource = new ExperienceResource();
+            $resource->setExperience($experience);
+            $action    = $this->generateUrl('api_resource_new', [
+                'experienceId' => $experience->getId(),
+            ]);
+            $dataClass = ExperienceResource::class;
+        }
+
         $form = $this->createForm(ResourceType::class, $resource, [
             'action' => $action,
             'data_class' => $dataClass,
@@ -96,6 +110,10 @@ class ResourceController extends AbstractController
 
             if ($request->query->has('lessonId')) {
                 $folder = UploaderHelper::LESSON_RESOURCE;
+            }
+
+            if ($request->query->has('experienceId')) {
+                $folder = UploaderHelper::EXPERIENCE_FILE;
             }
 
             if ($file) {
@@ -131,6 +149,16 @@ class ResourceController extends AbstractController
 
                 $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
                                                                         'lessonId' => $request->query->get('lessonId'),
+                ]);
+            }
+
+            if ($request->query->has('experienceId')) {
+                $editUrl = $this->generateUrl('api_resource_edit', ['id' => $resource->getId(),
+                                                                    'experienceId' => $request->query->get('experienceId'),
+                ]);
+
+                $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
+                                                                        'experienceId' => $request->query->get('experienceId'),
                 ]);
             }
 
@@ -196,6 +224,14 @@ class ResourceController extends AbstractController
             $dataClass = LessonResource::class;
         }
 
+        if ($request->query->has('experienceId')) {
+            $action    = $this->generateUrl('api_resource_edit', [
+                'id' => $resource->getId(),
+                'experienceId' => $request->query->get('experienceId'),
+            ]);
+            $dataClass = ExperienceResource::class;
+        }
+
         $form = $this->createForm(ResourceType::class, $resource, [
             'action' => $action,
             'data_class' => $dataClass,
@@ -221,6 +257,10 @@ class ResourceController extends AbstractController
             }
 
             if ($request->query->has('lessonId')) {
+                $folder = UploaderHelper::LESSON_RESOURCE;
+            }
+
+            if ($request->query->has('experienceId')) {
                 $folder = UploaderHelper::LESSON_RESOURCE;
             }
 
@@ -255,6 +295,16 @@ class ResourceController extends AbstractController
 
                 $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
                                                                         'lessonId' => $request->query->get('lessonId'),
+                ]);
+            }
+
+            if ($request->query->has('experienceId')) {
+                $editUrl = $this->generateUrl('api_resource_edit', ['id' => $resource->getId(),
+                                                                    'experienceId' => $request->query->get('experienceId'),
+                ]);
+
+                $deleteUrl = $this->generateUrl('api_resource_delete', ['id' => $resource->getId(),
+                                                                        'experienceId' => $request->query->get('experienceId'),
                 ]);
             }
 

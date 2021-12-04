@@ -24,6 +24,7 @@ use App\Entity\ReportVolunteerRegion;
 use App\Entity\ReportVolunteerRole;
 use App\Entity\ReportVolunteerSchool;
 use App\Entity\Request;
+use App\Entity\RolesWillingToFulfill;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewSchoolExperienceFeedback;
@@ -217,6 +218,7 @@ class NormalizeFeedbackCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
         $this->reportRepository->deleteAllDashboardReports();
         $this->reportRepository->deleteReportVolunteerSchoolData();
         $this->reportRepository->deleteReportVolunteerRegionData();
@@ -226,6 +228,7 @@ class NormalizeFeedbackCommand extends Command
 
         // add company administrator roles to company owners
         $this->addCompanyAdministratorRoles($input, $output);
+        $this->modifyRoles($input, $output);
 
         // report experience data normalization
         $this->normalizeExperienceData($input, $output);
@@ -2211,6 +2214,32 @@ class NormalizeFeedbackCommand extends Command
         }
 
         $output->writeln('Done with adding company administrator roles. Count: ' . $updateCount);
+
+        return $this;
+    }
+
+    private function modifyRoles(InputInterface $input, OutputInterface $output)
+    {
+
+        $output->writeln('Modifyinig roles.');
+
+        $repository = $this->entityManager->getRepository(RolesWillingToFulfill::class);
+        $role = $repository->findOneBy([
+            'name' => 'Other'
+        ]);
+
+        if(!$role) {
+            $role = new RolesWillingToFulfill();
+            $role->setName('Other');
+            $role->setDescription('Other');
+            $role->setEventName('Other');
+            $role->setInSchoolEventDropdown(true);
+            $this->entityManager->persist($role);
+            $this->entityManager->flush();
+        }
+
+
+        $output->writeln('Done modifying roles.');
 
         return $this;
     }

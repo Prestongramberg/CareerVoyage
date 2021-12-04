@@ -1559,17 +1559,9 @@ class SchoolController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var SchoolExperience $experience */
             $experience = $form->getData();
-
-            $shouldAttemptGeocode = $experience->getStreet() && $experience->getCity() && $experience->getState() && $experience->getZipcode();
-            if ($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($experience->getFormattedAddress())) {
-                $experience->setLongitude($coordinates['lng']);
-                $experience->setLatitude($coordinates['lat']);
-            }
-
-            $this->entityManager->persist($experience);
-
             $experience->setSchool($school);
 
+            $this->entityManager->persist($experience);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Experience successfully created!');
@@ -1578,10 +1570,11 @@ class SchoolController extends AbstractController
         }
 
         return $this->render(
-            'school/new_experience.html.twig', [
+            'school/experience/new.html.twig', [
                 'school' => $school,
                 'form' => $form->createView(),
                 'user' => $user,
+                'experience' => $experience
             ]
         );
     }
@@ -1620,8 +1613,7 @@ class SchoolController extends AbstractController
 
         $user = $this->getUser();
 
-        $form = $this->createForm(
-            EditSchoolExperienceType::class, $experience, [
+        $form = $this->createForm(ExperienceType::class, $experience, [
                 'method' => 'POST',
                 'school' => $school,
             ]
@@ -1633,15 +1625,7 @@ class SchoolController extends AbstractController
             /** @var SchoolExperience $experience */
             $experience = $form->getData();
 
-            $shouldAttemptGeocode = $experience->getStreet() && $experience->getCity() && $experience->getState() && $experience->getZipcode();
-            if ($shouldAttemptGeocode && $coordinates = $this->geocoder->geocode($experience->getFormattedAddress())) {
-                $experience->setLongitude($coordinates['lng']);
-                $experience->setLatitude($coordinates['lat']);
-            }
-
             $this->entityManager->persist($experience);
-            $experience->setSchool($school);
-
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Experience successfully updated!');
@@ -1650,7 +1634,7 @@ class SchoolController extends AbstractController
         }
 
         return $this->render(
-            'school/edit_experience.html.twig', [
+            'school/experience/edit.html.twig', [
                 'school' => $school,
                 'form' => $form->createView(),
                 'user' => $user,

@@ -56,6 +56,7 @@ use App\Repository\StudentReviewCompanyExperienceFeedbackRepository;
 use App\Repository\StudentReviewTeachLessonExperienceFeedbackRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\SystemUserRepository;
+use App\Repository\TagRepository;
 use App\Repository\TeachLessonExperienceRepository;
 use App\Repository\UserMetaRepository;
 use App\Repository\UserRegisterForSchoolExperienceRequestRepository;
@@ -504,8 +505,11 @@ trait ServiceHelper
     private $knowledgeResourceRepository;
 
     /**
-     * ServiceHelper constructor.
-     *
+     * @var TagRepository
+     */
+    private $tagRepository;
+
+    /**
      * @param EntityManagerInterface                                        $entityManager
      * @param FileUploader                                                  $fileUploader
      * @param UserPasswordEncoderInterface                                  $passwordEncoder
@@ -589,65 +593,54 @@ trait ServiceHelper
      * @param RequestActionRepository                                       $requestActionRepository
      * @param ResourceRepository                                            $resourceRepository
      * @param KnowledgeResourceRepository                                   $knowledgeResourceRepository
+     * @param TagRepository                                                 $tagRepository
      */
-    public function __construct(EntityManagerInterface $entityManager, FileUploader $fileUploader,
-                                UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator,
-                                UploaderHelper $uploaderHelper, Packages $assetsManager,
-                                CompanyRepository $companyRepository, CompanyPhotoRepository $companyPhotoRepository,
-                                AdminUserRepository $adminUserRepository, RequestsMailer $requestsMailer,
-                                SecurityMailer $securityMailer, ExperienceMailer $experienceMailer,
-                                ProfessionalUserRepository $professionalUserRepository, UserRepository $userRepository,
-                                CacheManager $cacheManager, RouterInterface $router,
-                                LessonFavoriteRepository $lessonFavoriteRepository,
-                                LessonTeachableRepository $lessonTeachableRepository,
-                                StudentUserRepository $studentUserRepository,
-                                EducatorUserRepository $educatorUserRepository, SerializerInterface $serializer,
-                                ImportMailer $importMailer, ValidatorInterface $validator,
-                                IndustryRepository $industryRepository,
-                                SecondaryIndustryRepository $secondaryIndustryRepository,
-                                RegionalCoordinatorRepository $regionalCoordinatorRepository,
-                                SchoolExperienceRepository $schoolExperienceRepository,
-                                RequestRepository $requestRepository, ChatRepository $chatRepository,
-                                PaginatorInterface $paginator, SiteAdminUserRepository $siteAdminRepository,
-                                SchoolAdministratorRepository $schoolAdministratorRepository,
-                                StateCoordinatorRepository $stateCoordinatorRepository, FeedbackMailer $feedbackMailer,
-                                MessageBusInterface $bus, LessonRepository $lessonRepository, RecapMailer $recapMailer,
-                                ExperienceRepository $experienceRepository,
-                                CompanyExperienceRepository $companyExperienceRepository,
-                                GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator,
-                                ChatMessageRepository $chatMessageRepository,
-                                EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
-                                EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository,
-                                SchoolAdminRegisterSAForCompanyExperienceRequestRepository $schoolAdminRegisterSAForCompanyExperienceRequestRepository,
-                                SchoolRepository $schoolRepository,
-                                TeachLessonExperienceRepository $teachLessonExperienceRepository,
-                                CompanyFavoriteRepository $companyFavoriteRepository,
-                                RegistrationRepository $registrationRepository,
-                                EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
-                                EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository,
-                                StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository,
-                                StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository,
-                                FeedbackRepository $feedbackRepository, Environment $twig,
-                                SiteRepository $siteRepository, TokenStorageInterface $securityToken,
-                                FilterBuilderUpdaterInterface $filterBuilder, Geocoder $geocoder,
-                                RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
-                                AllowedCommunicationRepository $allowedCommunicationsRepository,
-                                UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository,
-                                PhpSpreadsheetHelper $phpSpreadsheetHelper,
-                                CompanyVideoRepository $companyVideoRepository,
-                                CareerVideoRepository $careerVideoRepository,
-                                VideoFavoriteRepository $videoFavoriteRepository, VideoRepository $videoRepository,
-                                ProfessionalVideoRepository $professionalVideoRepository,
-                                HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper,
-                                GlobalShare $globalShare, SystemUserRepository $systemUserRepository,
-                                RegionRepository $regionRepository, Liform $liform, ReportRepository $reportRepository,
-                                ReportColumnRepository $reportColumnRepository, CountyRepository $countyRepository,
-                                ReportService $reportService, ReportGroupRepository $reportGroupRepository,
-                                UserMetaRepository $userMetaRepository,
-                                RequestActionRepository $requestActionRepository,
-                                ResourceRepository $resourceRepository,
-                                KnowledgeResourceRepository $knowledgeResourceRepository
-    ) {
+    public function __construct(
+        EntityManagerInterface $entityManager, FileUploader $fileUploader,
+        UserPasswordEncoderInterface $passwordEncoder, ImageCacheGenerator $imageCacheGenerator,
+        UploaderHelper $uploaderHelper, Packages $assetsManager, CompanyRepository $companyRepository,
+        CompanyPhotoRepository $companyPhotoRepository, AdminUserRepository $adminUserRepository,
+        RequestsMailer $requestsMailer, SecurityMailer $securityMailer, ExperienceMailer $experienceMailer,
+        ProfessionalUserRepository $professionalUserRepository, UserRepository $userRepository,
+        CacheManager $cacheManager, RouterInterface $router, LessonFavoriteRepository $lessonFavoriteRepository,
+        LessonTeachableRepository $lessonTeachableRepository, StudentUserRepository $studentUserRepository,
+        EducatorUserRepository $educatorUserRepository, SerializerInterface $serializer, ImportMailer $importMailer,
+        ValidatorInterface $validator, IndustryRepository $industryRepository,
+        SecondaryIndustryRepository $secondaryIndustryRepository,
+        RegionalCoordinatorRepository $regionalCoordinatorRepository,
+        SchoolExperienceRepository $schoolExperienceRepository, RequestRepository $requestRepository,
+        ChatRepository $chatRepository, PaginatorInterface $paginator, SiteAdminUserRepository $siteAdminRepository,
+        SchoolAdministratorRepository $schoolAdministratorRepository,
+        StateCoordinatorRepository $stateCoordinatorRepository, FeedbackMailer $feedbackMailer,
+        MessageBusInterface $bus, LessonRepository $lessonRepository, RecapMailer $recapMailer,
+        ExperienceRepository $experienceRepository, CompanyExperienceRepository $companyExperienceRepository,
+        GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator,
+        ChatMessageRepository $chatMessageRepository,
+        EducatorRegisterStudentForExperienceRequestRepository $educatorRegisterStudentForExperienceRequestRepository,
+        EducatorRegisterEducatorForCompanyExperienceRequestRepository $educatorRegisterEducatorForCompanyExperienceRequestRepository,
+        SchoolAdminRegisterSAForCompanyExperienceRequestRepository $schoolAdminRegisterSAForCompanyExperienceRequestRepository,
+        SchoolRepository $schoolRepository, TeachLessonExperienceRepository $teachLessonExperienceRepository,
+        CompanyFavoriteRepository $companyFavoriteRepository, RegistrationRepository $registrationRepository,
+        EducatorReviewCompanyExperienceFeedbackRepository $educatorReviewCompanyExperienceFeedbackRepository,
+        EducatorReviewTeachLessonExperienceFeedbackRepository $educatorReviewTeachLessonExperienceFeedbackRepository,
+        StudentReviewCompanyExperienceFeedbackRepository $studentReviewCompanyExperienceFeedbackRepository,
+        StudentReviewTeachLessonExperienceFeedbackRepository $studentReviewTeachLessonExperienceFeedbackRepository,
+        FeedbackRepository $feedbackRepository, Environment $twig, SiteRepository $siteRepository,
+        TokenStorageInterface $securityToken, FilterBuilderUpdaterInterface $filterBuilder, Geocoder $geocoder,
+        RolesWillingToFulfillRepository $rolesWillingToFulfillRepository,
+        AllowedCommunicationRepository $allowedCommunicationsRepository,
+        UserRegisterForSchoolExperienceRequestRepository $userRegisterForSchoolExperienceRequestRepository,
+        PhpSpreadsheetHelper $phpSpreadsheetHelper, CompanyVideoRepository $companyVideoRepository,
+        CareerVideoRepository $careerVideoRepository, VideoFavoriteRepository $videoFavoriteRepository,
+        VideoRepository $videoRepository, ProfessionalVideoRepository $professionalVideoRepository,
+        HelpVideoRepository $helpVideoRepository, ChatHelper $chatHelper, GlobalShare $globalShare,
+        SystemUserRepository $systemUserRepository, RegionRepository $regionRepository, Liform $liform,
+        ReportRepository $reportRepository, ReportColumnRepository $reportColumnRepository,
+        CountyRepository $countyRepository, ReportService $reportService, ReportGroupRepository $reportGroupRepository,
+        UserMetaRepository $userMetaRepository, RequestActionRepository $requestActionRepository,
+        ResourceRepository $resourceRepository, KnowledgeResourceRepository $knowledgeResourceRepository,
+        TagRepository $tagRepository)
+    {
         $this->entityManager                                                 = $entityManager;
         $this->fileUploader                                                  = $fileUploader;
         $this->passwordEncoder                                               = $passwordEncoder;
@@ -731,7 +724,9 @@ trait ServiceHelper
         $this->requestActionRepository                                       = $requestActionRepository;
         $this->resourceRepository                                            = $resourceRepository;
         $this->knowledgeResourceRepository                                   = $knowledgeResourceRepository;
+        $this->tagRepository                                                 = $tagRepository;
     }
+
 
     public function getFullQualifiedBaseUrl()
     {

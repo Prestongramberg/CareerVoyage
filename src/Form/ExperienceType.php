@@ -2,54 +2,45 @@
 
 namespace App\Form;
 
-use App\Entity\Company;
-use App\Entity\CompanyExperience;
-use App\Entity\Course;
 use App\Entity\Experience;
-use App\Entity\Grade;
 use App\Entity\Industry;
-use App\Entity\Lesson;
 use App\Entity\ProfessionalUser;
 use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
-use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\State;
+use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\SecondaryIndustryRepository;
-use App\Service\NotificationPreferencesManager;
+use App\Repository\StateRepository;
+use App\Repository\TagRepository;
+use App\Service\Geocoder;
 use App\Util\TimeHelper;
 use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use DoctrineExtensions\Query\Mysql\Exp;
+use SKAgarwal\GoogleApi\PlacesApi;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotNull;
-
-
 use App\Repository\UserRepository;
+
 
 class ExperienceType extends AbstractType implements DataMapperInterface
 {
@@ -66,20 +57,49 @@ class ExperienceType extends AbstractType implements DataMapperInterface
     private $userRepository;
 
     /**
-     * EditCompanyExperienceType constructor.
-     *
+     * @var StateRepository
+     */
+    private $stateRepository;
+
+    /**
+     * @var Geocoder
+     */
+    private $geocoder;
+
+    /**
+     * @var TagRepository
+     */
+    private $tagRepository;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
      * @param SecondaryIndustryRepository $secondaryIndustryRepository
+     * @param UserRepository              $userRepository
+     * @param StateRepository             $stateRepository
+     * @param Geocoder                    $geocoder
+     * @param TagRepository               $tagRepository
+     * @param EntityManagerInterface      $entityManager
      */
     public function __construct(
-        SecondaryIndustryRepository $secondaryIndustryRepository, UserRepository $userRepository)
+        SecondaryIndustryRepository $secondaryIndustryRepository, UserRepository $userRepository,
+        StateRepository $stateRepository, Geocoder $geocoder, TagRepository $tagRepository,
+        EntityManagerInterface $entityManager)
     {
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
         $this->userRepository              = $userRepository;
+        $this->stateRepository             = $stateRepository;
+        $this->geocoder                    = $geocoder;
+        $this->tagRepository               = $tagRepository;
+        $this->entityManager               = $entityManager;
     }
 
     public function mapDataToForms($viewData, $forms): void
     {
-        /** @var Experience $viewData */
+        /** @var SchoolExperience $viewData */
 
         // there is no data yet, so nothing to prepopulate
         if (null === $viewData) {
@@ -96,7 +116,11 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
         // initialize form field values
         $forms['title']->setData($viewData->getTitle());
+        $forms['about']->setData($viewData->getAbout());
         $forms['timezone']->setData($viewData->getTimezone());
+        $forms['schoolContact']->setData($viewData->getSchoolContact());
+        $forms['addressSearch']->setData($viewData->getAddressSearch());
+        $forms['type']->setData($viewData->getType());
         $forms['startDate']->setData(new DateTime());
         $forms['startTime']->setData('19:30');
         $forms['endDate']->setData(new DateTime('+1 day'));
@@ -112,14 +136,20 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $forms['endTime']->setData($endDateAndTime->format('H:i'));
         }
 
+        $tags = [];
+        foreach ($viewData->getTags() as $tag) {
+            $tags[] = [
+                'value' => $tag->getName(),
+                'id'    => $tag->getId(),
+            ];
+        }
 
-        //$forms['green']->setData($viewData->getGreen());
-        //$forms['blue']->setData($viewData->getBlue());
+        $forms['tags']->setData(json_encode($tags));
     }
 
     public function mapFormsToData($forms, &$viewData): void
     {
-        /** @var Experience $viewData */
+        /** @var SchoolExperience $viewData */
 
         /** @var FormInterface[] $forms */
         $forms = iterator_to_array($forms);
@@ -128,14 +158,20 @@ class ExperienceType extends AbstractType implements DataMapperInterface
         $startTime = $forms['startTime']->getData();
         $endDate   = $forms['endDate']->getData();
         $endTime   = $forms['endTime']->getData();
+        $tags      = $forms['tags']->getData();
 
         if ($startDate && $startTime) {
             $startDateAndTime = clone $startDate;
+
             [$hours, $minutes] = explode(":", $startTime);
 
             $startDateAndTime->add(new \DateInterval('PT' . $hours . 'H'));
             $startDateAndTime->add(new \DateInterval('PT' . $minutes . 'M'));
             $viewData->setStartDateAndTime($startDateAndTime);
+
+            $utcStartDateAndTime = clone $startDateAndTime;
+            $utcStartDateAndTime->setTimezone(new DateTimeZone("UTC"));
+            $viewData->setUtcStartDateAndTime($utcStartDateAndTime);
         }
 
         if ($endDate && $endTime) {
@@ -145,27 +181,71 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $endDateAndTime->add(new \DateInterval('PT' . $hours . 'H'));
             $endDateAndTime->add(new \DateInterval('PT' . $minutes . 'M'));
             $viewData->setEndDateAndTime($endDateAndTime);
+
+            $utcEndDateAndTime = clone $endDateAndTime;
+            $utcEndDateAndTime->setTimezone(new DateTimeZone("UTC"));
+            $viewData->setUtcEndDateAndTime($utcEndDateAndTime);
         }
 
         $viewData->setTitle($forms['title']->getData());
         $viewData->setAbout($forms['about']->getData());
         $viewData->setType($forms['type']->getData());
-        $viewData->setExperienceAddressSearch($forms['experienceAddressSearch']->getData());
         $viewData->setSchoolContact($forms['schoolContact']->getData());
-        $viewData->setState($forms['state']->getData());
-        $viewData->setCity($forms['city']->getData());
-        $viewData->setStreet($forms['street']->getData());
         $viewData->setTimezone($forms['timezone']->getData());
-        $viewData->setZipcode($forms['zipcode']->getData());
+        $viewData->setAddressSearch($forms['addressSearch']->getData());
+        $addressSearch = $forms['addressSearch']->getData();
 
-        // as data is passed by reference, overriding it will change it in
-        // the form object as well
-        // beware of type inconsistency, see caution below
-        /*$viewData = new Color(
-            $forms['red']->getData(),
-            $forms['green']->getData(),
-            $forms['blue']->getData()
-        );*/
+        try {
+            $addressComponents = $this->geocoder->getAddressComponentsFromSearchString($addressSearch);
+            $viewData->setState($addressComponents['state']);
+            $viewData->setCity($addressComponents['city']);
+            $viewData->setStreet($addressComponents['street']);
+            $viewData->setZipcode($addressComponents['postalCode']);
+
+            if ($coordinates = $this->geocoder->geocode($viewData->getFormattedAddress())) {
+                $viewData->setLongitude($coordinates['lng']);
+                $viewData->setLatitude($coordinates['lat']);
+            }
+
+        } catch (\Exception $exception) {
+            // do nothing
+        }
+
+        if (!empty($tags)) {
+            $tags = json_decode($tags, true);
+
+            $originalTags = new ArrayCollection();
+            foreach($viewData->getTags() as $tag) {
+                $tag->removeExperience($viewData);
+                $this->entityManager->persist($tag);
+            }
+
+            foreach ($tags as $tag) {
+                $value = $tag['value'];
+                $id    = $tag['id'] ?? null;
+
+                if ($id && ($tag = $this->tagRepository->find($id))) {
+                    $viewData->addTag($tag);
+                } else {
+
+                    $tag = $this->tagRepository->findOneBy([
+                        'name' => $value
+                    ]);
+
+                    if($tag) {
+                        $viewData->addTag($tag);
+                    } else {
+                        $tag = new Tag();
+                        $tag->setName($value);
+                        $tag->setSystemDefined(false);
+                        $this->entityManager->persist($tag);
+                        $viewData->addTag($tag);
+                    }
+                }
+            }
+
+        }
+
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -183,94 +263,97 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             'attr' => [
                 'placeholder' => 'How to Succeed in a Job Interview',
             ],
-        ])->add('about', TextareaType::class, [
+        ])
+                ->add('about', TextareaType::class, [
 
-        ])->add('type', EntityType::class, [
-                'class'         => RolesWillingToFulfill::class,
-                'choice_label'  => 'eventName',
-                'expanded'      => false,
-                'multiple'      => false,
-                'placeholder' => 'Please choose an experience type',
-                'query_builder' => function (
-                    EntityRepository $er) {
-                    return $er->createQueryBuilder('r')->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')->setParameter('inSchoolEventDropdown', true);
-                },
-            ])->add('schoolContact', EntityType::class, [
-                'class'        => User::class,
-                'choice_label' => 'fullName',
-                'placeholder'  => 'Please choose a main point of contact for this experience',
-                'expanded'     => false,
-                'multiple'     => false,
-                'choices'      => $this->userRepository->findContactsBySchool($school),
-            ])->add('experienceAddressSearch', TextType::class, [
-                'attr' => [
-                    'autocomplete' => true,
-                    'placeholder'  => 'Search for an address',
-                ],
-                // todo re-add for the edit view???
-                // todo can we default to the school or no?
-                //'data' => $company->getFormattedAddress(),
-            ])->add('street', TextType::class, [
+                ])
+                ->add('type', EntityType::class, [
+                    'class'         => RolesWillingToFulfill::class,
+                    'choice_label'  => 'eventName',
+                    'expanded'      => false,
+                    'multiple'      => false,
+                    'placeholder'   => 'Tell attendees what type of event this is.',
+                    'query_builder' => function (
+                        EntityRepository $er) {
+                        return $er->createQueryBuilder('r')
+                                  ->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')
+                                  ->setParameter('inSchoolEventDropdown', true);
+                    },
+                ])
+                ->add('schoolContact', EntityType::class, [
+                    'class'        => User::class,
+                    'choice_label' => 'fullName',
+                    'placeholder'  => 'Tell attendees who is organizing this event.',
+                    'expanded'     => false,
+                    'multiple'     => false,
+                    'choices'      => $this->userRepository->findContactsBySchool($school),
+                ])
+                ->add('addressSearch', TextType::class, [
+                    'attr' => [
+                        'autocomplete' => true,
+                        'placeholder'  => 'Enter a location.',
+                    ],
+                    // todo re-add for the edit view???
+                    // todo can we default to the school or no?
+                    //'data' => $company->getFormattedAddress(),
+                ])
+                ->add('startDateAndTime', HiddenType::class, [])
+                ->add('endDateAndTime', HiddenType::class, [])
+                ->add('startDate', DateType::class, [
+                    'mapped'      => false,
+                    'widget'      => 'single_text',
+                    'html5'       => false,
+                    'format'      => 'MM/dd/yyyy',
+                    'constraints' => [
+                        new NotBlank(['message' => 'Please select a start date.']),
+                    ],
+                ])
+                ->add('endDate', DateType::class, [
+                    'mapped'      => false,
+                    'widget'      => 'single_text',
+                    'html5'       => false,
+                    'format'      => 'MM/dd/yyyy',
+                    'constraints' => [
+                        new NotBlank(['message' => 'Please select an end date.']),
+                    ],
+                ])
+                ->add('startTime', ChoiceType::class, [
+                    'expanded' => false,
+                    'multiple' => false,
+                    'choices'  => $this->hoursRange(0, 86400, 60 * 30),
+                    'mapped'   => false,
+                ])
+                ->add('endTime', ChoiceType::class, [
+                    'expanded' => false,
+                    'multiple' => false,
+                    'choices'  => $this->hoursRange(0, 86400, 60 * 30),
+                    'mapped'   => false,
+                ])
+                ->add('timezone', ChoiceType::class, [
+                    'required' => true,
+                    'expanded' => false,
+                    'multiple' => false,
+                    'choices'  => [
+                        'Eastern Time'                  => 'America/New_York',
+                        'Central Time'                  => 'America/Chicago',
+                        'Mountain Time'                 => 'America/Denver',
+                        'Mountain Time (no DST)'        => 'America/Phoenix',
+                        'Pacific Time'                  => 'America/Los_Angeles',
+                        'Alaska Time'                   => 'America/Anchorage',
+                        'Hawaii-Aleutian'               => 'America/Adak',
+                        'Hawaii-Aleutian Time (no DST)' => 'Pacific/Honolulu',
+                    ],
+                ])
+                ->add('tags', TextType::class, [
+                    'mapped' => false,
+                    'attr'   => [
+                        'placeholder' => 'Add search keywords to your event.',
+                    ],
+                ]);
 
-            ])->add('city', TextType::class, [
 
-            ])->add('state', EntityType::class, [
-                'class'        => State::class,
-                'choice_label' => 'name',
-                'expanded'     => false,
-                'multiple'     => false,
-            ])->add('zipcode', TextType::class, [])->add('startDateAndTime', HiddenType::class, [])->add('endDateAndTime', HiddenType::class, [])->add('startDate', DateType::class, [
-                'mapped'      => false,
-                'widget'      => 'single_text',
-                'html5'       => false,
-                'format'      => 'MM/dd/yyyy',
-                'constraints' => [
-                    new NotBlank(['message' => 'Please select a start date']),
-                ],
-            ])->add('endDate', DateType::class, [
-                'mapped'      => false,
-                'widget'      => 'single_text',
-                'html5'       => false,
-                'format'      => 'MM/dd/yyyy',
-                'constraints' => [
-                    new NotBlank(['message' => 'Please select an end date']),
-                ],
-            ]); /*->add('startTime', TextType::class, [
-                'mapped' => false
-            ])
-            ->add('endTime', TextType::class, [
-                'mapped' => false
-            ]);*/
-
-        $builder->add('startTime', ChoiceType::class, [
-            'expanded' => false,
-            'multiple' => false,
-            'choices'  => $this->hoursRange(0, 86400, 60 * 30),
-            'mapped'   => false,
-        ]);
-
-        $builder->add('endTime', ChoiceType::class, [
-            'expanded' => false,
-            'multiple' => false,
-            'choices'  => $this->hoursRange(0, 86400, 60 * 30),
-            'mapped'   => false,
-        ]);
-
-        $builder->add('timezone', ChoiceType::class, [
-            'required' => true,
-            'expanded' => false,
-            'multiple' => false,
-            'choices'  => [
-                'Eastern Time'                  => 'America/New_York',
-                'Central Time'                  => 'America/Chicago',
-                'Mountain Time'                 => 'America/Denver',
-                'Mountain Time (no DST)'        => 'America/Phoenix',
-                'Pacific Time'                  => 'America/Los_Angeles',
-                'Alaska Time'                   => 'America/Anchorage',
-                'Hawaii-Aleutian'               => 'America/Adak',
-                'Hawaii-Aleutian Time (no DST)' => 'Pacific/Honolulu',
-            ],
-        ]);
+        //$builder->get('startDateAndTime')->addModelTransformer($this->dateTimeToUtcTransfomer);
+        //$builder->get('endDateAndTime')->addModelTransformer($this->dateTimeToUtcTransfomer);
 
 
         $builder->get('startDateAndTime')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
@@ -356,6 +439,16 @@ class ExperienceType extends AbstractType implements DataMapperInterface
         ]);
 
         $resolver->setRequired(['school']);
+    }
+
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+
+        // todo possibly remove?
+        $name = "josh";
+
+
+        //$view->vars['schools'] = $schoolsJson;
     }
 
     public function getBlockPrefix()
