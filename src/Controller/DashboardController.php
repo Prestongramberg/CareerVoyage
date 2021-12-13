@@ -11,6 +11,7 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\UserMeta;
+use App\Util\AuthorizationVoter;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,6 +60,7 @@ class DashboardController extends AbstractController
             'user' => $user,
             'sites' => $sites,
             'schoolId' => $request->query->has('school') ? (int)$request->query->get('school') : null,
+            'authorizationVoter' => new AuthorizationVoter(),
         ]);
     }
 

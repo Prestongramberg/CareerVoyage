@@ -6,6 +6,7 @@ use App\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=TagRepository::class)
@@ -35,11 +36,13 @@ class Tag
     private $systemDefined = false;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\OneToOne(targetEntity=SecondaryIndustry::class, cascade={"persist", "remove"})
      */
     private $secondaryIndustry;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity=Industry::class)
      */
     private $primaryIndustry;

@@ -10,6 +10,7 @@ for( let i = 0; i < maps.length; i++) {
     const companies = JSON.parse(maps[i].getAttribute("data-companies"));
     const schools = JSON.parse(maps[i].getAttribute("data-schools"));
     const experiences = JSON.parse(maps[i].getAttribute("data-experiences"));
+    const markerIcon = maps[i].getAttribute("data-marker-icon");
 
     ReactDOM.render(
         <App
@@ -18,6 +19,7 @@ for( let i = 0; i < maps.length; i++) {
             companies={companies}
             schools={schools}
             experiences={experiences}
+            markerIcon={markerIcon}
         />,
         maps[i]
     );

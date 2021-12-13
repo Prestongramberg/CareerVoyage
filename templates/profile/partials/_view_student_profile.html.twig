@@ -94,9 +94,9 @@
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for event in dashboards.upcomingEventsRegisteredForByUser %}
                                                         {% if event.company is defined %}
-                                                            <li><a class="uk-link-text" href="{{ path('company_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                            <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
                                                         {% elseif event.school is defined %}
-                                                            <li><a class="uk-link-text" href="{{ path('school_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                            <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </ul>
@@ -109,9 +109,9 @@
                                                 <ul class="uk-list uk-list-divider">
                                                     {% for event in dashboards.completedEventsRegisteredForByUser %}
                                                         {% if event.company is defined %}
-                                                            <li><a class="uk-link-text" href="{{ path('company_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                            <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
                                                         {% elseif event.school is defined %}
-                                                            <li><a class="uk-link-text" href="{{ path('school_experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
+                                                            <li><a class="uk-link-text" href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a></li>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </ul>
@@ -283,7 +283,7 @@
                                     {% for experience in profileUser.school.schoolExperiences %}
                                         {% if date(experience.startDateAndTime) > date() %}
                                             {% set noEventsFound = false %}
-                                            <li><a class="uk-text-meta" href="{{ path('school_experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
+                                            <li><a class="uk-text-meta" href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.startDateAndTime|date("F jS") }} - {{ experience.title }}</a></li>
                                         {% endif %}
                                     {% endfor %}
                                 </ul>

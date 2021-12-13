@@ -11,7 +11,7 @@ export default (state = {}, action) => {
         case actionTypes.SEARCH_QUERY_CHANGED:
             return {
                 ...state,
-                query: action.query,
+                searchQuery: action.searchQuery,
                 refetchEvents: true
             };
         case actionTypes.PRIMARY_INDUSTRY_QUERY_CHANGED:

@@ -25,15 +25,32 @@
     <div class="uk-margin">
         <label>Experience Description<span class="uk-text-danger">*</span></label>
         <div class="uk-text-meta">
-            Provide details about the event, and if required, how many professionals you
-            need to volunteer.
+            {% if experience.companyExperience %}
+                Add more details to your event like your schedule, sponsors, or featured guests.
+            {% elseif experience.schoolExperience %}
+                Provide details about the event, and if required, how many professionals you
+                need to volunteer.
+            {% endif %}
         </div>
-        <div data-wysiwyg="[name='experience[about]']"
-             data-placeholder="We will hold mock job interviews for 11th and 12th grade students in the west gym. Get ready for the workforce by learning from local professionals about how to interview well and practice being interviewed yourself.
+
+        {% if experience.companyExperience %}
+
+            <div data-wysiwyg="[name='experience[about]']"
+                 data-placeholder="What does it mean to be a volunteer EMT? What other areas of work will this help me to advance myself or help someone else? Learn about the wide range of careers in emergency medical services.
+
+Many people start their career in EMS as a volunteer and then go on to become fire paramedics, flight paramedics, nurses and even doctors. Volunteer EMTs are always needed, no matter how big or small the city. Learn how you might be able to help your city and what it takes to become an EMT."
+
+                 class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
+
+        {% elseif experience.schoolExperience %}
+            <div data-wysiwyg="[name='experience[about]']"
+                 data-placeholder="We will hold mock job interviews for 11th and 12th grade students in the west gym. Get ready for the workforce by learning from local professionals about how to interview well and practice being interviewed yourself.
 
 PROFESSIONALS - We need 5 executives with experience conducting job interviews to share their advice and conduct short mock interviews with groups of students."
 
-             class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
+                 class="{{ ( form_errors(form.about) ? 'wysiwyg-error' : '' ) }}"></div>
+        {% endif %}
+
         <div style="display: none;">
             {{ form_widget(form.about) }}
         </div>
@@ -43,12 +60,24 @@ PROFESSIONALS - We need 5 executives with experience conducting job interviews t
     <div class="uk-margin">
         <label>Experience Type<span class="uk-text-danger">*</span></label>
         {{ form_widget(form.type, {'attr': {'class': 'uk-select' ~ ( form_errors(form.type) ? ' uk-form-danger' : '' ) }}) }}
+        {{ form_errors(form.type) }}
     </div>
 
-    <div class="uk-margin">
-        <label>Experience Organizer<span class="uk-text-danger">*</span></label>
-        {{ form_widget(form.schoolContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schoolContact) ? ' uk-form-danger' : '' ) }}) }}
-    </div>
+    {% if form.schoolContact is defined %}
+        <div class="uk-margin">
+            <label>Experience Organizer<span class="uk-text-danger">*</span></label>
+            {{ form_widget(form.schoolContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.schoolContact) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(form.schoolContact) }}
+        </div>
+    {% endif %}
+
+    {% if form.employeeContact is defined %}
+        <div class="uk-margin">
+            <label>Experience Organizer<span class="uk-text-danger">*</span></label>
+            {{ form_widget(form.employeeContact, {'attr': {'class': 'uk-select' ~ ( form_errors(form.employeeContact) ? ' uk-form-danger' : '' ) }}) }}
+            {{ form_errors(form.employeeContact) }}
+        </div>
+    {% endif %}
 
     <div class="uk-margin" style="position: relative">
         <label style="font-weight: bold">Tags</label>

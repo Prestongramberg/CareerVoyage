@@ -218,10 +218,10 @@
                     <div class="user_preferences_events">
                         <div>
 
-                            {% if user.school is not null and user.school.allowEventCreation %}
+                            {% if authorizationVoter.canCreateExperiencesForSchool(user, user.school) %}
                                 <div class="uk-placeholder uk-text-center">
-                                    <p><a class="uk-button uk-button-primary uk-button-small"
-                                          href="{{ path('school_experience_create', {'id': user.school.id}) }}">Create
+                                    <p><a target="_blank" class="uk-button uk-button-primary uk-button-small"
+                                          href="{{ path('experience_new', {'schoolId': user.school.id}) }}">Create
                                             an Experience</a></p>
                                 </div>
                             {% endif %}
@@ -239,39 +239,8 @@
                                                         <dt>{{ experience.title }}</dt>
                                                     </div>
                                                     <div class="uk-width-1-1 uk-width-auto@m">
-                                                        <a href="{{ path('school_experience_view', { "id": experience.id }) }}"
+                                                        <a href="{{ path('experience_view', { "id": experience.id }) }}"
                                                            class="uk-button uk-button-default uk-button-small">View</a>
-
-                                                        <a class="uk-button uk-button-danger uk-button-small"
-                                                           href="#modal-remove-school-event-{{ experience.id }}"
-                                                           uk-toggle>Delete</a>
-
-                                                        <div id="modal-remove-school-event-{{ experience.id }}"
-                                                             uk-modal>
-                                                            <div class="uk-modal-dialog uk-modal-body">
-                                                                <h3>Delete Experience</h3>
-                                                                <form class="uk-inline" method="post"
-                                                                      action="{{ path('school_experience_remove', { "id": experience.id }) }}">
-
-                                                                    <label class="uk-form-label">Cancellation Message
-                                                                        (this will be sent to all users currently
-                                                                        registered to attend your experience):</label>
-                                                                    <input type="hidden" name="schoolAdminId"
-                                                                           value="{{ user.id }}">
-                                                                    <textarea class="uk-textarea"
-                                                                              name="cancellationMessage"
-                                                                              style="width: 100%"></textarea>
-                                                                    <p>
-                                                                        <button class="uk-button uk-button-default uk-modal-close"
-                                                                                type="button">Cancel
-                                                                        </button>
-                                                                        <button class="uk-button uk-button-danger"
-                                                                                type="submit">Remove
-                                                                        </button>
-                                                                    </p>
-                                                                </form>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             {% endif %}

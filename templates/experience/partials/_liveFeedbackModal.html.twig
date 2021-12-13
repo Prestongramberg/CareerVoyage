@@ -1,0 +1,14 @@
+<div id="live-feedback-url-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h3>Live Feedback URL</h3>
+
+        <p>{{ url('experience_feedback', {'id' : experience.id}) }}</p>
+        <input style="display: none" id="feedback-url" type="text"
+               value="{{ url('experience_feedback', {'id' : experience.id}) }}">
+
+        <button class="uk-button uk-button-danger" onclick="copyFeedbackUrl()" type="button">
+            Copy
+        </button>
+
+    </div>
+</div>

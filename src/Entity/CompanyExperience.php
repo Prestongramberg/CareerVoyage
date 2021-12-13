@@ -21,7 +21,7 @@ class CompanyExperience extends Experience
     private $company;
 
     /**
-     * @Assert\NotBlank(message="Don't forget an experience coordinator!", groups={"CREATE", "EDIT"})
+     * @Assert\NotBlank(message="Please choose an event organizer.", groups={"COMPANY_EXPERIENCE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="companyExperiences")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
@@ -30,7 +30,7 @@ class CompanyExperience extends Experience
     /**
      * @ORM\Column(type="boolean")
      */
-    private $canViewFeedback;
+    private $canViewFeedback = true;
 
 
     /**

@@ -102,7 +102,7 @@ window.Pintex = {
         const eventEndDate = parseInt( eventPayload.endDateAndTimeTimestamp );
         const eventTitle = eventPayload.title;
         const eventAbout = eventPayload.about;
-        const eventDescription = eventPayload.briefDescription;
+        const eventDescription = eventAbout;
         const eventState = eventPayload.state || {};
         const eventLocation = `${eventPayload.street}, ${eventPayload.city}, ${eventState.abbreviation}, ${eventPayload.zipcode}`;
         const eventId = parseInt(eventPayload.id);
@@ -121,9 +121,9 @@ window.Pintex = {
             `;
 
         if ( event.url ) {
-            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
+            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right">View More Details</a>`;
         } else if (eventPayload.url) {
-            eventHtml += `<a href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom">View More Details</a>`;
+            eventHtml += `<a href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right">View More Details</a>`;
         }
 
         eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
@@ -176,6 +176,20 @@ window.Pintex = {
 
         // HHMM format for Yahoo Duration
         const yahooDuration = secondsToHHMM( Math.min(epochEndTime - epochStartTime, 356459 ) );
+
+        return `
+        <button class="uk-button uk-button-primary" type="button">Add To Calendar</button>
+        <div uk-dropdown class="uk-text-left">
+            <ul class="uk-nav uk-dropdown-nav">
+                <li><a class="icon-google" target="_blank" href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=${title}&amp;dates=${startISOtoSeconds}/${endISOtoSeconds}&amp;details=${description}&amp;location=${location}&amp;sprop=&amp;sprop=name:">Google Calendar</a></li>
+                <li><a class="icon-yahoo" target="_blank" href="http://calendar.yahoo.com/?v=60&amp;view=d&amp;type=20&amp;title=${title}&amp;st=${startISOtoSeconds}&amp;dur=${yahooDuration}&amp;desc=${description}&amp;in_loc=${location}">Yahoo! Calendar</a></li>
+                <li><a class="icon-ical" onClick="window.Pintex.downloadICSCalendarEvent('${title}', '${description}', '${location}', ${epochStartTime*1000}, ${epochEndTime*1000})">iCal Calendar</a></li>
+                <li><a class="icon-outlook" onClick="window.Pintex.downloadICSCalendarEvent('${title}', '${description}', '${location}', ${epochStartTime*1000}, ${epochEndTime*1000})">Outlook Calendar</a></li>
+            </ul>
+        </div>
+`;
+
+
 
         return `<div class="atc-wrapper">
             <label for="atc-checkbox" class="atc-checkbox-label">Add to Calendar</label>

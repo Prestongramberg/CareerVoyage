@@ -15,7 +15,7 @@
 
 
 {% block body %}
-    <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
+    <div class="uk-container js-form">
 
         <div uk-grid>
             <div class="uk-width-1-1 uk-width-medium@m">
@@ -29,7 +29,7 @@
                 <div id="tab-account-inner" class="uk-switcher">
 
                     <div class="experience_details">
-                        {% include 'school/experience/partials/_form.html.twig' %}
+                        {% include 'experience/partials/_form.html.twig' %}
                     </div>
 
                     <div class="js-resource-component experience_attachments"></div>

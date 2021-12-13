@@ -1,0 +1,28 @@
+<div id="modal-cancel-event-{{ experience.id }}" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h3>Are you sure you want to cancel this experience?</h3>
+
+        <ul>
+            <li class="uk-text-danger">Cancelled experiences cannot be undone.</li>
+            <li class="uk-text-danger">Cancelled experiences will remove all registrations
+                associated with the experience.
+            </li>
+        </ul>
+
+        <form class="uk-inline" method="post" action="{{ path('experience_cancel', { "id": experience.id }) }}">
+            <label class="uk-form-label">Optional Cancellation Message (this will be sent to all
+                users currently registered to attend your experience):</label>
+            <textarea class="uk-textarea" name="cancellationMessage"
+                      style="width: 100%"></textarea>
+            <p>
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Never
+                    mind,
+                    don't cancel
+                </button>
+                <button class="uk-button uk-button-danger" type="submit">Yes, go ahead and
+                    cancel
+                </button>
+            </p>
+        </form>
+    </div>
+</div>

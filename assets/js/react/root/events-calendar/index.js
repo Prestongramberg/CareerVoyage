@@ -33,10 +33,13 @@ for (let i = 0; i < event_calendars.length; i++) {
                     radius: 70,
                     zipcode: zipcode,
                     query: '',
+                    searchQuery: '',
                     eventType: null,
                     industry: null,
                     secondaryIndustry: null,
-                    refetchEvents: false
+                    refetchEvents: false,
+                    schoolId: schoolId,
+                    userId: userId
                 }
             },
             compose(

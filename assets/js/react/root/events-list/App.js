@@ -219,13 +219,22 @@ class App extends React.Component {
             // Filter By Industry
             if (
                 ( !!this.props.search.industry && !event.secondaryIndustries ) ||
-                ( !!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 )
+                (
+                    !!this.props.search.industry &&
+                    event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt( secondaryIndustry.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0 &&
+                    event.tags.filter(tag => tag.primaryIndustry && parseInt( tag.primaryIndustry.id ) === parseInt( this.props.search.industry ) ).length === 0
+                )
             ) {
                 return false;
             }
 
             // Filter By Sub Industry
-            if ( !!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 ) {
+            if (
+                !!this.props.search.secondaryIndustry &&
+                event.secondaryIndustries.filter(secondaryIndustry => parseInt( secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0 &&
+                event.tags.filter(tag => tag.secondaryIndustry && parseInt( tag.secondaryIndustry.id ) === parseInt( this.props.search.secondaryIndustry ) ).length === 0
+
+            ) {
                 return false;
             }
 
@@ -266,13 +275,13 @@ class App extends React.Component {
                 return {
                     ...defaults,
                     color: "#0072B1",
-                    url: window.Routing.generate("company_experience_view", {'id': event.id})
+                    url: window.Routing.generate("experience_view", {'id': event.id})
                 }
             case "SchoolExperience":
                 return {
                     ...defaults,
                     color: "#FFC82C",
-                    url: window.Routing.generate("school_experience_view", {'id': event.id})
+                    url: window.Routing.generate("experience_view", {'id': event.id})
                 }
             default:
                 return defaults

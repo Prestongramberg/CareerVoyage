@@ -23,9 +23,18 @@ export class MapContainer extends Component {
 
     render() {
 
-        const { focalPointLatitude, focalPointLongitude, experiences, companies, schools } = this.props
+        const { focalPointLatitude, focalPointLongitude, experiences, companies, schools, markerIcon } = this.props
 
         debugger;
+
+        let markerIconUrl = null;
+        if(markerIcon === 'company') {
+            markerIconUrl = CompanyPin;
+        } else if (markerIcon === 'school') {
+            markerIconUrl = SchoolPin;
+        } else {
+            markerIconUrl = CompanyPin;
+        }
 
         return (
             <div style={{ flex: '0 0 35rem', height: '400px', position: 'sticky', top: '0'}}>
@@ -57,7 +66,7 @@ export class MapContainer extends Component {
                                     onClick={this.onMarkerClick}
                                     position={{lat: lat, lng: lng}}
                                     icon={{
-                                        url: CompanyPin,
+                                        url: markerIconUrl,
                                         anchor: new google.maps.Point(32,32),
                                         scaledSize: new google.maps.Size(64,64)
                                     }}

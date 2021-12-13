@@ -261,7 +261,7 @@ class ResourceController extends AbstractController
             }
 
             if ($request->query->has('experienceId')) {
-                $folder = UploaderHelper::LESSON_RESOURCE;
+                $folder = UploaderHelper::EXPERIENCE_FILE;
             }
 
             if ($file) {

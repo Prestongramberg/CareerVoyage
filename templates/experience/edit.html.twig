@@ -15,7 +15,7 @@
 
 {% block body %}
 
-    <div class="uk-container js-form" data-route="{{ path('profile_edit', {'id' : user.id}) }}">
+    <div class="uk-container js-form">
 
         <div uk-grid>
             <div class="uk-width-1-1 uk-width-medium@m">
@@ -29,7 +29,7 @@
                 <div id="tab-account-inner" class="uk-switcher">
 
                     <div class="experience_details">
-                        {% include 'school/experience/partials/_form.html.twig' %}
+                        {% include 'experience/partials/_form.html.twig' %}
                     </div>
 
 
@@ -63,8 +63,7 @@
                                         <div class="uk-width-auto">
                                             {% if experienceResource.fileName %}
                                                 <a href="{{ asset(uploaded_asset(experienceResource.path)) }}"
-                                                   class="uk-button uk-button-default uk-button-small view"
-                                                   target="_blank">View</a>
+                                                   class="uk-button uk-button-default uk-button-small view" download>View</a>
                                             {% else %}
                                                 <a href="{{ experienceResource.linkToWebsite }}"
                                                    class="uk-button uk-button-default uk-button-small view"

@@ -47,7 +47,7 @@
                                             knowledge in your industry through
                                             company
                                             visits, internships, job shadows and informational interviews.</p>
-                                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}"
+                                        <a href="{{ path('experience_new', {companyId: user.company.id}) }}"
                                            class="uk-button uk-button-primary" style="width: 240px; line-height: 30px">GET
                                             STARTED</a>
                                     </div>
@@ -541,7 +541,7 @@
                             {% if user.isAdmin or (user.company is not null and user.company.owner is not null and user.id == user.company.owner.id) %}
                                 <div class="uk-width-auto">
                                     <div class="uk-align-right">
-                                        <a href="{{ path('company_experience_create', { id: user.company.id }) }}">
+                                        <a target="_blank" href="{{ path('experience_new', { companyId: user.company.id }) }}">
                                             <span class="uk-margin-small-right"
                                                   uk-icon="icon: plus; ratio: 1"></span>
                                         </a>

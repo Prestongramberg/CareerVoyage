@@ -72,7 +72,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Please add a title for the experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please add a title for the experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="string", length=255)
      */
     protected $title;
@@ -85,7 +85,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Please add a description for the experience.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please add a description for the experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="text", nullable=true)
      */
     protected $about;
@@ -142,14 +142,14 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a start date", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Don't forget a start date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget an end date", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Don't forget an end date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;
@@ -176,7 +176,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Please choose an experience type.", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please choose an event type.", groups={"EXPERIENCE"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="experiences")
      * @ORM\JoinColumn(nullable=true)
@@ -249,6 +249,7 @@ abstract class Experience
     protected $request;
 
     /**
+     * @Assert\NotBlank(message="Please add a location for the experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $addressSearch;
@@ -269,6 +270,7 @@ abstract class Experience
     private $utcEndDateAndTime;
 
     /**
+     * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="experiences")
      */
     private $tags;
@@ -947,5 +949,39 @@ abstract class Experience
         }
 
         return $this;
+    }
+
+    public function isSchoolExperience() {
+        return $this instanceof SchoolExperience;
+    }
+
+    public function isCompanyExperience() {
+        return $this instanceof CompanyExperience;
+    }
+
+    public function getCoordinator() {
+
+        if($this instanceof SchoolExperience) {
+            return $this->getSchoolContact();
+        }
+
+        if($this instanceof CompanyExperience) {
+            return $this->getEmployeeContact();
+        }
+
+        return null;
+    }
+
+    public function getMapMarkerIcon() {
+
+        if($this instanceof SchoolExperience) {
+            return 'school';
+        }
+
+        if($this instanceof CompanyExperience) {
+            return 'company';
+        }
+
+        return 'company';
     }
 }

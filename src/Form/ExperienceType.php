@@ -2,6 +2,8 @@
 
 namespace App\Form;
 
+use App\Entity\Company;
+use App\Entity\CompanyExperience;
 use App\Entity\Experience;
 use App\Entity\Industry;
 use App\Entity\ProfessionalUser;
@@ -99,7 +101,7 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
     public function mapDataToForms($viewData, $forms): void
     {
-        /** @var SchoolExperience $viewData */
+        /** @var SchoolExperience|CompanyExperience $viewData */
 
         // there is no data yet, so nothing to prepopulate
         if (null === $viewData) {
@@ -118,7 +120,15 @@ class ExperienceType extends AbstractType implements DataMapperInterface
         $forms['title']->setData($viewData->getTitle());
         $forms['about']->setData($viewData->getAbout());
         $forms['timezone']->setData($viewData->getTimezone());
-        $forms['schoolContact']->setData($viewData->getSchoolContact());
+
+        if(isset($forms['schoolContact'])) {
+            $forms['schoolContact']->setData($viewData->getSchoolContact());
+        }
+
+        if(isset($forms['employeeContact'])) {
+            $forms['employeeContact']->setData($viewData->getEmployeeContact());
+        }
+
         $forms['addressSearch']->setData($viewData->getAddressSearch());
         $forms['type']->setData($viewData->getType());
         $forms['startDate']->setData(new DateTime());
@@ -149,7 +159,7 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
     public function mapFormsToData($forms, &$viewData): void
     {
-        /** @var SchoolExperience $viewData */
+        /** @var SchoolExperience|CompanyExperience $viewData */
 
         /** @var FormInterface[] $forms */
         $forms = iterator_to_array($forms);
@@ -190,7 +200,15 @@ class ExperienceType extends AbstractType implements DataMapperInterface
         $viewData->setTitle($forms['title']->getData());
         $viewData->setAbout($forms['about']->getData());
         $viewData->setType($forms['type']->getData());
-        $viewData->setSchoolContact($forms['schoolContact']->getData());
+
+        if($viewData instanceof SchoolExperience) {
+            $viewData->setSchoolContact($forms['schoolContact']->getData());
+        }
+
+        if($viewData instanceof CompanyExperience) {
+            $viewData->setEmployeeContact($forms['employeeContact']->getData());
+        }
+
         $viewData->setTimezone($forms['timezone']->getData());
         $viewData->setAddressSearch($forms['addressSearch']->getData());
         $addressSearch = $forms['addressSearch']->getData();
@@ -215,7 +233,7 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $tags = json_decode($tags, true);
 
             $originalTags = new ArrayCollection();
-            foreach($viewData->getTags() as $tag) {
+            foreach ($viewData->getTags() as $tag) {
                 $tag->removeExperience($viewData);
                 $this->entityManager->persist($tag);
             }
@@ -229,10 +247,10 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 } else {
 
                     $tag = $this->tagRepository->findOneBy([
-                        'name' => $value
+                        'name' => $value,
                     ]);
 
-                    if($tag) {
+                    if ($tag) {
                         $viewData->addTag($tag);
                     } else {
                         $tag = new Tag();
@@ -251,17 +269,17 @@ class ExperienceType extends AbstractType implements DataMapperInterface
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-        // todo you could have base experience form fields and then make it extend parent form types? SchoolExperienceType and
-        //  CompanyExperienceType? Just a thought.
-
         $builder->setDataMapper($this);
 
         /** @var School $school */
         $school = $options['school'];
 
+        /** @var Company $company */
+        $company = $options['company'];
+
         $builder->add('title', TextType::class, [
             'attr' => [
-                'placeholder' => 'How to Succeed in a Job Interview',
+                'placeholder' => $school ? 'How to Succeed in a Job Interview' : 'Career Fair – Emergency Medical Services',
             ],
         ])
                 ->add('about', TextareaType::class, [
@@ -273,29 +291,28 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                     'expanded'      => false,
                     'multiple'      => false,
                     'placeholder'   => 'Tell attendees what type of event this is.',
-                    'query_builder' => function (
-                        EntityRepository $er) {
-                        return $er->createQueryBuilder('r')
-                                  ->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')
-                                  ->setParameter('inSchoolEventDropdown', true);
+                    'query_builder' => function (EntityRepository $er) use ($company, $school) {
+
+                        if ($school) {
+                            return $er->createQueryBuilder('r')
+                                      ->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')
+                                      ->setParameter('inSchoolEventDropdown', true);
+                        }
+
+                        if ($company) {
+                            return $er->createQueryBuilder('r')
+                                      ->where('r.inEventDropdown = :inEventDropdown')
+                                      ->setParameter('inEventDropdown', true);
+                        }
+
+                        throw new \Exception("Form type not setup for other event types");
                     },
-                ])
-                ->add('schoolContact', EntityType::class, [
-                    'class'        => User::class,
-                    'choice_label' => 'fullName',
-                    'placeholder'  => 'Tell attendees who is organizing this event.',
-                    'expanded'     => false,
-                    'multiple'     => false,
-                    'choices'      => $this->userRepository->findContactsBySchool($school),
                 ])
                 ->add('addressSearch', TextType::class, [
                     'attr' => [
                         'autocomplete' => true,
                         'placeholder'  => 'Enter a location.',
                     ],
-                    // todo re-add for the edit view???
-                    // todo can we default to the school or no?
-                    //'data' => $company->getFormattedAddress(),
                 ])
                 ->add('startDateAndTime', HiddenType::class, [])
                 ->add('endDateAndTime', HiddenType::class, [])
@@ -351,9 +368,31 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                     ],
                 ]);
 
+        if ($school) {
+            $builder->add('schoolContact', EntityType::class, [
+                'class'        => User::class,
+                'choice_label' => 'fullName',
+                'placeholder'  => 'Tell attendees who is organizing this event.',
+                'expanded'     => false,
+                'multiple'     => false,
+                'choices'      => $this->userRepository->findContactsBySchool($school),
+            ]);
+        }
 
-        //$builder->get('startDateAndTime')->addModelTransformer($this->dateTimeToUtcTransfomer);
-        //$builder->get('endDateAndTime')->addModelTransformer($this->dateTimeToUtcTransfomer);
+        if ($company) {
+            $builder->add('employeeContact', EntityType::class, [
+                'class'         => ProfessionalUser::class,
+                'choice_label'  => 'fullName',
+                'placeholder'  => 'Tell attendees who is organizing this event.',
+                'expanded'      => false,
+                'multiple'      => false,
+                'query_builder' => function (EntityRepository $er) use ($company) {
+                    return $er->createQueryBuilder('p')
+                              ->where('p.company = :company')
+                              ->setParameter('company', $company);
+                },
+            ]);
+        }
 
 
         $builder->get('startDateAndTime')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
@@ -363,92 +402,21 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
         });
 
-        /*        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-                    $form = $event->getForm();
-                    $data = $event->getData();
-
-                    // todo this could work? But I feel like there are greater implications here
-                    $data['startDateAndTime'] = sprintf("%s %s", $data['startDate'], $data['startTime']);
-                    $data['endDateAndTime'] = sprintf("%s %s", $data['endDate'], $data['endTime']);
-
-                    $event->setData($data);
-                });*/
-
-
-        // ->add('startDateAndTime', TextType::class, [])
-        // ->add('endDateAndTime', TextType::class, []);
-
         $builder->add('secondaryIndustries', CollectionType::class, [
             'entry_type' => HiddenType::class,
             'label'      => false,
             'allow_add'  => true,
         ]);
 
-        /*        $builder->get('secondaryIndustries')
-                    ->addModelTransformer(new CallbackTransformer(
-                        function ($secondaryIndustries) {
-                            $ids = [];
-                            foreach($secondaryIndustries as $secondaryIndustry) {
-                                $ids[] = $secondaryIndustry->getId();
-                            }
-
-                            return $ids;
-                        },
-                        function ($ids) {
-
-                            $collection = new ArrayCollection();
-                            foreach($ids as $id) {
-                                $collection->add($this->secondaryIndustryRepository->find($id));
-                            }
-                            return $collection;
-                        }
-                    ));*/
-
-        /*        $builder->get('startDateAndTime')
-                    ->addModelTransformer(new CallbackTransformer(
-                        function ($date) {
-                            if($date) {
-                                return $date->format('m/d/Y g:i A');
-                            }
-                            return '';
-                        },
-                        function ($date) {
-                            return DateTime::createFromFormat('m/d/Y H:i', $date);
-                        }
-                    ));
-
-                $builder->get('endDateAndTime')
-                    ->addModelTransformer(new CallbackTransformer(
-                        function ($date) {
-                            if($date) {
-                                return $date->format('m/d/Y g:i A');
-                            }
-                            return '';
-                        },
-                        function ($date) {
-                            return DateTime::createFromFormat('m/d/Y H:i', $date);
-                        }
-                    ));*/
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'        => SchoolExperience::class,
-            'validation_groups' => ['SCHOOL_EXPERIENCE'],
+            'school'  => null,
+            'company' => null,
         ]);
 
-        $resolver->setRequired(['school']);
-    }
-
-    public function buildView(FormView $view, FormInterface $form, array $options): void
-    {
-
-        // todo possibly remove?
-        $name = "josh";
-
-
-        //$view->vars['schools'] = $schoolsJson;
     }
 
     public function getBlockPrefix()

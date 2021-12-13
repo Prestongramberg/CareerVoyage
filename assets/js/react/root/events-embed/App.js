@@ -250,13 +250,13 @@ class App extends React.Component {
                 return {
                     ...defaults,
                     color: "#0072B1",
-                    url: window.Routing.generate("company_experience_view", {'id': event.id})
+                    url: window.Routing.generate("experience_view", {'id': event.id})
                 }
             case "SchoolExperience":
                 return {
                     ...defaults,
                     color: "#FFC82C",
-                    url: window.Routing.generate("school_experience_view", {'id': event.id})
+                    url: window.Routing.generate("experience_view", {'id': event.id})
                 }
             default:
                 return defaults
