@@ -190,11 +190,14 @@ HERE;
         $endDate = null, $searchQuery = null, $eventType = null, $industry = null, $secondaryIndustry = null
     ) {
 
-        $query = sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, "SchoolExperience" as className from school_experience se INNER JOIN experience e on e.id = se.id 
+        $query = sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, "SchoolExperience" as className, sc.name as schoolName, rwtf.event_name as eventType from school_experience se INNER JOIN experience e on e.id = se.id 
 LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
 LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
 LEFT JOIN industry i on i.id = si.primary_industry_id
 LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+LEFT JOIN school sc on se.school_id = sc.id
+LEFT JOIN experience_tag etag on etag.experience_id = e.id
+LEFT JOIN tag tag on tag.id = etag.tag_id
 WHERE 1 = 1 AND e.cancelled != %s', 1);
 
         if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
@@ -229,11 +232,11 @@ WHERE 1 = 1 AND e.cancelled != %s', 1);
         }
 
         if($industry) {
-            $query .= sprintf(' AND i.id = %s', $industry);
+            $query .= sprintf(' AND (i.id = %s OR tag.primary_industry_id = %s) ', $industry, $industry);
         }
 
         if($secondaryIndustry) {
-            $query .= sprintf(' AND si.id = %s', $secondaryIndustry);
+            $query .= sprintf(' AND (si.id = %s OR tag.secondary_industry_id = %s)', $secondaryIndustry, $secondaryIndustry);
         }
 
         $em   = $this->getEntityManager();

@@ -65,11 +65,26 @@ class ExperienceController extends AbstractController
      */
     public function listAction(Request $request)
     {
-
+        return $this->redirectToRoute('experience_list_new');
 
         $user = $this->getUser();
 
         return $this->render('experience/list.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * @Route("/list-new", name="experience_list_new", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function listNewAction(Request $request)
+    {
+        $user = $this->getUser();
+
+        return $this->render('experience/list_new.html.twig', [
             'user' => $user,
         ]);
     }

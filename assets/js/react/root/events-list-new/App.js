@@ -3,12 +3,17 @@ import {connect} from "react-redux"
 import PropTypes from "prop-types";
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 import {
     loadEvents,
     radiusChanged,
     updateEventTypeQuery,
     updatePrimaryIndustryQuery,
     updateSecondaryIndustryQuery,
+    updateStartDateQuery,
+    updateEndDateQuery,
     updateSearchQuery,
     zipcodeChanged,
     setEvents,
@@ -18,7 +23,7 @@ import Loader from "../../components/Loader/Loader"
 import Pusher from "pusher-js";
 import * as api from "../../utilities/api/api";
 import * as actionTypes from "./actions/actionTypes";
-import {right} from "core-js/internals/array-reduce";
+import EventListing from "../../components/EventListing/EventListing";
 
 class App extends React.Component {
 
@@ -27,6 +32,9 @@ class App extends React.Component {
         this.element = null;
         this.zipcodeTimeout = null;
         this.searchQueryTimeout = null;
+
+        debugger;
+
         const methods = [
             "getEventObjectByType",
             "getRelevantEvents",
@@ -42,7 +50,8 @@ class App extends React.Component {
             "updateSearchQuery",
             "updateRadiusQuery",
             "updateZipcodeQuery",
-            "handleDates"
+            "updateStartDateQuery",
+            "updateEndDateQuery"
         ];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
@@ -62,15 +71,17 @@ class App extends React.Component {
 
     renderFilters() {
 
+        debugger;
         const ranges = [25, 50, 70, 150];
 
         return (
             [
                 <ul className="uk-tab" uk-tab>
-                    <li className="uk-active"><a href={Routing.generate('experience_index')}>Calendar</a></li>
-                    <li><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
+                    <li><a href={Routing.generate('experience_index')}>Calendar</a></li>
+                    <li className="uk-active"><a href={Routing.generate('experience_list')}>Upcoming Experiences</a>
+                    </li>
                 </ul>,
-                <div style={{marginBottom: "30px"}}>
+                <div>
                     <div className="uk-grid-small uk-flex-middle" data-uk-grid>
                         <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                             <div className="uk-search uk-search-default uk-width-1-1">
@@ -83,7 +94,6 @@ class App extends React.Component {
                         {this.renderIndustryDropdown()}
                         {this.props.search.industry && this.renderSecondaryIndustryDropdown()}
                         {this.renderEventTypes()}
-
                         <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
                             <div className="uk-search uk-search-default uk-width-1-1">
                                 <span data-uk-search-icon></span>
@@ -102,13 +112,29 @@ class App extends React.Component {
                                                                   selected={this.props.search.radius === range ? 'selected' : ''}>{range} miles</option>)}
                             </select>
                         </div>
-
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <a className={"uk-button uk-button-default"}
-                               href={window.Routing.generate("experience_index")}>Reset Filters</a>
-                        </div>
                     </div>
 
+                    <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <DatePicker
+                                className={"uk-input"}
+                                selected={this.props.filters.startDate}
+                                onChange={this.updateStartDateQuery}
+                                popperPlacement={"bottom"}
+                            />
+                        </div>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <DatePicker
+                                className={"uk-input"}
+                                selected={this.props.filters.endDate}
+                                onChange={this.updateEndDateQuery}
+                                popperPlacement={"bottom"}
+                            />
+                        </div>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <a className={"uk-button uk-button-default"} href={window.Routing.generate("experience_list_new")}>Reset Filters</a>
+                        </div>
+                    </div>
                 </div>
             ]);
 
@@ -119,57 +145,34 @@ class App extends React.Component {
 
         debugger;
 
-        const ranges = [25, 50, 70, 150];
-
-        if (this.props.search.refetchEvents) {
-            //this.refetchEvents();
-            //this.props.eventsRefreshed();
-        }
-
-        let events = this.props.events.map(event => this.getEventObjectByType(event));
+        let events = this.props.events;
 
         return (
 
-            [
-                <div className="pintex-calendar pintex-testing">
-                    <div className="uk-margin">
-                        <FullCalendar
-                            ref={el => this.element = el}
-                            defaultView="dayGridMonth"
-                            eventLimit={true}
-                            editable={true}
-                            selectable={true}
-                            selectMirror={true}
-                            dayMaxEvents={true}
-                            /*datesRender={this.handleDates}*/
-                            events={events}
-                            eventClick={(info) => {
-                                debugger;
-                                info.jsEvent.preventDefault(); // don't let the browser navigate
-                                window.Pintex.openCalendarEventDetails(info.event)
-                            }}
-                            header={{
-                                left: 'prev,next',
-                                center: 'title',
-                                right: 'dayGridDay,dayGridWeek,dayGridMonth'
-                            }}
-                            plugins={[dayGridPlugin]}
-                            timeZone={'America/Chicago'}
+            <div className="educator-listings uk-margin" data-uk-grid="masonry: true">
+                {events.map(event => {
+
+                    return <div className="uk-width-1-1 uk-width-1-2@l" key={event.id}>
+                        <EventListing
+                            title={event.title}
+                            key={event.id}
+                            id={event.id}
+                            briefDescription={event.briefDescription}
+                            className={event.className}
+                            friendlyStartDateAndTime={event.friendlyStartDateAndTime}
+                            friendlyEndDateAndTime={event.friendlyEndDateAndTime}
+                            friendlyName={event.eventType}
+                            experienceListTitle={event.schoolName || event.companyName || "N/A"}
                         />
                     </div>
-                </div>
-            ]
+
+                })}
+                {events.length === 0 && (
+                    <p>No experiences match your selection</p>
+                )}
+            </div>
 
         );
-    }
-
-    handleDates(data) {
-
-        debugger;
-
-       /* if(this.element) {
-            this.loadEvents();
-        }*/
     }
 
     renderIndustryDropdown() {
@@ -349,8 +352,8 @@ class App extends React.Component {
             ...queryParams
         };
 
-        search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
-        search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+        //search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
+        //search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
 
         let url = window.Routing.generate('get_experiences_by_radius', search);
 
@@ -375,6 +378,20 @@ class App extends React.Component {
     updateEventTypeQuery(event) {
         this.props.updateEventTypeQuery(event);
         this.loadEvents({eventType: event.target.value});
+    }
+
+    updateStartDateQuery(date) {
+
+        debugger;
+        this.props.updateStartDateQuery(date);
+        this.loadEvents({start: date.toLocaleDateString("en-US")});
+    }
+
+    updateEndDateQuery(date) {
+
+        debugger;
+        this.props.updateEndDateQuery(date);
+        this.loadEvents({end: date.toLocaleDateString("en-US")});
     }
 
     updateZipcodeQuery(zipcode) {
@@ -444,6 +461,8 @@ export const mapDispatchToProps = dispatch => ({
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (searchValue) => dispatch(updateSearchQuery(searchValue)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
+    updateStartDateQuery: (date) => dispatch(updateStartDateQuery(date)),
+    updateEndDateQuery: (date) => dispatch(updateEndDateQuery(date)),
     zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode))
 });
 
