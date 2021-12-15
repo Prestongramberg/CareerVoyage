@@ -1,5 +1,6 @@
 import * as actionTypes from "./actionTypes";
 import * as api from '../../../utilities/api/api'
+import {START_DATE_CHANGED} from "./actionTypes";
 
 export function updateSearchQuery(query) {
     return {
@@ -63,6 +64,13 @@ export function updateEventTypeQuery(eventType) {
     return {
         type: actionTypes.EVENT_TYPE_QUERY_CHANGED,
         eventType: eventType
+    };
+}
+
+export function startDateChanged(date) {
+    return {
+        type: actionTypes.START_DATE_CHANGED,
+        date: date
     };
 }
 

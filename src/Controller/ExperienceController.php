@@ -316,6 +316,10 @@ class ExperienceController extends AbstractController
             $validationGroups = ['EXPERIENCE', 'COMPANY_EXPERIENCE'];
         }
 
+        if(!$experience->getAddressSearch()) {
+            $experience->setAddressSearch($experience->getFormattedAddress());
+        }
+
         $form = $this->createForm(ExperienceType::class, $experience, [
             'method'            => 'POST',
             'school'            => $school,

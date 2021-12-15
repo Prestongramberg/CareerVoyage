@@ -110,8 +110,10 @@
         </div>
 
         {# display navigation #}
+        <br>
+        <br>
         <div class="navigation">
-            {{ knp_pagination_render(pagination) }}
+            {{ knp_pagination_render(pagination, 'pagination/custom_pagination.html.twig') }}
         </div>
 
     </div>

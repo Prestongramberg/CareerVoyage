@@ -27,7 +27,8 @@ for (let i = 0; i < event_calendars.length; i++) {
                         schoolEvents: [],
                         companyEvents: [],
                         otherEvents: []
-                    }
+                    },
+                    startDate: null
                 },
                 search: {
                     radius: 70,

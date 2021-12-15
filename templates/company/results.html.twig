@@ -244,9 +244,11 @@
             </div>
         </div>
 
+        <br>
+        <br>
         {# display navigation #}
         <div class="navigation">
-            {{ knp_pagination_render(pagination) }}
+            {{ knp_pagination_render(pagination, 'pagination/custom_pagination.html.twig') }}
         </div>
 
     </div>

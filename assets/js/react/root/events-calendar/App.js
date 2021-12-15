@@ -12,7 +12,8 @@ import {
     updateSearchQuery,
     zipcodeChanged,
     setEvents,
-    eventsRefreshed
+    eventsRefreshed,
+    startDateChanged
 } from "./actions/actionCreators";
 import Loader from "../../components/Loader/Loader"
 import Pusher from "pusher-js";
@@ -42,7 +43,8 @@ class App extends React.Component {
             "updateSearchQuery",
             "updateRadiusQuery",
             "updateZipcodeQuery",
-            "handleDates"
+            "handleDates",
+            "getCalendarData"
         ];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
@@ -143,6 +145,10 @@ class App extends React.Component {
                             dayMaxEvents={true}
                             datesRender={this.handleDates}
                             events={events}
+                            defaultDate={this.props.filters.startDate || new Date()}
+                           /* events={
+                                (fetchInfo, successCallback, failureCallback) => this.getCalendarData(fetchInfo, successCallback, failureCallback)
+                            }*/
                             eventClick={(info) => {
                                 debugger;
                                 info.jsEvent.preventDefault(); // don't let the browser navigate
@@ -170,16 +176,112 @@ class App extends React.Component {
 
         if (this.element) {
 
+            debugger;
+
             console.log("handle dates inside");
 
-          /*  let start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
+            let start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
             let end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+
+            this.props.startDateChanged(this.element.getApi().state.dateProfile.currentRange.start);
 
             this.loadEvents({
                 start: start,
                 end: end
-            });*/
+            });
         }
+    }
+
+    async getCalendarData(fetchInfo, successCallback) {
+
+        debugger;
+
+        try {
+
+            let year = new Date().getFullYear();
+            let month = new Date().getMonth() + 1;
+
+            if (fetchInfo) {
+                year = new Date(fetchInfo.start).getFullYear();
+                month = new Date(fetchInfo.start).getMonth() + 1;
+            }
+
+            //const response = await api.get(API, { year, month });
+
+            let queryParams = {};
+
+            let search = {
+                ...this.props.search,
+                ...queryParams
+            };
+
+            //search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
+            //search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+
+            let url = window.Routing.generate('get_experiences_by_radius', search);
+
+            const response = await api.get(url)
+                .then((response) => {
+
+                    debugger;
+
+                    let events = response.responseBody.data;
+                    events = events.map(event => this.getEventObjectByType(event));
+
+                    debugger;
+
+                    successCallback(events);
+
+          /*          if (response.statusCode < 300) {
+                        debugger;
+                        dispatch({type: actionTypes.EVENTS_LOADING_SUCCESS, response: response.responseBody})
+                    } else {
+                        dispatch({
+                            type: actionTypes.EVENTS_LOADING_FAILURE
+                        })
+                    }*/
+
+
+                  /*  successCallback(
+                        response.data.appointments.map(event => {
+                            return {
+                                id: event.id,
+                                title: event.name,
+                                start: event.datetime_start,
+                                end: event.datetime_finish,
+                            };
+                        })
+                    );*/
+
+
+
+
+
+
+
+
+
+                })
+                .catch((data) =>  {
+
+                    debugger;
+
+                });
+
+                /*    dispatch({
+                    type: actionTypes.EVENTS_LOADING_FAILURE
+                })*/
+
+
+
+
+            debugger;
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     renderIndustryDropdown() {
@@ -362,6 +464,9 @@ class App extends React.Component {
         search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
         search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
 
+        //this.element.getApi().state.dateProfile.currentRange.end
+
+
         let url = window.Routing.generate('get_experiences_by_radius', search);
 
         this.props.loadEvents(url);
@@ -374,7 +479,9 @@ class App extends React.Component {
 
     updatePrimaryIndustryQuery(event) {
         this.props.updatePrimaryIndustryQuery(event);
-        this.loadEvents({industry: event.target.value});
+
+
+        //this.loadEvents({industry: event.target.value});
     }
 
     updateSecondaryIndustryQuery(event) {
@@ -454,7 +561,8 @@ export const mapDispatchToProps = dispatch => ({
     updatePrimaryIndustryQuery: (event) => dispatch(updatePrimaryIndustryQuery(event.target.value)),
     updateSearchQuery: (searchValue) => dispatch(updateSearchQuery(searchValue)),
     updateSecondaryIndustryQuery: (event) => dispatch(updateSecondaryIndustryQuery(event.target.value)),
-    zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode))
+    zipcodeChanged: (zipcode) => dispatch(zipcodeChanged(zipcode)),
+    startDateChanged: (date) => dispatch(startDateChanged(date)),
 });
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
