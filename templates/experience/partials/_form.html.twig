@@ -82,14 +82,14 @@ PROFESSIONALS - We need 5 executives with experience conducting job interviews t
     <div class="uk-margin" style="position: relative">
         <label style="font-weight: bold">Tags</label>
         <div class="uk-text-meta">Improve discoverability of your event by adding tags relevant to
-            the subject matter. <span class="uk-text-primary"> Press enter to add a tag.</span>
+            the subject matter such as industry, career, or workplace skill. <br><span class="uk-text-primary"> Press enter to add a tag.</span>
         </div>
         {{ form_widget(form.tags, {'attr': {'class': 'tagify--outside' ~ ( form_errors(form.tags) ? ' uk-form-danger' : '' ) }}) }}
 
         {# {{ dump(form.tags.vars) }} #}
 
         <span class="js-tags-count"
-              style="position: absolute; top: 100px">{{ experience.tags|length }}/10 tags.</span>
+              style="position: absolute; top: 120px">{{ experience.tags|length }}/10 tags.</span>
     </div>
 
 </fieldset>

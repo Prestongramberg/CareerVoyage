@@ -141,7 +141,7 @@ class App extends React.Component {
                             selectable={true}
                             selectMirror={true}
                             dayMaxEvents={true}
-                            /*datesRender={this.handleDates}*/
+                            datesRender={this.handleDates}
                             events={events}
                             eventClick={(info) => {
                                 debugger;
@@ -165,11 +165,21 @@ class App extends React.Component {
 
     handleDates(data) {
 
+        console.log("handle dates");
         debugger;
 
-       /* if(this.element) {
-            this.loadEvents();
-        }*/
+        if (this.element) {
+
+            console.log("handle dates inside");
+
+          /*  let start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
+            let end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+
+            this.loadEvents({
+                start: start,
+                end: end
+            });*/
+        }
     }
 
     renderIndustryDropdown() {
