@@ -20,6 +20,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Feedback
 {
+    use Timestampable;
+
+    public static $eventTypes = [
+        'Company Experience' => 'COMPANY_EXPERIENCE',
+        'School Experience' => 'SCHOOL_EXPERIENCE',
+        'Guest Topic Instructor' => 'GUEST_TOPIC_INSTRUCTOR',
+        'Individual Meeting' => 'INDIVIDUAL_MEETING',
+    ];
+
     /**
      * @Groups({"FEEDBACK"})
      *
@@ -212,6 +221,11 @@ class Feedback
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $presenter;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $eventType;
 
 
     public function getId(): ?int
@@ -586,6 +600,18 @@ class Feedback
     public function setPresenter(?string $presenter): self
     {
         $this->presenter = $presenter;
+
+        return $this;
+    }
+
+    public function getEventType(): ?string
+    {
+        return $this->eventType;
+    }
+
+    public function setEventType(?string $eventType): self
+    {
+        $this->eventType = $eventType;
 
         return $this;
     }

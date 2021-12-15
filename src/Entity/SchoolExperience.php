@@ -25,26 +25,12 @@ class SchoolExperience extends Experience
     private $school;
 
     /**
+     * @Assert\NotNull(message="Please choose an event organizer.", groups={"SCHOOL_EXPERIENCE"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="schoolExperiences")
      * @ORM\JoinColumn(nullable=false)
      */
     private $schoolContact;
-
-    /**
-     * @Assert\NotNull(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
-     * @Assert\PositiveOrZero(message="Don't forget a total number of available student spaces!", groups={"SCHOOL_EXPERIENCE"})
-     * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="integer")
-     */
-    private $availableStudentSpaces;
-
-    /**
-     * @Assert\NotNull(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
-     * @Assert\PositiveOrZero(message="Don't forget a total number of available professional spaces!", groups={"SCHOOL_EXPERIENCE"})
-     * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\Column(type="integer")
-     */
-    private $availableProfessionalSpaces;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="schoolExperience", orphanRemoval=true)
@@ -54,7 +40,7 @@ class SchoolExperience extends Experience
     /**
      * @ORM\Column(type="boolean")
      */
-    private $canViewFeedback;
+    private $canViewFeedback = true;
 
     public function __construct()
     {
@@ -82,30 +68,6 @@ class SchoolExperience extends Experience
     public function setSchoolContact(?User $schoolContact): self
     {
         $this->schoolContact = $schoolContact;
-
-        return $this;
-    }
-
-    public function getAvailableStudentSpaces(): ?int
-    {
-        return $this->availableStudentSpaces;
-    }
-
-    public function setAvailableStudentSpaces(?int $availableStudentSpaces): self
-    {
-        $this->availableStudentSpaces = $availableStudentSpaces;
-
-        return $this;
-    }
-
-    public function getAvailableProfessionalSpaces(): ?int
-    {
-        return $this->availableProfessionalSpaces;
-    }
-
-    public function setAvailableProfessionalSpaces(?int $availableProfessionalSpaces): self
-    {
-        $this->availableProfessionalSpaces = $availableProfessionalSpaces;
 
         return $this;
     }

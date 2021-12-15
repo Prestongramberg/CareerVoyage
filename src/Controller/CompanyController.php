@@ -1265,6 +1265,8 @@ class CompanyController extends AbstractController
     public function createExperienceAction(Request $request, Company $company)
     {
 
+        return $this->redirectToRoute('experience_new', ['companyId' => $company->getId()]);
+
         $this->denyAccessUnlessGranted('edit', $company);
 
         $user       = $loggedInUser = $this->getUser();
@@ -1415,6 +1417,8 @@ class CompanyController extends AbstractController
     public function editExperienceAction(Request $request, CompanyExperience $experience)
     {
 
+        return $this->redirectToRoute('experience_edit', ['id' => $experience->getId()]);
+
         $this->denyAccessUnlessGranted('edit', $experience->getCompany());
 
         $company = $experience->getCompany();
@@ -1522,6 +1526,8 @@ class CompanyController extends AbstractController
      */
     public function viewExperienceAction(Request $request, CompanyExperience $experience)
     {
+
+        return $this->redirectToRoute('experience_view', ['id' => $experience->getId()]);
 
         /** @var User $user */
         $user = $this->getUser();

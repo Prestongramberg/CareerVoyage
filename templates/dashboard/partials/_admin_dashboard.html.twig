@@ -92,7 +92,7 @@
                     </div>
                     <div class="uk-card-body">
                         <ul class="uk-list uk-list-divider">
-                            {% for site in dashboards.sites %}
+                            {% for site in sites %}
                                 <li><a href="{{ site.fullyQualifiedBaseUrl }}" target="_blank">{{ site.baseUrl }}</a></li>
                             {% endfor %}
                         </ul>

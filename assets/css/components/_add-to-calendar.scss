@@ -15,9 +15,9 @@
   width: 100%;
   height: 100%;
   display: block;
-  background: #FFF;
-  border: 1px solid #e5e5e5;
-  color: #333;
+  background-color: #1e87f0;
+  color: #fff;
+  border: 1px solid transparent;
   line-height: 30px;
   text-align: center;
   cursor: pointer;
@@ -25,6 +25,11 @@
   z-index: 1;
   user-select: none;
   padding: 0;
+}
+
+.atc-checkbox-label:hover {
+  background-color: #0f7ae5;
+  color: #fff;
 }
 
 .atc-links-wrapper {

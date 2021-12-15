@@ -51,6 +51,8 @@ export function updateEventTypeQuery(eventType) {
 }
 
 export function loadEvents(url) {
+
+    debugger;
     return (dispatch, getState) => {
         dispatch({type: actionTypes.EVENTS_LOADING})
 

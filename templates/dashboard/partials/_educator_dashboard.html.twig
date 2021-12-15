@@ -218,10 +218,10 @@
                     <div class="user_preferences_events">
                         <div>
 
-                            {% if user.school is not null and user.school.allowEventCreation %}
+                            {% if authorizationVoter.canCreateExperiencesForSchool(user, user.school) %}
                                 <div class="uk-placeholder uk-text-center">
-                                    <p><a class="uk-button uk-button-primary uk-button-small"
-                                          href="{{ path('school_experience_create', {'id': user.school.id}) }}">Create
+                                    <p><a target="_blank" class="uk-button uk-button-primary uk-button-small"
+                                          href="{{ path('experience_new', {'schoolId': user.school.id}) }}">Create
                                             an Experience</a></p>
                                 </div>
                             {% endif %}
@@ -239,39 +239,8 @@
                                                         <dt>{{ experience.title }}</dt>
                                                     </div>
                                                     <div class="uk-width-1-1 uk-width-auto@m">
-                                                        <a href="{{ path('school_experience_view', { "id": experience.id }) }}"
+                                                        <a href="{{ path('experience_view', { "id": experience.id }) }}"
                                                            class="uk-button uk-button-default uk-button-small">View</a>
-
-                                                        <a class="uk-button uk-button-danger uk-button-small"
-                                                           href="#modal-remove-school-event-{{ experience.id }}"
-                                                           uk-toggle>Delete</a>
-
-                                                        <div id="modal-remove-school-event-{{ experience.id }}"
-                                                             uk-modal>
-                                                            <div class="uk-modal-dialog uk-modal-body">
-                                                                <h3>Delete Experience</h3>
-                                                                <form class="uk-inline" method="post"
-                                                                      action="{{ path('school_experience_remove', { "id": experience.id }) }}">
-
-                                                                    <label class="uk-form-label">Cancellation Message
-                                                                        (this will be sent to all users currently
-                                                                        registered to attend your experience):</label>
-                                                                    <input type="hidden" name="schoolAdminId"
-                                                                           value="{{ user.id }}">
-                                                                    <textarea class="uk-textarea"
-                                                                              name="cancellationMessage"
-                                                                              style="width: 100%"></textarea>
-                                                                    <p>
-                                                                        <button class="uk-button uk-button-default uk-modal-close"
-                                                                                type="button">Cancel
-                                                                        </button>
-                                                                        <button class="uk-button uk-button-danger"
-                                                                                type="submit">Remove
-                                                                        </button>
-                                                                    </p>
-                                                                </form>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             {% endif %}
@@ -290,9 +259,9 @@
                                     </ul>
                                     <div class="uk-switcher" id="tab-events">
                                         <div class="tab-events__upcoming">
-                                            {% if dashboards.upcomingEventsRegisteredForByUser|length > 0 %}
+                                            {% if upcomingEventsRegisteredForByUser|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
-                                                    {% for event in dashboards.upcomingEventsRegisteredForByUser %}
+                                                    {% for event in upcomingEventsRegisteredForByUser %}
                                                         <li><a class="uk-link-text"
                                                                href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
                                                         </li>
@@ -303,9 +272,9 @@
                                             {% endif %}
                                         </div>
                                         <div class="tab-events__completed">
-                                            {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
+                                            {% if completedEventsRegisteredForByUser|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
-                                                    {% for event in dashboards.completedEventsRegisteredForByUser %}
+                                                    {% for event in completedEventsRegisteredForByUser %}
                                                         <li><a class="uk-link-text"
                                                                href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
                                                         </li>
@@ -366,16 +335,16 @@
                                     </ul>
                                     <div class="uk-switcher" id="tab-reviews">
                                         <div class="tab-reviews__todo">
-                                            {% if dashboards.eventsMissingFeedback|length > 0 %}
+                                            {% if completedEventsRegisteredForByUserMissingFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsMissingFeedback %}
+                                                    {% for event in completedEventsRegisteredForByUserMissingFeedback %}
                                                         <li class="uk-position-relative"
-                                                            id="feedback_{{ eventProps.event.id }}">
+                                                            id="feedback_{{ event.id }}">
                                                             <span class="uk-position-center-right"><button
                                                                         class="uk-button uk-button-text delete-feedback uk-text-danger"
-                                                                        data-id="{{ eventProps.event.id }}">X</button></span>
+                                                                        data-id="{{ event.id }}">X</button></span>
                                                             <a class="uk-link-text"
-                                                               href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
+                                                               href="{{ path('experience_feedback', {'id': event.id}) }}">{{ event.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -384,12 +353,14 @@
                                             {% endif %}
                                         </div>
                                         <div class="tab-reviews__submitted">
-                                            {% if dashboards.eventsWithFeedback|length > 0 %}
+                                            {% if completedFeedback|length > 0 %}
                                                 <ul class="uk-list uk-list-divider">
-                                                    {% for eventProps in dashboards.eventsWithFeedback %}
-                                                        <li><a class="uk-link-text"
-                                                               href="{{ path('experience_feedback', {'id': eventProps.event.id}) }}">{{ eventProps.event.title }}</a>
-                                                        </li>
+                                                    {% for feedback in completedFeedback %}
+                                                        {% if feedback.experience %}
+                                                            <li><a class="uk-link-text"
+                                                                   href="{{ path('experience_feedback', {'id': feedback.experience.id}) }}">{{ feedback.experience.title }}</a>
+                                                            </li>
+                                                        {% endif %}
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
@@ -406,9 +377,9 @@
                             <div class="uk-card uk-card-default">
                                 <div class="uk-card-body">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">View Feedback</h3>
-                                    {% if dashboards.completedEventsRegisteredForByUser|length > 0 %}
+                                    {% if completedEventsRegisteredForByUser|length > 0 %}
                                         <ul class="uk-list uk-list-divider">
-                                            {% for event in dashboards.completedEventsRegisteredForByUser %}
+                                            {% for event in completedEventsRegisteredForByUser %}
                                                 <li><a class="uk-link-text"
                                                        href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
                                                 </li>

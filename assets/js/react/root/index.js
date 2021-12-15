@@ -4,6 +4,7 @@ require('./chat');
 require('./event-user-notify');
 require('./events-calendar');
 require('./events-list');
+require('./events-list-new');
 require('./events-embed');
 require('./form-choose-all-that-apply');
 require('./form-range');

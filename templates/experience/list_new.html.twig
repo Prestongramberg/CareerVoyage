@@ -1,0 +1,35 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Experiences{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+
+        <h2>Upcoming Experiences</h2>
+
+        <div class="uk-grid uk-margin" uk-grid>
+            <div class="uk-margin uk-width-1-1 uk-width-1-2@m">
+                <ul class="uk-breadcrumb">
+                    <li><a href="/">Dashboard</a></li>
+                    <li><span>Experiences</span></li>
+                </ul>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+                <div class="uk-flex uk-flex-right@m">
+                    {% if user.isEducator or user.isStudent or user.isProfessional %}
+                        <a href="{{ path('request_lesson_experience_or_site_visit') }}" class="uk-button uk-button-default uk-button-small">Suggest an Experience</a>
+                    {% endif %}
+                    {% if user.company is defined and user.company is not null and user.company.owner is not null and user.company.owner.id == user.id %}
+                        <a href="{{ path('company_experience_create', {id: user.company.id}) }}" class="uk-button uk-button-primary uk-button-small uk-margin-small-left">Create an Experience</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="react-events-list-new"></div>
+    </div>
+{% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Feedback;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -56,6 +57,18 @@ class FeedbackRepository extends ServiceEntityRepository
                     ->setParameter('event', $event['id'])
                     ->setParameter('false', false)
                     ->orderBy('f.id', 'ASC')
+                    ->getQuery()
+                    ->getResult();
+    }
+
+    public function getForUser(User $user)
+    {
+        return $this->createQueryBuilder('f')
+                    ->andWhere('f.user = :user')
+                    ->andWhere('f.deleted = :deleted')
+                    ->setParameter('user', $user)
+                    ->setParameter('deleted', false)
+                    ->orderBy('f.createdAt', 'DESC')
                     ->getQuery()
                     ->getResult();
     }

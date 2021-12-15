@@ -4,7 +4,7 @@ import * as api from '../../../utilities/api/api'
 export function updateSearchQuery(query) {
     return {
         type: actionTypes.SEARCH_QUERY_CHANGED,
-        query: query
+        searchQuery: query
     };
 }
 
@@ -22,10 +22,6 @@ export function radiusChanged(radius) {
 }
 
 export function zipcodeChanged(zipcode) {
-
-    if(zipcode.length < 5) {
-        return;
-    }
 
     return {
         type: actionTypes.ZIPCODE_CHANGED,
@@ -91,3 +87,5 @@ export function loadEvents(url) {
             }))
     }
 }
+
+

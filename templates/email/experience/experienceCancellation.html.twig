@@ -1,9 +1,14 @@
 {% include 'email/partial/emailHeader.html.twig' with { recipientFirstName : user.firstName } %}
 
-<p>The experience <strong>{{ experience.title }}</strong> has been cancelled by the experience's creator.</p>
+<p>The experience: <strong>{{ experience.title }}</strong> scheduled for:
+    <strong>{{ experience.friendlyStartDateAndTime }} - {{ experience.friendlyEndDateAndTime }}</strong>
+    has been cancelled by the experience's creator.</p>
 
-<p>Cancellation Message:</p>
-
-<p>{{ message }}</p>
+<p>Cancellation Reason:</p>
+{% if message %}
+    <p>{{ message }}</p>
+{% else %}
+    <p>A cancellation reason was not provided by the experience's creator.</p>
+{% endif %}
 
 {% include 'email/partial/emailFooter.html.twig' %}

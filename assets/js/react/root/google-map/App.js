@@ -23,7 +23,18 @@ export class MapContainer extends Component {
 
     render() {
 
-        const { focalPointLatitude, focalPointLongitude, companies, schools } = this.props
+        const { focalPointLatitude, focalPointLongitude, experiences, companies, schools, markerIcon } = this.props
+
+        debugger;
+
+        let markerIconUrl = null;
+        if(markerIcon === 'company') {
+            markerIconUrl = CompanyPin;
+        } else if (markerIcon === 'school') {
+            markerIconUrl = SchoolPin;
+        } else {
+            markerIconUrl = CompanyPin;
+        }
 
         return (
             <div style={{ flex: '0 0 35rem', height: '400px', position: 'sticky', top: '0'}}>
@@ -38,6 +49,34 @@ export class MapContainer extends Component {
                         }}
                         gestureHandling="greedy"
                     >
+
+                        {experiences && experiences.length > 0 && experiences.map(experience => {
+
+                            debugger;
+
+                            const lat = parseFloat(experience.latitude)
+                            const lng = parseFloat(experience.longitude)
+
+                            if ( !lat || !lng ) {
+                                return null
+                            }
+
+                            return (
+                                <Marker
+                                    onClick={this.onMarkerClick}
+                                    position={{lat: lat, lng: lng}}
+                                    icon={{
+                                        url: markerIconUrl,
+                                        anchor: new google.maps.Point(32,32),
+                                        scaledSize: new google.maps.Size(64,64)
+                                    }}
+                                    item={experience}
+                                    key={'experience' + experience.id}
+                                    type={'experience'}
+                                />
+                            )
+                        })}
+
 
                         {companies && companies.length > 0 && companies.map(company => {
 
@@ -97,6 +136,16 @@ export class MapContainer extends Component {
                             onClose={this.onClose}
                         >
                             <div>
+                                {this.state.selectedPlace.type === 'experience' && (
+                                    <div className="uk-card uk-card-default uk-card-small">
+                                        <div className="uk-card-header">
+                                            <h3 className="uk-card-title uk-margin-remove-bottom">{ this.state.selectedPlace.item.title }</h3>
+                                            <div>
+                                                { this.state.selectedPlace.item.formattedAddress }
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 {this.state.selectedPlace.type === 'company' && (
                                     <div className="uk-card uk-card-default uk-card-small">
                                         <div className="uk-card-header">
@@ -160,5 +209,5 @@ export class MapContainer extends Component {
 }
 
 export default GoogleApiWrapper({
-    apiKey: 'AIzaSyCKausNOkCzpMeyVhsL20sXmViWvfQ4rXo'
+    apiKey: 'AIzaSyBsyd95RCwjpoNBiAsI4BQF4oYwkfC8EvQ'
 })(MapContainer);

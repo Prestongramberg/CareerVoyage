@@ -1,0 +1,20 @@
+<div id="modal-delete-event-{{ experience.id }}" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h3>Are you sure you want to delete this experience?</h3>
+
+        <ul>
+            <li class="uk-text-danger">Deleting an experience is permanent and cannot be undone.</li>
+            <li class="uk-text-danger">Deleting an experience will remove all data associated with it.</li>
+        </ul>
+
+        <form class="uk-inline" method="post" action="{{ path('experience_delete', { "id": experience.id }) }}">
+            <label class="uk-form-label">Are you sure you want to delete this experience? This action is not
+                recoverable.</label>
+            <p>
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Never mind, don't delete
+                </button>
+                <button class="uk-button uk-button-danger" type="submit">Yes, go ahead and delete</button>
+            </p>
+        </form>
+    </div>
+</div>

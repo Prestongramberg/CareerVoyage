@@ -169,6 +169,16 @@ class ExperienceController extends AbstractController
         $lonE               = null;
         $lonW               = null;
 
+        if($startDate) {
+            $startDate = DateTime::createFromFormat("m/d/Y", $startDate);
+            $startDate = $startDate->format("Y-m-d");
+        }
+
+        if($endDate) {
+            $endDate = DateTime::createFromFormat("m/d/Y", $endDate);
+            $endDate = $endDate->format("Y-m-d");
+        }
+
         // todo query filters and cache them right here...
         $filters = $filterGenerator->generate(
             [

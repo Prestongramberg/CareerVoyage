@@ -2,12 +2,21 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\RegistrationRepository")
+ * @ORM\Table(
+ *      uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "experience_id"})}
+ * )
+ * @UniqueEntity(
+ *     fields={"user", "experience"}
+ * )
  */
 class Registration
 {
@@ -32,6 +41,16 @@ class Registration
      * @ORM\ManyToOne(targetEntity="App\Entity\Experience", inversedBy="registrations")
      */
     private $experience;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $approved = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $status;
 
     public function getId(): ?int
     {
@@ -61,4 +80,46 @@ class Registration
 
         return $this;
     }
+
+    public function getApproved(): ?bool
+    {
+        return $this->approved;
+    }
+
+    public function setApproved(?bool $approved): self
+    {
+        $this->approved = $approved;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatusLabel(): ?string
+    {
+        switch ($this->status) {
+            case Request::REQUEST_STATUS_DENIED:
+                $statusLabel = 'Your registration for this experience has been denied.';
+                break;
+            case Request::REQUEST_STATUS_APPROVED:
+                $statusLabel = 'Your registration for this experience has been approved.';
+                break;
+            default:
+                $statusLabel = 'Your registration for this experience is pending approval.';
+                break;
+        }
+
+        return $statusLabel;
+    }
+
 }

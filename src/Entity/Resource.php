@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"resource" = "Resource", "companyResource" = "CompanyResource", "knowledgeResource" = "KnowledgeResource", "lessonResource" = "LessonResource"})
+ * @ORM\DiscriminatorMap({"resource" = "Resource", "companyResource" = "CompanyResource", "knowledgeResource" = "KnowledgeResource", "lessonResource" = "LessonResource", "experienceResource" = "ExperienceResource"})
  *
  */
 class Resource

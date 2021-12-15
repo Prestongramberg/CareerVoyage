@@ -126,7 +126,7 @@ $(document).ready(function () {
 
     VCountdown({
         target: '#lesson_title',
-        maxChars: 70
+        maxChars: 75
     });
 
     VCountdown({

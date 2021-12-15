@@ -1,0 +1,40 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% form_theme form _self %}
+
+{% block title %}New Experience{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/experience.js') }}"></script>
+{% endblock %}
+
+ {% block stylesheets %}
+     {{ parent() }}
+ {% endblock %}
+
+
+{% block body %}
+    <div class="uk-container js-form">
+
+        <div uk-grid>
+            <div class="uk-width-1-1 uk-width-medium@m">
+                <ul id="test" class="uk-tab-left"
+                    uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
+                    <li><a href="#experience-details" id="experience-details">New Experience</a></li>
+                    <li class="uk-disabled"><a href="#experience-attachments" id="experience-attachments" style="opacity: .5;">Attachments</a>
+                </ul>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+                <div id="tab-account-inner" class="uk-switcher">
+
+                    <div class="experience_details">
+                        {% include 'experience/partials/_form.html.twig' %}
+                    </div>
+
+                    <div class="js-resource-component experience_attachments"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

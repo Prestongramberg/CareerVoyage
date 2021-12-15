@@ -61,7 +61,7 @@ class RegistrationRepository extends ServiceEntityRepository
      */
     public function getByUserAndExperience(User $user, Experience $experience) {
         return $this->createQueryBuilder('r')
-            ->where('r.user = :user')
+            ->andWhere('r.user = :user')
             ->andWhere('r.experience = :experience')
             ->setParameter('user', $user)
             ->setParameter('experience', $experience)

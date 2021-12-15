@@ -1,0 +1,411 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}View School Experience{% endblock %}
+{% block bodyClass %}page-school-experience-view{% endblock %}
+
+{% block body %}
+
+    {# SHARE EXPERIENCE OFF CANVAS #}
+    <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: true">
+        <div class="uk-offcanvas-bar uk-offcanvas-bar-large">
+
+            <div>
+                <h3>Share Experience</h3>
+                <button class="uk-offcanvas-close" type="button" uk-close></button>
+            </div>
+
+            <div id="react-global-share"
+                 data-user="{{ encode_user(user) }}"
+                 data-experience="{{ experience.id }}"
+                 data-message="Check out this upcoming experience: <a href='{{ absolute_url('view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                Share this Experience
+            </div>
+        </div>
+    </div>
+
+
+    <div class="uk-container">
+
+        <div class="uk-section-muted uk-text-center">
+            <div class="uk-padding" style="position: relative">
+
+                <h2 class="uk-margin-remove-bottom" style="font-weight: bold">{{ experience.title }}</h2>
+                <br>
+
+                {# <span class="uk-label uk-label-success">Number of current registrations: {{ experience.registrations|length }}</span> #}
+
+                {% if experience.isSchoolExperience %}
+                    <h3 class="uk-margin-remove-top">Coordinated By: {{ experience.school.name }}</h3>
+                {% endif %}
+
+                <h5 style="{{ experience.cancelled ? 'text-decoration: line-through' : '' }}">
+                    {{ experience.startDateAndTime|date("F jS Y \\a\\t g:ia") }}
+                    - {{ experience.endDateAndTime|date("F jS Y \\a\\t g:ia") }}
+                </h5>
+
+                {{ experience.about|raw }}
+
+                {% if experience.cancelled %}
+                    <div class="uk-alert-danger" uk-alert>
+                        <p style="font-weight: bold">Experience has been cancelled. Please reach out to the experience
+                            coordinator for any further questions.</p>
+                    </div>
+                {% endif %}
+
+                <hr>
+
+                {# REGISTER FOR EXPERIENCE #}
+                {% set registration = get_user_registered_for_experience(user, experience) %}
+
+                {% if registration and registration.approved %}
+
+                    <div class="uk-alert-success" uk-alert>
+                        <p style="font-weight: bold">You are registered for this event. Please reach out to the
+                            experience coordinator for any further questions</p>
+                    </div>
+
+                    <a class="uk-button uk-button-xl uk-button-danger uk-margin"
+                       href="{{ path('experience_unregister', {'id': experience.id}) }}">Unregister
+                        For
+                        Experience</a>
+                {% endif %}
+
+                {% if registration and registration.status == constant('App\\Entity\\Request::REQUEST_STATUS_PENDING') %}
+                    <div class="uk-alert-primary" uk-alert>
+                        <p style="font-weight: bold">{{ registration.statusLabel }} Please reach out to the experience
+                            coordinator for any
+                            further
+                            questions.</p>
+                    </div>
+                {% endif %}
+
+                {% if registration and registration.status == constant('App\\Entity\\Request::REQUEST_STATUS_DENIED') %}
+                    <div class="uk-alert-danger" uk-alert>
+                        <p style="font-weight: bold">{{ registration.statusLabel }} Please reach out to the experience
+                            coordinator for any
+                            further
+                            questions.</p>
+                    </div>
+                {% endif %}
+
+                {% if experience.endDateAndTime < date() %}
+                    <div class="uk-alert-danger" uk-alert>
+                        <p style="font-weight: bold">This is a past event and can no longer be registered for. Please
+                            reach out to the experience coordinator for any further questions.</p>
+                    </div>
+                {% endif %}
+
+                {# REGISTER EXPERIENCE #}
+                {% if authorizationVoter.canRegisterForExperience(user, experience) %}
+                    <a class="uk-button uk-button-xl uk-button-primary uk-margin"
+                       href="{{ path('experience_register', {'id': experience.id}) }}">Register For
+                        Experience</a>
+                {% endif %}
+
+                {# SHARE EXPERIENCE #}
+                <button class="uk-button uk-button-primary uk-button-xl uk-margin" type="button"
+                        uk-toggle="target: #offcanvas-flip">Share Experience
+                </button>
+
+                {# ADD TO CALENDAR #}
+                {% if authorizationVoter.canAddExperienceToCalendar(user, experience) %}
+                    <div class="react-calendar-button uk-inline"
+                         data-event-start-time="{{ experience.startDateAndTimeTimeStamp }}"
+                         data-event-end-time="{{ experience.endDateAndTimeTimeStamp }}"
+                         data-title="{{ experience.title }}"
+                         data-description="{{ experience.briefDescription }}"
+                         data-location="{{ experience.getFormattedAddress }}"
+                    ></div>
+                {% endif %}
+
+                {# EDIT/CANCEL EXPERIENCE #}
+                {% if authorizationVoter.canEditExperience(user, experience) %}
+
+                    <button class="uk-button uk-button-primary" type="button">Manage Experience</button>
+                    <div uk-dropdown class="uk-text-left">
+                        <ul class="uk-nav uk-dropdown-nav">
+                            <li><a target="_blank" href="{{ path('experience_edit', {id: experience.id}) }}">Edit
+                                    Experience</a></li>
+
+                            {% if authorizationVoter.canCancelExperience(user, experience) %}
+                                <li><a href="#modal-cancel-event-{{ experience.id }}" uk-toggle>Cancel Experience</a>
+                                </li>
+                            {% endif %}
+
+                            {% if authorizationVoter.canDeleteExperience(user, experience) %}
+                                <li><a href="#modal-delete-event-{{ experience.id }}" uk-toggle>Delete Experience</a>
+                                </li>
+                            {% endif %}
+
+                            <li><a href="#live-feedback-url-modal" uk-toggle>Live Feedback URL</a></li>
+                        </ul>
+                    </div>
+
+                    {% if authorizationVoter.canCancelExperience(user, experience) %}
+                        {% include 'experience/partials/_cancelModal.html.twig' %}
+                    {% endif %}
+
+                    {% if authorizationVoter.canDeleteExperience(user, experience) %}
+                        {% include 'experience/partials/_deleteModal.html.twig' %}
+                    {% endif %}
+
+
+                    {% include 'experience/partials/_liveFeedbackModal.html.twig' %}
+
+                {% endif %}
+
+                <hr>
+
+            </div>
+
+        </div>
+
+
+        <div class="uk-section-default uk-text-center">
+            <div class="uk-padding">
+
+                <dl class="uk-description-list">
+                    <dt>Location</dt>
+                    <dd><a style="text-decoration: underline; font-weight: bold"
+                           href="http://maps.google.com/?q={{ experience.formattedAddress }}"
+                           target="_blank">{{ experience.formattedAddress }}</a></dd>
+                    <dd>
+                        <a style="text-decoration: underline; font-weight: bold"
+                           href="http://maps.google.com/?q={{ experience.formattedAddress }}" target="_blank">Get
+                            Directions
+                            to Event</a>
+                    </dd>
+
+                    {% if experience.coordinator %}
+                        <dt>Experience Coordinator</dt>
+                        <dd>
+                            <a style="text-decoration: underline; font-weight: bold"
+                               href="mailto:{{ experience.coordinator.email }}">{{ experience.coordinator.fullName }}</a>
+                        </dd>
+                        <dd>
+                            <a style="text-decoration: underline; font-weight: bold"
+                               href="mailto:{{ experience.coordinator.email }}">{{ experience.coordinator.email }}</a>
+                        </dd>
+                    {% endif %}
+
+                    <dt>Number of Registrations</dt>
+
+                    {% if experience.registrations|length == 1 %}
+                        <dd>There is <strong>1</strong> person registered for this event!</dd>
+                    {% elseif experience.registrations|length > 1 %}
+                        <dd>There are <strong>{{ experience.registrations|length }}</strong> people registered for this
+                            event!
+                        </dd>
+                    {% else %}
+                        <dd>No one has registered for this event. Be among the <strong>first</strong> to register!</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        {# GOOGLE MAP #}
+        <div class="uk-section-default">
+            {% if experience.latitude and experience.longitude %}
+                <div class="company__location">
+                    {# <p><a class="uk-button uk-button-primary uk-button-small"
+                      href="http://maps.google.com/?q={{ experience.street }},{{ experience.city }},{{ experience.zipcode }}"
+                      target="_blank">Directions to Event</a></p> #}
+                    <div class="react-google-map" data-latitude="{{ experience.latitude }}"
+                         data-longitude="{{ experience.longitude }}"
+                         data-experiences="{{ encode_experiences([experience]) }}"
+                         data-marker-icon="{{ experience.mapMarkerIcon }}"
+                    ></div>
+                </div>
+            {% endif %}
+        </div>
+
+        {# RESOURCES #}
+        {% if experience.experienceResources|length %}
+            <hr class="uk-divider-icon uk-margin-large-top">
+            {% include 'experience/partials/_eventMaterial.html.twig' %}
+        {% endif %}
+
+        {# <ul class="uk-tab" uk-switcher="connect: #tab-experience" uk-tab>
+            {% if experience.experienceFiles|length %}
+                <li><a href="#experience-attachments">Experience Documents</a></li>
+            {% endif %}
+            {% if user.isEducator or user.isSchoolAdministrator %}
+                <li><a href="#available-students-to-register">Available Students To Register</a></li>
+        #}{# <li><a href="#feedback">Feedback</a></li> #}{#
+        {% endif %}
+    </ul> #}
+        {# <div class="uk-switcher" id="tab-experience">
+            {% if experience.experienceFiles|length %}
+                <div class="experience_attachments">
+                    <dl class="uk-description-list uk-description-list-divider">
+                        {% for experienceResource in experience.experienceFiles %}
+                            <div class="uk-grid uk-flex-middle" uk-grid>
+                                <div class="uk-width-expand">
+                                    <dt>{{ experienceResource.title }}</dt>
+                                    <dd>{{ experienceResource.description }}</dd>
+                                </div>
+                                <div class="uk-width-auto">
+                                    {% if experienceResource.linkToWebsite %}
+                                        <a href="{{ experienceResource.linkToWebsite }}"
+                                           class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% else %}
+                                        <a href="{{ asset(uploaded_asset(experienceResource.path)) }}"
+                                           class="uk-button uk-button-default uk-button-small" target="_blank">View</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endif %}
+
+            {% if user.isEducator %}
+
+                <div class="available_students_to_register">
+                    <h3>Students</h3>
+                    <div class="uk-width-xlarge">
+
+                        {% if user.studentUsers|length > 0 %}
+                            <table class="uk-table uk-table-justify uk-table-divider">
+                                <tbody>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>
+                                        Status
+                                    </th>
+                                </tr>
+                                {% for studentUser in user.studentUsers %}
+                                    {% if studentUser.activated != false and studentUser.deleted != true %}
+                                        <tr>
+                                            <td>{{ studentUser.fullName }}</td>
+                                            <td id="student_{{ studentUser.id }}">
+                                                {% set requests = request_sent(null, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ studentUser.id) %}
+                                                {% for request in requests %}
+                                                    <a href="{{ path('requests', {id: request.id}) }}"><span
+                                                                class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
+                                                {% else %}
+                                                    <a class="uk-button uk-button-small uk-button-primary"
+                                                       href="{{ path('school_experience_register', {'id': experience.id}) }}?userId={{ studentUser.id }}">Register</a>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>You have not added your students in your <a
+                                        href="{{ path('profile_edit', {'id': user.id}) }}">profile</a> yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% endif %}
+
+            {% if user.isSchoolAdministrator %}
+                <div class="available_students_to_register">
+                    <h3>Students</h3>
+                    <div class="uk-width-xlarge">
+                        {% if students|length > 0 %}
+                            <table class="uk-table uk-table-justify uk-table-divider">
+                                <tbody>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>
+                                        Status
+                                    </th>
+                                </tr>
+                                {% for studentUser in students %}
+                                    {% if studentUser.activated != false and studentUser.deleted != true %}
+                                        <tr>
+                                            <td>{{ studentUser.fullName }}</td>
+                                            <td id="student_{{ studentUser.id }}">
+                                                {% set requests = request_sent(null, constant('App\\Entity\\Request::REQUEST_TYPE_NEW_REGISTRATION'), null, 'experience_id=' ~ experience.id ~ '&user_id=' ~ studentUser.id) %}
+                                                {% for request in requests %}
+                                                    <a href="{{ path('requests', {id: request.id}) }}"><span
+                                                                class="uk-label {{ request.statusCssClass }}">{{ request.statusLabel }}</span></a>
+                                                {% else %}
+                                                    <a class="uk-button uk-button-small uk-button-primary"
+                                                       href="{{ path('school_experience_register', {'id': experience.id}) }}?userId={{ studentUser.id }}">Register</a>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div> #}
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+
+        $(document).on("click", "#toggle-feedback", function (e) {
+            e.preventDefault();
+            var val = $(this).data('value');
+            var user = $(this).data('user');
+            $.post('{{ path('toggle_school_feedback_view', { "id": experience.id }) }}', {
+                val: val,
+                user: user
+            }, function (data) {
+                if (data.status == "success") {
+                    if (data.canView == 1) {
+                        $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="0" data-user="' + user + '" class="uk-button uk-button-primary uk-button-small">Yes</a>');
+                    } else {
+                        $("#view_feedback").html('<a href="#" id="toggle-feedback" data-value="1" data-user="' + user + '" class="uk-button uk-button-danger uk-button-small">No</a>');
+                    }
+                }
+            });
+        });
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function () {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function (err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+
+
+        function copyFeedbackUrl() {
+            var feedbackUrl = document.getElementById("feedback-url");
+            copyTextToClipboard(feedbackUrl.value);
+            window.alert("Url " + feedbackUrl.value + " copied to clipboard.");
+        }
+
+    </script>
+
+{% endblock %}

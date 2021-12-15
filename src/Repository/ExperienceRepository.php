@@ -49,20 +49,6 @@ class ExperienceRepository extends ServiceEntityRepository
     }
     */
 
-    public function getUpcomingEventsRegisteredForByUser(User $user)
-    {
-        return $this->createQueryBuilder('e')
-                    ->innerJoin('e.registrations', 'r')
-                    ->where('r.user = :user')
-                    ->andWhere('e.startDateAndTime >= :startDateAndTime')
-                    ->andWhere('e.cancelled = :cancelled')
-                    ->setParameter('user', $user)
-                    ->setParameter('startDateAndTime', new \DateTime())
-                    ->setParameter('cancelled', false)
-                    ->getQuery()
-                    ->getResult();
-    }
-
     public function getAllEventsRegisteredForByUser(User $user)
     {
         return $this->createQueryBuilder('e')
@@ -133,16 +119,56 @@ class ExperienceRepository extends ServiceEntityRepository
         return [];
     }
 
+    public function getUpcomingEventsRegisteredForByUser(User $user)
+    {
+        return $this->createQueryBuilder('e')
+                    ->innerJoin('e.registrations', 'r')
+                    ->andWhere('r.user = :user')
+                    ->andWhere('r.approved = :approved')
+                    ->andWhere('e.endDateAndTime >= :today')
+                    ->andWhere('e.cancelled = :cancelled')
+                    ->setParameter('approved', true)
+                    ->setParameter('user', $user)
+                    ->setParameter('today', new \DateTime())
+                    ->setParameter('cancelled', false)
+                    ->orderBy('e.endDateAndTime', 'DESC')
+                    ->getQuery()
+                    ->getResult();
+    }
+
+    // todo look into removing this function as I think we can just use the method below instead
     public function getCompletedEventsRegisteredForByUser(User $user)
     {
         return $this->createQueryBuilder('e')
                     ->innerJoin('e.registrations', 'r')
-                    ->where('r.user = :user')
-                    ->andWhere('e.startDateAndTime <= :startDateAndTime')
+                    ->andWhere('r.user = :user')
+                    ->andWhere('r.approved = :approved')
+                    ->andWhere('e.endDateAndTime <= :today')
                     ->andWhere('e.cancelled = :cancelled')
+                    ->setParameter('approved', true)
                     ->setParameter('user', $user)
-                    ->setParameter('startDateAndTime', new \DateTime())
+                    ->setParameter('today', new \DateTime())
                     ->setParameter('cancelled', false)
+                    ->orderBy('e.endDateAndTime', 'DESC')
+                    ->getQuery()
+                    ->getResult();
+    }
+
+    public function getCompletedEventsRegisteredForByUserMissingFeedback(User $user)
+    {
+        return $this->createQueryBuilder('e')
+                    ->innerJoin('e.registrations', 'r')
+                    ->leftJoin('e.feedback', 'f', "WITH", "f.user = :user")
+                    ->andWhere('r.user = :user')
+                    ->andWhere('r.approved = :approved')
+                    ->andWhere('f.id is NULL')
+                    ->andWhere('e.endDateAndTime <= :today')
+                    ->andWhere('e.cancelled = :cancelled')
+                    ->setParameter('approved', true)
+                    ->setParameter('user', $user)
+                    ->setParameter('today', new \DateTime())
+                    ->setParameter('cancelled', false)
+                    ->orderBy('e.endDateAndTime', 'DESC')
                     ->getQuery()
                     ->getResult();
     }

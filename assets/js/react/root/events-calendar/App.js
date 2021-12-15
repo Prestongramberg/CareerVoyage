@@ -18,13 +18,15 @@ import Loader from "../../components/Loader/Loader"
 import Pusher from "pusher-js";
 import * as api from "../../utilities/api/api";
 import * as actionTypes from "./actions/actionTypes";
+import {right} from "core-js/internals/array-reduce";
 
 class App extends React.Component {
 
     constructor() {
         super();
         this.element = null;
-        this.timeout = null;
+        this.zipcodeTimeout = null;
+        this.searchQueryTimeout = null;
         const methods = [
             "getEventObjectByType",
             "getRelevantEvents",
@@ -33,22 +35,84 @@ class App extends React.Component {
             "renderCalendar",
             "renderEventTypes",
             "renderIndustryDropdown",
-            "getEvents",
             "refetchEvents",
             "updatePrimaryIndustryQuery",
             "updateSecondaryIndustryQuery",
             "updateEventTypeQuery",
-            "updateSearchQuery"
+            "updateSearchQuery",
+            "updateRadiusQuery",
+            "updateZipcodeQuery",
+            "handleDates"
         ];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
 
     render() {
-        return this.props.calendar.loading ? (
-            <div className="uk-width-1-1 uk-align-center">
-                <Loader/>
+
+        return (
+            <div>
+                {this.renderFilters()}
+
+                {this.props.calendar.loading ? <div className="uk-width-1-1 uk-align-center">
+                    <Loader/>
+                </div> : this.renderCalendar()}
             </div>
-        ) : this.renderCalendar();
+        );
+    }
+
+    renderFilters() {
+
+        const ranges = [25, 50, 70, 150];
+
+        return (
+            [
+                <ul className="uk-tab" uk-tab>
+                    <li className="uk-active"><a href={Routing.generate('experience_index')}>Calendar</a></li>
+                    <li><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
+                </ul>,
+                <div style={{marginBottom: "30px"}}>
+                    <div className="uk-grid-small uk-flex-middle" data-uk-grid>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-search uk-search-default uk-width-1-1">
+                                <span data-uk-search-icon></span>
+                                <input className="uk-search-input" type="search" value={this.props.search.searchQuery}
+                                       placeholder="Search..."
+                                       onChange={this.updateSearchQuery}/>
+                            </div>
+                        </div>
+                        {this.renderIndustryDropdown()}
+                        {this.props.search.industry && this.renderSecondaryIndustryDropdown()}
+                        {this.renderEventTypes()}
+
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <div className="uk-search uk-search-default uk-width-1-1">
+                                <span data-uk-search-icon></span>
+                                <input className="uk-search-input" type="search" placeholder="Enter Zip Code..."
+                                       onChange={(e) => {
+                                           this.updateZipcodeQuery(e.target.value)
+                                       }} value={this.props.search.zipcode}/>
+                            </div>
+                        </div>
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <select className="uk-select" onChange={(e) => {
+                                this.updateRadiusQuery(e.target.value)
+                            }}>
+                                <option value="">Filter by Radius...</option>
+                                {ranges.map((range, i) => <option key={i} value={range}
+                                                                  selected={this.props.search.radius === range ? 'selected' : ''}>{range} miles</option>)}
+                            </select>
+                        </div>
+
+                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
+                            <a className={"uk-button uk-button-default"}
+                               href={window.Routing.generate("experience_index")}>Reset Filters</a>
+                        </div>
+                    </div>
+
+                </div>
+            ]);
+
+
     }
 
     renderCalendar() {
@@ -58,59 +122,27 @@ class App extends React.Component {
         const ranges = [25, 50, 70, 150];
 
         if (this.props.search.refetchEvents) {
-            this.refetchEvents();
-            this.props.eventsRefreshed();
+            //this.refetchEvents();
+            //this.props.eventsRefreshed();
         }
+
+        let events = this.props.events.map(event => this.getEventObjectByType(event));
 
         return (
 
             [
-                <ul className="uk-tab" uk-tab>
-                    <li className="uk-active"><a href={Routing.generate('experience_index')}>Calendar</a></li>
-                    <li><a href={Routing.generate('experience_list')}>Upcoming Experiences</a></li>
-                </ul>,
-
                 <div className="pintex-calendar pintex-testing">
-                    <div className="uk-grid-small uk-flex-middle" data-uk-grid>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <div className="uk-search uk-search-default uk-width-1-1">
-                                <span data-uk-search-icon></span>
-                                <input className="uk-search-input" type="search" placeholder="Search..."
-                                       onChange={this.updateSearchQuery}/>
-                            </div>
-                        </div>
-                        {this.renderIndustryDropdown()}
-                        {this.props.search.industry && this.renderSecondaryIndustryDropdown()}
-                        {this.renderEventTypes()}
-                    </div>
-                    <div className="uk-grid-small uk-flex-middle uk-margin" data-uk-grid>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <div className="uk-search uk-search-default uk-width-1-1">
-                                <span data-uk-search-icon></span>
-                                <input className="uk-search-input" type="search" placeholder="Enter Zip Code..."
-                                       onChange={(e) => {
-                                           this.props.zipcodeChanged(e.target.value)
-                                       }} value={this.props.search.zipcode}/>
-                            </div>
-                        </div>
-                        <div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <select className="uk-select" onChange={(e) => {
-                                this.props.radiusChanged(e.target.value)
-                            }}>
-                                <option value="">Filter by Radius...</option>
-                                {ranges.map((range, i) => <option key={i} value={range}>{range} miles</option>)}
-                            </select>
-                        </div>
-                        {/*<div className="uk-width-1-1 uk-width-1-1@s uk-width-1-3@l">
-                            <div className="uk-button uk-button-primary" onClick={this.refetchEvents}>Apply</div>
-                        </div>*/}
-                    </div>
                     <div className="uk-margin">
                         <FullCalendar
                             ref={el => this.element = el}
                             defaultView="dayGridMonth"
                             eventLimit={true}
-                            events={this.getEvents}
+                            editable={true}
+                            selectable={true}
+                            selectMirror={true}
+                            dayMaxEvents={true}
+                            datesRender={this.handleDates}
+                            events={events}
                             eventClick={(info) => {
                                 debugger;
                                 info.jsEvent.preventDefault(); // don't let the browser navigate
@@ -129,6 +161,25 @@ class App extends React.Component {
             ]
 
         );
+    }
+
+    handleDates(data) {
+
+        console.log("handle dates");
+        debugger;
+
+        if (this.element) {
+
+            console.log("handle dates inside");
+
+          /*  let start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
+            let end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+
+            this.loadEvents({
+                start: start,
+                end: end
+            });*/
+        }
     }
 
     renderIndustryDropdown() {
@@ -244,15 +295,15 @@ class App extends React.Component {
             }
 
             // Filter By Search Term
-            if (this.props.search.query) {
+            if (this.props.search.searchQuery) {
                 // basic search fields
                 const basicSearchFieldsFound = searchableFields.some((field) => (event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase()) > -1))
 
                 // Event Type (Job Shadow, Interview, etc)
-                const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.query.toLowerCase()) > -1
+                const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.searchQuery.toLowerCase()) > -1
 
                 // Event Industry (Carpentry, Brick Layer, etc)
-                const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => (field.name.toLowerCase().indexOf(this.props.search.query.toLowerCase()) > -1))
+                const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => (field.name.toLowerCase().indexOf(this.props.search.searchQuery.toLowerCase()) > -1))
 
                 return basicSearchFieldsFound || eventTypeFound || eventIndustryFound
             }
@@ -275,13 +326,13 @@ class App extends React.Component {
                 return {
                     ...defaults,
                     color: "#0072B1",
-                    url: window.Routing.generate("company_experience_view", {'id': event.id})
+                    url: window.Routing.generate("experience_view", {'id': event.id})
                 }
             case "SchoolExperience":
                 return {
                     ...defaults,
                     color: "#FFC82C",
-                    url: window.Routing.generate("school_experience_view", {'id': event.id})
+                    url: window.Routing.generate("experience_view", {'id': event.id})
                 }
             default:
                 return defaults
@@ -291,91 +342,80 @@ class App extends React.Component {
 
     componentDidMount() {
         window.addEventListener('uk-tab-clicked', this.handleTabNavigation)
+        debugger;
+        this.loadEvents();
     }
 
     /**
      * We Should have this method called when the pagination is clicked and on load that way you can
      * set the startDate and endDate, etc in the state.
-     *
-     *
-     *
-     * @param startDate
-     * @param endDate
-     * @param successCallback
-     * @param failureCallback
      */
-    loadEvents(startDate, endDate, successCallback, failureCallback) {
+    loadEvents(queryParams = {}) {
 
         debugger;
 
-        let url = window.Routing.generate('get_experiences_by_radius', {
-            'radius': this.props.search.radius,
-            'schoolId': this.props.schoolId,
-            'userId': this.props.userId,
-            'zipcode': this.props.search.zipcode,
-            'start': startDate,
-            'end': endDate,
-            'searchQuery': this.props.search.query,
-            'industry': this.props.search.industry,
-            'secondaryIndustry': this.props.search.secondaryIndustry,
-            'eventType': this.props.search.eventType
-        });
+        let search = {
+            ...this.props.search,
+            ...queryParams
+        };
 
-        api.get(url)
-            .then((response) => {
-                if (response.statusCode < 300) {
-                    let events = response.responseBody.data;
-                    const calendarEvents = events.map(event => this.getEventObjectByType(event));
-                    successCallback(calendarEvents);
+        search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
+        search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
 
-                    this.props.setEvents(response.responseBody);
-                } else {
-                }
-            })
-            .catch(() => {
-            })
+        let url = window.Routing.generate('get_experiences_by_radius', search);
 
-        /*  this.props.loadEvents(window.Routing.generate('get_experiences_by_radius', {
-              'radius': this.props.search.radius,
-              'schoolId': this.props.schoolId,
-              'userId': this.props.userId,
-              'zipcode': this.props.search.zipcode,
-              'start': startDate,
-              'end': endDate
-          }));*/
-    }
-
-    getEvents(fetchInfo, successCallback, failureCallback) {
-        this.loadEvents(fetchInfo.startStr, fetchInfo.endStr, successCallback, failureCallback);
+        this.props.loadEvents(url);
     }
 
     refetchEvents() {
-        let calendarApi = this.element.getApi();
-        calendarApi.refetchEvents();
+        //let calendarApi = this.element.getApi();
+        //calendarApi.refetchEvents();
     }
 
     updatePrimaryIndustryQuery(event) {
         this.props.updatePrimaryIndustryQuery(event);
+        this.loadEvents({industry: event.target.value});
     }
 
     updateSecondaryIndustryQuery(event) {
         this.props.updateSecondaryIndustryQuery(event);
+        this.loadEvents({secondaryIndustry: event.target.value});
     }
 
     updateEventTypeQuery(event) {
         this.props.updateEventTypeQuery(event);
+        this.loadEvents({eventType: event.target.value});
+    }
+
+    updateZipcodeQuery(zipcode) {
+
+        clearTimeout(this.zipcodeTimeout);
+
+        this.props.zipcodeChanged(zipcode);
+
+        // Make a new timeout set to go off in 800ms
+        this.zipcodeTimeout = setTimeout(() => {
+            this.loadEvents({zipcode: zipcode});
+        }, 1000);
+    }
+
+    updateRadiusQuery(radius) {
+        this.props.radiusChanged(radius);
+        this.loadEvents({radius: radius});
     }
 
     updateSearchQuery(event) {
 
         debugger;
-        clearTimeout(this.timeout);
+        clearTimeout(this.searchQueryTimeout);
 
         let searchValue = event.target.value;
+        this.props.updateSearchQuery(searchValue);
+
         // Make a new timeout set to go off in 800ms
-        this.timeout = setTimeout(() => {
-            this.props.updateSearchQuery(searchValue);
-        }, 500);
+        this.searchQueryTimeout = setTimeout(() => {
+            this.loadEvents({searchQuery: searchValue});
+        }, 1000);
     }
 }
 

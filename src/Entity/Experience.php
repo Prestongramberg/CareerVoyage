@@ -9,11 +9,13 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use App\Validator\Constraints as CustomAssert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ExperienceRepository")
  * @ORM\HasLifecycleCallbacks()
  *
+ * @CustomAssert\ExperienceDetails(groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience", "studentToMeetProfessionalExperience" = "StudentToMeetProfessionalExperience"})
@@ -24,38 +26,38 @@ abstract class Experience
 
     public static $types = [
         'Site Visit' => 'SITE_VISIT',
-        'Event' => 'EVENT',
+        'Event'      => 'EVENT',
         'Externship' => 'EXTERNSHIP',
         'Internship' => 'INTERNSHIP',
-        'Job' => 'JOB',
+        'Job'        => 'JOB',
     ];
 
     public static $paymentTypes = [
         'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
-        'Hour' => 'HOUR',
-        'Day' => 'DAY',
-        'Week' => 'WEEK',
-        'Month' => 'MONTH',
-        'Year' => 'YEAR',
+        'Hour'                     => 'HOUR',
+        'Day'                      => 'DAY',
+        'Week'                     => 'WEEK',
+        'Month'                    => 'MONTH',
+        'Year'                     => 'YEAR',
     ];
 
     public static $requireApprovalChoices = [
-        'No' => false,
-        'Yes' => true
+        'No'  => false,
+        'Yes' => true,
     ];
 
     /**
      * @Assert\Callback(groups={"CREATE"})
      * @param ExecutionContextInterface $context
-     * @param $payload
+     * @param                           $payload
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
-        if(!$this->payment) {
-            if(!is_float($this->payment) && !is_numeric($this->payment)) {
+        if (!$this->payment) {
+            if (!is_float($this->payment) && !is_numeric($this->payment)) {
                 $context->buildViolation('You must enter a valid number or decimal for the payment!')
-                    ->atPath('payment')
-                    ->addViolation();
+                        ->atPath('payment')
+                        ->addViolation();
             }
         }
     }
@@ -70,20 +72,20 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a title!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please add a title for the experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="string", length=255)
      */
     protected $title;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget a brief description!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     protected $briefDescription;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @Assert\NotBlank(message="Please add a description for the experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="text", nullable=true)
      */
     protected $about;
@@ -122,35 +124,32 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a street!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $street;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a city!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $city;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a zipcode!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $zipcode;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a start date", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Don't forget a start date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget an end date", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Don't forget an end date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;
@@ -158,11 +157,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\Email(
-     *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"}
-     * )
-     * @Assert\NotBlank(message="Don't forget an email!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $email;
@@ -175,14 +170,13 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a state!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="experiences")
      */
     protected $state;
 
     /**
      * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
-     * @Assert\NotBlank(message="Don't forget to select a type!", groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+     * @Assert\NotBlank(message="Please choose an event type.", groups={"EXPERIENCE"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\RolesWillingToFulfill", inversedBy="experiences")
      * @ORM\JoinColumn(nullable=true)
@@ -191,11 +185,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\Count(
-     *      min = "1",
-     *      minMessage = "You must specify at least one Career Field.",
-     *     groups={"SCHOOL_EXPERIENCE", "EDIT", "CREATE"}
-     * )
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\SecondaryIndustry", inversedBy="experiences")
      */
     protected $secondaryIndustries;
@@ -212,11 +202,13 @@ abstract class Experience
     protected $feedback;
 
     /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $latitude;
 
     /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $longitude;
@@ -254,18 +246,53 @@ abstract class Experience
     /**
      * @ORM\OneToOne(targetEntity=Request::class, inversedBy="experience")
      */
-    private $request;
+    protected $request;
+
+    /**
+     * @Assert\NotBlank(message="Please add a location for the experience.", groups={"EXPERIENCE"})
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $addressSearch;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $timezone = 'America/Chicago';
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $utcStartDateAndTime;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $utcEndDateAndTime;
+
+    /**
+     * @Groups({"EXPERIENCE_DATA"})
+     * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="experiences")
+     */
+    private $tags;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ExperienceResource::class, mappedBy="experience")
+     */
+    private $experienceResources;
 
     public function __construct()
     {
-        $this->experienceFiles = new ArrayCollection();
+        $this->experienceFiles     = new ArrayCollection();
         $this->secondaryIndustries = new ArrayCollection();
-        $this->registrations = new ArrayCollection();
-        $this->feedback = new ArrayCollection();
-        $this->shares = new ArrayCollection();
+        $this->registrations       = new ArrayCollection();
+        $this->feedback            = new ArrayCollection();
+        $this->shares              = new ArrayCollection();
+        $this->tags                = new ArrayCollection();
+        $this->experienceResources = new ArrayCollection();
     }
 
-    public function isVirtual() {
+    public function isVirtual()
+    {
 
         if (stripos(strtolower($this->getType()->getName()), 'virtual') !== false) {
             return true;
@@ -375,36 +402,36 @@ abstract class Experience
         return $this;
     }
 
-    public function getStreet()
+    public function getStreet(): ?string
     {
         return $this->street;
     }
 
-    public function setStreet(string $street)
+    public function setStreet(?string $street)
     {
         $this->street = $street;
 
         return $this;
     }
 
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->city;
     }
 
-    public function setCity(string $city)
+    public function setCity(?string $city)
     {
         $this->city = $city;
 
         return $this;
     }
 
-    public function getZipcode()
+    public function getZipcode(): ?string
     {
         return $this->zipcode;
     }
 
-    public function setZipcode($zipcode)
+    public function setZipcode(?string $zipcode)
     {
         $this->zipcode = $zipcode;
 
@@ -541,20 +568,24 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getStartDateAndTimeTimeStamp() {
-        if($this->startDateAndTime) {
+    public function getStartDateAndTimeTimeStamp()
+    {
+        if ($this->startDateAndTime) {
             return $this->startDateAndTime->getTimestamp();
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getEndDateAndTimeTimeStamp() {
-        if($this->endDateAndTime) {
+    public function getEndDateAndTimeTimeStamp()
+    {
+        if ($this->endDateAndTime) {
             return $this->endDateAndTime->getTimestamp();
         }
+
         return '';
     }
 
@@ -620,12 +651,14 @@ abstract class Experience
         return $this;
     }
 
-    public function isRegistered(User $user) {
-        foreach($this->getRegistrations() as $registration) {
-            if($registration->getUser()->getId() === $user->getId()) {
+    public function isRegistered(User $user)
+    {
+        foreach ($this->getRegistrations() as $registration) {
+            if ($registration->getUser()->getId() === $user->getId()) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -653,13 +686,13 @@ abstract class Experience
         return $this;
     }
 
-    public function getFormattedAddress() {
-        return sprintf("%s %s %s %s",
-            $this->street,
-            $this->city,
-            $this->state ? $this->state->getAbbreviation() : '',
-            $this->zipcode
-        );
+    /**
+     * @Groups({"EXPERIENCE_DATA", "ALL_USER_DATA"})
+     * @return string
+     */
+    public function getFormattedAddress()
+    {
+        return sprintf("%s %s %s %s", $this->street, $this->city, $this->state ? $this->state->getAbbreviation() : '', $this->zipcode);
     }
 
     public function getCancelled(): ?bool
@@ -678,37 +711,44 @@ abstract class Experience
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyStartDateAndTime() {
-        if($this->startDateAndTime) {
+    public function getFriendlyStartDateAndTime()
+    {
+        if ($this->startDateAndTime) {
             return $this->startDateAndTime->format("m/d/Y h:i A");
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyEndDateAndTime() {
-        if($this->endDateAndTime) {
+    public function getFriendlyEndDateAndTime()
+    {
+        if ($this->endDateAndTime) {
             return $this->endDateAndTime->format("m/d/Y h:i A");
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getFriendlyEventName() {
-        if($this->getType()) {
+    public function getFriendlyEventName()
+    {
+        if ($this->getType()) {
             return $this->getType()->getEventName();
         }
+
         return '';
     }
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      */
-    public function getExperienceListTitle() {
+    public function getExperienceListTitle()
+    {
 
         return $this->getTitle();
     }
@@ -804,7 +844,144 @@ abstract class Experience
         return $this;
     }
 
-    public function getOriginalRequest() {
+    public function getOriginalRequest()
+    {
         return $this->request;
+    }
+
+    public function getAddressSearch(): ?string
+    {
+        return $this->addressSearch;
+    }
+
+    public function setAddressSearch(?string $addressSearch): self
+    {
+        $this->addressSearch = $addressSearch;
+
+        return $this;
+    }
+
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
+    }
+
+    public function setTimezone(?string $timezone): self
+    {
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    public function getUtcStartDateAndTime(): ?\DateTimeInterface
+    {
+        return $this->utcStartDateAndTime;
+    }
+
+    public function setUtcStartDateAndTime(?\DateTimeInterface $utcStartDateAndTime): self
+    {
+        $this->utcStartDateAndTime = $utcStartDateAndTime;
+
+        return $this;
+    }
+
+    public function getUtcEndDateAndTime(): ?\DateTimeInterface
+    {
+        return $this->utcEndDateAndTime;
+    }
+
+    public function setUtcEndDateAndTime(?\DateTimeInterface $utcEndDateAndTime): self
+    {
+        $this->utcEndDateAndTime = $utcEndDateAndTime;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tag[]
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ExperienceResource[]
+     */
+    public function getExperienceResources(): Collection
+    {
+        return $this->experienceResources;
+    }
+
+    public function addExperienceResource(ExperienceResource $experienceResource): self
+    {
+        if (!$this->experienceResources->contains($experienceResource)) {
+            $this->experienceResources[] = $experienceResource;
+            $experienceResource->setExperience($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperienceResource(ExperienceResource $experienceResource): self
+    {
+        if ($this->experienceResources->removeElement($experienceResource)) {
+            // set the owning side to null (unless already changed)
+            if ($experienceResource->getExperience() === $this) {
+                $experienceResource->setExperience(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isSchoolExperience() {
+        return $this instanceof SchoolExperience;
+    }
+
+    public function isCompanyExperience() {
+        return $this instanceof CompanyExperience;
+    }
+
+    public function getCoordinator() {
+
+        if($this instanceof SchoolExperience) {
+            return $this->getSchoolContact();
+        }
+
+        if($this instanceof CompanyExperience) {
+            return $this->getEmployeeContact();
+        }
+
+        return null;
+    }
+
+    public function getMapMarkerIcon() {
+
+        if($this instanceof SchoolExperience) {
+            return 'school';
+        }
+
+        if($this instanceof CompanyExperience) {
+            return 'company';
+        }
+
+        return 'company';
     }
 }
