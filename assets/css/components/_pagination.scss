@@ -1,0 +1,32 @@
+.pagination {
+
+  padding-left: 0;
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
+  border: 1px solid #ddd;
+  margin: 0 4px;
+}
+
+.pagination a:first-child {
+  margin-left: 0;
+}
+
+.pagination li:first-child {
+  padding-left: 0;
+}
+
+.pagination li.active a {
+  background-color: #0f7ae5;
+  color: white;
+  border: 1px solid #0f7ae5;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}

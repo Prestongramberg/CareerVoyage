@@ -1,0 +1,51 @@
+{#
+{% set notification = request.notification %}
+{% set title = notification['title'] %}
+{% set body = notification['body'] %}
+{% set createdOn = notification['created_on'] %}
+{% set userPhoto = notification['user_photo'] %}
+{% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(loggedInUser) %}
+{% set messages = notification['messages'] is defined ? notification['messages'] : [] %}
+#}
+
+<div class="uk-modal-dialog">
+    <button class="uk-modal-close-outside" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        <h4>Change Supervising Teacher <small>(<span style="font-weight: bold">{{ studentCount }}</span> Students
+                Selected)</small></h4>
+    </div>
+
+    {{ form_start(form, {attr: {'id': 'js-bulk-action-form', 'novalidate' : 'novalidate'}}) }}
+
+    <div class="uk-modal-body">
+
+        {{ form_start(form, {'attr': {novalidate: 'novalidate', class: 'js-forgot-password-form'}}) }}
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        <fieldset class="uk-fieldset">
+            <div class="uk-margin">
+                {{ form_label(form.supervisingTeachers, 'Supervising Teachers*') }}
+                {{ form_widget(form.supervisingTeachers, {'attr': {'class': 'uk-select' ~ ( form_errors(form.supervisingTeachers) ? ' uk-form-danger' : '' ) }}) }}
+                {{ form_errors(form.supervisingTeachers) }}
+            </div>
+        </fieldset>
+
+        <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+            <button class="uk-button uk-button-primary" type="submit">Update</button>
+        </p>
+
+        {{ form_rest(form) }}
+    </div>
+
+    {{ form_end(form) }}
+</div>
+
+
+

@@ -42,6 +42,7 @@ Encore
     .addEntry('lesson_results', './assets/js/lesson_results.js')
     .addEntry('welcome', './assets/js/welcome.js')
     .addEntry('experience', './assets/js/experience.js')
+    .addEntry('manage_students', './assets/js/manage_students.js')
 
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
