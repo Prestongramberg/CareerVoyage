@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}Manage Students{% endblock %}
+{% block title %}Manage Educators{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -17,22 +17,21 @@
 
                 <ul class="uk-breadcrumb">
                     <li><a href="{{ path('dashboard') }}">Home</a></li>
-                    <li><span href="">Manage Students</span></li>
+                    <li><span href="">Manage Educators</span></li>
                 </ul>
 
                 <div class="uk-section-small uk-section-default header">
                     <div class="uk-container uk-container-large">
-                        <h2>MANAGE STUDENTS - <small>{{ school.name }}</small></h2>
+                        <h2>MANAGE Educators - <small>{{ school.name }}</small></h2>
 
                         <hr>
-                        <a href="{{ path('school_student_import', { "id": school.id }) }}"
-                           class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Students</a>
+                         <a href="{{ path('school_educator_import', { "id": school.id }) }}" class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Educators</a>
 
                         <select id="js-school-administrator-schools" class="uk-select"
                                 style="width: 300px; margin-right: 10px">
                             {% for schoolOption in schools %}
                                 <option {{ schoolOption.id == school.id ? 'selected' : '' }}
-                                        value="{{ path('students_manage', {id: schoolOption.id}) }}">{{ schoolOption.name }}</option>
+                                        value="{{ path('educators_manage', {id: schoolOption.id}) }}">{{ schoolOption.name }}</option>
                             {% endfor %}
                         </select>
                         <hr>
@@ -53,12 +52,6 @@
                 <div class="uk-width-1-4@s">
                     {{ form_widget(form.username, {'attr': {'class': 'uk-input', 'placeholder': 'Username'}}) }}
                 </div>
-                <div class="uk-width-1-4@s">
-                    {{ form_widget(form.educatorUsers, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Supervising Educator'}}) }}
-                </div>
-                <div class="uk-width-1-4@s">
-                    {{ form_widget(form.graduatingYear, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Graduating Year'}}) }}
-                </div>
 
                 <div class="uk-width-1-4@s">
                     <button class="uk-button uk-button-primary">Search</button>
@@ -77,9 +70,9 @@
                     Student: {{ pagination.getTotalItemCount }}</div>
             </div>
 
-            <div style="margin-top:50px" class="uk-width-1-2">
+            {# <div style="margin-top:50px" class="uk-width-1-2">
                 {{ knp_pagination_render(pagination, 'pagination/manage_students_bulk_actions.html.twig') }}
-            </div>
+            </div> #}
 
             <div class="uk-width-1-1 uk-overflow-auto" style="font-size: 0.8em">
                 <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
@@ -87,60 +80,45 @@
                         <th>
                             <input class="js-select-all-users" type="checkbox"/>
                         </th>
-                        <th>Student</th>
+                        <th>Educator</th>
                         <th>Email</th>
                         <th>Username</th>
-                        <th>Supervising Teacher(s)</th>
                         <th>Temp Password</th>
-                        <th>Graduation Year</th>
                         <th>School</th>
                         <th colspan="2"></th>
                     </tr>
 
-                    {% for studentUser in pagination %}
+                    {% for educatorUser in pagination %}
 
-
-                        <tr id="user_{{ studentUser.id }}">
+                        <tr id="user_{{ educatorUser.id }}">
 
                             <td>
                                 <input type="checkbox" class="group-edit-supervising-teacher"
                                        name="user[]"
-                                       data-name="{{ studentUser.firstName }} {{ studentUser.lastName }}"
-                                       value="{{ studentUser.id }}"/>
+                                       data-name="{{ educatorUser.firstName }} {{ educatorUser.lastName }}"
+                                       value="{{ educatorUser.id }}"/>
                             </td>
 
                             <td>
                                 <img class="uk-border-circle" width="25" height="25"
-                                     src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                                {{ studentUser.lastName }}, {{ studentUser.firstName }}<br>
-                                {{ excerpt_length( studentUser.briefBio, 100 ) }}
+                                     src="{{ ( attribute(educatorUser, 'photo') is defined and educatorUser.photo ) ? asset(uploaded_asset(educatorUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
+                                {{ educatorUser.lastName }}, {{ educatorUser.firstName }}<br>
+                                {{ excerpt_length( educatorUser.briefBio, 100 ) }}
                             </td>
 
-                            <td>{{ studentUser.email ? studentUser.email : "N/A" }}</td>
+                            <td>{{ educatorUser.email ? educatorUser.email : "N/A" }}</td>
 
-                            <td>{{ studentUser.username ? studentUser.username : "N/A" }}</td>
+                            <td>{{ educatorUser.username ? educatorUser.username : "N/A" }}</td>
 
-                            <td>
-                                {% set educatorIds = [] %}
-                                {% for educator in studentUser.educatorUsers %}
-                                    {% set educatorIds = educatorIds|merge([{ id: educator.id }]) %}
-                                {% endfor %}
+                            <td>{{ educatorUser.tempPassword ?  educatorUser.tempPassword : "N/A" }}</td>
 
-                                {% for educator in studentUser.educatorUsers %}
-                                    <dt>{{ educator.lastName }} {{ educator.firstName }}{{ not loop.last ? ',' }}</dt>
-                                {% endfor %}
-                            </td>
-
-                            <td>{{ studentUser.tempPassword ?  studentUser.tempPassword : "N/A" }}</td>
-
-                            <td>{{ studentUser.graduatingYear }}</td>
-                            <td>{{ studentUser.school.name }}</td>
+                            <td>{{ educatorUser.school.name }}</td>
 
                             <td colspan="2">
-                                <a target="_blank" href="{{ path('profile_edit', { "id": studentUser.id }) }}"
+                                <a target="_blank" href="{{ path('profile_edit', { "id": educatorUser.id }) }}"
                                    class="uk-button uk-button-default uk-button-small"
                                    style="margin-bottom: 8px;">Edit</a>
-                                <a target="_blank" href="{{ path('profile_index', { "id": studentUser.id }) }}"
+                                <a target="_blank" href="{{ path('profile_index', { "id": educatorUser.id }) }}"
                                    class="uk-button uk-button-default uk-button-small"
                                    style="margin-bottom: 8px;">View</a>
                             </td>
@@ -170,7 +148,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('build/manage_students.js') }}"></script>
+    <script src="{{ asset('build/manage_educators.js') }}"></script>
 {% endblock %}
 
 

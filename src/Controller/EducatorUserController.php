@@ -7,7 +7,6 @@ use App\Entity\EducatorVideo;
 use App\Entity\School;
 use App\Entity\User;
 use App\Form\Filter\EducatorFilterType;
-use App\Form\ManageEducatorsFilterType;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
@@ -168,62 +167,6 @@ class EducatorUserController extends AbstractController
     }
 
     /**
-     * @Route("/schools/{id}/manage", name="educator_manage", methods={"GET"})
-     * @param School  $school
-     * @param Request $request
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function manageAction(School $school, Request $request)
-    {
-
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $form = $this->buildFilterForm(EducatorUser::class, $this->generateUrl('educator_manage', ['id' => $school->getId()]));
-        $form->handleRequest($request);
-
-        $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
-        $filterBuilder->addOrderBy('u.lastName', 'ASC');
-        $filterBuilder->addOrderBy('u.firstName', 'ASC');
-        $filterBuilder->andWhere('u.deleted = 0');
-        $filterBuilder->andWhere('u.school = :school')->setParameter('school', $school->getId());
-
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // build the query from the given form object
-            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
-        }
-
-        $filterQuery = $filterBuilder->getQuery();
-
-        $pagination = $this->paginator->paginate(
-            $filterQuery, /* query NOT result */
-            $request->query->getInt('page', 1), /*page number*/
-            10 /*limit per page*/
-        );
-
-        $educatorUsers = $this->educatorUserRepository->findBy([
-            'school' => $school,
-        ]);
-
-        usort($educatorUsers, function ($a, $b) {
-            return strcmp($a->getLastName(), $b->getLastName());
-        });
-
-        $user = $this->getUser();
-
-        return $this->render('educators/manage.html.twig', [
-            'user' => $user,
-            'educatorUsers' => $educatorUsers,
-            'school' => $school,
-            'pagination' => $pagination,
-            'form' => $form->createView(),
-            'clearFormUrl' => $this->generateUrl('educator_manage', ['id' => $school->getId()]),
-        ]);
-    }
-
-    /**
      * @Route("/schools/{id}/reassign", name="educator_students_reassign", methods={"POST"})
      * @param School  $school
      * @param Request $request
@@ -275,7 +218,7 @@ class EducatorUserController extends AbstractController
 
         $this->addFlash('success', 'Students successfully re-assigned');
 
-        return $this->redirectToRoute('educator_manage', ['id' => $schoolId]);
+        return $this->redirectToRoute('educators_manage', ['id' => $schoolId]);
     }
 
 
@@ -397,25 +340,5 @@ class EducatorUserController extends AbstractController
 
             ], Response::HTTP_OK
         );
-    }
-
-
-    /**
-     * Builds the manage users filter form
-     *
-     * @param $filterType
-     * @param $action
-     *
-     * @return FormInterface The form
-     */
-    private function buildFilterForm($filterType, $action)
-    {
-        $form = $this->createForm(ManageEducatorsFilterType::class, null, [
-            'action' => $action,
-            'method' => 'GET',
-            'filter_type' => $filterType,
-        ]);
-
-        return $form;
     }
 }

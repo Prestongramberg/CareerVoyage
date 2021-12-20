@@ -215,6 +215,19 @@ class AuthorizationVoter
         return false;
     }
 
+    public function canManageEducators(User $user) {
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if($user->isSchoolAdministrator()) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     /************************* END SCHOOL ********************************/
 

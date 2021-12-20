@@ -29,6 +29,7 @@ use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
 use App\Form\ExperienceType;
 use App\Form\Filter\SchoolFilterType;
+use App\Form\ManageEducatorsFilterType;
 use App\Form\ManageStudentsFilterType;
 use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
@@ -1593,6 +1594,76 @@ class SchoolController extends AbstractController
         return new JsonResponse(["status" => "success", "canView" => $request->request->get('val')]);
     }
 
+    /**
+     * @Route("/schools/{id}/educators/manage", name="educators_manage", methods={"GET"})
+     * @param School  $school
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function manageEducatorsAction(School $school, Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $authorizationVoter = new AuthorizationVoter();
+
+        if (!$authorizationVoter->canManageEducators($user)) {
+            throw new AccessDeniedException();
+        }
+
+        $schools = new ArrayCollection();
+        if ($user instanceof SchoolAdministrator) {
+            $schools = $user->getSchools();
+        } elseif ($user instanceof AdminUser) {
+            $schools = $this->schoolRepository->findAll();
+        }
+
+        $schoolIds = [$school->getId()];
+
+        $form = $this->createForm(ManageEducatorsFilterType::class, null, [
+            'action'      => $this->generateUrl('educators_manage', ['id' => $school->getId()]),
+            'method'      => 'GET',
+            'filter_type' => EducatorUser::class,
+            'schoolIds'   => $schoolIds,
+        ]);
+
+        $form->handleRequest($request);
+
+        $filterBuilder = $this->educatorUserRepository->createQueryBuilder('u');
+        $filterBuilder->addOrderBy('u.lastName', 'ASC');
+        $filterBuilder->addOrderBy('u.firstName', 'ASC');
+        $filterBuilder->andWhere('u.deleted = :deleted');
+        $filterBuilder->setParameter('deleted', false);
+
+        if (!empty($schoolIds)) {
+            $filterBuilder->andWhere('u.school in (:schools)')->setParameter('schools', $schoolIds);
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        if ($request->query->get('limit') === 'all') {
+            $pagination = $this->paginator->paginate($filterQuery, /* query NOT result */ $request->query->getInt('page', 1), 100000000);
+        } else {
+            $pagination = $this->paginator->paginate($filterQuery, /* query NOT result */ $request->query->getInt('page', 1), /*page number*/ $request->query->getInt('limit', 10));
+        }
+
+        $user = $this->getUser();
+
+        return $this->render('school/manage_educators.html.twig', [
+            'user'         => $user,
+            'pagination'   => $pagination,
+            'form'         => $form->createView(),
+            'schools'      => $schools,
+            'school'       => $school,
+            'clearFormUrl' => $this->generateUrl('educators_manage', ['id' => $school->getId()]),
+        ]);
+    }
 
     /**
      * @Route("/schools/{id}/students/manage", name="students_manage", methods={"GET"})
@@ -1704,7 +1775,7 @@ class SchoolController extends AbstractController
                 $context = [
                     'form'         => $form->createView(),
                     'loggedInUser' => $loggedInUser,
-                    'studentCount' => $request->query->get('studentCount', 0),
+                    'studentCount' => $request->query->get('userCount', 0),
                 ];
 
                 $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
@@ -1713,7 +1784,7 @@ class SchoolController extends AbstractController
 
                     if ($form->isSubmitted() && $form->isValid()) {
 
-                        $studentIds = $request->request->get('studentIds', []);
+                        $studentIds = $request->request->get('userIds', []);
                         $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
 
                         /** @var StudentUser $student */
@@ -1725,7 +1796,7 @@ class SchoolController extends AbstractController
 
                         $queryParams = $request->query->all();
                         unset($queryParams['action']);
-                        unset($queryParams['studentCount']);
+                        unset($queryParams['userCount']);
 
                         return new JsonResponse([
                             'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
@@ -1735,7 +1806,7 @@ class SchoolController extends AbstractController
                     $context = [
                         'form'         => $form->createView(),
                         'loggedInUser' => $loggedInUser,
-                        'studentCount' => $request->query->get('studentCount', 0),
+                        'studentCount' => $request->query->get('userCount', 0),
                     ];
 
                     return new JsonResponse([
@@ -1762,7 +1833,7 @@ class SchoolController extends AbstractController
                 $context = [
                     'form'         => $form->createView(),
                     'loggedInUser' => $loggedInUser,
-                    'studentCount' => $request->query->get('studentCount', 0),
+                    'studentCount' => $request->query->get('userCount', 0),
                 ];
 
                 $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
@@ -1771,7 +1842,7 @@ class SchoolController extends AbstractController
 
                     if ($form->isSubmitted() && $form->isValid()) {
 
-                        $studentIds = $request->request->get('studentIds', []);
+                        $studentIds = $request->request->get('userIds', []);
                         $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
 
                         foreach ($students as $student) {
@@ -1789,7 +1860,7 @@ class SchoolController extends AbstractController
 
                         $queryParams = $request->query->all();
                         unset($queryParams['action']);
-                        unset($queryParams['studentCount']);
+                        unset($queryParams['userCount']);
                         unset($queryParams['studentId']);
 
                         return new JsonResponse([
@@ -1800,7 +1871,7 @@ class SchoolController extends AbstractController
                     $context = [
                         'form'         => $form->createView(),
                         'loggedInUser' => $loggedInUser,
-                        'studentCount' => $request->query->get('studentCount', 0),
+                        'studentCount' => $request->query->get('userCount', 0),
                     ];
 
                     return new JsonResponse([
@@ -1814,7 +1885,7 @@ class SchoolController extends AbstractController
             case 'change_supervising_teacher':
 
                 $template  = 'school/modal/supervising_teacher.html.twig';
-                $studentId = $request->query->get('studentId');
+                $studentId = $request->query->get('userId');
                 $data      = null;
 
                 if ($studentId && $student = $this->studentUserRepository->find($studentId)) {
@@ -1840,7 +1911,7 @@ class SchoolController extends AbstractController
                 $context = [
                     'form'         => $form->createView(),
                     'loggedInUser' => $loggedInUser,
-                    'studentCount' => $request->query->get('studentCount', 0),
+                    'studentCount' => $request->query->get('userCount', 0),
                 ];
 
                 $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
@@ -1849,7 +1920,7 @@ class SchoolController extends AbstractController
 
                     if ($form->isSubmitted() && $form->isValid()) {
 
-                        $studentIds = $request->request->get('studentIds', []);
+                        $studentIds = $request->request->get('userIds', []);
                         $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
                         $strategy   = $form->get('strategy')->getData();
 
@@ -1885,8 +1956,8 @@ class SchoolController extends AbstractController
 
                         $queryParams = $request->query->all();
                         unset($queryParams['action']);
-                        unset($queryParams['studentCount']);
-                        unset($queryParams['studentId']);
+                        unset($queryParams['userCount']);
+                        unset($queryParams['userId']);
 
                         return new JsonResponse([
                             'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
@@ -1896,7 +1967,7 @@ class SchoolController extends AbstractController
                     $context = [
                         'form'         => $form->createView(),
                         'loggedInUser' => $loggedInUser,
-                        'studentCount' => $request->query->get('studentCount', 0),
+                        'studentCount' => $request->query->get('userCount', 0),
                     ];
 
                     return new JsonResponse([

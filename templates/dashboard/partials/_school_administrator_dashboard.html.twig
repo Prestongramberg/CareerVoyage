@@ -80,19 +80,19 @@
                     <br>
 
                     <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
-                      {#  <div>
+                       {# <div>
                             <div class="uk-card uk-card-hover uk-card-body">
                                 <h3 class="uk-card-title">Hover</h3>
                                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
                             </div>
-                        </div>
-                        <div>
-                            <div class="uk-card uk-card-default uk-card-hover uk-card-body">
-                                <h3 class="uk-card-title">Manage Experiences</h3>
-                                <p>Create Experience</p>
-                                <p>Manage experiences</p>
-                            </div>
                         </div>#}
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                                <h3 class="uk-card-title">Manage Educators</h3>
+                                <p>Reset passwords, assign students to teachers, import educators, and more.</p>
+                                <a class="uk-button uk-button-default" target="_blank" href="{{ path('educators_manage', {id: school.id}) }}">Get Started</a>
+                            </div>
+                        </div>
                         <div>
                             <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
                                 <h3 class="uk-card-title">Create an Experience</h3>
@@ -118,8 +118,6 @@
                                 uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
                                 <li class="uk-active"><a href="?school={{ school.id }}&tool=calendar">My
                                         Calendar</a></li>
-                                {# <li class="uk-visible@m"><a href="?school={{school.id}}&tool=participation">Participation</a></li> #}
-                                <li><a href="?school={{ school.id }}&tool=educators">Educators</a></li>
                                 <li><a href="?school={{ school.id }}&tool=experiences">Experiences</a></li>
                                 <li><a href="?school={{ school.id }}&tool=feedback">Feedback</a></li>
                             </ul>
@@ -127,34 +125,7 @@
                                 <div class="school_{{ school.id }}_tools_calendar">
                                     <div class="react-events-embed" data-school-id="{{ school.id }}"></div>
                                 </div>
-                                {# <div class="school_{{ school.id }}_tools_participation uk-visible@m">
-                                        <div class="uk-card uk-card-default">
-                                            <div class="uk-card-body">
-                                                <h3>Company Experiences in {{ "now"|date("F, Y") }} by Industry</h3>
-                                                <div class="react-horizontal-bar-chart" data-sets='[{"label": "Company Experiences", "data": [5,8,3,7,12,9,11,9,3,5,8,5,6,9,11,9]},{"label": "Educator Sign Ups", "data": [2,12,4,9,6,4,11,3,6,7,9,2,1,8,4,6]}]' data-labels='["Agriculture, Food &amp; Natural Resources", "Architecture &amp; Construction", "Arts, A/V Technology &amp; Communications", "Business Management &amp; Administration", "Education &amp; Training", "Finance", "Government &amp; Public Administration", "Health Science", "Hospitality &amp; Tourism", "Human Services", "Information Technology", "Law, Public Safety, Corrections &amp; Security", "Manufacturing", "Marketing", "Science, Technology, Engineering &amp; Mathematics", "Transportation, Distribution &amp; Logistics"]'></div>
-                                            </div>
-                                        </div>
-                                    </div> #}
-                                <div class="school_{{ school.id }}_tools_educators">
 
-                                    <div class="uk-margin uk-width-1-1">
-                                        <div class="uk-flex uk-flex-right@m">
-                                            <a href="{{ path('school_educator_import', { "id": school.id }) }}"
-                                               class="uk-button uk-button-primary uk-button-small">Add
-                                                Educators</a>
-                                        </div>
-                                    </div>
-
-                                    {% if school.educatorUsers|length %}
-                                        <div class="school__educators">
-                                            <dl class="uk-description-list uk-description-list-divider">
-                                                <iframe src="{{ path('educator_manage', {id: school.id}) }}"
-                                                        style="border:none;" width="100%"
-                                                        height="800px"></iframe>
-                                            </dl>
-                                        </div>
-                                    {% endif %}
-                                </div>
                                 <div class="school_{{ school.id }}_tools_experiences">
                                     {% if school.sortedSchoolExperiences|length %}
                                         <div class="school__educators">

@@ -9,6 +9,13 @@
     <div class="uk-container">
         <div class="uk-grid" uk-grid>
             <div class="uk-width-1-1">
+
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('dashboard') }}">Home</a></li>
+                    <li><a href="{{ path('educators_manage', {id: school.id}) }}">Manage Educators</a></li>
+                    <li><span href="">Import Educators</span></li>
+                </ul>
+
                 <!-- PROFILE -->
                 <div class="profile-card-wrapper">
                     <div class="uk-card uk-card-default">
