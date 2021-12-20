@@ -30,21 +30,18 @@ class App extends React.Component {
         this.searchQueryTimeout = null;
         const methods = [
             "getEventObjectByType",
-            "getRelevantEvents",
             "handleTabNavigation",
             "loadEvents",
             "renderCalendar",
             "renderEventTypes",
             "renderIndustryDropdown",
-            "refetchEvents",
             "updatePrimaryIndustryQuery",
             "updateSecondaryIndustryQuery",
             "updateEventTypeQuery",
             "updateSearchQuery",
             "updateRadiusQuery",
             "updateZipcodeQuery",
-            "handleDates",
-            "getCalendarData"
+            "handleDates"
         ];
         methods.forEach(method => (this[method] = this[method].bind(this)));
     }
@@ -121,13 +118,6 @@ class App extends React.Component {
 
         debugger;
 
-        const ranges = [25, 50, 70, 150];
-
-        if (this.props.search.refetchEvents) {
-            //this.refetchEvents();
-            //this.props.eventsRefreshed();
-        }
-
         let events = this.props.events.map(event => this.getEventObjectByType(event));
 
         return (
@@ -146,9 +136,6 @@ class App extends React.Component {
                             datesRender={this.handleDates}
                             events={events}
                             defaultDate={this.props.filters.startDate || new Date()}
-                           /* events={
-                                (fetchInfo, successCallback, failureCallback) => this.getCalendarData(fetchInfo, successCallback, failureCallback)
-                            }*/
                             eventClick={(info) => {
                                 debugger;
                                 info.jsEvent.preventDefault(); // don't let the browser navigate
@@ -171,15 +158,7 @@ class App extends React.Component {
 
     handleDates(data) {
 
-        console.log("handle dates");
-        debugger;
-
         if (this.element) {
-
-            debugger;
-
-            console.log("handle dates inside");
-
             let start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
             let end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
 
@@ -190,98 +169,6 @@ class App extends React.Component {
                 end: end
             });
         }
-    }
-
-    async getCalendarData(fetchInfo, successCallback) {
-
-        debugger;
-
-        try {
-
-            let year = new Date().getFullYear();
-            let month = new Date().getMonth() + 1;
-
-            if (fetchInfo) {
-                year = new Date(fetchInfo.start).getFullYear();
-                month = new Date(fetchInfo.start).getMonth() + 1;
-            }
-
-            //const response = await api.get(API, { year, month });
-
-            let queryParams = {};
-
-            let search = {
-                ...this.props.search,
-                ...queryParams
-            };
-
-            //search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
-            //search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
-
-            let url = window.Routing.generate('get_experiences_by_radius', search);
-
-            const response = await api.get(url)
-                .then((response) => {
-
-                    debugger;
-
-                    let events = response.responseBody.data;
-                    events = events.map(event => this.getEventObjectByType(event));
-
-                    debugger;
-
-                    successCallback(events);
-
-          /*          if (response.statusCode < 300) {
-                        debugger;
-                        dispatch({type: actionTypes.EVENTS_LOADING_SUCCESS, response: response.responseBody})
-                    } else {
-                        dispatch({
-                            type: actionTypes.EVENTS_LOADING_FAILURE
-                        })
-                    }*/
-
-
-                  /*  successCallback(
-                        response.data.appointments.map(event => {
-                            return {
-                                id: event.id,
-                                title: event.name,
-                                start: event.datetime_start,
-                                end: event.datetime_finish,
-                            };
-                        })
-                    );*/
-
-
-
-
-
-
-
-
-
-                })
-                .catch((data) =>  {
-
-                    debugger;
-
-                });
-
-                /*    dispatch({
-                    type: actionTypes.EVENTS_LOADING_FAILURE
-                })*/
-
-
-
-
-            debugger;
-
-
-        } catch (error) {
-            console.log(error);
-        }
-
     }
 
     renderIndustryDropdown() {
@@ -372,48 +259,6 @@ class App extends React.Component {
         this.forceUpdate();
     }
 
-    getRelevantEvents() {
-        return this.props.events.filter(event => {
-
-            // Set Searchable Fields
-            const searchableFields = ["title"];
-
-            // Filter By Industry
-            if (
-                (!!this.props.search.industry && !event.secondaryIndustries) ||
-                (!!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt(secondaryIndustry.primaryIndustry.id) === parseInt(this.props.search.industry)).length === 0)
-            ) {
-                return false;
-            }
-
-            // Filter By Sub Industry
-            if (!!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt(secondaryIndustry.id) === parseInt(this.props.search.secondaryIndustry)).length === 0) {
-                return false;
-            }
-
-            // Filter by Event Type
-            if (!!this.props.search.eventType && (!event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1)) {
-                return false;
-            }
-
-            // Filter By Search Term
-            if (this.props.search.searchQuery) {
-                // basic search fields
-                const basicSearchFieldsFound = searchableFields.some((field) => (event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase()) > -1))
-
-                // Event Type (Job Shadow, Interview, etc)
-                const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.searchQuery.toLowerCase()) > -1
-
-                // Event Industry (Carpentry, Brick Layer, etc)
-                const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => (field.name.toLowerCase().indexOf(this.props.search.searchQuery.toLowerCase()) > -1))
-
-                return basicSearchFieldsFound || eventTypeFound || eventIndustryFound
-            }
-
-            return true;
-        });
-    }
-
     getEventObjectByType(event) {
 
         const defaults = {
@@ -464,24 +309,14 @@ class App extends React.Component {
         search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
         search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
 
-        //this.element.getApi().state.dateProfile.currentRange.end
-
-
         let url = window.Routing.generate('get_experiences_by_radius', search);
 
         this.props.loadEvents(url);
     }
 
-    refetchEvents() {
-        //let calendarApi = this.element.getApi();
-        //calendarApi.refetchEvents();
-    }
-
     updatePrimaryIndustryQuery(event) {
         this.props.updatePrimaryIndustryQuery(event);
-
-
-        //this.loadEvents({industry: event.target.value});
+        this.loadEvents({industry: event.target.value});
     }
 
     updateSecondaryIndustryQuery(event) {

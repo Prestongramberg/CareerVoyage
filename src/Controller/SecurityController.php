@@ -164,8 +164,6 @@ class SecurityController extends AbstractController
                     $resetPassword->getPassword()
                 ));
 
-                $user->setTempPassword(null);
-
                 $user->clearPasswordResetToken();
 
                 $this->entityManager->persist($user);
@@ -223,8 +221,6 @@ class SecurityController extends AbstractController
                     $user,
                     $resetPassword->getPassword()
                 ));
-
-                $user->setTempPassword(null);
 
                 $user->clearPasswordResetToken();
 

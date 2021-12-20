@@ -31,7 +31,7 @@ class StudentUser extends User
     /**
      * @Groups({"STUDENT_USER"})
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="studentUsers")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $school;
 
@@ -86,12 +86,12 @@ class StudentUser extends User
     private $educatorUsers;
 
     /**
-     * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="student", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="student")
      */
-    private $studentReviewExperienceFeedback;
+    private $studentReviewCompanyExperienceFeedback;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="student", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="student")
      */
     private $studentReviewTeachLessonExperienceFeedback;
 
@@ -131,7 +131,7 @@ class StudentUser extends User
         $this->secondaryIndustries = new ArrayCollection();
         $this->companiesInterestedIn = new ArrayCollection();
         $this->educatorUsers = new ArrayCollection();
-        $this->studentReviewExperienceFeedback = new ArrayCollection();
+        $this->studentReviewCompanyExperienceFeedback = new ArrayCollection();
         $this->studentReviewTeachLessonExperienceFeedback = new ArrayCollection();
         $this->educatorRegisterStudentForCompanyExperienceRequests = new ArrayCollection();
         $this->allowedCommunications = new ArrayCollection();
@@ -336,28 +336,28 @@ class StudentUser extends User
     /**
      * @return Collection|StudentReviewCompanyExperienceFeedback[]
      */
-    public function getStudentReviewExperienceFeedback(): Collection
+    public function getStudentReviewCompanyExperienceFeedback(): Collection
     {
-        return $this->studentReviewExperienceFeedback;
+        return $this->studentReviewCompanyExperienceFeedback;
     }
 
-    public function addStudentReviewExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewExperienceFeedback): self
+    public function addStudentReviewCompanyExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewCompanyExperienceFeedback): self
     {
-        if (!$this->studentReviewExperienceFeedback->contains($studentReviewExperienceFeedback)) {
-            $this->studentReviewExperienceFeedback[] = $studentReviewExperienceFeedback;
-            $studentReviewExperienceFeedback->setStudent($this);
+        if (!$this->studentReviewCompanyExperienceFeedback->contains($studentReviewCompanyExperienceFeedback)) {
+            $this->studentReviewCompanyExperienceFeedback[] = $studentReviewCompanyExperienceFeedback;
+            $studentReviewCompanyExperienceFeedback->setStudent($this);
         }
 
         return $this;
     }
 
-    public function removeStudentReviewExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewExperienceFeedback): self
+    public function removeStudentReviewCompanyExperienceFeedback(StudentReviewCompanyExperienceFeedback $studentReviewCompanyExperienceFeedback): self
     {
-        if ($this->studentReviewExperienceFeedback->contains($studentReviewExperienceFeedback)) {
-            $this->studentReviewExperienceFeedback->removeElement($studentReviewExperienceFeedback);
+        if ($this->studentReviewCompanyExperienceFeedback->contains($studentReviewCompanyExperienceFeedback)) {
+            $this->studentReviewCompanyExperienceFeedback->removeElement($studentReviewCompanyExperienceFeedback);
             // set the owning side to null (unless already changed)
-            if ($studentReviewExperienceFeedback->getStudent() === $this) {
-                $studentReviewExperienceFeedback->setStudent(null);
+            if ($studentReviewCompanyExperienceFeedback->getStudent() === $this) {
+                $studentReviewCompanyExperienceFeedback->setStudent(null);
             }
         }
 

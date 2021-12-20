@@ -26,6 +26,7 @@ class ChatMessage
     /**
      * @Groups({"MESSAGE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $sentFrom;
 
@@ -51,7 +52,7 @@ class ChatMessage
     /**
      * @Groups({"MESSAGE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="chatMessages")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $sentTo;
 

@@ -1,0 +1,37 @@
+<div class="uk-modal-dialog">
+    <button class="uk-modal-close-outside" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        <h4>Delete Students <small>(<span style="font-weight: bold">{{ studentCount }}</span> Students Selected)</small></h4>
+    </div>
+
+    {{ form_start(form, {attr: {'id': 'js-bulk-action-form', 'novalidate' : 'novalidate'}}) }}
+
+    <div class="uk-modal-body">
+
+        {{ form_start(form, {'attr': {novalidate: 'novalidate', class: 'js-forgot-password-form'}}) }}
+
+        {% if form_errors(form) %}
+            <div class="uk-alert-danger" uk-alert>
+                <a class="uk-alert-close" uk-close></a>
+                <div>{{ form_errors(form) }}</div>
+            </div>
+        {% endif %}
+
+        <ul>
+            <li class="uk-text-danger">Deleting students cannot be undone.</li>
+            <li class="uk-text-danger">Deleting students will remove all data associated with them from the platform.</li>
+        </ul>
+
+        <p>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Never mind, don't delete</button>
+            <button class="uk-button uk-button-danger" type="submit">Yes, go ahead and delete</button>
+        </p>
+
+        {{ form_rest(form) }}
+    </div>
+
+    {{ form_end(form) }}
+</div>
+
+
+

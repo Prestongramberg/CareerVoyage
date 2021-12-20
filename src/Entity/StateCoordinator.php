@@ -17,7 +17,7 @@ class StateCoordinator extends User
 {
     /**
      * @Assert\NotBlank(message="Don't forget to select a state!", groups={"STATE_COORDINATOR"})
-     * @ORM\ManyToOne(targetEntity="App\Entity\State", inversedBy="stateCoordinators")
+     * @ORM\ManyToOne(targetEntity="App\Entity\State")
      * @ORM\JoinColumn(nullable=true)
      */
     private $state;

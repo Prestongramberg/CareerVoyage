@@ -16,13 +16,13 @@ class ProfessionalReviewStudentToMeetProfessionalFeedback extends Feedback
 {
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="professionalReviewStudentToMeetProfessionalFeedback")
+     * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="professionalReviewMeetStudentExperienceFeedback")
      * @ORM\JoinColumn(nullable=false)
      */
     private $professional;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StudentToMeetProfessionalExperience", inversedBy="professionalReviewStudentToMeetProfessionalFeedback")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StudentToMeetProfessionalExperience", inversedBy="professionalReviewMeetStudentExperienceFeedback")
      * @ORM\JoinColumn(nullable=false)
      */
     private $studentToMeetProfessionalExperience;

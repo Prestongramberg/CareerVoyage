@@ -8,6 +8,7 @@ use App\Util\FormHelper;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
@@ -40,6 +41,16 @@ class SupervisingTeacherFormType extends AbstractType
                                          'groups' => ['DEFAULT'],
             ]),
             ]
+        ]);
+
+        $builder->add('strategy', ChoiceType::class, [
+            'choices' => [
+                'Replace' => 'replace',
+                'Merge' => 'merge',
+            ],
+            'data' => 'replace',
+            'expanded' => true,
+            'multiple' => false,
         ]);
     }
 

@@ -43,7 +43,7 @@ class ReportLessonsWantTaught
     private $email;
 
     /**
-     * @ORM\ManyToOne(targetEntity=EducatorUser::class, inversedBy="reportLessonsWantTaughts")
+     * @ORM\ManyToOne(targetEntity=EducatorUser::class)
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $educatorUser;

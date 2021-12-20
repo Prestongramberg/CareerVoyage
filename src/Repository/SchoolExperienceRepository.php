@@ -224,7 +224,7 @@ WHERE 1 = 1 AND e.cancelled != %s', 1);
         }
 
         if ($searchQuery) {
-            $query .= sprintf(' AND e.title LIKE "%%%s%%"', $searchQuery);
+            $query .= sprintf(' AND e.title LIKE "%%%s%%" OR tag.name LIKE "%%%s%%"', $searchQuery, $searchQuery);
         }
 
         if($eventType) {

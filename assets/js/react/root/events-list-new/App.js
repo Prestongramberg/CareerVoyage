@@ -37,7 +37,6 @@ class App extends React.Component {
 
         const methods = [
             "getEventObjectByType",
-            "getRelevantEvents",
             "handleTabNavigation",
             "loadEvents",
             "renderCalendar",
@@ -261,48 +260,6 @@ class App extends React.Component {
 
     handleTabNavigation() {
         this.forceUpdate();
-    }
-
-    getRelevantEvents() {
-        return this.props.events.filter(event => {
-
-            // Set Searchable Fields
-            const searchableFields = ["title"];
-
-            // Filter By Industry
-            if (
-                (!!this.props.search.industry && !event.secondaryIndustries) ||
-                (!!this.props.search.industry && event.secondaryIndustries.filter(secondaryIndustry => secondaryIndustry.primaryIndustry && parseInt(secondaryIndustry.primaryIndustry.id) === parseInt(this.props.search.industry)).length === 0)
-            ) {
-                return false;
-            }
-
-            // Filter By Sub Industry
-            if (!!this.props.search.secondaryIndustry && event.secondaryIndustries.filter(secondaryIndustry => parseInt(secondaryIndustry.id) === parseInt(this.props.search.secondaryIndustry)).length === 0) {
-                return false;
-            }
-
-            // Filter by Event Type
-            if (!!this.props.search.eventType && (!event.friendlyEventName || event.friendlyEventName.search(this.props.search.eventType) === -1)) {
-                return false;
-            }
-
-            // Filter By Search Term
-            if (this.props.search.searchQuery) {
-                // basic search fields
-                const basicSearchFieldsFound = searchableFields.some((field) => (event[field] && event[field].toLowerCase().indexOf(this.props.search.query.toLowerCase()) > -1))
-
-                // Event Type (Job Shadow, Interview, etc)
-                const eventTypeFound = event['type'] && event['type']['name'].toLowerCase().indexOf(this.props.search.searchQuery.toLowerCase()) > -1
-
-                // Event Industry (Carpentry, Brick Layer, etc)
-                const eventIndustryFound = event['secondaryIndustries'] && event['secondaryIndustries'].some((field) => (field.name.toLowerCase().indexOf(this.props.search.searchQuery.toLowerCase()) > -1))
-
-                return basicSearchFieldsFound || eventTypeFound || eventIndustryFound
-            }
-
-            return true;
-        });
     }
 
     getEventObjectByType(event) {

@@ -21,6 +21,7 @@ class EducatorRegisterStudentForCompanyExperienceRequest extends Request
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="educatorRegisterStudentForCompanyExperienceRequests")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $studentUser;
 

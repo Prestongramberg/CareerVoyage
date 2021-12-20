@@ -43,7 +43,7 @@ class ReportLessonsCanTeach
     private $email;
 
     /**
-     * @ORM\ManyToOne(targetEntity=ProfessionalUser::class, inversedBy="reportLessonsCanTeaches")
+     * @ORM\ManyToOne(targetEntity=ProfessionalUser::class)
      */
     private $professionalUser;
 

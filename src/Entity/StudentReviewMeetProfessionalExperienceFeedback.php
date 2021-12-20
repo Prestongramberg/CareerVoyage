@@ -10,18 +10,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\StudentReviewCompanyExperienceFeedbackRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\StudentReviewMeetProfessionalExperienceFeedbackRepository")
  */
 class StudentReviewMeetProfessionalExperienceFeedback extends Feedback
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="studentReviewExperienceFeedback")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser")
      * @ORM\JoinColumn(nullable=false)
      */
     private $student;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StudentToMeetProfessionalExperience", inversedBy="studentReviewExperienceFeedback")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StudentToMeetProfessionalExperience", inversedBy="professionalReviewMeetStudentExperienceFeedback")
      * @ORM\JoinColumn(nullable=false)
      */
     private $studentToMeetProfessionalExperience;

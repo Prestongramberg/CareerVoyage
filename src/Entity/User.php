@@ -227,7 +227,7 @@ abstract class User implements UserInterface
     protected $registrations;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="user")
      */
     protected $feedback;
 
@@ -280,12 +280,12 @@ abstract class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="user", orphanRemoval=true)
      */
-    private $companyViews;
+    protected $companyViews;
 
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private $dashboardOrder = [];
+    protected $dashboardOrder = [];
 
     /**
      * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom", orphanRemoval=true)
@@ -317,23 +317,28 @@ abstract class User implements UserInterface
     /**
      * @ORM\ManyToMany(targetEntity=ReportShare::class, mappedBy="users")
      */
-    private $reportShares;
+    protected $reportShares;
 
     /**
      * @ORM\Column(type="json", nullable=true)
      * @var array
      */
-    private $splashPagesShown = [];
+    protected $splashPagesShown = [];
 
     /**
      * @ORM\OneToMany(targetEntity=UserMeta::class, mappedBy="user", orphanRemoval=true)
      */
-    private $userMetas;
+    protected $userMetas;
 
     /**
      * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user", orphanRemoval=true)
      */
-    private $requestActions;
+    protected $requestActions;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $tempPasswordEncrypted;
 
 
     /**
@@ -467,6 +472,10 @@ abstract class User implements UserInterface
         return $this->firstName . " " . $this->lastName;
     }
 
+    public function getFullNameReversed(): ?string
+    {
+        return $this->lastName . ", " . $this->firstName;
+    }
 
     public function getPasswordResetToken(): ?string
     {
@@ -1794,5 +1803,17 @@ abstract class User implements UserInterface
         }
 
         return false;
+    }
+
+    public function getTempPasswordEncrypted(): ?string
+    {
+        return $this->tempPasswordEncrypted;
+    }
+
+    public function setTempPasswordEncrypted(?string $tempPasswordEncrypted): self
+    {
+        $this->tempPasswordEncrypted = $tempPasswordEncrypted;
+
+        return $this;
     }
 }

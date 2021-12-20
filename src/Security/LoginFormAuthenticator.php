@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
@@ -31,6 +32,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
+    private $encoderFactory;
     private $entityManager;
     private $router;
     private $csrfTokenManager;
@@ -41,11 +43,12 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $env;
     private $uploadsPath;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router,
-                                CsrfTokenManagerInterface $csrfTokenManager,
-                                UserPasswordEncoderInterface $passwordEncoder, SiteRepository $siteRepository,
-                                SessionInterface $session, $env, $uploadsPath
-    ) {
+    public function __construct(
+        EncoderFactoryInterface $encoderFactory, EntityManagerInterface $entityManager, RouterInterface $router,
+        CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
+        SiteRepository $siteRepository, SessionInterface $session, $env, $uploadsPath)
+    {
+        $this->encoderFactory   = $encoderFactory;
         $this->entityManager    = $entityManager;
         $this->router           = $router;
         $this->csrfTokenManager = $csrfTokenManager;
@@ -59,10 +62,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function supports(Request $request)
     {
 
-        $name = 'welcome' === $request->attributes->get('_route')
-            && $request->isMethod('POST')
-            && !in_array($request->request->get('formType'),
-                ['educatorRegistrationForm', 'professionalRegistrationForm', 'studentRegistrationForm']);
+        $name = 'welcome' === $request->attributes->get('_route') && $request->isMethod('POST') && !in_array($request->request->get('formType'), [
+                'educatorRegistrationForm',
+                'professionalRegistrationForm',
+                'studentRegistrationForm',
+            ]);
 
 
         return $name;
@@ -71,14 +75,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function getCredentials(Request $request)
     {
         $credentials = [
-            'email' => $request->request->get('email'),
-            'password' => $request->request->get('password'),
+            'email'      => $request->request->get('email'),
+            'password'   => $request->request->get('password'),
             'csrf_token' => $request->request->get('_csrf_token'),
         ];
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['email']
-        );
+        $request->getSession()->set(Security::LAST_USERNAME, $credentials['email']);
 
         return $credentials;
     }
@@ -111,7 +112,12 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             throw new CustomUserMessageAuthenticationException('Account needs to be activated first.');
         }
 
-        return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
+        $encoder = $this->encoderFactory->getEncoder($user);
+
+        $tempPasswordIsValid = $user->getTempPasswordEncrypted() &&
+            $encoder->isPasswordValid($user->getTempPasswordEncrypted(), $credentials['password'], null);
+
+        return $tempPasswordIsValid || $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -130,12 +136,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
                 'parentSite' => 1,
             ]);
         } else {
-            if ($user->isSiteAdmin()
-                || $user->isStateCoordinator()
-                || $user->isRegionalCoordinator()
-                || $user->isSchoolAdministrator()
-                || $user->isStudent() ||
-                $user->isEducator()) {
+            if ($user->isSiteAdmin() || $user->isStateCoordinator() || $user->isRegionalCoordinator() || $user->isSchoolAdministrator() || $user->isStudent() || $user->isEducator()) {
                 /** @var Site $site */
                 $site = $user->getSite();
             }
@@ -154,11 +155,12 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $this->entityManager->flush();
 
         $potentialSplashPages = $user->getPotentialSplashPages();
-        foreach($potentialSplashPages as $potentialSplashPage) {
+        foreach ($potentialSplashPages as $potentialSplashPage) {
 
-            if(!$user->splashPageShown($potentialSplashPage)) {
+            if (!$user->splashPageShown($potentialSplashPage)) {
                 $user->addSplashPageShown($potentialSplashPage);
                 $this->entityManager->flush();
+
                 return new RedirectResponse($this->router->generate('splash_index', ['splash' => $potentialSplashPage]));
             }
         }
@@ -196,12 +198,6 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $routerContext = $this->router->getContext();
         $port          = $routerContext->getHttpPort();
 
-        return sprintf(
-            '%s://%s%s%s',
-            $routerContext->getScheme(),
-            $routerContext->getHost(),
-            ($port !== 80 ? ':' . $port : ''),
-            $routerContext->getBaseUrl()
-        );
+        return sprintf('%s://%s%s%s', $routerContext->getScheme(), $routerContext->getHost(), ($port !== 80 ? ':' . $port : ''), $routerContext->getBaseUrl());
     }
 }

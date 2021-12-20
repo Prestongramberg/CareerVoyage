@@ -4,6 +4,7 @@ namespace App\Command;
 
 
 use App\Entity\CompanyResource;
+use App\Entity\ExperienceResource;
 use App\Entity\Image;
 use App\Entity\KnowledgeResource;
 use App\Entity\Lesson;
@@ -12,6 +13,7 @@ use App\Entity\Resource;
 use App\Entity\School;
 use App\Repository\CompanyRepository;
 use App\Repository\CompanyResourceRepository;
+use App\Repository\ExperienceRepository;
 use App\Repository\ImageRepository;
 use App\Repository\LessonRepository;
 use App\Repository\ResourceRepository;
@@ -68,8 +70,11 @@ class ResourcesImportCommand extends Command
     private $companyRepository;
 
     /**
-     * ResourcesImportCommand constructor.
-     *
+     * @var ExperienceRepository
+     */
+    private $experienceRepository;
+
+    /**
      * @param EntityManagerInterface    $entityManager
      * @param ImageRepository           $imageRepository
      * @param ResourceRepository        $resourceRepository
@@ -77,13 +82,14 @@ class ResourcesImportCommand extends Command
      * @param LessonRepository          $lessonRepository
      * @param SchoolResourceRepository  $schoolResourceRepository
      * @param CompanyRepository         $companyRepository
+     * @param ExperienceRepository      $experienceRepository
      */
-    public function __construct(EntityManagerInterface $entityManager, ImageRepository $imageRepository,
-                                ResourceRepository $resourceRepository,
-                                CompanyResourceRepository $companyResourceRepository,
-                                LessonRepository $lessonRepository, SchoolResourceRepository $schoolResourceRepository,
-                                CompanyRepository $companyRepository
-    ) {
+    public function __construct(
+        EntityManagerInterface $entityManager, ImageRepository $imageRepository, ResourceRepository $resourceRepository,
+        CompanyResourceRepository $companyResourceRepository, LessonRepository $lessonRepository,
+        SchoolResourceRepository $schoolResourceRepository, CompanyRepository $companyRepository,
+        ExperienceRepository $experienceRepository)
+    {
         $this->entityManager             = $entityManager;
         $this->imageRepository           = $imageRepository;
         $this->resourceRepository        = $resourceRepository;
@@ -91,6 +97,7 @@ class ResourcesImportCommand extends Command
         $this->lessonRepository          = $lessonRepository;
         $this->schoolResourceRepository  = $schoolResourceRepository;
         $this->companyRepository         = $companyRepository;
+        $this->experienceRepository      = $experienceRepository;
 
         parent::__construct();
     }
@@ -112,12 +119,14 @@ class ResourcesImportCommand extends Command
         // Company Resources:     ./bin/console app:resources:import --path=company_resource.csv --type=company
         // Knowledge Resources:   ./bin/console app:resources:import --path=knowledge_resource.csv --type=knowledge_resource
         // Lesson Resources:      ./bin/console app:resources:import --path=lesson_resource.csv --type=lesson
+        // Experience Resources:  ./bin/console app:resources:import --path=experience_resource.csv --type=experience
 
         $validResourceTypes = [
             'company',
             'knowledge_resource',
-            'lesson'
-            // todo add school and lesson
+            'lesson',
+            'experience'
+            // todo add school??
         ];
 
         $path = $input->getOption('path');
@@ -189,6 +198,40 @@ class ResourcesImportCommand extends Command
                     $resourceObject->setType(Resource::TYPE_FILE);
                 }
 
+
+                $this->entityManager->persist($resourceObject);
+            }
+        }
+
+        if($type === 'experience') {
+
+            foreach($resources as $resource) {
+
+                /** @var Image $image */
+                $image = $this->imageRepository->find($resource['id']);
+                $experience = $this->experienceRepository->find($resource['experience_id']);
+                $linkToWebsite = in_array($resource['link_to_website'], [null, 'null', 'NULL', ""], true) ? null : $resource['link_to_website'];
+                $title = in_array($resource['title'], [null, 'null', 'NULL', ""], true) ? null : $resource['title'];
+                $description = in_array($resource['description'], [null, 'null', 'NULL', ""], true) ? null : $resource['description'];
+
+                if(!$experience) {
+                    continue;
+                }
+
+                $resourceObject = new ExperienceResource();
+                $resourceObject->setExperience($experience);
+                $resourceObject->setLinkToWebsite($linkToWebsite);
+                $resourceObject->setUrl($linkToWebsite);
+                $resourceObject->setTitle($title);
+                $resourceObject->setDescription($description);
+                $resourceObject->setType(Resource::TYPE_URL);
+                $resourceObject->setFileName($image->getFileName());
+                $resourceObject->setMimeType($image->getMimeType());
+                $resourceObject->setOriginalName($image->getOriginalName());
+
+                if($image->getFileName() && $image->getOriginalName() && $image->getMimeType()) {
+                    $resourceObject->setType(Resource::TYPE_FILE);
+                }
 
                 $this->entityManager->persist($resourceObject);
             }

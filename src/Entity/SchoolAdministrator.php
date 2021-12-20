@@ -16,11 +16,6 @@ class SchoolAdministrator extends User
      */
     private $schools;
 
-    // /**
-    //  * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
-    //  */
-    // private $schoolExperiences;
-
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="schoolAdministrators")
      */
@@ -32,7 +27,7 @@ class SchoolAdministrator extends User
     private $phone;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest", mappedBy="schoolAdministrator")
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest", mappedBy="schoolAdminUser")
      */
     private $schoolAdminRegisterSAForCompanyExperienceRequests;
 
@@ -41,6 +36,7 @@ class SchoolAdministrator extends User
         parent::__construct();
         $this->schools = new ArrayCollection();
         $this->schoolExperiences = new ArrayCollection();
+        $this->schoolAdminRegisterSAForCompanyExperienceRequests = new ArrayCollection();
     }
 
     /**
@@ -142,5 +138,13 @@ class SchoolAdministrator extends User
         $this->phone = $phone;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSchoolAdminRegisterSAForCompanyExperienceRequests()
+    {
+        return $this->schoolAdminRegisterSAForCompanyExperienceRequests;
     }
 }

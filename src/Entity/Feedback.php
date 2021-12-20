@@ -81,6 +81,7 @@ class Feedback
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="feedback")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $user;
 
@@ -196,36 +197,36 @@ class Feedback
      * @Groups({"FEEDBACK"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private $employeeContactNames = [];
+    protected $employeeContactNames = [];
 
     /**
      * @Groups({"FEEDBACK"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $dashboardType;
+    protected $dashboardType;
 
     /**
      * @Groups({"FEEDBACK"})
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $relatedToMyClassroomWork;
+    protected $relatedToMyClassroomWork;
 
     /**
      * @Groups({"FEEDBACK"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $topic;
+    protected $topic;
 
     /**
      * @Groups({"FEEDBACK"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $presenter;
+    protected $presenter;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $eventType;
+    protected $eventType;
 
 
     public function getId(): ?int

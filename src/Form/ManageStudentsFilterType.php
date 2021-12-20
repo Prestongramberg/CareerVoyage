@@ -3,86 +3,95 @@
 namespace App\Form;
 
 use App\Entity\EducatorUser;
-use App\Entity\ProfessionalUser;
-use App\Entity\Region;
-use App\Entity\RegionalCoordinator;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
-use App\Entity\SiteAdminUser;
-use App\Entity\State;
-use App\Entity\StateCoordinator;
-use App\Entity\StudentUser;
+use App\Entity\User;
+use App\Repository\SchoolRepository;
+use App\Repository\StudentUserRepository;
 use Doctrine\ORM\EntityRepository;
-use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderExecuterInterface;
+use Lexik\Bundle\FormFilterBundle\Filter\FilterOperands;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Lexik\Bundle\FormFilterBundle\Filter\Form\Type as Filters;
-use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\QueryBuilder;
 
 class ManageStudentsFilterType extends AbstractType
 {
 
-    // /**
-    //  * @var StudentUserRepository
-    //  */
-    // private $studentUserRepository;
+    /**
+     * @var StudentUserRepository
+     */
+    private $studentUserRepository;
 
-    // /**
-    //  * ManageStudentsFilterType constructor.
-    //  * @param StudentUserRepository $studentUserRepository
-    //  */
-    // public function __construct(StudentUserRepository $studentUserRepository)
-    // {
-    //     $this->studentUserRepository = $studentUserRepository;
-    // }
+    /**
+     * @var SchoolRepository
+     */
+    private $schoolRepository;
+
+    /**
+     * @param StudentUserRepository $studentUserRepository
+     * @param SchoolRepository      $schoolRepository
+     */
+    public function __construct(StudentUserRepository $studentUserRepository, SchoolRepository $schoolRepository)
+    {
+        $this->studentUserRepository = $studentUserRepository;
+        $this->schoolRepository      = $schoolRepository;
+    }
+
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var School $school */
-        $school = $options['school'];
-        
-        // Determine years of graduation.
-        $graduationYears = [];
-        $current_month = Date("n");
-        $year = Date('Y');
-        if($current_month > 8){
-            $year = $year + 1;
-        }
 
-        for($i = $year; $i < $year + 6; $i++){
-            $graduationYears[$i] = $i;
-        }
+        $schoolIds = $options['schoolIds'];
 
+        $graduationYears = $this->studentUserRepository->getGraduationYears($schoolIds);
 
-        $builder->add('firstName', Filters\TextFilterType::class);
-        $builder->add('lastName', Filters\TextFilterType::class);
-        $builder->add('email', Filters\TextFilterType::class);
-        $builder->add('username', Filters\TextFilterType::class);
+        $graduationYears = array_map(function ($gy) {
+            return $gy['graduatingYear'];
+        }, $graduationYears);
 
-        $builder->add('educatorUsers', Filters\EntityFilterType::class, array(
-            'class' => EducatorUser::class,
-            'query_builder' => function (EntityRepository $er) use($school) {
-                return $er->createQueryBuilder('eu')
-                    ->andWhere('eu.school = :school')
-                    ->setParameter('school', $school);
+        $graduationYears = array_combine($graduationYears, $graduationYears);
+
+        $builder->add('firstName', Filters\TextFilterType::class, [
+            'condition_pattern' => FilterOperands::STRING_CONTAINS,
+        ]);
+        $builder->add('lastName', Filters\TextFilterType::class, [
+            'condition_pattern' => FilterOperands::STRING_CONTAINS,
+        ]);
+        $builder->add('email', Filters\TextFilterType::class, [
+            'condition_pattern' => FilterOperands::STRING_CONTAINS,
+        ]);
+        $builder->add('username', Filters\TextFilterType::class, [
+            'condition_pattern' => FilterOperands::STRING_CONTAINS,
+        ]);
+
+        $builder->add('educatorUsers', Filters\EntityFilterType::class, array (
+            'class'         => EducatorUser::class,
+            'query_builder' => function (EntityRepository $er) use ($schoolIds) {
+                $queryBuilder = $er->createQueryBuilder('eu')->addOrderBy('eu.lastName', 'ASC');
+
+                if (!empty($schoolIds)) {
+                    $queryBuilder->andWhere('eu.school IN (:schools)')->setParameter('schools', $schoolIds);
+                }
+
+                return $queryBuilder;
+
             },
-            'choice_label' => 'fullName',
-            'placeholder' => '-- Filter By Supervising Educator --',
-            'expanded' => false,
-            'multiple' => false,
-            'required' => false
+            'choice_label'  => 'fullNameReversed',
+            'placeholder'   => '-- Filter By Supervising Educator --',
+            'expanded'      => false,
+            'multiple'      => false,
+            'required'      => false,
         ));
 
-        $builder->add('graduatingYear', ChoiceType::class, array(
+        $builder->add('graduatingYear', ChoiceType::class, array (
 
-            'choices' => $graduationYears,
+            'choices'     => $graduationYears,
             'placeholder' => '-- Filter by Graduating Year --',
-            'expanded' => false,
-            'multiple' => false,
-            'required' => false
+            'expanded'    => false,
+            'multiple'    => false,
+            'required'    => false,
         ));
     }
 
@@ -93,10 +102,10 @@ class ManageStudentsFilterType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults(array (
+            'schoolIds'         => [],
             'csrf_protection'   => false,
-            'validation_groups' => array('filtering') // avoid NotBlank() constraint-related message
-        ))->setRequired('filter_type')
-            ->setRequired('school');
+            'validation_groups' => array ('filtering') // avoid NotBlank() constraint-related message
+        ))->setRequired('filter_type');
     }
 }

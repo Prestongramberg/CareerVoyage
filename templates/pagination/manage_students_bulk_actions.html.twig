@@ -3,7 +3,7 @@
     <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'delete'})) }}">Delete</option>
     <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'reset_password'})) }}">Reset Password</option>
     <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'change_supervising_teacher'})) }}">Change Supervising Teacher</option>
-    <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'mark_as_graduated'})) }}">Mark as Graduated</option>
+{#    <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'mark_as_graduated'})) }}">Mark as Graduated</option>#}
 </select>
 <button class="uk-button uk-button-primary js-bulk-action-apply-button">Apply</button>
 <div class="js-total-users-selected" style="font-weight: bold; margin-top: 20px"></div>

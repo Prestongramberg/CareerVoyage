@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class CompanyPhoto extends Image
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyImages")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyPhotos")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $company;

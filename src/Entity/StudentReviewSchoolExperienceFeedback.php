@@ -15,13 +15,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 class StudentReviewSchoolExperienceFeedback extends Feedback
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="studentReviewExperienceFeedback")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser")
      * @ORM\JoinColumn(nullable=false)
      */
     private $student;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SchoolExperience", inversedBy="studentReviewExperienceFeedback")
+     * @ORM\ManyToOne(targetEntity="App\Entity\SchoolExperience")
      * @ORM\JoinColumn(nullable=false)
      */
     private $schoolExperience;

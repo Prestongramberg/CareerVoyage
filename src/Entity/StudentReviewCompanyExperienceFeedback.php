@@ -15,8 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class StudentReviewCompanyExperienceFeedback extends Feedback
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="studentReviewExperienceFeedback")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="studentReviewCompanyExperienceFeedback")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $student;
 
@@ -66,5 +66,13 @@ class StudentReviewCompanyExperienceFeedback extends Feedback
         $this->interestInWorkingForCompany = $interestInWorkingForCompany;
 
         return $this;
+    }
+
+    public function student() {
+        return $this->student;
+    }
+
+    public function get_student() {
+        return $this->student;
     }
 }

@@ -1,13 +1,3 @@
-{#
-{% set notification = request.notification %}
-{% set title = notification['title'] %}
-{% set body = notification['body'] %}
-{% set createdOn = notification['created_on'] %}
-{% set userPhoto = notification['user_photo'] %}
-{% set requestPossibleApprover = request.associatedRequestPossibleApproverForUser(loggedInUser) %}
-{% set messages = notification['messages'] is defined ? notification['messages'] : [] %}
-#}
-
 <div class="uk-modal-dialog">
     <button class="uk-modal-close-outside" type="button" uk-close></button>
     <div class="uk-modal-header">
@@ -29,6 +19,11 @@
         {% endif %}
 
         <fieldset class="uk-fieldset">
+            <div class="uk-margin">
+                {{ form_widget(form.strategy, {'attr': {'class': '' ~ ( form_errors(form.strategy) ? ' uk-form-danger' : '' ) }}) }}
+                {{ form_errors(form.strategy) }}
+                <p>Choose whether or not you would like to replace the selected student's supervising teachers, or merge into what they already have.</p>
+            </div>
             <div class="uk-margin">
                 {{ form_label(form.supervisingTeachers, 'Supervising Teachers*') }}
                 {{ form_widget(form.supervisingTeachers, {'attr': {'class': 'uk-select' ~ ( form_errors(form.supervisingTeachers) ? ' uk-form-danger' : '' ) }}) }}

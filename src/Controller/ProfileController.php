@@ -266,7 +266,6 @@ class ProfileController extends AbstractController
             if ($user->getPlainPassword()) {
                 $encodedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
                 $user->setPassword($encodedPassword);
-                $user->setTempPassword(null);
             }
 
             if ($user->isSchoolAdministrator()) {

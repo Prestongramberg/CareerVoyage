@@ -55,6 +55,7 @@ class StudentUserRepository extends ServiceEntityRepository
 
     /**
      * @param string[] $criteria format: array('user' => <user_id>, 'name' => <name>)
+     *
      * @return array|object[]
      */
     public function findByUniqueCriteria(array $criteria)
@@ -63,34 +64,39 @@ class StudentUserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $search
+     * @param        $search
      * @param School $school
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findBySearchTermAndSchool($search, School $school) {
+    public function findBySearchTermAndSchool($search, School $school)
+    {
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join student_user su on u.id = su.id where su.school_id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"',
-            $school->getId(), $search);
+        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join student_user su on u.id = su.id where su.school_id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $school->getId(), $search);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
     /**
      * @param $search
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findBySearchTerm($search) {
+    public function findBySearchTerm($search)
+    {
 
         $query = 'SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join student_user su on u.id = su.id';
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
@@ -101,70 +107,78 @@ class StudentUserRepository extends ServiceEntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findBySearchTermAndRegionIds($search, array $regionIds) {
+    public function findBySearchTermAndRegionIds($search, array $regionIds)
+    {
 
-        if(empty($regionIds)) {
+        if (empty($regionIds)) {
             return [];
         }
 
         $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
                  inner join student_user su on u.id = su.id
                  INNER JOIN school s on su.school_id = s.id
-            where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN ('. implode(",", $regionIds) . ')', $search);
+            where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN (' . implode(",", $regionIds) . ')', $search);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
 
-    public function getStudentsForRegion(Region $region) {
+    public function getStudentsForRegion(Region $region)
+    {
         return $this->createQueryBuilder('u')
-            ->innerJoin('u.site', 'site')
-            ->innerJoin('site.regions', 'regions')
-            ->andWhere('regions = :region')
-            ->setParameter('region', $region)
-            ->getQuery()
-            ->getResult();
+                    ->innerJoin('u.site', 'site')
+                    ->innerJoin('site.regions', 'regions')
+                    ->andWhere('regions = :region')
+                    ->setParameter('region', $region)
+                    ->getQuery()
+                    ->getResult();
     }
 
     /**
-     * @param $search
+     * @param                  $search
      * @param ProfessionalUser $professionalUser
+     *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function findByAllowedCommunication($search, ProfessionalUser $professionalUser) {
+    public function findByAllowedCommunication($search, ProfessionalUser $professionalUser)
+    {
 
         $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
         inner join student_user su on u.id = su.id inner join allowed_communication ac on su.id = ac.student_user_id 
         where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" and ac.professional_user_id = "%s"', $search, $professionalUser->getId());
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
 
 
-    public function findStudentBySecondaryIndustry($secondaryIndustry) {
+    public function findStudentBySecondaryIndustry($secondaryIndustry)
+    {
         return $this->createQueryBuilder('u')
-            ->innerJoin('u.secondaryIndustries', 's')
-            ->andWhere('s.id = :secondaryIndustry')
-            ->setParameter('secondaryIndustry', $secondaryIndustry)
-            ->getQuery()
-            ->getResult();
+                    ->innerJoin('u.secondaryIndustries', 's')
+                    ->andWhere('s.id = :secondaryIndustry')
+                    ->setParameter('secondaryIndustry', $secondaryIndustry)
+                    ->getQuery()
+                    ->getResult();
     }
 
-    public function findStudentByGraduatingYear($graduatingYear) {
+    public function findStudentByGraduatingYear($graduatingYear)
+    {
         return $this->createQueryBuilder('su')
-            ->andWhere('su.graduatingYear = :graduatingYear')
-            ->andWhere('su.archived = :archived')
-            ->setParameter('graduatingYear', $graduatingYear)
-            ->setParameter('archived', false)
-            ->getQuery()
-            ->getResult();
+                    ->andWhere('su.graduatingYear = :graduatingYear')
+                    ->andWhere('su.archived = :archived')
+                    ->setParameter('graduatingYear', $graduatingYear)
+                    ->setParameter('archived', false)
+                    ->getQuery()
+                    ->getResult();
     }
 
     /**
@@ -174,7 +188,8 @@ class StudentUserRepository extends ServiceEntityRepository
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null) {
+    public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null)
+    {
 
         $ids = implode("','", $userIds);
 
@@ -189,25 +204,25 @@ class StudentUserRepository extends ServiceEntityRepository
           LEFT JOIN industry i on si.primary_industry_id = i.id
           WHERE u.id IN('$ids')";
 
-        if($filters) {
+        if ($filters) {
 
-            if(!empty($filters->getInterestSearch())) {
+            if (!empty($filters->getInterestSearch())) {
                 $query .= sprintf(' AND su.career_statement LIKE "%%%s%%"', $filters->getInterestSearch());
             }
 
-            if(!empty($filters->getPrimaryIndustries())) {
+            if (!empty($filters->getPrimaryIndustries())) {
                 $primaryIndustries = implode("','", $filters->getPrimaryIndustries());
-                $query .= " AND si.primary_industry_id IN('$primaryIndustries')";
+                $query             .= " AND si.primary_industry_id IN('$primaryIndustries')";
             }
 
-            if(!empty($filters->getSecondaryIndustries())) {
+            if (!empty($filters->getSecondaryIndustries())) {
                 $secondaryIndustries = implode("','", $filters->getSecondaryIndustries());
-                $query .= " AND susi.secondary_industry_id IN('$secondaryIndustries')";
+                $query               .= " AND susi.secondary_industry_id IN('$secondaryIndustries')";
             }
 
-            if(!empty($filters->getSchools())) {
+            if (!empty($filters->getSchools())) {
                 $schools = implode("','", $filters->getSchools());
-                $query .= " AND s.id IN('$schools')";
+                $query   .= " AND s.id IN('$schools')";
             }
 
         }
@@ -215,9 +230,29 @@ class StudentUserRepository extends ServiceEntityRepository
         $query .= " ORDER BY u.last_name ASC, u.first_name ASC";
 
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $stmt = $em->getConnection()->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll();
+    }
+
+    /**
+     * @param int $schoolId
+     *
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function getGraduationYears(array $schoolIds)
+    {
+        return $this->createQueryBuilder('su')
+                    ->select('su.graduatingYear')
+                    ->andWhere('su.school IN (:schoolIds)')
+                    ->setParameter('schoolIds', $schoolIds)
+                    ->addOrderBy('su.graduatingYear', 'ASC')
+                    ->distinct()
+                    ->getQuery()
+                    ->getResult();
     }
 }

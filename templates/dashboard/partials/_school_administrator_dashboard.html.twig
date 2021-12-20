@@ -74,6 +74,44 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <br>
+                    <br>
+
+                    <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
+                      {#  <div>
+                            <div class="uk-card uk-card-hover uk-card-body">
+                                <h3 class="uk-card-title">Hover</h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-hover uk-card-body">
+                                <h3 class="uk-card-title">Manage Experiences</h3>
+                                <p>Create Experience</p>
+                                <p>Manage experiences</p>
+                            </div>
+                        </div>#}
+                        <div>
+                            <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                                <h3 class="uk-card-title">Create an Experience</h3>
+                                <p>Create engaging school events that other user's can search and register for.</p>
+                                <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_new') }}?schoolId={{ school.id }}">Get Started</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                                <h3 class="uk-card-title">Manage Students</h3>
+                                <p>Reset passwords, change supervising teachers, import students, and more.</p>
+                                <a class="uk-button uk-button-default" target="_blank" href="{{ path('students_manage', {id: school.id}) }}">Get Started</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <br>
+
                     {% if school.isUserSchoolAdministrator(user) %}
                         <div class="uk-margin">
                             <ul class="uk-tab school-tab-tools"
@@ -82,7 +120,6 @@
                                         Calendar</a></li>
                                 {# <li class="uk-visible@m"><a href="?school={{school.id}}&tool=participation">Participation</a></li> #}
                                 <li><a href="?school={{ school.id }}&tool=educators">Educators</a></li>
-                                <li><a href="?school={{ school.id }}&tool=students">Students</a></li>
                                 <li><a href="?school={{ school.id }}&tool=experiences">Experiences</a></li>
                                 <li><a href="?school={{ school.id }}&tool=feedback">Feedback</a></li>
                             </ul>
@@ -118,34 +155,7 @@
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div class="school_{{ school.id }}_tools_students">
-
-                                    <div class="uk-margin uk-width-1-1">
-                                        <div class="uk-flex uk-flex-right@m">
-                                            <a href="{{ path('school_student_import', { "id": school.id }) }}"
-                                               class="uk-button uk-button-primary uk-button-small">Add
-                                                Students</a>
-                                        </div>
-                                    </div>
-
-                                    {% if school.studentUsers|length %}
-                                        <div class="school__educators">
-                                            <dl class="uk-description-list uk-description-list-divider">
-                                                <iframe src="{{ path('students_manage', {id: school.id}) }}"
-                                                        style="border:none;" width="100%"
-                                                        height="800px"></iframe>
-                                            </dl>
-                                        </div>
-                                    {% endif %}
-
-                                </div>
                                 <div class="school_{{ school.id }}_tools_experiences">
-                                    <div class="uk-placeholder uk-text-center">
-                                        <p><a class="uk-button uk-button-primary uk-button-small"
-                                              href="{{ path('experience_new', {'schoolId': school.id}) }}">Create
-                                                an Experience</a></p>
-                                    </div>
-
                                     {% if school.sortedSchoolExperiences|length %}
                                         <div class="school__educators">
                                             <dl class="uk-description-list uk-description-list-divider">

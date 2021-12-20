@@ -239,11 +239,6 @@ class Request
     private $hasNewNotification = false;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="parentRequest")
-     */
-    private $request;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="requests")
      */
     private $parentRequest;
