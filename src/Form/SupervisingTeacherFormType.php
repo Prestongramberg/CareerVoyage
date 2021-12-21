@@ -46,7 +46,7 @@ class SupervisingTeacherFormType extends AbstractType
         $builder->add('strategy', ChoiceType::class, [
             'choices' => [
                 'Replace' => 'replace',
-                'Merge' => 'merge',
+                'Add' => 'merge',
             ],
             'data' => 'replace',
             'expanded' => true,
