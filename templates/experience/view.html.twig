@@ -38,6 +38,10 @@
                     <h3 class="uk-margin-remove-top">Coordinated By: {{ experience.school.name }}</h3>
                 {% endif %}
 
+                {% if experience.isCompanyExperience %}
+                    <h3 class="uk-margin-remove-top">Coordinated By: {{ experience.company.name }}</h3>
+                {% endif %}
+
                 <h5 style="{{ experience.cancelled ? 'text-decoration: line-through' : '' }}">
                     {{ experience.startDateAndTime|date("F jS Y \\a\\t g:ia") }}
                     - {{ experience.endDateAndTime|date("F jS Y \\a\\t g:ia") }}
