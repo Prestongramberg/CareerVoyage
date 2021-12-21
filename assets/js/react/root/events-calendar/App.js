@@ -50,7 +50,7 @@ class App extends React.Component {
 
         return (
             <div>
-                {this.renderFilters()}
+                {!this.props.hideFilters && this.renderFilters()}
 
                 {this.props.calendar.loading ? <div className="uk-width-1-1 uk-align-center">
                     <Loader/>
@@ -366,7 +366,8 @@ App.propTypes = {
     events: PropTypes.array,
     industries: PropTypes.array,
     schoolId: PropTypes.number,
-    userId: PropTypes.number
+    userId: PropTypes.number,
+    hideFilter: PropTypes.bool
 };
 
 App.defaultProps = {
@@ -376,7 +377,8 @@ App.defaultProps = {
     search: {},
     filters: {},
     schoolId: 0,
-    userId: 0
+    userId: 0,
+    hideFilters: false
 };
 
 export const mapStateToProps = (state = {}) => ({

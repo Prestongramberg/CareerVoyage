@@ -14,6 +14,7 @@ for (let i = 0; i < event_calendars.length; i++) {
         const userId = parseInt(event_calendars[i].getAttribute("data-user-id") || 0);
         const schoolId = parseInt(event_calendars[i].getAttribute("data-school-id") || 0);
         const zipcode = event_calendars[i].getAttribute("data-zipcode");
+        const hideFilters = !!event_calendars[i].getAttribute("data-hide-filters");
 
         const store = createStore(
             reducers,
@@ -52,7 +53,7 @@ for (let i = 0; i < event_calendars.length; i++) {
         const render = () => {
             ReactDOM.render(
                 <Provider store={store}>
-                    <App userId={userId} schoolId={schoolId}/>
+                    <App userId={userId} schoolId={schoolId} hideFilters={hideFilters}/>
                 </Provider>,
                 event_calendars[i]
             );

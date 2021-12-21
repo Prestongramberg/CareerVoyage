@@ -204,7 +204,7 @@ class ExperienceRepository extends ServiceEntityRepository
     ) {
 
         $query = sprintf(
-            'SELECT DISTINCT e.id, r.id as regId, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, e.discr as className 
+            'SELECT DISTINCT e.id, r.id as regId, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, CONCAT(UCASE(LEFT(e.discr, 1)), SUBSTRING(e.discr, 2)) as className
              FROM experience e 
              INNER JOIN registration r on r.experience_id = e.id 
              LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
@@ -232,8 +232,13 @@ class ExperienceRepository extends ServiceEntityRepository
 
         if ($startDate && $endDate) {
 
-            $query .= sprintf(" AND e.start_date_and_time > %s AND e.end_date_and_time < %s", $startDate, $endDate);
+            $query .= " AND ( ";
 
+            $query .= sprintf(" (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s')", $startDate, $endDate);
+            $query .= sprintf(" OR (DATE(e.start_date_and_time) <= '%s' AND DATE(e.end_date_and_time) >= '%s')", $startDate, $endDate);
+            $query .= sprintf(" OR ( (DATE(e.start_date_and_time) BETWEEN '%s' AND '%s') OR (DATE(e.end_date_and_time) BETWEEN '%s' AND '%s') )", $startDate, $endDate, $startDate, $endDate);
+
+            $query .= " ) ";
         }
 
         if ($searchQuery) {

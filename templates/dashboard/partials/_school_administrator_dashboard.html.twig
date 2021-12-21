@@ -57,7 +57,7 @@
 
         <div class="school_{{ school.id }}">
             <div class="uk-grid" uk-grid>
-                <div class="uk-width-1-1 uk-width-2-3@l">
+                <div class="uk-width-1-1@l">
                     <div class="uk-panel">
                         <div class="school_description">
                             <div class="uk-section uk-section-muted uk-padding-large">
@@ -107,6 +107,13 @@
                                 <a class="uk-button uk-button-default" target="_blank" href="{{ path('students_manage', {id: school.id}) }}">Get Started</a>
                             </div>
                         </div>
+                        <div>
+                            <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                                <h3 class="uk-card-title">Personal Calendar</h3>
+                                <p>View and manage events that you are personally registered for.</p>
+                                <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                            </div>
+                        </div>
                     </div>
 
                     <br>
@@ -116,15 +123,10 @@
                         <div class="uk-margin">
                             <ul class="uk-tab school-tab-tools"
                                 uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
-                                <li class="uk-active"><a href="?school={{ school.id }}&tool=calendar">My
-                                        Calendar</a></li>
                                 <li><a href="?school={{ school.id }}&tool=experiences">Experiences</a></li>
                                 <li><a href="?school={{ school.id }}&tool=feedback">Feedback</a></li>
                             </ul>
                             <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
-                                <div class="school_{{ school.id }}_tools_calendar">
-                                    <div class="react-events-embed" data-school-id="{{ school.id }}"></div>
-                                </div>
 
                                 <div class="school_{{ school.id }}_tools_experiences">
                                     {% if school.sortedSchoolExperiences|length %}
@@ -159,7 +161,9 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="uk-width-1-1 uk-width-1-3@l">
+
+
+      {#          <div class="uk-width-1-1 uk-width-1-3@l">
                     <div class="quick-links-wrapper">
                         <div class="uk-card uk-card-default">
                             <div class="uk-card-header">
@@ -231,7 +235,7 @@
                     </div>
                     <!-- End New Experiences -->
 
-                </div>
+                </div>#}
 
 
             </div>

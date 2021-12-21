@@ -58,6 +58,21 @@ class ExperienceController extends AbstractController
     }
 
     /**
+     * @Route("/personal-calendar", name="experience_personal_calendar", methods={"GET"}, options = { "expose" = true })
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function personalCalendarAction(Request $request)
+    {
+        $user = $this->getUser();
+
+        return $this->render('experience/personal_calendar.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
      * @Route("/list", name="experience_list", methods={"GET"}, options = { "expose" = true })
      * @param Request $request
      *

@@ -1,0 +1,25 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}Experiences{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div class="uk-container">
+
+        <h2>My Personal Calendar</h2>
+
+        <div class="uk-grid uk-margin" uk-grid>
+            <div class="uk-margin uk-width-1-1 uk-width-1-2@m">
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('dashboard') }}">Home</a></li>
+                    <li><span href="">Personal Calendar</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div data-hide-filters="true" data-user-id="{{ user.id }}" class="react-events-calendar"></div>
+    </div>
+{% endblock %}
