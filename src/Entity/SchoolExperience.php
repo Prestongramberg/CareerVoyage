@@ -28,12 +28,12 @@ class SchoolExperience extends Experience
      * @Assert\NotNull(message="Please choose an event organizer.", groups={"SCHOOL_EXPERIENCE"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="schoolExperiences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $schoolContact;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="schoolExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="schoolExperience")
      */
     private $userRegisterForSchoolExperienceRequests;
 

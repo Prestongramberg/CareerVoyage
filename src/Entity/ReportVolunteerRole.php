@@ -19,6 +19,7 @@ class ReportVolunteerRole
 
     /**
      * @ORM\ManyToOne(targetEntity=ProfessionalUser::class, inversedBy="reportVolunteerRoles")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $professionalUser;
 

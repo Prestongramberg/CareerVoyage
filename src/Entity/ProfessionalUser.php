@@ -49,7 +49,7 @@ class ProfessionalUser extends User
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="professionalUsers")
-     * @JoinColumn(name="company_id", referencedColumnName="id", onDelete="SET NULL")
+     * @JoinColumn(nullable=true, name="company_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $company;
 

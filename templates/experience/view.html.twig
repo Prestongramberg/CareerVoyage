@@ -118,6 +118,11 @@
                     ></div>
                 {% endif %}
 
+                {% if authorizationVoter.canRegisterStudentsForExperience(user, experience) %}
+                    <a class="uk-button uk-button-xl uk-button-primary uk-margin"
+                       href="{{ path('students_manage_entry', {'event-register': experience.id}) }}">Register Students</a>
+                {% endif %}
+
                 {# EDIT/CANCEL EXPERIENCE #}
                 {% if authorizationVoter.canEditExperience(user, experience) %}
 

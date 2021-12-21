@@ -31,7 +31,7 @@ class StudentUser extends User
     /**
      * @Groups({"STUDENT_USER"})
      * @ORM\ManyToOne(targetEntity="App\Entity\School", inversedBy="studentUsers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $school;
 
@@ -101,12 +101,12 @@ class StudentUser extends User
     private $graduatingYear;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUser", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="studentUser")
      */
     private $educatorRegisterStudentForCompanyExperienceRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\AllowedCommunication", mappedBy="studentUser", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\AllowedCommunication", mappedBy="studentUser")
      */
     private $allowedCommunications;
 

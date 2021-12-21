@@ -22,21 +22,25 @@ class Share
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="sentFromShares")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $sentFrom;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="sentToShares")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $sentTo;
 
     /**
      * @ORM\ManyToOne(targetEntity=Experience::class, inversedBy="shares")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $experience;
 
     /**
      * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="shares")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $request;
 

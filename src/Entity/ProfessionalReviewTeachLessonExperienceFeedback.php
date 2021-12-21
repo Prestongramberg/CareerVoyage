@@ -16,19 +16,19 @@ class ProfessionalReviewTeachLessonExperienceFeedback extends Feedback
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $lesson;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $professional;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\TeachLessonExperience")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $teachLessonExperience;
 

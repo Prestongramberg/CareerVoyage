@@ -174,6 +174,28 @@ class AuthorizationVoter
         return true;
     }
 
+    public function canRegisterStudentsForExperience(User $user, Experience $experience)
+    {
+
+        if ($experience->getCancelled()) {
+            return false;
+        }
+
+        if ($experience->getEndDateAndTime() < new \DateTime()) {
+            return false;
+        }
+
+        if($user->isSchoolAdministrator()) {
+            return true;
+        }
+
+        if($user->isEducator()) {
+            return true;
+        }
+
+        return true;
+    }
+
     /************************* END EXPERIENCE********************************/
 
 

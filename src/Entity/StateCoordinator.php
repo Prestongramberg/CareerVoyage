@@ -24,6 +24,7 @@ class StateCoordinator extends User
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="stateCoordinators")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $site;
 

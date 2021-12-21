@@ -20,7 +20,8 @@ class ReportShare
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity=Report::class, inversedBy="reportShare", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Report::class, inversedBy="reportShare")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $report;
 

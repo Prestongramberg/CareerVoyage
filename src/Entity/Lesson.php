@@ -87,13 +87,13 @@ class Lesson
     private $deleted = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="lesson", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="lesson")
      */
     private $lessonFavorites;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="lessons")
-     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $user;
 
@@ -120,7 +120,7 @@ class Lesson
     private $hasExpertPresenters = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="lesson", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="lesson")
      */
     private $lessonTeachables;
 
@@ -133,7 +133,7 @@ class Lesson
     private $shortDescription;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\LessonResource", mappedBy="lesson", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonResource", mappedBy="lesson")
      */
     private $lessonResources;
 
@@ -149,12 +149,12 @@ class Lesson
     private $secondaryIndustries;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="lesson", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="lesson")
      */
     private $studentReviewTeachLessonExperienceFeedback;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="lesson", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="lesson")
      */
     private $educatorReviewTeachLessonExperienceFeedback;
 

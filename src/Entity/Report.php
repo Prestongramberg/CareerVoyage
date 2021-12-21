@@ -315,12 +315,12 @@ class Report
     private $reportRules;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ReportColumn", mappedBy="report", orphanRemoval=true, cascade={"remove", "persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\ReportColumn", mappedBy="report", cascade={"remove", "persist"})
      */
     private $reportColumns;
 
     /**
-     * @ORM\OneToOne(targetEntity=ReportShare::class, mappedBy="report", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=ReportShare::class, mappedBy="report")
      */
     private $reportShare;
 

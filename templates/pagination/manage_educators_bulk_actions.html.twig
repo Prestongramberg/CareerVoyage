@@ -1,0 +1,14 @@
+<select class="uk-select js-bulk-action-dropdown" style="width: 200px">
+    <option value="" disabled selected>Bulk actions</option>
+    <option value="{{ path('school_users_bulk_action', query|merge({'action': 'delete', 'redirectRoute': 'educators_manage'})) }}">Delete</option>
+    <option value="{{ path('school_users_bulk_action', query|merge({'action': 'reset_password', 'redirectRoute': 'educators_manage'})) }}">Reset Password</option>
+    <option value="{{ path('school_users_bulk_action', query|merge({'action': 'assign_students', 'redirectRoute': 'educators_manage'})) }}">Assign Students</option>
+</select>
+<button class="uk-button uk-button-primary js-bulk-action-apply-button">Apply</button>
+<div class="js-total-users-selected" style="font-weight: bold; margin-top: 20px"></div>
+<ul class="js-bulk-action-error errors" style="display: none; list-style-type: none; padding-left: 0">
+    <li class="js-bulk-action-error" style="color: #f0506e">Please select a bulk action to perform on the selected educators</li>
+</ul>
+<ul class="js-select-user-error errors" style="display: none; list-style-type: none; padding-left: 0">
+    <li style="color: #f0506e">Please select at least one educator to perform a bulk action on</li>
+</ul>

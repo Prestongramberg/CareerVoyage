@@ -46,11 +46,13 @@ class RequestAction
 
     /**
      * @ORM\ManyToOne(targetEntity=Request::class, inversedBy="requestActions")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $request;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="requestActions")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $user;
 

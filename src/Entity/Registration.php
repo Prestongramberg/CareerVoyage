@@ -33,12 +33,13 @@ class Registration
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="registrations")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Experience", inversedBy="registrations")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $experience;
 

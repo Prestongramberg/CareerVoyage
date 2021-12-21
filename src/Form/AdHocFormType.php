@@ -2,13 +2,12 @@
 
 namespace App\Form;
 
-use App\Entity\School;
 use App\Util\FormHelper;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DeleteStudentsFormType extends AbstractType
+class AdHocFormType extends AbstractType
 {
     use FormHelper;
 

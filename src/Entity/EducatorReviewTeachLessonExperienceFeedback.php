@@ -16,19 +16,19 @@ class EducatorReviewTeachLessonExperienceFeedback extends Feedback
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson", inversedBy="educatorReviewTeachLessonExperienceFeedback")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $lesson;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\EducatorUser", inversedBy="educatorReviewTeachLessonExperienceFeedback")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $educator;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\TeachLessonExperience", inversedBy="educatorReviewTeachLessonExperienceFeedback")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $teachLessonExperience;
 

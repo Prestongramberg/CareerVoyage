@@ -14,6 +14,7 @@ class ExperienceResource extends Resource
 
     /**
      * @ORM\ManyToOne(targetEntity=Experience::class, inversedBy="experienceResources")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $experience;
 

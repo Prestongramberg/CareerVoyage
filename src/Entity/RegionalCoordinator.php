@@ -18,7 +18,6 @@ class RegionalCoordinator extends User
     /**
      * @Assert\NotBlank(message="Don't forget to select a region!", groups={"REGIONAL_COORDINATOR"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Region", inversedBy="regionalCoordinators")
-     * @ORM\JoinColumn(nullable=false)
      */
     private $region;
 

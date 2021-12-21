@@ -16,12 +16,13 @@ class EducatorRegisterEducatorForCompanyExperienceRequest extends Request
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\CompanyExperience", inversedBy="educatorRegisterEducatorForCompanyExperienceRequests")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $companyExperience;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\EducatorUser", inversedBy="educatorRegisterEducatorForCompanyExperienceRequests")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $educatorUser;
 

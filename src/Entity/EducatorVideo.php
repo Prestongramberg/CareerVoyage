@@ -13,6 +13,7 @@ class EducatorVideo extends Video
     /**
      * @Groups({"EDUCATOR_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\EducatorUser", inversedBy="educatorVideos")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $educator;
 

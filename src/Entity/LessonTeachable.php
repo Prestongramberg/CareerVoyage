@@ -24,14 +24,14 @@ class LessonTeachable
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="lessonTeachables")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $user;
 
     /**
      * @Groups({"ALL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson", inversedBy="lessonTeachables")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $lesson;
 

@@ -22,10 +22,11 @@
 
                 <div class="uk-section-small uk-section-default header">
                     <div class="uk-container uk-container-large">
-                        <h2>MANAGE Educators - <small>{{ school.name }}</small></h2>
+                        <h2>MANAGE EDUCATORS - <small>{{ school.name }}</small></h2>
 
                         <hr>
-                         <a href="{{ path('school_educator_import', { "id": school.id }) }}" class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Educators</a>
+                        <a href="{{ path('school_educator_import', { "id": school.id }) }}"
+                           class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Educators</a>
 
                         <select id="js-school-administrator-schools" class="uk-select"
                                 style="width: 300px; margin-right: 10px">
@@ -67,12 +68,12 @@
             <div style="margin-top:50px; position: relative" class="uk-width-1-3">
                 {{ knp_pagination_render(pagination, 'pagination/items_per_page.html.twig') }}
                 <div style="position: absolute; transform: translate(-50%,-50%); top: 50%">Total
-                    Student: {{ pagination.getTotalItemCount }}</div>
+                    Educators: {{ pagination.getTotalItemCount }}</div>
             </div>
 
-            {# <div style="margin-top:50px" class="uk-width-1-2">
-                {{ knp_pagination_render(pagination, 'pagination/manage_students_bulk_actions.html.twig') }}
-            </div> #}
+            <div style="margin-top:50px" class="uk-width-1-2">
+                {{ knp_pagination_render(pagination, 'pagination/manage_educators_bulk_actions.html.twig') }}
+            </div>
 
             <div class="uk-width-1-1 uk-overflow-auto" style="font-size: 0.8em">
                 <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
@@ -84,6 +85,7 @@
                         <th>Email</th>
                         <th>Username</th>
                         <th>Temp Password</th>
+                        <th>Assigned Students</th>
                         <th>School</th>
                         <th colspan="2"></th>
                     </tr>
@@ -111,6 +113,36 @@
                             <td>{{ educatorUser.username ? educatorUser.username : "N/A" }}</td>
 
                             <td>{{ educatorUser.tempPassword ?  educatorUser.tempPassword : "N/A" }}</td>
+
+                            <td>
+                                {% set assignedStudents = educatorUser.studentUsers %}
+                                {% set assignedStudentLength = assignedStudents|length %}
+                                {% set showStudents = 5 %}
+                                {% if assignedStudentLength %}
+
+                                    {% for s in assignedStudents|sort((a, b) => a.lastName <=> b.lastName)|slice(0, showStudents) %}
+                                        <a target="_blank" style="text-decoration: none" href="{{ path('profile_index', { "id": s.id }) }}">{{ s.fullName }}</a>{{ not loop.last or (loop.last and assignedStudentLength > 5) ? ',' }}
+                                    {% endfor %}
+
+                                    {% if assignedStudentLength > 5 %}
+                                        <span id="toggle-students-for-{{ educatorUser.id }}" hidden>
+                                            {% for s in assignedStudents|sort((a, b) => a.lastName <=> b.lastName)|slice(showStudents) %}
+                                                <a target="_blank" style="text-decoration: none" href="{{ path('profile_index', { "id": s.id }) }}">{{ s.fullName }}</a>{{ not loop.last ? ',' }}
+                                            {% endfor %}
+                                        </span>
+                                        <a uk-toggle="target: #toggle-students-for-{{ educatorUser.id }}" style="text-decoration: underline; display: block">Show more</a>
+                                    {% endif %}
+
+                                {% else %}
+                                    No assigned students
+                                {% endif %}
+
+
+
+                                {# {% for student in educatorUser.studentUsers %}
+                            {{ student.fullName }}
+                        {% endfor %} #}
+                            </td>
 
                             <td>{{ educatorUser.school.name }}</td>
 

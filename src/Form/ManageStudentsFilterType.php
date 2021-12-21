@@ -9,7 +9,9 @@ use App\Entity\User;
 use App\Repository\SchoolRepository;
 use App\Repository\StudentUserRepository;
 use Doctrine\ORM\EntityRepository;
+use Lexik\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Lexik\Bundle\FormFilterBundle\Filter\FilterOperands;
+use Lexik\Bundle\FormFilterBundle\Filter\Query\QueryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -43,7 +45,8 @@ class ManageStudentsFilterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-        $schoolIds = $options['schoolIds'];
+        $schoolIds     = $options['schoolIds'];
+        $eventRegister = $options['eventRegister'];
 
         $graduationYears = $this->studentUserRepository->getGraduationYears($schoolIds);
 
@@ -93,6 +96,48 @@ class ManageStudentsFilterType extends AbstractType
             'multiple'    => false,
             'required'    => false,
         ));
+
+        if ($eventRegister) {
+            $builder->add('registrationStatus', Filters\ChoiceFilterType::class, [
+                'apply_filter' => function (QueryInterface $filterQuery, $field, $values) use ($eventRegister) {
+                    if (empty($values['value'])) {
+                        return null;
+                    }
+
+                    $status = $values['value'];
+
+                    $queryBuilder = $filterQuery->getQueryBuilder();
+
+                    if ($status === 'registered') {
+                        $queryBuilder->innerJoin('u.registrations', 'r')
+                                     ->andWhere('r.experience = :experienceId')
+                                     ->setParameter('experienceId', $eventRegister->getId());
+                    } elseif ($status === 'unregistered') {
+                        $queryBuilder->leftJoin('u.registrations', 'r', "WITH", "r.experience = :experienceId")
+                                     ->andWhere('r.id IS NULL')
+                                     ->setParameter('experienceId', $eventRegister->getId());
+
+                        //->setParameter('experienceId', $eventRegister->getId());
+                        //$queryBuilder->andWhere('u.city IS NULL');
+                    }
+
+                    $newFilterQuery = new ORMQuery($queryBuilder);
+
+                    return $newFilterQuery->getExpr();
+                },
+                'expanded'     => false,
+                'multiple'     => false,
+                'placeholder'  => '-- Filter by Registration Status --',
+                'required'     => false,
+                //'mapped'   => false,
+                'choices'      => [
+                    'Registered'   => 'registered',
+                    'Unregistered' => 'unregistered',
+                ],
+            ]);
+        }
+
+
     }
 
     public function getBlockPrefix()
@@ -105,6 +150,7 @@ class ManageStudentsFilterType extends AbstractType
         $resolver->setDefaults(array (
             'schoolIds'         => [],
             'csrf_protection'   => false,
+            'eventRegister'     => null,
             'validation_groups' => array ('filtering') // avoid NotBlank() constraint-related message
         ))->setRequired('filter_type');
     }

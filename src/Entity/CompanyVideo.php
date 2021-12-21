@@ -14,6 +14,7 @@ class CompanyVideo extends Video
      * @Groups({"VIDEO"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyVideos")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $company;
 

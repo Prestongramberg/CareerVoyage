@@ -2,8 +2,8 @@
 
 namespace App\Form;
 
-use App\Entity\EducatorUser;
 use App\Entity\School;
+use App\Entity\StudentUser;
 use App\Util\FormHelper;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -12,9 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
-use Symfony\Component\Validator\Constraints\NotNull;
 
-class SupervisingTeacherFormType extends AbstractType
+class AssignedStudentsFormType extends AbstractType
 {
     use FormHelper;
 
@@ -23,21 +22,21 @@ class SupervisingTeacherFormType extends AbstractType
         /** @var School $school */
         $school = $options['school'];
 
-        $builder->add('supervisingTeachers', EntityType::class, [
-            'class' => EducatorUser::class,
+        $builder->add('assignedStudents', EntityType::class, [
+            'class' => StudentUser::class,
             'multiple' => true,
             'expanded' => false,
             'choice_label' => 'fullName',
-            'placeholder' => 'Supervising Teachers',
+            'placeholder' => 'Assigned Students',
             'query_builder' => function (EntityRepository $er) use ($school) {
-                return $er->createQueryBuilder('e')
-                          ->innerJoin('e.school', 's')
-                          ->where('s.id = :schoolId')
+                return $er->createQueryBuilder('s')
+                          ->innerJoin('s.school', 'sc')
+                          ->where('sc.id = :schoolId')
                           ->setParameter('schoolId', $school->getId())
-                          ->orderBy('e.firstName', 'ASC');
+                          ->orderBy('s.lastName', 'ASC');
             },
             'constraints' => [new Count(['min' => 1,
-                                         'minMessage' => 'Please choose at least one supervising teacher',
+                                         'minMessage' => 'Please choose at least one student',
                                          'groups' => ['DEFAULT'],
             ]),
             ]

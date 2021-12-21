@@ -15,7 +15,7 @@ class CompanyExperience extends Experience
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyExperiences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      *
      */
     private $company;
@@ -34,28 +34,28 @@ class CompanyExperience extends Experience
 
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="companyExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterStudentForCompanyExperienceRequest", mappedBy="companyExperience")
      */
     private $educatorRegisterStudentForCompanyExperienceRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest", mappedBy="companyExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest", mappedBy="companyExperience")
      */
     private $educatorRegisterEducatorForCompanyExperienceRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest", mappedBy="companyExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolAdminRegisterSAForCompanyExperienceRequest", mappedBy="companyExperience")
      */
     private $schoolAdminRegisterSAForCompanyExperienceRequests;
 
 
     /**
-     * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="StudentReviewCompanyExperienceFeedback", mappedBy="companyExperience")
      */
     private $studentReviewExperienceFeedback;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewCompanyExperienceFeedback", mappedBy="companyExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewCompanyExperienceFeedback", mappedBy="companyExperience")
      */
     private $educatorReviewCompanyExperienceFeedback;
 

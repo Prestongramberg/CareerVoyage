@@ -1,7 +1,9 @@
+{% set userType = redirectRoute == 'students_manage' ? 'Student' : 'Educator' %}
+
 <div class="uk-modal-dialog">
     <button class="uk-modal-close-outside" type="button" uk-close></button>
     <div class="uk-modal-header">
-        <h4>Delete Students <small>(<span style="font-weight: bold">{{ studentCount }}</span> Students Selected)</small></h4>
+        <h4>Delete {{ userType }}s <small>(<span style="font-weight: bold">{{ userCount }}</span> {{ userType }}{{ userCount > 1 ? 's' : '' }} Selected)</small></h4>
     </div>
 
     {{ form_start(form, {attr: {'id': 'js-bulk-action-form', 'novalidate' : 'novalidate'}}) }}
@@ -18,8 +20,8 @@
         {% endif %}
 
         <ul>
-            <li class="uk-text-danger">Deleting students cannot be undone.</li>
-            <li class="uk-text-danger">Deleting students will remove all data associated with them from the platform.</li>
+            <li class="uk-text-danger">Deleting {{ userType|lower }}s cannot be undone.</li>
+            <li class="uk-text-danger">Deleting {{ userType|lower }}s will remove all data associated with them from the platform.</li>
         </ul>
 
         <p>

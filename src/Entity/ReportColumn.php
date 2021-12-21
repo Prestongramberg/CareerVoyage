@@ -34,6 +34,7 @@ class ReportColumn
 
     /**
      * @ORM\ManyToOne(targetEntity=Report::class, inversedBy="reportColumns")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $report;
 

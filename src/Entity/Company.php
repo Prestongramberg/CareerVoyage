@@ -86,7 +86,7 @@ class Company
     private $professionalUsers;
 
     /**
-     * @ORM\OneToMany(targetEntity="CompanyPhoto", mappedBy="company", orphanRemoval=true, cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="CompanyPhoto", mappedBy="company", cascade={"persist"})
      */
     private $companyPhotos;
 
@@ -133,29 +133,29 @@ class Company
     private $primaryIndustry;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist"})
      */
     private $thumbnailImage;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist"})
      */
     private $featuredImage;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company", cascade={"remove"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyResource", mappedBy="company")
      */
     private $companyResources;
 
     /**
      * @Assert\NotBlank(message="Don't forget an owner!", groups={"EDIT"})
      * @ORM\OneToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="ownedCompany")
-     * @JoinColumn(onDelete="SET NULL")
+     * @JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $owner;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="company", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="company")
      */
     private $companyFavorites;
 
@@ -197,12 +197,12 @@ class Company
     private $schools;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyVideo", mappedBy="company", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyVideo", mappedBy="company")
      */
     private $companyVideos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperience", mappedBy="company", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyExperience", mappedBy="company")
      */
     private $companyExperiences;
 
@@ -274,7 +274,7 @@ class Company
     private $regions;
 
     /**
-     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="company", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="company")
      */
     private $companyViews;
 

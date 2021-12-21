@@ -15,6 +15,7 @@ class TeachLessonExperience extends Experience
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="teachLessonExperiences")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $teacher;
 
@@ -26,17 +27,18 @@ class TeachLessonExperience extends Experience
     private $school;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="teachLessonExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="teachLessonExperience")
      */
     private $educatorReviewTeachLessonExperienceFeedback;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="teachLessonExperience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\StudentReviewTeachLessonExperienceFeedback", mappedBy="teachLessonExperience")
      */
     private $studentReviewTeachLessonExperienceFeedback;
 
     /**
      * @ORM\ManyToOne(targetEntity=Lesson::class, inversedBy="teachLessonExperiences")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $lesson;
 

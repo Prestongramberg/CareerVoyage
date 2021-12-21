@@ -21,6 +21,7 @@ class UserMeta
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userMetas")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $user;
 

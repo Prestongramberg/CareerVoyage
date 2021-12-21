@@ -154,7 +154,7 @@ abstract class User implements UserInterface
 
     /**
      * @Groups({"ALL_USER_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonFavorite", mappedBy="user")
      */
     protected $lessonFavorites;
 
@@ -165,25 +165,24 @@ abstract class User implements UserInterface
     protected $lessons;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="created_by", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="created_by")
      */
     protected $requests;
 
-
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="needsApprovalBy", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Request", mappedBy="needsApprovalBy")
      */
     protected $requestsThatNeedMyApproval;
 
     /**
      * @Groups({"ALL_USER_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\CompanyFavorite", mappedBy="user")
      */
     protected $companyFavorites;
 
     /**
      * @Groups({"ALL_USER_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\LessonTeachable", mappedBy="user")
      */
     protected $lessonTeachables;
 
@@ -217,12 +216,12 @@ abstract class User implements UserInterface
     protected $isPhoneHiddenFromProfile = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="sentTo", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\ChatMessage", mappedBy="sentTo")
      */
     protected $chatMessages;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Registration", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Registration", mappedBy="user")
      */
     protected $registrations;
 
@@ -240,7 +239,7 @@ abstract class User implements UserInterface
     protected $temporarySecurityToken;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\UserRegisterForSchoolExperienceRequest", mappedBy="user")
      */
     protected $userRegisterForSchoolExperienceRequests;
 
@@ -252,18 +251,18 @@ abstract class User implements UserInterface
     protected $tempPassword;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\RequestPossibleApprovers", mappedBy="possibleApprover", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\RequestPossibleApprovers", mappedBy="possibleApprover")
      */
     protected $requestPossibleApprovers;
 
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\SchoolExperience", mappedBy="schoolContact")
      */
     protected $schoolExperiences;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="user")
      */
     protected $videoFavorites;
 
@@ -278,7 +277,7 @@ abstract class User implements UserInterface
     protected $profileCompleted = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CompanyView::class, mappedBy="user")
      */
     protected $companyViews;
 
@@ -288,12 +287,12 @@ abstract class User implements UserInterface
     protected $dashboardOrder = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentFrom")
      */
     protected $sentFromShares;
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentTo", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="sentTo")
      */
     protected $sentToShares;
 
@@ -326,12 +325,12 @@ abstract class User implements UserInterface
     protected $splashPagesShown = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=UserMeta::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=UserMeta::class, mappedBy="user")
      */
     protected $userMetas;
 
     /**
-     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="user")
      */
     protected $requestActions;
 

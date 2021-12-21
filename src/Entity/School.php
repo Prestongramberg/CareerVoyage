@@ -163,12 +163,12 @@ class School
     private $longitude;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist"})
      */
     private $thumbnailImage;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist"})
      */
     private $featuredImage;
 

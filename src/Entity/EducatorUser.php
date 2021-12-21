@@ -92,22 +92,22 @@ class EducatorUser extends User
     private $studentUsers;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewCompanyExperienceFeedback", mappedBy="educator", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewCompanyExperienceFeedback", mappedBy="educator")
      */
     private $educatorReviewCompanyExperienceFeedback;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="educator", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorReviewTeachLessonExperienceFeedback", mappedBy="educator")
      */
     private $educatorReviewTeachLessonExperienceFeedback;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest", mappedBy="educatorUser", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorRegisterEducatorForCompanyExperienceRequest", mappedBy="educatorUser")
      */
     private $educatorRegisterEducatorForCompanyExperienceRequests;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\EducatorVideo", mappedBy="educator", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\EducatorVideo", mappedBy="educator")
      */
     private $educatorVideos;
 

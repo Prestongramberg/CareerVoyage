@@ -1,9 +1,15 @@
 <select class="uk-select js-bulk-action-dropdown" style="width: 200px">
     <option value="" disabled selected>Bulk actions</option>
-    <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'delete'})) }}">Delete</option>
-    <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'reset_password'})) }}">Reset Password</option>
-    <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'change_supervising_teacher'})) }}">Change Supervising Teacher</option>
-{#    <option value="{{ path('students_manage_bulk_action', query|merge({'action': 'mark_as_graduated'})) }}">Mark as Graduated</option>#}
+
+    {% if eventRegister %}
+        <option value="{{ path('school_users_bulk_action', query|merge({'action': 'register', 'event-register': eventRegister.id})) }}">Register</option>
+        <option value="{{ path('school_users_bulk_action', query|merge({'action': 'unregister', 'event-register': eventRegister.id})) }}">Unregister</option>
+    {% else %}
+        <option value="{{ path('school_users_bulk_action', query|merge({'action': 'delete'})) }}">Delete</option>
+        <option value="{{ path('school_users_bulk_action', query|merge({'action': 'reset_password'})) }}">Reset Password</option>
+        <option value="{{ path('school_users_bulk_action', query|merge({'action': 'change_supervising_teacher'})) }}">Change Supervising Teacher</option>
+    {% endif %}
+
 </select>
 <button class="uk-button uk-button-primary js-bulk-action-apply-button">Apply</button>
 <div class="js-total-users-selected" style="font-weight: bold; margin-top: 20px"></div>
@@ -13,6 +19,3 @@
 <ul class="js-select-user-error errors" style="display: none; list-style-type: none; padding-left: 0">
     <li style="color: #f0506e">Please select at least one student to perform a bulk action on</li>
 </ul>
-
-{#
-{{ dump(_context) }}#}

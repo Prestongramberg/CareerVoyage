@@ -11,7 +11,7 @@ class SiteAdminUser extends User
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="siteAdminUsers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $site;
 

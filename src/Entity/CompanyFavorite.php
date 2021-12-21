@@ -25,14 +25,14 @@ class CompanyFavorite
     /**
      * @Groups({"RESULTS_PAGE"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="companyFavorites")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $user;
 
     /**
      * @Groups({"RESULTS_PAGE", "ALL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="companyFavorites")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $company;
 

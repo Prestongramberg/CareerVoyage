@@ -18,11 +18,13 @@ class VideoFavorite
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="videoFavorites")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Video", inversedBy="videoFavorites")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $video;
 

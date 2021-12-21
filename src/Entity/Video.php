@@ -55,7 +55,7 @@ class Video
     private $isFavorite = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="video", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\VideoFavorite", mappedBy="video")
      */
     private $videoFavorites;
 

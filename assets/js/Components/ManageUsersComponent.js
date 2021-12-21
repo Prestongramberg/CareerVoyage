@@ -8,23 +8,16 @@ class ManageUsersComponent {
 
     /**
      * @param $wrapper
-     * @param modalRenderSuccessHandler
-     * @param formSubmitSuccessHandler
-     * @param formSubmitErrorHandler
      */
-    constructor($wrapper, modalRenderSuccessHandler, formSubmitSuccessHandler, formSubmitErrorHandler) {
+    constructor($wrapper) {
         this.$wrapper = $wrapper;
-        this.modalRenderSuccessHandler = modalRenderSuccessHandler;
-        this.formSubmitSuccessHandler = formSubmitSuccessHandler;
-        this.formSubmitErrorHandler = formSubmitErrorHandler;
-
         this.unbindEvents();
         this.bindEvents();
     }
 
     unbindEvents() {
-
-        this.$wrapper.off('change', ManageUsersComponent._selectors.primaryIndustryFilter);
+        this.$wrapper.off('change', ManageUsersComponent._selectors.selectAllUsersCheckbox);
+        this.$wrapper.off('change', '[name="user[]"]');
         this.$wrapper.off('click', ManageUsersComponent._selectors.bulkActionApplyButton);
         $('#js-bulk-action-modal').off('submit', '#js-bulk-action-form');
     }
@@ -41,6 +34,7 @@ class ManageUsersComponent {
 
     bindEvents() {
         this.$wrapper.on('change', ManageUsersComponent._selectors.selectAllUsersCheckbox, this.handleSelectAllUsersCheckboxChange.bind(this));
+        this.$wrapper.on('change', '[name="user[]"]', this.handleSelectIndividualUserCheckboxChange.bind(this));
         this.$wrapper.on('click', ManageUsersComponent._selectors.bulkActionApplyButton, this.handleBulkActionApplyButtonClick.bind(this));
         $('#js-bulk-action-modal').on('submit', '#js-bulk-action-form', this.handleBulkActionFormSubmit);
     }
@@ -56,6 +50,10 @@ class ManageUsersComponent {
             $('[name="user[]"]').prop("checked", false);
             this._setSelectedUsers();
         }
+    }
+
+    handleSelectIndividualUserCheckboxChange(event) {
+        this._setSelectedUsers();
     }
 
     handleBulkActionApplyButtonClick(event) {
@@ -94,7 +92,29 @@ class ManageUsersComponent {
             url: bulkAction,
             method: 'GET',
             data: data
-        }).then(this.modalRenderSuccessHandler).catch((jqXHR) => {
+        }).then((data, textStatus, jqXHR) => {
+
+            UIkit.modal('#js-bulk-action-modal').show();
+
+            $('#js-bulk-action-modal').html(data.formMarkup);
+
+            if ($('#supervising_teacher_form_supervisingTeachers').length) {
+                $('#supervising_teacher_form_supervisingTeachers').select2({
+                    placeholder: "Supervising Teacher",
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+            if ($('#assigned_students_form_assignedStudents').length) {
+                $('#assigned_students_form_assignedStudents').select2({
+                    placeholder: "Assign Students",
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+        }).catch((jqXHR) => {
             const errorData = JSON.parse(jqXHR.responseText);
         });
     }
@@ -121,7 +141,31 @@ class ManageUsersComponent {
             contentType: false,
             processData: false,
             type: "POST"
-        }).then(this.formSubmitSuccessHandler).catch(this.formSubmitErrorHandler);
+        }).then((data, textStatus, jqXHR) => {
+            debugger;
+            window.location.href = data.redirectUrl;
+        }).catch((jqXHR) => {
+
+            const errorData = JSON.parse(jqXHR.responseText);
+            $('#js-bulk-action-modal').html(errorData.formMarkup);
+
+            if ($('#supervising_teacher_form_supervisingTeachers').length) {
+                $('#supervising_teacher_form_supervisingTeachers').select2({
+                    placeholder: "Supervising Teacher",
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+            if ($('#assigned_students_form_assignedStudents').length) {
+                $('#assigned_students_form_assignedStudents').select2({
+                    placeholder: "Assign Students",
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+        });
 
     }
 

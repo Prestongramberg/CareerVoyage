@@ -164,7 +164,7 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\ExperienceFile", mappedBy="experience", cascade={"remove"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\ExperienceFile", mappedBy="experience")
      */
     protected $experienceFiles;
 
@@ -192,12 +192,12 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\OneToMany(targetEntity="App\Entity\registration", mappedBy="experience", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\registration", mappedBy="experience")
      */
     protected $registrations;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="experience", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Feedback", mappedBy="experience")
      */
     protected $feedback;
 
@@ -224,7 +224,7 @@ abstract class Experience
     protected $requireApproval = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="experience", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="experience")
      */
     protected $shares;
 
@@ -245,6 +245,7 @@ abstract class Experience
 
     /**
      * @ORM\OneToOne(targetEntity=Request::class, inversedBy="experience")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     protected $request;
 
@@ -656,6 +657,17 @@ abstract class Experience
         foreach ($this->getRegistrations() as $registration) {
             if ($registration->getUser()->getId() === $user->getId()) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getRegistrationForUser(User $user)
+    {
+        foreach ($this->getRegistrations() as $registration) {
+            if ($registration->getUser()->getId() === $user->getId()) {
+                return $registration;
             }
         }
 

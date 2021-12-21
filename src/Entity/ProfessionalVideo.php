@@ -14,6 +14,7 @@ class ProfessionalVideo extends Video
     /**
      * @Groups({"PROFESSIONAL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="professionalVideos")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $professional;
 

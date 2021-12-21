@@ -37,13 +37,15 @@ class Tag
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @ORM\OneToOne(targetEntity=SecondaryIndustry::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=SecondaryIndustry::class)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $secondaryIndustry;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToOne(targetEntity=Industry::class)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $primaryIndustry;
 

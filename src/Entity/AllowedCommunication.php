@@ -18,11 +18,13 @@ class AllowedCommunication
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\StudentUser", inversedBy="allowedCommunications")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $studentUser;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProfessionalUser", inversedBy="allowedCommunications")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $professionalUser;
 

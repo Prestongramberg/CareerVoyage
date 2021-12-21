@@ -22,13 +22,13 @@ class RequestPossibleApprovers
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Request", inversedBy="requestPossibleApprovers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $request;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requestPossibleApprovers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $possibleApprover;
 

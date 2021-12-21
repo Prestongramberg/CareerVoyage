@@ -81,13 +81,14 @@ class Feedback
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="feedback")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     protected $user;
 
     /**
      * @Groups({"FEEDBACK"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Experience", inversedBy="feedback")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $experience;
 

@@ -9,19 +9,20 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\JoinTable;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SchoolAdminRegisterSAForCompanyExperienceRequest")
+ * @ORM\Entity(repositoryClass="App\Repository\SchoolAdminRegisterSAForCompanyExperienceRequestRepository")
  */
 class SchoolAdminRegisterSAForCompanyExperienceRequest extends Request
 {
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\CompanyExperience", inversedBy="schoolAdminRegisterSAForCompanyExperienceRequests")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $companyExperience;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\SchoolAdministrator", inversedBy="schoolAdminRegisterSAForCompanyExperienceRequests")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     private $schoolAdminUser;
 

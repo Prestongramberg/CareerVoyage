@@ -15,26 +15,48 @@
         <div class="uk-grid" uk-grid>
             <div class="uk-width-1-1">
 
-                <ul class="uk-breadcrumb">
-                    <li><a href="{{ path('dashboard') }}">Home</a></li>
-                    <li><span href="">Manage Students</span></li>
-                </ul>
+                {% if eventRegister %}
+                    <ul class="uk-breadcrumb">
+                        <li><a href="{{ path('dashboard') }}">Home</a></li>
+                        <li>
+                            <a href="{{ path('experience_view', {id: eventRegister.id}) }}">Event: {{ eventRegister.title }}</a>
+                        </li>
+                        <li><span href="">Student Registration</span></li>
+                    </ul>
+                {% else %}
+                    <ul class="uk-breadcrumb">
+                        <li><a href="{{ path('dashboard') }}">Home</a></li>
+                        <li><span href="">Manage Students</span></li>
+                    </ul>
+                {% endif %}
+
 
                 <div class="uk-section-small uk-section-default header">
                     <div class="uk-container uk-container-large">
-                        <h2>MANAGE STUDENTS - <small>{{ school.name }}</small></h2>
+
+                        {% if eventRegister %}
+                            <h2>STUDENT REGISTRATION - <small>{{ school.name }}</small></h2>
+                            <dl class="uk-description-list">
+                                <dt>Event Name</dt>
+                                <dd>{{ eventRegister.title }}</dd>
+                                <dt>Event Dates</dt>
+                                <dd>{{ eventRegister.startDateAndTime|date("F jS Y \\a\\t g:ia") }}
+                                    - {{ eventRegister.endDateAndTime|date("F jS Y \\a\\t g:ia") }}</dd>
+                            </dl>
+
+                        {% else %}
+                            <h2>MANAGE STUDENTS - <small>{{ school.name }}</small></h2>
+                        {% endif %}
 
                         <hr>
-                        <a href="{{ path('school_student_import', { "id": school.id }) }}"
-                           class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Students</a>
 
-                        <select id="js-school-administrator-schools" class="uk-select"
-                                style="width: 300px; margin-right: 10px">
-                            {% for schoolOption in schools %}
-                                <option {{ schoolOption.id == school.id ? 'selected' : '' }}
-                                        value="{{ path('students_manage', {id: schoolOption.id}) }}">{{ schoolOption.name }}</option>
-                            {% endfor %}
-                        </select>
+                        {% if eventRegister is null %}
+                            <a href="{{ path('school_student_import', { "id": school.id }) }}"
+                               class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Students</a>
+                        {% endif %}
+
+                        {{ knp_pagination_render(pagination, 'pagination/school_switcher.html.twig', {}, {'schools': schools, 'school': school}) }}
+
                         <hr>
                     </div>
                 </div>
@@ -60,6 +82,16 @@
                     {{ form_widget(form.graduatingYear, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Graduating Year'}}) }}
                 </div>
 
+                {% if eventRegister %}
+                    <input type="hidden" name="event-register" value="{{ eventRegister.id }}">
+                {% endif %}
+
+                {% if form.registrationStatus is defined %}
+                    <div class="uk-width-1-4@s">
+                        {{ form_widget(form.registrationStatus , {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Registration Status'}}) }}
+                    </div>
+                {% endif %}
+
                 <div class="uk-width-1-4@s">
                     <button class="uk-button uk-button-primary">Search</button>
                     <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
@@ -74,11 +106,11 @@
             <div style="margin-top:50px; position: relative" class="uk-width-1-3">
                 {{ knp_pagination_render(pagination, 'pagination/items_per_page.html.twig') }}
                 <div style="position: absolute; transform: translate(-50%,-50%); top: 50%">Total
-                    Student: {{ pagination.getTotalItemCount }}</div>
+                    Students: {{ pagination.getTotalItemCount }}</div>
             </div>
 
             <div style="margin-top:50px" class="uk-width-1-2">
-                {{ knp_pagination_render(pagination, 'pagination/manage_students_bulk_actions.html.twig') }}
+                {{ knp_pagination_render(pagination, 'pagination/manage_students_bulk_actions.html.twig', {}, {'eventRegister': eventRegister}) }}
             </div>
 
             <div class="uk-width-1-1 uk-overflow-auto" style="font-size: 0.8em">
@@ -91,9 +123,15 @@
                         <th>Email</th>
                         <th>Username</th>
                         <th>Supervising Teacher(s)</th>
-                        <th>Temp Password</th>
-                        <th>Graduation Year</th>
-                        <th>School</th>
+
+                        {% if eventRegister %}
+                            <th>Registration Status</th>
+                        {% else %}
+                            <th>Temp Password</th>
+                            <th>Graduation Year</th>
+                            <th>School</th>
+                        {% endif %}
+
                         <th colspan="2"></th>
                     </tr>
 
@@ -131,10 +169,19 @@
                                 {% endfor %}
                             </td>
 
-                            <td>{{ studentUser.tempPassword ?  studentUser.tempPassword : "N/A" }}</td>
-
-                            <td>{{ studentUser.graduatingYear }}</td>
-                            <td>{{ studentUser.school.name }}</td>
+                            {% if eventRegister %}
+                                <td>
+                                    {% if eventRegister.registered(studentUser) %}
+                                        <span class="uk-label uk-label-success">Registered</span>
+                                    {% else %}
+                                        <span class="uk-label uk-label-danger">Not Registered</span>
+                                    {% endif %}
+                                </td>
+                            {% else %}
+                                <td>{{ studentUser.tempPassword ?  studentUser.tempPassword : "N/A" }}</td>
+                                <td>{{ studentUser.graduatingYear }}</td>
+                                <td>{{ studentUser.school.name }}</td>
+                            {% endif %}
 
                             <td colspan="2">
                                 <a target="_blank" href="{{ path('profile_edit', { "id": studentUser.id }) }}"

@@ -82,6 +82,7 @@ class Request
     /**
      * @Groups({"REQUEST"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="requestsThatNeedMyApproval")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $needsApprovalBy;
 
@@ -101,7 +102,7 @@ class Request
     protected $allowApprovalByActivationCode = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\RequestPossibleApprovers", mappedBy="request", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\RequestPossibleApprovers", mappedBy="request")
      */
     private $requestPossibleApprovers;
 
@@ -184,7 +185,7 @@ class Request
     private $published = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="request", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Share::class, mappedBy="request")
      */
     private $shares;
 
@@ -204,7 +205,7 @@ class Request
     private $needsApprovalByRoles = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity=RequestAction::class, mappedBy="request")
      */
     private $requestActions;
 

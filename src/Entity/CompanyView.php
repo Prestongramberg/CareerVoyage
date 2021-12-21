@@ -19,13 +19,13 @@ class CompanyView
 
     /**
      * @ORM\ManyToOne(targetEntity=Company::class, inversedBy="companyViews")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $company;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="companyViews")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $user;
 

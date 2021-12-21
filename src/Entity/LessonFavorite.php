@@ -24,14 +24,14 @@ class LessonFavorite
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="lessonFavorites")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private $user;
 
     /**
      * @Groups({"LESSON_DATA", "ALL_USER_DATA"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Lesson", inversedBy="lessonFavorites")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $lesson;
 

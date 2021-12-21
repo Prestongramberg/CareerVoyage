@@ -11,6 +11,7 @@ use App\Entity\ExperienceFile;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
+use App\Entity\Registration;
 use App\Entity\RequestAction;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
@@ -21,6 +22,8 @@ use App\Entity\SchoolVideo;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Form\AdHocFormType;
+use App\Form\AssignedStudentsFormType;
 use App\Form\ChatFilterType;
 use App\Form\ChatMessageFilterType;
 use App\Form\DeleteStudentsFormType;
@@ -1666,6 +1669,43 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/students/manage-entry", name="students_manage_entry", methods={"GET"})
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function manageStudentsEntryAction(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $authorizationVoter = new AuthorizationVoter();
+
+        if (!$authorizationVoter->canManageStudents($user)) {
+            throw new AccessDeniedException();
+        }
+
+        $school = null;
+        if ($user instanceof SchoolAdministrator) {
+            $school = $user->getSchools()->first();
+        } elseif ($user instanceof EducatorUser) {
+            $school = $user->getSchool();
+        }
+
+        if($school) {
+
+            if ($eventRegister = $request->query->get('event-register')) {
+                return $this->redirectToRoute('students_manage', ['id' => $school->getId(), 'event-register' => $eventRegister]);
+            }
+
+            return $this->redirectToRoute('students_manage', ['id' => $school->getId()]);
+        }
+
+        throw new AccessDeniedException();
+    }
+
+
+    /**
      * @Route("/schools/{id}/students/manage", name="students_manage", methods={"GET"})
      * @param Request $request
      *
@@ -1682,11 +1722,14 @@ class SchoolController extends AbstractController
             throw new AccessDeniedException();
         }
 
-        $schools = new ArrayCollection();
+        if ($eventRegister = $request->query->get('event-register')) {
+            $eventRegister = $this->experienceRepository->find($eventRegister);
+        }
+
         if ($user instanceof SchoolAdministrator) {
             $schools = $user->getSchools();
         } elseif ($user instanceof EducatorUser) {
-            $schools = $schools->add($user->getSchool());
+            $schools = new ArrayCollection([$user->getSchool()]);
         } elseif ($user instanceof AdminUser) {
             $schools = $this->schoolRepository->findAll();
         }
@@ -1698,6 +1741,7 @@ class SchoolController extends AbstractController
             'method'      => 'GET',
             'filter_type' => StudentUser::class,
             'schoolIds'   => $schoolIds,
+            'eventRegister' => $eventRegister
         ]);
 
         $form->handleRequest($request);
@@ -1728,29 +1772,36 @@ class SchoolController extends AbstractController
 
         $user = $this->getUser();
 
+        $clearFormUrl = $this->generateUrl('students_manage', ['id' => $school->getId()]);
+        if($eventRegister) {
+            $clearFormUrl = $this->generateUrl('students_manage', ['id' => $school->getId(), 'event-register' => $eventRegister->getId()]);
+        }
+
         return $this->render('school/manage_students.html.twig', [
-            'user'         => $user,
-            'pagination'   => $pagination,
-            'form'         => $form->createView(),
-            'schools'      => $schools,
-            'school'       => $school,
-            'clearFormUrl' => $this->generateUrl('students_manage', ['id' => $school->getId()]),
+            'user'          => $user,
+            'pagination'    => $pagination,
+            'form'          => $form->createView(),
+            'schools'       => $schools,
+            'school'        => $school,
+            'eventRegister' => $eventRegister,
+            'clearFormUrl'  => $clearFormUrl,
         ]);
     }
 
     /**
-     * @Route("/schools/{id}/students/manage/bulk-action", name="students_manage_bulk_action", methods={"GET", "POST"}, options = { "expose" = true })
+     * @Route("/schools/{id}/users/bulk-action", name="school_users_bulk_action", methods={"GET", "POST"}, options = { "expose" = true })
      * @param School  $school
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function manageStudentsBulkAction(School $school, Request $request)
+    public function schoolUsersBulkAction(School $school, Request $request)
     {
 
         /** @var User $loggedInUser */
-        $loggedInUser = $this->getUser();
-        $action       = $request->query->get('action');
+        $loggedInUser  = $this->getUser();
+        $action        = $request->query->get('action');
+        $redirectRoute = $request->query->get('redirectRoute', 'students_manage');
 
         if (!$action) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
@@ -1763,33 +1814,35 @@ class SchoolController extends AbstractController
 
             case 'delete':
 
-                $template = 'school/modal/delete_students.html.twig';
+                $template = 'school/modal/bulk_action_delete_users.html.twig';
 
-                $action = $this->generateUrl('students_manage_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
 
-                $form = $this->createForm(DeleteStudentsFormType::class, null, [
+                $form = $this->createForm(AdHocFormType::class, null, [
                     'method' => 'post',
                     'action' => $action,
                 ]);
 
                 $context = [
-                    'form'         => $form->createView(),
-                    'loggedInUser' => $loggedInUser,
-                    'studentCount' => $request->query->get('userCount', 0),
+                    'form'          => $form->createView(),
+                    'loggedInUser'  => $loggedInUser,
+                    'userCount'     => $request->query->get('userCount', 0),
+                    'redirectRoute' => $redirectRoute,
                 ];
 
-                $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                ) {
 
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
 
-                        $studentIds = $request->request->get('userIds', []);
-                        $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
+                        $userIds = $request->request->get('userIds', []);
+                        $users   = $this->userRepository->findBy(['id' => $userIds]);
 
-                        /** @var StudentUser $student */
-                        foreach ($students as $student) {
-                            $this->entityManager->remove($student);
+                        foreach ($users as $user) {
+                            $this->entityManager->remove($user);
                         }
 
                         $this->entityManager->flush();
@@ -1799,14 +1852,158 @@ class SchoolController extends AbstractController
                         unset($queryParams['userCount']);
 
                         return new JsonResponse([
-                            'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                            'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
                         ], Response::HTTP_OK);
                     }
 
                     $context = [
-                        'form'         => $form->createView(),
-                        'loggedInUser' => $loggedInUser,
-                        'studentCount' => $request->query->get('userCount', 0),
+                        'form'          => $form->createView(),
+                        'loggedInUser'  => $loggedInUser,
+                        'userCount'     => $request->query->get('userCount', 0),
+                        'redirectRoute' => $redirectRoute,
+                    ];
+
+                    return new JsonResponse([
+                        'formMarkup' => $this->renderView($template, $context),
+                    ], Response::HTTP_BAD_REQUEST);
+
+                };
+
+                break;
+
+            case 'register':
+
+                $template = 'school/modal/bulk_action_register_users.html.twig';
+
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+
+                $form = $this->createForm(AdHocFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $action,
+                ]);
+
+                if ($eventRegister = $request->query->get('event-register')) {
+                    $eventRegister = $this->experienceRepository->find($eventRegister);
+                }
+
+                $context = [
+                    'form'          => $form->createView(),
+                    'loggedInUser'  => $loggedInUser,
+                    'userCount'     => $request->query->get('userCount', 0),
+                    'redirectRoute' => $redirectRoute,
+                    'eventRegister' => $eventRegister
+                ];
+
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute, $eventRegister
+                ) {
+
+                    $form->handleRequest($request);
+
+                    if ($form->isSubmitted() && $form->isValid()) {
+
+                        $userIds = $request->request->get('userIds', []);
+                        $users   = $this->userRepository->findBy(['id' => $userIds]);
+
+                        foreach ($users as $user) {
+
+                            if($eventRegister->isRegistered($user)) {
+                                continue;
+                            }
+
+                            $registration = new Registration();
+                            $registration->setExperience($eventRegister);
+                            $registration->setUser($user);
+                            $registration->setApproved(true);
+                            $this->entityManager->persist($registration);
+                        }
+
+                        $this->entityManager->flush();
+
+                        $queryParams = $request->query->all();
+                        unset($queryParams['action']);
+                        unset($queryParams['userCount']);
+                        unset($queryParams['userId']);
+
+                        return new JsonResponse([
+                            'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                        ], Response::HTTP_OK);
+                    }
+
+                    $context = [
+                        'form'          => $form->createView(),
+                        'loggedInUser'  => $loggedInUser,
+                        'userCount'     => $request->query->get('userCount', 0),
+                        'redirectRoute' => $redirectRoute,
+                        'eventRegister' => $eventRegister
+                    ];
+
+                    return new JsonResponse([
+                        'formMarkup' => $this->renderView($template, $context),
+                    ], Response::HTTP_BAD_REQUEST);
+
+                };
+
+                break;
+
+            case 'unregister':
+
+                $template = 'school/modal/bulk_action_unregister_users.html.twig';
+
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+
+                $form = $this->createForm(AdHocFormType::class, null, [
+                    'method' => 'post',
+                    'action' => $action,
+                ]);
+
+                if ($eventRegister = $request->query->get('event-register')) {
+                    $eventRegister = $this->experienceRepository->find($eventRegister);
+                }
+
+                $context = [
+                    'form'          => $form->createView(),
+                    'loggedInUser'  => $loggedInUser,
+                    'userCount'     => $request->query->get('userCount', 0),
+                    'redirectRoute' => $redirectRoute,
+                    'eventRegister' => $eventRegister
+                ];
+
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute, $eventRegister
+                ) {
+
+                    $form->handleRequest($request);
+
+                    if ($form->isSubmitted() && $form->isValid()) {
+
+                        $userIds = $request->request->get('userIds', []);
+                        $users   = $this->userRepository->findBy(['id' => $userIds]);
+
+                        foreach ($users as $user) {
+                            if($registration = $eventRegister->getRegistrationForUser($user)) {
+                                $this->entityManager->remove($registration);
+                            }
+                        }
+
+                        $this->entityManager->flush();
+
+                        $queryParams = $request->query->all();
+                        unset($queryParams['action']);
+                        unset($queryParams['userCount']);
+                        unset($queryParams['userId']);
+
+                        return new JsonResponse([
+                            'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                        ], Response::HTTP_OK);
+                    }
+
+                    $context = [
+                        'form'          => $form->createView(),
+                        'loggedInUser'  => $loggedInUser,
+                        'userCount'     => $request->query->get('userCount', 0),
+                        'redirectRoute' => $redirectRoute,
+                        'eventRegister' => $eventRegister
                     ];
 
                     return new JsonResponse([
@@ -1821,7 +2018,7 @@ class SchoolController extends AbstractController
 
                 $template = 'school/modal/reset_password.html.twig';
 
-                $action = $this->generateUrl('students_manage_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
 
                 $resetPassword = new ResetPassword();
 
@@ -1831,29 +2028,32 @@ class SchoolController extends AbstractController
                 ]);
 
                 $context = [
-                    'form'         => $form->createView(),
-                    'loggedInUser' => $loggedInUser,
-                    'studentCount' => $request->query->get('userCount', 0),
+                    'form'          => $form->createView(),
+                    'loggedInUser'  => $loggedInUser,
+                    'userCount'     => $request->query->get('userCount', 0),
+                    'redirectRoute' => $redirectRoute,
                 ];
 
-                $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                ) {
 
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
 
-                        $studentIds = $request->request->get('userIds', []);
-                        $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
+                        $userIds = $request->request->get('userIds', []);
+                        $users   = $this->userRepository->findBy(['id' => $userIds]);
 
-                        foreach ($students as $student) {
+                        foreach ($users as $user) {
                             /** @var ResetPassword $resetPassword */
                             $resetPassword = $form->getData();
 
-                            $student->setTempPasswordEncrypted($this->passwordEncoder->encodePassword($student, $resetPassword->getPassword()));
+                            $user->setTempPasswordEncrypted($this->passwordEncoder->encodePassword($user, $resetPassword->getPassword()));
 
-                            $student->setTempPassword($resetPassword->getPassword());
-                            $student->clearPasswordResetToken();
-                            $this->entityManager->persist($student);
+                            $user->setTempPassword($resetPassword->getPassword());
+                            $user->clearPasswordResetToken();
+                            $this->entityManager->persist($user);
                         }
 
                         $this->entityManager->flush();
@@ -1861,17 +2061,18 @@ class SchoolController extends AbstractController
                         $queryParams = $request->query->all();
                         unset($queryParams['action']);
                         unset($queryParams['userCount']);
-                        unset($queryParams['studentId']);
+                        unset($queryParams['userId']);
 
                         return new JsonResponse([
-                            'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                            'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
                         ], Response::HTTP_OK);
                     }
 
                     $context = [
-                        'form'         => $form->createView(),
-                        'loggedInUser' => $loggedInUser,
-                        'studentCount' => $request->query->get('userCount', 0),
+                        'form'          => $form->createView(),
+                        'loggedInUser'  => $loggedInUser,
+                        'userCount'     => $request->query->get('userCount', 0),
+                        'redirectRoute' => $redirectRoute,
                     ];
 
                     return new JsonResponse([
@@ -1900,7 +2101,7 @@ class SchoolController extends AbstractController
                     ];
                 }
 
-                $action = $this->generateUrl('students_manage_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
 
                 $form = $this->createForm(SupervisingTeacherFormType::class, $data, [
                     'method' => 'post',
@@ -1911,10 +2112,12 @@ class SchoolController extends AbstractController
                 $context = [
                     'form'         => $form->createView(),
                     'loggedInUser' => $loggedInUser,
-                    'studentCount' => $request->query->get('userCount', 0),
+                    'userCount'    => $request->query->get('userCount', 0),
                 ];
 
-                $bulkActionHandler = function () use ($form, $loggedInUser, $request, $template, $school, &$context) {
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                ) {
 
                     $form->handleRequest($request);
 
@@ -1960,14 +2163,14 @@ class SchoolController extends AbstractController
                         unset($queryParams['userId']);
 
                         return new JsonResponse([
-                            'redirectUrl' => $this->generateUrl('students_manage', array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                            'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
                         ], Response::HTTP_OK);
                     }
 
                     $context = [
                         'form'         => $form->createView(),
                         'loggedInUser' => $loggedInUser,
-                        'studentCount' => $request->query->get('userCount', 0),
+                        'userCount'    => $request->query->get('userCount', 0),
                     ];
 
                     return new JsonResponse([
@@ -1975,6 +2178,105 @@ class SchoolController extends AbstractController
                     ], Response::HTTP_BAD_REQUEST);
 
                 };
+
+                break;
+
+            case 'assign_students':
+
+                $template   = 'school/modal/assign_students.html.twig';
+                $educatorId = $request->query->get('userId');
+                $data       = null;
+
+                if ($educatorId && $educator = $this->educatorUserRepository->find($educatorId)) {
+
+                    $originalAssignedStudents = new ArrayCollection();
+                    foreach ($educator->getStudentUsers() as $studentUser) {
+                        $originalAssignedStudents->add($studentUser);
+                    }
+
+                    $data = [
+                        'assignedStudents' => $originalAssignedStudents,
+                    ];
+                }
+
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+
+                $form = $this->createForm(AssignedStudentsFormType::class, $data, [
+                    'method' => 'post',
+                    'action' => $action,
+                    'school' => $school,
+                ]);
+
+                $context = [
+                    'form'         => $form->createView(),
+                    'loggedInUser' => $loggedInUser,
+                    'userCount'    => $request->query->get('userCount', 0),
+                ];
+
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                ) {
+
+                    $form->handleRequest($request);
+
+                    if ($form->isSubmitted() && $form->isValid()) {
+
+                        $educatorIds = $request->request->get('userIds', []);
+                        $educators   = $this->educatorUserRepository->findBy(['id' => $educatorIds]);
+                        $strategy    = $form->get('strategy')->getData();
+
+                        foreach ($educators as $educator) {
+
+                            $originalAssignedStudents = new ArrayCollection();
+                            foreach ($educator->getStudentUsers() as $studentUser) {
+                                $originalAssignedStudents->add($studentUser);
+                            }
+
+                            $assignedStudents = $form->get('assignedStudents')->getData();
+
+                            if ($strategy === 'replace') {
+                                foreach ($originalAssignedStudents as $originalAssignedStudent) {
+                                    if (false === $assignedStudents->contains($originalAssignedStudent)) {
+                                        $educator->removeStudentUser($originalAssignedStudent);
+                                        $this->entityManager->persist($educator);
+                                    }
+                                }
+                            }
+
+                            /** @var StudentUser $assignedStudent */
+                            foreach ($assignedStudents as $assignedStudent) {
+                                if (false === $originalAssignedStudents->contains($assignedStudent)) {
+                                    $educator->addStudentUser($assignedStudent);
+                                }
+                            }
+
+                            $this->entityManager->persist($educator);
+                        }
+
+                        $this->entityManager->flush();
+
+                        $queryParams = $request->query->all();
+                        unset($queryParams['action']);
+                        unset($queryParams['userCount']);
+                        unset($queryParams['userId']);
+
+                        return new JsonResponse([
+                            'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                        ], Response::HTTP_OK);
+                    }
+
+                    $context = [
+                        'form'         => $form->createView(),
+                        'loggedInUser' => $loggedInUser,
+                        'userCount'    => $request->query->get('userCount', 0),
+                    ];
+
+                    return new JsonResponse([
+                        'formMarkup' => $this->renderView($template, $context),
+                    ], Response::HTTP_BAD_REQUEST);
+
+                };
+
 
                 break;
 

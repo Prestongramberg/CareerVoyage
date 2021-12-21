@@ -1,4 +1,4 @@
-{% if user.tempPassword %}
+{% if user.tempPassword and user.password is null %}
     <div class="uk-container uk-margin-bottom">
         <div class="uk-alert-warning" uk-alert>
             <a class="uk-alert-close" uk-close></a>

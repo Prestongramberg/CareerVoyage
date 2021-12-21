@@ -1,0 +1,7 @@
+<select id="js-school-administrator-schools" class="uk-select"
+        style="width: 300px; margin-right: 10px">
+    {% for schoolOption in schools %}
+        <option {{ schoolOption.id == school.id ? 'selected' : '' }}
+                value="{{ path('students_manage', query|merge({id: schoolOption.id})) }}">{{ schoolOption.name }}</option>
+    {% endfor %}
+</select>
