@@ -284,4 +284,154 @@ class ExperienceRepository extends ServiceEntityRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * To use this function a few things must happen first
+     * 1. You must use google api to find the starting latitude and starting longitude of the starting address or zipcode
+     * 2. You must use the geocoder->calculateSearchSquare() service to return the 4 lat/lng points
+     * 3. Then you can call this function!
+     *
+     * @param       $latN
+     * @param       $latS
+     * @param       $lonE
+     * @param       $lonW
+     * @param       $startingLatitude
+     * @param       $startingLongitude
+     * @param null  $startDate
+     * @param null  $endDate
+     *
+     * @param null  $searchQuery
+     *
+     * @param null  $eventType
+     * @param null  $industry
+     * @param null  $secondaryIndustry
+     *
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
+     */
+    public function search(
+        $latN = null, $latS = null, $lonE = null, $lonW = null, $startingLatitude = null, $startingLongitude = null,
+        $startDate = null, $endDate = null, $searchQuery = null, $eventType = null, $industry = null, $secondaryIndustry = null
+    ) {
+
+        $query = 'SELECT * FROM (';
+
+
+        /************************************ SCHOOL EXPERIENCES ************************************/
+        $query .= sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, 
+DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, 
+"SchoolExperience" as className, sc.name as schoolName, null as companyName, rwtf.event_name as eventType, se.school_id as school_id, 
+/* ORDER BY UPCOMING EVENTS FIRST */
+(CASE WHEN e.start_date_and_time >= CURRENT_DATE() THEN 1 ELSE 0 END) AS ORDER_BY_1, 
+/* ORDER BY EVENTS CLOSEST TO THE CURRENT DATE NEXT */
+ABS ( DATEDIFF ( e.start_date_and_time, CURRENT_DATE() ) ) AS ORDER_BY_2, 
+/* ORDER BY EVENTS THAT HAVE A START DATE IN THE PAST BUT ARE STILL GOING ON (LOT OF PEOPLE ARE DOING THIS FOR REPEATING EVENTS) */
+(CASE WHEN e.start_date_and_time < CURRENT_DATE() AND e.end_date_and_time > CURRENT_DATE() THEN 1 ELSE 0 END) AS ORDER_BY_3
+from school_experience se INNER JOIN experience e on e.id = se.id 
+LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
+LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
+LEFT JOIN industry i on i.id = si.primary_industry_id
+LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+LEFT JOIN school sc on se.school_id = sc.id
+LEFT JOIN experience_tag etag on etag.experience_id = e.id
+LEFT JOIN tag tag on tag.id = etag.tag_id
+WHERE 1 = 1 AND e.cancelled != %s', 1);
+
+        if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
+            $query .= sprintf(
+                ' AND e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) ',
+                $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+            );
+        }
+
+        // todo re-check this
+        if ($startDate && $endDate) {
+            $query .= " AND ( ";
+            $query .= sprintf(" (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s') ", $startDate, $endDate);
+            $query .= sprintf(" OR (DATE(e.start_date_and_time) <= '%s' AND DATE(e.end_date_and_time) >= '%s') ", $startDate, $endDate);
+            $query .= sprintf(" OR ( (DATE(e.start_date_and_time) BETWEEN '%s' AND '%s') OR (DATE(e.end_date_and_time) BETWEEN '%s' AND '%s') ) ", $startDate, $endDate, $startDate, $endDate);
+            $query .= " ) ";
+        }
+
+        if($searchQuery) {
+            $query .= sprintf(' AND e.title LIKE "%%%s%%" ', $searchQuery);
+        }
+
+        if($eventType) {
+            $query .= sprintf(' AND rwtf.id = %s ', $eventType);
+        }
+
+        if($industry) {
+            $query .= sprintf(' AND (i.id = %s OR tag.primary_industry_id = %s) ', $industry, $industry);
+        }
+
+        if($secondaryIndustry) {
+            $query .= sprintf(' AND (si.id = %s OR tag.secondary_industry_id = %s) ', $secondaryIndustry, $secondaryIndustry);
+        }
+
+        $query .= ' UNION ALL ';
+
+        /************************************ COMPANY EXPERIENCES ************************************/
+        $query .= sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, 
+DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, 
+"CompanyExperience" as className, null as schoolName, c.name as companyName, rwtf.event_name as eventType, null as school_id, 
+/* ORDER BY UPCOMING EVENTS FIRST */
+(CASE WHEN e.start_date_and_time >= CURRENT_DATE() THEN 1 ELSE 0 END) AS ORDER_BY_1, 
+/* ORDER BY EVENTS CLOSEST TO THE CURRENT DATE NEXT */
+ABS ( DATEDIFF ( e.start_date_and_time, CURRENT_DATE() ) ) AS ORDER_BY_2, 
+/* ORDER BY EVENTS THAT HAVE A START DATE IN THE PAST BUT ARE STILL GOING ON (LOT OF PEOPLE ARE DOING THIS FOR REPEATING EVENTS) */
+(CASE WHEN e.start_date_and_time < CURRENT_DATE() AND e.end_date_and_time > CURRENT_DATE() THEN 1 ELSE 0 END) AS ORDER_BY_3
+from company_experience ce INNER JOIN experience e on e.id = ce.id 
+LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
+LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
+LEFT JOIN industry i on i.id = si.primary_industry_id
+LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
+LEFT JOIN company c on ce.company_id = c.id
+LEFT JOIN company_region cr on cr.company_id = c.id
+LEFT JOIN experience_tag etag on etag.experience_id = e.id
+LEFT JOIN tag tag on tag.id = etag.tag_id
+WHERE 1 = 1 AND e.cancelled != %s', 1);
+
+        if ($latN && $latS && $lonE && $lonW && $startingLatitude && $startingLongitude) {
+            $query .= sprintf(
+                ' AND e.latitude <= %s AND e.latitude >= %s AND e.longitude <= %s AND e.longitude >= %s AND (e.latitude != %s AND e.longitude != %s) ',
+                $latN, $latS, $lonE, $lonW, $startingLatitude, $startingLongitude
+            );
+        }
+
+        // todo re-check this
+        if ($startDate && $endDate) {
+            $query .= " AND ( ";
+            $query .= sprintf(" (DATE(e.start_date_and_time) >= '%s' AND DATE(e.end_date_and_time) <= '%s') ", $startDate, $endDate);
+            $query .= sprintf(" OR (DATE(e.start_date_and_time) <= '%s' AND DATE(e.end_date_and_time) >= '%s') ", $startDate, $endDate);
+            $query .= sprintf(" OR ( (DATE(e.start_date_and_time) BETWEEN '%s' AND '%s') OR (DATE(e.end_date_and_time) BETWEEN '%s' AND '%s') ) ", $startDate, $endDate, $startDate, $endDate);
+            $query .= " ) ";
+        }
+
+        if($searchQuery) {
+            $query .= sprintf(' AND e.title LIKE "%%%s%%" ', $searchQuery);
+        }
+
+        if($eventType) {
+            $query .= sprintf(' AND rwtf.id = %s ', $eventType);
+        }
+
+        if($industry) {
+            $query .= sprintf(' AND (i.id = %s OR tag.primary_industry_id = %s) ', $industry, $industry);
+        }
+
+        if($secondaryIndustry) {
+            $query .= sprintf(' AND (si.id = %s OR tag.secondary_industry_id = %s) ', $secondaryIndustry, $secondaryIndustry);
+        }
+
+        $query .= ' ) a ';
+
+        $query .= ' ORDER BY a.ORDER_BY_1 DESC, a.ORDER_BY_2 ASC, a.ORDER_BY_3 DESC ';
+
+        $em   = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

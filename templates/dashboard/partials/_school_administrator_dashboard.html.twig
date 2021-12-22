@@ -64,12 +64,17 @@
                                 <div class="uk-container">
                                     <h2>{{ school.name }} Overview</h2>
                                     {% if school.overviewAndBackground %}
-                                        {{ school.overviewAndBackground|raw }}
+                                        {{ school.overviewAndBackground|customStripTags|raw }}
                                     {% else %}
                                         <p>This school does not have an overview added yet.</p>
                                     {% endif %}
-                                    <p><a class="uk-link"
-                                          href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>
+
+                                    <hr>
+                                    <a class="uk-button uk-button-xl uk-button-primary uk-margin"
+                                       href="{{ path('school_edit', {'id': school.id}) }}">Edit School Profile</a>
+                                    <hr>
+                                    {#<p><a class="uk-link"
+                                          href="{{ path('school_edit', {'id': school.id}) }}">Edit</a></p>#}
                                 </div>
                             </div>
                         </div>

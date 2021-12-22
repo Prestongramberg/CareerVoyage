@@ -116,49 +116,17 @@ window.Pintex = {
                 <h2>${eventPayload.title}</h2>
                 <p>
                     <strong>About the Experience</strong><br />
-                    ${eventAbout || eventDescription}
+                    ${eventAbout.replace(/\<br\>/g,"").replace(/h3/g,"p").replace(/<p><\/p>/g,"").replace(/<\/?span[^>]*>/g,"")}
                 </p>
             `;
 
         if ( event.url ) {
-            eventHtml += `<a href="${event.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right">View More Details</a>`;
+            eventHtml += `<a target="_blank" href="${event.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right uk-width-1-1">View More Details</a>`;
         } else if (eventPayload.url) {
-            eventHtml += `<a href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right">View More Details</a>`;
+            eventHtml += `<a target="_blank" href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right uk-width-1-1">View More Details</a>`;
         }
 
-        eventHtml += this.generateAddToCalendarButton( eventStartDate, eventEndDate, eventTitle, eventDescription, eventLocation );
-
-        // TODO: CONTINUE HERE WITH VARIOUS EXPERIENCE TYPES
-        /*if(eventEndDate < Date.now()) {
-            if(eventPayload.className == 'Experience') {
-                eventHtml += ` <a href="/dashboard/experiences/${ eventPayload.id }/view" class="uk-button uk-button-primary uk-button-small uk-margin-small-right uk-margin-small-bottom" style="position: relative; z-index: 99999">View Feedback</a>`;
-            
-            }
-        }*/
-
-        if( eventPayload.className == "CompanyExperience") {
-            $.post('/dashboard/companies/experiences/' + eventId + '/data', {}, function(data){
-                if(data.allow_edit === true){
-                    eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'companies', 'company_event_delete');
-                }
-
-                this_level.openModal(eventHtml);
-            });
-        } else if(eventPayload.className == "SchoolExperience") { 
-            $.post('/dashboard/schools/experiences/' + eventId + '/data', {}, function(data){
-                if(data.allow_edit === true){
-                    eventHtml += this_level.generateEditCancelButtons( eventId, eventStartDate, eventEndDate, 'schools', 'school_event_delete');
-                }
-
-                this_level.openModal(eventHtml);
-            });
-        } else if( eventPayload.className == 'TeachLessonExperience' ) {
-            eventHtml += `<a href="/dashboard/requests?id=${ eventPayload.requestId }" class="uk-button uk-button-danger uk-button-small uk-margin-small-left uk-margin-small-bottom">Change Dates</a>`;
-            this_level.openModal(eventHtml);
-
-        } else {
-            this.openModal(eventHtml);
-        }
+        this.openModal(eventHtml);
     },
     generateAddToCalendarButton: function( epochStartTime, epochEndTime, title = '', description = '', location = '' ) {
 
@@ -189,18 +157,6 @@ window.Pintex = {
         </div>
 `;
 
-
-
-        return `<div class="atc-wrapper">
-            <label for="atc-checkbox" class="atc-checkbox-label">Add to Calendar</label>
-            <input name="atc-checkbox" class="atc-checkbox" id="atc-checkbox" type="checkbox">
-            <div class="atc-links-wrapper">
-                <a class="atc-link icon-google" target="_blank" href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=${title}&amp;dates=${startISOtoSeconds}/${endISOtoSeconds}&amp;details=${description}&amp;location=${location}&amp;sprop=&amp;sprop=name:">Google Calendar</a>
-                <a class="atc-link icon-yahoo" target="_blank" href="http://calendar.yahoo.com/?v=60&amp;view=d&amp;type=20&amp;title=${title}&amp;st=${startISOtoSeconds}&amp;dur=${yahooDuration}&amp;desc=${description}&amp;in_loc=${location}">Yahoo! Calendar</a>
-                <a class="atc-link icon-ical" onClick="window.Pintex.downloadICSCalendarEvent('${title}', '${description}', '${location}', ${epochStartTime*1000}, ${epochEndTime*1000})">iCal Calendar</a>
-                <a class="atc-link icon-outlook" onClick="window.Pintex.downloadICSCalendarEvent('${title}', '${description}', '${location}', ${epochStartTime*1000}, ${epochEndTime*1000})">Outlook Calendar</a>
-            </div>
-        </div>`;
     },
     downloadICSCalendarEvent: function( title, description, location, begin, end ) {
         const cal = ics();
@@ -213,54 +169,6 @@ window.Pintex = {
             end
         );
         cal.download("addToCalendar", undefined );
-    },
-    generateEditCancelButtons( eventId, epochStartTime, epochEndTime, location, deleteAction) {
-
-        // Get the dates from CST to EPOCH
-        const startISOtoSeconds = moment.unix(epochStartTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
-        const endISOtoSeconds = moment.unix(epochEndTime).utcOffset('+06:00').format("YYYYMMDDTHHmmss");
-
-        return `
-        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="/dashboard/${location}/experiences/${eventId}/edit">Change Date</a>               
-        <div id="modal-change-date" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <h3>Change Date of Experience</h3>
-                <form class="uk-inline" action="/api/experiences/${eventId}/teach-lesson-event-change-date" method="POST">
-
-                    <label class="uk-form-label">Start Date.</label>
-                    <input class="uk-timepicker uk-input" name="newStartDate" type="text">
-                    <label class="uk-form-label">End Date.</label>
-                    <input class="uk-timepicker uk-input" name="newEndDate" type="text">
-
-                    <label>Reason for changing the date:</label>
-                    <textarea class="uk-textarea" name="customMessage" required style="width: 100%"></textarea>
-
-                    <p>
-                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                        <button class="uk-button uk-button-danger" type="submit">Submit</button>
-                    </p>
-                </form>
-            </div>
-        </div>
-
-        
-        <a class="uk-button uk-button-danger uk-button-small uk-margin-small-bottom" href="#modal-delete-experience" uk-toggle>Cancel Experience</a>
-        <div id="modal-delete-experience" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <h3>Cancel Experience</h3>
-                <form class="uk-inline" action="/api/experiences/${eventId}/${deleteAction}" method="POST">
-
-                    <label>Reason for deleting the event:</label>
-                    <textarea class="uk-textarea" name="customMessage" required style="width: 100%"></textarea>
-
-                    <p>
-                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                        <button class="uk-button uk-button-danger" type="submit">Submit</button>
-                    </p>
-                </form>
-            </div>
-        </div>
-        `;
     },
     openModal(eventHtml) {
         this.modal.dynamic_open(`

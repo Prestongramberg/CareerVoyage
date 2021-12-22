@@ -13,7 +13,7 @@ class EventListing extends Component {
 
                             <div className="uk-width-auto">
                                 <h4 className="uk-card-title-small">
-                                    <a href={ window.Routing.generate('experience_view', { id: this.props.id }) }>{ this.props.title }</a>
+                                    <a target={"_blank"} href={ window.Routing.generate('experience_view', { id: this.props.id }) }>{ this.props.title }</a>
                                 </h4>
                                 <p className="uk-text-small"><strong>{ this.props.friendlyName }</strong><br />{ this.props.experienceListTitle }</p>
                             </div>
@@ -26,7 +26,7 @@ class EventListing extends Component {
 
                         <div className="uk-width-expand uk-visible@m">
                             <div className="uk-align-right">
-                                <a href={ window.Routing.generate('experience_view', { id: this.props.id }) }
+                                <a target={"_blank"} href={ window.Routing.generate('experience_view', { id: this.props.id }) }
                                    className="uk-button uk-button-small uk-button-text uk-text-muted">More info</a>
                             </div>
                         </div>

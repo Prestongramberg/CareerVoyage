@@ -193,7 +193,7 @@ class AuthorizationVoter
             return true;
         }
 
-        return true;
+        return false;
     }
 
     /************************* END EXPERIENCE********************************/

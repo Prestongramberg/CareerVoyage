@@ -47,7 +47,7 @@
                     - {{ experience.endDateAndTime|date("F jS Y \\a\\t g:ia") }}
                 </h5>
 
-                {{ experience.about|raw }}
+                {{ experience.about|customStripTags|raw }}
 
                 {% if experience.cancelled %}
                     <div class="uk-alert-danger" uk-alert>

@@ -155,6 +155,7 @@ class AppExtension extends AbstractExtension
     {
         return [
             new TwigFilter('boolean', [$this, 'toBoolean']),
+            new TwigFilter('customStripTags', [$this, 'customStripTags']),
         ];
     }
 
@@ -164,6 +165,16 @@ class AppExtension extends AbstractExtension
         return true;
 
         return (bool)$value;
+    }
+
+    public function customStripTags($value) {
+
+        $search = array('<br>', '<h1>', '</h1>', '<h2>', '</h2>', '<h3>', '</h3>', '<h4>', '</h4>', '<h5>', '</h5>');
+        $replace = array('', '<p>', '</p>', '<p>', '</p>', '<p>', '</p>', '<p>', '</p>', '<p>', '</p>');
+
+        $value = str_replace($search, $replace, $value );
+
+        return preg_replace('/<span[^>]+\>/i', '', $value);
     }
 
     /**

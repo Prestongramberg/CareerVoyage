@@ -761,10 +761,8 @@ abstract class Experience
      */
     public function getExperienceListTitle()
     {
-
         return $this->getTitle();
     }
-
 
     public function getRequireApproval(): ?bool
     {

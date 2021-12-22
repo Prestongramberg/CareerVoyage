@@ -28,9 +28,6 @@
             <li><a href="{{ path('sign_out') }}"><span class="uk-margin-small-right" uk-icon="icon: forward"></span>Logout</a></li>
 
             <li class="uk-nav-header">Management</li>
-            {% if user.schools|length %}
-                <li><a href="{{ path('school_administrator_schools', {'id': user.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: users"></span> Manage my Schools</a></li>
-            {% endif %}
             <li><a href="{{ path('report_experience_satisfaction_dashboard') }}"><span class="uk-margin-small-right" uk-icon="icon: database"></span> Dashboards & Reports</a></li>
             {% for school in user.schools %}
                 <li><a href="{{ path('school_chat', {'id': school.id}) }}"><span class="uk-margin-small-right" uk-icon="icon: comments"></span> CHAT - {{ school.name }}</a></li>
@@ -100,9 +97,6 @@
                         <a href="#">Management</a>
                         <div style="width: 240px;" class="uk-navbar-dropdown uk-navbar-dropdown-width-1">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
-                                {% if user.schools|length %}
-                                <li><a href="{{ path('school_administrator_schools', {'id': user.id}) }}">Manage my schools</a></li>
-                                {% endif %}
                                 <li><a href="{{ path('report_experience_satisfaction_dashboard') }}">Dashboards & Reports</a></li>
                                 {% for school in user.schools %}
                                     <li><a href="{{ path('school_chat', {'id': school.id}) }}">CHAT - {{ school.name }}</a></li>
