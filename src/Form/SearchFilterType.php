@@ -62,6 +62,8 @@ class SearchFilterType extends AbstractType
         /** @var Request $requestEntity */
         $requestEntity = $options['requestEntity'];
         $schoolIds     = $options['schoolIds'];
+        /** @var User $loggedInUser */
+        $loggedInUser  = $options['loggedInUser'];
 
         if ($requestEntity && $requestEntity->getRequestType() === Request::REQUEST_TYPE_JOB_BOARD) {
             $searchLabel = 'Search by professional\'s first and/or last name';
@@ -93,6 +95,21 @@ class SearchFilterType extends AbstractType
             'mapped'       => false,
             'label'        => $searchLabel,
         ]);
+
+        $userRoleChoices = [
+            'Educator'             => 'ROLE_EDUCATOR_USER',
+            'Professional'         => 'ROLE_PROFESSIONAL_USER',
+            'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
+            'Student'              => 'ROLE_STUDENT_USER',
+        ];
+
+        if($loggedInUser instanceof StudentUser || $loggedInUser instanceof ProfessionalUser) {
+            $userRoleChoices = [
+                'Educator'             => 'ROLE_EDUCATOR_USER',
+                'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
+                'Student'              => 'ROLE_STUDENT_USER',
+            ];
+        }
 
         $builder->add('userRole', Filters\ChoiceFilterType::class, [
             'apply_filter' => function (QueryInterface $filterQuery, $field, $values) {
@@ -143,12 +160,7 @@ class SearchFilterType extends AbstractType
             'multiple'     => false,
             'required'     => false,
             'mapped'       => false,
-            'choices'      => [
-                'Educator'             => 'ROLE_EDUCATOR_USER',
-                'Professional'         => 'ROLE_PROFESSIONAL_USER',
-                'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
-                'Student'              => 'ROLE_STUDENT_USER',
-            ],
+            'choices'      => $userRoleChoices,
             'label'        => 'FILTER BY USER ROLE',
             'placeholder'  => 'FILTER BY USER ROLE',
         ]);
@@ -920,6 +932,6 @@ class SearchFilterType extends AbstractType
             'requestEntity'      => null,
             'schoolIds'          => [],
             'allow_extra_fields' => true,
-        ));
+        ))->setRequired(['loggedInUser']);
     }
 }

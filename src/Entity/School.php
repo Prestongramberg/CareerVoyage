@@ -39,7 +39,7 @@ class School
     private $id;
 
     /**
-     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE", "EDUCATOR_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "RESULTS_PAGE", "EDUCATOR_USER_DATA", "SCHOOL_ADMINISTRATOR"})
      * @Assert\NotBlank(message="Don't forget a name!", groups={"CREATE", "EDIT"})
      * @ORM\Column(type="string", length=255)
      */

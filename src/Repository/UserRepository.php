@@ -208,24 +208,28 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
     /**
      * @param array $schoolIds
+     * @param false $queryBuilder
      *
-     * @return User[]|array|\Doctrine\ORM\QueryBuilder
+     * @return User[]|\Doctrine\ORM\QueryBuilder
+     * @throws \Doctrine\DBAL\Driver\Exception
      * @throws \Doctrine\DBAL\Exception
      */
-    public function search(array $schoolIds = [], $userRole = null, $queryBuilder = false)
+    public function search(array $schoolIds = [], bool $queryBuilder = false, $excludeProfessionals = false)
     {
 
 
         $query = 'SELECT * FROM (';
 
-
-        /************************************ PROFESSIONAL USERS ************************************/
-        $query .= sprintf('SELECT DISTINCT pu.id
+        if (!$excludeProfessionals) {
+            /************************************ PROFESSIONAL USERS ************************************/
+            $query .= sprintf('SELECT DISTINCT pu.id
 from professional_user pu INNER JOIN user u on u.id = pu.id 
 WHERE 1 = 1 AND u.deleted != %s', 1);
 
 
-        $query .= ' UNION ALL ';
+            $query .= ' UNION ALL ';
+        }
+
 
         /************************************ EDUCATOR USERS ************************************/
         $query .= sprintf('SELECT DISTINCT eu.id
@@ -271,10 +275,8 @@ WHERE 1 = 1 AND u.deleted != %s', 1);
 
         $userIds = array_map(function ($result) { return $result['id']; }, $results);
 
-        if($queryBuilder) {
-            return $this->createQueryBuilder('u')
-                ->andWhere('u.id IN (:userIds)')
-                ->setParameter('userIds', $userIds);
+        if ($queryBuilder) {
+            return $this->createQueryBuilder('u')->andWhere('u.id IN (:userIds)')->setParameter('userIds', $userIds);
         }
 
         return $this->findBy([

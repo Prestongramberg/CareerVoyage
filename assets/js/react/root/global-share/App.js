@@ -36,10 +36,6 @@ export class App extends Component {
      */
     render() {
 
-        debugger;
-
-        let userRoleSelected = ('userRole' in this.props.filters && this.props.filters.userRole.length > 0);
-
         return (
             <div>
                 {this.renderFilters(0, 1)}
@@ -54,10 +50,6 @@ export class App extends Component {
 
                 {this.props.search.loading && <div className="uk-width-1-1 uk-align-center"><Loader/></div>}
 
-               {/* {!userRoleSelected && (
-                    <p>Please select a user role from the filters above to start your search</p>
-                )}
-*/}
                 {!this.props.search.loading &&
                 <div style={{marginTop: "20px"}}>
 
@@ -177,7 +169,6 @@ export class App extends Component {
             if (field.items && field.items.enum && field.items.enum_titles) {
                 // Select Field (Multiple)
 
-                debugger;
                 let selected = this.props.filters[fieldName] || [];
 
                 const merged = field.items.enum.reduce((obj, key, index) => ({
@@ -192,7 +183,6 @@ export class App extends Component {
                     options.push({label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(), value: key, id: key});
                 }
 
-                debugger;
                 options = options.sort((a, b) => (a.label > b.label) ? 1 : -1);
 
                 filters.push(<Multiselect
@@ -223,14 +213,12 @@ export class App extends Component {
                 }), {});
                 let options = [];
 
-                debugger;
                 for (let key in merged) {
                     let value = merged[key];
 
                     options.push({label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(), value: key, id: key});
                 }
 
-                debugger;
                 options = options.sort((a, b) => (a.label > b.label) ? 1 : -1);
 
                 filters.push(<Multiselect
@@ -285,8 +273,6 @@ export class App extends Component {
 
     renderUser(user) {
 
-        debugger;
-
         let loggedInUser = this.props.user;
         let company = '';
         let role = '';
@@ -317,8 +303,11 @@ export class App extends Component {
             }
         } else if (user.schoolAdministrator) {
 
+            debugger;
+
             name = user.fullName;
             role = 'School Administrator';
+            company = user.schoolsAsString;
         } else {
             name = user.fullName;
         }

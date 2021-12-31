@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SchoolAdministratorRepository")
@@ -117,10 +118,12 @@ class SchoolAdministrator extends User
     }
 
     /**
+     * @Groups({"SCHOOL_ADMINISTRATOR"})
+     *
      * @param string $delimiter
      * @return string
      */
-    public function getSchoolsAsString($delimiter = ',') {
+    public function getSchoolsAsString($delimiter = ', ') {
         $schools = [];
         foreach($this->getSchools() as $school) {
             $schools[] = $school->getName();

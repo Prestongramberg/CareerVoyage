@@ -8,7 +8,6 @@ export default (state = {}, action) => {
 
             if(action.context.fieldName === 'userRole') {
 
-                debugger;
                 state = removeByKey(state, 'company');
                 state = removeByKey(state, 'rolesWillingToFulfill');
                 state = removeByKey(state, 'primaryIndustry');

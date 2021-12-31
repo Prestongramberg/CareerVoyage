@@ -92,15 +92,7 @@ class SearchController extends AbstractController
          * @var ProfessionalUser $loggedInUser
          */
         if ($loggedInUser->isProfessional()) {
-
-            // todo???
-
-
-            /** @var ProfessionalUser $loggedInUser */
-            $regionIds = [];
-            foreach ($loggedInUser->getRegions() as $region) {
-                $regionIds[] = $region->getId();
-            }
+            // noop
         }
 
         /**
@@ -121,16 +113,18 @@ class SearchController extends AbstractController
             }
         }
 
-
-        $filterBuilder = $this->userRepository->search($schoolIds, $userRole, true);
-
-        $results = $filterBuilder->getQuery()->getResult();
+        if($loggedInUser instanceof StudentUser || $loggedInUser instanceof ProfessionalUser) {
+            $filterBuilder = $this->userRepository->search($schoolIds, true, true);
+        } else {
+            $filterBuilder = $this->userRepository->search($schoolIds, true);
+        }
 
         $form = $this->createForm(SearchFilterType::class, null, [
             'method'        => 'GET',
             'userRole'      => $userRole,
             'requestEntity' => $requestEntity,
             'schoolIds'     => $schoolIds,
+            'loggedInUser'  => $loggedInUser,
         ]);
 
         $form->submit($request->request->get('filters'));
@@ -143,6 +137,8 @@ class SearchController extends AbstractController
             $serializationGroups = ['ALL_USER_DATA', 'EDUCATOR_USER_DATA'];
         } elseif ($userRole === User::ROLE_STUDENT_USER) {
             $serializationGroups = ['ALL_USER_DATA', 'STUDENT_USER'];
+        } elseif ($userRole === User::ROLE_SCHOOL_ADMINISTRATOR_USER) {
+            $serializationGroups = ['ALL_USER_DATA', 'SCHOOL_ADMINISTRATOR'];
         }
 
         $filterBuilder->andWhere('u.deleted = 0');

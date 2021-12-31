@@ -11,8 +11,6 @@ const globalShare = document.getElementById("react-global-share");
 
 if (globalShare) {
 
-
-    debugger;
     const user = JSON.parse(globalShare.getAttribute("data-user")) || {};
     const message = globalShare.getAttribute("data-message") || "";
     const experience = globalShare.getAttribute("data-experience") || null;
@@ -22,8 +20,6 @@ if (globalShare) {
     const title = globalShare.textContent;
     hiddenFilters = JSON.parse(hiddenFilters);
     defaultFilters = JSON.parse(defaultFilters);
-
-    debugger;
 
     const store = createStore(
         reducers,

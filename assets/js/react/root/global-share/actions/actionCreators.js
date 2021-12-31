@@ -14,7 +14,6 @@ export function loadInitialData() {
 
     return (dispatch, getState) => {
 
-        debugger;
         let state = getState();
 
         dispatch({
@@ -31,12 +30,9 @@ export function loadInitialData() {
             url = window.Routing.generate("search_users", {request: state.search.request});
         }
 
-        debugger;
         const data = {
             filters: state.form
         };
-
-        debugger;
 
         return api.post(url, data)
             .then((response) => {
@@ -54,11 +50,8 @@ export function loadInitialData() {
 
 export function filterChanged(context) {
 
-    debugger;
-
     return (dispatch, getState) => {
 
-        debugger;
         let state = getState();
 
         if (state.search.typingTimeout) {
@@ -119,11 +112,8 @@ export function filterChanged(context) {
 
 export function pageChanged(pageNumber) {
 
-    debugger;
-
     return (dispatch, getState) => {
 
-        debugger;
         let state = getState();
 
         dispatch({
@@ -140,7 +130,6 @@ export function pageChanged(pageNumber) {
             url = window.Routing.generate("search_users", {request: state.search.request, page: pageNumber});
         }
 
-        debugger;
         const data = {
             filters: state.form
         };
@@ -176,7 +165,6 @@ export function sendNotifications(userId, experienceId, requestId, message) {
         })
             .then((response) => {
 
-                debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
 
                     UIkit.notification(response.responseBody.message, {status: 'success', pos: 'top-right'})
@@ -203,7 +191,7 @@ export function sendNotifications(userId, experienceId, requestId, message) {
 }
 
 export function updateMessage( message, userId ) {
-    debugger;
+
     return {
         type: actionTypes.UPDATE_MESSAGE,
         message: message,
