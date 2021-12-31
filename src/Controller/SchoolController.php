@@ -26,7 +26,6 @@ use App\Form\AdHocFormType;
 use App\Form\AssignedStudentsFormType;
 use App\Form\ChatFilterType;
 use App\Form\ChatMessageFilterType;
-use App\Form\DeleteStudentsFormType;
 use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
@@ -1785,6 +1784,7 @@ class SchoolController extends AbstractController
             'school'        => $school,
             'eventRegister' => $eventRegister,
             'clearFormUrl'  => $clearFormUrl,
+            'authorizationVoter' => $authorizationVoter
         ]);
     }
 

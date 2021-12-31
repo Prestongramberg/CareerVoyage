@@ -178,9 +178,8 @@ export function sendNotifications(userId, experienceId, requestId, message) {
 
                 debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
-                    //window.Pintex.notification("Notifications Sent!");
 
-                    UIkit.notification("Notification Sent!", {status: 'success', pos: 'top-right'})
+                    UIkit.notification(response.responseBody.message, {status: 'success', pos: 'top-right'})
 
                     dispatch({type: actionTypes.NOTIFICATIONS_SENDING_SUCCESS, userId: userId});
                 } else {
@@ -188,7 +187,8 @@ export function sendNotifications(userId, experienceId, requestId, message) {
                     dispatch({
                         type: actionTypes.NOTIFICATIONS_SENDING_FAILURE
                     })
-                    window.Pintex.notification("Something went wrong, please try again.");
+
+                    UIkit.notification(response.responseBody.message, {status: 'danger', pos: 'top-right'})
                 }
             })
             .catch((response) => {

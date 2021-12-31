@@ -230,7 +230,16 @@ class AuthorizationVoter
             return true;
         }
 
-        if($user->isEducator()) {
+        if($user instanceof EducatorUser && $user->getSchool()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function canImportStudents(User $user) {
+
+        if($user->isSchoolAdministrator()) {
             return true;
         }
 

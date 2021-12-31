@@ -131,12 +131,56 @@
                 </div>
             </div>
 
+
+
+            <br>
+            <br>
+
+            <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
+
+               {# <div>
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                        <h3 class="uk-card-title">Manage Educators</h3>
+                        <p>Reset passwords, assign students to teachers, import educators, and more.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('educators_manage', {id: school.id}) }}">Get Started</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Create an Experience</h3>
+                        <p>Create engaging school events that other user's can search and register for.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_new') }}?schoolId={{ school.id }}">Get Started</a>
+                    </div>
+                </div>#}
+
+                {% if authorizationVoter.canManageStudents(user) %}
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                            <h3 class="uk-card-title">Manage Students</h3>
+                            <p>Reset passwords, change supervising teachers, import students, and more.</p>
+                            <a class="uk-button uk-button-default" target="_blank" href="{{ path('students_manage', {id: user.school.id}) }}">Get Started</a>
+                        </div>
+                    </div>
+                {% endif %}
+                <div>
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                        <h3 class="uk-card-title">Personal Calendar</h3>
+                        <p>View and manage events that you are personally registered for.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <br>
+
+
+
+
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li><a href="#user-favorites">Favorites</a></li>
                     <li style="padding-left: 10px"><a href="#user-events">My Experiences</a></li>
-                    <li style="padding-left: 10px"><a href="#user-students">My Students</a></li>
-                    <li style="padding-left: 10px"><a href="#user-calendar">My Calendar</a></li>
                     <li style="padding-left: 10px"><a href="#user-feedback">Give Feedback</a></li>
                     <li style="padding-left: 10px"><a href="#view-feedback">View Feedback</a></li>
                 </ul>
@@ -288,40 +332,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="user_students">
-                        <dl class="uk-description-list uk-description-list-divider">
-                            {% if user.studentUsers|length > 0 %}
-                                {% for studentUser in user.alphabeticallySortedStudentUsers %}
-
-                                    {% if studentUser.activated != false and studentUser.deleted != true %}
-
-                                        <div class="uk-grid uk-flex-middle" uk-grid>
-                                            <div class="uk-width-auto">
-                                                <img class="uk-border-circle" width="40" height="40"
-                                                     src="{{ ( attribute(studentUser, 'photo') is defined and studentUser.photo ) ? asset(uploaded_asset(studentUser.photoPath))|imagine_filter('squared_thumbnail_small') : asset('build/images/avatar.png') }}">
-                                            </div>
-                                            <div class="uk-width-expand">
-                                                <dt>{{ studentUser.lastName }}, {{ studentUser.firstName }}</dt>
-                                            </div>
-                                            <div class="uk-width-auto">
-                                                <a href="{{ path('profile_index', { "id": studentUser.id }) }}"
-                                                   class="uk-button uk-button-default uk-button-small">View</a>
-                                            </div>
-                                        </div>
-
-                                    {% endif %}
-
-                                {% endfor %}
-                            {% else %}
-                                <p>You currently do not have any students assigned to you. You can change this in your
-                                    <a href="{{ path('profile_edit', {'id': user.id}) }}">profile</a>.</p>
-                            {% endif %}
-                        </dl>
-                    </div>
-
-                    <div class="user_preferences_calendar">
-                        <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
                     </div>
 
                     <div class="feedback">

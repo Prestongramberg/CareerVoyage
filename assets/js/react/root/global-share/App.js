@@ -36,6 +36,10 @@ export class App extends Component {
      */
     render() {
 
+        debugger;
+
+        let userRoleSelected = ('userRole' in this.props.filters && this.props.filters.userRole.length > 0);
+
         return (
             <div>
                 {this.renderFilters(0, 1)}
@@ -47,8 +51,13 @@ export class App extends Component {
                         {this.renderFilters(1)}
                     </div>
                 </div>
+
                 {this.props.search.loading && <div className="uk-width-1-1 uk-align-center"><Loader/></div>}
 
+               {/* {!userRoleSelected && (
+                    <p>Please select a user role from the filters above to start your search</p>
+                )}
+*/}
                 {!this.props.search.loading &&
                 <div style={{marginTop: "20px"}}>
 

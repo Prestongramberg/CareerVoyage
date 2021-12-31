@@ -2,10 +2,8 @@
 
 <p>Hi {{ user.firstName }},</p>
 
-<p>Shared with you:</p>
+<p>{{ sent_from.firstName }} {{ sent_from.lastName }} has sent you a new message:</p>
 
 <p style="font-weight: bold">{{ customMessage | raw }}</p>
-
-<p><em>Sent from: {{ sent_from.firstName }} {{ sent_from.lastName }}</em></p>
 
 {% include 'email/partial/emailFooter.html.twig' %}

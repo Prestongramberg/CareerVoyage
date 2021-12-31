@@ -41,11 +41,9 @@ class SearchController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        return $this->render(
-            'manageUsers/index.html.twig', [
-                'user' => $user,
-            ]
-        );
+        return $this->render('manageUsers/index.html.twig', [
+            'user' => $user,
+        ]);
     }
 
     /**
@@ -59,10 +57,13 @@ class SearchController extends AbstractController
         /** @var User $user */
         $user                = $loggedInUser = $this->getUser();
         $regionIds           = [];
+        $schoolIds           = [];
         $experienceId        = $request->query->get('experience', null);
         $requestId           = $request->query->get('request', null);
         $experience          = null;
         $requestEntity       = null;
+        $filters             = $request->request->get('filters', []);
+        $userRole            = $filters['userRole'] ?? null;
         $serializationGroups = ['ALL_USER_DATA', 'STUDENT_USER', 'EDUCATOR_USER_DATA', 'PROFESSIONAL_USER_DATA'];
 
         if ($experienceId) {
@@ -74,39 +75,11 @@ class SearchController extends AbstractController
         }
 
         /**
-         * Students can message
-         * 1. Educators that are part of the same school
-         * 2. School administrators that are part of the same school
-         * 3. Students that are part of the same school
-         *
          * @var StudentUser $loggedInUser
          */
         if ($loggedInUser->isStudent()) {
-
-            /** @var StudentUser $loggedInUser */
-            $regionIds = [];
-
-            if ($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
-                $regionIds[] = $loggedInUser->getSchool()->getRegion()->getId();
-            }
-        }
-
-        /**
-         * Educators can message
-         * 1. Educators that are part of the same school
-         * 2. School administrators that are part of the same school
-         * 3. Students that are part of the same school
-         * 4. All Professional Users
-         *
-         * @var EducatorUser $loggedInUser
-         */
-        if ($loggedInUser->isEducator()) {
-
-            /** @var EducatorUser $loggedInUser */
-            $regionIds = [];
-
-            if ($loggedInUser->getSchool() && $loggedInUser->getSchool()->getRegion()) {
-                $regionIds[] = $loggedInUser->getSchool()->getRegion()->getId();
+            if ($loggedInUser->getSchool()) {
+                $schoolIds[] = $loggedInUser->getSchool()->getId();
             }
         }
 
@@ -120,6 +93,9 @@ class SearchController extends AbstractController
          */
         if ($loggedInUser->isProfessional()) {
 
+            // todo???
+
+
             /** @var ProfessionalUser $loggedInUser */
             $regionIds = [];
             foreach ($loggedInUser->getRegions() as $region) {
@@ -128,38 +104,34 @@ class SearchController extends AbstractController
         }
 
         /**
-         * School Administrators can message
-         * 1. All educators on the platform
-         * 2. All school administrators
-         * 4. All Professional Users
-         *
+         * @var EducatorUser $loggedInUser
+         */
+        if ($loggedInUser->isEducator()) {
+            if ($loggedInUser->getSchool()) {
+                $schoolIds[] = $loggedInUser->getSchool()->getId();
+            }
+        }
+
+        /**
          * @var SchoolAdministrator $loggedInUser
          */
         if ($loggedInUser->isSchoolAdministrator()) {
-
-            $regionIds = [];
-            /** @var SchoolAdministrator $loggedInUser */
             foreach ($loggedInUser->getSchools() as $school) {
-
-                if (!$school->getRegion()) {
-                    continue;
-                }
-
-                $regionIds[] = $school->getRegion()->getId();
+                $schoolIds[] = $school->getId();
             }
         }
 
 
-        $filters  = $request->request->get('filters', []);
-        $userRole = $filters['userRole'] ?? null;
+        $filterBuilder = $this->userRepository->search($schoolIds, $userRole, true);
 
-        $form = $this->createForm(
-            SearchFilterType::class, null, [
-                'method' => 'GET',
-                'userRole' => $userRole,
-                'requestEntity' => $requestEntity
-            ]
-        );
+        $results = $filterBuilder->getQuery()->getResult();
+
+        $form = $this->createForm(SearchFilterType::class, null, [
+            'method'        => 'GET',
+            'userRole'      => $userRole,
+            'requestEntity' => $requestEntity,
+            'schoolIds'     => $schoolIds,
+        ]);
 
         $form->submit($request->request->get('filters'));
 
@@ -167,48 +139,10 @@ class SearchController extends AbstractController
 
         if ($userRole === User::ROLE_PROFESSIONAL_USER) {
             $serializationGroups = ['ALL_USER_DATA', 'PROFESSIONAL_USER_DATA'];
-            $filterBuilder       = $this->professionalUserRepository->createQueryBuilder('u');
-
-            if (!empty($regionIds)) {
-                $filterBuilder->innerJoin('u.regions', 'regions')
-                              ->andWhere('regions.id IN (:regionIds)')
-                              ->setParameter('regionIds', $regionIds);
-            }
-
         } elseif ($userRole === User::ROLE_EDUCATOR_USER) {
             $serializationGroups = ['ALL_USER_DATA', 'EDUCATOR_USER_DATA'];
-            $filterBuilder       = $this->educatorUserRepository->createQueryBuilder('u');
-
-            if (!empty($regionIds)) {
-                $filterBuilder->innerJoin('u.school', 'school')
-                              ->innerJoin('school.region', 'region')
-                              ->andWhere('region.id IN (:regionIds)')
-                              ->setParameter('regionIds', $regionIds);
-            }
-
         } elseif ($userRole === User::ROLE_STUDENT_USER) {
             $serializationGroups = ['ALL_USER_DATA', 'STUDENT_USER'];
-            $filterBuilder       = $this->studentUserRepository->createQueryBuilder('u');
-
-            if (!empty($regionIds)) {
-                $filterBuilder->innerJoin('u.school', 'school')
-                              ->innerJoin('school.region', 'region')
-                              ->andWhere('region.id IN (:regionIds)')
-                              ->setParameter('regionIds', $regionIds);
-            }
-
-        } elseif ($userRole === User::ROLE_SCHOOL_ADMINISTRATOR_USER) {
-            $filterBuilder = $this->schoolAdministratorRepository->createQueryBuilder('u');
-
-            if (!empty($regionIds)) {
-                $filterBuilder->innerJoin('u.schools', 'schools')
-                              ->innerJoin('schools.region', 'region')
-                              ->andWhere('region.id IN (:regionIds)')
-                              ->setParameter('regionIds', $regionIds);
-            }
-
-        } else {
-            $filterBuilder = $this->userRepository->createQueryBuilder('u');
         }
 
         $filterBuilder->andWhere('u.deleted = 0');
@@ -220,11 +154,7 @@ class SearchController extends AbstractController
 
         $filterQuery = $filterBuilder->getQuery();
 
-        $pagination = $this->paginator->paginate(
-            $filterQuery, /* query NOT result */
-            $request->query->getInt('page', 1), /*page number*/
-            10 /*limit per page*/
-        );
+        $pagination = $this->paginator->paginate($filterQuery, /* query NOT result */ $request->query->getInt('page', 1), /*page number*/ 10 /*limit per page*/);
 
         $items = $pagination->getItems();
 
@@ -236,22 +166,11 @@ class SearchController extends AbstractController
 
             foreach ($shares as $share) {
 
-                $alreadyShared = (
-                    (
-                        $experience &&
-                        $share->getExperience() &&
-                        $share->getExperience()->getId() === $experience->getId() &&
-                        $share->getSentFrom() &&
-                        $share->getSentFrom()->getId() === $loggedInUser->getId()
-                    ) ||
-                    (
-                        $requestEntity &&
-                        $share->getRequest() &&
-                        $share->getRequest()->getId() === $requestEntity->getId() &&
-                        $share->getSentFrom() &&
-                        $share->getSentFrom()->getId() === $loggedInUser->getId()
-                    )
-                );
+                $alreadyShared = (($experience && $share->getExperience() && $share->getExperience()
+                                                                                   ->getId() === $experience->getId() && $share->getSentFrom() && $share->getSentFrom()
+                                                                                                                                                        ->getId() === $loggedInUser->getId()) || ($requestEntity && $share->getRequest() && $share->getRequest()
+                                                                                                                                                                                                                                                  ->getId() === $requestEntity->getId() && $share->getSentFrom() && $share->getSentFrom()
+                                                                                                                                                                                                                                                                                                                          ->getId() === $loggedInUser->getId()));
 
                 if ($alreadyShared) {
                     $notifiedUsers[] = $item->getId();
@@ -262,21 +181,21 @@ class SearchController extends AbstractController
 
         $items = $this->serializer->serialize($items, 'json', ['groups' => $serializationGroups]);
 
-        return new JsonResponse(
-            [
-                'pagination' => [
-                    'currentPageNumber' => $pagination->getCurrentPageNumber(),
-                    'numItemsPerPage' => $pagination->getItemNumberPerPage(),
-                    'paginatorOptions' => $pagination->getPaginatorOptions(),
-                    'params' => $pagination->getParams(),
-                    'totalCount' => $pagination->getTotalItemCount(),
+        $data = [
+            'pagination'    => [
+                'currentPageNumber' => $pagination->getCurrentPageNumber(),
+                'numItemsPerPage'   => $pagination->getItemNumberPerPage(),
+                'paginatorOptions'  => $pagination->getPaginatorOptions(),
+                'params'            => $pagination->getParams(),
+                'totalCount'        => $pagination->getTotalItemCount(),
 
-                ],
-                'items' => json_decode($items, true),
-                'schema' => $this->liform->transform($form),
-                'success' => true,
-                'notifiedUsers' => $notifiedUsers,
-            ]
-        );
+            ],
+            'items'         => json_decode($items, true),
+            'schema'        => $this->liform->transform($form),
+            'success'       => true,
+            'notifiedUsers' => $notifiedUsers,
+        ];
+
+        return new JsonResponse($data);
     }
 }

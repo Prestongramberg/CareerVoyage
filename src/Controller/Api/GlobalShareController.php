@@ -78,25 +78,17 @@ class GlobalShareController extends AbstractController
 
         $filters = new GlobalShareFilters($request);
 
-        $payload = $this->globalShare->getData(
-            $loggedInUser,
-            $filters
-        );
+        $payload = $this->globalShare->getData($loggedInUser, $filters);
 
         // We need to get all the data without filters applied as well to show all the filter options on the front end.
-        $payloadForFilters = $this->globalShare->getData(
-            $loggedInUser
-        );
+        $payloadForFilters = $this->globalShare->getData($loggedInUser);
 
         $payload['filters'] = $payloadForFilters['all'];
 
-        return new JsonResponse(
-            [
+        return new JsonResponse([
                 'success' => true,
-                'data' => $payload,
-            ],
-            Response::HTTP_OK
-        );
+                'data'    => $payload,
+            ], Response::HTTP_OK);
     }
 
     /**
@@ -113,10 +105,17 @@ class GlobalShareController extends AbstractController
     {
         $experienceId  = $request->request->get('experienceId', null);
         $requestId     = $request->request->get('requestId', null);
-        $message       = $request->request->get('message');
+        $message       = $request->request->get('message', '');
         $userId        = $request->request->get('userId');
         $experience    = null;
         $requestEntity = null;
+
+        if (empty(trim($message))) {
+            return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Please enter a message you would like to send.',
+                ], Response::HTTP_BAD_REQUEST);
+        }
 
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
@@ -130,30 +129,24 @@ class GlobalShareController extends AbstractController
         }
 
         if (!$experience && !$requestEntity) {
-            return new JsonResponse(
-                [
+            return new JsonResponse([
                     'success' => false,
-                ], Response::HTTP_BAD_REQUEST
-            );
+                ], Response::HTTP_BAD_REQUEST);
         }
 
         /** @var User $user */
         $user = $this->userRepository->find($userId);
 
-        $chat = $this->chatRepository->findOneBy(
-            [
+        $chat = $this->chatRepository->findOneBy([
                 'userOne' => $loggedInUser,
                 'userTwo' => $user,
-            ]
-        );
+            ]);
 
         if (!$chat) {
-            $chat = $this->chatRepository->findOneBy(
-                [
+            $chat = $this->chatRepository->findOneBy([
                     'userOne' => $user,
                     'userTwo' => $loggedInUser,
-                ]
-            );
+                ]);
         }
 
         // if a chat doesn't exist then let's create one!
@@ -172,7 +165,8 @@ class GlobalShareController extends AbstractController
         $chatMessage->setChat($chat);
 
         // Figure out which user to message from the chat object
-        $userToMessage = $chat->getUserOne()->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
+        $userToMessage = $chat->getUserOne()
+                              ->getId() === $loggedInUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
         $chatMessage->setSentTo($userToMessage);
 
         $share = new Share();
@@ -193,11 +187,9 @@ class GlobalShareController extends AbstractController
 
         $this->experienceMailer->genericShareNotification($message, $user, $loggedInUser);
 
-        return new JsonResponse(
-            [
+        return new JsonResponse([
                 'success' => true,
-                'message' => 'Notifications successfully sent out.',
-            ], Response::HTTP_OK
-        );
+                'message' => 'Notification sent!',
+            ], Response::HTTP_OK);
     }
 }

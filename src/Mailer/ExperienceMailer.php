@@ -245,7 +245,7 @@ class ExperienceMailer extends AbstractMailer
 
     private function genericShareNotification($message, User $user, User $sentFrom) {
 
-        $message = (new \Swift_Message('Shared with you.'))
+        $message = (new \Swift_Message(sprintf('%s has sent you a new message.', $sentFrom->getFullName())))
             ->setFrom($this->siteFromEmail)
             ->setTo($user->getEmail())
             ->setBody(
