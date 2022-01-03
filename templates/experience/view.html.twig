@@ -42,10 +42,12 @@
                     <h3 class="uk-margin-remove-top">Coordinated By: {{ experience.company.name }}</h3>
                 {% endif %}
 
-                <h5 style="{{ experience.cancelled ? 'text-decoration: line-through' : '' }}">
-                    {{ experience.startDateAndTime|date("F jS Y \\a\\t g:ia") }}
-                    - {{ experience.endDateAndTime|date("F jS Y \\a\\t g:ia") }}
-                </h5>
+                {% if experience.startDateAndTime and experience.endDateAndTime %}
+                    <h5 style="{{ experience.cancelled ? 'text-decoration: line-through' : '' }}">
+                        {{ experience.startDateAndTime|date("F jS Y \\a\\t g:ia") }}
+                        - {{ experience.endDateAndTime|date("F jS Y \\a\\t g:ia") }}
+                    </h5>
+                {% endif %}
 
                 {{ experience.about|customStripTags|raw }}
 
@@ -92,7 +94,7 @@
                     </div>
                 {% endif %}
 
-                {% if experience.endDateAndTime < date() %}
+                {% if experience.endDateAndTime and experience.endDateAndTime < date() %}
                     <div class="uk-alert-danger" uk-alert>
                         <p style="font-weight: bold">This is a past event and can no longer be registered for. Please
                             reach out to the experience coordinator for any further questions.</p>
@@ -124,7 +126,8 @@
 
                 {% if authorizationVoter.canRegisterStudentsForExperience(user, experience) %}
                     <a class="uk-button uk-button-xl uk-button-primary uk-margin"
-                       href="{{ path('students_manage_entry', {'event-register': experience.id}) }}">Register Students</a>
+                       href="{{ path('students_manage_entry', {'event-register': experience.id}) }}">Register
+                        Students</a>
                 {% endif %}
 
                 {# EDIT/CANCEL EXPERIENCE #}

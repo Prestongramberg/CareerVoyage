@@ -22,6 +22,9 @@
                 <ul id="test" class="uk-tab-left"
                     uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                     <li><a href="#experience-details" id="experience-details">Edit Experience</a></li>
+                    {% if experience.isRecurring %}
+                        <li><a href="#experience-schedule" id="experience-schedule">Schedule</a></li>
+                    {% endif %}
                     <li><a href="#experience-attachments" id="experience-attachments">Attachments</a>
                 </ul>
             </div>
@@ -32,6 +35,11 @@
                         {% include 'experience/partials/_form.html.twig' %}
                     </div>
 
+                    {% if experience.isRecurring %}
+                        <div class="experience_schedule">
+                            <h1>Experience Schedule</h1>
+                        </div>
+                    {% endif %}
 
                     <div class="js-resource-component experience_attachments">
                         <div class="uk-width-xlarge">

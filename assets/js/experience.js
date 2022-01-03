@@ -12,6 +12,7 @@ import flatpickr from "flatpickr";
 import Tagify from '@yaireo/tagify'
 import Routing from "./Routing";
 import ResourceComponent from "./Components/ResourceComponent";
+import RadioChoiceField from "./Components/RadioChoiceField";
 
 $(document).ready(function () {
 
@@ -230,4 +231,5 @@ $(document).ready(function () {
 
 
     new ResourceComponent($('.js-resource-component'), window.globalEventDispatcher);
+    new RadioChoiceField($('.js-radio-choice-field'), window.globalEventDispatcher);
 });

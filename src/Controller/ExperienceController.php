@@ -22,6 +22,7 @@ use App\Util\ServiceHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -147,7 +148,7 @@ class ExperienceController extends AbstractController
 
     /**
      * @Route("/{id}/cancel", name="experience_cancel", options = { "expose" = true })
-     * @param Request          $request
+     * @param Request    $request
      * @param Experience $experience
      *
      * @return RedirectResponse
@@ -196,7 +197,7 @@ class ExperienceController extends AbstractController
 
     /**
      * @Route("/{id}/delete", name="experience_delete", options = { "expose" = true })
-     * @param Request          $request
+     * @param Request    $request
      * @param Experience $experience
      *
      * @return RedirectResponse
@@ -260,12 +261,17 @@ class ExperienceController extends AbstractController
             $experience       = new CompanyExperience();
         }
 
+        if ($request->request->has('changeableField')) {
+            $validationGroups = [];
+        }
+
         $form = $this->createForm(ExperienceType::class, $experience, [
             'method'            => 'POST',
             'school'            => $school,
             'company'           => $company,
             'validation_groups' => $validationGroups,
             'data_class'        => $dataClass,
+            'action'            => $request->getRequestUri(),
         ]);
 
         $form->handleRequest($request);
@@ -290,12 +296,25 @@ class ExperienceController extends AbstractController
             return $this->redirectToRoute('experience_view', ['id' => $experience->getId()]);
         }
 
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse([
+                    'success'    => false,
+                    'formMarkup' => $this->renderView('experience/new.html.twig', [
+                        'school'     => $school,
+                        'form'       => $form->createView(),
+                        'user'       => $user,
+                        'experience' => $experience,
+                        'company'    => $company,
+                    ]),
+                ], Response::HTTP_BAD_REQUEST);
+        }
+
         return $this->render('experience/new.html.twig', [
             'school'     => $school,
             'form'       => $form->createView(),
             'user'       => $user,
             'experience' => $experience,
-            'company' => $company
+            'company'    => $company,
         ]);
     }
 
@@ -331,7 +350,11 @@ class ExperienceController extends AbstractController
             $validationGroups = ['EXPERIENCE', 'COMPANY_EXPERIENCE'];
         }
 
-        if(!$experience->getAddressSearch()) {
+        if ($request->request->has('changeableField')) {
+            $validationGroups = [];
+        }
+
+        if (!$experience->getAddressSearch()) {
             $experience->setAddressSearch($experience->getFormattedAddress());
         }
 
@@ -341,6 +364,7 @@ class ExperienceController extends AbstractController
             'company'           => $company,
             'validation_groups' => $validationGroups,
             'data_class'        => $dataClass,
+            'action'            => $request->getRequestUri(),
         ]);
 
         $form->handleRequest($request);
@@ -357,11 +381,25 @@ class ExperienceController extends AbstractController
             return $this->redirectToRoute('experience_edit', ['id' => $experience->getId()]);
         }
 
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse([
+                    'success'    => false,
+                    'formMarkup' => $this->renderView('experience/edit.html.twig', [
+                        'school'     => $school,
+                        'form'       => $form->createView(),
+                        'user'       => $user,
+                        'experience' => $experience,
+                        'company'    => $company,
+                    ]),
+                ], Response::HTTP_BAD_REQUEST);
+        }
+
         return $this->render('experience/edit.html.twig', [
             'school'     => $school,
             'form'       => $form->createView(),
             'user'       => $user,
             'experience' => $experience,
+            'company'    => $company,
         ]);
     }
 
@@ -388,10 +426,10 @@ class ExperienceController extends AbstractController
 
     /**
      * @Route("/{id}/register", name="experience_register", options = { "expose" = true }, methods={"GET"})
-     * @param Request          $request
-     * @param Experience $experience
+     * @param Request        $request
+     * @param Experience     $experience
      *
-     * @param RequestService   $requestService
+     * @param RequestService $requestService
      *
      * @return RedirectResponse
      * @throws \Twig\Error\LoaderError
@@ -420,10 +458,10 @@ class ExperienceController extends AbstractController
 
     /**
      * @Route("/{id}/unregister", name="experience_unregister", options = { "expose" = true }, methods={"GET"})
-     * @param Request          $request
-     * @param Experience $experience
+     * @param Request        $request
+     * @param Experience     $experience
      *
-     * @param RequestService   $requestService
+     * @param RequestService $requestService
      *
      * @throws NonUniqueResultException
      */

@@ -130,41 +130,84 @@ PROFESSIONALS - We need 5 executives with experience conducting job interviews t
         Tell event-goers when your event starts and ends so they can make plans to attend.
     </div>
 
-    <div class="uk-margin uk-grid">
-        <div class="uk-width-2-5">
-            <label>Start Date<span class="uk-text-danger">*</span></label>
-            {{ form_widget(form.startDate, {'attr': {'class': 'uk-input' ~ ( form_errors(form.startDate) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(form.startDate) }}
+    <div class="uk-margin uk-grid js-radio-choice-field"
+         data-field-name="{{ form.isRecurring.vars.name }}"
+         data-url="{{ form.vars.action }}"
+    >
+
+        <div class="uk-width-1-1">
+            {% for item in form.isRecurring.children %}
+                <div class="pretty p-default p-round">
+                    {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
+                    <label>{{ item.vars.label }}</label>
+                </div>
+            {% endfor %}
+            {{ form_errors(form.isRecurring) }}
+
+            <div class="uk-text-meta">
+                {% if form.isRecurring.vars.data == true %}
+                    You’ll be able to set a schedule for your recurring event in the next step.
+                {% else %}
+                    Single events happen once and can last multiple days.
+                {% endif %}
+            </div>
         </div>
 
-        <div class="uk-width-1-5">
-            <label>Start Time<span class="uk-text-danger">*</span></label>
-            {{ form_widget(form.startTime, {'attr': {'class': 'uk-select' ~ ( form_errors(form.startTime) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(form.startTime) }}
-        </div>
+
+        {% if form.startDate is defined and form.startTime is defined %}
+
+            <div class="uk-margin uk-grid">
+                <div class="uk-width-2-5">
+                    <label>Start Date<span class="uk-text-danger">*</span></label>
+                    {{ form_widget(form.startDate, {'attr': {'class': 'uk-input' ~ ( form_errors(form.startDate) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.startDate) }}
+                </div>
+                <div class="uk-width-2-5">
+                    <label>Start Time<span class="uk-text-danger">*</span></label>
+                    {{ form_widget(form.startTime, {'attr': {'class': 'uk-select' ~ ( form_errors(form.startTime) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.startTime) }}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if form.endDate is defined and form.endTime is defined %}
+            <div class="uk-margin uk-grid">
+
+                <div class="uk-width-2-5">
+                    <label>End Date<span class="uk-text-danger">*</span></label>
+                    {{ form_widget(form.endDate, {'attr': {'class': 'uk-input' ~ ( form_errors(form.endDate) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.endDate) }}
+                </div>
+
+                <div class="uk-width-2-5">
+                    <label>End Time<span class="uk-text-danger">*</span></label>
+                    {{ form_widget(form.endTime, {'attr': {'class': 'uk-select' ~ ( form_errors(form.endTime) ? ' uk-form-danger' : '' ) }}) }}
+                    {{ form_errors(form.endTime) }}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if form.startDateAndTime is defined %}
+            {{ form_widget(form.startDateAndTime) }}
+        {% endif %}
+
+        {% if form.endDateAndTime is defined %}
+            {{ form_widget(form.endDateAndTime) }}
+        {% endif %}
+
+
     </div>
 
-    <div class="uk-margin uk-grid">
-        <div class="uk-width-2-5">
-            <label>End Date<span class="uk-text-danger">*</span></label>
-            {{ form_widget(form.endDate, {'attr': {'class': 'uk-input' ~ ( form_errors(form.endDate) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(form.endDate) }}
-        </div>
 
-        <div class="uk-width-1-5">
-            <label>End Time<span class="uk-text-danger">*</span></label>
-            {{ form_widget(form.endTime, {'attr': {'class': 'uk-select' ~ ( form_errors(form.endTime) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(form.endTime) }}
+    {% if form.timezone is defined %}
+        <div class="uk-margin uk-grid">
+            <div class="uk-width-2-5">
+                <label>Timezone<span class="uk-text-danger">*</span></label>
+                {{ form_widget(form.timezone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.timezone) ? ' uk-form-danger' : '' ) }}) }}
+                {{ form_errors(form.timezone) }}
+            </div>
         </div>
-    </div>
-
-    <div class="uk-margin uk-grid">
-        <div class="uk-width-2-5">
-            <label>Timezone<span class="uk-text-danger">*</span></label>
-            {{ form_widget(form.timezone, {'attr': {'class': 'uk-input' ~ ( form_errors(form.timezone) ? ' uk-form-danger' : '' ) }}) }}
-            {{ form_errors(form.timezone) }}
-        </div>
-    </div>
+    {% endif %}
 
 </fieldset>
 

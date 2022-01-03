@@ -142,14 +142,12 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a start date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget an end date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;
@@ -250,7 +248,7 @@ abstract class Experience
     protected $request;
 
     /**
-     * @Assert\NotBlank(message="Please add a location for the experience.", groups={"EXPERIENCE"})
+     * @Assert\NotBlank(message="Please enter a valid address for your experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $addressSearch;
@@ -263,23 +261,32 @@ abstract class Experience
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $utcStartDateAndTime;
+    protected $utcStartDateAndTime;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $utcEndDateAndTime;
+    protected $utcEndDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="experiences")
      */
-    private $tags;
+    protected $tags;
 
     /**
      * @ORM\OneToMany(targetEntity=ExperienceResource::class, mappedBy="experience")
      */
-    private $experienceResources;
+    protected $experienceResources;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $isRecurring = false;
+
+    protected $startDate;
+
+    protected $startTime;
 
     public function __construct()
     {
@@ -993,5 +1000,49 @@ abstract class Experience
         }
 
         return 'company';
+    }
+
+    public function getIsRecurring(): ?bool
+    {
+        return $this->isRecurring;
+    }
+
+    public function setIsRecurring(bool $isRecurring): self
+    {
+        $this->isRecurring = $isRecurring;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param mixed $startDate
+     */
+    public function setStartDate($startDate): void
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartTime()
+    {
+        return $this->startTime;
+    }
+
+    /**
+     * @param mixed $startTime
+     */
+    public function setStartTime($startTime): void
+    {
+        $this->startTime = $startTime;
     }
 }
