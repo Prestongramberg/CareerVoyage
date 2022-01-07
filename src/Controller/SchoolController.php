@@ -1429,6 +1429,18 @@ class SchoolController extends AbstractController
     }
 
     /**
+     * @Route("/schools/experiences/{id}/view", name="school_experience_view", options = { "expose" = true })
+     * @param Request          $request
+     * @param SchoolExperience $experience
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewExperienceAction(Request $request, SchoolExperience $experience)
+    {
+        return $this->redirectToRoute('experience_view', ['id' => $experience->getId()]);
+    }
+
+    /**
      * @Route("/schools/experiences/{id}/data", name="school_experience_data", options = { "expose" = true })
      * @param Request          $request
      * @param SchoolExperience $experience

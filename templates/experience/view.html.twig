@@ -17,7 +17,7 @@
             <div id="react-global-share"
                  data-user="{{ encode_user(user) }}"
                  data-experience="{{ experience.id }}"
-                 data-message="Check out this upcoming experience: <a href='{{ absolute_url('view', {id: experience.id}) }}'>{{ experience.title }}</a>">
+                 data-message="Check out this upcoming experience: <a href='{{ url('experience_view', {id: experience.id}) }}'>{{ experience.title }}</a>">
                 Share this Experience
             </div>
         </div>
