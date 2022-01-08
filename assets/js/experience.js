@@ -204,6 +204,9 @@ $(document).ready(function () {
         typeof longitude !== 'undefined' && longitude !== false
         && latitude !== "" && longitude !== "") {
 
+        latitude = parseFloat(latitude);
+        longitude = parseFloat(longitude);
+
         var map = new google.maps.Map(document.getElementById('map'), {
             center: {
                 lat: latitude,
