@@ -38,8 +38,7 @@
                     {% if experience.isRecurring %}
                         <div class="experience_schedule">
                             <h2>Schedule</h2>
-                            <div id="react-events-schedule" data-user="{{ encode_user(user) }}"
-                                 data-experience="{{ experience.id }}"></div>
+                            <div id="react-events-schedule" data-render-calendar="true" data-experience="{{ experience.id }}"></div>
                         </div>
                     {% endif %}
 
