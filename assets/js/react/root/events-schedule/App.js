@@ -40,8 +40,8 @@ export default function App(props) {
     const onSubmit = (values) => {
 
         debugger;
-        let recurrenceRule = getRecurrenceRule();
-        let startDate = schedule.startDate[0].toLocaleDateString("en-US");
+        let recurrenceRule = getRecurrenceRule(values);
+        let startDate = values.startDate[0].toLocaleDateString("en-US");
 
         let url = window.Routing.generate("get_dates_for_recurrence_rule");
 
@@ -77,7 +77,9 @@ export default function App(props) {
         );
     };
 
-    const getRecurrenceRule = () => {
+    const getRecurrenceRule = (values) => {
+
+        let currentSchedule = values || schedule;
 
         // todo NEED TO ADD A START DATE and a start time, count, and until for ending
 
@@ -89,65 +91,65 @@ export default function App(props) {
 
         // todo need additional logic here if freq === weekly elseif freq === Monthly, etc
 
-        rrule.push(`FREQ=${schedule.freq}`);
+        rrule.push(`FREQ=${currentSchedule.freq}`);
 
-        if (schedule.endAction === 'After') {
-            rrule.push(`COUNT=${schedule.count}`);
+        if (currentSchedule.endAction === 'After') {
+            rrule.push(`COUNT=${currentSchedule.count}`);
         }
 
-        if (schedule.endAction === 'On date') {
+        if (currentSchedule.endAction === 'On date') {
             // todo need some type of date formatting here
-            let isoDateString = schedule.until[0].toISOString();
+            let isoDateString = currentSchedule.until[0].toISOString();
             isoDateString = isoDateString.replace(/:|-/g, '');
             isoDateString = isoDateString.split('.')[0] + 'Z';
             rrule.push(`UNTIL=${isoDateString}`);
         }
 
-        if (schedule.freq === 'YEARLY') {
+        if (currentSchedule.freq === 'YEARLY') {
 
-            if (schedule.yearlyType === 'on') {
-                rrule.push(`BYMONTH=${schedule.byMonth}`);
-                rrule.push(`BYMONTHDAY=${schedule.byMonthDay}`);
+            if (currentSchedule.yearlyType === 'on') {
+                rrule.push(`BYMONTH=${currentSchedule.byMonth}`);
+                rrule.push(`BYMONTHDAY=${currentSchedule.byMonthDay}`);
             }
 
-            if (schedule.yearlyType === 'onThe') {
-                rrule.push(`BYDAY=${schedule.byDay}`);
-                rrule.push(`SETPOS=${schedule.bySetPos}`);
-                rrule.push(`BYMONTH=${schedule.byMonth}`);
-            }
-        }
-
-        if (schedule.freq === 'MONTHLY') {
-
-            if (schedule.interval) {
-                rrule.push(`INTERVAL=${schedule.interval}`);
-            }
-
-            if (schedule.monthlyType === 'onDay') {
-                rrule.push(`BYMONTHDAY=${schedule.byMonthDay}`);
-            }
-
-            if (schedule.monthlyType === 'onThe') {
-                rrule.push(`SETPOS=${schedule.bySetPos}`);
-                rrule.push(`BYDAY=${schedule.byDay}`);
+            if (currentSchedule.yearlyType === 'onThe') {
+                rrule.push(`BYDAY=${currentSchedule.byDay}`);
+                rrule.push(`BYSETPOS=${currentSchedule.bySetPos}`);
+                rrule.push(`BYMONTH=${currentSchedule.byMonth}`);
             }
         }
 
-        if (schedule.freq === 'WEEKLY') {
+        if (currentSchedule.freq === 'MONTHLY') {
 
-            if (schedule.interval) {
-                rrule.push(`INTERVAL=${schedule.interval}`);
+            if (currentSchedule.interval) {
+                rrule.push(`INTERVAL=${currentSchedule.interval}`);
             }
 
-            if (schedule.byDay) {
-                rrule.push(`BYDAY=${schedule.byDayMultiple.join(',')}`);
+            if (currentSchedule.monthlyType === 'onDay') {
+                rrule.push(`BYMONTHDAY=${currentSchedule.byMonthDay}`);
+            }
+
+            if (currentSchedule.monthlyType === 'onThe') {
+                rrule.push(`BYSETPOS=${currentSchedule.bySetPos}`);
+                rrule.push(`BYDAY=${currentSchedule.byDay}`);
             }
         }
 
-        if (schedule.freq === 'DAILY') {
+        if (currentSchedule.freq === 'WEEKLY') {
 
-            if (schedule.interval) {
-                rrule.push(`INTERVAL=${schedule.interval}`);
+            if (currentSchedule.interval) {
+                rrule.push(`INTERVAL=${currentSchedule.interval}`);
+            }
+
+            if (currentSchedule.byDay) {
+                rrule.push(`BYDAY=${currentSchedule.byDayMultiple.join(',')}`);
+            }
+        }
+
+        if (currentSchedule.freq === 'DAILY') {
+
+            if (currentSchedule.interval) {
+                rrule.push(`INTERVAL=${currentSchedule.interval}`);
             }
 
         }
