@@ -81,18 +81,21 @@ class ExperienceType extends AbstractType implements DataMapperInterface
     private $entityManager;
 
     /**
-     * @param SecondaryIndustryRepository $secondaryIndustryRepository
-     * @param UserRepository              $userRepository
-     * @param StateRepository             $stateRepository
-     * @param Geocoder                    $geocoder
-     * @param TagRepository               $tagRepository
-     * @param EntityManagerInterface      $entityManager
+     * @param  SecondaryIndustryRepository  $secondaryIndustryRepository
+     * @param  UserRepository  $userRepository
+     * @param  StateRepository  $stateRepository
+     * @param  Geocoder  $geocoder
+     * @param  TagRepository  $tagRepository
+     * @param  EntityManagerInterface  $entityManager
      */
     public function __construct(
-        SecondaryIndustryRepository $secondaryIndustryRepository, UserRepository $userRepository,
-        StateRepository $stateRepository, Geocoder $geocoder, TagRepository $tagRepository,
-        EntityManagerInterface $entityManager)
-    {
+        SecondaryIndustryRepository $secondaryIndustryRepository,
+        UserRepository $userRepository,
+        StateRepository $stateRepository,
+        Geocoder $geocoder,
+        TagRepository $tagRepository,
+        EntityManagerInterface $entityManager
+    ) {
         $this->secondaryIndustryRepository = $secondaryIndustryRepository;
         $this->userRepository              = $userRepository;
         $this->stateRepository             = $stateRepository;
@@ -168,12 +171,16 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $forms['endTime']->setData('20:30');
         }
 
-        if (isset($forms['startDate'], $forms['startTime']) && $startDateAndTime = $viewData->getStartDateAndTime()) {
+        if (isset($forms['startDate'], $forms['startTime'])
+            && $startDateAndTime = $viewData->getStartDateAndTime()
+        ) {
             $forms['startDate']->setData($startDateAndTime);
             $forms['startTime']->setData($startDateAndTime->format('H:i'));
         }
 
-        if (isset($forms['endDate'], $forms['endTime']) && $endDateAndTime = $viewData->getEndDateAndTime()) {
+        if (isset($forms['endDate'], $forms['endTime'])
+            && $endDateAndTime = $viewData->getEndDateAndTime()
+        ) {
             $forms['endDate']->setData($endDateAndTime);
             $forms['endTime']->setData($endDateAndTime->format('H:i'));
         }
@@ -198,10 +205,14 @@ class ExperienceType extends AbstractType implements DataMapperInterface
         /** @var FormInterface[] $forms */
         $forms = iterator_to_array($forms);
 
-        $startDate = isset($forms['startDate']) ? $forms['startDate']->getData() : null;
-        $startTime = isset($forms['startTime']) ? $forms['startTime']->getData() : null;
-        $endDate   = isset($forms['endDate']) ? $forms['endDate']->getData() : null;
-        $endTime   = isset($forms['endTime']) ? $forms['endTime']->getData() : null;
+        $startDate = isset($forms['startDate']) ? $forms['startDate']->getData()
+            : null;
+        $startTime = isset($forms['startTime']) ? $forms['startTime']->getData()
+            : null;
+        $endDate   = isset($forms['endDate']) ? $forms['endDate']->getData()
+            : null;
+        $endTime   = isset($forms['endTime']) ? $forms['endTime']->getData()
+            : null;
         $tags      = isset($forms['tags']) ? $forms['tags']->getData() : [];
 
         if ($startDate && $startTime) {
@@ -209,8 +220,8 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
             [$hours, $minutes] = explode(":", $startTime);
 
-            $startDateAndTime->add(new \DateInterval('PT' . $hours . 'H'));
-            $startDateAndTime->add(new \DateInterval('PT' . $minutes . 'M'));
+            $startDateAndTime->add(new \DateInterval('PT'.$hours.'H'));
+            $startDateAndTime->add(new \DateInterval('PT'.$minutes.'M'));
             $viewData->setStartDateAndTime($startDateAndTime);
 
             $utcStartDateAndTime = clone $startDateAndTime;
@@ -222,8 +233,8 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $endDateAndTime = clone $endDate;
             [$hours, $minutes] = explode(":", $endTime);
 
-            $endDateAndTime->add(new \DateInterval('PT' . $hours . 'H'));
-            $endDateAndTime->add(new \DateInterval('PT' . $minutes . 'M'));
+            $endDateAndTime->add(new \DateInterval('PT'.$hours.'H'));
+            $endDateAndTime->add(new \DateInterval('PT'.$minutes.'M'));
             $viewData->setEndDateAndTime($endDateAndTime);
 
             $utcEndDateAndTime = clone $endDateAndTime;
@@ -247,11 +258,15 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $viewData->setIsRecurring($forms['isRecurring']->getData());
         }
 
-        if ($viewData instanceof SchoolExperience && isset($forms['schoolContact'])) {
+        if ($viewData instanceof SchoolExperience
+            && isset($forms['schoolContact'])
+        ) {
             $viewData->setSchoolContact($forms['schoolContact']->getData());
         }
 
-        if ($viewData instanceof CompanyExperience && isset($forms['employeeContact'])) {
+        if ($viewData instanceof CompanyExperience
+            && isset($forms['employeeContact'])
+        ) {
             $viewData->setEmployeeContact($forms['employeeContact']->getData());
         }
 
@@ -264,17 +279,21 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             $addressSearch = $forms['addressSearch']->getData();
 
             try {
-                $addressComponents = $this->geocoder->getAddressComponentsFromSearchString($addressSearch);
+                $addressComponents
+                    = $this->geocoder->getAddressComponentsFromSearchString(
+                    $addressSearch
+                );
                 $viewData->setState($addressComponents['state']);
                 $viewData->setCity($addressComponents['city']);
                 $viewData->setStreet($addressComponents['street']);
                 $viewData->setZipcode($addressComponents['postalCode']);
 
-                if ($coordinates = $this->geocoder->geocode($viewData->getFormattedAddress())) {
+                if ($coordinates
+                    = $this->geocoder->geocode($viewData->getFormattedAddress())
+                ) {
                     $viewData->setLongitude($coordinates['lng']);
                     $viewData->setLatitude($coordinates['lat']);
                 }
-
             } catch (\Exception $exception) {
                 // do nothing
             }
@@ -297,7 +316,6 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 if ($id && ($tag = $this->tagRepository->find($id))) {
                     $viewData->addTag($tag);
                 } else {
-
                     $tag = $this->tagRepository->findOneBy([
                         'name' => $value,
                     ]);
@@ -313,13 +331,11 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                     }
                 }
             }
-
         }
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder->setDataMapper($this);
 
         /** @var School $school */
@@ -330,7 +346,8 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
         $builder->add('title', TextType::class, [
             'attr' => [
-                'placeholder' => $school ? 'How to Succeed in a Job Interview' : 'Career Fair – Emergency Medical Services',
+                'placeholder' => $school ? 'How to Succeed in a Job Interview'
+                    : 'Career Fair – Emergency Medical Services',
             ],
         ])->add('about', TextareaType::class, [
 
@@ -340,21 +357,25 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             'expanded'      => false,
             'multiple'      => false,
             'placeholder'   => 'Tell attendees what type of event this is.',
-            'query_builder' => function (EntityRepository $er) use ($company, $school) {
-
+            'query_builder' => function (EntityRepository $er) use (
+                $company,
+                $school
+            ) {
                 if ($school) {
-                    return $er->createQueryBuilder('r')
-                              ->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')
-                              ->setParameter('inSchoolEventDropdown', true);
+                    return $er->createQueryBuilder('r')->where(
+                            'r.inSchoolEventDropdown = :inSchoolEventDropdown'
+                        )->setParameter('inSchoolEventDropdown', true);
                 }
 
                 if ($company) {
-                    return $er->createQueryBuilder('r')
-                              ->where('r.inEventDropdown = :inEventDropdown')
-                              ->setParameter('inEventDropdown', true);
+                    return $er->createQueryBuilder('r')->where(
+                            'r.inEventDropdown = :inEventDropdown'
+                        )->setParameter('inEventDropdown', true);
                 }
 
-                throw new \Exception("Form type not setup for other event types");
+                throw new \Exception(
+                    "Form type not setup for other event types"
+                );
             },
         ])->add('addressSearch', TextType::class, [
             'attr' => [
@@ -389,7 +410,9 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 'placeholder'  => 'Tell attendees who is organizing this event.',
                 'expanded'     => false,
                 'multiple'     => false,
-                'choices'      => $this->userRepository->findContactsBySchool($school),
+                'choices'      => $this->userRepository->findContactsBySchool(
+                    $school
+                ),
             ]);
         }
 
@@ -400,10 +423,11 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 'placeholder'   => 'Tell attendees who is organizing this event.',
                 'expanded'      => false,
                 'multiple'      => false,
-                'query_builder' => function (EntityRepository $er) use ($company) {
-                    return $er->createQueryBuilder('p')
-                              ->where('p.company = :company')
-                              ->setParameter('company', $company);
+                'query_builder' => function (EntityRepository $er) use ($company
+                ) {
+                    return $er->createQueryBuilder('p')->where(
+                            'p.company = :company'
+                        )->setParameter('company', $company);
                 },
             ]);
         }
@@ -417,70 +441,79 @@ class ExperienceType extends AbstractType implements DataMapperInterface
             ],
         ]);
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event) {
+                /** @var Experience $experience */
+                $experience = $event->getData();
+                $form       = $event->getForm();
 
-            /** @var Experience $experience */
-            $experience = $event->getData();
-            $form       = $event->getForm();
-
-            $this->isRecurringEventHandler($form, $experience->getIsRecurring());
-        });
-
-        $builder->get('isRecurring')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-            /** @var Industry $industry */
-            $data = $event->getForm()->getData();
-            $form = $event->getForm()->getParent();
-
-            if (!$form) {
-                return;
+                $this->isRecurringEventHandler(
+                    $form,
+                    $experience->getIsRecurring()
+                );
             }
+        );
 
-            $this->isRecurringEventHandler($form, $data);
-        });
+        $builder->get('isRecurring')->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function (FormEvent $event) {
+                /** @var Industry $industry */
+                $data = $event->getForm()->getData();
+                $form = $event->getForm()->getParent();
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-            $form = $event->getForm();
-            $data = $event->getData();
+                if (!$form) {
+                    return;
+                }
 
-            if(isset($data['isRecurring'])) {
+                $this->isRecurringEventHandler($form, $data);
+            }
+        );
 
-                $isRecurring = !!$data['isRecurring'];
+        $builder->addEventListener(
+            FormEvents::PRE_SUBMIT,
+            function (FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
 
-                if(!$isRecurring) {
-                    if(!isset($data['startDate'])) {
-                        $data['startDate'] = (new DateTime())->format("m/d/Y");
-                    }
+                if (isset($data['isRecurring'])) {
+                    $isRecurring = !!$data['isRecurring'];
 
-                    if(!isset($data['startTime'])) {
-                        $data['startTime'] = '19:30';
-                    }
+                    if (!$isRecurring) {
+                        if (!isset($data['startDate'])) {
+                            $data['startDate']
+                                = (new DateTime())->format("m/d/Y");
+                        }
 
-                    if(!isset($data['endDate'])) {
-                        $data['endDate'] = (new DateTime('+1 day'))->format("m/d/Y");
-                    }
+                        if (!isset($data['startTime'])) {
+                            $data['startTime'] = '19:30';
+                        }
 
-                    if(!isset($data['endTime'])) {
-                        $data['endTime'] = '20:30';
+                        if (!isset($data['endDate'])) {
+                            $data['endDate']
+                                = (new DateTime('+1 day'))->format("m/d/Y");
+                        }
+
+                        if (!isset($data['endTime'])) {
+                            $data['endTime'] = '20:30';
+                        }
                     }
                 }
+
+                $event->setData($data);
             }
-
-            $event->setData($data);
-        });
-
+        );
     }
 
-    private function isRecurringEventHandler(FormInterface $form, bool $isRecurring)
-    {
-
+    private function isRecurringEventHandler(
+        FormInterface $form,
+        bool $isRecurring
+    ) {
         if ($isRecurring) {
             // if it is recurring remove fields not needed
-            $form->remove('startDateAndTime')
-                 ->remove('endDateAndTime')
-                 ->remove('startDate')
-                 ->remove('endDate')
-                 ->remove('startTime')
-                 ->remove('endTime');
+            $form->remove('startDateAndTime')->remove('endDateAndTime')->remove(
+                    'startDate'
+                )->remove('endDate')->remove('startTime')->remove('endTime');
 
             return;
         }
@@ -495,25 +528,31 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
         if (!$form->has('startDate')) {
             $form->add('startDate', DateType::class, [
-                'mapped' => false,
-                'widget' => 'single_text',
-                'html5'  => false,
-                'format' => 'MM/dd/yyyy',
+                'mapped'      => false,
+                'widget'      => 'single_text',
+                'html5'       => false,
+                'format'      => 'MM/dd/yyyy',
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select a start date.', 'groups' => ['EXPERIENCE']])
-                ]
+                    new NotBlank([
+                        'message' => 'Please select a start date.',
+                        'groups'  => ['EXPERIENCE'],
+                    ]),
+                ],
             ]);
         }
 
         if (!$form->has('endDate')) {
             $form->add('endDate', DateType::class, [
-                'mapped' => false,
-                'widget' => 'single_text',
-                'html5'  => false,
-                'format' => 'MM/dd/yyyy',
+                'mapped'      => false,
+                'widget'      => 'single_text',
+                'html5'       => false,
+                'format'      => 'MM/dd/yyyy',
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select an end date.', 'groups' => ['EXPERIENCE']])
-                ]
+                    new NotBlank([
+                        'message' => 'Please select an end date.',
+                        'groups'  => ['EXPERIENCE'],
+                    ]),
+                ],
             ]);
         }
 
@@ -523,7 +562,6 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 'expanded' => false,
                 'multiple' => false,
                 'choices'  => $this->hoursRange(0, 86400, 60 * 30),
-                'data'     => '19:30',
             ]);
         }
 
@@ -541,9 +579,8 @@ class ExperienceType extends AbstractType implements DataMapperInterface
     {
         $resolver->setDefaults([
             'school'  => null,
-            'company' => null
+            'company' => null,
         ]);
-
     }
 
     public function getBlockPrefix()

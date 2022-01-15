@@ -399,7 +399,7 @@ class ExperienceController extends AbstractController
             'form'       => $form->createView(),
             'user'       => $user,
             'experience' => $experience,
-            'company'    => $company,
+            'company'    => $company
         ]);
     }
 

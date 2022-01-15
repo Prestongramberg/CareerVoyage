@@ -8,6 +8,7 @@ use App\Entity\CompanyExperience;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\ProfessionalUser;
+use App\Entity\RecurringEvent;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\StudentUser;
@@ -17,7 +18,9 @@ use App\Entity\User;
 use App\Service\FilterGenerator;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
+use App\Util\TimeHelper;
 use DateTime;
+use Recurr\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +37,7 @@ class ExperienceController extends AbstractController
 {
     use FileHelper;
     use ServiceHelper;
+    use TimeHelper;
 
     /**
      * @Route("/experiences", name="get_experiences", methods={"GET"}, options = { "expose" = true })
@@ -52,7 +56,8 @@ class ExperienceController extends AbstractController
         /** @var User $user */
         if ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
             $schoolExperiences = $this->schoolExperienceRepository->findBy(
-                ['school' => $school,]);
+                ['school' => $school,]
+            );
             // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
         } else {
             if ($userId) {
@@ -68,7 +73,8 @@ class ExperienceController extends AbstractController
                     // get any school experiences that are part of your school
                     $schoolExperiences
                         = $this->schoolExperienceRepository->findBy(
-                        ['school' => $user->getSchool(),]);
+                        ['school' => $user->getSchool(),]
+                    );
                 }
             } else {
                 // Everyone sees all company events
@@ -81,7 +87,8 @@ class ExperienceController extends AbstractController
                     foreach ($loggedInUser->getSchools() as $school) {
                         $experiences
                                            = $this->schoolExperienceRepository->findBy(
-                            ['school' => $school,]);
+                            ['school' => $school,]
+                        );
                         $schoolExperiences = array_merge(
                             $schoolExperiences,
                             $experiences
@@ -96,7 +103,8 @@ class ExperienceController extends AbstractController
                         $school = $loggedInUser->getSchool();
                         $schoolExperiences
                                 = $this->schoolExperienceRepository->findBy(
-                            ['school' => $school,]);
+                            ['school' => $school,]
+                        );
                     } else {
                         if ($loggedInUser->isProfessional()) {
                             // Professional will see all school events that they VOLUNTEER AT
@@ -104,7 +112,8 @@ class ExperienceController extends AbstractController
                             foreach ($loggedInUser->getSchools() as $school) {
                                 $experiences
                                                    = $this->schoolExperienceRepository->findBy(
-                                    ['school' => $school,]);
+                                    ['school' => $school,]
+                                );
                                 $schoolExperiences = array_merge(
                                     $schoolExperiences,
                                     $experiences
@@ -122,9 +131,11 @@ class ExperienceController extends AbstractController
             $userExperiences
         );
 
-        $json    = $this->serializer->serialize($experiences,
+        $json    = $this->serializer->serialize(
+            $experiences,
             'json',
-            ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]);
+            ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]
+        );
         $payload = json_decode($json, true);
 
         return new JsonResponse(
@@ -182,10 +193,10 @@ class ExperienceController extends AbstractController
 
         // todo query filters and cache them right here...
         $filters = $filterGenerator->generate([
-                FilterGenerator::INDUSTRY_FILTER,
-                FilterGenerator::SECONDARY_INDUSTRY_FILTER,
-                FilterGenerator::EVENT_TYPE_FILTER,
-            ]);
+            FilterGenerator::INDUSTRY_FILTER,
+            FilterGenerator::SECONDARY_INDUSTRY_FILTER,
+            FilterGenerator::EVENT_TYPE_FILTER,
+        ]);
 
         /**
          * START THE LOGIC FOR FINDING EXPERIENCES BY ZIPCODE
@@ -289,15 +300,17 @@ class ExperienceController extends AbstractController
         );
     }
 
+
     /**
-     * @Route("/get-dates-for-recurrence-rule", name="get_dates_for_recurrence_rule", methods={"POST"}, options = { "expose" = true })
-     * @param  Request  $request
+     * @Route("/experiences/{id}/save-schedule", name="api_experience_save_schedule", methods={"POST"}, options = { "expose" = true })
+     * @param  Request     $request
+     * @param  Experience  $experience
      *
      * @return JsonResponse
      * @throws \Recurr\Exception\InvalidRRule
      * @throws \Recurr\Exception\InvalidWeekday
      */
-    public function getDatesForRecurrenceRule(Request $request)
+    public function saveSchedule(Request $request, Experience $experience)
     {
         /**
          * @see https://github.com/simshaun/recurr
@@ -305,6 +318,12 @@ class ExperienceController extends AbstractController
 
         $recurrenceRule = $request->request->get('recurrenceRule');
         $startDate      = $request->request->get('startDate');
+        $schedule       = $request->request->get('schedule');
+        $startTime      = $schedule['startTime'] ?? null;
+        $endTime        = $schedule['endTime'] ?? null;
+        $hoursRange     = $this->hoursRange(0, 86400, 60 * 30);
+        $startTime      = $hoursRange[$startTime];
+        $endTime        = $hoursRange[$endTime];
         $timezone       = 'America/Chicago';
         $startDate      = DateTime::createFromFormat(
             "m/d/Y",
@@ -312,11 +331,23 @@ class ExperienceController extends AbstractController
             new \DateTimeZone($timezone)
         );
 
-        // todo add validation on the front end of the schedule page to make sure start date is entered in order to save
+        // reset to midnight
+        $startDate->setTime(0,0);
 
-        /* $endDate   = new \DateTime(
-             '2013-06-14 20:00:00', new \DateTimeZone($timezone)
-         ); // Optional*/
+        // remove any upcoming child events if the schedule has been modified
+        // what if there are registrations already on that day? Do we delete that event also?
+        $upcomingChildEvents = $this->experienceRepository->getUpcomingChildEvents($experience);
+        /** @var Experience $upcomingChildEvent */
+        foreach($upcomingChildEvents as $upcomingChildEvent) {
+
+            if($upcomingChildEvent->getRegistrations()->count()) {
+                continue;
+            }
+
+            $this->entityManager->remove($upcomingChildEvent);
+        }
+
+        // todo add validation on the front end of the schedule page to make sure start date is entered in order to save
 
         $rule = new \Recurr\Rule(
             $recurrenceRule, $startDate, null, $timezone
@@ -325,18 +356,91 @@ class ExperienceController extends AbstractController
         $transformer          = new \Recurr\Transformer\ArrayTransformer();
         $recurrenceCollection = $transformer->transform($rule);
 
-        $dates = [];
         foreach ($recurrenceCollection as $recurrence) {
+
+            $recurringEvent = clone $experience;
+            $recurringEvent->setRecurrenceRule(null);
+            $recurringEvent->setSchedule(null);
+            $recurringEvent->setIsRecurring(false);
+            $recurringEvent->setParentEvent($experience);
+
+            $startDate = $recurrence->getStart();
+            $endDate   = $recurrence->getEnd();
+
+            if ($startDate && $startTime) {
+                $startDateAndTime = clone $startDate;
+
+                [$hours, $minutes] = explode(":", $startTime);
+
+                $startDateAndTime->add(new \DateInterval('PT'.$hours.'H'));
+                $startDateAndTime->add(new \DateInterval('PT'.$minutes.'M'));
+                $recurringEvent->setStartDateAndTime($startDateAndTime);
+
+                $utcStartDateAndTime = clone $startDateAndTime;
+                $utcStartDateAndTime->setTimezone(new \DateTimeZone("UTC"));
+                $recurringEvent->setUtcStartDateAndTime($utcStartDateAndTime);
+            }
+
+            if ($endDate && $endTime) {
+                $endDateAndTime = clone $endDate;
+                [$hours, $minutes] = explode(":", $endTime);
+
+                $endDateAndTime->add(new \DateInterval('PT'.$hours.'H'));
+                $endDateAndTime->add(new \DateInterval('PT'.$minutes.'M'));
+                $recurringEvent->setEndDateAndTime($endDateAndTime);
+
+                $utcEndDateAndTime = clone $endDateAndTime;
+                $utcEndDateAndTime->setTimezone(new \DateTimeZone("UTC"));
+                $recurringEvent->setUtcEndDateAndTime($utcEndDateAndTime);
+            }
+
+            $this->entityManager->persist($recurringEvent);
+        }
+
+        $experience->setRecurrenceRule($recurrenceRule);
+        $experience->setSchedule($schedule);
+        $this->entityManager->flush();
+
+        $this->entityManager->refresh($experience);
+
+        $dates = [];
+        foreach($experience->getChildEvents() as $recurringEvent) {
             $dates[] = [
-                'title' => 'test experience',
-                'start' => $recurrence->getStart()->format("Y-m-d"),
-                'end'   => $recurrence->getEnd()->format("Y-m-d"),
+                'title' => $recurringEvent->getTitle(),
+                'start' => $recurringEvent->getStartDateAndTime()->format("Y-m-d"),
+                'end'   => $recurringEvent->getEndDateAndTime()->format("Y-m-d"),
+                'url' => $this->router->generate('experience_view', ['id' => $recurringEvent->getId()])
             ];
         }
 
         return new JsonResponse([
-            'dates' => $dates,
-            'success' => true
+            'dates'   => $dates,
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * @Route("/experiences/{id}/get-schedule", name="api_experience_get_schedule", methods={"GET", "POST"}, options = { "expose" = true })
+     * @param  Request     $request
+     * @param  Experience  $experience
+     *
+     * @return JsonResponse
+     */
+    public function getSchedule(Request $request, Experience $experience)
+    {
+        $dates = [];
+        foreach($experience->getChildEvents() as $recurringEvent) {
+            $dates[] = [
+                'title' => $recurringEvent->getTitle(),
+                'start' => $recurringEvent->getStartDateAndTime()->format("Y-m-d"),
+                'end'   => $recurringEvent->getEndDateAndTime()->format("Y-m-d"),
+                'url' => $this->router->generate('experience_view', ['id' => $recurringEvent->getId()])
+            ];
+        }
+
+        return new JsonResponse([
+            'dates'   => $dates,
+            'success' => true,
         ]);
     }
 
@@ -522,11 +626,15 @@ class ExperienceController extends AbstractController
             }, $experiences);
 
             $experiences = $this->experienceRepository->findBy(
-                ['id' => $experienceIds], ['startDateAndTime' => 'ASC',]);
+                ['id' => $experienceIds],
+                ['startDateAndTime' => 'ASC',]
+            );
 
-            $json    = $this->serializer->serialize($experiences,
+            $json    = $this->serializer->serialize(
+                $experiences,
                 'json',
-                ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]);
+                ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]
+            );
             $payload = json_decode($json, true);
 
         } else {
@@ -539,7 +647,8 @@ class ExperienceController extends AbstractController
                 && $school = $this->schoolRepository->find($schoolId)
             ) {
                 $schoolExperiences = $this->schoolExperienceRepository->findBy(
-                    ['school' => $school,]);
+                    ['school' => $school,]
+                );
                 // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
             } else {
                 if ($userId) {
@@ -562,7 +671,8 @@ class ExperienceController extends AbstractController
                         foreach ($loggedInUser->getSchools() as $school) {
                             $experiences
                                                = $this->schoolExperienceRepository->findBy(
-                                ['school' => $school,]);
+                                ['school' => $school,]
+                            );
                             $schoolExperiences = array_merge(
                                 $schoolExperiences,
                                 $experiences
@@ -577,7 +687,8 @@ class ExperienceController extends AbstractController
                             $school = $loggedInUser->getSchool();
                             $schoolExperiences
                                     = $this->schoolExperienceRepository->findBy(
-                                ['school' => $school,]);
+                                ['school' => $school,]
+                            );
                         } else {
                             if ($loggedInUser->isProfessional()) {
                                 // Professional will see all school events that they VOLUNTEER AT
@@ -586,7 +697,8 @@ class ExperienceController extends AbstractController
                                 {
                                     $experiences
                                                        = $this->schoolExperienceRepository->findBy(
-                                        ['school' => $school,]);
+                                        ['school' => $school,]
+                                    );
                                     $schoolExperiences = array_merge(
                                         $schoolExperiences,
                                         $experiences
@@ -617,11 +729,15 @@ class ExperienceController extends AbstractController
             }, $experiences);
 
             $experiences = $this->experienceRepository->findBy(
-                ['id' => $experienceIds], ['startDateAndTime' => 'ASC',]);
+                ['id' => $experienceIds],
+                ['startDateAndTime' => 'ASC',]
+            );
 
-            $json    = $this->serializer->serialize($experiences,
+            $json    = $this->serializer->serialize(
+                $experiences,
                 'json',
-                ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]);
+                ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]
+            );
             $payload = json_decode($json, true);
         }
 
@@ -670,7 +786,8 @@ class ExperienceController extends AbstractController
 
         if (!$systemUser) {
             $systemUser = $this->systemUserRepository->findOneBy(
-                ['type' => SystemUser::EXPERIENCE_NOTIFY,]);
+                ['type' => SystemUser::EXPERIENCE_NOTIFY,]
+            );
         }
 
         if (!$systemUser) {
@@ -700,11 +817,13 @@ class ExperienceController extends AbstractController
         foreach ($users as $user) {
 
             $chat = $this->chatRepository->findOneBy(
-                ['userOne' => $systemUser, 'userTwo' => $user,]);
+                ['userOne' => $systemUser, 'userTwo' => $user,]
+            );
 
             if (!$chat) {
                 $chat = $this->chatRepository->findOneBy(
-                    ['userOne' => $user, 'userTwo' => $systemUser,]);
+                    ['userOne' => $user, 'userTwo' => $systemUser,]
+                );
             }
 
             // if a chat doesn't exist then let's create one!
@@ -991,8 +1110,10 @@ class ExperienceController extends AbstractController
 
             if ($className == 'TeachLessonExperience') {
                 /** @var TeachLessonExperience $r */
-                $url       = $this->generateUrl('lesson_view',
-                    ['id' => $r->getLesson()->getId()]);
+                $url       = $this->generateUrl(
+                    'lesson_view',
+                    ['id' => $r->getLesson()->getId()]
+                );
                 $requestId = $r->getOriginalRequest()->getId();
 
                 if ($r->getSchool() && $r->getSchool()->getStreet()) {

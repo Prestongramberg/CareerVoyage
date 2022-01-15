@@ -36,9 +36,20 @@
                     </div>
 
                     {% if experience.isRecurring %}
-                        <div class="experience_schedule">
+                        <div class="experience_schedule" style="position: relative">
                             <h2>Schedule</h2>
-                            <div id="react-events-schedule" data-render-calendar="true" data-experience="{{ experience.id }}"></div>
+                            <div uk-alert>
+                                <a class="uk-alert-close" uk-close></a>
+                                <h3>Helpful Notes:</h3>
+
+                                <dl class="uk-description-list">
+                                    <dt>Will modifying the recurring event schedule affect past events or upcoming events with registrations?</dt>
+                                    <dd>Changing the recurring event schedule will NOT affect past events or upcoming events with registrations.</dd>
+                                    <dt>How do I make changes to a single event in the recurring event schedule without affecting all of the events?</dt>
+                                    <dd>After you have set a schedule, click on any event in the calendar shown below to preview, modify, or delete an individual event.</dd>
+                                </dl>
+                            </div>
+                            <div id="react-events-schedule" data-schedule="{{ experience.schedule|json_encode }}" data-render-calendar="true" data-experience="{{ experience.id }}"></div>
                         </div>
                     {% endif %}
 

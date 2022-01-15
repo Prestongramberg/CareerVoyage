@@ -1,23 +1,35 @@
-import React, {useState, useEffect, useRef} from "react"
+import React, {useState, useEffect, useRef, useCallback} from "react"
 import PropTypes from "prop-types";
 import ScheduleForm from "./components/ScheduleForm";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import * as api from "../../utilities/api/api";
 import * as actionTypes from "../global-share/actions/actionTypes";
+import {useFormState} from 'react-final-form';
+import experienceId from "../event-user-notify/reducers/experienceId";
+import {deepObject} from "../../utilities/object-utils";
 
 export default function App(props) {
 
     const CalendarRef = useRef()
 
     useEffect(() => {
+
+        UIkit.util.on('.uk-switcher', 'show', function (ev) {
+            if ($(ev.target).hasClass('experience_schedule')) {
+                loadSchedule(schedule);
+            }
+        });
+
     }, [])
 
     let today = new Date();
     let tomorrow = new Date()
     tomorrow.setDate(today.getDate() + 1);
 
-    const [schedule, setSchedule] = useState({
+    debugger;
+
+    const [schedule, setSchedule] = useState(props.schedule || {
         freq: 'WEEKLY',
         interval: 1,
         byDay: 'SU',
@@ -28,8 +40,8 @@ export default function App(props) {
         bySetPos: 1,
         byMonth: 1,
         startDate: [today],
-        startTime: '7:30PM',
-        endTime: '8:30PM',
+        startTime: '7:30 pm',
+        endTime: '8:30 pm',
         endAction: 'Never',
         count: 1,
         until: [tomorrow]
@@ -38,19 +50,25 @@ export default function App(props) {
     const [events, setEvents] = useState([]);
 
     const onSubmit = (values) => {
+        saveSchedule(values);
+    };
 
-        debugger;
+    const loadSchedule = (values) => {
+
         let recurrenceRule = getRecurrenceRule(values);
         let startDate = values.startDate[0].toLocaleDateString("en-US");
 
-        let url = window.Routing.generate("get_dates_for_recurrence_rule");
+        let url = window.Routing.generate("api_experience_get_schedule", {
+            id: props.experienceId
+        });
 
         let data = {
             recurrenceRule: recurrenceRule,
-            startDate: startDate
+            startDate: startDate,
+            schedule: values
         }
 
-        return api.post(url, data)
+        api.post(url, data)
             .then((response) => {
                 debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
@@ -60,12 +78,39 @@ export default function App(props) {
 
             })
             .catch((e) => {
+            })
 
+    }
+
+    const saveSchedule = (values) => {
+
+        debugger;
+        let recurrenceRule = getRecurrenceRule(values);
+        let startDate = values.startDate[0].toLocaleDateString("en-US");
+
+        let url = window.Routing.generate("api_experience_save_schedule", {
+            id: props.experienceId
+        });
+
+        let data = {
+            recurrenceRule: recurrenceRule,
+            startDate: startDate,
+            schedule: values
+        }
+
+        api.post(url, data)
+            .then((response) => {
                 debugger;
+                if (response.statusCode < 300 && response.responseBody.success === true) {
+                    let newEvents = response.responseBody.dates;
+                    setEvents(newEvents);
+                }
 
             })
-    };
+            .catch((e) => {
+            })
 
+    }
 
     // todo 2 additional functions? State to string? Or string to state? Unless you want to just convert the state to a string and save it?
     //  this feels like the easier less scalable solution.
@@ -167,9 +212,22 @@ export default function App(props) {
                     ref={CalendarRef}
                     height={500}
                     defaultView="dayGridMonth"
+                    eventLimit={true}
+                    editable={true}
+                    selectable={true}
+                    selectMirror={true}
+                    dayMaxEvents={true}
                     events={events}
                     datesRender={(data) => {
                         debugger;
+                    }}
+                    eventClick={(event) => {
+                        event.jsEvent.preventDefault(); // don't let the browser navigate
+                        event = event.event._def;
+                        if (event.url) {
+                            window.open(event.url, "_blank");
+                            return false;
+                        }
                     }}
                     defaultDate={schedule.startDate[0] || new Date()}
                     header={{
@@ -212,11 +270,12 @@ export default function App(props) {
     );
 }
 
-/*App.propTypes = {
-    rrule: PropTypes.object,
-    userId: PropTypes.number
-};*/
+App.propTypes = {
+    experienceId: PropTypes.number.isRequired,
+    schedule: PropTypes.object
+};
 
 App.defaultProps = {
-    renderCalendar: false
+    renderCalendar: false,
+    schedule: null
 };

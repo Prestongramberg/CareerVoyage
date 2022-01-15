@@ -232,7 +232,6 @@ $(document).ready(function () {
         $('#map').show();
     }
 
-
     new ResourceComponent($('.js-resource-component'), window.globalEventDispatcher);
     new RadioChoiceField($('.js-radio-choice-field'), window.globalEventDispatcher);
 });

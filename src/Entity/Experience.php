@@ -24,40 +24,43 @@ abstract class Experience
 {
     use Timestampable;
 
-    public static $types = [
-        'Site Visit' => 'SITE_VISIT',
-        'Event'      => 'EVENT',
-        'Externship' => 'EXTERNSHIP',
-        'Internship' => 'INTERNSHIP',
-        'Job'        => 'JOB',
-    ];
+    public static $types
+        = [
+            'Site Visit' => 'SITE_VISIT',
+            'Event'      => 'EVENT',
+            'Externship' => 'EXTERNSHIP',
+            'Internship' => 'INTERNSHIP',
+            'Job'        => 'JOB',
+        ];
 
-    public static $paymentTypes = [
-        'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
-        'Hour'                     => 'HOUR',
-        'Day'                      => 'DAY',
-        'Week'                     => 'WEEK',
-        'Month'                    => 'MONTH',
-        'Year'                     => 'YEAR',
-    ];
+    public static $paymentTypes
+        = [
+            'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
+            'Hour'                     => 'HOUR',
+            'Day'                      => 'DAY',
+            'Week'                     => 'WEEK',
+            'Month'                    => 'MONTH',
+            'Year'                     => 'YEAR',
+        ];
 
-    public static $requireApprovalChoices = [
-        'No'  => false,
-        'Yes' => true,
-    ];
+    public static $requireApprovalChoices
+        = [
+            'No'  => false,
+            'Yes' => true,
+        ];
 
     /**
      * @Assert\Callback(groups={"CREATE"})
-     * @param ExecutionContextInterface $context
-     * @param                           $payload
+     * @param  ExecutionContextInterface  $context
+     * @param                             $payload
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
         if (!$this->payment) {
             if (!is_float($this->payment) && !is_numeric($this->payment)) {
-                $context->buildViolation('You must enter a valid number or decimal for the payment!')
-                        ->atPath('payment')
-                        ->addViolation();
+                $context->buildViolation(
+                    'You must enter a valid number or decimal for the payment!'
+                )->atPath('payment')->addViolation();
             }
         }
     }
@@ -288,6 +291,26 @@ abstract class Experience
 
     protected $startTime;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $recurrenceRule;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $schedule = [];
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Experience::class, inversedBy="childEvents")
+     */
+    private $parentEvent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Experience::class, mappedBy="parentEvent")
+     */
+    private $childEvents;
+
     public function __construct()
     {
         $this->experienceFiles     = new ArrayCollection();
@@ -297,12 +320,14 @@ abstract class Experience
         $this->shares              = new ArrayCollection();
         $this->tags                = new ArrayCollection();
         $this->experienceResources = new ArrayCollection();
+        $this->childEvents = new ArrayCollection();
     }
 
     public function isVirtual()
     {
-
-        if (stripos(strtolower($this->getType()->getName()), 'virtual') !== false) {
+        if (stripos(strtolower($this->getType()->getName()), 'virtual')
+            !== false
+        ) {
             return true;
         }
 
@@ -545,8 +570,8 @@ abstract class Experience
         return $this->secondaryIndustries;
     }
 
-    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
-    {
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry
+    ): self {
         if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
             $this->secondaryIndustries[] = $secondaryIndustry;
         }
@@ -554,8 +579,8 @@ abstract class Experience
         return $this;
     }
 
-    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
-    {
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry
+    ): self {
         if ($this->secondaryIndustries->contains($secondaryIndustry)) {
             $this->secondaryIndustries->removeElement($secondaryIndustry);
         }
@@ -711,7 +736,13 @@ abstract class Experience
      */
     public function getFormattedAddress()
     {
-        return sprintf("%s %s %s %s", $this->street, $this->city, $this->state ? $this->state->getAbbreviation() : '', $this->zipcode);
+        return sprintf(
+            "%s %s %s %s",
+            $this->street,
+            $this->city,
+            $this->state ? $this->state->getAbbreviation() : '',
+            $this->zipcode
+        );
     }
 
     public function getCancelled(): ?bool
@@ -895,8 +926,9 @@ abstract class Experience
         return $this->utcStartDateAndTime;
     }
 
-    public function setUtcStartDateAndTime(?\DateTimeInterface $utcStartDateAndTime): self
-    {
+    public function setUtcStartDateAndTime(
+        ?\DateTimeInterface $utcStartDateAndTime
+    ): self {
         $this->utcStartDateAndTime = $utcStartDateAndTime;
 
         return $this;
@@ -907,8 +939,8 @@ abstract class Experience
         return $this->utcEndDateAndTime;
     }
 
-    public function setUtcEndDateAndTime(?\DateTimeInterface $utcEndDateAndTime): self
-    {
+    public function setUtcEndDateAndTime(?\DateTimeInterface $utcEndDateAndTime
+    ): self {
         $this->utcEndDateAndTime = $utcEndDateAndTime;
 
         return $this;
@@ -946,8 +978,8 @@ abstract class Experience
         return $this->experienceResources;
     }
 
-    public function addExperienceResource(ExperienceResource $experienceResource): self
-    {
+    public function addExperienceResource(ExperienceResource $experienceResource
+    ): self {
         if (!$this->experienceResources->contains($experienceResource)) {
             $this->experienceResources[] = $experienceResource;
             $experienceResource->setExperience($this);
@@ -956,8 +988,9 @@ abstract class Experience
         return $this;
     }
 
-    public function removeExperienceResource(ExperienceResource $experienceResource): self
-    {
+    public function removeExperienceResource(
+        ExperienceResource $experienceResource
+    ): self {
         if ($this->experienceResources->removeElement($experienceResource)) {
             // set the owning side to null (unless already changed)
             if ($experienceResource->getExperience() === $this) {
@@ -968,34 +1001,36 @@ abstract class Experience
         return $this;
     }
 
-    public function isSchoolExperience() {
+    public function isSchoolExperience()
+    {
         return $this instanceof SchoolExperience;
     }
 
-    public function isCompanyExperience() {
+    public function isCompanyExperience()
+    {
         return $this instanceof CompanyExperience;
     }
 
-    public function getCoordinator() {
-
-        if($this instanceof SchoolExperience) {
+    public function getCoordinator()
+    {
+        if ($this instanceof SchoolExperience) {
             return $this->getSchoolContact();
         }
 
-        if($this instanceof CompanyExperience) {
+        if ($this instanceof CompanyExperience) {
             return $this->getEmployeeContact();
         }
 
         return null;
     }
 
-    public function getMapMarkerIcon() {
-
-        if($this instanceof SchoolExperience) {
+    public function getMapMarkerIcon()
+    {
+        if ($this instanceof SchoolExperience) {
             return 'school';
         }
 
-        if($this instanceof CompanyExperience) {
+        if ($this instanceof CompanyExperience) {
             return 'company';
         }
 
@@ -1023,7 +1058,7 @@ abstract class Experience
     }
 
     /**
-     * @param mixed $startDate
+     * @param  mixed  $startDate
      */
     public function setStartDate($startDate): void
     {
@@ -1039,10 +1074,80 @@ abstract class Experience
     }
 
     /**
-     * @param mixed $startTime
+     * @param  mixed  $startTime
      */
     public function setStartTime($startTime): void
     {
         $this->startTime = $startTime;
+    }
+
+    public function getRecurrenceRule(): ?string
+    {
+        return $this->recurrenceRule;
+    }
+
+    public function setRecurrenceRule(?string $recurrenceRule): self
+    {
+        $this->recurrenceRule = $recurrenceRule;
+
+        return $this;
+    }
+
+    public function getSchedule(): ?array
+    {
+        if (!$this->schedule) {
+            return [];
+        }
+
+        return $this->schedule;
+    }
+
+    public function setSchedule(?array $schedule): self
+    {
+        $this->schedule = $schedule;
+
+        return $this;
+    }
+
+    public function getParentEvent(): ?self
+    {
+        return $this->parentEvent;
+    }
+
+    public function setParentEvent(?self $parentEvent): self
+    {
+        $this->parentEvent = $parentEvent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getChildEvents(): Collection
+    {
+        return $this->childEvents;
+    }
+
+    public function addChildEvent(self $childEvent): self
+    {
+        if (!$this->childEvents->contains($childEvent)) {
+            $this->childEvents[] = $childEvent;
+            $childEvent->setParentEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChildEvent(self $childEvent): self
+    {
+        if ($this->childEvents->removeElement($childEvent)) {
+            // set the owning side to null (unless already changed)
+            if ($childEvent->getParentEvent() === $this) {
+                $childEvent->setParentEvent(null);
+            }
+        }
+
+        return $this;
     }
 }

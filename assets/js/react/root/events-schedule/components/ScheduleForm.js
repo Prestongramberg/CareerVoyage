@@ -132,9 +132,7 @@ const ScheduleForm = ({
 
                     {renderEndFields()}
 
-                    <hr/>
-
-                    <button type="submit" className="uk-button uk-button-primary">Save</button>
+                    <button style={{"position": "absolute", "top": 0, "right": 0}} type="submit" className="uk-button uk-button-primary">Save Schedule</button>
 
                 </form>
             )}
