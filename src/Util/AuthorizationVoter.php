@@ -51,7 +51,7 @@ class AuthorizationVoter
     public function canEditExperience(User $user, Experience $experience)
     {
 
-        if ($user->isAdmin()) {
+        if($experience->getCreator() && $experience->getCreator()->getId() === $user->getId()) {
             return true;
         }
 

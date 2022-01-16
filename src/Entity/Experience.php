@@ -311,6 +311,12 @@ abstract class Experience
      */
     protected $childEvents;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="experiences")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    private $creator;
+
     public function __construct()
     {
         $this->experienceFiles     = new ArrayCollection();
@@ -1162,5 +1168,17 @@ abstract class Experience
         }
 
         return false;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): self
+    {
+        $this->creator = $creator;
+
+        return $this;
     }
 }

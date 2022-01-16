@@ -47,11 +47,14 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 class ExperienceController extends AbstractController
 {
+
     use FileHelper;
     use ServiceHelper;
 
     /**
-     * @Route("/", name="experience_index", methods={"GET"}, options = { "expose" = true })
+     * @Route("/", name="experience_index", methods={"GET"}, options = {
+     *   "expose"
+     *   = true })
      * @param  Request  $request
      *
      * @return Response
@@ -60,13 +63,12 @@ class ExperienceController extends AbstractController
     {
         $user = $this->getUser();
 
-        return $this->render('experience/index.html.twig', [
-            'user' => $user,
-        ]);
+        return $this->render('experience/index.html.twig', ['user' => $user,]);
     }
 
     /**
-     * @Route("/personal-calendar", name="experience_personal_calendar", methods={"GET"}, options = { "expose" = true })
+     * @Route("/personal-calendar", name="experience_personal_calendar",
+     *   methods={"GET"}, options = { "expose" = true })
      * @param  Request  $request
      *
      * @return Response
@@ -75,13 +77,13 @@ class ExperienceController extends AbstractController
     {
         $user = $this->getUser();
 
-        return $this->render('experience/personal_calendar.html.twig', [
-            'user' => $user,
-        ]);
+        return $this->render('experience/personal_calendar.html.twig',
+          ['user' => $user,]);
     }
 
     /**
-     * @Route("/list", name="experience_list", methods={"GET"}, options = { "expose" = true })
+     * @Route("/list", name="experience_list", methods={"GET"}, options = {
+     *   "expose" = true })
      * @param  Request  $request
      *
      * @return Response
@@ -92,13 +94,13 @@ class ExperienceController extends AbstractController
 
         $user = $this->getUser();
 
-        return $this->render('experience/list.html.twig', [
-            'user' => $user,
-        ]);
+        return $this->render('experience/list.html.twig', ['user' => $user,]);
     }
 
     /**
-     * @Route("/list-new", name="experience_list_new", methods={"GET"}, options = { "expose" = true })
+     * @Route("/list-new", name="experience_list_new", methods={"GET"}, options
+     *   =
+     *   { "expose" = true })
      * @param  Request  $request
      *
      * @return Response
@@ -107,16 +109,16 @@ class ExperienceController extends AbstractController
     {
         $user = $this->getUser();
 
-        return $this->render('experience/list_new.html.twig', [
-            'user' => $user,
-        ]);
+        return $this->render('experience/list_new.html.twig', ['user' => $user,]
+        );
     }
 
     /**
-     * There are many different types of experiences. this acts as a central router
-     * to route to the specific view for each experience.
+     * There are many different types of experiences. this acts as a central
+     * router to route to the specific view for each experience.
      *
-     * @Route("/{id}/view", name="experience_view", methods={"GET"}, options = { "expose" = true })
+     * @Route("/{id}/view", name="experience_view", methods={"GET"}, options = {
+     *   "expose" = true })
      * @param  Request  $request
      * @param  Experience  $experience
      *
@@ -129,25 +131,20 @@ class ExperienceController extends AbstractController
         switch ($experience->getClassName()) {
             case 'CompanyExperience':
                 return $this->redirectToRoute('company_experience_view',
-                    ['id' => $experience->getId()]);
+                  ['id' => $experience->getId()]);
                 break;
             case 'TeachLessonExperience':
-                return $this->render('experience/view_teach_lesson_experience.html.twig',
-                    [
-                        'user'       => $user,
-                        'experience' => $experience,
-                    ]);
+                return $this->render(
+                  'experience/view_teach_lesson_experience.html.twig',
+                  ['user' => $user, 'experience' => $experience,]);
                 break;
             case 'SchoolExperience':
                 return $this->redirectToRoute('school_experience_view',
-                    ['id' => $experience->getId()]);
+                  ['id' => $experience->getId()]);
                 break;
             default:
                 return $this->render('experience/generic_experience.html.twig',
-                    [
-                        'user'       => $user,
-                        'experience' => $experience,
-                    ]);
+                  ['user' => $user, 'experience' => $experience,]);
                 break;
         }
 
@@ -157,7 +154,8 @@ class ExperienceController extends AbstractController
 
 
     /**
-     * @Route("/{id}/cancel", name="experience_cancel", options = { "expose" = true })
+     * @Route("/{id}/cancel", name="experience_cancel", options = { "expose" =
+     *   true })
      * @param  Request  $request
      * @param  Experience  $experience
      *
@@ -167,8 +165,8 @@ class ExperienceController extends AbstractController
      * @throws \Twig\Error\SyntaxError
      */
     public function experienceCancelAction(
-        Request $request,
-        Experience $experience
+      Request $request,
+      Experience $experience
     ) {
         /** @var User $user */
         $user               = $this->getUser();
@@ -195,8 +193,11 @@ class ExperienceController extends AbstractController
                     continue;
                 }
 
-                $this->experienceMailer->experienceCancellationMessage($experience,
-                    $registration->getUser(), $message);
+                $this->experienceMailer->experienceCancellationMessage(
+                  $experience,
+                  $registration->getUser(),
+                  $message
+                );
             }
 
             $experience->setCancelled(true);
@@ -209,8 +210,12 @@ class ExperienceController extends AbstractController
 
         $this->entityManager->flush();
 
-        $this->addFlash('success',
-            sprintf('Experience successfully cancelled. Users registered for this experience have been notified.'));
+        $this->addFlash(
+          'success',
+          sprintf(
+            'Experience successfully cancelled. Users registered for this experience have been notified.'
+          )
+        );
 
         $referer = $request->headers->get('referer');
 
@@ -218,15 +223,16 @@ class ExperienceController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/delete", name="experience_delete", options = { "expose" = true })
+     * @Route("/{id}/delete", name="experience_delete", options = { "expose" =
+     *   true })
      * @param  Request  $request
      * @param  Experience  $experience
      *
      * @return RedirectResponse
      */
     public function experienceDeleteAction(
-        Request $request,
-        Experience $experience
+      Request $request,
+      Experience $experience
     ) {
         /** @var User $user */
         $user               = $this->getUser();
@@ -245,7 +251,8 @@ class ExperienceController extends AbstractController
     }
 
     /**
-     * @Route("/experiences/new", name="experience_new", options = { "expose" = true })
+     * @Route("/experiences/new", name="experience_new", options = { "expose" =
+     *   true })
      * @param  Request  $request
      *
      * @return Response
@@ -265,8 +272,10 @@ class ExperienceController extends AbstractController
         }
 
         if ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-            if (!$authorizationVoter->canCreateExperiencesForSchool($user,
-                $school)
+            if (!$authorizationVoter->canCreateExperiencesForSchool(
+              $user,
+              $school
+            )
             ) {
                 throw new AccessDeniedException();
             }
@@ -277,7 +286,7 @@ class ExperienceController extends AbstractController
         }
 
         if ($companyId
-            && $company = $this->companyRepository->find($companyId)
+          && $company = $this->companyRepository->find($companyId)
         ) {
             if (!$authorizationVoter->canEditCompany($user, $company)) {
                 throw new AccessDeniedException();
@@ -293,12 +302,12 @@ class ExperienceController extends AbstractController
         }
 
         $form = $this->createForm(ExperienceType::class, $experience, [
-            'method'            => 'POST',
-            'school'            => $school,
-            'company'           => $company,
-            'validation_groups' => $validationGroups,
-            'data_class'        => $dataClass,
-            'action'            => $request->getRequestUri(),
+          'method'            => 'POST',
+          'school'            => $school,
+          'company'           => $company,
+          'validation_groups' => $validationGroups,
+          'data_class'        => $dataClass,
+          'action'            => $request->getRequestUri(),
         ]);
 
         $form->handleRequest($request);
@@ -306,6 +315,7 @@ class ExperienceController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var SchoolExperience|CompanyExperience $experience */
             $experience = $form->getData();
+            $experience->setCreator($user);
 
             if ($experience instanceof SchoolExperience) {
                 $experience->setSchool($school);
@@ -318,36 +328,47 @@ class ExperienceController extends AbstractController
             $this->entityManager->persist($experience);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Experience successfully created!');
+            if($experience->getIsRecurring()) {
+                $this->addFlash('success', 'Experience successfully created. Please setup your recurring event schedule.');
 
+                $redirectUrl = $this->generateUrl(
+                    'experience_edit',
+                    ['id' => $experience->getId()]
+                  ).'#experience-schedule';
+
+                return $this->redirect($redirectUrl);
+            }
+
+            $this->addFlash('success', 'Experience successfully created!');
             return $this->redirectToRoute('experience_view',
-                ['id' => $experience->getId()]);
+              ['id' => $experience->getId()]);
         }
 
         if ($request->request->has('changeableField')) {
             return new JsonResponse([
-                'success'    => false,
-                'formMarkup' => $this->renderView('experience/new.html.twig', [
-                    'school'     => $school,
-                    'form'       => $form->createView(),
-                    'user'       => $user,
-                    'experience' => $experience,
-                    'company'    => $company,
-                ]),
+              'success'    => false,
+              'formMarkup' => $this->renderView('experience/new.html.twig', [
+                'school'     => $school,
+                'form'       => $form->createView(),
+                'user'       => $user,
+                'experience' => $experience,
+                'company'    => $company,
+              ]),
             ], Response::HTTP_BAD_REQUEST);
         }
 
         return $this->render('experience/new.html.twig', [
-            'school'     => $school,
-            'form'       => $form->createView(),
-            'user'       => $user,
-            'experience' => $experience,
-            'company'    => $company,
+          'school'     => $school,
+          'form'       => $form->createView(),
+          'user'       => $user,
+          'experience' => $experience,
+          'company'    => $company,
         ]);
     }
 
     /**
-     * @Route("/{id}/edit", name="experience_edit", options = { "expose" = true })
+     * @Route("/{id}/edit", name="experience_edit", options = { "expose" = true
+     *   })
      * @param  Request  $request
      * @param  Experience  $experience
      *
@@ -386,12 +407,12 @@ class ExperienceController extends AbstractController
         }
 
         $form = $this->createForm(ExperienceType::class, $experience, [
-            'method'            => 'POST',
-            'school'            => $school,
-            'company'           => $company,
-            'validation_groups' => $validationGroups,
-            'data_class'        => $dataClass,
-            'action'            => $request->getRequestUri(),
+          'method'            => 'POST',
+          'school'            => $school,
+          'company'           => $company,
+          'validation_groups' => $validationGroups,
+          'data_class'        => $dataClass,
+          'action'            => $request->getRequestUri(),
         ]);
 
         $form->handleRequest($request);
@@ -406,33 +427,34 @@ class ExperienceController extends AbstractController
             $this->addFlash('success', 'Experience successfully updated!');
 
             return $this->redirectToRoute('experience_edit',
-                ['id' => $experience->getId()]);
+              ['id' => $experience->getId()]);
         }
 
         if ($request->request->has('changeableField')) {
             return new JsonResponse([
-                'success'    => false,
-                'formMarkup' => $this->renderView('experience/edit.html.twig', [
-                    'school'     => $school,
-                    'form'       => $form->createView(),
-                    'user'       => $user,
-                    'experience' => $experience,
-                    'company'    => $company,
-                ]),
+              'success'    => false,
+              'formMarkup' => $this->renderView('experience/edit.html.twig', [
+                'school'     => $school,
+                'form'       => $form->createView(),
+                'user'       => $user,
+                'experience' => $experience,
+                'company'    => $company,
+              ]),
             ], Response::HTTP_BAD_REQUEST);
         }
 
         return $this->render('experience/edit.html.twig', [
-            'school'     => $school,
-            'form'       => $form->createView(),
-            'user'       => $user,
-            'experience' => $experience,
-            'company'    => $company,
+          'school'     => $school,
+          'form'       => $form->createView(),
+          'user'       => $user,
+          'experience' => $experience,
+          'company'    => $company,
         ]);
     }
 
     /**
-     * @Route("/{id}/view", name="experience_view", options = { "expose" = true })
+     * @Route("/{id}/view", name="experience_view", options = { "expose" = true
+     *   })
      * @param  Request  $request
      * @param  Experience  $experience
      *
@@ -443,16 +465,17 @@ class ExperienceController extends AbstractController
         $user = $this->getUser();
 
         return $this->render('experience/view.html.twig', [
-            'user'               => $user,
-            'experience'         => $experience,
-            //'students' => $experience->getSchool()->getStudentUsers(),
-            'authorizationVoter' => new AuthorizationVoter(),
+          'user'               => $user,
+          'experience'         => $experience,
+          //'students' => $experience->getSchool()->getStudentUsers(),
+          'authorizationVoter' => new AuthorizationVoter(),
 
         ]);
     }
 
     /**
-     * @Route("/{id}/register", name="experience_register", options = { "expose" = true }, methods={"GET"})
+     * @Route("/{id}/register", name="experience_register", options = { "expose"
+     *   = true }, methods={"GET"})
      * @param  Request  $request
      * @param  Experience  $experience
      *
@@ -464,9 +487,9 @@ class ExperienceController extends AbstractController
      * @throws \Twig\Error\SyntaxError
      */
     public function registerAction(
-        Request $request,
-        Experience $experience,
-        RequestService $requestService
+      Request $request,
+      Experience $experience,
+      RequestService $requestService
     ) {
         // We need to check if the experience requires approval from the event creator. If so follow the
         // current flow, otherwise, bypass sending emails and mark the registration as complete.
@@ -481,15 +504,19 @@ class ExperienceController extends AbstractController
         }
 
         $registrationRequest
-            = $requestService->createRegistrationRequest($createdBy,
-            $userToRegister, $experience);
+          = $requestService->createRegistrationRequest(
+          $createdBy,
+          $userToRegister,
+          $experience
+        );
 
         return $this->redirectToRoute('experience_view',
-            ['id' => $experience->getId()]);
+          ['id' => $experience->getId()]);
     }
 
     /**
-     * @Route("/{id}/unregister", name="experience_unregister", options = { "expose" = true }, methods={"GET"})
+     * @Route("/{id}/unregister", name="experience_unregister", options = {
+     *   "expose" = true }, methods={"GET"})
      * @param  Request  $request
      * @param  Experience  $experience
      *
@@ -498,9 +525,9 @@ class ExperienceController extends AbstractController
      * @throws NonUniqueResultException
      */
     public function unregisterAction(
-        Request $request,
-        Experience $experience,
-        RequestService $requestService
+      Request $request,
+      Experience $experience,
+      RequestService $requestService
     ) {
         // We need to check if the experience requires approval from the event creator. If so follow the
         // current flow, otherwise, bypass sending emails and mark the registration as complete.
@@ -513,8 +540,10 @@ class ExperienceController extends AbstractController
         }
 
         $registration
-            = $this->registrationRepository->getByUserAndExperience($user,
-            $experience);
+          = $this->registrationRepository->getByUserAndExperience(
+          $user,
+          $experience
+        );
 
         if ($registration) {
             $this->entityManager->remove($registration);
@@ -522,7 +551,7 @@ class ExperienceController extends AbstractController
         }
 
         return $this->redirectToRoute('experience_view',
-            ['id' => $experience->getId()]);
+          ['id' => $experience->getId()]);
     }
 
     /**
@@ -544,36 +573,51 @@ class ExperienceController extends AbstractController
         if ($schoolId) {
             $school = $this->schoolRepository->find($schoolId);
 
-            if (!$authorizationVoter->canEditSchool($user, $school)) {
+            if (!$authorizationVoter->canCreateExperiencesForSchool(
+              $user,
+              $school
+            )
+            ) {
                 throw new AccessDeniedException();
             }
         }
 
+        $form = $this->createForm(ManageExperiencesFilterType::class, null, [
+          'action' => $this->generateUrl('experiences_manage',
+            ['schoolId' => $school->getId()]),
+          'method' => 'GET',
+        ]);
+
+        $form->handleRequest($request);
+
+        $schoolIds = [$schoolId];
+
         if ($user instanceof SchoolAdministrator) {
             $schools = $user->getSchools();
+
+            $filterBuilder
+              = $this->schoolExperienceRepository->createQueryBuilder('e')
+              ->innerJoin('e.school', 'school')
+              ->andWhere('school.id IN (:schoolIds)')
+              ->setParameter('schoolIds', $schoolIds);
         } elseif ($user instanceof EducatorUser) {
             $schools = new ArrayCollection([$user->getSchool()]);
+
+            $filterBuilder
+              = $this->schoolExperienceRepository->createQueryBuilder('e')
+              ->innerJoin('e.school', 'school')
+              ->leftJoin('e.schoolContact', 'schoolContact')
+              ->leftJoin('e.creator', 'creator')
+              ->andWhere(
+                'schoolContact.id = :schoolContactId or creator.id = :creatorId'
+              )
+              ->setParameter('schoolContactId', $user->getId())
+              ->setParameter('creatorId', $user->getId());
         } elseif ($user instanceof AdminUser) {
             $schools = $this->schoolRepository->findAll();
         }
 
         $schoolIds = [$schoolId];
-
-        $form = $this->createForm(ManageExperiencesFilterType::class, null, [
-            'action' => $this->generateUrl('experiences_manage',
-                ['schoolId' => $school->getId()]),
-            'method' => 'GET',
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($schoolId) {
-            $filterBuilder
-                = $this->schoolExperienceRepository->createQueryBuilder('e')
-                ->innerJoin('e.school', 'school')
-                ->andWhere('school.id IN (:schoolIds)')
-                ->setParameter('schoolIds', $schoolIds);
-        }
 
         // We don't show child events from recurring events on this page
         $filterBuilder->andWhere('e.parentEvent IS NULL');
@@ -587,38 +631,43 @@ class ExperienceController extends AbstractController
         $filterQuery = $filterBuilder->getQuery();
 
         if ($request->query->get('limit') === 'all') {
-            $pagination = $this->paginator->paginate($filterQuery,
-                /* query NOT result */ $request->query->getInt('page', 1),
-                100000000);
+            $pagination = $this->paginator->paginate(
+              $filterQuery,
+              /* query NOT result */ $request->query->getInt('page', 1),
+              100000000
+            );
         } else {
-            $pagination = $this->paginator->paginate($filterQuery,
-                /* query NOT result */ $request->query->getInt('page', 1),
-                /*page number*/ $request->query->getInt('limit', 10));
+            $pagination = $this->paginator->paginate(
+              $filterQuery,
+              /* query NOT result */ $request->query->getInt('page', 1),
+              /*page number*/ $request->query->getInt('limit', 10)
+            );
         }
 
         $clearFormUrl = $this->generateUrl('experiences_manage',
-            ['schoolId' => $school->getId()]);
+          ['schoolId' => $school->getId()]);
 
         return $this->render('experience/manage_experiences.html.twig', [
-            'user'         => $user,
-            'pagination'   => $pagination,
-            'school'       => $school,
-            'clearFormUrl' => $clearFormUrl,
-            'form'         => $form->createView(),
-            'schools'      => $schools,
+          'user'         => $user,
+          'pagination'   => $pagination,
+          'school'       => $school,
+          'clearFormUrl' => $clearFormUrl,
+          'form'         => $form->createView(),
+          'schools'      => $schools,
         ]);
     }
 
     /**
-     * @Route("/{id}/registrations", name="experience_registrations", methods={"GET"})
+     * @Route("/{id}/registrations", name="experience_registrations",
+     *   methods={"GET"})
      * @param  Experience  $experience
      * @param  Request  $request
      *
      * @return Response
      */
     public function registrationsAction(
-        Experience $experience,
-        Request $request
+      Experience $experience,
+      Request $request
     ) {
         /** @var User $user */
         $user        = $this->getUser();
@@ -632,20 +681,42 @@ class ExperienceController extends AbstractController
         if ($schoolId) {
             $school = $this->schoolRepository->find($schoolId);
 
-            $experiences = $this->schoolExperienceRepository->findBy([
-                'school'      => $school,
-                'parentEvent' => null,
-            ]);
-
-            if (!$authorizationVoter->canEditSchool($user, $school)) {
+            if (!$authorizationVoter->canEditExperience($user, $experience)) {
                 throw new AccessDeniedException();
             }
         }
 
         if ($user instanceof SchoolAdministrator) {
             $schools = $user->getSchools();
+            $experiences
+                     = $this->schoolExperienceRepository->createQueryBuilder(
+              'e'
+            )
+              ->innerJoin('e.school', 'school')
+              ->andWhere(
+                'school.id = :schoolId'
+              )
+              ->setParameter('schoolId', $school->getId())
+              ->getQuery()
+              ->getResult();
         } elseif ($user instanceof EducatorUser) {
             $schools = new ArrayCollection([$user->getSchool()]);
+
+            $experiences
+              = $this->schoolExperienceRepository->createQueryBuilder('e')
+              ->innerJoin('e.school', 'school')
+              ->leftJoin(
+                'e.schoolContact',
+                'schoolContact'
+              )
+              ->leftJoin('e.creator', 'creator')
+              ->andWhere(
+                'schoolContact.id = :schoolContactId or creator.id = :creatorId'
+              )
+              ->setParameter('schoolContactId', $user->getId())
+              ->setParameter('creatorId', $user->getId())
+              ->getQuery()
+              ->getResult();
         } elseif ($user instanceof AdminUser) {
             $schools = $this->schoolRepository->findAll();
         }
@@ -653,18 +724,20 @@ class ExperienceController extends AbstractController
         $schoolIds = [$schoolId];
 
         $form = $this->createForm(ManageRegistrationsFilterType::class, null, [
-            'action' => $this->generateUrl('experience_registrations',
-                ['id' => $experience->getId()]),
-            'method' => 'GET',
+          'action' => $this->generateUrl('experience_registrations',
+            ['id' => $experience->getId()]),
+          'method' => 'GET',
         ]);
 
         $form->handleRequest($request);
 
         $filterBuilder
-            = $this->registrationRepository->createQueryBuilder('r')
-            ->innerJoin('r.experience', 'experience')->innerJoin('r.user',
-                'user')->andWhere('experience.id = :experienceId')
-            ->setParameter('experienceId', $experience->getId());
+          = $this->registrationRepository->createQueryBuilder('r')->innerJoin(
+          'r.experience',
+          'experience'
+        )->innerJoin('r.user', 'user')->andWhere(
+          'experience.id = :experienceId'
+        )->setParameter('experienceId', $experience->getId());
 
         $filterBuilder->addOrderBy('user.lastName', 'ASC');
 
@@ -676,32 +749,36 @@ class ExperienceController extends AbstractController
         $filterQuery = $filterBuilder->getQuery();
 
         if ($request->query->get('limit') === 'all') {
-            $pagination = $this->paginator->paginate($filterQuery,
-                /* query NOT result */ $request->query->getInt('page', 1),
-                100000000);
+            $pagination = $this->paginator->paginate(
+              $filterQuery,
+              /* query NOT result */ $request->query->getInt('page', 1),
+              100000000
+            );
         } else {
-            $pagination = $this->paginator->paginate($filterQuery,
-                /* query NOT result */ $request->query->getInt('page', 1),
-                /*page number*/ $request->query->getInt('limit', 10));
+            $pagination = $this->paginator->paginate(
+              $filterQuery,
+              /* query NOT result */ $request->query->getInt('page', 1),
+              /*page number*/ $request->query->getInt('limit', 10)
+            );
         }
 
         if ($school) {
             $clearFormUrl = $this->generateUrl('experience_registrations',
-                ['id' => $experience->getId(), 'schoolId' => $school->getId()]);
+              ['id' => $experience->getId(), 'schoolId' => $school->getId()]);
         } else {
             $clearFormUrl = $this->generateUrl('experience_registrations',
-                ['id' => $experience->getId()]);
+              ['id' => $experience->getId()]);
         }
 
         return $this->render('experience/registrations.html.twig', [
-            'user'         => $user,
-            'pagination'   => $pagination,
-            'school'       => $school,
-            'clearFormUrl' => $clearFormUrl,
-            'form'         => $form->createView(),
-            'schools'      => $schools,
-            'experience'   => $experience,
-            'experiences'  => $experiences,
+          'user'         => $user,
+          'pagination'   => $pagination,
+          'school'       => $school,
+          'clearFormUrl' => $clearFormUrl,
+          'form'         => $form->createView(),
+          'schools'      => $schools,
+          'experience'   => $experience,
+          'experiences'  => $experiences,
         ]);
     }
 
