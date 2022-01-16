@@ -339,6 +339,11 @@ abstract class User implements UserInterface
      */
     private $tempPasswordEncrypted;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Experience::class, mappedBy="creator")
+     */
+    private $experiences;
+
 
     /**
      * @ORM\PrePersist
@@ -366,6 +371,7 @@ abstract class User implements UserInterface
         $this->reportShares                            = new ArrayCollection();
         $this->userMetas = new ArrayCollection();
         $this->requestActions = new ArrayCollection();
+        $this->experiences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -1812,6 +1818,36 @@ abstract class User implements UserInterface
     public function setTempPasswordEncrypted(?string $tempPasswordEncrypted): self
     {
         $this->tempPasswordEncrypted = $tempPasswordEncrypted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Experience[]
+     */
+    public function getExperiences(): Collection
+    {
+        return $this->experiences;
+    }
+
+    public function addExperience(Experience $experience): self
+    {
+        if (!$this->experiences->contains($experience)) {
+            $this->experiences[] = $experience;
+            $experience->setCreator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExperience(Experience $experience): self
+    {
+        if ($this->experiences->removeElement($experience)) {
+            // set the owning side to null (unless already changed)
+            if ($experience->getCreator() === $this) {
+                $experience->setCreator(null);
+            }
+        }
 
         return $this;
     }

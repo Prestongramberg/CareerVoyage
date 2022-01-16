@@ -44,6 +44,8 @@ Encore
     .addEntry('experience', './assets/js/experience.js')
     .addEntry('manage_students', './assets/js/manage_students.js')
     .addEntry('manage_educators', './assets/js/manage_educators.js')
+    .addEntry('manage_experiences', './assets/js/experience/manage_experiences.js')
+    .addEntry('manage_experience_registrations', './assets/js/experience/manage_registrations.js')
 
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
@@ -71,7 +73,9 @@ Encore
     .enableVersioning()
 
     // enables @babel/preset-env polyfills
-    .configureBabel(() => {}, {
+    .configureBabel((babelConfig) => {
+        babelConfig.plugins.push("@babel/plugin-proposal-class-properties");
+    }, {
         useBuiltIns: 'usage',
         corejs: 3
     })
@@ -103,9 +107,9 @@ Encore
     // uncomment if you're having problems with a jQuery plugin
     .autoProvidejQuery()
 
-    // uncomment if you use API Platform Admin (composer req api-admin)
-    //.enableReactPreset()
-    //.addEntry('admin', './assets/js/admin.js')
+// uncomment if you use API Platform Admin (composer req api-admin)
+//.enableReactPreset()
+//.addEntry('admin', './assets/js/admin.js')
 
 ;
 

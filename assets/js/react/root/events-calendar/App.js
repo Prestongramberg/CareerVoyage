@@ -158,11 +158,13 @@ class App extends React.Component {
 
     handleDates(data) {
 
+        debugger;
         if (this.element) {
-            let start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
-            let end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+            debugger;
+            let start = this.element.getApi().state.dateProfile.activeRange.start.toLocaleDateString("en-US");
+            let end = this.element.getApi().state.dateProfile.activeRange.end.toLocaleDateString("en-US");
 
-            this.props.startDateChanged(this.element.getApi().state.dateProfile.currentRange.start);
+            this.props.startDateChanged(this.element.getApi().state.dateProfile.activeRange.start);
 
             this.loadEvents({
                 start: start,
@@ -306,8 +308,8 @@ class App extends React.Component {
             ...queryParams
         };
 
-        search.start = this.element.getApi().state.dateProfile.currentRange.start.toLocaleDateString("en-US");
-        search.end = this.element.getApi().state.dateProfile.currentRange.end.toLocaleDateString("en-US");
+        search.start = this.element.getApi().state.dateProfile.activeRange.start.toLocaleDateString("en-US");
+        search.end = this.element.getApi().state.dateProfile.activeRange.end.toLocaleDateString("en-US");
 
         let url = window.Routing.generate('get_experiences_by_radius', search);
 

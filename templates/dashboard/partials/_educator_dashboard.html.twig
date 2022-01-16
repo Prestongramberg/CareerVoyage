@@ -3,7 +3,8 @@
         {% if user.profileCompleted == false %}
             <div class="uk-width-1-1">
                 <div class="uk-alert-warning" uk-alert>
-                    <p>Your profile is incomplete. <strong><a href="{{ path('profile_edit', {'id': user.id}) }}">Click here to finish setting up your account.</a></strong>
+                    <p>Your profile is incomplete. <strong><a href="{{ path('profile_edit', {'id': user.id}) }}">Click
+                                here to finish setting up your account.</a></strong>
                     </p>
                 </div>
             </div>
@@ -45,7 +46,8 @@
                                     request form for a volunteer professional, such as a mentor or expert presenter.
                                     Volunteers can respond to your request via chat to start planning.</p>
                                 <a href="{{ path('new_request') }}"
-                                   class="uk-button uk-button-primary" style="width: 240px; line-height: 30px">CREATE A REQUEST</a>
+                                   class="uk-button uk-button-primary" style="width: 240px; line-height: 30px">CREATE A
+                                    REQUEST</a>
                             </div>
                         </div>
 
@@ -132,13 +134,12 @@
             </div>
 
 
-
             <br>
             <br>
 
             <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
 
-               {# <div>
+                {# <div>
                     <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
                         <h3 class="uk-card-title">Manage Educators</h3>
                         <p>Reset passwords, assign students to teachers, import educators, and more.</p>
@@ -151,43 +152,62 @@
                         <p>Create engaging school events that other user's can search and register for.</p>
                         <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_new') }}?schoolId={{ school.id }}">Get Started</a>
                     </div>
-                </div>#}
+                </div> #}
 
                 {% if authorizationVoter.canManageStudents(user) %}
                     <div>
-                        <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
                             <h3 class="uk-card-title">Manage Students</h3>
                             <p>Reset passwords, change supervising teachers, import students, and more.</p>
-                            <a class="uk-button uk-button-default" target="_blank" href="{{ path('students_manage', {id: user.school.id}) }}">Get Started</a>
+                            <a class="uk-button uk-button-default" target="_blank"
+                               href="{{ path('students_manage', {id: user.school.id}) }}">Get Started</a>
                         </div>
                     </div>
                 {% endif %}
                 <div>
-                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                    <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-text-center">
                         <h3 class="uk-card-title">Personal Calendar</h3>
                         <p>View and manage events that you are personally registered for.</p>
-                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experience_personal_calendar') }}">Get Started</a>
                     </div>
                 </div>
+
+                {% if authorizationVoter.canCreateExperiencesForSchool(user, user.school) %}
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                            <h3 class="uk-card-title">Create an Experience</h3>
+                            <p>Create engaging school events that other user's can search and register for.</p>
+                            <a class="uk-button uk-button-default" target="_blank"
+                               href="{{ path('experience_new') }}?schoolId={{ user.school.id }}">Get Started</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                            <h3 class="uk-card-title">Manage Experiences</h3>
+                            <p>View, update, delete and manage school events.</p>
+                            <a class="uk-button uk-button-default" target="_blank" href="{{ path('experiences_manage') }}?schoolId={{ user.school.id }}">Get Started</a>
+                        </div>
+                    </div>
+                {% endif %}
+
             </div>
 
             <br>
             <br>
 
 
-
-
             <div class="uk-margin">
                 <ul class="uk-tab" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li><a href="#user-favorites">Favorites</a></li>
-                    <li style="padding-left: 10px"><a href="#user-events">My Experiences</a></li>
                     <li style="padding-left: 10px"><a href="#user-feedback">Give Feedback</a></li>
                     <li style="padding-left: 10px"><a href="#view-feedback">View Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
-                  {#  <div class="user_preferences_calendar">
+                    {# <div class="user_preferences_calendar">
                         <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
-                    </div>#}
+                    </div> #}
                     <div class="user_preferences_favorites">
                         <div class="uk-card uk-card-default">
                             <div class="uk-card-body">
@@ -255,80 +275,6 @@
                                         {% endif %}
                                     </div>
 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="user_preferences_events">
-                        <div>
-
-                            {% if authorizationVoter.canCreateExperiencesForSchool(user, user.school) %}
-                                <div class="uk-placeholder uk-text-center">
-                                    <p><a target="_blank" class="uk-button uk-button-primary uk-button-small"
-                                          href="{{ path('experience_new', {'schoolId': user.school.id}) }}">Create
-                                            an Experience</a></p>
-                                </div>
-                            {% endif %}
-
-                            {% if user.school is not null and user.school.sortedSchoolExperiences|length %}
-                                <div class="school__educators">
-                                    <dl class="uk-description-list uk-description-list-divider">
-                                        {% for experience in user.school.sortedSchoolExperiences %}
-
-                                            {% set experienceId = experience.id %}
-
-                                            {% if experience.cancelled != 1 and experience.email == user.email %}
-                                                <div class="uk-grid uk-flex-middle" uk-grid>
-                                                    <div class="uk-width-expand">
-                                                        <dt>{{ experience.title }}</dt>
-                                                    </div>
-                                                    <div class="uk-width-1-1 uk-width-auto@m">
-                                                        <a href="{{ path('experience_view', { "id": experience.id }) }}"
-                                                           class="uk-button uk-button-default uk-button-small">View</a>
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </dl>
-                                </div>
-                            {% endif %}
-
-                            <div class="uk-card uk-card-default">
-                                <div class="uk-card-body">
-                                    <h3 class="uk-card-title uk-margin-remove-bottom">My Experiences and Guest
-                                        Instructor Topics</h3>
-                                    <ul class="uk-tab" uk-switcher="connect: #tab-events" uk-tab>
-                                        <li class="uk-active"><a href="#events-upcoming">Upcoming</a></li>
-                                        <li><a href="#events-completed">Completed</a></li>
-                                    </ul>
-                                    <div class="uk-switcher" id="tab-events">
-                                        <div class="tab-events__upcoming">
-                                            {% if upcomingEventsRegisteredForByUser|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for event in upcomingEventsRegisteredForByUser %}
-                                                        <li><a class="uk-link-text"
-                                                               href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>No upcoming experiences.</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="tab-events__completed">
-                                            {% if completedEventsRegisteredForByUser|length > 0 %}
-                                                <ul class="uk-list uk-list-divider">
-                                                    {% for event in completedEventsRegisteredForByUser %}
-                                                        <li><a class="uk-link-text"
-                                                               href="{{ path('experience_view', {'id': event.id}) }}">{{ event.title }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>No completed experiences.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -413,7 +359,8 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">My Requests</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">My
+                                    Requests</h3>
                             </div>
                             <div class="uk-width-auto">
                                 <div class="uk-align-right">
@@ -443,7 +390,8 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">Guides and Best Practices</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">Guides and
+                                    Best Practices</h3>
                             </div>
                         </div>
                     </div>
@@ -460,7 +408,8 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Experiences</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New
+                                    Experiences</h3>
                             </div>
                         </div>
                     </div>
@@ -477,7 +426,8 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Volunteer Professionals</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Volunteer
+                                    Professionals</h3>
                             </div>
                         </div>
                     </div>
@@ -497,7 +447,8 @@
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle" uk-grid>
                             <div class="uk-width-expand">
-                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New Topics</h3>
+                                <h3 style="font-size: 22px" class="uk-card-title uk-margin-remove-bottom">New
+                                    Topics</h3>
                             </div>
                         </div>
                     </div>

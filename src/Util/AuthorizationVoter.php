@@ -51,7 +51,7 @@ class AuthorizationVoter
     public function canEditExperience(User $user, Experience $experience)
     {
 
-        if ($user->isAdmin()) {
+        if($experience->getCreator() && $experience->getCreator()->getId() === $user->getId()) {
             return true;
         }
 
@@ -129,6 +129,14 @@ class AuthorizationVoter
     public function canAddExperienceToCalendar(User $user, Experience $experience)
     {
 
+        if($experience->getIsRecurring()) {
+            return false;
+        }
+
+        if ($experience->getEndDateAndTime() < new \DateTime()) {
+            return false;
+        }
+
         if ($experience->getCancelled()) {
             return false;
         }
@@ -150,6 +158,9 @@ class AuthorizationVoter
 
     public function canRegisterForExperience(User $user, Experience $experience)
     {
+        if($experience->getIsRecurring()) {
+            return false;
+        }
 
         if ($experience->getCancelled()) {
             return false;
@@ -174,8 +185,40 @@ class AuthorizationVoter
         return true;
     }
 
+    public function canUnregisterForExperience(User $user, Experience $experience)
+    {
+        if($experience->getIsRecurring()) {
+            return false;
+        }
+
+        if ($experience->getCancelled()) {
+            return false;
+        }
+
+        if ($experience->getEndDateAndTime() < new \DateTime()) {
+            return false;
+        }
+
+        foreach ($experience->getRegistrations() as $registration) {
+
+            if (!$registration->getUser()) {
+                continue;
+            }
+
+            if ($registration->getUser()->getId() === $user->getId()) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
     public function canRegisterStudentsForExperience(User $user, Experience $experience)
     {
+        if($experience->getIsRecurring()) {
+            return false;
+        }
 
         if ($experience->getCancelled()) {
             return false;
@@ -195,6 +238,8 @@ class AuthorizationVoter
 
         return false;
     }
+
+
 
     /************************* END EXPERIENCE********************************/
 
