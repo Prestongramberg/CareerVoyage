@@ -280,9 +280,7 @@ class ExperienceType extends AbstractType implements DataMapperInterface
 
             try {
                 $addressComponents
-                    = $this->geocoder->getAddressComponentsFromSearchString(
-                    $addressSearch
-                );
+                    = $this->geocoder->getAddressComponentsFromSearchString($addressSearch);
                 $viewData->setState($addressComponents['state']);
                 $viewData->setCity($addressComponents['city']);
                 $viewData->setStreet($addressComponents['street']);
@@ -344,6 +342,9 @@ class ExperienceType extends AbstractType implements DataMapperInterface
         /** @var Company $company */
         $company = $options['company'];
 
+        /** @var Experience $experience */
+        $experience = $builder->getData();
+
         $builder->add('title', TextType::class, [
             'attr' => [
                 'placeholder' => $school ? 'How to Succeed in a Job Interview'
@@ -362,20 +363,18 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 $school
             ) {
                 if ($school) {
-                    return $er->createQueryBuilder('r')->where(
-                            'r.inSchoolEventDropdown = :inSchoolEventDropdown'
-                        )->setParameter('inSchoolEventDropdown', true);
+                    return $er->createQueryBuilder('r')
+                        ->where('r.inSchoolEventDropdown = :inSchoolEventDropdown')
+                        ->setParameter('inSchoolEventDropdown', true);
                 }
 
                 if ($company) {
-                    return $er->createQueryBuilder('r')->where(
-                            'r.inEventDropdown = :inEventDropdown'
-                        )->setParameter('inEventDropdown', true);
+                    return $er->createQueryBuilder('r')
+                        ->where('r.inEventDropdown = :inEventDropdown')
+                        ->setParameter('inEventDropdown', true);
                 }
 
-                throw new \Exception(
-                    "Form type not setup for other event types"
-                );
+                throw new \Exception("Form type not setup for other event types");
             },
         ])->add('addressSearch', TextType::class, [
             'attr' => [
@@ -410,9 +409,7 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 'placeholder'  => 'Tell attendees who is organizing this event.',
                 'expanded'     => false,
                 'multiple'     => false,
-                'choices'      => $this->userRepository->findContactsBySchool(
-                    $school
-                ),
+                'choices'      => $this->userRepository->findContactsBySchool($school),
             ]);
         }
 
@@ -425,53 +422,53 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 'multiple'      => false,
                 'query_builder' => function (EntityRepository $er) use ($company
                 ) {
-                    return $er->createQueryBuilder('p')->where(
-                            'p.company = :company'
-                        )->setParameter('company', $company);
+                    return $er->createQueryBuilder('p')
+                        ->where('p.company = :company')->setParameter('company',
+                            $company);
                 },
             ]);
         }
 
-        $builder->add('isRecurring', ChoiceType::class, [
-            'expanded' => true,
-            'multiple' => false,
-            'choices'  => [
-                'Single Event'    => false,
-                'Recurring Event' => true,
-            ],
-        ]);
+        // We do not allow child events to be changed into a recurring event
+        if (!$experience->getParentEvent()) {
+            $builder->add('isRecurring', ChoiceType::class, [
+                'expanded' => true,
+                'multiple' => false,
+                'choices'  => [
+                    'Single Event'    => false,
+                    'Recurring Event' => true,
+                ],
+            ]);
+        }
 
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
+        $builder->addEventListener(FormEvents::PRE_SET_DATA,
             function (FormEvent $event) {
                 /** @var Experience $experience */
                 $experience = $event->getData();
                 $form       = $event->getForm();
 
-                $this->isRecurringEventHandler(
-                    $form,
-                    $experience->getIsRecurring()
-                );
-            }
-        );
+                $this->isRecurringEventHandler($form,
+                    $experience->getIsRecurring());
+            });
 
-        $builder->get('isRecurring')->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function (FormEvent $event) {
-                /** @var Industry $industry */
-                $data = $event->getForm()->getData();
-                $form = $event->getForm()->getParent();
+        if (!$experience->getParentEvent()) {
+            $builder->get('isRecurring')
+                ->addEventListener(FormEvents::POST_SUBMIT,
+                    function (FormEvent $event) {
+                        /** @var Industry $industry */
+                        $data = $event->getForm()->getData();
+                        $form = $event->getForm()->getParent();
 
-                if (!$form) {
-                    return;
-                }
+                        if (!$form) {
+                            return;
+                        }
 
-                $this->isRecurringEventHandler($form, $data);
-            }
-        );
+                        $this->isRecurringEventHandler($form, $data);
+                    });
+        }
 
-        $builder->addEventListener(
-            FormEvents::PRE_SUBMIT,
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT,
             function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
@@ -501,8 +498,7 @@ class ExperienceType extends AbstractType implements DataMapperInterface
                 }
 
                 $event->setData($data);
-            }
-        );
+            });
     }
 
     private function isRecurringEventHandler(
@@ -511,9 +507,9 @@ class ExperienceType extends AbstractType implements DataMapperInterface
     ) {
         if ($isRecurring) {
             // if it is recurring remove fields not needed
-            $form->remove('startDateAndTime')->remove('endDateAndTime')->remove(
-                    'startDate'
-                )->remove('endDate')->remove('startTime')->remove('endTime');
+            $form->remove('startDateAndTime')->remove('endDateAndTime')
+                ->remove('startDate')->remove('endDate')->remove('startTime')
+                ->remove('endTime');
 
             return;
         }

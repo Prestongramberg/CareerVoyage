@@ -131,27 +131,29 @@ PROFESSIONALS - We need 5 executives with experience conducting job interviews t
     </div>
 
     <div class="uk-margin uk-grid js-radio-choice-field"
-         data-field-name="{{ form.isRecurring.vars.name }}"
+         data-field-name="{{ form.isRecurring is defined ? form.isRecurring.vars.name : '' }}"
          data-url="{{ form.vars.action }}"
     >
 
-        <div class="uk-width-1-1">
-            {% for item in form.isRecurring.children %}
-                <div class="pretty p-default p-round">
-                    {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
-                    <label>{{ item.vars.label }}</label>
-                </div>
-            {% endfor %}
-            {{ form_errors(form.isRecurring) }}
+        {% if form.isRecurring is defined %}
+            <div class="uk-width-1-1">
+                {% for item in form.isRecurring.children %}
+                    <div class="pretty p-default p-round">
+                        {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
+                        <label>{{ item.vars.label }}</label>
+                    </div>
+                {% endfor %}
+                {{ form_errors(form.isRecurring) }}
 
-            <div class="uk-text-meta">
-                {% if form.isRecurring.vars.data == true %}
-                    You’ll be able to set a schedule for your recurring event in the next step.
-                {% else %}
-                    Single events happen once and can last multiple days.
-                {% endif %}
+                <div class="uk-text-meta">
+                    {% if form.isRecurring.vars.data == true %}
+                        You’ll be able to set a schedule for your recurring event in the next step.
+                    {% else %}
+                        Single events happen once and can last multiple days.
+                    {% endif %}
+                </div>
             </div>
-        </div>
+        {% endif %}
 
 
         {% if form.startDate is defined and form.startTime is defined %}

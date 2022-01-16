@@ -180,22 +180,31 @@ class ExperienceController extends AbstractController
 
         $message = $request->request->get('cancellationMessage');
 
-        $registrations = $experience->getRegistrations();
-
-        foreach ($registrations as $registration) {
-            if (!$registration->getUser()->getEmail()) {
-                continue;
-            }
-
-            $this->experienceMailer->experienceCancellationMessage($experience,
-                $registration->getUser(), $message);
+        if ($experience->getIsRecurring()) {
+            $experience->setCancelled(true);
+            $experiences = $experience->getChildEvents();
+        } else {
+            $experiences = [$experience];
         }
 
-        $experience->setCancelled(true);
-        $this->entityManager->persist($experience);
+        foreach ($experiences as $experience) {
+            $registrations = $experience->getRegistrations();
 
-        foreach ($registrations as $registration) {
-            $this->entityManager->remove($registration);
+            foreach ($registrations as $registration) {
+                if (!$registration->getUser()->getEmail()) {
+                    continue;
+                }
+
+                $this->experienceMailer->experienceCancellationMessage($experience,
+                    $registration->getUser(), $message);
+            }
+
+            $experience->setCancelled(true);
+            $this->entityManager->persist($experience);
+
+            foreach ($registrations as $registration) {
+                $this->entityManager->remove($registration);
+            }
         }
 
         $this->entityManager->flush();
@@ -653,9 +662,8 @@ class ExperienceController extends AbstractController
 
         $filterBuilder
             = $this->registrationRepository->createQueryBuilder('r')
-            ->innerJoin('r.experience', 'experience')
-            ->innerJoin('r.user', 'user')
-            ->andWhere('experience.id = :experienceId')
+            ->innerJoin('r.experience', 'experience')->innerJoin('r.user',
+                'user')->andWhere('experience.id = :experienceId')
             ->setParameter('experienceId', $experience->getId());
 
         $filterBuilder->addOrderBy('user.lastName', 'ASC');

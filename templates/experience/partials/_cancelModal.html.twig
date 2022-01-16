@@ -1,12 +1,20 @@
 <div id="modal-cancel-event-{{ experience.id }}" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
-        <h3>Are you sure you want to cancel this experience?</h3>
+
+        {% if experience.isRecurring %}
+            <h3>Are you sure you want to cancel this recurring event?</h3>
+        {% else %}
+            <h3>Are you sure you want to cancel this event?</h3>
+        {% endif %}
 
         <ul>
             <li class="uk-text-danger">Cancelled experiences cannot be undone.</li>
             <li class="uk-text-danger">Cancelled experiences will remove all registrations
                 associated with the experience.
             </li>
+            {% if experience.isRecurring %}
+                <li class="uk-text-danger">Cancelling this experience will cancel all recurring events associated.</li>
+            {% endif %}
         </ul>
 
         <form class="uk-inline" method="post" action="{{ path('experience_cancel', { "id": experience.id }) }}">

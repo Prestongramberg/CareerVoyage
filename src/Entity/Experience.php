@@ -58,9 +58,8 @@ abstract class Experience
     {
         if (!$this->payment) {
             if (!is_float($this->payment) && !is_numeric($this->payment)) {
-                $context->buildViolation(
-                    'You must enter a valid number or decimal for the payment!'
-                )->atPath('payment')->addViolation();
+                $context->buildViolation('You must enter a valid number or decimal for the payment!')
+                    ->atPath('payment')->addViolation();
             }
         }
     }
@@ -303,6 +302,7 @@ abstract class Experience
 
     /**
      * @ORM\ManyToOne(targetEntity=Experience::class, inversedBy="childEvents")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     protected $parentEvent;
 
@@ -320,7 +320,7 @@ abstract class Experience
         $this->shares              = new ArrayCollection();
         $this->tags                = new ArrayCollection();
         $this->experienceResources = new ArrayCollection();
-        $this->childEvents = new ArrayCollection();
+        $this->childEvents         = new ArrayCollection();
     }
 
     public function isVirtual()
@@ -736,13 +736,9 @@ abstract class Experience
      */
     public function getFormattedAddress()
     {
-        return sprintf(
-            "%s %s %s %s",
-            $this->street,
-            $this->city,
+        return sprintf("%s %s %s %s", $this->street, $this->city,
             $this->state ? $this->state->getAbbreviation() : '',
-            $this->zipcode
-        );
+            $this->zipcode);
     }
 
     public function getCancelled(): ?bool
@@ -1149,5 +1145,22 @@ abstract class Experience
         }
 
         return $this;
+    }
+
+    public function getUpcomingChildEvents()
+    {
+        return $this->childEvents->filter(function (Experience $childEvent) {
+            return $childEvent->getStartDateAndTime()
+                > new \DateTime('midnight');
+        });
+    }
+
+    public function isExpired()
+    {
+        if ($this->getEndDateAndTime() < new \DateTime()) {
+            return true;
+        }
+
+        return false;
     }
 }

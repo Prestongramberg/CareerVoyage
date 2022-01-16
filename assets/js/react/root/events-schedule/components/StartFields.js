@@ -36,8 +36,8 @@ const StartFields = ({schedule, changeStartDate, changeStartTime, changeEndTime}
                                 className="uk-input uk-form-width-small"
                                 options={{
                                     dateFormat: "m/d/Y",
-                                    enableTime: false,
-                                    minDate: "today"
+                                    enableTime: false
+                                    /*minDate: "today"*/
                                 }}
                             />
                         </div>
