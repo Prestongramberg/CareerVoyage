@@ -41,7 +41,7 @@ class ExperienceDetailsValidator extends ConstraintValidator
             return;
         }
 
-        if ($protocol->getUtcStartDateAndTime() >= $protocol->getUtcEndDateAndTime()) {
+        if ($protocol->getUtcStartDateAndTime() && $protocol->getUtcEndDateAndTime() && $protocol->getUtcStartDateAndTime() >= $protocol->getUtcEndDateAndTime()) {
             $this->context->buildViolation("Please enter a start date and time that is less than your end date and time.")
                           ->atPath('startDate')
                           ->addViolation();
@@ -55,7 +55,7 @@ class ExperienceDetailsValidator extends ConstraintValidator
             $this->context->buildViolation("")->atPath('endTime')->addViolation();
         }
 
-        if (!$protocol->getZipcode() || !$protocol->getState() || !$protocol->getStreet() || !$protocol->getCity()) {
+        if ($protocol->getAddressSearch() && (!$protocol->getZipcode() || !$protocol->getState() || !$protocol->getStreet() || !$protocol->getCity())) {
             $this->context->buildViolation("Please enter a valid address for your experience.")
                           ->atPath('addressSearch')
                           ->addViolation();

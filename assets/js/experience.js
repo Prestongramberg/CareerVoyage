@@ -12,6 +12,7 @@ import flatpickr from "flatpickr";
 import Tagify from '@yaireo/tagify'
 import Routing from "./Routing";
 import ResourceComponent from "./Components/ResourceComponent";
+import RadioChoiceField from "./Components/RadioChoiceField";
 
 $(document).ready(function () {
 
@@ -203,6 +204,9 @@ $(document).ready(function () {
         typeof longitude !== 'undefined' && longitude !== false
         && latitude !== "" && longitude !== "") {
 
+        latitude = parseFloat(latitude);
+        longitude = parseFloat(longitude);
+
         var map = new google.maps.Map(document.getElementById('map'), {
             center: {
                 lat: latitude,
@@ -228,6 +232,6 @@ $(document).ready(function () {
         $('#map').show();
     }
 
-
     new ResourceComponent($('.js-resource-component'), window.globalEventDispatcher);
+    new RadioChoiceField($('.js-radio-choice-field'), window.globalEventDispatcher);
 });

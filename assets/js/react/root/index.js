@@ -27,3 +27,4 @@ require('./favorite-company');
 require('./favorite-lesson');
 require('./pie-chart');
 require('./teach-lesson');
+require('./events-schedule');

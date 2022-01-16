@@ -367,6 +367,9 @@
             "config/packages/sensio_framework_extra.yaml"
         ]
     },
+    "simshaun/recurr": {
+        "version": "v5.0.0"
+    },
     "skagarwal/google-places-api": {
         "version": "1.7.2"
     },

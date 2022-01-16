@@ -24,40 +24,42 @@ abstract class Experience
 {
     use Timestampable;
 
-    public static $types = [
-        'Site Visit' => 'SITE_VISIT',
-        'Event'      => 'EVENT',
-        'Externship' => 'EXTERNSHIP',
-        'Internship' => 'INTERNSHIP',
-        'Job'        => 'JOB',
-    ];
+    public static $types
+        = [
+            'Site Visit' => 'SITE_VISIT',
+            'Event'      => 'EVENT',
+            'Externship' => 'EXTERNSHIP',
+            'Internship' => 'INTERNSHIP',
+            'Job'        => 'JOB',
+        ];
 
-    public static $paymentTypes = [
-        'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
-        'Hour'                     => 'HOUR',
-        'Day'                      => 'DAY',
-        'Week'                     => 'WEEK',
-        'Month'                    => 'MONTH',
-        'Year'                     => 'YEAR',
-    ];
+    public static $paymentTypes
+        = [
+            'Per Person And Per Visit' => 'PER_PERSON_AND_PER_VISIT',
+            'Hour'                     => 'HOUR',
+            'Day'                      => 'DAY',
+            'Week'                     => 'WEEK',
+            'Month'                    => 'MONTH',
+            'Year'                     => 'YEAR',
+        ];
 
-    public static $requireApprovalChoices = [
-        'No'  => false,
-        'Yes' => true,
-    ];
+    public static $requireApprovalChoices
+        = [
+            'No'  => false,
+            'Yes' => true,
+        ];
 
     /**
      * @Assert\Callback(groups={"CREATE"})
-     * @param ExecutionContextInterface $context
-     * @param                           $payload
+     * @param  ExecutionContextInterface  $context
+     * @param                             $payload
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
         if (!$this->payment) {
             if (!is_float($this->payment) && !is_numeric($this->payment)) {
                 $context->buildViolation('You must enter a valid number or decimal for the payment!')
-                        ->atPath('payment')
-                        ->addViolation();
+                    ->atPath('payment')->addViolation();
             }
         }
     }
@@ -142,14 +144,12 @@ abstract class Experience
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget a start date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $startDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
-     * @Assert\NotBlank(message="Don't forget an end date", groups={"EXPERIENCE"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $endDateAndTime;
@@ -250,7 +250,7 @@ abstract class Experience
     protected $request;
 
     /**
-     * @Assert\NotBlank(message="Please add a location for the experience.", groups={"EXPERIENCE"})
+     * @Assert\NotBlank(message="Please enter a valid address for your experience.", groups={"EXPERIENCE"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $addressSearch;
@@ -263,23 +263,59 @@ abstract class Experience
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $utcStartDateAndTime;
+    protected $utcStartDateAndTime;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $utcEndDateAndTime;
+    protected $utcEndDateAndTime;
 
     /**
      * @Groups({"EXPERIENCE_DATA"})
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="experiences")
      */
-    private $tags;
+    protected $tags;
 
     /**
      * @ORM\OneToMany(targetEntity=ExperienceResource::class, mappedBy="experience")
      */
-    private $experienceResources;
+    protected $experienceResources;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $isRecurring = false;
+
+    protected $startDate;
+
+    protected $startTime;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $recurrenceRule;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    protected $schedule = [];
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Experience::class, inversedBy="childEvents")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
+     */
+    protected $parentEvent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Experience::class, mappedBy="parentEvent")
+     */
+    protected $childEvents;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="experiences")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    private $creator;
 
     public function __construct()
     {
@@ -290,12 +326,14 @@ abstract class Experience
         $this->shares              = new ArrayCollection();
         $this->tags                = new ArrayCollection();
         $this->experienceResources = new ArrayCollection();
+        $this->childEvents         = new ArrayCollection();
     }
 
     public function isVirtual()
     {
-
-        if (stripos(strtolower($this->getType()->getName()), 'virtual') !== false) {
+        if (stripos(strtolower($this->getType()->getName()), 'virtual')
+            !== false
+        ) {
             return true;
         }
 
@@ -538,8 +576,8 @@ abstract class Experience
         return $this->secondaryIndustries;
     }
 
-    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
-    {
+    public function addSecondaryIndustry(SecondaryIndustry $secondaryIndustry
+    ): self {
         if (!$this->secondaryIndustries->contains($secondaryIndustry)) {
             $this->secondaryIndustries[] = $secondaryIndustry;
         }
@@ -547,8 +585,8 @@ abstract class Experience
         return $this;
     }
 
-    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry): self
-    {
+    public function removeSecondaryIndustry(SecondaryIndustry $secondaryIndustry
+    ): self {
         if ($this->secondaryIndustries->contains($secondaryIndustry)) {
             $this->secondaryIndustries->removeElement($secondaryIndustry);
         }
@@ -704,7 +742,9 @@ abstract class Experience
      */
     public function getFormattedAddress()
     {
-        return sprintf("%s %s %s %s", $this->street, $this->city, $this->state ? $this->state->getAbbreviation() : '', $this->zipcode);
+        return sprintf("%s %s %s %s", $this->street, $this->city,
+            $this->state ? $this->state->getAbbreviation() : '',
+            $this->zipcode);
     }
 
     public function getCancelled(): ?bool
@@ -888,8 +928,9 @@ abstract class Experience
         return $this->utcStartDateAndTime;
     }
 
-    public function setUtcStartDateAndTime(?\DateTimeInterface $utcStartDateAndTime): self
-    {
+    public function setUtcStartDateAndTime(
+        ?\DateTimeInterface $utcStartDateAndTime
+    ): self {
         $this->utcStartDateAndTime = $utcStartDateAndTime;
 
         return $this;
@@ -900,8 +941,8 @@ abstract class Experience
         return $this->utcEndDateAndTime;
     }
 
-    public function setUtcEndDateAndTime(?\DateTimeInterface $utcEndDateAndTime): self
-    {
+    public function setUtcEndDateAndTime(?\DateTimeInterface $utcEndDateAndTime
+    ): self {
         $this->utcEndDateAndTime = $utcEndDateAndTime;
 
         return $this;
@@ -939,8 +980,8 @@ abstract class Experience
         return $this->experienceResources;
     }
 
-    public function addExperienceResource(ExperienceResource $experienceResource): self
-    {
+    public function addExperienceResource(ExperienceResource $experienceResource
+    ): self {
         if (!$this->experienceResources->contains($experienceResource)) {
             $this->experienceResources[] = $experienceResource;
             $experienceResource->setExperience($this);
@@ -949,8 +990,9 @@ abstract class Experience
         return $this;
     }
 
-    public function removeExperienceResource(ExperienceResource $experienceResource): self
-    {
+    public function removeExperienceResource(
+        ExperienceResource $experienceResource
+    ): self {
         if ($this->experienceResources->removeElement($experienceResource)) {
             // set the owning side to null (unless already changed)
             if ($experienceResource->getExperience() === $this) {
@@ -961,37 +1003,182 @@ abstract class Experience
         return $this;
     }
 
-    public function isSchoolExperience() {
+    public function isSchoolExperience()
+    {
         return $this instanceof SchoolExperience;
     }
 
-    public function isCompanyExperience() {
+    public function isCompanyExperience()
+    {
         return $this instanceof CompanyExperience;
     }
 
-    public function getCoordinator() {
-
-        if($this instanceof SchoolExperience) {
+    public function getCoordinator()
+    {
+        if ($this instanceof SchoolExperience) {
             return $this->getSchoolContact();
         }
 
-        if($this instanceof CompanyExperience) {
+        if ($this instanceof CompanyExperience) {
             return $this->getEmployeeContact();
         }
 
         return null;
     }
 
-    public function getMapMarkerIcon() {
-
-        if($this instanceof SchoolExperience) {
+    public function getMapMarkerIcon()
+    {
+        if ($this instanceof SchoolExperience) {
             return 'school';
         }
 
-        if($this instanceof CompanyExperience) {
+        if ($this instanceof CompanyExperience) {
             return 'company';
         }
 
         return 'company';
+    }
+
+    public function getIsRecurring(): ?bool
+    {
+        return $this->isRecurring;
+    }
+
+    public function setIsRecurring(bool $isRecurring): self
+    {
+        $this->isRecurring = $isRecurring;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param  mixed  $startDate
+     */
+    public function setStartDate($startDate): void
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartTime()
+    {
+        return $this->startTime;
+    }
+
+    /**
+     * @param  mixed  $startTime
+     */
+    public function setStartTime($startTime): void
+    {
+        $this->startTime = $startTime;
+    }
+
+    public function getRecurrenceRule(): ?string
+    {
+        return $this->recurrenceRule;
+    }
+
+    public function setRecurrenceRule(?string $recurrenceRule): self
+    {
+        $this->recurrenceRule = $recurrenceRule;
+
+        return $this;
+    }
+
+    public function getSchedule(): ?array
+    {
+        if (!$this->schedule) {
+            return [];
+        }
+
+        return $this->schedule;
+    }
+
+    public function setSchedule(?array $schedule): self
+    {
+        $this->schedule = $schedule;
+
+        return $this;
+    }
+
+    public function getParentEvent(): ?self
+    {
+        return $this->parentEvent;
+    }
+
+    public function setParentEvent(?self $parentEvent): self
+    {
+        $this->parentEvent = $parentEvent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getChildEvents(): Collection
+    {
+        return $this->childEvents;
+    }
+
+    public function addChildEvent(self $childEvent): self
+    {
+        if (!$this->childEvents->contains($childEvent)) {
+            $this->childEvents[] = $childEvent;
+            $childEvent->setParentEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChildEvent(self $childEvent): self
+    {
+        if ($this->childEvents->removeElement($childEvent)) {
+            // set the owning side to null (unless already changed)
+            if ($childEvent->getParentEvent() === $this) {
+                $childEvent->setParentEvent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUpcomingChildEvents()
+    {
+        return $this->childEvents->filter(function (Experience $childEvent) {
+            return $childEvent->getStartDateAndTime()
+                > new \DateTime('midnight');
+        });
+    }
+
+    public function isExpired()
+    {
+        if ($this->getEndDateAndTime() < new \DateTime()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): self
+    {
+        $this->creator = $creator;
+
+        return $this;
     }
 }

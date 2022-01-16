@@ -235,9 +235,9 @@ class School
     private $communicationType = self::COMMUNICATION_TYPE_DEFAULT;
 
     /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     * @ORM\Column(type="boolean", nullable=false, options={"default": true})
      */
-    private $allowEventCreation = false;
+    private $allowEventCreation = true;
 
     /**
      * @ORM\ManyToMany(targetEntity=ReportShare::class, mappedBy="schools")
