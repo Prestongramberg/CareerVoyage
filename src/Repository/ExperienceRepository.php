@@ -325,7 +325,7 @@ LEFT JOIN roles_willing_to_fulfill rwtf on e.type_id = rwtf.id
 LEFT JOIN school sc on se.school_id = sc.id
 LEFT JOIN experience_tag etag on etag.experience_id = e.id
 LEFT JOIN tag tag on tag.id = etag.tag_id
-WHERE 1 = 1 AND e.cancelled != %s', 1);
+WHERE 1 = 1 AND e.cancelled != %s AND e.is_recurring != %s', 1, 1);
 
         if ($latN && $latS && $lonE && $lonW && $startingLatitude
             && $startingLongitude
@@ -386,7 +386,7 @@ LEFT JOIN company c on ce.company_id = c.id
 LEFT JOIN company_region cr on cr.company_id = c.id
 LEFT JOIN experience_tag etag on etag.experience_id = e.id
 LEFT JOIN tag tag on tag.id = etag.tag_id
-WHERE 1 = 1 AND e.cancelled != %s', 1);
+WHERE 1 = 1 AND e.cancelled != %s AND e.is_recurring != %s', 1, 1);
 
         if ($latN && $latS && $lonE && $lonW && $startingLatitude
             && $startingLongitude

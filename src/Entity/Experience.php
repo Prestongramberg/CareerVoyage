@@ -294,22 +294,22 @@ abstract class Experience
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $recurrenceRule;
+    protected $recurrenceRule;
 
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private $schedule = [];
+    protected $schedule = [];
 
     /**
      * @ORM\ManyToOne(targetEntity=Experience::class, inversedBy="childEvents")
      */
-    private $parentEvent;
+    protected $parentEvent;
 
     /**
      * @ORM\OneToMany(targetEntity=Experience::class, mappedBy="parentEvent")
      */
-    private $childEvents;
+    protected $childEvents;
 
     public function __construct()
     {

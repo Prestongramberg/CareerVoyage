@@ -1706,7 +1706,8 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/students/manage", name="students_manage", methods={"GET"})
-     * @param Request $request
+     * @param  School  $school
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */

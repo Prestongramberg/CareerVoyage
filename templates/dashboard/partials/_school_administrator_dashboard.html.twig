@@ -114,6 +114,13 @@
                                 <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_personal_calendar') }}">Get Started</a>
                             </div>
                         </div>
+                        <div>
+                            <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                                <h3 class="uk-card-title">Manage Experiences</h3>
+                                <p>View, update, delete and manage school events.</p>
+                                <a class="uk-button uk-button-default" target="_blank" href="{{ path('experiences_manage') }}?schoolId={{ school.id }}">Get Started</a>
+                            </div>
+                        </div>
                     </div>
 
                     <br>
@@ -121,43 +128,8 @@
 
                     {% if school.isUserSchoolAdministrator(user) %}
                         <div class="uk-margin">
-                            <ul class="uk-tab school-tab-tools"
-                                uk-switcher="connect: #tab-school-{{ school.id }}-tools" uk-tab>
-                                <li><a href="?school={{ school.id }}&tool=experiences">Experiences</a></li>
-                                <li><a href="?school={{ school.id }}&tool=feedback">Feedback</a></li>
-                            </ul>
-                            <div class="uk-switcher" id="tab-school-{{ school.id }}-tools">
-
-                                <div class="school_{{ school.id }}_tools_experiences">
-                                    {% if school.sortedSchoolExperiences|length %}
-                                        <div class="school__educators">
-                                            <dl class="uk-description-list uk-description-list-divider">
-                                                {% for experience in school.sortedSchoolExperiences %}
-
-                                                    {% set experienceId = experience.id %}
-
-                                                    {% if experience.cancelled != 1 %}
-                                                        <div class="uk-grid uk-flex-middle" uk-grid>
-                                                            <div class="uk-width-expand">
-                                                                <dt>{{ experience.title }}</dt>
-                                                            </div>
-                                                            <div class="uk-width-1-1 uk-width-auto@m">
-                                                                <a target="_blank" href="{{ path('experience_view', { "id": experience.id }) }}"
-                                                                   class="uk-button uk-button-default uk-button-small">View</a>
-                                                            </div>
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </dl>
-                                        </div>
-                                    {% endif %}
-
-                                </div>
-                                <div class="school_{{ school.id }}_tools_feedback">
-                                    {# FEEDBACK WIDGET #}
-                                    {{ feedback_widget(user, null, school)|raw }}
-                                </div>
-                            </div>
+                            {# FEEDBACK WIDGET #}
+                            {{ feedback_widget(user, null, school)|raw }}
                         </div>
                     {% endif %}
                 </div>

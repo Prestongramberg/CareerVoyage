@@ -44,6 +44,7 @@ Encore
     .addEntry('experience', './assets/js/experience.js')
     .addEntry('manage_students', './assets/js/manage_students.js')
     .addEntry('manage_educators', './assets/js/manage_educators.js')
+    .addEntry('manage_experiences', './assets/js/manage_experiences.js')
 
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
