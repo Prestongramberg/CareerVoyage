@@ -13,6 +13,7 @@ use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\ExperienceType;
 use App\Form\ManageExperiencesFilterType;
+use App\Form\ManageRegistrationsFilterType;
 use App\Form\ManageStudentsFilterType;
 use App\Repository\CompanyPhotoRepository;
 use App\Repository\CompanyRepository;
@@ -595,7 +596,104 @@ class ExperienceController extends AbstractController
             'school'       => $school,
             'clearFormUrl' => $clearFormUrl,
             'form'         => $form->createView(),
-            'schools'      => $schools
+            'schools'      => $schools,
+        ]);
+    }
+
+    /**
+     * @Route("/{id}/registrations", name="experience_registrations", methods={"GET"})
+     * @param  Experience  $experience
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function registrationsAction(
+        Experience $experience,
+        Request $request
+    ) {
+        /** @var User $user */
+        $user        = $this->getUser();
+        $schoolId    = $request->query->get('schoolId');
+        $school      = null;
+        $schools     = [];
+        $experiences = [];
+
+        $authorizationVoter = new AuthorizationVoter();
+
+        if ($schoolId) {
+            $school = $this->schoolRepository->find($schoolId);
+
+            $experiences = $this->schoolExperienceRepository->findBy([
+                'school'      => $school,
+                'parentEvent' => null,
+            ]);
+
+            if (!$authorizationVoter->canEditSchool($user, $school)) {
+                throw new AccessDeniedException();
+            }
+        }
+
+        if ($user instanceof SchoolAdministrator) {
+            $schools = $user->getSchools();
+        } elseif ($user instanceof EducatorUser) {
+            $schools = new ArrayCollection([$user->getSchool()]);
+        } elseif ($user instanceof AdminUser) {
+            $schools = $this->schoolRepository->findAll();
+        }
+
+        $schoolIds = [$schoolId];
+
+        $form = $this->createForm(ManageRegistrationsFilterType::class, null, [
+            'action' => $this->generateUrl('experience_registrations',
+                ['id' => $experience->getId()]),
+            'method' => 'GET',
+        ]);
+
+        $form->handleRequest($request);
+
+        $filterBuilder
+            = $this->registrationRepository->createQueryBuilder('r')
+            ->innerJoin('r.experience', 'experience')
+            ->innerJoin('r.user', 'user')
+            ->andWhere('experience.id = :experienceId')
+            ->setParameter('experienceId', $experience->getId());
+
+        $filterBuilder->addOrderBy('user.lastName', 'ASC');
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+
+        if ($request->query->get('limit') === 'all') {
+            $pagination = $this->paginator->paginate($filterQuery,
+                /* query NOT result */ $request->query->getInt('page', 1),
+                100000000);
+        } else {
+            $pagination = $this->paginator->paginate($filterQuery,
+                /* query NOT result */ $request->query->getInt('page', 1),
+                /*page number*/ $request->query->getInt('limit', 10));
+        }
+
+        if ($school) {
+            $clearFormUrl = $this->generateUrl('experience_registrations',
+                ['id' => $experience->getId(), 'schoolId' => $school->getId()]);
+        } else {
+            $clearFormUrl = $this->generateUrl('experience_registrations',
+                ['id' => $experience->getId()]);
+        }
+
+        return $this->render('experience/registrations.html.twig', [
+            'user'         => $user,
+            'pagination'   => $pagination,
+            'school'       => $school,
+            'clearFormUrl' => $clearFormUrl,
+            'form'         => $form->createView(),
+            'schools'      => $schools,
+            'experience'   => $experience,
+            'experiences'  => $experiences,
         ]);
     }
 

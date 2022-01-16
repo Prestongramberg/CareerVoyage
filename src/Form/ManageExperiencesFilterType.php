@@ -20,6 +20,22 @@ class ManageExperiencesFilterType extends AbstractType
         $builder->add('isRecurring', Filters\BooleanFilterType::class, [
             'placeholder' => 'Is Recurring Event',
         ]);
+
+        $builder->add('startDateAndTime', Filters\DateRangeFilterType::class, [
+                'left_date_options' => [
+                    'widget' => 'single_text',
+                    'format' => 'MM/dd/yyyy',
+                    // prevents rendering it as type="date", to avoid HTML5 date pickers
+                    'html5' => false,
+                ],
+                'right_date_options' => [
+                    'widget' => 'single_text',
+                    'format' => 'MM/dd/yyyy',
+                    // prevents rendering it as type="date", to avoid HTML5 date pickers
+                    'html5' => false,
+                ],
+            ]
+        );
     }
 
     public function getBlockPrefix()
