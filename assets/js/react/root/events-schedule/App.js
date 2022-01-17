@@ -102,6 +102,7 @@ export default function App(props) {
             .then((response) => {
                 debugger;
                 if (response.statusCode < 300 && response.responseBody.success === true) {
+                    UIkit.notification('Recurring event schedule saved. Preview calendar below.', {status: 'success', pos: 'top-center'})
                     let newEvents = response.responseBody.dates;
                     setEvents(newEvents);
                 }
