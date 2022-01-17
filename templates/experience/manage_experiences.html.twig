@@ -48,7 +48,7 @@
 
                         <hr>
 
-                        {% if parentExperience is null %}
+                        {% if parentExperience is null and school and schools|length%}
                             <select id="js-school-administrator-schools" class="uk-select"
                                     style="width: 300px; margin-right: 10px">
                                 {% if school is null %}
@@ -92,6 +92,14 @@
 
                 {% if school %}
                     <input type="hidden" name="schoolId" value="{{ school.id }}">
+                {% endif %}
+
+                {% if company %}
+                    <input type="hidden" name="companyId" value="{{ company.id }}">
+                {% endif %}
+
+                {% if parentExperience %}
+                    <input type="hidden" name="parentExperienceId" value="{{ parentExperience.id }}">
                 {% endif %}
 
                 <div class="uk-width-1-4@s">

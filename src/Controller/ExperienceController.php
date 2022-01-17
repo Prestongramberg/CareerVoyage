@@ -247,7 +247,7 @@ class ExperienceController extends AbstractController
     }
 
     /**
-     * @Route("/experiences/new", name="experience_new", options = { "expose" =
+     * @Route("/new", name="experience_new", options = { "expose" =
      *   true })
      * @param  Request  $request
      *
@@ -267,12 +267,10 @@ class ExperienceController extends AbstractController
             throw new AccessDeniedException();
         }
 
-        if ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-            if (!$authorizationVoter->canCreateExperiencesForSchool(
-                $user,
-                $school
-            )
-            ) {
+        if ($schoolId) {
+            $school = $this->schoolRepository->find($schoolId);
+
+            if (!$school || !$authorizationVoter->canCreateExperiencesForSchool($user, $school)) {
                 throw new AccessDeniedException();
             }
 
@@ -281,10 +279,10 @@ class ExperienceController extends AbstractController
             $experience       = new SchoolExperience();
         }
 
-        if ($companyId
-            && $company = $this->companyRepository->find($companyId)
-        ) {
-            if (!$authorizationVoter->canEditCompany($user, $company)) {
+        if ($companyId) {
+            $company = $this->companyRepository->find($companyId);
+
+            if (!$company || !$authorizationVoter->canCreateExperiencesForCompany($user, $company)) {
                 throw new AccessDeniedException();
             }
 
@@ -563,8 +561,37 @@ class ExperienceController extends AbstractController
         $parentExperience   = null;
         $schools            = [];
         $actionUrlParams    = [];
-
         $authorizationVoter = new AuthorizationVoter();
+
+        if (!$schoolId && !$companyId) {
+            if ($user instanceof SchoolAdministrator) {
+                $school = $user->getSchools()
+                    ->first();
+
+                if ($school) {
+                    return $this->redirectToRoute('experiences_manage', ['schoolId' => $school->getId()]);
+                }
+
+                throw new AccessDeniedException();
+            } elseif ($user instanceof EducatorUser) {
+                $school = $user->getSchool();
+
+                if ($school) {
+                    return $this->redirectToRoute('experiences_manage', ['schoolId' => $school->getId()]);
+                }
+
+                throw new AccessDeniedException();
+            } elseif ($user instanceof ProfessionalUser) {
+                $company = $user->getOwnedCompany();
+
+                if ($company) {
+                    return $this->redirectToRoute('experiences_manage', ['companyId' => $company->getId()]);
+                }
+            }
+
+            throw new AccessDeniedException();
+        }
+
 
         if ($schoolId) {
             $school = $this->schoolRepository->find($schoolId);
@@ -590,7 +617,7 @@ class ExperienceController extends AbstractController
             $company = $this->companyRepository->find($companyId);
 
             // todo change permissions for company
-            if (!$company || !$authorizationVoter->canCreateExperiencesForSchool($user, $school)) {
+            if (!$company || !$authorizationVoter->canCreateExperiencesForCompany($user, $company)) {
                 throw new AccessDeniedException();
             }
 
@@ -632,6 +659,18 @@ class ExperienceController extends AbstractController
         } elseif ($user instanceof ProfessionalUser) {
             // todo query company experiences that you manage or created or belong to your company if you are the owner?
             //$schools = $this->schoolRepository->findAll();
+
+            $filterBuilder = $this->companyExperienceRepository->createQueryBuilder('e')
+                ->innerJoin('e.company', 'company')
+                ->leftJoin('e.employeeContact', 'employeeContact')
+                ->leftJoin('e.creator', 'creator')
+                ->leftJoin('company.owner', 'owner')
+                ->andWhere(
+                    'employeeContact.id = :employeeContactId or creator.id = :creatorId or owner.id = :ownerId'
+                )
+                ->setParameter('employeeContactId', $user->getId())
+                ->setParameter('creatorId', $user->getId())
+                ->setParameter('ownerId', $user->getId());
         } elseif ($user instanceof AdminUser) {
             $schools = $this->schoolRepository->findAll();
         }
@@ -643,8 +682,6 @@ class ExperienceController extends AbstractController
         } else {
             $filterBuilder->andWhere('e.parentEvent IS NULL');
         }
-
-        $schoolIds = [$schoolId];
 
         // We don't show child events from recurring events on this page
         $filterBuilder->addOrderBy('e.startDateAndTime', 'ASC');
@@ -710,7 +747,6 @@ class ExperienceController extends AbstractController
                 ->getId();
 
             if ($user instanceof SchoolAdministrator) {
-
                 // todo if a school administrator created an event, they should always be able to manage it right?
 
                 $schools     = $user->getSchools();
@@ -745,6 +781,22 @@ class ExperienceController extends AbstractController
         if ($experience instanceof CompanyExperience && $experience->getCompany()) {
             $companyIdId = $experience->getCompany()
                 ->getId();
+
+            if ($user instanceof ProfessionalUser) {
+                $experiences = $this->companyExperienceRepository->createQueryBuilder('e')
+                    ->innerJoin('e.company', 'company')
+                    ->leftJoin('e.employeeContact', 'employeeContact')
+                    ->leftJoin('e.creator', 'creator')
+                    ->leftJoin('company.owner', 'owner')
+                    ->andWhere(
+                        'employeeContact.id = :employeeContactId or creator.id = :creatorId or owner.id = :ownerId'
+                    )
+                    ->setParameter('employeeContactId', $user->getId())
+                    ->setParameter('creatorId', $user->getId())
+                    ->setParameter('ownerId', $user->getId())
+                    ->getQuery()
+                    ->getResult();
+            }
         }
 
         $authorizationVoter = new AuthorizationVoter();
