@@ -17,27 +17,51 @@
 
                 <ul class="uk-breadcrumb">
                     <li><a href="{{ path('dashboard') }}">Home</a></li>
-                    <li><span href="">Manage Experiences</span></li>
+
+                    {% if parentExperience and company %}
+                        <li><a href="{{ path('experiences_manage', {companyId: company.id}) }}">Manage Experiences</a>
+                        </li>
+                        <li><span href="">{{ parentExperience.title }}</span></li>
+                    {% endif %}
+
+                    {% if parentExperience and school %}
+                        <li><a href="{{ path('experiences_manage', {schoolId: school.id}) }}">Manage Experiences</a>
+                        </li>
+                        <li><span href="">{{ parentExperience.title }}</span></li>
+                    {% endif %}
+
+                    {% if parentExperience is null %}
+                        <li><span href="">Manage Experiences</span></li>
+                    {% endif %}
                 </ul>
 
                 <div class="uk-section-small uk-section-default header">
                     <div class="uk-container uk-container-large">
 
-                        {% if school %}
+                        {% if parentExperience %}
+                            <h2>MANAGE EXPERIENCES - <small>{{ parentExperience.title }}</small></h2>
+                        {% elseif school %}
                             <h2>MANAGE EXPERIENCES - <small>{{ school.name }}</small></h2>
-                        {% else %}
-                            <h2>MANAGE EXPERIENCES</h2>
+                        {% elseif company %}
+                            <h2>MANAGE EXPERIENCES - <small>{{ company.name }}</small></h2>
                         {% endif %}
 
                         <hr>
-                        <select id="js-school-administrator-schools" class="uk-select"
-                                style="width: 300px; margin-right: 10px">
-                            {% for schoolOption in schools %}
-                                <option {{ schoolOption.id == school.id ? 'selected' : '' }}
-                                        value="{{ path('experiences_manage', {schoolId: schoolOption.id}) }}">{{ schoolOption.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <hr>
+
+                        {% if parentExperience is null and school and schools|length%}
+                            <select id="js-school-administrator-schools" class="uk-select"
+                                    style="width: 300px; margin-right: 10px">
+                                {% if school is null %}
+                                    <option selected disabled>Please select a school</option>
+                                {% endif %}
+                                {% for schoolOption in schools %}
+                                    <option {{ school and schoolOption.id == school.id ? 'selected' : '' }}
+                                            value="{{ path('experiences_manage', {schoolId: schoolOption.id}) }}">{{ schoolOption.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <hr>
+                        {% endif %}
+
                     </div>
                 </div>
 
@@ -70,6 +94,14 @@
                     <input type="hidden" name="schoolId" value="{{ school.id }}">
                 {% endif %}
 
+                {% if company %}
+                    <input type="hidden" name="companyId" value="{{ company.id }}">
+                {% endif %}
+
+                {% if parentExperience %}
+                    <input type="hidden" name="parentExperienceId" value="{{ parentExperience.id }}">
+                {% endif %}
+
                 <div class="uk-width-1-4@s">
                     <button class="uk-button uk-button-primary">Search</button>
                     <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
@@ -83,22 +115,24 @@
 
             <div style="margin-top:50px; position: relative" class="uk-width-1-3">
                 {{ knp_pagination_render(pagination, 'pagination/items_per_page.html.twig') }}
-                <div style="position: absolute; transform: translate(-50%,-50%); top: 50%">Total Events: {{ pagination.getTotalItemCount }}</div>
+                <div style="position: absolute; transform: translate(-50%,-50%); top: 50%">Total
+                    Events: {{ pagination.getTotalItemCount }}</div>
             </div>
 
-            {#<div style="margin-top:50px" class="uk-width-1-2">
+            {# <div style="margin-top:50px" class="uk-width-1-2">
                 {{ knp_pagination_render(pagination, 'pagination/manage_students_bulk_actions.html.twig', {}, {'eventRegister': eventRegister}) }}
-            </div>#}
+            </div> #}
 
             <div class="uk-width-1-1 uk-overflow-auto" style="font-size: 0.8em">
                 <table class="uk-table uk-table-small uk-table-divider" style="width: 1400px;">
                     <tr>
-                        {#<th>
+                        {# <th>
                             <input class="js-select-all-users" type="checkbox"/>
-                        </th>#}
+                        </th> #}
                         <th>Event Title</th>
                         <th>Start Date</th>
                         <th>Is Recurring Event</th>
+                        <th>Total Number Of Events</th>
                         <th>Total Registrations</th>
                         <th colspan="2"></th>
                     </tr>
@@ -108,15 +142,26 @@
 
                         <tr id="experience_{{ experience.id }}">
 
-                         {#   <td>
+                            {# <td>
                                 <input type="checkbox" class="group-edit-supervising-teacher"
                                        name="user[]"
                                        data-name="{{ experience.title }}"
                                        value="{{ experience.id }}"/>
                             </td>
-#}
+                            #}
                             <td>
-                                {{ experience.title }}
+                                {% if experience.isRecurring %}
+
+                                    {% if school %}
+                                        <a href="{{ path('experiences_manage', { schoolId: school.id, parentExperienceId: experience.id }) }}">{{ experience.title }}</a>
+                                    {% endif %}
+
+                                    {% if company %}
+                                        <a href="{{ path('experiences_manage', { companyId: company.id, parentExperienceId: experience.id }) }}">{{ experience.title }}</a>
+                                    {% endif %}
+                                {% else %}
+                                    {{ experience.title }}
+                                {% endif %}
                             </td>
 
                             <td>
@@ -125,8 +170,27 @@
 
                             <td>{{ experience.isRecurring ? 'Yes' : 'No' }}</td>
 
+                            <td>
+                                {% if experience.isRecurring %}
+                                    {{ experience.childEvents|length }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+
+
                             {# todo this isn't going to work if we re-use this page for companies #}
-                            <td>{{ experience.registrations|length }}</td>
+                            <td>
+                                {% if experience.isRecurring %}
+                                    {% set totalRegistrations = 0 %}
+                                    {% for childEvent in experience.childEvents %}
+                                        {% set totalRegistrations = totalRegistrations + childEvent.registrations|length %}
+                                    {% endfor %}
+                                    {{ totalRegistrations }}
+                                {% else %}
+                                    {{ experience.registrations|length }}
+                                {% endif %}
+                            </td>
 
                             <td colspan="2">
                                 <a target="_blank" href="{{ path('experience_edit', { "id": experience.id }) }}"
@@ -135,9 +199,12 @@
                                 <a target="_blank" href="{{ path('experience_view', { "id": experience.id }) }}"
                                    class="uk-button uk-button-default uk-button-small"
                                    style="margin-bottom: 8px;">View</a>
-                                <a href="{{ path('experience_registrations', {id: experience.id, schoolId: school.id}) }}"
-                                   class="uk-button uk-button-default uk-button-small"
-                                   style="margin-bottom: 8px;">Registrations</a>
+
+                                {% if experience.isRecurring is same as(false) %}
+                                    <a href="{{ path('experience_registrations', {id: experience.id}) }}"
+                                       class="uk-button uk-button-default uk-button-small"
+                                       style="margin-bottom: 8px;">Registrations</a>
+                                {% endif %}
                             </td>
                         </tr>
 
