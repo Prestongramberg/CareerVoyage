@@ -364,6 +364,12 @@ class ExperienceController extends AbstractController
             $recurringEvent->setIsRecurring(false);
             $recurringEvent->setParentEvent($experience);
 
+            foreach($experience->getExperienceResources() as $experienceResource) {
+                $resource = clone $experienceResource;
+                $resource->setExperience($recurringEvent);
+                $this->entityManager->persist($resource);
+            }
+
             $startDate = $recurrence->getStart();
             $endDate   = $recurrence->getEnd();
 
