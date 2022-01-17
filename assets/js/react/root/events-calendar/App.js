@@ -164,7 +164,7 @@ class App extends React.Component {
             let start = this.element.getApi().state.dateProfile.activeRange.start.toLocaleDateString("en-US");
             let end = this.element.getApi().state.dateProfile.activeRange.end.toLocaleDateString("en-US");
 
-            this.props.startDateChanged(this.element.getApi().state.dateProfile.activeRange.start);
+            this.props.startDateChanged(this.element.getApi().state.dateProfile.currentRange.start);
 
             this.loadEvents({
                 start: start,
