@@ -16,13 +16,8 @@
             <div class="uk-width-1-1">
 
                 <ul class="uk-breadcrumb">
-                    {% if school %}
-                        <li><a href="{{ path('dashboard') }}">Home</a></li>
-                        <li><a href="{{ path('experiences_manage', {schoolId: school.id}) }}">Manage Experiences</a>
-                        </li>
-                    {% else %}
-                        <li><a href="{{ path('dashboard') }}">Home</a></li>
-                    {% endif %}
+                    <li><a href="{{ path('dashboard') }}">Home</a></li>
+                    <li><a href="{{ path('experiences_manage') }}">Manage Experiences</a></li>
                     <li><span href="">Registrations</span></li>
                 </ul>
 
@@ -38,10 +33,10 @@
 
                                 {% if school %}
                                     <option {{ experienceOption.id == experience.id ? 'selected' : '' }}
-                                            value="{{ path('experience_registrations', {id: experienceOption.id, schoolId: school.id}) }}">{{ experienceOption.title }}</option>
+                                            value="{{ path('experience_registrations', {id: experienceOption.id, schoolId: school.id}) }}">{{ experienceOption.title }} {{ experienceOption.startDateAndTime|date("m/d/Y") }}</option>
                                 {% else %}
                                     <option {{ experienceOption.id == experience.id ? 'selected' : '' }}
-                                            value="{{ path('experience_registrations', {id: experienceOption.id}) }}">{{ experienceOption.title }}</option>
+                                            value="{{ path('experience_registrations', {id: experienceOption.id}) }}">{{ experienceOption.title }} {{ experienceOption.startDateAndTime|date("m/d/Y") }}</option>
                                 {% endif %}
 
                             {% endfor %}

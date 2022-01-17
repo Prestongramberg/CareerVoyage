@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Entity\CompanyExperience;
 use App\Entity\EducatorUser;
 use App\Entity\Experience;
+use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
@@ -18,11 +19,6 @@ class AuthorizationVoter
 
     public function canCreateExperiencesForSchool(User $user, School $school = null)
     {
-
-        if ($user->isAdmin()) {
-            return true;
-        }
-
         if(!$school) {
             return false;
         }
@@ -43,6 +39,23 @@ class AuthorizationVoter
             if($school->getAllowEventCreation() && $user->getSchool() && $user->getSchool()->getId() === $school->getId()) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    public function canCreateExperiencesForCompany(User $user, Company $company = null)
+    {
+        if(!$user instanceof ProfessionalUser) {
+            return false;
+        }
+
+        if($company) {
+            return $user->getOwnedCompany() && $user->getOwnedCompany()->getId() === $company->getId();
+        }
+
+        if($user->getOwnedCompany()) {
+            return true;
         }
 
         return false;

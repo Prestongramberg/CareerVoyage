@@ -17,14 +17,9 @@
 {% block body %}
     <div class="uk-container js-form">
 
-        <ul class="uk-breadcrumb">
-            <li><a href="{{ path('dashboard') }}">Home</a></li>
-            <li><span>New Experience</span></li>
-        </ul>
-        <br>
-
         <div uk-grid>
             <div class="uk-width-1-1 uk-width-medium@m">
+
                 <ul id="test" class="uk-tab-left"
                     uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
                     <li><a href="#experience-details" id="experience-details">New Experience</a></li>
@@ -32,6 +27,12 @@
                 </ul>
             </div>
             <div class="uk-width-1-1 uk-width-expand@m">
+
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('dashboard') }}">Home</a></li>
+                    <li><span>New Experience</span></li>
+                </ul>
+
                 <div id="tab-account-inner" class="uk-switcher">
 
                     <div class="experience_details">

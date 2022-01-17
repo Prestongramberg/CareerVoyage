@@ -11,138 +11,93 @@
                 </div>
             </div>
         {% endif %}
+
+
+        <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
+
+            {# <div>
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                        <h3 class="uk-card-title">Manage Educators</h3>
+                        <p>Reset passwords, assign students to teachers, import educators, and more.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('educators_manage', {id: school.id}) }}">Get Started</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Create an Experience</h3>
+                        <p>Create engaging school events that other user's can search and register for.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_new') }}?schoolId={{ school.id }}">Get Started</a>
+                    </div>
+                </div> #}
+
+            <div>
+                <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+
+                    <h3 class="uk-card-title">Browse Lesson Topics <span
+                                style="position: absolute"
+                                uk-tooltip="Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.."
+                                uk-icon="info"></span></h3>
+
+                    <p>Become a guest topic instructor in your area of expertise.</p>
+                    {# <a class="uk-button uk-button-default" target="_blank" href="{{ path('experiences_manage') }}?schoolId={{ user.school.id }}">Get Started</a> #}
+                    <a class="uk-button uk-button-default" target="_blank" href="#">Get Started</a>
+                </div>
+            </div>
+
+            <div>
+                <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-text-center">
+                    <h3 class="uk-card-title">Personal Calendar</h3>
+                    <p>View and manage events that you are personally registered for.</p>
+                    <a class="uk-button uk-button-default" target="_blank"
+                       href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                </div>
+            </div>
+
+            {% if authorizationVoter.canCreateExperiencesForCompany(user) %}
+                <div>
+                    <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Create an Experience <span
+                                    style="position: absolute"
+                                    uk-tooltip="Develop student interest and educator knowledge in your industry through company visits, internships, job shadows and informational interviews."
+                                    uk-icon="info"></span></h3>
+                        <p>Create engaging company events that other users can search and register for.</p>
+
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experience_new') }}?companyId={{ user.company.id }}">Get Started</a>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                        <h3 class="uk-card-title">Manage Experiences</h3>
+                        <p>View, update, delete and manage your company events.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experiences_manage') }}?companyId={{ user.company.id }}">Get Started</a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div>
+                <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-text-center">
+                    <h3 class="uk-card-title">Browse Educators <span
+                                style="position: absolute"
+                                uk-tooltip="Serve your community by connecting with educators in your field. Start a conversation and see what they might want help with, from mentoring to teaching a guest lesson topic."
+                                uk-icon="info"></span></h3>
+                    <p>Connect with educators to see if you can help support their students.</p>
+                    <a class="uk-button uk-button-default" target="_blank"
+                       href="{{ path('educator_results_page') }}">Get Started</a>
+                </div>
+            </div>
+
+        </div>
+
+
         <div class="uk-width-2-3@m uk-width-1-1">
 
             <!-- JOB BOARD -->
             {{ render(controller('App\\Controller\\DashboardController::jobBoard')) }}
             <!-- END JOB BOARD -->
 
-
-            <!-- CALL TO ACTIONS -->
-            <div class="profile-card-wrapper">
-                <div class="uk-card uk-card-default">
-                    <div class="uk-card-header" style="padding: 40px">
-                        <div class="uk-grid-small uk-flex-middle" uk-grid>
-                            <div class="uk-width-expand">
-                                <h3 style="padding-left: 40px" class="uk-card-title">Empower students and share your
-                                    expertise</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="uk-card-body">
-
-                        {% if user.company is not null %}
-
-                            {% set company = user.company %}
-
-                            {% if user.isOwner(company) %}
-
-                                <div class="uk-grid">
-                                    <div class="uk-width-auto">
-                                        <img src="{{ asset('build/images/calendar.svg') }}">
-                                    </div>
-                                    <div class="uk-width-expand">
-                                        <h4 style="margin-bottom: 0">Host a Student Experience</h4>
-                                        <p style="margin-top: 0; margin-botom: 0">Develop student interest and educator
-                                            knowledge in your industry through
-                                            company
-                                            visits, internships, job shadows and informational interviews.</p>
-                                        <a href="{{ path('experience_new', {companyId: user.company.id}) }}"
-                                           class="uk-button uk-button-primary" style="width: 240px; line-height: 30px">GET
-                                            STARTED</a>
-                                    </div>
-                                </div>
-
-                            {% else %}
-
-                                <div id="modal-contact-company-administrator" uk-modal>
-                                    <div class="uk-modal-dialog uk-modal-body">
-                                        <button class="uk-modal-close-default" type="button" uk-close></button>
-                                        <h3>Host a Student Experience</h3>
-                                        <p>To host a student experience at your company, please contact your company's
-                                            FutureForward coordinator</p>
-
-                                        <table class="uk-table">
-                                            <caption>Contact Information</caption>
-                                            <tr>
-                                                <th>Company Contact</th>
-                                                <td>{{ company.owner ? company.owner.fullName : 'N/A' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Company Email</th>
-                                                {% if company.owner %}
-                                                    <td>
-                                                        <a href="mailto:{{ company.owner.email }}">{{ company.owner.email }}</a>
-                                                    </td>
-                                                {% else %}
-                                                    <td>N/A</td>
-                                                {% endif %}
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="uk-grid">
-                                    <div class="uk-width-auto">
-                                        <img src="{{ asset('build/images/calendar.svg') }}">
-                                    </div>
-                                    <div class="uk-width-expand">
-                                        <h4 style="margin-bottom: 0">Host a Student Experience</h4>
-                                        <p style="margin-top: 0; margin-bottom: 10px">Develop student interest and
-                                            educator knowledge in your industry through
-                                            company
-                                            visits, internships, job shadows and informational interviews.</p>
-                                        <a href="#modal-contact-company-administrator"
-                                           class="uk-button uk-button-primary" style="width: 240px; line-height: 30px"
-                                           uk-toggle>GET
-                                            STARTED</a>
-                                    </div>
-                                </div>
-
-                            {% endif %}
-
-                            <hr>
-
-                        {% endif %}
-
-                        <div class="uk-grid">
-                            <div class="uk-width-auto">
-                                <img src="{{ asset('build/images/lecture.svg') }}">
-                            </div>
-                            <div class="uk-width-expand">
-                                <h4 style="margin-bottom: 0">Share your expertise with students</h4>
-                                <p style="margin-top: 0; margin-bottom: 10px">Become a guest topic instructor in your
-                                    area of expertise. Help students see the
-                                    applicability of their schooling to the workplace and spark interest amongst
-                                    students in your career field.</p>
-                                <a href="{{ path('lesson_index') }}" class="uk-button uk-button-primary"
-                                   style="width: 240px; line-height: 30px">BROWSE LESSON TOPICS</a>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <div class="uk-grid">
-                            <div class="uk-width-auto">
-                                <img src="{{ asset('build/images/mentor.svg') }}">
-                            </div>
-                            <div class="uk-width-expand">
-                                <h4 style="margin-bottom: 0">Connect with educators to see if you can help support their
-                                    students</h4>
-                                <p style="margin-top: 0; margin-bottom: 10px">Serve your community by connecting with
-                                    educators in your field. Start a conversation
-                                    and see what they might want help with, from mentoring to teaching a guest lesson
-                                    topic.</p>
-                                <a href="{{ path('educator_results_page') }}" class="uk-button uk-button-primary"
-                                   style="width: 240px; line-height: 30px">BROWSE EDUCATORS</a>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <br>
-            <br>
             <!-- END CALL TO ACTIONS -->
 
             <!-- START PROFILE -->
@@ -217,8 +172,6 @@
             <div class="uk-margin">
                 <ul class="uk-tab" id="user-nav" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-lessons">My Topics</a></li>
-                    <li><a href="#user-schools">My Schools</a></li>
-                    <li><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-feedback">My Feedback</a></li>
                     <li><a href="#user-events">
                             Provide Feedback
@@ -266,60 +219,6 @@
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
-
-                    <!-- my schools -->
-                    <div class="user_preferences_schools">
-                        <div class="uk-card uk-card-default">
-                            <div class="uk-card-header">
-                                <div class="uk-grid-small uk-flex-middle" uk-grid>
-                                    <div class="uk-width-auto">
-                                        <i class="fa fa-graduation-cap" aria-hidden="true"></i>
-                                    </div>
-                                    <div class="uk-width-expand">
-                                        <h3 class="uk-card-title uk-margin-remove-bottom">Schools I Volunteer At</h3>
-                                    </div>
-                                    <div class="uk-width-auto">
-                                        <div class="uk-align-right">
-                                            <a href="{{ path('profile_edit', {'id': user.id}) }}#account-details-profile-schools">
-                                                Manage Schools <span class="uk-margin-small-right"
-                                                                     uk-icon="icon: file-edit; ratio: 1"></span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="uk-card-body">
-                                {% if user.schools is defined and user.schools|length > 0 %}
-                                    <ul class="uk-list uk-list-divider">
-                                        {% for school in user.schools %}
-                                            <li>
-                                                <a href="{{ path('school_view', { 'id': school.id }) }}">{{ school.name }}</a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p>You haven't added any schools yet.</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- my calendar -->
-                    <div class="user_preferences_calendar">
-
-                        <div class="uk-grid" style="margin-bottom: 50px">
-                            <div class="uk-width-auto">
-                                <h3>My Upcoming Experiences</h3>
-                            </div>
-                            <div class="uk-width-expand">
-                                <a style="display: block; float: right" href="{{ path('experience_index') }}">Browse or
-                                    Create Experiences <span class="uk-margin-small-right"
-                                                             uk-icon="icon: file-edit; ratio: 1"></span></a>
-                            </div>
-                        </div>
-
-                        <div class="react-events-embed" data-user-id="{{ user.id }}"></div>
                     </div>
 
                     <!-- provide feedback -->
@@ -541,7 +440,8 @@
                             {% if user.isAdmin or (user.company is not null and user.company.owner is not null and user.id == user.company.owner.id) %}
                                 <div class="uk-width-auto">
                                     <div class="uk-align-right">
-                                        <a target="_blank" href="{{ path('experience_new', { companyId: user.company.id }) }}">
+                                        <a target="_blank"
+                                           href="{{ path('experience_new', { companyId: user.company.id }) }}">
                                             <span class="uk-margin-small-right"
                                                   uk-icon="icon: plus; ratio: 1"></span>
                                         </a>
