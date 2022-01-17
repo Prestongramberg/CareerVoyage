@@ -190,7 +190,10 @@
 
                             <li><a href="#live-feedback-url-modal" uk-toggle>Live Feedback URL</a></li>
 
-                            <li><a href="{{ path('experience_registrations', {id: experience.id}) }}">View Registrations</a></li>
+                            {% if experience.isRecurring is same as(false) %}
+                                <li><a href="{{ path('experience_registrations', {id: experience.id}) }}">View
+                                        Registrations</a></li>
+                            {% endif %}
                         </ul>
                     </div>
 
