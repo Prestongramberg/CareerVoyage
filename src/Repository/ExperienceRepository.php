@@ -348,7 +348,7 @@ WHERE 1 = 1 AND e.cancelled != %s AND e.is_recurring != %s', 1, 1);
         }
 
         if ($searchQuery) {
-            $query .= sprintf(' AND e.title LIKE "%%%s%%" ', $searchQuery);
+            $query .= sprintf(' AND (e.title LIKE "%%%s%%" OR tag.name LIKE "%%%s%%") ', $searchQuery, $searchQuery);
         }
 
         if ($eventType) {
@@ -409,7 +409,7 @@ WHERE 1 = 1 AND e.cancelled != %s AND e.is_recurring != %s', 1, 1);
         }
 
         if ($searchQuery) {
-            $query .= sprintf(' AND e.title LIKE "%%%s%%" ', $searchQuery);
+            $query .= sprintf(' AND (e.title LIKE "%%%s%%" OR tag.name LIKE "%%%s%%") ', $searchQuery, $searchQuery);
         }
 
         if ($eventType) {

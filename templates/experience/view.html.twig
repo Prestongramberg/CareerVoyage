@@ -71,7 +71,8 @@
                     {% else %}
                         {% if authorizationVoter.canEditExperience(user, experience) %}
                             <p style="font-style: italic">There are no upcoming events scheduled. <a target="_blank"
-                                        href="{{ path('experience_edit', {id: experience.id}) }}">Click here to setup
+                                                                                                     href="{{ path('experience_edit', {id: experience.id}) }}">Click
+                                    here to setup
                                     your recurring event schedule</a></p>
                         {% else %}
                             <p style="font-style: italic">There are no upcoming events scheduled.</p>
@@ -252,6 +253,13 @@
                             <dd>No one has registered for this event. Be among the <strong>first</strong> to register!
                             </dd>
                         {% endif %}
+                    {% endif %}
+
+                    {% if experience.tags|length %}
+                        <dt>Tags</dt>
+                        {% for tag in experience.tags %}
+                            <span class="uk-badge">{{ tag.name }}</span>
+                        {% endfor %}
                     {% endif %}
                 </dl>
             </div>
