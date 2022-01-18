@@ -10,6 +10,7 @@ use App\Entity\ProfessionalUser;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
+use App\Entity\StudentUser;
 use App\Entity\User;
 
 class AuthorizationVoter
@@ -19,15 +20,15 @@ class AuthorizationVoter
 
     public function canCreateExperiencesForSchool(User $user, School $school = null)
     {
-        if(!$school) {
+        if (!$school) {
             return false;
         }
 
-        if(!$user->isSchoolAdministrator() && !$user->isEducator()) {
+        if (!$user->isSchoolAdministrator() && !$user->isEducator()) {
             return false;
         }
 
-        if($user instanceof SchoolAdministrator) {
+        if ($user instanceof SchoolAdministrator) {
             foreach ($user->getSchools() as $schoolObject) {
                 if ($school->getId() === $schoolObject->getId()) {
                     return true;
@@ -35,8 +36,11 @@ class AuthorizationVoter
             }
         }
 
-        if($user instanceof EducatorUser) {
-            if($school->getAllowEventCreation() && $user->getSchool() && $user->getSchool()->getId() === $school->getId()) {
+        if ($user instanceof EducatorUser) {
+            if ($school->getAllowEventCreation() && $user->getSchool()
+                && $user->getSchool()
+                    ->getId() === $school->getId()
+            ) {
                 return true;
             }
         }
@@ -46,15 +50,17 @@ class AuthorizationVoter
 
     public function canCreateExperiencesForCompany(User $user, Company $company = null)
     {
-        if(!$user instanceof ProfessionalUser) {
+        if (!$user instanceof ProfessionalUser) {
             return false;
         }
 
-        if($company) {
-            return $user->getOwnedCompany() && $user->getOwnedCompany()->getId() === $company->getId();
+        if ($company) {
+            return $user->getOwnedCompany()
+                && $user->getOwnedCompany()
+                    ->getId() === $company->getId();
         }
 
-        if($user->getOwnedCompany()) {
+        if ($user->getOwnedCompany()) {
             return true;
         }
 
@@ -63,8 +69,10 @@ class AuthorizationVoter
 
     public function canEditExperience(User $user, Experience $experience)
     {
-
-        if($experience->getCreator() && $experience->getCreator()->getId() === $user->getId()) {
+        if ($experience->getCreator()
+            && $experience->getCreator()
+                ->getId() === $user->getId()
+        ) {
             return true;
         }
 
@@ -78,7 +86,9 @@ class AuthorizationVoter
             if ($user->isSchoolAdministrator()) {
                 /** @var SchoolAdministrator $user */
                 foreach ($user->getSchools() as $school) {
-                    if ($school->getId() === $experience->getSchool()->getId()) {
+                    if ($school->getId() === $experience->getSchool()
+                            ->getId()
+                    ) {
                         return true;
                     }
                 }
@@ -91,25 +101,37 @@ class AuthorizationVoter
                     return false;
                 }
 
-                if ($user->getSchool()->getId() !== $experience->getSchool()->getId()) {
+                if ($user->getSchool()
+                        ->getId() !== $experience->getSchool()
+                        ->getId()
+                ) {
                     return false;
                 }
 
-                if ($experience->getSchoolContact() && $experience->getSchoolContact()->getId() === $user->getId()) {
+                if ($experience->getSchoolContact()
+                    && $experience->getSchoolContact()
+                        ->getId() === $user->getId()
+                ) {
                     return true;
                 }
             }
         }
 
         if ($experience instanceof CompanyExperience) {
-
-            if ($experience->getEmployeeContact() && $experience->getEmployeeContact()->getId() === $user->getId()) {
+            if ($experience->getEmployeeContact()
+                && $experience->getEmployeeContact()
+                    ->getId() === $user->getId()
+            ) {
                 return true;
             }
 
-            if ($experience->getCompany() && $experience->getCompany()->getOwner() && $experience->getCompany()
-                                                                                                 ->getOwner()
-                                                                                                 ->getId() === $user->getId()) {
+            if ($experience->getCompany()
+                && $experience->getCompany()
+                    ->getOwner()
+                && $experience->getCompany()
+                    ->getOwner()
+                    ->getId() === $user->getId()
+            ) {
                 return true;
             }
         }
@@ -119,7 +141,6 @@ class AuthorizationVoter
 
     public function canDeleteExperience(User $user, Experience $experience)
     {
-
         // experiences cannot be deleted that aren't cancelled
         if (!$experience->getCancelled()) {
             return false;
@@ -130,7 +151,6 @@ class AuthorizationVoter
 
     public function canCancelExperience(User $user, Experience $experience)
     {
-
         // experiences cannot be cancelled that are already cancelled
         if ($experience->getCancelled()) {
             return false;
@@ -141,8 +161,7 @@ class AuthorizationVoter
 
     public function canAddExperienceToCalendar(User $user, Experience $experience)
     {
-
-        if($experience->getIsRecurring()) {
+        if ($experience->getIsRecurring()) {
             return false;
         }
 
@@ -155,15 +174,15 @@ class AuthorizationVoter
         }
 
         foreach ($experience->getRegistrations() as $registration) {
-
             if (!$registration->getUser()) {
                 continue;
             }
 
-            if ($registration->getUser()->getId() === $user->getId()) {
+            if ($registration->getUser()
+                    ->getId() === $user->getId()
+            ) {
                 return true;
             }
-
         }
 
         return false;
@@ -171,7 +190,7 @@ class AuthorizationVoter
 
     public function canRegisterForExperience(User $user, Experience $experience)
     {
-        if($experience->getIsRecurring()) {
+        if ($experience->getIsRecurring()) {
             return false;
         }
 
@@ -183,24 +202,45 @@ class AuthorizationVoter
             return false;
         }
 
-        foreach ($experience->getRegistrations() as $registration) {
+        if ($user instanceof StudentUser && $experience instanceof SchoolExperience
+            && $user->getSchool()
+                ->getId() !== $experience->getSchool()
+                ->getId()
+        ) {
+            return false;
+        }
 
+        foreach ($experience->getRegistrations() as $registration) {
             if (!$registration->getUser()) {
                 continue;
             }
 
-            if ($registration->getUser()->getId() === $user->getId()) {
+            if ($registration->getUser()
+                    ->getId() === $user->getId()
+            ) {
                 return false;
             }
-
         }
 
         return true;
     }
 
+    public function cannotRegisterForExperienceError(User $user, Experience $experience)
+    {
+        if ($user instanceof StudentUser && $experience instanceof SchoolExperience
+            && $user->getSchool()
+                ->getId() !== $experience->getSchool()
+                ->getId()
+        ) {
+            return 'This event is only open to students attending this school';
+        }
+
+        return null;
+    }
+
     public function canUnregisterForExperience(User $user, Experience $experience)
     {
-        if($experience->getIsRecurring()) {
+        if ($experience->getIsRecurring()) {
             return false;
         }
 
@@ -213,15 +253,15 @@ class AuthorizationVoter
         }
 
         foreach ($experience->getRegistrations() as $registration) {
-
             if (!$registration->getUser()) {
                 continue;
             }
 
-            if ($registration->getUser()->getId() === $user->getId()) {
+            if ($registration->getUser()
+                    ->getId() === $user->getId()
+            ) {
                 return true;
             }
-
         }
 
         return false;
@@ -229,7 +269,7 @@ class AuthorizationVoter
 
     public function canRegisterStudentsForExperience(User $user, Experience $experience)
     {
-        if($experience->getIsRecurring()) {
+        if ($experience->getIsRecurring()) {
             return false;
         }
 
@@ -241,11 +281,11 @@ class AuthorizationVoter
             return false;
         }
 
-        if($user->isSchoolAdministrator()) {
+        if ($user->isSchoolAdministrator()) {
             return true;
         }
 
-        if($user->isEducator()) {
+        if ($user->isEducator()) {
             return true;
         }
 
@@ -261,7 +301,6 @@ class AuthorizationVoter
 
     public function canEditSchool(User $user, School $school)
     {
-
         if ($user->isAdmin()) {
             return true;
         }
@@ -278,39 +317,39 @@ class AuthorizationVoter
         return false;
     }
 
-    public function canManageStudents(User $user) {
-
+    public function canManageStudents(User $user)
+    {
         if ($user->isAdmin()) {
             return true;
         }
 
-        if($user->isSchoolAdministrator()) {
+        if ($user->isSchoolAdministrator()) {
             return true;
         }
 
-        if($user instanceof EducatorUser && $user->getSchool()) {
+        if ($user instanceof EducatorUser && $user->getSchool()) {
             return true;
         }
 
         return false;
     }
 
-    public function canImportStudents(User $user) {
-
-        if($user->isSchoolAdministrator()) {
+    public function canImportStudents(User $user)
+    {
+        if ($user->isSchoolAdministrator()) {
             return true;
         }
 
         return false;
     }
 
-    public function canManageEducators(User $user) {
-
+    public function canManageEducators(User $user)
+    {
         if ($user->isAdmin()) {
             return true;
         }
 
-        if($user->isSchoolAdministrator()) {
+        if ($user->isSchoolAdministrator()) {
             return true;
         }
 
@@ -325,12 +364,14 @@ class AuthorizationVoter
 
     public function canEditCompany(User $user, Company $company)
     {
-
         if ($user->isAdmin()) {
             return true;
         }
 
-        if ($company->getOwner() && $company->getOwner()->getId() === $user->getId()) {
+        if ($company->getOwner()
+            && $company->getOwner()
+                ->getId() === $user->getId()
+        ) {
             return true;
         }
 

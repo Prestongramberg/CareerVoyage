@@ -214,7 +214,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      * @throws \Doctrine\DBAL\Driver\Exception
      * @throws \Doctrine\DBAL\Exception
      */
-    public function search(array $schoolIds = [], bool $queryBuilder = false, $excludeProfessionals = false)
+    public function search(array $schoolIds = [], bool $queryBuilder = false, $excludeProfessionals = false, $excludeStudents = false)
     {
 
 
@@ -243,16 +243,22 @@ WHERE 1 = 1 AND u.deleted != %s', 1);
 
         $query .= ' UNION ALL ';
 
-        /************************************ STUDENT USERS ************************************/
-        $query .= sprintf('SELECT DISTINCT su.id
+        if (!$excludeStudents) {
+            /************************************ STUDENT USERS ************************************/
+            $query .= sprintf(
+                'SELECT DISTINCT su.id
 from student_user su INNER JOIN user u on u.id = su.id 
-WHERE 1 = 1 AND u.deleted != %s AND su.archived != %s', 1, 1);
+WHERE 1 = 1 AND u.deleted != %s AND su.archived != %s',
+                1,
+                1
+            );
 
-        if (!empty($schoolIds)) {
-            $query .= ' AND su.school_id IN (' . implode(",", $schoolIds) . ')';
+            if (!empty($schoolIds)) {
+                $query .= ' AND su.school_id IN ('.implode(",", $schoolIds).')';
+            }
+
+            $query .= ' UNION ALL ';
         }
-
-        $query .= ' UNION ALL ';
 
         /************************************ SCHOOL ADMINISTRATOR USERS ************************************/
         $query .= sprintf('SELECT DISTINCT sa.id

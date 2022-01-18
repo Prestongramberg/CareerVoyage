@@ -2,6 +2,7 @@ import React from "react";
 import Cleave from 'cleave.js/react';
 import {Field} from 'react-final-form';
 import {OnChange} from 'react-final-form-listeners'
+import Error from './Error';
 
 const WeeklyFields = ({schedule, changeByDayMultiple, changeInterval}) => {
 
@@ -15,10 +16,12 @@ const WeeklyFields = ({schedule, changeByDayMultiple, changeInterval}) => {
         changeByDayMultiple(modifiedSchedule);
     }
 
+    const required = (value) => (value ? undefined : "Required");
+
     const renderIntervalField = () => {
         return (
             <div>
-                <Field className="uk-margin" name="interval">
+                <Field className="uk-margin" name="interval" validate={required}>
                     {props => (
                         <div>
                             <Cleave
@@ -34,6 +37,7 @@ const WeeklyFields = ({schedule, changeByDayMultiple, changeInterval}) => {
                                     numeralDecimalScale: 0
                                 }}
                             />{" "}Weeks(s)
+                            <Error name="interval"/>
                         </div>
                     )}
                 </Field>
@@ -46,80 +50,83 @@ const WeeklyFields = ({schedule, changeByDayMultiple, changeInterval}) => {
 
     const renderByDayMultipleField = () => {
         return (
-            <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                <label htmlFor="SU">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="SU"
-                        id="SU"
-                    /> Sun
-                </label>
-                <label htmlFor="MO">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="MO"
-                        id="MO"
-                    /> Mon
-                </label>
-                <label htmlFor="TU">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="TU"
-                        id="TU"
-                    /> Tue
-                </label>
-                <label htmlFor="WE">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="WE"
-                        id="WE"
-                    /> Wed
-                </label>
-                <label htmlFor="TH">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="TH"
-                        id="TH"
-                    /> Thu
-                </label>
-                <label htmlFor="FR">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="FR"
-                        id="FR"
-                    /> Fri
-                </label>
-                <label htmlFor="SA">
-                    <Field
-                        className="uk-checkbox"
-                        name="byDayMultiple"
-                        component="input"
-                        type="checkbox"
-                        value="SA"
-                        id="SA"
-                    /> Sat
-                </label>
-                <OnChange name="byDayMultiple">
-                    {handleByDayMultipleChange}
-                </OnChange>
+            <div>
+                <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                    <label htmlFor="SU">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="SU"
+                            id="SU"
+                        /> Sun
+                    </label>
+                    <label htmlFor="MO">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="MO"
+                            id="MO"
+                        /> Mon
+                    </label>
+                    <label htmlFor="TU">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="TU"
+                            id="TU"
+                        /> Tue
+                    </label>
+                    <label htmlFor="WE">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="WE"
+                            id="WE"
+                        /> Wed
+                    </label>
+                    <label htmlFor="TH">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="TH"
+                            id="TH"
+                        /> Thu
+                    </label>
+                    <label htmlFor="FR">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="FR"
+                            id="FR"
+                        /> Fri
+                    </label>
+                    <label htmlFor="SA">
+                        <Field
+                            className="uk-checkbox"
+                            name="byDayMultiple"
+                            component="input"
+                            type="checkbox"
+                            value="SA"
+                            id="SA"
+                        /> Sat
+                    </label>
+                    <OnChange name="byDayMultiple">
+                        {handleByDayMultipleChange}
+                    </OnChange>
+                </div>
+                <Error name="byDayMultiple"/>
             </div>
         );
     }
