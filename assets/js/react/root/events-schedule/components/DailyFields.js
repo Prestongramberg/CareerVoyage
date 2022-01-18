@@ -2,6 +2,7 @@ import React from "react";
 import Cleave from 'cleave.js/react';
 import {Field} from 'react-final-form';
 import {OnChange} from 'react-final-form-listeners'
+import Error from "./Error";
 
 const DailyFields = ({schedule, changeInterval}) => {
 
@@ -10,10 +11,12 @@ const DailyFields = ({schedule, changeInterval}) => {
         changeInterval(modifiedSchedule);
     };
 
+    const required = (value) => (value ? undefined : "Required");
+
     const renderIntervalField = () => {
         return (
             <div>
-                <Field className="uk-margin" name="interval">
+                <Field className="uk-margin" name="interval" validate={required}>
                     {props => (
                         <div>
                             <Cleave
@@ -29,6 +32,7 @@ const DailyFields = ({schedule, changeInterval}) => {
                                     numeralDecimalScale: 0
                                 }}
                             />{" "}Day(s)
+                            <Error name="interval"/>
                         </div>
                     )}
                 </Field>

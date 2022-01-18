@@ -5,6 +5,7 @@ import "flatpickr/dist/themes/material_green.css";
 import {getArrayOfTimes} from '../utilities/form-helper';
 import Flatpickr from "react-flatpickr";
 import Cleave from "cleave.js/react";
+import Error from "./Error";
 
 const EndFields = ({schedule, changeEndAction, changeCount, changeUntil}) => {
 
@@ -23,10 +24,13 @@ const EndFields = ({schedule, changeEndAction, changeCount, changeUntil}) => {
         changeUntil(modifiedSchedule);
     };
 
+    const dateRequired = (value) => (value.length ? undefined : "Required");
+    const required = (value) => (value ? undefined : "Required");
+
     const renderUntilField = () => {
         return (
             <div>
-                <Field className="uk-margin" name="until">
+                <Field className="uk-margin" name="until" validate={dateRequired}>
                     {props => (
                         <div>
                             <Flatpickr
@@ -41,6 +45,7 @@ const EndFields = ({schedule, changeEndAction, changeCount, changeUntil}) => {
                                     enableTime: false
                                 }}
                             />
+                            {props.meta.error && props.meta.touched && <div style={{color: "#f0506e", marginLeft: "150px"}}>{props.meta.error}</div>}
                         </div>
                     )}
                 </Field>
@@ -69,7 +74,7 @@ const EndFields = ({schedule, changeEndAction, changeCount, changeUntil}) => {
     const renderCountField = () => {
         return (
             <div>
-                <Field className="uk-margin" name="count">
+                <Field className="uk-margin" name="count" validate={required}>
                     {props => (
                         <div>
                             <Cleave
@@ -85,6 +90,7 @@ const EndFields = ({schedule, changeEndAction, changeCount, changeUntil}) => {
                                     numeralDecimalScale: 0
                                 }}
                             />{" "}scheduled events
+                            {props.meta.error && props.meta.touched && <div style={{color: "#f0506e", marginLeft: "150px"}}>{props.meta.error}</div>}
                         </div>
                     )}
                 </Field>

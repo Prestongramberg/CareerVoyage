@@ -145,12 +145,24 @@
                     <a class="uk-button uk-button-xl uk-button-primary uk-margin"
                        href="{{ path('experience_register', {'id': experience.id}) }}">Register For
                         Experience</a>
+                {% else %}
+
+                    {% set errorMessage = authorizationVoter.cannotRegisterForExperienceError(user, experience) %}
+
+                    {% if errorMessage %}
+                        <div class="uk-alert-danger" uk-alert>
+                            <p style="font-weight: bold">{{ errorMessage }}</p>
+                        </div>
+                    {% endif %}
+
                 {% endif %}
 
                 {# SHARE EXPERIENCE #}
-                <button class="uk-button uk-button-primary uk-button-xl uk-margin" type="button"
-                        uk-toggle="target: #offcanvas-flip">Share Experience
-                </button>
+                {% if authorizationVoter.canRegisterForExperience(user, experience) %}
+                    <button class="uk-button uk-button-primary uk-button-xl uk-margin" type="button"
+                            uk-toggle="target: #offcanvas-flip">Share Experience
+                    </button>
+                {% endif %}
 
                 {# ADD TO CALENDAR #}
                 {% if authorizationVoter.canAddExperienceToCalendar(user, experience) %}

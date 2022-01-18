@@ -114,6 +114,17 @@ const ScheduleForm = ({
         <Form
             initialValues={schedule}
             onSubmit={submitCallback}
+            validate={(values) => {
+
+                const errors = {};
+
+                if(values.freq === 'WEEKLY' && values.byDayMultiple.length === 0) {
+                    errors.byDayMultiple = "Required";
+                    console.log("missing by day multiple values");
+                }
+
+                return errors;
+            }}
             render={({handleSubmit}) => (
                 <form onSubmit={handleSubmit}>
 
