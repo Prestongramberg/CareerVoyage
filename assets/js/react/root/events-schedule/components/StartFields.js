@@ -4,6 +4,7 @@ import {OnChange} from 'react-final-form-listeners'
 import "flatpickr/dist/themes/material_green.css";
 import {getArrayOfTimes} from '../utilities/form-helper';
 import Flatpickr from "react-flatpickr";
+import Error from "./Error";
 
 const StartFields = ({schedule, changeStartDate, changeStartTime, changeEndTime}) => {
 
@@ -22,10 +23,12 @@ const StartFields = ({schedule, changeStartDate, changeStartTime, changeEndTime}
         changeEndTime(modifiedSchedule);
     };
 
+    const dateRequired = (value) => (value.length ? undefined : "Required");
+
     const renderStartDateField = () => {
         return (
             <div>
-                <Field className="uk-margin" name="startDate">
+                <Field className="uk-margin" name="startDate" validate={dateRequired}>
                     {props => (
                         <div>
                             <Flatpickr
@@ -40,6 +43,7 @@ const StartFields = ({schedule, changeStartDate, changeStartTime, changeEndTime}
                                     /*minDate: "today"*/
                                 }}
                             />
+                            <Error name="startDate"/>
                         </div>
                     )}
                 </Field>

@@ -2,6 +2,7 @@ import React from "react";
 import Cleave from 'cleave.js/react';
 import {Field} from 'react-final-form';
 import {OnChange} from 'react-final-form-listeners'
+import Error from "./Error";
 
 const MonthlyFields = ({
                            schedule,
@@ -37,10 +38,12 @@ const MonthlyFields = ({
         changeByDay(modifiedSchedule);
     };
 
+    const required = (value) => (value ? undefined : "Required");
+
     const renderIntervalField = () => {
         return (
             <div>
-                <Field className="uk-margin" name="interval">
+                <Field className="uk-margin" name="interval" validate={required}>
                     {props => (
                         <div>
                             <Cleave
@@ -56,6 +59,7 @@ const MonthlyFields = ({
                                     numeralDecimalScale: 0
                                 }}
                             />{" "}Months(s)
+                            <Error name="interval"/>
                         </div>
                     )}
                 </Field>

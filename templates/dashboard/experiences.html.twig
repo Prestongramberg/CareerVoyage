@@ -10,7 +10,7 @@
                         <tr>
                             <td class="uk-table-shrink">
 
-                                <a href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.title }}</a>
+                                <a href="{{ path('experience_view', {id: experience.id}) }}">{{ experience.title }} {{ experience.startDateAndTime|date("m/d/Y") }}</a>
                                 <br>
 
                                 {% if experience.className == 'CompanyExperience' and experience.company is not null %}

@@ -103,11 +103,19 @@ class SearchFilterType extends AbstractType
             'Student'              => 'ROLE_STUDENT_USER',
         ];
 
-        if($loggedInUser instanceof StudentUser || $loggedInUser instanceof ProfessionalUser) {
+        if($loggedInUser instanceof StudentUser) {
             $userRoleChoices = [
                 'Educator'             => 'ROLE_EDUCATOR_USER',
                 'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
                 'Student'              => 'ROLE_STUDENT_USER',
+            ];
+        }
+
+        if($loggedInUser instanceof ProfessionalUser) {
+            $userRoleChoices = [
+                'Educator'             => 'ROLE_EDUCATOR_USER',
+                'Professional'         => 'ROLE_PROFESSIONAL_USER',
+                'School Administrator' => 'ROLE_SCHOOL_ADMINISTRATOR_USER',
             ];
         }
 

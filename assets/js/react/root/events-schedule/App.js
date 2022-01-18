@@ -33,7 +33,7 @@ export default function App(props) {
         freq: 'WEEKLY',
         interval: 1,
         byDay: 'SU',
-        byDayMultiple: ['SU'],
+        byDayMultiple: [],
         byMonthDay: 1,
         monthlyType: 'onDay',
         yearlyType: 'on',
@@ -143,7 +143,7 @@ export default function App(props) {
             rrule.push(`COUNT=${currentSchedule.count}`);
         }
 
-        if (currentSchedule.endAction === 'On date') {
+        if (currentSchedule.endAction === 'On date' && currentSchedule.until.length) {
             // todo need some type of date formatting here
             let isoDateString = currentSchedule.until[0].toISOString();
             isoDateString = isoDateString.replace(/:|-/g, '');

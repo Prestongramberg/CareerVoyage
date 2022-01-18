@@ -113,8 +113,10 @@ class SearchController extends AbstractController
             }
         }
 
-        if($loggedInUser instanceof StudentUser || $loggedInUser instanceof ProfessionalUser) {
+        if($loggedInUser instanceof StudentUser) {
             $filterBuilder = $this->userRepository->search($schoolIds, true, true);
+        } elseif ($loggedInUser instanceof ProfessionalUser) {
+            $filterBuilder = $this->userRepository->search($schoolIds, true, false, true);
         } else {
             $filterBuilder = $this->userRepository->search($schoolIds, true);
         }
