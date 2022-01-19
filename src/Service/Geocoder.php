@@ -90,7 +90,7 @@ class Geocoder
         /**
          * @see https://github.com/SachinAgarwal1337/google-places-api#place-search
          */
-        $googlePlaces = new PlacesApi('AIzaSyBsyd95RCwjpoNBiAsI4BQF4oYwkfC8EvQ');
+        $googlePlaces = new PlacesApi($this->googleApiKey);
         $street       = null;
         $postalCode   = null;
         $city         = null;
