@@ -443,6 +443,15 @@ WHERE 1 = 1 AND e.cancelled != %s AND e.is_recurring != %s', 1, 1);
             ->andWhere('pe.id = :parentEventId')
             ->andWhere('e.startDateAndTime > :now')
             ->setParameter('parentEventId', $experience->getId())
-            ->setParameter('now', new \DateTime())->getQuery()->getResult();
+            ->setParameter('now', new \DateTime('midnight'))->getQuery()->getResult();
+    }
+
+    public function getPastChildEvents(Experience $experience)
+    {
+        return $this->createQueryBuilder('e')->innerJoin('e.parentEvent', 'pe')
+            ->andWhere('pe.id = :parentEventId')
+            ->andWhere('e.startDateAndTime < :now')
+            ->setParameter('parentEventId', $experience->getId())
+            ->setParameter('now', new \DateTime('midnight'))->getQuery()->getResult();
     }
 }

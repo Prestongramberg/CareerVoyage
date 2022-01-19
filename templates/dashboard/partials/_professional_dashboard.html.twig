@@ -15,35 +15,33 @@
 
         <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
 
-            {# <div>
+            {% if authorizationVoter.canCreateExperiencesForCompany(user) %}
+
+                <div>
                     <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
-                        <h3 class="uk-card-title">Manage Educators</h3>
-                        <p>Reset passwords, assign students to teachers, import educators, and more.</p>
-                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('educators_manage', {id: school.id}) }}">Get Started</a>
+
+                        <h3 class="uk-card-title">Browse Lesson Topics <span
+                                    style="position: absolute"
+                                    uk-tooltip="Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.."
+                                    uk-icon="info"></span></h3>
+
+                        <p>Become a guest topic instructor in your area of expertise.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('lessons_results_page') }}">Get Started</a>
                     </div>
                 </div>
+
                 <div>
                     <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
-                        <h3 class="uk-card-title">Create an Experience</h3>
-                        <p>Create engaging school events that other user's can search and register for.</p>
-                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('experience_new') }}?schoolId={{ school.id }}">Get Started</a>
+                        <h3 class="uk-card-title">Browse Educators <span
+                                    style="position: absolute"
+                                    uk-tooltip="Serve your community by connecting with educators in your field. Start a conversation and see what they might want help with, from mentoring to teaching a guest lesson topic."
+                                    uk-icon="info"></span></h3>
+                        <p>Connect with educators to see if you can help support their students.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('educator_results_page') }}">Get Started</a>
                     </div>
-                </div> #}
-
-            <div>
-                <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
-
-                    <h3 class="uk-card-title">Browse Lesson Topics <span
-                                style="position: absolute"
-                                uk-tooltip="Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.."
-                                uk-icon="info"></span></h3>
-
-                    <p>Become a guest topic instructor in your area of expertise.</p>
-                    <a class="uk-button uk-button-default" target="_blank" href="{{ path('lessons_results_page') }}">Get Started</a>
                 </div>
-            </div>
 
-            {% if authorizationVoter.canCreateExperiencesForCompany(user) %}
                 <div>
                     <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
                         <h3 class="uk-card-title">Create an Experience <span
@@ -65,29 +63,99 @@
                            href="{{ path('experiences_manage') }}?companyId={{ user.company.id }}">Get Started</a>
                     </div>
                 </div>
+
+                <div>
+                    <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Personal Calendar</h3>
+                        <p>View and manage events that you are personally registered for.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                    </div>
+                </div>
+
+            {% elseif authorizationVoter.canManageExperiencesForCompany(user) %}
+
+                <div>
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+
+                        <h3 class="uk-card-title">Browse Lesson Topics <span
+                                    style="position: absolute"
+                                    uk-tooltip="Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.."
+                                    uk-icon="info"></span></h3>
+
+                        <p>Become a guest topic instructor in your area of expertise.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('lessons_results_page') }}">Get Started</a>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Browse Educators <span
+                                    style="position: absolute"
+                                    uk-tooltip="Serve your community by connecting with educators in your field. Start a conversation and see what they might want help with, from mentoring to teaching a guest lesson topic."
+                                    uk-icon="info"></span></h3>
+                        <p>Connect with educators to see if you can help support their students.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('educator_results_page') }}">Get Started</a>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Manage Experiences</h3>
+                        <p>View, update, delete and manage your company events.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experiences_manage') }}?companyId={{ user.company.id }}">Get Started</a>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Personal Calendar</h3>
+                        <p>View and manage events that you are personally registered for.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                    </div>
+                </div>
+
+
+                {% else %}
+
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+
+                            <h3 class="uk-card-title">Browse Lesson Topics <span
+                                        style="position: absolute"
+                                        uk-tooltip="Become a guest topic instructor in your area of expertise. Help students see the applicability of their schooling to the workplace and spark interest amongst students in your career field.."
+                                        uk-icon="info"></span></h3>
+
+                            <p>Become a guest topic instructor in your area of expertise.</p>
+                            <a class="uk-button uk-button-default" target="_blank" href="{{ path('lessons_results_page') }}">Get Started</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-light uk-text-center">
+                            <h3 class="uk-card-title">Browse Educators <span
+                                        style="position: absolute"
+                                        uk-tooltip="Serve your community by connecting with educators in your field. Start a conversation and see what they might want help with, from mentoring to teaching a guest lesson topic."
+                                        uk-icon="info"></span></h3>
+                            <p>Connect with educators to see if you can help support their students.</p>
+                            <a class="uk-button uk-button-default" target="_blank"
+                               href="{{ path('educator_results_page') }}">Get Started</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-text-center">
+                            <h3 class="uk-card-title">Personal Calendar</h3>
+                            <p>View and manage events that you are personally registered for.</p>
+                            <a class="uk-button uk-button-default" target="_blank"
+                               href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                        </div>
+                    </div>
+
             {% endif %}
-
-            <div>
-                <div class="uk-card uk-card-primary uk-card-hover uk-card-body uk-text-center">
-                    <h3 class="uk-card-title">Browse Educators <span
-                                style="position: absolute"
-                                uk-tooltip="Serve your community by connecting with educators in your field. Start a conversation and see what they might want help with, from mentoring to teaching a guest lesson topic."
-                                uk-icon="info"></span></h3>
-                    <p>Connect with educators to see if you can help support their students.</p>
-                    <a class="uk-button uk-button-default" target="_blank"
-                       href="{{ path('educator_results_page') }}">Get Started</a>
-                </div>
-            </div>
-
-
-            <div>
-                <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-text-center">
-                    <h3 class="uk-card-title">Personal Calendar</h3>
-                    <p>View and manage events that you are personally registered for.</p>
-                    <a class="uk-button uk-button-default" target="_blank"
-                       href="{{ path('experience_personal_calendar') }}">Get Started</a>
-                </div>
-            </div>
 
         </div>
 

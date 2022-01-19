@@ -35,6 +35,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ExperienceController extends AbstractController
 {
+
     use FileHelper;
     use ServiceHelper;
     use TimeHelper;
@@ -55,40 +56,30 @@ class ExperienceController extends AbstractController
         $schoolId           = $request->query->get('schoolId', null);
         /** @var User $user */
         if ($schoolId && $school = $this->schoolRepository->find($schoolId)) {
-            $schoolExperiences = $this->schoolExperienceRepository->findBy(
-                ['school' => $school,]
-            );
+            $schoolExperiences = $this->schoolExperienceRepository->findBy(['school' => $school,]);
             // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
         } else {
             if ($userId) {
                 /** @var User $user */
-                $user = $userId ? $this->userRepository->find(
+                $user            = $userId ? $this->userRepository->find(
                     $userId
                 ) : $this->getUser();
-                $userExperiences
-                      = $this->experienceRepository->getAllEventsRegisteredForByUser(
+                $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser(
                     $user
                 );
                 if ($user && $user->isStudent() && $user->getSchool()) {
                     // get any school experiences that are part of your school
-                    $schoolExperiences
-                        = $this->schoolExperienceRepository->findBy(
-                        ['school' => $user->getSchool(),]
-                    );
+                    $schoolExperiences = $this->schoolExperienceRepository->findBy(['school' => $user->getSchool(),]);
                 }
             } else {
                 // Everyone sees all company events
-                $companyExperiences
-                    = $this->companyExperienceRepository->findAll();
+                $companyExperiences = $this->companyExperienceRepository->findAll();
 
                 if ($loggedInUser->isSchoolAdministrator()) {
                     /** @var SchoolAdministrator $loggedInUser * */
                     // School Administrator will see all school events that they manage
                     foreach ($loggedInUser->getSchools() as $school) {
-                        $experiences
-                                           = $this->schoolExperienceRepository->findBy(
-                            ['school' => $school,]
-                        );
+                        $experiences       = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                         $schoolExperiences = array_merge(
                             $schoolExperiences,
                             $experiences
@@ -100,20 +91,14 @@ class ExperienceController extends AbstractController
                     ) {
                         // Educator & students will see their school events
                         /** @var StudentUser|EducatorUser $loggedInUser * */
-                        $school = $loggedInUser->getSchool();
-                        $schoolExperiences
-                                = $this->schoolExperienceRepository->findBy(
-                            ['school' => $school,]
-                        );
+                        $school            = $loggedInUser->getSchool();
+                        $schoolExperiences = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                     } else {
                         if ($loggedInUser->isProfessional()) {
                             // Professional will see all school events that they VOLUNTEER AT
                             /** @var ProfessionalUser $loggedInUser * */
                             foreach ($loggedInUser->getSchools() as $school) {
-                                $experiences
-                                                   = $this->schoolExperienceRepository->findBy(
-                                    ['school' => $school,]
-                                );
+                                $experiences       = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                                 $schoolExperiences = array_merge(
                                     $schoolExperiences,
                                     $experiences
@@ -131,11 +116,7 @@ class ExperienceController extends AbstractController
             $userExperiences
         );
 
-        $json    = $this->serializer->serialize(
-            $experiences,
-            'json',
-            ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]
-        );
+        $json    = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]);
         $payload = json_decode($json, true);
 
         return new JsonResponse(
@@ -204,10 +185,12 @@ class ExperienceController extends AbstractController
         if ($zipcode && $coordinates = $this->geocoder->geocode($zipcode)) {
             $lng = $coordinates['lng'];
             $lat = $coordinates['lat'];
-            list(
-                $latN, $latS, $lonE, $lonW
-                )
-                = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+            [
+                $latN,
+                $latS,
+                $lonE,
+                $lonW,
+            ] = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
         }
 
         /** @var User $user */
@@ -228,10 +211,8 @@ class ExperienceController extends AbstractController
         } elseif ($userId) {
             /************************** PERSONAL CALENDAR **************************/
             /** @var User $user */
-            $user = $userId ? $this->userRepository->find($userId)
-                : $this->getUser();
-            $userExperiences
-                  = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius(
+            $user            = $userId ? $this->userRepository->find($userId) : $this->getUser();
+            $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius(
                 $latN,
                 $latS,
                 $lonE,
@@ -250,7 +231,8 @@ class ExperienceController extends AbstractController
             // todo need to change this for school admins and educators to see events that are part of their school
             // todo need to change this for company admins and professionals to see events that are part of their company
             if ($user && $user->isStudent() && $user->getSchool()) {
-                $schoolId = $user->getSchool()->getId();
+                $schoolId = $user->getSchool()
+                    ->getId();
                 // get any school experiences that are part of your school
                 $schoolExperiences = $this->schoolExperienceRepository->search(
                     $latN,
@@ -269,7 +251,6 @@ class ExperienceController extends AbstractController
                 );
             }
         } else {
-
             // show all events by default
             $experiences = $this->experienceRepository->search(
                 $latN,
@@ -295,8 +276,7 @@ class ExperienceController extends AbstractController
         );
 
         return new JsonResponse(
-            ['success' => true, 'data' => $data, 'filters' => $filters,],
-            Response::HTTP_OK
+            ['success' => true, 'data' => $data, 'filters' => $filters,], Response::HTTP_OK
         );
     }
 
@@ -332,15 +312,54 @@ class ExperienceController extends AbstractController
         );
 
         // reset to midnight
-        $startDate->setTime(0,0);
+        $startDate->setTime(0, 0);
+
+        $skippedDates = [];
+
+        $pastChildEvents = $this->experienceRepository->getPastChildEvents($experience);
+        foreach($pastChildEvents as $pastChildEvent) {
+            $skippedDates[] = $pastChildEvent->getStartDateAndTime()->format("m/d/Y");
+        }
 
         // remove any upcoming child events if the schedule has been modified
         // what if there are registrations already on that day? Do we delete that event also?
         $upcomingChildEvents = $this->experienceRepository->getUpcomingChildEvents($experience);
         /** @var Experience $upcomingChildEvent */
-        foreach($upcomingChildEvents as $upcomingChildEvent) {
+        foreach ($upcomingChildEvents as $upcomingChildEvent) {
 
-            if($upcomingChildEvent->getRegistrations()->count()) {
+            // we do not want to recreate events that already have registrations but let's update the information.
+            if ($upcomingChildEvent->getRegistrations()
+                ->count()
+            ) {
+                $upcomingChildEvent->setTitle($experience->getTitle())
+                    ->setAbout($experience->getAbout())
+                    ->setAddressSearch($experience->getAddressSearch())
+                    ->setStreet($experience->getStreet())
+                    ->setCity($experience->getCity())
+                    ->setState($experience->getState())
+                    ->setZipcode($experience->getZipcode())
+                    ->setTimezone($experience->getTimezone())
+                    ->setType($experience->getType());
+
+                if ($experience instanceof SchoolExperience && $upcomingChildEvent instanceof SchoolExperience) {
+                    $upcomingChildEvent->setSchoolContact($experience->getSchoolContact());
+                }
+
+                if ($experience instanceof CompanyExperience && $upcomingChildEvent instanceof CompanyExperience) {
+                    $upcomingChildEvent->setEmployeeContact($experience->getEmployeeContact());
+                }
+
+                foreach ($upcomingChildEvent->getTags() as $tag) {
+                    $upcomingChildEvent->removeTag($tag);
+                }
+
+                foreach ($experience->getTags() as $tag) {
+                    $upcomingChildEvent->addTag($tag);
+                }
+
+                $this->entityManager->persist($upcomingChildEvent);
+
+                $skippedDates[] = $upcomingChildEvent->getStartDateAndTime()->format("m/d/Y");
                 continue;
             }
 
@@ -357,6 +376,12 @@ class ExperienceController extends AbstractController
         $recurrenceCollection = $transformer->transform($rule);
 
         foreach ($recurrenceCollection as $recurrence) {
+            $startDate = $recurrence->getStart();
+            $endDate   = $recurrence->getEnd();
+
+            if (in_array($startDate->format("m/d/Y"), $skippedDates, true)) {
+                continue;
+            }
 
             $recurringEvent = clone $experience;
             $recurringEvent->setRecurrenceRule(null);
@@ -364,14 +389,11 @@ class ExperienceController extends AbstractController
             $recurringEvent->setIsRecurring(false);
             $recurringEvent->setParentEvent($experience);
 
-            foreach($experience->getExperienceResources() as $experienceResource) {
+            foreach ($experience->getExperienceResources() as $experienceResource) {
                 $resource = clone $experienceResource;
                 $resource->setExperience($recurringEvent);
                 $this->entityManager->persist($resource);
             }
-
-            $startDate = $recurrence->getStart();
-            $endDate   = $recurrence->getEnd();
 
             if ($startDate && $startTime) {
                 $startDateAndTime = clone $startDate;
@@ -410,12 +432,14 @@ class ExperienceController extends AbstractController
         $this->entityManager->refresh($experience);
 
         $dates = [];
-        foreach($experience->getChildEvents() as $recurringEvent) {
+        foreach ($experience->getChildEvents() as $recurringEvent) {
             $dates[] = [
                 'title' => $recurringEvent->getTitle(),
-                'start' => $recurringEvent->getStartDateAndTime()->format("Y-m-d"),
-                'end'   => $recurringEvent->getEndDateAndTime()->format("Y-m-d"),
-                'url' => $this->router->generate('experience_view', ['id' => $recurringEvent->getId()])
+                'start' => $recurringEvent->getStartDateAndTime()
+                    ->format("Y-m-d"),
+                'end'   => $recurringEvent->getEndDateAndTime()
+                    ->format("Y-m-d"),
+                'url'   => $this->router->generate('experience_view', ['id' => $recurringEvent->getId()]),
             ];
         }
 
@@ -435,12 +459,14 @@ class ExperienceController extends AbstractController
     public function getSchedule(Request $request, Experience $experience)
     {
         $dates = [];
-        foreach($experience->getChildEvents() as $recurringEvent) {
+        foreach ($experience->getChildEvents() as $recurringEvent) {
             $dates[] = [
                 'title' => $recurringEvent->getTitle(),
-                'start' => $recurringEvent->getStartDateAndTime()->format("Y-m-d"),
-                'end'   => $recurringEvent->getEndDateAndTime()->format("Y-m-d"),
-                'url' => $this->router->generate('experience_view', ['id' => $recurringEvent->getId()])
+                'start' => $recurringEvent->getStartDateAndTime()
+                    ->format("Y-m-d"),
+                'end'   => $recurringEvent->getEndDateAndTime()
+                    ->format("Y-m-d"),
+                'url'   => $this->router->generate('experience_view', ['id' => $recurringEvent->getId()]),
             ];
         }
 
@@ -479,10 +505,12 @@ class ExperienceController extends AbstractController
         if ($zipcode && $coordinates = $this->geocoder->geocode($zipcode)) {
             $lng = $coordinates['lng'];
             $lat = $coordinates['lat'];
-            list(
-                $latN, $latS, $lonE, $lonW
-                )
-                = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+            [
+                $latN,
+                $latS,
+                $lonE,
+                $lonW,
+            ] = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
 
             /** @var User $user */
             if ($schoolId
@@ -500,11 +528,10 @@ class ExperienceController extends AbstractController
             } else {
                 if ($userId) {
                     /** @var User $user */
-                    $user = $userId ? $this->userRepository->find(
+                    $user            = $userId ? $this->userRepository->find(
                         $userId
                     ) : $this->getUser();
-                    $userExperiences
-                          = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius(
+                    $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUserByRadius(
                         $latN,
                         $latS,
                         $lonE,
@@ -514,10 +541,10 @@ class ExperienceController extends AbstractController
                         $userId
                     );
                     if ($user && $user->isStudent() && $user->getSchool()) {
-                        $schoolId = $user->getSchool()->getId();
+                        $schoolId = $user->getSchool()
+                            ->getId();
                         // get any school experiences that are part of your school
-                        $schoolExperiences
-                            = $this->schoolExperienceRepository->search(
+                        $schoolExperiences = $this->schoolExperienceRepository->search(
                             $latN,
                             $latS,
                             $lonE,
@@ -529,8 +556,7 @@ class ExperienceController extends AbstractController
                     }
                 } else {
                     // Everyone sees all company events
-                    $schoolExperiences
-                        = $this->schoolExperienceRepository->search(
+                    $schoolExperiences  = $this->schoolExperienceRepository->search(
                         $latN,
                         $latS,
                         $lonE,
@@ -538,8 +564,7 @@ class ExperienceController extends AbstractController
                         $lat,
                         $lng
                     );
-                    $companyExperiences
-                        = $this->companyExperienceRepository->search(
+                    $companyExperiences = $this->companyExperienceRepository->search(
                         $latN,
                         $latS,
                         $lonE,
@@ -553,8 +578,7 @@ class ExperienceController extends AbstractController
                         // School Administrator will see all school events that they manage
                         foreach ($loggedInUser->getSchools() as $school) {
                             $schoolId          = $school->getId();
-                            $experiences
-                                               = $this->schoolExperienceRepository->search(
+                            $experiences       = $this->schoolExperienceRepository->search(
                                 $latN,
                                 $latS,
                                 $lonE,
@@ -574,10 +598,9 @@ class ExperienceController extends AbstractController
                         ) {
                             // Educator & students will see their school events
                             /** @var StudentUser|EducatorUser $loggedInUser * */
-                            $school   = $loggedInUser->getSchool();
-                            $schoolId = $school->getId();
-                            $schoolExperiences
-                                      = $this->schoolExperienceRepository->search(
+                            $school            = $loggedInUser->getSchool();
+                            $schoolId          = $school->getId();
+                            $schoolExperiences = $this->schoolExperienceRepository->search(
                                 $latN,
                                 $latS,
                                 $lonE,
@@ -590,11 +613,9 @@ class ExperienceController extends AbstractController
                             if ($loggedInUser->isProfessional()) {
                                 // Professional will see all school events that they VOLUNTEER AT
                                 /** @var ProfessionalUser $loggedInUser * */
-                                foreach ($loggedInUser->getSchools() as $school)
-                                {
+                                foreach ($loggedInUser->getSchools() as $school) {
                                     $schoolId          = $school->getId();
-                                    $experiences
-                                                       = $this->schoolExperienceRepository->search(
+                                    $experiences       = $this->schoolExperienceRepository->search(
                                         $latN,
                                         $latS,
                                         $lonE,
@@ -623,26 +644,17 @@ class ExperienceController extends AbstractController
                 return $experience['id'];
             }, $experiences);
 
-            $experiences
-                           = $this->experienceRepository->getEventsClosestToCurrentDateByArrayOfExperienceIds(
+            $experiences   = $this->experienceRepository->getEventsClosestToCurrentDateByArrayOfExperienceIds(
                 $experienceIds
             );
             $experienceIds = array_map(function ($experience) {
                 return $experience['id'];
             }, $experiences);
 
-            $experiences = $this->experienceRepository->findBy(
-                ['id' => $experienceIds],
-                ['startDateAndTime' => 'ASC',]
-            );
+            $experiences = $this->experienceRepository->findBy(['id' => $experienceIds], ['startDateAndTime' => 'ASC',]);
 
-            $json    = $this->serializer->serialize(
-                $experiences,
-                'json',
-                ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]
-            );
+            $json    = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]);
             $payload = json_decode($json, true);
-
         } else {
             /**
              * START THE LOGIC FOR FINDING EXPERIENCES WITHOUT ZIPCODE
@@ -652,33 +664,26 @@ class ExperienceController extends AbstractController
             if ($schoolId
                 && $school = $this->schoolRepository->find($schoolId)
             ) {
-                $schoolExperiences = $this->schoolExperienceRepository->findBy(
-                    ['school' => $school,]
-                );
+                $schoolExperiences = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                 // $companyExperiences = $this->companyExperienceRepository->getForSchool($school);
             } else {
                 if ($userId) {
                     /** @var User $user */
-                    $user = $userId ? $this->userRepository->find(
+                    $user            = $userId ? $this->userRepository->find(
                         $userId
                     ) : $this->getUser();
-                    $userExperiences
-                          = $this->experienceRepository->getAllEventsRegisteredForByUser(
+                    $userExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser(
                         $user
                     );
                 } else {
                     // Everyone sees all company events
-                    $companyExperiences
-                        = $this->companyExperienceRepository->findAll();
+                    $companyExperiences = $this->companyExperienceRepository->findAll();
 
                     if ($loggedInUser->isSchoolAdministrator()) {
                         /** @var SchoolAdministrator $loggedInUser * */
                         // School Administrator will see all school events that they manage
                         foreach ($loggedInUser->getSchools() as $school) {
-                            $experiences
-                                               = $this->schoolExperienceRepository->findBy(
-                                ['school' => $school,]
-                            );
+                            $experiences       = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                             $schoolExperiences = array_merge(
                                 $schoolExperiences,
                                 $experiences
@@ -690,21 +695,14 @@ class ExperienceController extends AbstractController
                         ) {
                             // Educator & students will see their school events
                             /** @var StudentUser|EducatorUser $loggedInUser * */
-                            $school = $loggedInUser->getSchool();
-                            $schoolExperiences
-                                    = $this->schoolExperienceRepository->findBy(
-                                ['school' => $school,]
-                            );
+                            $school            = $loggedInUser->getSchool();
+                            $schoolExperiences = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                         } else {
                             if ($loggedInUser->isProfessional()) {
                                 // Professional will see all school events that they VOLUNTEER AT
                                 /** @var ProfessionalUser $loggedInUser * */
-                                foreach ($loggedInUser->getSchools() as $school)
-                                {
-                                    $experiences
-                                                       = $this->schoolExperienceRepository->findBy(
-                                        ['school' => $school,]
-                                    );
+                                foreach ($loggedInUser->getSchools() as $school) {
+                                    $experiences       = $this->schoolExperienceRepository->findBy(['school' => $school,]);
                                     $schoolExperiences = array_merge(
                                         $schoolExperiences,
                                         $experiences
@@ -726,24 +724,16 @@ class ExperienceController extends AbstractController
             }, $experiences);
 
             // we are only showing upcoming dates in the future for the list view
-            $experiences
-                           = $this->experienceRepository->getEventsClosestToCurrentDateByArrayOfExperienceIds(
+            $experiences   = $this->experienceRepository->getEventsClosestToCurrentDateByArrayOfExperienceIds(
                 $experienceIds
             );
             $experienceIds = array_map(function ($experience) {
                 return $experience['id'];
             }, $experiences);
 
-            $experiences = $this->experienceRepository->findBy(
-                ['id' => $experienceIds],
-                ['startDateAndTime' => 'ASC',]
-            );
+            $experiences = $this->experienceRepository->findBy(['id' => $experienceIds], ['startDateAndTime' => 'ASC',]);
 
-            $json    = $this->serializer->serialize(
-                $experiences,
-                'json',
-                ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]
-            );
+            $json    = $this->serializer->serialize($experiences, 'json', ['groups' => ['EXPERIENCE_DATA', 'ALL_USER_DATA',],]);
             $payload = json_decode($json, true);
         }
 
@@ -761,7 +751,6 @@ class ExperienceController extends AbstractController
      */
     public function removeExperience(Experience $experience, Request $request)
     {
-
         $this->denyAccessUnlessGranted('edit', $experience);
 
         $this->entityManager->remove($experience);
@@ -782,18 +771,14 @@ class ExperienceController extends AbstractController
      */
     public function experienceNotifyUsersAction(Request $request)
     {
-
         $loggedInUser = $this->getUser();
         if ($loggedInUser->isStudent()) {
-
         } else {
             $systemUser = $loggedInUser;
         }
 
         if (!$systemUser) {
-            $systemUser = $this->systemUserRepository->findOneBy(
-                ['type' => SystemUser::EXPERIENCE_NOTIFY,]
-            );
+            $systemUser = $this->systemUserRepository->findOneBy(['type' => SystemUser::EXPERIENCE_NOTIFY,]);
         }
 
         if (!$systemUser) {
@@ -821,15 +806,10 @@ class ExperienceController extends AbstractController
 
         /** @var User $user */
         foreach ($users as $user) {
-
-            $chat = $this->chatRepository->findOneBy(
-                ['userOne' => $systemUser, 'userTwo' => $user,]
-            );
+            $chat = $this->chatRepository->findOneBy(['userOne' => $systemUser, 'userTwo' => $user,]);
 
             if (!$chat) {
-                $chat = $this->chatRepository->findOneBy(
-                    ['userOne' => $user, 'userTwo' => $systemUser,]
-                );
+                $chat = $this->chatRepository->findOneBy(['userOne' => $user, 'userTwo' => $systemUser,]);
             }
 
             // if a chat doesn't exist then let's create one!
@@ -851,9 +831,8 @@ class ExperienceController extends AbstractController
             $chatMessage->setChat($chat);
 
             // Figure out which user to message from the chat object
-            $userToMessage = $chat->getUserOne()->getId()
-            === $systemUser->getId() ? $chat->getUserTwo()
-                : $chat->getUserOne();
+            $userToMessage = $chat->getUserOne()
+                ->getId() === $systemUser->getId() ? $chat->getUserTwo() : $chat->getUserOne();
             $chatMessage->setSentTo($userToMessage);
 
             $this->entityManager->persist($chatMessage);
@@ -885,7 +864,6 @@ class ExperienceController extends AbstractController
         Request $request,
         TeachLessonExperience $experience
     ) {
-
         /** @var User $user */
         $user = $this->getUser();
 
@@ -951,8 +929,9 @@ class ExperienceController extends AbstractController
         $registrations = $experience->getRegistrations();
 
         foreach ($registrations as $registration) {
-
-            if ($registration->getUser()->isStudent()) {
+            if ($registration->getUser()
+                ->isStudent()
+            ) {
                 continue;
             }
 
@@ -995,7 +974,6 @@ class ExperienceController extends AbstractController
         Request $request,
         CompanyExperience $experience
     ) {
-
         /** @var User $user */
         $user = $this->getUser();
 
@@ -1004,8 +982,9 @@ class ExperienceController extends AbstractController
         $registrations = $experience->getRegistrations();
 
         foreach ($registrations as $registration) {
-
-            if ($registration->getUser()->isStudent()) {
+            if ($registration->getUser()
+                ->isStudent()
+            ) {
                 continue;
             }
 
@@ -1048,7 +1027,6 @@ class ExperienceController extends AbstractController
         Request $request,
         SchoolExperience $experience
     ) {
-
         /** @var User $user */
         $user = $this->getUser();
 
@@ -1057,8 +1035,9 @@ class ExperienceController extends AbstractController
         $registrations = $experience->getRegistrations();
 
         foreach ($registrations as $registration) {
-
-            if ($registration->getUser()->isStudent()) {
+            if ($registration->getUser()
+                ->isStudent()
+            ) {
                 continue;
             }
 
@@ -1101,8 +1080,7 @@ class ExperienceController extends AbstractController
         $user        = $this->getUser();
         $experiences = [];
 
-        $allMyExperiences
-            = $this->experienceRepository->getAllEventsRegisteredForByUser(
+        $allMyExperiences = $this->experienceRepository->getAllEventsRegisteredForByUser(
             $user
         );
         foreach ($allMyExperiences as $r) {
@@ -1116,58 +1094,76 @@ class ExperienceController extends AbstractController
 
             if ($className == 'TeachLessonExperience') {
                 /** @var TeachLessonExperience $r */
-                $url       = $this->generateUrl(
-                    'lesson_view',
-                    ['id' => $r->getLesson()->getId()]
-                );
-                $requestId = $r->getOriginalRequest()->getId();
+                $url       = $this->generateUrl('lesson_view', [
+                    'id' => $r->getLesson()
+                        ->getId(),
+                ]);
+                $requestId = $r->getOriginalRequest()
+                    ->getId();
 
-                if ($r->getSchool() && $r->getSchool()->getStreet()) {
-                    $street = $r->getSchool()->getStreet();
-                }
-
-                if ($r->getSchool() && $r->getSchool()->getCity()) {
-                    $city = $r->getSchool()->getCity();
-                }
-
-                if ($r->getSchool() && $r->getSchool()->getState()
-                    && $r->getSchool()->getState()->getAbbreviation()
+                if ($r->getSchool()
+                    && $r->getSchool()
+                        ->getStreet()
                 ) {
-                    $abbreviation = $r->getSchool()->getState()
+                    $street = $r->getSchool()
+                        ->getStreet();
+                }
+
+                if ($r->getSchool()
+                    && $r->getSchool()
+                        ->getCity()
+                ) {
+                    $city = $r->getSchool()
+                        ->getCity();
+                }
+
+                if ($r->getSchool()
+                    && $r->getSchool()
+                        ->getState()
+                    && $r->getSchool()
+                        ->getState()
+                        ->getAbbreviation()
+                ) {
+                    $abbreviation = $r->getSchool()
+                        ->getState()
                         ->getAbbreviation();
                 }
 
-                if ($r->getSchool() && $r->getSchool()->getZipcode()) {
-                    $zipcode = $r->getSchool()->getZipcode();
+                if ($r->getSchool()
+                    && $r->getSchool()
+                        ->getZipcode()
+                ) {
+                    $zipcode = $r->getSchool()
+                        ->getZipcode();
                 }
-
             }
 
-            $experiences[] = array(
+            $experiences[] = [
                 "id"                        => $r->getId(),
                 "requestId"                 => $requestId,
                 "title"                     => $r->getTitle(),
                 "about"                     => $r->getAbout(),
                 "briefDescription"          => $r->getBriefDescription(),
-                "startDateAndTimeTimestamp" => $r->getStartDateAndTimeTimeStamp(
-                ),
+                "startDateAndTimeTimestamp" => $r->getStartDateAndTimeTimeStamp(),
                 "endDateAndTimeTimestamp"   => $r->getEndDateAndTimeTimeStamp(),
                 "startDateAndTime"          => $r->getStartDateAndTime()
                     ->format('Y-m-d H:i:s'),
-                "endDateAndTime"            => $r->getEndDateAndTime()->format(
-                    "Y-m-d H:i:s"
-                ),
+                "endDateAndTime"            => $r->getEndDateAndTime()
+                    ->format(
+                        "Y-m-d H:i:s"
+                    ),
                 "className"                 => $className,
                 "url"                       => $url,
                 "street"                    => $street,
                 "city"                      => $city,
                 "zipcode"                   => $zipcode,
                 "state"                     => ["abbreviation" => $abbreviation,],
-            );
+            ];
         }
 
         return new JsonResponse(
             ['success' => true, 'data' => $experiences,], Response::HTTP_OK
         );
     }
+
 }

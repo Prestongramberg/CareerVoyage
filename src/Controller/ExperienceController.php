@@ -617,7 +617,7 @@ class ExperienceController extends AbstractController
             $company = $this->companyRepository->find($companyId);
 
             // todo change permissions for company
-            if (!$company || !$authorizationVoter->canCreateExperiencesForCompany($user, $company)) {
+            if (!$company || !$authorizationVoter->canManageExperiencesForCompany($user, $company)) {
                 throw new AccessDeniedException();
             }
 
