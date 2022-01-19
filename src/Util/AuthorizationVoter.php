@@ -55,12 +55,49 @@ class AuthorizationVoter
         }
 
         if ($company) {
-            return $user->getOwnedCompany()
-                && $user->getOwnedCompany()
-                    ->getId() === $company->getId();
+
+            if($user->getOwnedCompany() && $user->getOwnedCompany()->getId() === $company->getId()) {
+                return true;
+            }
+
+            return false;
         }
 
         if ($user->getOwnedCompany()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function canManageExperiencesForCompany(User $user, Company $company = null)
+    {
+        if (!$user instanceof ProfessionalUser) {
+            return false;
+        }
+
+        if ($company) {
+            foreach ($user->getCompanyExperiences() as $companyExperience) {
+                if ($companyExperience->getCompany()
+                    && $companyExperience->getCompany()
+                        ->getId() === $company->getId()
+                ) {
+                    return true;
+                }
+            }
+
+            if($user->getOwnedCompany() && $user->getOwnedCompany()->getId() === $company->getId()) {
+                return true;
+            }
+
+            return false;
+        }
+
+        if ($user->getOwnedCompany()) {
+            return true;
+        }
+
+        if($user->getCompanyExperiences()->count()) {
             return true;
         }
 
