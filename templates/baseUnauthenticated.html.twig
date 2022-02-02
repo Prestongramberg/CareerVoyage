@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <style>
+        body .wrapper {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+    </style>
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    {% if app.request.getSchemeAndHttpHost() == 'https://dev.pintexsolutions.com' %}
+        <!-- Google Tag Manager -->
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-PPS32QQ');</script>
+        <!-- End Google Tag Manager -->
+        {% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
+        <!-- Google Tag Manager -->
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-TTHND3F');</script>
+        <!-- End Google Tag Manager -->
+    {% endif %}
+
+</head>
+<body class="splash {% block bodyClass %}{% endblock %} {% if get_env('APP_ENV') == "dev" %}development{% endif %}">
+{% if app.request.getSchemeAndHttpHost() == 'https://dev.pintexsolutions.com' %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPS32QQ"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+{% elseif app.request.getSchemeAndHttpHost() == 'https://my.futureforward.org' or app.request.getSchemeAndHttpHost() == 'https://my.pintexsolutions.com' %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TTHND3F"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+{% endif %}
+
+<div class="wrapper">
+
+    {% include 'nav/unauthenticated.html.twig' %}
+
+    <div class="main-content" style="padding-top: 0">
+        {% block body %}{% endblock %}
+    </div>
+
+</div>
+
+{% block javascripts %}
+
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
+    {{ encore_entry_script_tags('app') }}
+
+{% endblock %}
+
+</body>
+</html>
