@@ -1,0 +1,89 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        Tell us a bit about the experience
+    </legend>
+
+    <div class="uk-width-xlarge uk-margin">
+
+        <div>
+            <label>Rate your overall experience<span class="uk-text-danger">*</span></label>
+            {{ form_widget(form.rating, {'attr': {'class': 'uk-hidden' }}) }}
+            <div class="react-form-smile-rating" data-disabled="{{ experienceHasFeedback }}"
+                 data-name="feedbackInfo[rating]"
+                 data-value="{{ feedback.rating }}"></div>
+            {% if form_errors(form.rating) %}
+                <div class="uk-form-danger">
+                    {{ form_errors(form.rating) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="uk-margin">
+            {{ form_widget(form.providedCareerInsight, {'attr': {'class': 'uk-hidden' }}) }}
+            {{ form_widget(form.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-hidden' }}) }}
+            {{ form_widget(form.learnSomethingNew, {'attr': {'class': 'uk-hidden' }}) }}
+
+            <label>Choose all that apply</label>
+            <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}"
+                 data-fields='[
+   { "name": "feedbackInfo[providedCareerInsight]", "label": "Provided Career Insight", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsight : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
+   { "name": "feedbackInfo[wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
+   { "name": "feedbackInfo[learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew ? feedback.learnSomethingNew : false }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
+]'></div>
+        </div>
+
+        {% if form.interestWorkingForCompany is defined %}
+            <div class="uk-margin">
+                <label>{{ form.interestWorkingForCompany.vars.label }}<span class="uk-text-danger">*</span></label>
+                {{ form_widget(form.interestWorkingForCompany, {'attr': {'class': 'uk-hidden' }}) }}
+                <div class="react-form-rating" data-disabled="{{ experienceHasFeedback }}"
+                     data-name="feedbackInfo[interestWorkingForCompany]"
+                     data-value="{{ feedback.interestWorkingForCompany }}"></div>
+                {% if form_errors(form.interestWorkingForCompany) %}
+                    <div class="uk-form-danger">
+                        {{ form_errors(form.interestWorkingForCompany) }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if form.awarenessCareerOpportunities is defined %}
+            <div class="uk-margin">
+                <label>{{ form.awarenessCareerOpportunities.vars.label }}<span class="uk-text-danger">*</span></label>
+                {{ form_widget(form.awarenessCareerOpportunities, {'attr': {'class': 'uk-hidden' }}) }}
+                <div class="react-form-rating" data-disabled="{{ experienceHasFeedback }}"
+                     data-name="feedbackInfo[awarenessCareerOpportunities]"
+                     data-value="{{ feedback.awarenessCareerOpportunities }}"></div>
+                {% if form_errors(form.awarenessCareerOpportunities) %}
+                    <div class="uk-form-danger">
+                        {{ form_errors(form.awarenessCareerOpportunities) }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if form.likelihoodToRecommendToFriend is defined %}
+
+            <div class="uk-margin">
+                <label>{{ form.likelihoodToRecommendToFriend.vars.label }}<span class="uk-text-danger">*</span></label>
+                {{ form_widget(form.likelihoodToRecommendToFriend, {'attr': {'class': '' ~ ( form_errors(form.likelihoodToRecommendToFriend) ? ' uk-form-danger' : '' ) }}) }}
+                <div class="react-form-range"
+                     data-name="feedbackInfo[likelihoodToRecommendToFriend]"
+                     data-value="{{ feedback.likelihoodToRecommendToFriend }}"
+                     data-disabled="{{ experienceHasFeedback }}"></div>
+                {{ form_errors(form.likelihoodToRecommendToFriend) }}
+            </div>
+        {% endif %}
+
+        {% if form.additionalFeedback is defined %}
+            <div class="uk-margin">
+                <label>{{ form.additionalFeedback.vars.label }}</label>
+                {{ form_widget(form.additionalFeedback, {'attr': {'class': 'uk-textarea' ~ ( form_errors(form.additionalFeedback) ? ' uk-form-danger' : '' ) }}) }}
+                {{ form_errors(form.additionalFeedback) }}
+            </div>
+        {% endif %}
+
+    </div>
+
+</fieldset>

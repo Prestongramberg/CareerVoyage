@@ -29,19 +29,19 @@ class BasicInfoStep extends Step implements DynamicStepInterface
     }
 
     public function getTemplate() {
-        return 'security/partials/_join_nscs_form.html.twig';
+        return 'feedback/v2/partials/_basic_info.html.twig';
     }
 
     public function getName() {
-        return 'join_nscs_step';
+        return 'basic_info_step';
     }
 
     public function getPageTitle() {
-        return 'Get Started';
+        return 'Basic Info';
     }
 
     public function getPageSlug() {
-        return 'get-started';
+        return 'basic-info';
     }
 
     public function onPostValidate() {

@@ -19,11 +19,9 @@
                 {{ form_errors(form.email) }}
             </div>
         </div>
-    </div>
 
-    <div class="uk-grid">
-        <div class="uk-width-1-1@m">
-            <label>Feedback Provider<span class="uk-text-danger">*</span></label>
+        <div class="uk-width-1-1@m uk-margin">
+            <label>Your Role<span class="uk-text-danger">*</span></label>
             <div>
                 {% for item in form.feedbackProvider.children %}
                     {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
@@ -32,6 +30,7 @@
                 {{ form_errors(form.feedbackProvider) }}
             </div>
         </div>
+
     </div>
 
 </fieldset>

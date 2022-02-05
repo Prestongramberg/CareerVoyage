@@ -229,6 +229,20 @@ class Feedback
      */
     protected $eventType;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $fullName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $email;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $awarenessCareerOpportunities = 0;
 
     public function getId(): ?int
     {
@@ -614,6 +628,42 @@ class Feedback
     public function setEventType(?string $eventType): self
     {
         $this->eventType = $eventType;
+
+        return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(?string $fullName): self
+    {
+        $this->fullName = $fullName;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getAwarenessCareerOpportunities(): ?int
+    {
+        return $this->awarenessCareerOpportunities;
+    }
+
+    public function setAwarenessCareerOpportunities(int $awarenessCareerOpportunities): self
+    {
+        $this->awarenessCareerOpportunities = $awarenessCareerOpportunities;
 
         return $this;
     }

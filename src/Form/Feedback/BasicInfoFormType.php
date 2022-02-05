@@ -40,67 +40,25 @@ class BasicInfoFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-/*        $experience = $options['experience'];
-        $type       = $options['type'];
-
-        if ($experience instanceof SchoolExperience) {
-            if ($type === 'educator') {
-            }
-
-            if ($type === 'student') {
-            }
-
-            if ($type === 'professional') {
-            }
-        }
-
-        if ($experience instanceof CompanyExperience) {
-            if ($type === 'educator') {
-            }
-
-            if ($type === 'student') {
-            }
-
-            if ($type === 'professional') {
-            }
-        }*/
-
-        $builder->add('email', TextType::class, [
-            'mapped' => false,
-        ])
+        $builder->add('email', TextType::class, [])
                 ->add('fullName', TextType::class, [
-                    'mapped' => false,
+                    'constraints' => [
+                        new NotNull(['message' => 'Please enter your name.']),
+                    ],
                 ])
                 ->add('feedbackProvider', ChoiceType::class, [
-                    'choices' => [
+                    'choices'     => [
                         'Educator'     => 'Educator',
                         'Student'      => 'Student',
                         'Professional' => 'Professional',
                     ],
-                    'multiple' => false,
-                    'expanded' => true
+                    'constraints' => [
+                        new NotNull(['message' => 'Please select your role.']),
+                    ],
+                    'multiple'    => false,
+                    'expanded'    => true,
                 ]);
-                /*->add('rating', HiddenType::class, ['error_bubbling' => false,])
-                ->add('providedCareerInsight', HiddenType::class, ['empty_data' => false])
-                ->add('wasEnjoyableAndEngaging', HiddenType::class, ['empty_data' => false])
-                ->add('learnSomethingNew', HiddenType::class, ["empty_data" => false])
-                ->add('likelihoodToRecommendToFriend', HiddenType::class, [])
-                ->add('additionalFeedback', TextareaType::class, [])
-                ->add('deleted', HiddenType::class, ["empty_data" => false]);*/
     }
-
-
-/*    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => Feedback::class,
-        ]);
-
-        $resolver->setRequired([
-            'experience',
-            'type',
-        ]);
-    }*/
 
     public function getBlockPrefix()
     {

@@ -4,6 +4,8 @@ namespace App\Form\Flow;
 
 use App\Cache\CacheKey;
 use App\Entity\Feedback;
+use App\Form\Step\Feedback\BasicInfoStep;
+use App\Form\Step\Feedback\FeedbackInfoStep;
 use Craue\FormFlowBundle\Event\GetStepsEvent;
 use Craue\FormFlowBundle\Form\FormFlow;
 use Craue\FormFlowBundle\Event\PostValidateEvent;
@@ -26,6 +28,7 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
 {
     protected $allowDynamicStepNavigation = true;
     protected $revalidatePreviousSteps = false;
+    protected $allowRedirectAfterSubmit = true;
 
     /**
      * @var SessionInterface
@@ -95,20 +98,12 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
 
         $steps = [];
 
-        if (!$signUp->hasQueryParameter('vid')) {
+     /*   if (!$signUp->hasQueryParameter('vid')) {
             $steps[] = JoinNSCSStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-        }
+        }*/
 
-        $steps[] = StudentDetailsStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-        $steps[] = ProductDetailsStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-        $steps[] = PaymentDetailsStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-        $steps[] = ConfirmationStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-
-        foreach ($steps as $step) {
-            if (!$step instanceof DynamicStepInterface) {
-                throw new DynamicStepConfigurationException('Form flow steps must implement: ' . DynamicStepInterface::class);
-            }
-        }
+        $steps[] = BasicInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+        $steps[] = FeedbackInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
 
         $this->lastStepNumber = count($steps);
 
