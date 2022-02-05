@@ -1,0 +1,30 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        Please Select Your School (Optional)
+    </legend>
+
+    <div class="uk-grid">
+        <div class="uk-width-1-2@m">
+
+            <div class="uk-margin">
+                {{ form_widget(form.userSchool, {'attr': {'data-route': route, 'class': 'js-school uk-select' ~ ( form_errors(form.userSchool) ? ' uk-form-danger' : '' ) }}) }}
+                {{ form_errors(form.userSchool) }}
+            </div>
+
+            <small class="uk-text-muted">If you don't see your school, please select the <strong>Other</strong> option
+                from the dropdown above.</small>
+
+        </div>
+
+        <div class="js-school-other-container uk-width-1-2@m">
+            {% if form.userSchoolOther is defined %}
+                <div class="uk-margin">
+                    {{ form_widget(form.userSchoolOther, {'attr': {'class': 'uk-input' }}) }}
+                    {{ form_errors(form.userSchoolOther) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</fieldset>

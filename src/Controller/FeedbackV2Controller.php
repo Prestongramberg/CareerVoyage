@@ -42,6 +42,7 @@ use Craue\FormFlowBundle\Util\FormFlowUtil;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -127,6 +128,9 @@ class FeedbackV2Controller extends AbstractController
             }
         }
 
+        $params = $formFlowUtil->addRouteParameters(array_merge($request->query->all(), $request->attributes->get('_route_params')), $flow);
+        $url    = $this->generateUrl($request->attributes->get('_route'), $params);
+
         if ($flow->redirectAfterSubmit($submittedForm)) {
             $params = $formFlowUtil->addRouteParameters(array_merge($request->query->all(), $request->attributes->get('_route_params')), $flow);
 
@@ -145,12 +149,29 @@ class FeedbackV2Controller extends AbstractController
                   $feedback = $form->getData();
               }*/
 
+        if ($request->request->has('changeableField')) {
+            return new JsonResponse(
+                [
+                    'success'    => false,
+                    'formMarkup' => $this->renderView("feedback/v2/new.html.twig", [
+                        'form'                  => $form->createView(),
+                        'flow'                  => $flow,
+                        'route'                 => $url,
+                        'feedback'              => $feedback,
+                        'experience'            => $experience,
+                        'experienceHasFeedback' => $experienceHasFeedback,
+                    ]),
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
+
         return $this->render("feedback/v2/new.html.twig", [
-            'form'       => $form->createView(),
-            'flow'       => $flow,
-            'feedback'   => $feedback,
-            'experience' => $experience,
-            'experienceHasFeedback' => $experienceHasFeedback
+            'form'                  => $form->createView(),
+            'flow'                  => $flow,
+            'route'                 => $url,
+            'feedback'              => $feedback,
+            'experience'            => $experience,
+            'experienceHasFeedback' => $experienceHasFeedback,
         ]);
     }
 

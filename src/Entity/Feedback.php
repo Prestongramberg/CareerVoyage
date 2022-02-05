@@ -244,6 +244,16 @@ class Feedback
      */
     protected $awarenessCareerOpportunities = 0;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=School::class)
+     */
+    private $userSchool;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $userSchoolOther;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -664,6 +674,30 @@ class Feedback
     public function setAwarenessCareerOpportunities(int $awarenessCareerOpportunities): self
     {
         $this->awarenessCareerOpportunities = $awarenessCareerOpportunities;
+
+        return $this;
+    }
+
+    public function getUserSchool(): ?School
+    {
+        return $this->userSchool;
+    }
+
+    public function setUserSchool(?School $userSchool): self
+    {
+        $this->userSchool = $userSchool;
+
+        return $this;
+    }
+
+    public function getUserSchoolOther(): ?string
+    {
+        return $this->userSchoolOther;
+    }
+
+    public function setUserSchoolOther(?string $userSchoolOther): self
+    {
+        $this->userSchoolOther = $userSchoolOther;
 
         return $this;
     }

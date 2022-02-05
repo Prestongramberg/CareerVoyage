@@ -6,6 +6,7 @@ use App\Cache\CacheKey;
 use App\Entity\Feedback;
 use App\Form\Step\Feedback\BasicInfoStep;
 use App\Form\Step\Feedback\FeedbackInfoStep;
+use App\Form\Step\Feedback\SchoolInfoStep;
 use Craue\FormFlowBundle\Event\GetStepsEvent;
 use Craue\FormFlowBundle\Form\FormFlow;
 use Craue\FormFlowBundle\Event\PostValidateEvent;
@@ -103,6 +104,7 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
         }*/
 
         $steps[] = BasicInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+        $steps[] = SchoolInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
         $steps[] = FeedbackInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
 
         $this->lastStepNumber = count($steps);

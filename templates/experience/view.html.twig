@@ -222,6 +222,8 @@
 
                 {% endif %}
 
+                <a class="uk-button uk-button-xl uk-button-primary uk-margin" href="{{ path('feedback_v2_new', {'experience_id': experience.id}) }}" target="_blank">Give Feedback</a>
+
                 <hr>
 
             </div>
@@ -303,6 +305,11 @@
             <hr class="uk-divider-icon uk-margin-large-top">
             {% include 'experience/partials/_eventMaterial.html.twig' %}
         {% endif %}
+
+
+        {#<hr class="uk-divider-icon uk-margin-large-top">
+        {% include 'experience/partials/_feedback.html.twig' %}#}
+
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

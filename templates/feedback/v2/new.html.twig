@@ -3,6 +3,11 @@
 {% block title %}Give Feedback{% endblock %}
 {% block bodyClass %}page-feedback{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/feedback.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 
     <div class="uk-container">
