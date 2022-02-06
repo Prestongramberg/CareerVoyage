@@ -5,6 +5,7 @@ namespace App\Form\Flow;
 use App\Cache\CacheKey;
 use App\Entity\Feedback;
 use App\Form\Step\Feedback\BasicInfoStep;
+use App\Form\Step\Feedback\CompanyInfoStep;
 use App\Form\Step\Feedback\FeedbackInfoStep;
 use App\Form\Step\Feedback\SchoolInfoStep;
 use Craue\FormFlowBundle\Event\GetStepsEvent;
@@ -27,8 +28,11 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class FeedbackFlow extends FormFlow implements EventSubscriberInterface
 {
+
     protected $allowDynamicStepNavigation = true;
+
     protected $revalidatePreviousSteps = false;
+
     protected $allowRedirectAfterSubmit = true;
 
     /**
@@ -52,12 +56,14 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
     private $lastStepNumber;
 
     /**
-     * @param SessionInterface       $session
-     * @param EntityManagerInterface $entityManager
-     * @param RequestStack           $requestStack
+     * @param  SessionInterface        $session
+     * @param  EntityManagerInterface  $entityManager
+     * @param  RequestStack            $requestStack
      */
-    public function __construct(SessionInterface $session, EntityManagerInterface $entityManager,
-                                RequestStack     $requestStack
+    public function __construct(
+        SessionInterface $session,
+        EntityManagerInterface $entityManager,
+        RequestStack $requestStack
     ) {
         $this->session       = $session;
         $this->entityManager = $entityManager;
@@ -80,13 +86,17 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
     {
         return [
             FormFlowEvents::POST_VALIDATE => 'onPostValidate',
-            FormFlowEvents::GET_STEPS => 'onGetSteps',
+            FormFlowEvents::GET_STEPS     => 'onGetSteps',
         ];
     }
 
     public function onGetSteps(GetStepsEvent $event)
     {
         $flow = $event->getFlow();
+        /** @var \Symfony\Component\HttpFoundation\Request $request */
+        $request          = $flow->getRequest();
+        $basicInfo        = $request->request->get('basicInfo', []);
+        $feedbackProvider = $basicInfo['feedbackProvider'] ?? null;
 
         if ($flow->getName() !== $this->getName()) {
             return;
@@ -99,12 +109,20 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
 
         $steps = [];
 
-     /*   if (!$signUp->hasQueryParameter('vid')) {
-            $steps[] = JoinNSCSStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-        }*/
+        /*   if (!$signUp->hasQueryParameter('vid')) {
+               $steps[] = JoinNSCSStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+           }*/
 
         $steps[] = BasicInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+
+        /*if (in_array($feedback->getFeedbackProvider(), ['Student', 'Educator'], true) || in_array($feedbackProvider, ['Student', 'Educator'], true)) {
+            $steps[] = SchoolInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+        }*/
+
         $steps[] = SchoolInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+
+        $steps[] = CompanyInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+
         $steps[] = FeedbackInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
 
         $this->lastStepNumber = count($steps);
@@ -118,7 +136,7 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
     /**
      * Only runs when the form is valid.
      *
-     * @param PostValidateEvent $event
+     * @param  PostValidateEvent  $event
      *
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface
@@ -148,4 +166,5 @@ class FeedbackFlow extends FormFlow implements EventSubscriberInterface
     {
         return 'feedback';
     }
+
 }

@@ -3,28 +3,33 @@
 namespace App\Form\Step\Feedback;
 
 use App\Form\Feedback\BasicInfoFormType;
+use App\Form\Feedback\CompanyInfoFormType;
+use App\Form\Feedback\FeedbackInfoFormType;
+use App\Form\Feedback\SchoolInfoFormType;
 use App\Form\Step\DynamicStepInterface;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 use Craue\FormFlowBundle\Form\Step;
 use Symfony\Component\HttpFoundation\Request;
 
-class BasicInfoStep extends Step implements DynamicStepInterface
+class CompanyInfoStep extends Step implements DynamicStepInterface
 {
 
     public static function create(Request $request, $step) {
 
         $config = [
-            'label' => 'Basic Info',
-            'form_type' => BasicInfoFormType::class,
+            'label' => 'Company Info',
+            'form_type' => CompanyInfoFormType::class,
             'skip' => function ($estimatedCurrentStepNumber, FormFlowInterface $flow) use($step, $request) {
+                /** @var \App\Entity\Feedback $feedback */
+                $feedback = $flow->getFormData();
 
                 $flowTransition = $request->request->get('flow_feedback_transition', null);
 
-                if ($estimatedCurrentStepNumber === 2 && $flowTransition === 'back') {
+                if($estimatedCurrentStepNumber === 2 && $feedback->getFeedbackProvider() === 'Professional') {
                     return false;
                 }
 
-                return !($estimatedCurrentStepNumber === $step);
+                return !($estimatedCurrentStepNumber === $step && $feedback->getFeedbackProvider() === 'Professional');
             },
             'form_options' => [
                 'validation_groups' => $request->request->has('changeableField') ? [] : ['Default'],
@@ -35,19 +40,19 @@ class BasicInfoStep extends Step implements DynamicStepInterface
     }
 
     public function getTemplate() {
-        return 'feedback/v2/partials/_basic_info.html.twig';
+        return 'feedback/v2/partials/_company_info.html.twig';
     }
 
     public function getName() {
-        return 'basic_info_step';
+        return 'company_info_step';
     }
 
     public function getPageTitle() {
-        return 'Basic Info';
+        return 'Company Info';
     }
 
     public function getPageSlug() {
-        return 'basic-info';
+        return 'company-info';
     }
 
     public function onPostValidate() {

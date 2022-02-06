@@ -254,6 +254,16 @@ class Feedback
      */
     private $userSchoolOther;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Company::class)
+     */
+    private $userCompany;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $userCompanyOther;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -698,6 +708,30 @@ class Feedback
     public function setUserSchoolOther(?string $userSchoolOther): self
     {
         $this->userSchoolOther = $userSchoolOther;
+
+        return $this;
+    }
+
+    public function getUserCompany(): ?Company
+    {
+        return $this->userCompany;
+    }
+
+    public function setUserCompany(?Company $userCompany): self
+    {
+        $this->userCompany = $userCompany;
+
+        return $this;
+    }
+
+    public function getUserCompanyOther(): ?string
+    {
+        return $this->userCompanyOther;
+    }
+
+    public function setUserCompanyOther(?string $userCompanyOther): self
+    {
+        $this->userCompanyOther = $userCompanyOther;
 
         return $this;
     }
