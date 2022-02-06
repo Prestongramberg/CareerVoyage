@@ -115,13 +115,17 @@ class FeedbackGenerator implements \Iterator
             $possibleStudentRegistrations = [];
 
             // if the event hasn't happened yet then skip it
-            if($experience->getStartDateAndTime() > new \DateTime()) {
+            /*if($experience->getStartDateAndTime() > new \DateTime()) {
                 return false;
+            }*/
+
+            // todo remove this at some point. Possibly remove this whole function
+            if($this->userContext->isSchoolAdministrator()) {
+                return true;
             }
 
-            if($this->userContext->isSchoolAdministrator()) {
+ /*           if($this->userContext->isSchoolAdministrator()) {
 
-                /** @var SchoolAdministrator $schoolAdmin */
                 $schoolAdmin = $this->userContext;
 
                 foreach($schoolAdmin->getSchools() as $school) {
@@ -130,7 +134,7 @@ class FeedbackGenerator implements \Iterator
                         $possibleStudentRegistrations[] = $studentUser->getId();
                     }
                 }
-            }
+            }*/
 
             if($this->userContext->isEducator()) {
 
@@ -153,7 +157,7 @@ class FeedbackGenerator implements \Iterator
                 }
             }
 
-            foreach($experience->getRegistrations() as $registration) {
+        /*    foreach($experience->getRegistrations() as $registration) {
 
                 if(!$registration->getUser()) {
                     continue;
@@ -167,7 +171,7 @@ class FeedbackGenerator implements \Iterator
                 if($registration->getUser()->getId() === $this->userContext->getId()) {
                     return true;
                 }
-            }
+            }*/
 
             return false;
         });
@@ -175,11 +179,12 @@ class FeedbackGenerator implements \Iterator
         $this->experiences = $experiences->filter(function(Experience $experience) {
 
             if($this->userContext->isSchoolAdministrator()) {
-                return (
+                return true;
+                /*return (
                     $experience instanceof StudentToMeetProfessionalExperience ||
                     $experience instanceof TeachLessonExperience ||
                     $experience instanceof SchoolExperience
-                );
+                );*/
             }
 
             if($this->userContext->isEducator()) {
@@ -226,17 +231,6 @@ class FeedbackGenerator implements \Iterator
         $possibleStudentRegistrations = [];
         foreach($experiences as $experience) {
 
-            if($this->userContext->isSchoolAdministrator()) {
-
-                /** @var SchoolAdministrator $schoolAdmin */
-                $schoolAdmin = $this->userContext;
-
-                foreach($schoolAdmin->getSchools() as $school) {
-                    foreach($school->getStudentUsers() as $studentUser) {
-                        $possibleStudentRegistrations[] = $studentUser->getId();
-                    }
-                }
-            }
 
             if($this->userContext->isEducator()) {
 
@@ -251,16 +245,21 @@ class FeedbackGenerator implements \Iterator
             $filteredFeedback = $experience->getFeedback()->filter(function(Feedback $feedback) use($possibleStudentRegistrations) {
 
                 // some of the legacy code still has direct feedback classes attached to events which we aren't using here
-                if(get_class($feedback) === Feedback::class) {
+                /*if(get_class($feedback) === Feedback::class) {
                     return false;
-                }
+                }*/
 
                 if($feedback->getDeleted()) {
                     return false;
                 }
 
-                if(!$feedback->getUser()) {
+                // TODO THIS NEEDS TO BE REMOVED AS SOME FEEDBACK WILL BE ANONYMOUS NOW.
+            /*    if(!$feedback->getUser()) {
                     return false;
+                }*/
+
+                if($this->userContext->isSchoolAdministrator()) {
+                    return true;
                 }
 
                 if($this->userContext->isStudent()) {
@@ -285,10 +284,6 @@ class FeedbackGenerator implements \Iterator
                 }
 
                 if($feedback->getUser()->getId() === $this->userContext->getId()) {
-                    return true;
-                }
-
-                if(in_array($feedback->getUser()->getId(), $possibleStudentRegistrations, true)) {
                     return true;
                 }
 

@@ -1,14 +1,26 @@
 <tbody>
 {% for feedback in feedbacks %}
     <tr>
-        <td class="uk-text-nowrap">{{ feedback.user.friendlyRoleName  }}</td>
+
+        {% if feedback.user is not null %}
+            <td class="uk-text-nowrap">{{ feedback.user.friendlyRoleName }}</td>
+        {% elseif feedback.feedbackProvider %}
+            <td class="uk-text-nowrap">{{ feedback.feedbackProvider }}</td>
+        {% endif %}
+
         <td class="uk-text-nowrap">{{ feedback.rating }}</td>
         <td class="uk-text-nowrap">{{ feedback.providedCareerInsight == 1 ? "YES" : "NO" }}</td>
         <td class="uk-text-nowrap">{{ feedback.wasEnjoyableAndEngaging == 1 ? "YES" : "NO" }}</td>
         <td class="uk-text-nowrap">{{ feedback.learnSomethingNew == 1 ? "YES" : "NO" }}</td>
         <td class="uk-text-nowrap">{{ feedback.likelihoodToRecommendToFriend }}</td>
         <td>{{ feedback.additionalFeedback }}</td>
-        <td>{{ feedback.user.fullName }}</td>
+
+        {% if feedback.user is not null %}
+            <td class="uk-text-nowrap">{{ feedback.user.fullName }}</td>
+        {% elseif feedback.fullName %}
+            <td class="uk-text-nowrap">{{ feedback.fullName }}</td>
+        {% endif %}
+
     </tr>
 {% else %}
     <tr>
