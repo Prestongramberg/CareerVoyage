@@ -15,11 +15,13 @@ use App\Entity\User;
 use App\Repository\SiteRepository;
 use App\Service\NotificationPreferencesManager;
 use App\Util\FormHelper;
+use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -73,7 +75,7 @@ class SiteAdminProfileFormType extends AbstractType
                 'block_prefix' => 'wrapped_text',
             ])
             ->add('lastName', TextType::class)
-            ->add('email')
+            ->add('email', EmailType::class, [])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
             ])

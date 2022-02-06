@@ -9,11 +9,13 @@ use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
+use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -34,6 +36,9 @@ class AdminProfileFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
+        /** @var User $loggedInUser */
+        $loggedInUser = $options['user'];
+
         $imageConstraints = [
             new Image([
                 'maxSize' => '5M'
@@ -45,7 +50,7 @@ class AdminProfileFormType extends AbstractType
                 'block_prefix' => 'wrapped_text',
             ])
             ->add('lastName', TextType::class)
-            ->add('email')
+            ->add('email', EmailType::class, [])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password'
             ]);
@@ -56,6 +61,10 @@ class AdminProfileFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => AdminUser::class,
             'validation_groups' => ['EDIT']
+        ]);
+
+        $resolver->setRequired([
+            'user',
         ]);
 
     }

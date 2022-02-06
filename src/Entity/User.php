@@ -24,8 +24,8 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  * @ORM\HasLifecycleCallbacks()
  *
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT"})
- * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT"})
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email", groups={"CREATE", "EDIT", "PROFESSIONAL_PROFILE_ACCOUNT", "EDUCATOR_PROFILE_ACCOUNT", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "STUDENT_USER"}, entityClass="App\Entity\User")
+ * @UniqueEntity(fields={"username"}, message="There is already an account with this username", groups={"CREATE", "EDIT", "PROFESSIONAL_PROFILE_ACCOUNT", "EDUCATOR_PROFILE_ACCOUNT", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "STUDENT_USER"}, entityClass="App\Entity\User")
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
@@ -68,7 +68,7 @@ abstract class User implements UserInterface
      * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EDUCATOR_USER_DATA"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email",
-     *     groups={"CREATE", "EDIT", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_ACCOUNT"}
+     *     groups={"STUDENT_USER", "STATE_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_ACCOUNT", "EDUCATOR_PROFILE_ACCOUNT"}
      * )
      * @Assert\NotBlank(message="Don't forget an email", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "EDUCATOR_USER", "PROFESSIONAL_PROFILE_ACCOUNT", "EDUCATOR_PROFILE_ACCOUNT"})
      * @ORM\Column(type="string", length=180, unique=true, nullable=true)

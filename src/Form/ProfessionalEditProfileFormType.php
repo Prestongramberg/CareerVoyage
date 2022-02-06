@@ -14,11 +14,13 @@ use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Service\Geocoder;
 use App\Util\FormHelper;
+use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -103,7 +105,7 @@ class ProfessionalEditProfileFormType extends AbstractType
                 'block_prefix' => 'wrapped_text',
             ])
             ->add('lastName', TextType::class)
-            ->add('email')
+            ->add('email', EmailType::class, [])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password',
             ])
@@ -460,7 +462,7 @@ class ProfessionalEditProfileFormType extends AbstractType
         if (!empty($addressSearch) && !empty($radiusSearch)) {
 
             if ($coordinates = $this->geocoder->geocode($addressSearch)) {
-                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($coordinates['lat'], $coordinates['lng'], $radiusSearch);
+                [$latN, $latS, $lonE, $lonW] = $this->geocoder->calculateSearchSquare($coordinates['lat'], $coordinates['lng'], $radiusSearch);
                 $schools = $this->schoolRepository->findByRadius($latN, $latS, $lonE, $lonW, $coordinates['lat'], $coordinates['lng']);
 
                 $schoolIds = [];
